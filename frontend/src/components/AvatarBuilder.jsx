@@ -6,6 +6,7 @@ import AvatarSVG, {
   EYE_COLORS,
   AURA_COLORS,
 } from "./AvatarSVG";
+import NarratorVoice from "./NarratorVoice";
 
 /**
  * AvatarBuilder — Kreator awatara w Dolinie Selfie.
@@ -169,9 +170,19 @@ export default function AvatarBuilder({ onComplete, playerName }) {
     if (step > 0) setStep(step - 1);
   };
 
+  // Tekst do TTS (bez cudzysłowów i znaków specjalnych)
+  const ttsNarrations = [
+    `${playerName}, pokaż mi swoją twarz! Zacznijmy od odcienia skóry.`,
+    `Pięknie! A teraz, jaka fryzura najlepiej Cię opisuje?`,
+    `Oho! Teraz kolory. Jaki kolor mają Twoje włosy w magicznym świecie?`,
+    `Widzę! A Twoje oczy, jakiego są koloru? To ważne, bo oczy to okna duszy!`,
+    `Ostatni krok! Wybierz kolor swojej aury. Aura to niewidzialna energia, która Cię otacza. Jaka jest Twoja?`,
+  ];
+
   return (
     <div style={builderStyles.wrapper}>
-      {/* Narracja */}
+      {/* Narracja z głosem */}
+      <NarratorVoice text={ttsNarrations[step]} land="dolina_selfie" />
       <p style={builderStyles.narration}>{narrations[step]}</p>
 
       {/* Podgląd awatara */}

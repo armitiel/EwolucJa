@@ -2,6 +2,7 @@ import React, { useState, useCallback } from "react";
 import AvatarBuilder from "./components/AvatarBuilder";
 import AvatarDisplay from "./components/AvatarDisplay";
 import NarratorVoice from "./components/NarratorVoice";
+import { ttsPlayer } from "./services/ttsPlayer";
 import { TASK_EQUIPMENT_MAP, EQUIPMENT_DEFS } from "./components/AvatarSVG";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -235,10 +236,15 @@ function applyPoints(scores, points) {
 
 function ChoiceScreen({ narration, choices, onChoice, landColor, landName, land }) {
   const [hovered, setHovered] = useState(null);
+
+  // Buduj pełny tekst TTS: narracja + opcje wyboru
+  const choicesText = choices.map((c) => c.label).join(". ");
+  const fullTTS = `${narration}. Spójrz, masz do wyboru: ${choicesText}.`;
+
   return (
     <div>
       <span style={styles.landBadge(landColor)}>{landName}</span>
-      <NarratorVoice text={narration} land={land} />
+      <NarratorVoice text={fullTTS} land={land} />
       <div style={styles.narration}>{narration}</div>
       {choices.map((c) => (
         <button
@@ -249,7 +255,7 @@ function ChoiceScreen({ narration, choices, onChoice, landColor, landName, land 
           }}
           onMouseEnter={() => setHovered(c.id)}
           onMouseLeave={() => setHovered(null)}
-          onClick={() => onChoice(c.id)}
+          onClick={() => { ttsPlayer.unlock(); onChoice(c.id); }}
         >
           {c.icon && <span style={{ marginRight: 8 }}>{c.icon}</span>}
           {c.label}
@@ -285,7 +291,7 @@ function TimerScreen({ onWait, onClick, landColor, landName, land }) {
   return (
     <div>
       <span style={styles.landBadge(landColor)}>{landName}</span>
-      <NarratorVoice text="Oto Skarbiec Czasu. Jeśli otworzysz skrzynię teraz, dostaniesz 1 złoty kryształ. Ale jeśli nie dotkniesz ekranu przez 30 sekund, skrzynia zamieni się w diamentową i da Ci aż 5 kryształów!" land={land} />
+      <NarratorVoice text="Oto Skarbiec Czasu. Jeśli otworzysz skrzynię teraz, dostaniesz jeden złoty kryształ. Ale jeśli nie dotkniesz ekranu przez trzydzieści sekund, skrzynia zamieni się w diamentową i da Ci aż pięć kryształów! Co wybierasz? Otwierasz teraz, czy czekasz cierpliwie?" land={land} />
       <div style={styles.narration}>
         Strażnik mówi: „Oto Skarbiec Czasu. Jeśli otworzysz skrzynię teraz, dostaniesz 1 złoty kryształ.
         Ale jeśli NIE dotkniesz ekranu przez 30 sekund... skrzynia zamieni się w diamentową
@@ -345,7 +351,7 @@ function EmotionMatchScreen({ onComplete, landColor, landName, land }) {
   return (
     <div>
       <span style={styles.landBadge(landColor)}>{landName}</span>
-      <NarratorVoice text="Strażnik pokazuje Ci trzy magiczne kryształy z twarzami. To nie proste emocje, to uczucia złożone! Dopasuj nazwę do każdej miny." land={land} />
+      <NarratorVoice text="Strażnik pokazuje Ci trzy magiczne kryształy z twarzami. To nie proste emocje, to uczucia złożone! Dopasuj nazwę do każdej miny. Masz do wyboru trzy uczucia: frustracja, zakłopotanie i duma. Przypisz każde do odpowiedniej twarzy!" land={land} />
       <div style={styles.narration}>
         Strażnik pokazuje Ci trzy magiczne kryształy z twarzami. To nie proste emocje —
         to uczucia złożone! Dopasuj nazwę do każdej miny.
@@ -404,7 +410,7 @@ function CreativityScreen({ onSubmit, landColor, landName, land }) {
   return (
     <div>
       <span style={styles.landBadge(landColor)}>{landName}</span>
-      <NarratorVoice text="Droga się urywa, przed Tobą przepaść! W starym pudełku znajdziesz trzy przedmioty: parasol, pustą puszkę i rolkę sznurka. Jak ich użyjesz, żeby się dostać na drugą stronę?" land={land} />
+      <NarratorVoice text="Droga się urywa, przed Tobą przepaść! W starym pudełku znajdziesz trzy przedmioty: parasol, pustą puszkę i rolkę sznurka. Jak ich użyjesz, żeby się dostać na drugą stronę? Możesz wpisać swój własny pomysł, albo wybrać jeden z gotowych: Zbuduję most ze sznurka. Użyję parasola jako spadochronu i przelecę. Puszka będzie kołem, sznurek osią, a parasol żaglem. Zrobię tyrolkę ze sznurka i zjadę na parasolu." land={land} />
       <div style={styles.narration}>
         Droga się urywa — przed Tobą przepaść! W starym pudełku znajdziesz trzy przedmioty:
         parasol, pustą puszkę i rolkę sznurka. Jak ich użyjesz, żeby się dostać na drugą stronę?
@@ -456,10 +462,13 @@ function FinalScreen({ scores, playerName, avatarConfig, equipment }) {
   const lowest = sorted[sorted.length - 1];
   const lowestLabel = PROFILE_LABELS[lowest[0]];
 
+  const finalNarration = `Brawo, ${playerName}! Przeszedłeś wszystkie krainy i Twoje prawdziwe supermoce się ujawniły! Jesteś ${title}! To znaczy, że łączysz w sobie niezwykłe talenty ${PROFILE_LABELS[sorted[0][0]].name} i ${PROFILE_LABELS[sorted[1][0]].name}!`;
+
   return (
     <div>
       <div style={{ textAlign: "center", fontSize: "48px", marginBottom: "8px" }}>🏔️</div>
       <div style={styles.finalTitle}>{title}</div>
+      <NarratorVoice text={finalNarration} land="gora_podsumowania" />
 
       {/* Awatar z pełnym ekwipunkiem */}
       {avatarConfig && (
@@ -651,6 +660,7 @@ export default function App() {
             <p style={styles.subtitle}>Odkryj swoje supermoce!</p>
           </div>
           <div style={styles.card}>
+            <NarratorVoice text="Witaj w magicznym świecie Ewolucji! Czekają na Ciebie krainy pełne wyzwań, które pomogą Ci odkryć, jakim bohaterem jesteś. Wpisz swoje imię, aby rozpocząć przygodę!" land="dolina_selfie" />
             <p style={{ margin: "0 0 16px", fontSize: "15px" }}>
               Witaj w magicznym świecie Ewolucji! Czekają na Ciebie krainy pełne wyzwań,
               które pomogą Ci odkryć, jakim bohaterem jesteś.
@@ -671,7 +681,7 @@ export default function App() {
                   fontSize: "18px",
                   fontWeight: "600",
                 }}
-                onClick={() => setPhase("playing")}
+                onClick={() => { ttsPlayer.unlock(); setPhase("playing"); }}
               >
                 Wyruszam w przygodę!
               </button>
