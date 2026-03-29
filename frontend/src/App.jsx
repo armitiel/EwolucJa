@@ -1,8 +1,12 @@
 import React, { useState, useCallback } from "react";
+import AvatarBuilder from "./components/AvatarBuilder";
+import AvatarDisplay from "./components/AvatarDisplay";
+import { TASK_EQUIPMENT_MAP, EQUIPMENT_DEFS } from "./components/AvatarSVG";
 
 /* ════════════════════════════════════════════════════════════════════════
    EWOLUCJA — Prototyp PWA (Single-file React App)
    Gra fabularna wspierająca rozwój kompetencji miękkich (6-12 lat)
+   + System awatara i ekwipunku (Claymorphism / Pixar)
    ════════════════════════════════════════════════════════════════════════ */
 
 // ── Dane gry ──────────────────────────────────────────────────────────
@@ -440,7 +444,7 @@ function ScoreDisplay({ scores }) {
   );
 }
 
-function FinalScreen({ scores, playerName }) {
+function FinalScreen({ scores, playerName, avatarConfig, equipment }) {
   const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
   const topTwo = [sorted[0][0], sorted[1][0]].sort().join("_");
   const title = HYBRID_TITLES[topTwo] || "Bohater Nieznanych Krain";
@@ -451,6 +455,19 @@ function FinalScreen({ scores, playerName }) {
     <div>
       <div style={{ textAlign: "center", fontSize: "48px", marginBottom: "8px" }}>🏔️</div>
       <div style={styles.finalTitle}>{title}</div>
+
+      {/* Awatar z pełnym ekwipunkiem */}
+      {avatarConfig && (
+        <div style={{ marginBottom: "20px" }}>
+          <AvatarDisplay
+            avatarConfig={avatarConfig}
+            equipment={equipment}
+            playerName={playerName}
+            compact={false}
+          />
+        </div>
+      )}
+
       <div style={styles.narration}>
         Brawo, {playerName}! Przeszedłeś wszystkie krainy i Twoje prawdziwe supermoce się ujawniły!
         Jesteś <strong style={{ color: "#ffd54f" }}>{title}</strong> — to znaczy,
@@ -467,6 +484,33 @@ function FinalScreen({ scores, playerName }) {
           {lowestLabel.name} — to Twoja ukryta supermoc, która czeka na odkrycie!
         </p>
       </div>
+      {/* Lista zdobytego ekwipunku */}
+      {equipment.length > 0 && (
+        <div style={{ ...styles.card, background: "rgba(255,255,255,0.04)" }}>
+          <h3 style={{ margin: "0 0 12px", fontSize: "16px" }}>Zdobyty ekwipunek:</h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            {equipment.map((id) => {
+              const item = EQUIPMENT_DEFS[id];
+              if (!item) return null;
+              return (
+                <div key={id} style={{
+                  display: "flex", alignItems: "center", gap: "10px",
+                  padding: "8px 12px", borderRadius: "10px",
+                  background: "rgba(255,255,255,0.04)",
+                }}>
+                  <span style={{ fontSize: "22px" }}>{item.emoji}</span>
+                  <div>
+                    <div style={{ fontSize: "14px", fontWeight: "600" }}>{item.name}</div>
+                    <div style={{ fontSize: "11px", color: "#889" }}>
+                      {PROFILE_LABELS[item.profile]?.icon} {PROFILE_LABELS[item.profile]?.name}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -474,6 +518,7 @@ function FinalScreen({ scores, playerName }) {
 // ── Główna aplikacja ──────────────────────────────────────────────────
 
 const GAME_STEPS = [
+  { land: "dolina_selfie", task: 0, type: "avatar_builder" },  // NOWE: kreator awatara
   { land: "dolina_selfie", task: 1, type: "choice" },
   { land: "las_decyzji", task: 2, type: "choice" },
   { land: "las_decyzji", task: 3, type: "choice" },
@@ -489,7 +534,7 @@ const GAME_STEPS = [
 const TASK_DATA = {
   1: {
     narration:
-      "Witaj, podróżniku! Stanąłeś przed Zwierciadłem Prawdy — magicznym lustrem, które widzi, kim naprawdę jesteś. Wybierz swój element startowy — to pierwszy krok Twojej przygody!",
+      'Wspaniale! Twój awatar jest gotowy. Teraz Zwierciadło Prawdy mówi: „Wybierz swój element startowy — to pierwszy krok Twojej przygody!"',
     choices: [
       { id: "A", icon: "🔍", label: "Lupa Odkrywcy — chcę patrzeć z bliska na wszystko" },
       { id: "B", icon: "🛡️", label: "Tarcza Odwagi — chcę chronić siebie i innych" },
@@ -499,7 +544,7 @@ const TASK_DATA = {
   },
   2: {
     narration:
-      "Szlak prowadzi przez gęsty las. Ścieżka się rozdziela — prosta droga wiedzie do Zamku. Po prawej widzisz zarośniętą ścieżkę z tabliczką: „Tędy do niczego nie dojdziesz". Co robisz?",
+      'Szlak prowadzi przez gęsty las. Ścieżka się rozdziela \u2014 prosta droga wiedzie do Zamku. Po prawej widzisz zarośniętą ścieżkę z tabliczką: \u201eTędy do niczego nie dojdziesz\u201D. Co robisz?',
     choices: [
       { id: "A", icon: "🏰", label: "Idę prosto do celu — Zamek czeka!" },
       { id: "B", icon: "🌿", label: "Sprawdzam zarośniętą ścieżkę — tabliczka mnie nie powstrzyma!" },
@@ -525,7 +570,7 @@ const TASK_DATA = {
   },
   8: {
     narration:
-      "W przystani dwa stworzenia kłócą się przy mapie. Krabor krzyczy: „Na PÓŁNOC!" Żółwinka płacze: „Na POŁUDNIE, tam bezpieczniej..." Obydwoje patrzą na Ciebie. Co robisz?",
+      'W przystani dwa stworzenia kłócą się przy mapie. Krabor krzyczy: \u201eNa PÓŁNOC!\u201D Żółwinka płacze: \u201eNa POŁUDNIE, tam bezpieczniej...\u201D Obydwoje patrzą na Ciebie. Co robisz?',
     choices: [
       { id: "A", icon: "📢", label: "CISZA! Ja tu decyduję!" },
       { id: "B", icon: "🗳️", label: "Głosujmy! Każdy powie, czego chce." },
@@ -549,6 +594,11 @@ export default function App() {
   const [stepIndex, setStepIndex] = useState(0);
   const [scores, setScores] = useState({ EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 });
 
+  // ── Nowy stan awatara ──
+  const [avatarConfig, setAvatarConfig] = useState(null);
+  const [equipment, setEquipment] = useState([]);
+  const [newItem, setNewItem] = useState(null);
+
   const currentStep = GAME_STEPS[stepIndex];
 
   const advance = useCallback(() => {
@@ -559,15 +609,30 @@ export default function App() {
     }
   }, [stepIndex]);
 
+  // Dodawanie ekwipunku na podstawie wyboru
+  const addEquipment = useCallback((taskId, choiceId) => {
+    const key = `${taskId}_${choiceId}`;
+    const itemId = TASK_EQUIPMENT_MAP[key];
+    if (itemId && !equipment.includes(itemId)) {
+      setEquipment((prev) => [...prev, itemId]);
+      setNewItem(itemId);
+    }
+  }, [equipment]);
+
   const handleChoice = useCallback(
     (taskId, choiceId) => {
       const key = `${taskId}_${choiceId}`;
       const pts = SCORING[key] || {};
       setScores((prev) => applyPoints(prev, pts));
+      addEquipment(taskId, choiceId);
       advance();
     },
-    [advance]
+    [advance, addEquipment]
   );
+
+  const dismissNewItem = useCallback(() => {
+    setNewItem(null);
+  }, []);
 
   // ── Ekran startowy ────────────────────────────────────────────────
 
@@ -626,57 +691,112 @@ export default function App() {
           <p style={styles.subtitle}>{playerName} — Podróż trwa...</p>
         </div>
 
-        {/* Pasek postępu */}
-        <div style={styles.progressBar}>
-          {GAME_STEPS.map((_, i) => (
-            <div key={i} style={styles.progressDot(i === stepIndex, i < stepIndex)} />
-          ))}
-        </div>
+        {/* Kompaktowy awatar (widoczny po stworzeniu) */}
+        {avatarConfig && currentStep?.type !== "avatar_builder" && currentStep?.type !== "final" && !newItem && (
+          <AvatarDisplay
+            avatarConfig={avatarConfig}
+            equipment={equipment}
+            playerName={playerName}
+            compact={true}
+          />
+        )}
 
-        <div style={styles.card}>
-          {phase === "done" || currentStep?.type === "final" ? (
-            <FinalScreen scores={scores} playerName={playerName} />
-          ) : currentStep?.type === "choice" ? (
-            <ChoiceScreen
-              narration={TASK_DATA[currentStep.task]?.narration}
-              choices={TASK_DATA[currentStep.task]?.choices || []}
-              onChoice={(id) => handleChoice(currentStep.task, id)}
-              landColor={landColor}
-              landName={landName}
+        {/* Powiadomienie o nowym przedmiocie */}
+        {newItem && avatarConfig && (
+          <div style={{ ...styles.card, padding: "16px" }}>
+            <AvatarDisplay
+              avatarConfig={avatarConfig}
+              equipment={equipment}
+              playerName={playerName}
+              newItem={newItem}
+              onNewItemDismiss={dismissNewItem}
             />
-          ) : currentStep?.type === "timer" ? (
-            <TimerScreen
-              onWait={() => {
-                setScores((s) => applyPoints(s, { ST: 3 }));
-                setTimeout(advance, 2000);
-              }}
-              onClick={(elapsed) => {
-                setScores((s) => applyPoints(s, { LD: 1 }));
-                setTimeout(advance, 2000);
-              }}
-              landColor={landColor}
-              landName={landName}
-            />
-          ) : currentStep?.type === "emotion_match" ? (
-            <EmotionMatchScreen
-              onComplete={(correct) => {
-                setScores((s) => applyPoints(s, { EM: correct, DT: correct }));
-                advance();
-              }}
-              landColor={landColor}
-              landName={landName}
-            />
-          ) : currentStep?.type === "creativity" ? (
-            <CreativityScreen
-              onSubmit={(text, score) => {
-                setScores((s) => applyPoints(s, { KR: score }));
-                advance();
-              }}
-              landColor={landColor}
-              landName={landName}
-            />
-          ) : null}
-        </div>
+          </div>
+        )}
+
+        {/* Pasek postępu */}
+        {!newItem && (
+          <div style={styles.progressBar}>
+            {GAME_STEPS.map((_, i) => (
+              <div key={i} style={styles.progressDot(i === stepIndex, i < stepIndex)} />
+            ))}
+          </div>
+        )}
+
+        {!newItem && (
+          <div style={styles.card}>
+            {/* NOWY: Kreator awatara */}
+            {currentStep?.type === "avatar_builder" ? (
+              <AvatarBuilder
+                playerName={playerName}
+                onComplete={(config) => {
+                  setAvatarConfig(config);
+                  advance();
+                }}
+              />
+            ) : phase === "done" || currentStep?.type === "final" ? (
+              <FinalScreen
+                scores={scores}
+                playerName={playerName}
+                avatarConfig={avatarConfig}
+                equipment={equipment}
+              />
+            ) : currentStep?.type === "choice" ? (
+              <ChoiceScreen
+                narration={TASK_DATA[currentStep.task]?.narration}
+                choices={TASK_DATA[currentStep.task]?.choices || []}
+                onChoice={(id) => handleChoice(currentStep.task, id)}
+                landColor={landColor}
+                landName={landName}
+              />
+            ) : currentStep?.type === "timer" ? (
+              <TimerScreen
+                onWait={() => {
+                  setScores((s) => applyPoints(s, { ST: 3 }));
+                  addEquipment(4, "WAIT");
+                  setTimeout(advance, 2000);
+                }}
+                onClick={(elapsed) => {
+                  setScores((s) => applyPoints(s, { LD: 1 }));
+                  addEquipment(4, "CLICK");
+                  setTimeout(advance, 2000);
+                }}
+                landColor={landColor}
+                landName={landName}
+              />
+            ) : currentStep?.type === "emotion_match" ? (
+              <EmotionMatchScreen
+                onComplete={(correct) => {
+                  setScores((s) => applyPoints(s, { EM: correct, DT: correct }));
+                  // Nagroda za emocje: inventor_goggles jeśli 2+ trafienia
+                  if (correct >= 2) {
+                    setEquipment((prev) =>
+                      prev.includes("inventor_goggles") ? prev : [...prev, "inventor_goggles"]
+                    );
+                    setNewItem("inventor_goggles");
+                  }
+                  advance();
+                }}
+                landColor={landColor}
+                landName={landName}
+              />
+            ) : currentStep?.type === "creativity" ? (
+              <CreativityScreen
+                onSubmit={(text, score) => {
+                  setScores((s) => applyPoints(s, { KR: score }));
+                  // Nagroda za kreatywność: star_boots jeśli wysoki wynik
+                  if (score >= 3 && !equipment.includes("star_boots")) {
+                    setEquipment((prev) => [...prev, "star_boots"]);
+                    setNewItem("star_boots");
+                  }
+                  advance();
+                }}
+                landColor={landColor}
+                landName={landName}
+              />
+            ) : null}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,0 +1,10 @@
+{
+  "name": "ewolucja",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "studio": "start \"Backend\" cmd /c \"cd backend && npm run dev\" && start \"Frontend\" cmd /c \"cd frontend && npm run dev\"",
+    "backend": "npm run dev --prefix backend",
+    "frontend": "npm run dev --prefix frontend"
+  }
+}

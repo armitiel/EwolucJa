@@ -5,7 +5,13 @@
       "Bash(git remote:*)",
       "Bash(git status:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(npm install:*)",
+      "Bash(npx concurrently:*)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //PID 18504 //F)"
     ]
   }
 }
