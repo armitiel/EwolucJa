@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from "react";
 import AvatarBuilder from "./components/AvatarBuilder";
 import AvatarDisplay from "./components/AvatarDisplay";
+import NarratorVoice from "./components/NarratorVoice";
 import { TASK_EQUIPMENT_MAP, EQUIPMENT_DEFS } from "./components/AvatarSVG";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -232,11 +233,12 @@ function applyPoints(scores, points) {
 
 // ── Komponenty krain ──────────────────────────────────────────────────
 
-function ChoiceScreen({ narration, choices, onChoice, landColor, landName }) {
+function ChoiceScreen({ narration, choices, onChoice, landColor, landName, land }) {
   const [hovered, setHovered] = useState(null);
   return (
     <div>
       <span style={styles.landBadge(landColor)}>{landName}</span>
+      <NarratorVoice text={narration} land={land} />
       <div style={styles.narration}>{narration}</div>
       {choices.map((c) => (
         <button
@@ -257,7 +259,7 @@ function ChoiceScreen({ narration, choices, onChoice, landColor, landName }) {
   );
 }
 
-function TimerScreen({ onWait, onClick, landColor, landName }) {
+function TimerScreen({ onWait, onClick, landColor, landName, land }) {
   const [time, setTime] = React.useState(30);
   const [done, setDone] = React.useState(false);
   const [clicked, setClicked] = React.useState(false);
@@ -283,6 +285,7 @@ function TimerScreen({ onWait, onClick, landColor, landName }) {
   return (
     <div>
       <span style={styles.landBadge(landColor)}>{landName}</span>
+      <NarratorVoice text="Oto Skarbiec Czasu. Jeśli otworzysz skrzynię teraz, dostaniesz 1 złoty kryształ. Ale jeśli nie dotkniesz ekranu przez 30 sekund, skrzynia zamieni się w diamentową i da Ci aż 5 kryształów!" land={land} />
       <div style={styles.narration}>
         Strażnik mówi: „Oto Skarbiec Czasu. Jeśli otworzysz skrzynię teraz, dostaniesz 1 złoty kryształ.
         Ale jeśli NIE dotkniesz ekranu przez 30 sekund... skrzynia zamieni się w diamentową
@@ -320,7 +323,7 @@ function TimerScreen({ onWait, onClick, landColor, landName }) {
   );
 }
 
-function EmotionMatchScreen({ onComplete, landColor, landName }) {
+function EmotionMatchScreen({ onComplete, landColor, landName, land }) {
   const emotions = [
     { id: "frustration", face: "😤😩", correct: "frustracja" },
     { id: "embarrassment", face: "😳🙈", correct: "zakłopotanie" },
@@ -342,6 +345,7 @@ function EmotionMatchScreen({ onComplete, landColor, landName }) {
   return (
     <div>
       <span style={styles.landBadge(landColor)}>{landName}</span>
+      <NarratorVoice text="Strażnik pokazuje Ci trzy magiczne kryształy z twarzami. To nie proste emocje, to uczucia złożone! Dopasuj nazwę do każdej miny." land={land} />
       <div style={styles.narration}>
         Strażnik pokazuje Ci trzy magiczne kryształy z twarzami. To nie proste emocje —
         to uczucia złożone! Dopasuj nazwę do każdej miny.

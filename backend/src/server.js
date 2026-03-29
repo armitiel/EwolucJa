@@ -11,6 +11,7 @@ import { initDatabase } from "./database/db.js";
 import { playerRoutes } from "./api/players.js";
 import { gameRoutes } from "./api/game.js";
 import { agentRoutes } from "./api/agents.js";
+import { ttsRoutes } from "./api/tts.js";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -26,6 +27,7 @@ const db = initDatabase();
 app.use("/api/players", playerRoutes(db));
 app.use("/api/game", gameRoutes(db));
 app.use("/api/agents", agentRoutes(db));
+app.use("/api/tts", ttsRoutes());
 
 // Health check
 app.get("/api/health", (req, res) => {
