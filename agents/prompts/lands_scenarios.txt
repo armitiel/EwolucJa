@@ -1,0 +1,224 @@
+SCENARIUSZE KRAIN — EWOLUCJA
+==============================
+
+================================================================================
+KRAINA 1: DOLINA SELFIE (Samoświadomość i eksploracja bazy)
+================================================================================
+
+ZADANIE 1: Zwierciadło Prawdy (Weryfikacja Selfie)
+---------------------------------------------------
+KONTEKST: Uczeń przesyła selfie. API generuje bazowy awatar.
+
+NARRACJA:
+"Witaj, podróżniku! Stanąłeś właśnie przed Zwierciadłem Prawdy — magicznym
+lustrem, które potrafi zobaczyć, kim naprawdę jesteś. Ale to nie wszystko...
+lustro chce wiedzieć, jaki kolor ma Twoja aura dzisiaj. Wybierz kolor tła,
+który najlepiej oddaje Twój nastrój!"
+
+MECHANIKA: Po wyborze koloru aury, uczeń wybiera element startowy.
+
+OPCJE ELEMENTU STARTOWEGO:
+  A) 🔍 Lupa Odkrywcy — "Chcę patrzeć z bliska na wszystko, co spotkam"
+     -> +2 DT
+  B) 🛡️ Tarcza Odwagi — "Chcę chronić siebie i innych"
+     -> +2 LD
+  C) 📚 Księga Mądrości — "Chcę wiedzieć jak najwięcej zanim ruszę dalej"
+     -> +2 ST
+  D) 🎒 Plecak Podróżnika — "Chcę zbierać różne rzeczy, bo nigdy nie wiadomo"
+     -> +1 KR
+
+FORMAT ODPOWIEDZI AI:
+{
+  "land": "dolina_selfie",
+  "task_id": 1,
+  "narration": "<tekst fabularny>",
+  "choices": [
+    {"id": "A", "label": "Lupa Odkrywcy", "icon": "magnifying_glass"},
+    {"id": "B", "label": "Tarcza Odwagi", "icon": "shield"},
+    {"id": "C", "label": "Księga Mądrości", "icon": "book"},
+    {"id": "D", "label": "Plecak Podróżnika", "icon": "backpack"}
+  ]
+}
+
+
+================================================================================
+KRAINA 2: LAS DECYZJI (Ciekawość vs. Celowość & Empatia)
+================================================================================
+
+ZADANIE 2: Rozwidlenie Dróg (Test Ciekawości)
+----------------------------------------------
+NARRACJA:
+"Szlak prowadzi Cię przez gęsty, zielony las. Nagle ścieżka się rozdziela.
+Prosta droga wiedzie wprost do wielkiego Zamku na wzgórzu. Ale po prawej...
+widzisz małą, zarośniętą ścieżkę. Przy niej stoi drewniana tabliczka:
+'Tędy do niczego nie dojdziesz'. Co robisz?"
+
+OPCJE:
+  A) Idę prosto do celu — Zamek czeka!
+     -> +2 ST (orientacja na cel, planowanie)
+  B) Sprawdzam zarośniętą ścieżkę — tabliczka mnie nie powstrzyma!
+     -> +3 DT (ciekawość, odwaga eksploracji)
+
+ZADANIE 3: Uwięziony Chowaniec (Etyka i Działanie)
+----------------------------------------------------
+NARRACJA:
+"Na ścieżce słyszysz cichy pisk. Między gałęziami widzisz małego Chowańca —
+futrzaste stworzenie z wielkimi oczami. Jest uwięzione w pajęczej sieci!
+Na drzewie obok tyka zegar — im dłużej tu zostaniesz, tym mniej punktów
+bonusowych za szybkość dostaniesz. Co robisz?"
+
+OPCJE:
+  A) Rozcinam sieć i pomagam Chowańcowi
+     -> +2 EM (bezinteresowna pomoc)
+  B) Szukam kogoś innego, kto może pomóc
+     -> +1 MD (delegowanie, szukanie wsparcia)
+  C) Idę dalej — punkty za czas są ważniejsze
+     -> +2 ST, -1 EM (priorytetyzacja wyniku nad empatią)
+
+
+================================================================================
+KRAINA 3: JASKINIA EMOCJI (Cierpliwość & Inteligencja Emocjonalna)
+================================================================================
+
+ZADANIE 4: Skarbiec Czasu (Test Marshmallow — Odraczanie gratyfikacji)
+----------------------------------------------------------------------
+NARRACJA:
+"Wchodzisz do ciemnej jaskini, w której błyszczy tajemnicza skrzynia.
+Kamienny Strażnik przemawia głębokim głosem: 'Oto Skarbiec Czasu. Jeśli
+otworzysz skrzynię teraz, dostaniesz 1 złoty kryształ. Ale jeśli NIE
+dotkniesz ekranu przez 30 sekund... skrzynia zamieni się w diamentową
+i da Ci aż 5 kryształów!' Co zrobisz?"
+
+MECHANIKA BEHAWIORALNA:
+- System uruchamia timer 30 sekund.
+- Mierzy, czy uczeń dotknął/kliknął ekran przed upływem czasu.
+- Skrzynia wizualnie pulsuje, kusząc do kliknięcia.
+
+PUNKTACJA:
+  - Uczeń czeka 30 sekund → +3 ST (cierpliwość, odraczanie gratyfikacji)
+  - Uczeń klika przed czasem → +1 LD (impulsywność, gotowość do działania)
+
+ZADANIE 5: Strażnik Masek (Teoria Umysłu)
+------------------------------------------
+NARRACJA:
+"Strażnik uśmiecha się i pokazuje Ci trzy magiczne kryształy. Każdy ma twarz
+wyrażającą emocję — ale to nie są proste emocje! To uczucia złożone, które
+każdy z nas czasem czuje. Czy potrafisz je rozpoznać?"
+
+MECHANIKA:
+- Wyświetl 3 ilustracje twarzy: frustracja, zakłopotanie, duma.
+- Uczeń dobiera etykiety do twarzy (drag & drop lub wybór z listy).
+
+PUNKTACJA:
+- Każde trafne dopasowanie: +1 EM, +1 DT
+- Maksymalnie: +3 EM, +3 DT
+
+
+================================================================================
+KRAINA 4: WYSPA TALENTÓW (Kreatywność & Tolerancja na Frustrację)
+================================================================================
+
+ZADANIE 6: Zagadka bez dobrej odpowiedzi (Growth Mindset)
+----------------------------------------------------------
+NARRACJA:
+"Na wyspie czeka na Ciebie starożytna maszyna z zagadką. Musisz ją rozwiązać,
+żeby otworzyć bramę! Ale uwaga — ta zagadka jest naprawdę trudna..."
+
+MECHANIKA:
+- Mini-gra logiczna, która za pierwszym razem jest MATEMATYCZNIE NIE DO PRZEJŚCIA.
+- System bada reakcję na nieuchronną porażkę.
+- Po porażce wyświetlają się 3 przyciski.
+
+OPCJE PO PORAŻCE:
+  A) 🔄 "Spróbuję ponownie!" (Wytrwałość)
+     -> +2 ST, +1 LD
+  B) 🤝 "Poproszę bota o wskazówkę" (Współpraca)
+     -> +2 MD
+  C) ⏭️ "Pomiń zadanie" (Unikanie)
+     -> +0 (brak punktów)
+
+ZADANIE 7: Przepaść i Pudełko (Myślenie Dywergencyjne)
+-------------------------------------------------------
+NARRACJA:
+"Droga się urywa — przed Tobą przepaść! Ale w starym pudełku obok znajdziesz
+trzy przedmioty: parasol, pustą puszkę i rolkę sznurka. Jak ich użyjesz,
+żeby się dostać na drugą stronę? Wpisz swój pomysł lub wybierz z listy!"
+
+MECHANIKA:
+- Pole tekstowe (open-ended) + 4 gotowe opcje jako podpowiedzi.
+- AI analizuje odpowiedź tekstową pod kątem kreatywności.
+
+PUNKTACJA:
+  - Standardowe rozwiązanie (np. "zrobię most ze sznurka") → +1 KR
+  - Nieszablonowe rozwiązanie (np. "użyję parasola jako spadochronu") → +3 KR
+  - Ocena AI: jeśli odpowiedź łączy ≥2 przedmioty w nieoczywisty sposób → bonus +1 KR
+
+
+================================================================================
+KRAINA 5: PRZYSTAŃ WSPÓŁPRACY (Role grupowe & Rozwiązywanie konfliktów)
+================================================================================
+
+ZADANIE 8: Kłótnia o Mapę (Mediacja)
+-------------------------------------
+NARRACJA:
+"Docierasz do przystani, gdzie dwa stworzenia kłócą się przy mapie. Wielki
+Krabor krzyczy: 'Płyniemy na PÓŁNOC!' Mała Żółwinka płacze: 'Ale ja chcę na
+POŁUDNIE, tam jest bezpieczniej...' Obydwoje patrzą na Ciebie. Co robisz?"
+
+OPCJE:
+  A) Krzyczę: "CISZA! Ja tu decyduję!"
+     -> +1 LD, -1 MD (autorytarność)
+  B) "Głosujmy! Każdy powie, czego chce."
+     -> +2 MD (demokratyczne podejście)
+  C) "Powiedzcie mi, DLACZEGO chcecie tam płynąć. Znajdziemy kompromis."
+     -> +2 MD, +1 ST (mediacja + analiza)
+
+ZADANIE 9: Budowa Tratwy (Role Belbina)
+----------------------------------------
+NARRACJA:
+"Wszyscy zgodzili się na plan! Teraz trzeba zbudować tratwę. Każdy musi wybrać
+swoją rolę. Kim chcesz być?"
+
+OPCJE:
+  A) 🧭 Kapitan — "Planuję i rozdzielam zadania. Wiem, kto co powinien robić."
+     -> +2 LD
+  B) 🔨 Rzemieślnik — "Biorę się za najtrudniejszą robotę. Lubię działać!"
+     -> +1 ST
+  C) 🎉 Dusza Towarzystwa — "Dbam, żeby nikomu nie było smutno i żebyśmy się nie kłócili."
+     -> +2 EM
+
+
+================================================================================
+GÓRA PODSUMOWANIA (Generowanie Portretu)
+================================================================================
+
+MECHANIKA KOŃCOWA:
+1. Zsumuj punkty w każdym profilu: EM, ST, KR, LD, DT, MD.
+2. Wybierz 2 najwyższe wyniki → profil hybrydowy.
+3. Wygeneruj tytuł na podstawie tabeli poniżej.
+
+TABELA TYTUŁÓW HYBRYDOWYCH:
+  DT + KR = "Wizjoner Tajemnic"
+  EM + MD = "Strażnik Pokoju"
+  LD + ST = "Generał Przygody"
+  ST + KR = "Architekt Przyszłości"
+  EM + DT = "Odkrywca Serc"
+  LD + KR = "Mistrz Inwencji"
+  LD + MD = "Kapitan Drużyny"
+  ST + DT = "Łamacz Kodów"
+  EM + KR = "Artysta Emocji"
+  MD + DT = "Dyplomata Wiedzy"
+  EM + LD = "Odważne Serce"
+  ST + MD = "Mędrzec Pokoju"
+  EM + ST = "Cierpliwy Opiekun"
+  KR + MD = "Twórczy Mediator"
+  LD + DT = "Śmiały Tropiciel"
+
+FORMAT RAPORTU DLA UCZNIA:
+"Brawo, [IMIĘ]! Przeszedłeś/przeszłaś wszystkie krainy i Twoje prawdziwe
+supermoce się ujawniły! Jesteś [TYTUŁ HYBRYDOWY] — to znaczy, że [opis
+2-3 zdania w języku przygody]. Twoje największe wyzwanie na przyszłość:
+[1 zdanie o profilu z najniższym wynikiem, ujęte pozytywnie]."
+
+FORMAT RAPORTU DLA NAUCZYCIELA:
+Patrz schemat: teacher_report.json

@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TeacherReport",
+  "description": "Raport dla nauczyciela — terminologia CASEL i VIA",
+  "type": "object",
+  "required": ["student_name", "date", "scores", "dominant_profiles", "casel_analysis", "recommendations"],
+  "properties": {
+    "student_name": { "type": "string" },
+    "date": { "type": "string", "format": "date" },
+    "session_duration_minutes": { "type": "number" },
+    "scores": {
+      "type": "object",
+      "properties": {
+        "EM": { "type": "integer" },
+        "ST": { "type": "integer" },
+        "KR": { "type": "integer" },
+        "LD": { "type": "integer" },
+        "DT": { "type": "integer" },
+        "MD": { "type": "integer" }
+      }
+    },
+    "dominant_profiles": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "hybrid_title": { "type": "string" },
+    "casel_analysis": {
+      "type": "object",
+      "description": "Mapowanie na 5 kompetencji CASEL",
+      "properties": {
+        "self_awareness": {
+          "type": "object",
+          "properties": {
+            "level": { "type": "string", "enum": ["niski", "średni", "wysoki"] },
+            "evidence": { "type": "string" }
+          }
+        },
+        "self_management": {
+          "type": "object",
+          "properties": {
+            "level": { "type": "string", "enum": ["niski", "średni", "wysoki"] },
+            "evidence": { "type": "string" }
+          }
+        },
+        "social_awareness": {
+          "type": "object",
+          "properties": {
+            "level": { "type": "string", "enum": ["niski", "średni", "wysoki"] },
+            "evidence": { "type": "string" }
+          }
+        },
+        "relationship_skills": {
+          "type": "object",
+          "properties": {
+            "level": { "type": "string", "enum": ["niski", "średni", "wysoki"] },
+            "evidence": { "type": "string" }
+          }
+        },
+        "responsible_decision_making": {
+          "type": "object",
+          "properties": {
+            "level": { "type": "string", "enum": ["niski", "średni", "wysoki"] },
+            "evidence": { "type": "string" }
+          }
+        }
+      }
+    },
+    "via_strengths": {
+      "type": "array",
+      "description": "Top 3-5 sił charakteru wg klasyfikacji VIA",
+      "items": {
+        "type": "object",
+        "properties": {
+          "strength_name": { "type": "string" },
+          "category": { "type": "string" },
+          "evidence": { "type": "string" }
+        }
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "description": "Wskazówki pedagogiczne dla nauczyciela",
+      "items": {
+        "type": "object",
+        "properties": {
+          "area": { "type": "string" },
+          "suggestion": { "type": "string" },
+          "activity_ideas": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "behavioral_insights": {
+      "type": "object",
+      "description": "Wnioski z danych behawioralnych",
+      "properties": {
+        "marshmallow_result": {
+          "type": "object",
+          "properties": {
+            "waited": { "type": "boolean" },
+            "wait_time_seconds": { "type": "number" }
+          }
+        },
+        "frustration_tolerance": {
+          "type": "string",
+          "enum": ["niska", "średnia", "wysoka"]
+        },
+        "creativity_score": {
+          "type": "string",
+          "enum": ["standardowe", "nieszablonowe", "wybitne"]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NarratorResponse",
+  "description": "Format odpowiedzi narratora GAMA-1 dla frontendu",
+  "type": "object",
+  "required": ["land", "task_id", "narration", "choices"],
+  "properties": {
+    "land": {
+      "type": "string",
+      "enum": ["dolina_selfie", "las_decyzji", "jaskinia_emocji", "wyspa_talentow", "przystan_wspolpracy", "gora_podsumowania"]
+    },
+    "task_id": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9
+    },
+    "narration": {
+      "type": "string",
+      "maxLength": 800,
+      "description": "Tekst fabularny narratora (maks. ~150 słów)"
+    },
+    "choices": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "required": ["id", "label"],
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string" },
+          "icon": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "special_mechanic": {
+      "type": ["object", "null"],
+      "description": "Specjalna mechanika behawioralna (np. timer, pole tekstowe)",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["timer", "free_text", "drag_and_drop", "impossible_puzzle"]
+        },
+        "config": {
+          "type": "object",
+          "properties": {
+            "duration_seconds": { "type": "integer" },
+            "placeholder_text": { "type": "string" }
+          }
+        }
+      }
+    },
+    "background_asset": {
+      "type": "string",
+      "description": "Nazwa pliku tła krainy z assets/lands/"
+    },
+    "npc_characters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "mood": { "type": "string" },
+          "sprite": { "type": "string" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PlayerProfile",
+  "description": "Profil gracza GAMA-1 — punktacja 6 kompetencji miękkich",
+  "type": "object",
+  "required": ["player_id", "player_name", "scores", "completed_lands", "current_land"],
+  "properties": {
+    "player_id": {
+      "type": "string",
+      "description": "Unikalny identyfikator gracza"
+    },
+    "player_name": {
+      "type": "string",
+      "description": "Imię gracza (podane na starcie)"
+    },
+    "avatar": {
+      "type": "object",
+      "properties": {
+        "base_image": { "type": "string", "description": "Ścieżka do bazowego awatara" },
+        "aura_color": { "type": "string", "description": "Wybrany kolor aury (hex)" },
+        "starter_item": {
+          "type": "string",
+          "enum": ["magnifying_glass", "shield", "book", "backpack"]
+        },
+        "unlocked_assets": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Lista odblokowanych elementów kosmetycznych"
+        }
+      }
+    },
+    "scores": {
+      "type": "object",
+      "description": "Punkty w 6 profilach kompetencyjnych (maks. 10 każdy)",
+      "properties": {
+        "EM": { "type": "integer", "minimum": 0, "maximum": 10, "description": "Empata" },
+        "ST": { "type": "integer", "minimum": 0, "maximum": 10, "description": "Strateg" },
+        "KR": { "type": "integer", "minimum": 0, "maximum": 10, "description": "Kreator" },
+        "LD": { "type": "integer", "minimum": 0, "maximum": 10, "description": "Lider" },
+        "DT": { "type": "integer", "minimum": 0, "maximum": 10, "description": "Detektyw" },
+        "MD": { "type": "integer", "minimum": 0, "maximum": 10, "description": "Mediator" }
+      },
+      "required": ["EM", "ST", "KR", "LD", "DT", "MD"]
+    },
+    "completed_lands": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["dolina_selfie", "las_decyzji", "jaskinia_emocji", "wyspa_talentow", "przystan_wspolpracy", "gora_podsumowania"]
+      }
+    },
+    "current_land": {
+      "type": ["string", "null"],
+      "description": "Aktualna kraina gracza (null = gra ukończona)"
+    },
+    "choices_log": {
+      "type": "array",
+      "description": "Log wszystkich wyborów gracza",
+      "items": {
+        "type": "object",
+        "properties": {
+          "land": { "type": "string" },
+          "task_id": { "type": "integer" },
+          "choice_id": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "points_awarded": {
+            "type": "object",
+            "additionalProperties": { "type": "integer" }
+          },
+          "behavioral_data": {
+            "type": "object",
+            "description": "Dane behawioralne (np. czas reakcji w teście Marshmallow)",
+            "properties": {
+              "reaction_time_ms": { "type": "integer" },
+              "free_text_input": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "final_profile": {
+      "type": ["object", "null"],
+      "description": "Profil końcowy (generowany po ukończeniu gry)",
+      "properties": {
+        "dominant_profiles": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "hybrid_title": { "type": "string" },
+        "student_report": { "type": "string" },
+        "teacher_report": { "type": "object" },
+        "avatar_assets": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}
