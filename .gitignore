@@ -3,3 +3,8 @@ node_modules/
 *.db-shm
 *.db-wal
 *.timestamp-*
+
+# Sekrety
+.env
+devteam/.env
+backend/.env

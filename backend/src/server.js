@@ -4,11 +4,13 @@
  * Łączy frontend PWA z agentem GAMA-1 i bazą danych SQLite.
  */
 
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { initDatabase } from "./database/db.js";
 import { playerRoutes } from "./api/players.js";
 import { gameRoutes } from "./api/game.js";
+import { agentRoutes } from "./api/agents.js";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -23,6 +25,7 @@ const db = initDatabase();
 // Routes
 app.use("/api/players", playerRoutes(db));
 app.use("/api/game", gameRoutes(db));
+app.use("/api/agents", agentRoutes(db));
 
 // Health check
 app.get("/api/health", (req, res) => {

@@ -1,0 +1,13 @@
+{
+  "name": "ewolucja-devteam",
+  "version": "1.0.0",
+  "description": "EwolucJA DevTeam — Agenci AI do rozwoju projektu (Telegram + CLI)",
+  "type": "module",
+  "scripts": {
+    "bot": "node --env-file=.env telegram-bot.js",
+    "cli": "node --env-file=.env cli.js",
+    "start": "node --env-file=.env telegram-bot.js"
+  },
+  "keywords": ["ewolucja", "devteam", "ai-agents", "telegram-bot"],
+  "license": "MIT"
+}

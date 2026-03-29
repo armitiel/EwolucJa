@@ -11,7 +11,13 @@
       "Bash(npm install:*)",
       "Bash(npx concurrently:*)",
       "Bash(netstat -ano)",
-      "Bash(taskkill //PID 18504 //F)"
+      "Bash(taskkill //PID 18504 //F)",
+      "Bash(ssh -o StrictHostKeyChecking=no ubuntu@57.129.80.192 \"uname -a && cat /etc/os-release | head -5 && free -h | head -2 && df -h / | tail -1\")",
+      "Bash(ssh ubuntu@57.129.80.192 \"sudo apt update -qq && sudo apt install -y -qq nginx git curl && curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - && sudo apt install -y -qq nodejs && sudo npm install -g pm2 && node -v && npm -v && nginx -v\")",
+      "Bash(ssh ubuntu@57.129.80.192 \"cd /home/ubuntu && git clone https://github.com/armitiel/EwolucJa.git && cd EwolucJa && cd backend && npm install && cd ../frontend && npm install && npm run build\")",
+      "Bash(ssh ubuntu@57.129.80.192 \"cd /home/ubuntu/EwolucJa && pm2 start backend/src/server.js --name ewolucja-backend && pm2 save\")",
+      "Bash(ssh ubuntu@57.129.80.192:*)",
+      "Bash(gh api:*)"
     ]
   }
 }
