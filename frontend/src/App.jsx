@@ -392,7 +392,7 @@ function EmotionMatchScreen({ onComplete, landColor, landName, land }) {
   );
 }
 
-function CreativityScreen({ onSubmit, landColor, landName }) {
+function CreativityScreen({ onSubmit, landColor, landName, land }) {
   const [text, setText] = useState("");
   const presets = [
     { label: "Zbuduję most ze sznurka", score: 1 },
@@ -404,6 +404,7 @@ function CreativityScreen({ onSubmit, landColor, landName }) {
   return (
     <div>
       <span style={styles.landBadge(landColor)}>{landName}</span>
+      <NarratorVoice text="Droga się urywa, przed Tobą przepaść! W starym pudełku znajdziesz trzy przedmioty: parasol, pustą puszkę i rolkę sznurka. Jak ich użyjesz, żeby się dostać na drugą stronę?" land={land} />
       <div style={styles.narration}>
         Droga się urywa — przed Tobą przepaść! W starym pudełku znajdziesz trzy przedmioty:
         parasol, pustą puszkę i rolkę sznurka. Jak ich użyjesz, żeby się dostać na drugą stronę?
@@ -752,6 +753,7 @@ export default function App() {
                 onChoice={(id) => handleChoice(currentStep.task, id)}
                 landColor={landColor}
                 landName={landName}
+                land={land}
               />
             ) : currentStep?.type === "timer" ? (
               <TimerScreen
@@ -767,6 +769,7 @@ export default function App() {
                 }}
                 landColor={landColor}
                 landName={landName}
+                land={land}
               />
             ) : currentStep?.type === "emotion_match" ? (
               <EmotionMatchScreen
@@ -783,6 +786,7 @@ export default function App() {
                 }}
                 landColor={landColor}
                 landName={landName}
+                land={land}
               />
             ) : currentStep?.type === "creativity" ? (
               <CreativityScreen
@@ -797,6 +801,7 @@ export default function App() {
                 }}
                 landColor={landColor}
                 landName={landName}
+                land={land}
               />
             ) : null}
           </div>
