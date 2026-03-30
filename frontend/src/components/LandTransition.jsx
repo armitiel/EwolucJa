@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import NarratorVoice from "./NarratorVoice";
 import { ttsPlayer } from "../services/ttsPlayer";
 
@@ -69,7 +69,22 @@ export { LAND_CONFIG };
 export default function LandTransition({ land, playerName, onComplete }) {
   const [phase, setPhase] = useState("enter"); // enter -> show -> exit
   const [particles, setParticles] = useState([]);
+  const [narratorDone, setNarratorDone] = useState(false);
   const config = LAND_CONFIG[land];
+
+  // Rozpocznij zamykanie splasha
+  const startExit = useCallback(() => {
+    if (phase === "exit") return; // juz zamykamy
+    setPhase("exit");
+    setTimeout(() => { ttsPlayer.stop(); onComplete(); }, 600);
+  }, [phase, onComplete]);
+
+  // Gdy narrator skonczy mowic — odczekaj chwile i zamknij
+  useEffect(() => {
+    if (!narratorDone) return;
+    const timer = setTimeout(startExit, 800);
+    return () => clearTimeout(timer);
+  }, [narratorDone, startExit]);
 
   useEffect(() => {
     // Zatrzymaj poprzedni dzwiek zanim splash zacznie swoj
@@ -92,14 +107,15 @@ export default function LandTransition({ land, playerName, onComplete }) {
 
     // Animacja wejścia
     const showTimer = setTimeout(() => setPhase("show"), 100);
-    // Po 3s automatycznie zamknij
-    const exitTimer = setTimeout(() => setPhase("exit"), 3000);
-    const doneTimer = setTimeout(() => { ttsPlayer.stop(); onComplete(); }, 3600);
+
+    // Fallback — gdyby narrator nie odpowiedzial, zamknij po 15s
+    const fallbackTimer = setTimeout(() => {
+      setNarratorDone(true);
+    }, 15000);
 
     return () => {
       clearTimeout(showTimer);
-      clearTimeout(exitTimer);
-      clearTimeout(doneTimer);
+      clearTimeout(fallbackTimer);
     };
   }, [land]);
 
@@ -214,19 +230,20 @@ export default function LandTransition({ land, playerName, onComplete }) {
         </div>
       )}
 
-      {/* Głos narratora — czyta opis krainy */}
+      {/* Głos narratora — czyta opis krainy, po zakończeniu zamyka splash */}
       {phase === "show" && (
         <NarratorVoice
           text={`${config.title}. ${config.description}`}
           land={land}
           compact={true}
           autoPlayDelay={800}
+          onEnd={() => setNarratorDone(true)}
         />
       )}
 
       {/* Kliknij aby pominąć */}
       <button
-        onClick={() => { ttsPlayer.stop(); setPhase("exit"); setTimeout(onComplete, 400); }}
+        onClick={() => { ttsPlayer.stop(); startExit(); }}
         style={{
           position: "absolute",
           bottom: "40px",
