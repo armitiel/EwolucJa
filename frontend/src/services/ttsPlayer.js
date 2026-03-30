@@ -182,6 +182,8 @@ class TTSPlayer {
       this._audio = null;
     }
     this._playing = false;
+    this._pendingText = null;
+    this._pendingOpts = null;
   }
 
   togglePause() {

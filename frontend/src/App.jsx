@@ -850,7 +850,8 @@ export default function App() {
               style={styles.input}
               placeholder="Wpisz swoje imię..."
               value={playerName}
-              onChange={(e) => setPlayerName(e.target.value)}
+              onClick={() => ttsPlayer.unlock()}
+              onChange={(e) => { ttsPlayer.unlock(); setPlayerName(e.target.value); }}
             />
             {playerName.trim().length > 0 && (
               <button
@@ -916,14 +917,31 @@ export default function App() {
           <p style={styles.subtitle}>{landIcon} {playerName} — {landName}</p>
         </div>
 
-        {/* Kompaktowy awatar (widoczny po stworzeniu) */}
+        {/* Kompaktowy awatar (widoczny po stworzeniu) — SVG lub AI */}
         {avatarConfig && currentStep?.type !== "avatar_builder" && currentStep?.type !== "final" && !newItem && (
-          <AvatarDisplay
-            avatarConfig={avatarConfig}
-            equipment={equipment}
-            playerName={playerName}
-            compact={true}
-          />
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "12px" }}>
+            {aiAvatarUrl ? (
+              <img
+                src={aiAvatarUrl}
+                alt={playerName}
+                style={{
+                  width: 80,
+                  height: 80,
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  border: "3px solid " + (landColor || "#ffd54f"),
+                  boxShadow: "0 2px 12px " + (cardGlow || "rgba(255,255,255,0.1)"),
+                }}
+              />
+            ) : (
+              <AvatarDisplay
+                avatarConfig={avatarConfig}
+                equipment={equipment}
+                playerName={playerName}
+                compact={true}
+              />
+            )}
+          </div>
         )}
 
         {/* Powiadomienie o nowym przedmiocie */}
@@ -961,6 +979,13 @@ export default function App() {
                 playerName={playerName}
                 onComplete={(config) => {
                   setAvatarConfig(config);
+                  // Uruchom generowanie AI awatara w tle
+                  agentAPI.generateAvatar(playerName, config).then((result) => {
+                    if (result?.url) {
+                      setAiAvatarUrl(result.url);
+                      console.log("[AI Avatar] Generated:", result.url);
+                    }
+                  }).catch(() => {});
                   advance();
                 }}
               />
