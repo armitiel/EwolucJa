@@ -838,9 +838,12 @@ export default function App() {
         ...styles.app,
         backgroundImage: "url(/tlo.png)",
         backgroundSize: "cover",
-        backgroundPosition: "center bottom",
+        backgroundPosition: "center center",
         backgroundRepeat: "no-repeat",
         position: "relative",
+        padding: 0,
+        margin: 0,
+        overflow: "hidden",
       }}>
         {/* Ciemna nakładka dla czytelności tekstu */}
         <div style={{
@@ -849,7 +852,7 @@ export default function App() {
           background: "linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.5) 100%)",
           zIndex: 0,
         }} />
-        <div style={{ ...styles.container, position: "relative", zIndex: 1 }}>
+        <div style={{ ...styles.container, position: "relative", zIndex: 1, padding: 0, maxWidth: "100%" }}>
 
           {/* ═══ FAZA 1: Logo animowane + przycisk "Dotknij" ═══ */}
           {startPhase === "logo" && (

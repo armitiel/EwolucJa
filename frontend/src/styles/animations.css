@@ -3,9 +3,24 @@
    Styl: Claymorphism / Pixar — obłe, płynne, magiczne
    ════════════════════════════════════════════════════════════════════════ */
 
-/* Globalne smooth transitions */
-* {
+/* Reset globalne */
+*, *::before, *::after {
+  box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
 }
 
 /* Fade-in animacja dla kart */
