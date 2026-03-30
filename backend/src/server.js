@@ -12,6 +12,7 @@ import { playerRoutes } from "./api/players.js";
 import { gameRoutes } from "./api/game.js";
 import { agentRoutes } from "./api/agents.js";
 import { ttsRoutes } from "./api/tts.js";
+import { imageRoutes } from "./api/images.js";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -28,6 +29,7 @@ app.use("/api/players", playerRoutes(db));
 app.use("/api/game", gameRoutes(db));
 app.use("/api/agents", agentRoutes(db));
 app.use("/api/tts", ttsRoutes());
+app.use("/api/images", imageRoutes());
 
 // Health check
 app.get("/api/health", (req, res) => {

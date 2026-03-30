@@ -1,0 +1,141 @@
+/* ════════════════════════════════════════════════════════════════════════
+   EwolucJA — Animacje i przejścia
+   Styl: Claymorphism / Pixar — obłe, płynne, magiczne
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* Globalne smooth transitions */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Fade-in animacja dla kart */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Pulsujące glow wokół aktywnej karty */
+@keyframes cardGlow {
+  0%, 100% {
+    box-shadow: 0 4px 20px rgba(233, 69, 96, 0.1);
+  }
+  50% {
+    box-shadow: 0 4px 30px rgba(233, 69, 96, 0.25);
+  }
+}
+
+/* Bounce animacja dla nowych elementów */
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(40px);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05) translateY(-10px);
+  }
+  70% {
+    transform: scale(0.95) translateY(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Floating animacja dla ikon tła */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-12px) rotate(3deg);
+  }
+  66% {
+    transform: translateY(6px) rotate(-2deg);
+  }
+}
+
+/* Shimmer efekt na badge krainy */
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+/* Pulsowanie przycisku akcji */
+@keyframes pulseButton {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 2px 10px rgba(233, 69, 96, 0.2);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 4px 20px rgba(233, 69, 96, 0.35);
+  }
+}
+
+/* Sparkle animacja */
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1) rotate(180deg); }
+}
+
+/* Progress bar transition */
+@keyframes progressFill {
+  from { width: 0; }
+}
+
+/* Klasy do użycia */
+.ewolucja-card-enter {
+  animation: fadeSlideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.ewolucja-bounce-in {
+  animation: bounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.ewolucja-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.ewolucja-pulse-btn {
+  animation: pulseButton 2s ease-in-out infinite;
+}
+
+.ewolucja-fade-in {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+/* Land badge shimmer */
+.land-badge {
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* Smooth button hover */
+.ewolucja-btn {
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.ewolucja-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+
+.ewolucja-btn:active {
+  transform: translateY(0) scale(0.98);
+}

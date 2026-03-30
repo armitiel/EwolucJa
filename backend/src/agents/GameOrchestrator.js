@@ -17,6 +17,7 @@ import { CreativityAgent } from "./CreativityAgent.js";
 import { ReportAgent } from "./ReportAgent.js";
 import { AvatarAgent } from "./AvatarAgent.js";
 
+import { falService } from "../services/falService.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -232,6 +233,60 @@ export class GameOrchestrator {
       equipment: playerProfile.equipment || [],
       avatarConfig: playerProfile.avatar_config || {},
     });
+  }
+
+  /**
+   * Pełny pipeline: Agent generuje prompt → fal.ai generuje obraz
+   *
+   * @param {object} playerProfile
+   * @returns {Promise<{prompt: string, image_url: string}>}
+   */
+  async generateAvatarImage(playerProfile) {
+    // 1. AvatarAgent tworzy prompt
+    const promptData = await this.generateAvatarImagePrompt(playerProfile);
+    const dallePrompt = promptData?.dalle_prompt || "";
+
+    if (!dallePrompt) {
+      throw new Error("AvatarAgent nie wygenerował promptu");
+    }
+
+    // 2. fal.ai generuje obraz
+    if (!falService.isAvailable()) {
+      return { prompt: dallePrompt, image_url: null, reason: "fal.ai not configured" };
+    }
+
+    const image = await falService.generateAvatar({
+      playerName: playerProfile.name,
+      avatarPrompt: dallePrompt,
+      avatarConfig: playerProfile.avatar_config || {},
+    });
+
+    return {
+      prompt: dallePrompt,
+      image_url: image.url,
+      width: image.width,
+      height: image.height,
+      elapsed_ms: image.elapsed_ms,
+    };
+  }
+
+  /**
+   * Pełny pipeline finalizacji z obrazem karty bohatera
+   */
+  async finalizeGameWithImage(playerProfile) {
+    // Równolegle: finalizacja agentów + generowanie obrazu
+    const [gameResult, imageResult] = await Promise.allSettled([
+      this.finalizeGame(playerProfile),
+      this.generateAvatarImage(playerProfile),
+    ]);
+
+    const result = gameResult.status === "fulfilled" ? gameResult.value : {};
+    const image = imageResult.status === "fulfilled" ? imageResult.value : null;
+
+    return {
+      ...result,
+      hero_image: image,
+    };
   }
 
   // ── Metryki ───────────────────────────────────────────────────────

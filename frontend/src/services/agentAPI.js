@@ -15,7 +15,8 @@
  *   Claude API (Anthropic)
  */
 
-const API_BASE = "/api/agents";
+const API_BASE = "http://localhost:3001/api/agents";
+const IMAGES_BASE = "http://localhost:3001/api/images";
 
 // ── Pomocnik fetch ──────────────────────────────────────────────────
 
@@ -139,6 +140,72 @@ export async function getMetrics() {
   return res.json();
 }
 
+// ═══════════════════════════════════════════════════════════════════════
+//  OBRAZY — fal.ai
+// ═══════════════════════════════════════════════════════════════════════
+
+async function imageFetch(endpoint, body = {}) {
+  try {
+    const res = await fetch(`${IMAGES_BASE}${endpoint}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (err) {
+    console.warn(`[agentAPI/images] ${endpoint} error:`, err.message);
+    return null;
+  }
+}
+
+/**
+ * 9. GENERUJ AWATAR AI — fal.ai tworzy obraz postaci
+ */
+export async function generateAvatar(playerName, avatarConfig = {}) {
+  return imageFetch("/avatar", { playerName, avatarConfig });
+}
+
+/**
+ * 10. GENERUJ TLO KRAINY — fal.ai splash screen background
+ */
+export async function generateLandBackground(landName) {
+  return imageFetch("/land", { landName });
+}
+
+/**
+ * 11. GENERUJ KARTE BOHATERA — fal.ai hero image
+ */
+export async function generateHeroCard(playerName, hybridTitle, equipment = []) {
+  return imageFetch("/hero-card", { playerName, hybridTitle, equipment });
+}
+
+/**
+ * 12. GENERUJ OBRAZ EKWIPUNKU — fal.ai item icon
+ */
+export async function generateEquipmentImage(itemName, description = "") {
+  return imageFetch("/equipment", { itemName, itemDescription: description });
+}
+
+/**
+ * 13. PEŁNA FINALIZACJA Z OBRAZEM — agenci + fal.ai
+ */
+export async function finalizeGameFull(playerId) {
+  return agentFetch("/finalize-full", { player_id: playerId });
+}
+
+/**
+ * 14. STATUS SERWISU OBRAZÓW
+ */
+export async function getImageStatus() {
+  try {
+    const res = await fetch(`${IMAGES_BASE}/status`);
+    return res.json();
+  } catch {
+    return null;
+  }
+}
+
 // ── Eksport zbiorczy ────────────────────────────────────────────────
 
 const agentAPI = {
@@ -148,8 +215,15 @@ const agentAPI = {
   evaluateCreativity,
   describeEquipment,
   finalizeGame,
+  finalizeGameFull,
   getImagePrompt,
   getMetrics,
+  // Obrazy fal.ai
+  generateAvatar,
+  generateLandBackground,
+  generateHeroCard,
+  generateEquipmentImage,
+  getImageStatus,
 };
 
 export default agentAPI;

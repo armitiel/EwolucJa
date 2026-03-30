@@ -170,6 +170,36 @@ export function agentRoutes(db) {
     }
   });
 
+  // ── POST /api/agents/generate-avatar — Pełny pipeline: prompt + obraz ──
+
+  router.post("/generate-avatar", async (req, res) => {
+    try {
+      const player = getPlayerOrFail(req, res);
+      if (!player) return;
+
+      const result = await orchestrator.generateAvatarImage(player);
+      res.json(result);
+    } catch (err) {
+      console.error("[agents/generate-avatar]", err);
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── POST /api/agents/finalize-full — Finalizacja z obrazem bohatera ──
+
+  router.post("/finalize-full", async (req, res) => {
+    try {
+      const player = getPlayerOrFail(req, res);
+      if (!player) return;
+
+      const result = await orchestrator.finalizeGameWithImage(player);
+      res.json(result);
+    } catch (err) {
+      console.error("[agents/finalize-full]", err);
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // ── GET /api/agents/metrics ───────────────────────────────────
 
   router.get("/metrics", (req, res) => {
