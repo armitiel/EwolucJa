@@ -1,9 +1,13 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import AvatarBuilder from "./components/AvatarBuilder";
 import AvatarDisplay from "./components/AvatarDisplay";
+import AvatarAI from "./components/AvatarAI";
 import NarratorVoice from "./components/NarratorVoice";
+import LandTransition from "./components/LandTransition";
 import { ttsPlayer } from "./services/ttsPlayer";
+import agentAPI from "./services/agentAPI";
 import { TASK_EQUIPMENT_MAP, EQUIPMENT_DEFS } from "./components/AvatarSVG";
+import { GROWTH_TIPS, DAILY_MISSIONS } from "./growthData";
 
 /* ════════════════════════════════════════════════════════════════════════
    EWOLUCJA — Prototyp PWA (Single-file React App)
@@ -38,6 +42,42 @@ const LAND_COLORS = {
   wyspa_talentow: "#ffe0b2",
   przystan_wspolpracy: "#b2ebf2",
   gora_podsumowania: "#ffd54f",
+};
+
+const LAND_ICONS = {
+  dolina_selfie: "\u{1FA9E}",
+  las_decyzji: "\u{1F332}",
+  jaskinia_emocji: "\u{1F52E}",
+  wyspa_talentow: "\u{1F3DD}\uFE0F",
+  przystan_wspolpracy: "\u2693",
+  gora_podsumowania: "\u{1F3D4}\uFE0F",
+};
+
+const LAND_BG_GRADIENTS = {
+  dolina_selfie: "linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 50%, #1a1040 100%)",
+  las_decyzji: "linear-gradient(135deg, #0d1f0d 0%, #1a3a1a 50%, #0f2f1a 100%)",
+  jaskinia_emocji: "linear-gradient(135deg, #0d1525 0%, #162040 50%, #0f1a3a 100%)",
+  wyspa_talentow: "linear-gradient(135deg, #2a1a0a 0%, #3a2510 50%, #2a1f0a 100%)",
+  przystan_wspolpracy: "linear-gradient(135deg, #0a1a2a 0%, #0f2535 50%, #0a2030 100%)",
+  gora_podsumowania: "linear-gradient(135deg, #2a2200 0%, #3a3000 50%, #2a2500 100%)",
+};
+
+const LAND_CARD_GLOW = {
+  dolina_selfie: "rgba(168, 85, 247, 0.15)",
+  las_decyzji: "rgba(34, 197, 94, 0.15)",
+  jaskinia_emocji: "rgba(59, 130, 246, 0.15)",
+  wyspa_talentow: "rgba(249, 115, 22, 0.15)",
+  przystan_wspolpracy: "rgba(6, 182, 212, 0.15)",
+  gora_podsumowania: "rgba(234, 179, 8, 0.15)",
+};
+
+const LAND_CARD_BORDER = {
+  dolina_selfie: "rgba(168, 85, 247, 0.3)",
+  las_decyzji: "rgba(34, 197, 94, 0.3)",
+  jaskinia_emocji: "rgba(59, 130, 246, 0.3)",
+  wyspa_talentow: "rgba(249, 115, 22, 0.3)",
+  przystan_wspolpracy: "rgba(6, 182, 212, 0.3)",
+  gora_podsumowania: "rgba(234, 179, 8, 0.3)",
 };
 
 const PROFILE_LABELS = {
@@ -455,12 +495,26 @@ function ScoreDisplay({ scores }) {
   );
 }
 
+function getDailyMission(profile) {
+  const today = new Date();
+  const dayIndex = Math.floor(today.getTime() / 86400000) % DAILY_MISSIONS[profile].length;
+  return DAILY_MISSIONS[profile][dayIndex];
+}
+
 function FinalScreen({ scores, playerName, avatarConfig, equipment }) {
+  const [showTips, setShowTips] = useState(null);
   const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
   const topTwo = [sorted[0][0], sorted[1][0]].sort().join("_");
   const title = HYBRID_TITLES[topTwo] || "Bohater Nieznanych Krain";
   const lowest = sorted[sorted.length - 1];
   const lowestLabel = PROFILE_LABELS[lowest[0]];
+  const topProfiles = [sorted[0][0], sorted[1][0]];
+  const weakProfile = lowest[0];
+
+  const dailyMissions = [
+    ...topProfiles.map((p) => ({ ...getDailyMission(p), profile: p, type: "strong" })),
+    { ...getDailyMission(weakProfile), profile: weakProfile, type: "grow" },
+  ];
 
   const finalNarration = `Brawo, ${playerName}! Przeszedłeś wszystkie krainy i Twoje prawdziwe supermoce się ujawniły! Jesteś ${title}! To znaczy, że łączysz w sobie niezwykłe talenty ${PROFILE_LABELS[sorted[0][0]].name} i ${PROFILE_LABELS[sorted[1][0]].name}!`;
 
@@ -470,28 +524,131 @@ function FinalScreen({ scores, playerName, avatarConfig, equipment }) {
       <div style={styles.finalTitle}>{title}</div>
       <NarratorVoice text={finalNarration} land="gora_podsumowania" />
 
-      {/* Awatar z pełnym ekwipunkiem */}
       {avatarConfig && (
         <div style={{ marginBottom: "20px" }}>
-          <AvatarDisplay
-            avatarConfig={avatarConfig}
-            equipment={equipment}
+          <AvatarAI
             playerName={playerName}
-            compact={false}
+            avatarConfig={avatarConfig}
+            hybridTitle={title}
+            equipment={equipment}
+            mode="hero-card"
+            fallback={
+              <AvatarDisplay
+                avatarConfig={avatarConfig}
+                equipment={equipment}
+                playerName={playerName}
+                compact={false}
+              />
+            }
           />
         </div>
       )}
 
       <div style={styles.narration}>
-        Brawo, {playerName}! Przeszedłeś wszystkie krainy i Twoje prawdziwe supermoce się ujawniły!
-        Jesteś <strong style={{ color: "#ffd54f" }}>{title}</strong> — to znaczy,
-        że łączysz w sobie niezwykłe talenty {PROFILE_LABELS[sorted[0][0]].name} i{" "}
+        Brawo, {playerName}! Twoje prawdziwe supermoce się ujawniły!
+        Jesteś <strong style={{ color: "#ffd54f" }}>{title}</strong> — łączysz
+        talenty {PROFILE_LABELS[sorted[0][0]].name} i{" "}
         {PROFILE_LABELS[sorted[1][0]].name}!
       </div>
       <div style={{ ...styles.card, background: "rgba(255,255,255,0.05)" }}>
         <h3 style={{ margin: "0 0 12px", fontSize: "16px" }}>Twoje supermoce:</h3>
         <ScoreDisplay scores={scores} />
       </div>
+
+      {/* Wskazówki rozwojowe */}
+      <div style={{ ...styles.card, background: "rgba(233,69,96,0.06)", border: "1px solid rgba(233,69,96,0.15)" }}>
+        <h3 style={{ margin: "0 0 16px", fontSize: "17px" }}>
+          🌱 Jak rozwijać swoje supermoce?
+        </h3>
+        {sorted.map(([profileKey]) => {
+          const profile = PROFILE_LABELS[profileKey];
+          const growth = GROWTH_TIPS[profileKey];
+          const isOpen = showTips === profileKey;
+          const isTop = topProfiles.includes(profileKey);
+          const isWeak = profileKey === weakProfile;
+          return (
+            <div key={profileKey} style={{ marginBottom: "10px" }}>
+              <button
+                onClick={() => setShowTips(isOpen ? null : profileKey)}
+                style={{
+                  display: "flex", alignItems: "center", gap: "8px",
+                  width: "100%", padding: "10px 14px",
+                  borderRadius: "10px", border: "1px solid rgba(255,255,255,0.1)",
+                  background: isOpen ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.03)",
+                  color: "#f0f0f0", fontSize: "14px", cursor: "pointer",
+                  textAlign: "left", transition: "all 0.2s",
+                }}
+              >
+                <span style={{ fontSize: "18px" }}>{profile.icon}</span>
+                <span style={{ flex: 1, fontWeight: "600" }}>
+                  {profile.name}
+                  {isTop && <span style={{ marginLeft: "6px", fontSize: "11px", color: "#ffd54f" }}>★ TWOJA MOC</span>}
+                  {isWeak && <span style={{ marginLeft: "6px", fontSize: "11px", color: "#e94560" }}>→ DO ROZWOJU</span>}
+                </span>
+                <span style={{ fontSize: "12px", color: "#889", transition: "transform 0.2s", transform: isOpen ? "rotate(180deg)" : "none" }}>▼</span>
+              </button>
+              {isOpen && (
+                <div style={{
+                  padding: "12px 14px", marginTop: "4px",
+                  borderRadius: "0 0 10px 10px",
+                  background: "rgba(255,255,255,0.03)",
+                  borderLeft: `3px solid ${profile.color}`,
+                }}>
+                  <p style={{ margin: "0 0 10px", fontSize: "13px", color: "#bbb", fontStyle: "italic" }}>
+                    {growth.desc}
+                  </p>
+                  <ul style={{ margin: 0, paddingLeft: "20px" }}>
+                    {growth.tips.map((tip, i) => (
+                      <li key={i} style={{ fontSize: "13px", color: "#ddd", marginBottom: "6px", lineHeight: "1.5" }}>
+                        {tip}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Misje dzienne */}
+      <div style={{ ...styles.card, background: "rgba(255,213,84,0.06)", border: "1px solid rgba(255,213,84,0.15)" }}>
+        <h3 style={{ margin: "0 0 6px", fontSize: "17px" }}>
+          ⚡ Twoje misje na dziś
+        </h3>
+        <p style={{ margin: "0 0 14px", fontSize: "12px", color: "#889" }}>
+          Nowe misje codziennie — dopasowane do Twojego profilu!
+        </p>
+        {dailyMissions.map((mission, i) => {
+          const profile = PROFILE_LABELS[mission.profile];
+          return (
+            <div key={i} style={{
+              display: "flex", alignItems: "flex-start", gap: "10px",
+              padding: "12px", marginBottom: "8px",
+              borderRadius: "10px",
+              background: mission.type === "grow"
+                ? "rgba(233,69,96,0.08)"
+                : "rgba(255,255,255,0.04)",
+              border: mission.type === "grow"
+                ? "1px solid rgba(233,69,96,0.2)"
+                : "1px solid rgba(255,255,255,0.06)",
+            }}>
+              <span style={{ fontSize: "24px", flexShrink: 0 }}>{mission.icon}</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: "14px", color: "#eee", lineHeight: "1.5", marginBottom: "4px" }}>
+                  {mission.text}
+                </div>
+                <div style={{ fontSize: "11px", color: mission.type === "grow" ? "#e94560" : "#889" }}>
+                  {profile.icon} {profile.name}
+                  {mission.type === "grow" && " — wyzwanie rozwojowe!"}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Wyzwanie na przyszłość */}
       <div style={{ ...styles.card, background: "rgba(255,215,84,0.08)", border: "1px solid rgba(255,215,84,0.2)" }}>
         <p style={{ margin: 0, fontSize: "14px" }}>
           {lowestLabel.icon} <strong>Wyzwanie na przyszłość:</strong> Rozwijaj swoją stronę{" "}
@@ -613,7 +770,30 @@ export default function App() {
   const [equipment, setEquipment] = useState([]);
   const [newItem, setNewItem] = useState(null);
 
+  // Stan splash-screen / przejscie miedzy krainami
+  const [showTransition, setShowTransition] = useState(false);
+  const [transitionLand, setTransitionLand] = useState(null);
+  const prevLandRef = useRef(null);
+  const [contentVisible, setContentVisible] = useState(true);
+
+  // AI avatar image
+  const [aiAvatarUrl, setAiAvatarUrl] = useState(null);
+
   const currentStep = GAME_STEPS[stepIndex];
+
+  // Wykryj zmiane krainy i pokaz splash screen
+  useEffect(() => {
+    if (phase !== "playing") return;
+    const newLand = currentStep?.land;
+    if (newLand && newLand !== prevLandRef.current && prevLandRef.current !== null) {
+      setContentVisible(false);
+      setTransitionLand(newLand);
+      setShowTransition(true);
+    }
+    if (newLand) {
+      prevLandRef.current = newLand;
+    }
+  }, [stepIndex, phase]);
 
   const advance = useCallback(() => {
     if (stepIndex + 1 >= GAME_STEPS.length) {
@@ -681,7 +861,14 @@ export default function App() {
                   fontSize: "18px",
                   fontWeight: "600",
                 }}
-                onClick={() => { ttsPlayer.unlock(); setPhase("playing"); }}
+                onClick={() => {
+                  ttsPlayer.unlock();
+                  prevLandRef.current = null;
+                  setTransitionLand("dolina_selfie");
+                  setShowTransition(true);
+                  setContentVisible(false);
+                  setPhase("playing");
+                }}
               >
                 Wyruszam w przygodę!
               </button>
@@ -697,13 +884,34 @@ export default function App() {
   const land = currentStep?.land || "gora_podsumowania";
   const landColor = LAND_COLORS[land];
   const landName = LAND_NAMES[land];
+  const landIcon = LAND_ICONS[land] || "";
+  const landBg = LAND_BG_GRADIENTS[land] || styles.app.background;
+  const cardGlow = LAND_CARD_GLOW[land] || "rgba(255,255,255,0.08)";
+  const cardBorder = LAND_CARD_BORDER[land] || "rgba(255,255,255,0.1)";
 
   return (
-    <div style={styles.app}>
-      <div style={styles.container}>
+    <div style={{ ...styles.app, background: landBg, transition: "background 1s ease" }}>
+      {/* Splash screen przejscia miedzy krainami */}
+      {showTransition && transitionLand && (
+        <LandTransition
+          land={transitionLand}
+          playerName={playerName}
+          onComplete={() => {
+            setShowTransition(false);
+            setTransitionLand(null);
+            setContentVisible(true);
+          }}
+        />
+      )}
+      <div style={{
+        ...styles.container,
+        opacity: contentVisible ? 1 : 0,
+        transform: contentVisible ? "translateY(0)" : "translateY(20px)",
+        transition: "opacity 0.5s ease, transform 0.5s ease",
+      }}>
         <div style={styles.header}>
           <div style={styles.title}>EWOLUCJA</div>
-          <p style={styles.subtitle}>{playerName} — Podróż trwa...</p>
+          <p style={styles.subtitle}>{landIcon} {playerName} — {landName}</p>
         </div>
 
         {/* Kompaktowy awatar (widoczny po stworzeniu) */}
@@ -739,7 +947,12 @@ export default function App() {
         )}
 
         {!newItem && (
-          <div style={styles.card}>
+          <div style={{
+            ...styles.card,
+            background: cardGlow,
+            border: `1px solid ${cardBorder}`,
+            boxShadow: `0 4px 30px ${cardGlow}`,
+          }}>
             {/* NOWY: Kreator awatara */}
             {currentStep?.type === "avatar_builder" ? (
               <AvatarBuilder
