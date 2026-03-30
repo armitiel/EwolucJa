@@ -796,6 +796,7 @@ export default function App() {
   }, [stepIndex, phase]);
 
   const advance = useCallback(() => {
+    ttsPlayer.stop();
     if (stepIndex + 1 >= GAME_STEPS.length) {
       setPhase("done");
     } else {
@@ -862,6 +863,7 @@ export default function App() {
                   fontWeight: "600",
                 }}
                 onClick={() => {
+                  ttsPlayer.stop();
                   ttsPlayer.unlock();
                   prevLandRef.current = null;
                   setTransitionLand("dolina_selfie");
