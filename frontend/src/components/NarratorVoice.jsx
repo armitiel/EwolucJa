@@ -40,10 +40,12 @@ export default function NarratorVoice({ text, land, autoPlay = true, autoPlayDel
   const mountedRef = useRef(true);
   const playingRef = useRef(false); // zsynchronizowany z playing, ale bez opóźnienia setState
 
-  // Sprawdź dostępność TTS (raz)
+  // Sprawdź dostępność TTS (raz) — nawet jeśli niedostępny, renderuj UI
   useEffect(() => {
     ttsPlayer.checkAvailability().then((ok) => {
       if (mountedRef.current) setAvailable(ok);
+    }).catch(() => {
+      if (mountedRef.current) setAvailable(false);
     });
     return () => { mountedRef.current = false; };
   }, []);
@@ -106,8 +108,8 @@ export default function NarratorVoice({ text, land, autoPlay = true, autoPlayDel
     }
   }, [muted]);
 
-  // Nie renderuj jeśli TTS niedostępny
-  if (available === false || available === null) return null;
+  // Nie renderuj dopóki nie sprawdzono dostępności (null = ładowanie)
+  if (available === null) return null;
 
   // ── Style dynamiczne ──
   const activeBtn = {
