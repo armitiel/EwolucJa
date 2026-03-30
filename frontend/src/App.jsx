@@ -259,6 +259,13 @@ const styles = {
     WebkitTextFillColor: "transparent",
     marginBottom: "12px",
   },
+  bottomNarrator: {
+    position: "fixed",
+    bottom: "24px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    zIndex: 30,
+  },
 };
 
 // ── Pomocnicze ────────────────────────────────────────────────────────
@@ -287,7 +294,6 @@ function ChoiceScreen({ narration, choices, onChoice, landColor, landName, land 
   return (
     <div>
       <span style={styles.landBadge(landColor)}>{landName}</span>
-      <NarratorVoice text={fullTTS} land={land} />
       <div style={styles.narration}>{narration}</div>
       {choices.map((c) => (
         <button
@@ -304,6 +310,9 @@ function ChoiceScreen({ narration, choices, onChoice, landColor, landName, land 
           {c.label}
         </button>
       ))}
+      <div style={styles.bottomNarrator}>
+        <NarratorVoice text={fullTTS} land={land} />
+      </div>
     </div>
   );
 }
@@ -334,7 +343,6 @@ function TimerScreen({ onWait, onClick, landColor, landName, land }) {
   return (
     <div>
       <span style={styles.landBadge(landColor)}>{landName}</span>
-      <NarratorVoice text="Oto Skarbiec Czasu. Jeśli otworzysz skrzynię teraz, dostaniesz jeden złoty kryształ. Ale jeśli nie dotkniesz ekranu przez trzydzieści sekund, skrzynia zamieni się w diamentową i da Ci aż pięć kryształów! Co wybierasz? Otwierasz teraz, czy czekasz cierpliwie?" land={land} />
       <div style={styles.narration}>
         Strażnik mówi: „Oto Skarbiec Czasu. Jeśli otworzysz skrzynię teraz, dostaniesz 1 złoty kryształ.
         Ale jeśli NIE dotkniesz ekranu przez 30 sekund... skrzynia zamieni się w diamentową
@@ -368,6 +376,9 @@ function TimerScreen({ onWait, onClick, landColor, landName, land }) {
           Otworzyłeś skrzynię! Dostajesz 1 złoty kryształ.
         </div>
       )}
+      <div style={styles.bottomNarrator}>
+        <NarratorVoice text="Oto Skarbiec Czasu. Jeśli otworzysz skrzynię teraz, dostaniesz jeden złoty kryształ. Ale jeśli nie dotkniesz ekranu przez trzydzieści sekund, skrzynia zamieni się w diamentową i da Ci aż pięć kryształów! Co wybierasz? Otwierasz teraz, czy czekasz cierpliwie?" land={land} />
+      </div>
     </div>
   );
 }
@@ -394,7 +405,6 @@ function EmotionMatchScreen({ onComplete, landColor, landName, land }) {
   return (
     <div>
       <span style={styles.landBadge(landColor)}>{landName}</span>
-      <NarratorVoice text="Strażnik pokazuje Ci trzy magiczne kryształy z twarzami. To nie proste emocje, to uczucia złożone! Dopasuj nazwę do każdej miny. Masz do wyboru trzy uczucia: frustracja, zakłopotanie i duma. Przypisz każde do odpowiedniej twarzy!" land={land} />
       <div style={styles.narration}>
         Strażnik pokazuje Ci trzy magiczne kryształy z twarzami. To nie proste emocje —
         to uczucia złożone! Dopasuj nazwę do każdej miny.
@@ -437,6 +447,9 @@ function EmotionMatchScreen({ onComplete, landColor, landName, land }) {
           Świetna robota! Zobaczmy, jak Ci poszło...
         </div>
       )}
+      <div style={styles.bottomNarrator}>
+        <NarratorVoice text="Strażnik pokazuje Ci trzy magiczne kryształy z twarzami. To nie proste emocje, to uczucia złożone! Dopasuj nazwę do każdej miny. Masz do wyboru trzy uczucia: frustracja, zakłopotanie i duma. Przypisz każde do odpowiedniej twarzy!" land={land} />
+      </div>
     </div>
   );
 }
@@ -453,7 +466,6 @@ function CreativityScreen({ onSubmit, landColor, landName, land }) {
   return (
     <div>
       <span style={styles.landBadge(landColor)}>{landName}</span>
-      <NarratorVoice text="Droga się urywa, przed Tobą przepaść! W starym pudełku znajdziesz trzy przedmioty: parasol, pustą puszkę i rolkę sznurka. Jak ich użyjesz, żeby się dostać na drugą stronę? Możesz wpisać swój własny pomysł, albo wybrać jeden z gotowych: Zbuduję most ze sznurka. Użyję parasola jako spadochronu i przelecę. Puszka będzie kołem, sznurek osią, a parasol żaglem. Zrobię tyrolkę ze sznurka i zjadę na parasolu." land={land} />
       <div style={styles.narration}>
         Droga się urywa — przed Tobą przepaść! W starym pudełku znajdziesz trzy przedmioty:
         parasol, pustą puszkę i rolkę sznurka. Jak ich użyjesz, żeby się dostać na drugą stronę?
@@ -478,6 +490,9 @@ function CreativityScreen({ onSubmit, landColor, landName, land }) {
           {p.label}
         </button>
       ))}
+      <div style={styles.bottomNarrator}>
+        <NarratorVoice text="Droga się urywa, przed Tobą przepaść! W starym pudełku znajdziesz trzy przedmioty: parasol, pustą puszkę i rolkę sznurka. Jak ich użyjesz, żeby się dostać na drugą stronę? Możesz wpisać swój własny pomysł, albo wybrać jeden z gotowych: Zbuduję most ze sznurka. Użyję parasola jako spadochronu i przelecę. Puszka będzie kołem, sznurek osią, a parasol żaglem. Zrobię tyrolkę ze sznurka i zjadę na parasolu." land={land} />
+      </div>
     </div>
   );
 }
@@ -525,7 +540,6 @@ function FinalScreen({ scores, playerName, avatarConfig, equipment }) {
     <div>
       <div style={{ textAlign: "center", fontSize: "48px", marginBottom: "8px" }}>🏔️</div>
       <div style={styles.finalTitle}>{title}</div>
-      <NarratorVoice text={finalNarration} land="gora_podsumowania" />
 
       {avatarConfig && (
         <div style={{ marginBottom: "20px" }}>
@@ -685,6 +699,9 @@ function FinalScreen({ scores, playerName, avatarConfig, equipment }) {
           </div>
         </div>
       )}
+      <div style={styles.bottomNarrator}>
+        <NarratorVoice text={finalNarration} land="gora_podsumowania" />
+      </div>
     </div>
   );
 }
@@ -1086,7 +1103,7 @@ export default function App() {
               paddingBottom: "90px",
             }}>
 
-              {/* Karta z polem imienia */}
+              {/* Karta z polem imienia — wycentrowana */}
               <div style={{
                 ...styles.card,
                 opacity: 0,
@@ -1094,12 +1111,6 @@ export default function App() {
                 maxWidth: "400px",
                 width: "100%",
               }}>
-                <NarratorVoice
-                  text="Powiedz mi, jak masz na imię? Wpisz swoje imię, a Twoja przygoda się rozpocznie!"
-                  land="dolina_selfie"
-                  autoPlayDelay={400}
-                  compact={false}
-                />
                 <p style={{
                   margin: "12px 0 20px",
                   fontSize: "16px",
@@ -1375,7 +1386,6 @@ export default function App() {
                 gender={playerGender}
                 onComplete={(config) => {
                   setAvatarConfig(config);
-                  // Uruchom generowanie AI awatara w tle
                   agentAPI.generateAvatar(playerName, config).then((result) => {
                     if (result?.url) {
                       setAiAvatarUrl(result.url);
@@ -1421,7 +1431,6 @@ export default function App() {
               <EmotionMatchScreen
                 onComplete={(correct) => {
                   setScores((s) => applyPoints(s, { EM: correct, DT: correct }));
-                  // Nagroda za emocje: inventor_goggles jeśli 2+ trafienia
                   if (correct >= 2) {
                     setEquipment((prev) =>
                       prev.includes("inventor_goggles") ? prev : [...prev, "inventor_goggles"]
@@ -1438,7 +1447,6 @@ export default function App() {
               <CreativityScreen
                 onSubmit={(text, score) => {
                   setScores((s) => applyPoints(s, { KR: score }));
-                  // Nagroda za kreatywność: star_boots jeśli wysoki wynik
                   if (score >= 3 && !equipment.includes("star_boots")) {
                     setEquipment((prev) => [...prev, "star_boots"]);
                     setNewItem("star_boots");
@@ -1456,3 +1464,4 @@ export default function App() {
     </div>
   );
 }
+
