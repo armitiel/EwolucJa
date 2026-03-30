@@ -259,6 +259,8 @@ export class GameOrchestrator {
       playerName: playerProfile.name,
       avatarPrompt: dallePrompt,
       avatarConfig: playerProfile.avatar_config || {},
+      gender: playerProfile.gender || "boy",
+      equipment: playerProfile.equipment || [],
     });
 
     return {

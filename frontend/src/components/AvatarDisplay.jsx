@@ -132,7 +132,7 @@ export default function AvatarDisplay({
           </button>
         </div>
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <AvatarBoy config={avatarConfig} size={140} />
+          <AvatarBoy config={avatarConfig} size={182} />
         </div>
       </div>
     );
@@ -143,7 +143,7 @@ export default function AvatarDisplay({
     return (
       <div style={displayStyles.compactContainer}>
         <style>{keyframesStyle}</style>
-        <AvatarBoy config={avatarConfig} size={50} />
+        <AvatarBoy config={avatarConfig} size={182} />
         <div>
           <div style={{ fontSize: "13px", fontWeight: "600", color: "#eee" }}>
             {playerName}

@@ -24,6 +24,7 @@ import agentAPI from "../services/agentAPI";
 export default function AvatarAI({
   playerName,
   avatarConfig,
+  gender = "boy",
   hybridTitle,
   equipment = [],
   mode = "avatar",
@@ -50,7 +51,7 @@ export default function AvatarAI({
         let result = null;
 
         if (mode === "avatar") {
-          result = await agentAPI.generateAvatar(playerName, avatarConfig);
+          result = await agentAPI.generateAvatar(playerName, avatarConfig, gender, equipment);
         } else if (mode === "hero-card") {
           result = await agentAPI.generateHeroCard(playerName, hybridTitle, equipment);
         } else if (mode === "land") {

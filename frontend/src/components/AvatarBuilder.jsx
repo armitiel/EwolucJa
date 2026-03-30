@@ -5,6 +5,8 @@ import AvatarBoy, {
   SHIRT_COLORS,
   SHORTS_COLORS,
   SHOES_COLORS,
+  EYE_COLORS,
+  MOUTH_VARIANTS,
   DEFAULT_AVATAR_CONFIG,
 } from "./AvatarBoy";
 
@@ -30,12 +32,13 @@ const builderStyles = {
   previewBox: {
     background: "rgba(255,255,255,0.06)",
     borderRadius: "24px",
-    padding: "20px",
+    padding: "8px",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
     overflow: "visible",
+    width: "100%",
   },
   section: {
     width: "100%",
@@ -99,26 +102,44 @@ export default function AvatarBuilder({ onComplete, playerName, gender = "boy" }
       title: "Karnacja",
       key: "skinColor",
       options: SKIN_COLORS,
+      type: "color",
+    },
+    {
+      title: "Kolor oczu",
+      key: "eyeColor",
+      options: EYE_COLORS,
+      type: "color",
+    },
+    {
+      title: "Usta",
+      key: "mouthVariant",
+      options: MOUTH_VARIANTS,
+      type: "mouth",
     },
     {
       title: "Koszulka",
       key: "shirtColor",
       options: SHIRT_COLORS,
+      type: "color",
     },
     {
       title: "Spodenki",
       key: "shortsColor",
       options: SHORTS_COLORS,
+      type: "color",
     },
     {
       title: "Buty",
       key: "shoesColor",
       options: SHOES_COLORS,
+      type: "color",
     },
   ];
 
   const narrations = [
     `Zwierciadło Prawdy mruga i mówi: "${playerName}, pokaż mi swoją twarz! Zacznijmy od odcienia skóry."`,
+    `"Spójrz mi w oczy! Jaki kolor tęczówek będzie miał Twój awatar?"`,
+    `"Uśmiechnij się! Wybierz usta, które najlepiej do Ciebie pasują."`,
     `"Pięknie! A teraz - jaki kolor koszulki chcesz nosić w magicznym świecie?"`,
     `"Super wybór! Teraz spodenki - jaki kolor najbardziej do Ciebie pasuje?"`,
     `"Ostatni krok - wybierz kolor butów! Dobre buty to podstawa każdej przygody!"`,
@@ -126,6 +147,8 @@ export default function AvatarBuilder({ onComplete, playerName, gender = "boy" }
 
   const ttsNarrations = [
     `${playerName}, pokaż mi swoją twarz! Zacznijmy od odcienia skóry.`,
+    `Spójrz mi w oczy! Jaki kolor tęczówek będzie miał Twój awatar?`,
+    `Uśmiechnij się! Wybierz usta, które najlepiej do Ciebie pasują.`,
     `Pięknie! A teraz, jaki kolor koszulki chcesz nosić w magicznym świecie?`,
     `Super wybór! Teraz spodenki, jaki kolor najbardziej do Ciebie pasuje?`,
     `Ostatni krok! Wybierz kolor butów. Dobre buty to podstawa każdej przygody!`,
@@ -149,6 +172,13 @@ export default function AvatarBuilder({ onComplete, playerName, gender = "boy" }
     setConfig((prev) => ({ ...prev, [currentStepData.key]: value }));
   };
 
+  // Kolory tła kafelków ust (ciepłe odcienie różu/beżu) do wizualnego rozróżnienia
+  const mouthTileColors = [
+    "#F9C195", "#F08775", "#E8A0BF", "#D4A0A0", "#C8956C",
+    "#F2A67E", "#E6B89C", "#D9967A", "#C4766E", "#B05A5A",
+    "#E8C4B0", "#F5D5C8",
+  ];
+
   const handleNext = () => {
     if (step < steps.length - 1) {
       setStep(step + 1);
@@ -167,28 +197,60 @@ export default function AvatarBuilder({ onComplete, playerName, gender = "boy" }
 
       {/* Podgląd awatara */}
       <div style={builderStyles.previewBox}>
-        <AvatarBoy config={config} size={220} />
+        <AvatarBoy config={config} size={420} />
       </div>
 
-      {/* Selektor kolorów */}
+      {/* Selektor opcji */}
       <div style={builderStyles.section}>
         <div style={builderStyles.sectionTitle}>{currentStepData.title}</div>
         <div style={builderStyles.optionsRow}>
-          {currentStepData.options.map((opt) => (
-            <div key={opt.id} style={{ textAlign: "center" }}>
-              <div
-                style={builderStyles.colorSwatch(
-                  opt.hex,
-                  config[currentStepData.key] === opt.id
-                )}
-                onClick={() => handleSelect(opt.id)}
-                title={opt.name}
-              />
-              <div style={{ fontSize: "10px", color: "#889", marginTop: "4px" }}>
-                {opt.name}
-              </div>
-            </div>
-          ))}
+          {currentStepData.type === "mouth"
+            ? currentStepData.options.map((opt, idx) => {
+                const selected = config[currentStepData.key] === opt.id;
+                return (
+                  <div key={opt.id} style={{ textAlign: "center" }}>
+                    <div
+                      style={{
+                        width: "42px",
+                        height: "42px",
+                        borderRadius: "12px",
+                        background: mouthTileColors[idx % mouthTileColors.length],
+                        border: selected
+                          ? "3px solid #ffd54f"
+                          : "3px solid rgba(255,255,255,0.15)",
+                        cursor: "pointer",
+                        transition: "all 0.2s",
+                        boxShadow: selected
+                          ? "0 0 12px rgba(255,213,84,0.4)"
+                          : "none",
+                        transform: selected ? "scale(1.15)" : "scale(1)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "16px",
+                        fontWeight: "700",
+                        color: "#fff",
+                        textShadow: "0 1px 2px rgba(0,0,0,0.3)",
+                      }}
+                      onClick={() => handleSelect(opt.id)}
+                      title={opt.name}
+                    >
+                      {opt.id}
+                    </div>
+                  </div>
+                );
+              })
+            : currentStepData.options.map((opt) => (
+                <div
+                  key={opt.id}
+                  style={builderStyles.colorSwatch(
+                    opt.hex,
+                    config[currentStepData.key] === opt.id
+                  )}
+                  onClick={() => handleSelect(opt.id)}
+                  title={opt.name}
+                />
+              ))}
         </div>
       </div>
 
@@ -206,11 +268,11 @@ export default function AvatarBuilder({ onComplete, playerName, gender = "boy" }
             }}
             onClick={handleBack}
           >
-            \u2190 Wróć
+            {"← Wróć"}
           </button>
         )}
         <button style={builderStyles.confirmBtn} onClick={handleNext}>
-          {step < steps.length - 1 ? "Dalej \u2192" : "\u2728 Tworzę awatara!"}
+          {step < steps.length - 1 ? "Dalej →" : "✨ Tworzę awatara!"}
         </button>
       </div>
 

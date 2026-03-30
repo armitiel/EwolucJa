@@ -14,20 +14,21 @@ import { ttsPlayer } from "../services/ttsPlayer";
  *  - compact: boolean — kompaktowy tryb
  */
 
-const btnBase = {
+const circleBtn = {
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
-  gap: "6px",
-  padding: "8px 14px",
-  borderRadius: "20px",
+  width: "44px",
+  height: "44px",
+  borderRadius: "50%",
   border: "1px solid rgba(255,255,255,0.15)",
   background: "rgba(255,255,255,0.06)",
   color: "#ddd",
-  fontSize: "13px",
+  fontSize: "18px",
   cursor: "pointer",
   transition: "all 0.2s",
   outline: "none",
+  padding: 0,
 };
 
 export default function NarratorVoice({ text, land, autoPlay = true, autoPlayDelay = 0, compact = false, onEnd = null }) {
@@ -132,50 +133,40 @@ export default function NarratorVoice({ text, land, autoPlay = true, autoPlayDel
 
   // ── Style dynamiczne ──
   const activeBtn = {
-    ...btnBase,
+    ...circleBtn,
     background: "rgba(233,69,96,0.15)",
     borderColor: "rgba(233,69,96,0.4)",
     color: "#e94560",
   };
 
   const muteBtn = {
-    ...btnBase,
-    padding: "8px 10px",
+    ...circleBtn,
     ...(muted ? { background: "rgba(255,255,255,0.03)", color: "#667" } : {}),
   };
-
-  // ── Animacja pulsowania ──
-  const pulseKeyframes = `
-    @keyframes narrator-pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-  `;
 
   if (compact) {
     return null;
   }
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
-      <style>{pulseKeyframes}</style>
-      <button onClick={handleToggle} style={playing ? activeBtn : btnBase}>
-        {playing ? "Stop" : "Posuchaj"}
+    <div style={{
+      position: "fixed",
+      bottom: "24px",
+      left: "50%",
+      transform: "translateX(-50%)",
+      display: "flex",
+      alignItems: "center",
+      gap: "12px",
+      zIndex: 20,
+    }}>
+      <button onClick={handleToggle} style={playing ? activeBtn : circleBtn}
+        title={playing ? "Stop" : "Posłuchaj"}>
+        {playing ? "\u23F9" : "\u25B6"}
       </button>
       <button onClick={handleMuteToggle} style={muteBtn}
-        title={muted ? "Wlacz glos" : "Wylacz glos"}>
-        {muted ? "Wyciszono" : "Glosnik"}
+        title={muted ? "Włącz głos" : "Wyłącz głos"}>
+        {muted ? "\uD83D\uDD07" : "\uD83D\uDD0A"}
       </button>
-      {playing && (
-        <span style={{
-          fontSize: "12px",
-          color: "#e94560",
-          fontWeight: "500",
-          animation: "narrator-pulse 1.5s ease-in-out infinite",
-        }}>
-          GAMA-1 mówi...
-        </span>
-      )}
     </div>
   );
 }

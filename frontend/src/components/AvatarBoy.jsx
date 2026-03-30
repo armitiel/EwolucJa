@@ -13,8 +13,14 @@ import React, { useEffect, useRef, useState } from "react";
  *   shadow_*      — cienie ubrań (#DED6CB)
  *   outline_x5F_ciuchy — obrys ubrań (#6C4E3C)
  *
+ *   Usta          — grupa ust z wariantami 1-12
+ *   Kolor_x5F_oczu — kolor tęczówki lewego oka
+ *   Kolor_x5F_oczu_* — kolor tęczówki prawego oka
+ *   _x31_2 (=12)  — domyślny wariant ust (widoczny)
+ *   _x31_1 .. _x31_ (=11..1) — ukryte warianty ust
+ *
  * Props:
- *  - config: { skinColor, shirtColor, shortsColor, shoesColor }
+ *  - config: { skinColor, shirtColor, shortsColor, shoesColor, eyeColor, mouthVariant }
  *  - size: number (domyślnie 200)
  *  - style: dodatkowe style na wrapper
  */
@@ -60,12 +66,41 @@ export const SHOES_COLORS = [
   { id: "pink",    hex: "#EC4899", name: "Różowe" },
 ];
 
+export const EYE_COLORS = [
+  { id: "blue",    hex: "#2D78BD", name: "Niebieskie" },
+  { id: "green",   hex: "#2E8B57", name: "Zielone" },
+  { id: "brown",   hex: "#8B4513", name: "Brązowe" },
+  { id: "hazel",   hex: "#B8860B", name: "Piwne" },
+  { id: "gray",    hex: "#708090", name: "Szare" },
+  { id: "amber",   hex: "#CF6F20", name: "Bursztynowe" },
+  { id: "dark",    hex: "#3B2F2F", name: "Ciemne" },
+];
+
+// Warianty ust (1-12). ID w SVG to _x3{d}_ (Adobe Illustrator encoding).
+// Wariant 12 jest domyślnie widoczny, reszta display="none".
+export const MOUTH_VARIANTS = [
+  { id: 1,  svgId: "_x31_",  name: "Usta 1" },
+  { id: 2,  svgId: "_x32_",  name: "Usta 2" },
+  { id: 3,  svgId: "_x33_",  name: "Usta 3" },
+  { id: 4,  svgId: "_x34_",  name: "Usta 4" },
+  { id: 5,  svgId: "_x35_",  name: "Usta 5" },
+  { id: 6,  svgId: "_x36_",  name: "Usta 6" },
+  { id: 7,  svgId: "_x37_",  name: "Usta 7" },
+  { id: 8,  svgId: "_x38_",  name: "Usta 8" },
+  { id: 9,  svgId: "_x39_",  name: "Usta 9" },
+  { id: 10, svgId: "_x31_0", name: "Usta 10" },
+  { id: 11, svgId: "_x31_1", name: "Usta 11" },
+  { id: 12, svgId: "_x31_2", name: "Usta 12" },
+];
+
 // Domyślna konfiguracja
 export const DEFAULT_AVATAR_CONFIG = {
   skinColor: "light",
   shirtColor: "white",
   shortsColor: "white",
   shoesColor: "white",
+  eyeColor: "blue",
+  mouthVariant: 12,
 };
 
 // Helper: znajdź hex i shadow po id
@@ -126,6 +161,18 @@ export default function AvatarBoy({ config = DEFAULT_AVATAR_CONFIG, size = 200, 
           svg.setAttribute("width", "100%");
           svg.setAttribute("height", "100%");
           svg.style.display = "block";
+
+          // Przenieś warstwy cieni na górę SVG i ustaw multiply blend mode
+          const shadowSkin = svg.querySelector("#shadow");
+          const shadowCloth = svg.querySelector('[id^="shadow_0000"]');
+          if (shadowSkin) {
+            svg.appendChild(shadowSkin);
+            shadowSkin.style.mixBlendMode = "multiply";
+          }
+          if (shadowCloth) {
+            svg.appendChild(shadowCloth);
+            shadowCloth.style.mixBlendMode = "multiply";
+          }
         }
         setLoaded(true);
       }
@@ -183,13 +230,55 @@ export default function AvatarBoy({ config = DEFAULT_AVATAR_CONFIG, size = 200, 
       });
     }
 
-    // Cienie ubrań — mix cieni koszulki i spodenek
+    // Cienie ubrań — rozdzielone: koszulka vs spodenki
+    // Ścieżki z centrum Y > 600 to cienie spodenek (pas + nogawki), reszta to koszulka
     const clothShadowGroup = root.querySelector('[id^="shadow_0000"]');
     if (clothShadowGroup) {
       clothShadowGroup.querySelectorAll("path").forEach((p) => {
-        p.setAttribute("fill", shirt.shadow || darkenHex(shirt.hex));
+        try {
+          const bbox = p.getBBox();
+          const centerY = bbox.y + bbox.height / 2;
+          if (centerY > 600) {
+            // Cień spodenek
+            p.setAttribute("fill", shorts.shadow || darkenHex(shorts.hex));
+          } else {
+            // Cień koszulki
+            p.setAttribute("fill", shirt.shadow || darkenHex(shirt.hex));
+          }
+        } catch {
+          p.setAttribute("fill", shirt.shadow || darkenHex(shirt.hex));
+        }
       });
     }
+
+    // Kolor oczu — obie tęczówki (lewe i prawe oko)
+    const eye = findColor(EYE_COLORS, config.eyeColor);
+    const eyeSelectors = [
+      '#Kolor_x5F_oczu',
+      '[id^="Kolor_x5F_oczu_"]'
+    ];
+    eyeSelectors.forEach(sel => {
+      const group = root.querySelector(sel);
+      if (group) {
+        const iris = group.querySelector("circle");
+        if (iris) iris.setAttribute("fill", eye.hex);
+      }
+    });
+
+    // Wariant ust — pokaż wybrany, ukryj resztę
+    const mouthId = config.mouthVariant || 12;
+    MOUTH_VARIANTS.forEach(mv => {
+      const el = root.querySelector(`#${CSS.escape(mv.svgId)}`);
+      if (el) {
+        if (mv.id === mouthId) {
+          el.removeAttribute("display");
+          el.style.display = "";
+        } else {
+          el.setAttribute("display", "none");
+          el.style.display = "none";
+        }
+      }
+    });
 
   }, [loaded, config]);
 

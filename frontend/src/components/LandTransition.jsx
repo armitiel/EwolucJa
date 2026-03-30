@@ -9,11 +9,11 @@ import { ttsPlayer } from "../services/ttsPlayer";
 
 const LAND_CONFIG = {
   dolina_selfie: {
-    icon: "🪞",
+    icon: "",
     title: "Dolina Selfie",
     subtitle: "Poznaj siebie w magicznym zwierciadle",
-    gradient: "linear-gradient(135deg, #a855f7 0%, #e879f9 40%, #f0abfc 100%)",
-    particles: ["✨", "🪞", "🌸", "💜"],
+    gradient: "url(/tlo3.png) center/cover no-repeat",
+    particles: ["✨", "🌸", "💜", "⭐"],
     bgEmoji: "🏔️",
     description: "Tutaj wszystko się zaczyna — odkryjesz kim naprawdę jesteś!",
   },
@@ -120,20 +120,24 @@ export default function LandTransition({ land, playerName, onComplete }) {
   }, [land]);
 
   return (
-    <div style={{
-      position: "fixed",
-      inset: 0,
-      zIndex: 1000,
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      background: config.gradient,
-      opacity: phase === "enter" ? 0 : phase === "exit" ? 0 : 1,
-      transform: phase === "enter" ? "scale(1.1)" : phase === "exit" ? "scale(0.95)" : "scale(1)",
-      transition: "all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
-      overflow: "hidden",
-    }}>
+    <div
+      onClick={() => { if (phase === "show") { ttsPlayer.stop(); startExit(); } }}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 1000,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        background: config.gradient,
+        opacity: phase === "enter" ? 0 : phase === "exit" ? 0 : 1,
+        transform: phase === "enter" ? "scale(1.1)" : phase === "exit" ? "scale(0.95)" : "scale(1)",
+        transition: "all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        overflow: "hidden",
+        cursor: phase === "show" ? "pointer" : "default",
+      }}
+    >
       {/* Cząsteczki tła */}
       {particles.map((p) => (
         <div key={p.id} style={{
@@ -154,17 +158,19 @@ export default function LandTransition({ land, playerName, onComplete }) {
       ))}
 
       {/* Duża ikona krainy */}
-      <div style={{
-        fontSize: "96px",
-        marginBottom: "16px",
-        opacity: phase === "show" ? 1 : 0,
-        transform: phase === "show" ? "translateY(0) scale(1)" : "translateY(40px) scale(0.5)",
-        transition: "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s",
-        filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.3))",
-        textShadow: "0 4px 12px rgba(0,0,0,0.2)",
-      }}>
-        {config.icon}
-      </div>
+      {config.icon && (
+        <div style={{
+          fontSize: "96px",
+          marginBottom: "16px",
+          opacity: phase === "show" ? 1 : 0,
+          transform: phase === "show" ? "translateY(0) scale(1)" : "translateY(40px) scale(0.5)",
+          transition: "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s",
+          filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.3))",
+          textShadow: "0 4px 12px rgba(0,0,0,0.2)",
+        }}>
+          {config.icon}
+        </div>
+      )}
 
       {/* Tytuł krainy */}
       <div style={{
@@ -198,37 +204,6 @@ export default function LandTransition({ land, playerName, onComplete }) {
         {config.subtitle}
       </div>
 
-      {/* Opis */}
-      <div style={{
-        maxWidth: "360px",
-        padding: "16px 24px",
-        background: "rgba(255,255,255,0.15)",
-        borderRadius: "20px",
-        backdropFilter: "blur(10px)",
-        border: "1px solid rgba(255,255,255,0.2)",
-        textAlign: "center",
-        fontSize: "15px",
-        color: "rgba(255,255,255,0.95)",
-        lineHeight: "1.5",
-        opacity: phase === "show" ? 1 : 0,
-        transform: phase === "show" ? "translateY(0)" : "translateY(20px)",
-        transition: "all 0.7s ease 0.7s",
-      }}>
-        {config.description}
-      </div>
-
-      {/* Imię gracza */}
-      {playerName && (
-        <div style={{
-          marginTop: "20px",
-          fontSize: "14px",
-          color: "rgba(255,255,255,0.7)",
-          opacity: phase === "show" ? 1 : 0,
-          transition: "all 0.5s ease 0.9s",
-        }}>
-          {playerName}, wkraczasz do nowej krainy...
-        </div>
-      )}
 
       {/* Głos narratora — czyta opis krainy, po zakończeniu zamyka splash */}
       {phase === "show" && (
@@ -241,25 +216,20 @@ export default function LandTransition({ land, playerName, onComplete }) {
         />
       )}
 
-      {/* Kliknij aby pominąć */}
-      <button
-        onClick={() => { ttsPlayer.stop(); startExit(); }}
+      {/* Podpowiedź — dotknij aby pominąć */}
+      <div
         style={{
           position: "absolute",
           bottom: "40px",
-          background: "rgba(255,255,255,0.15)",
-          border: "1px solid rgba(255,255,255,0.3)",
-          borderRadius: "30px",
-          padding: "10px 24px",
-          color: "rgba(255,255,255,0.8)",
           fontSize: "13px",
-          cursor: "pointer",
+          color: "rgba(255,255,255,0.5)",
           opacity: phase === "show" ? 1 : 0,
-          transition: "all 0.5s ease 1s",
+          transition: "all 0.5s ease 2s",
+          pointerEvents: "none",
         }}
       >
-        Dotknij, aby kontynuować
-      </button>
+        Dotknij aby pominąć
+      </div>
     </div>
   );
 }

@@ -164,23 +164,77 @@ class FalService {
   // ── Specjalizowane metody ──────────────────────────────────────────
 
   /**
-   * Generuje awatar gracza na podstawie opisu
+   * Generuje awatar gracza na podstawie konfiguracji SVG buildera
    *
    * @param {object} params
    * @param {string} params.playerName
-   * @param {string} params.avatarPrompt - Prompt z AvatarAgent
-   * @param {object} params.avatarConfig - Konfiguracja SVG awatara
+   * @param {string} params.avatarPrompt - Opcjonalny prompt nadpisujący
+   * @param {object} params.avatarConfig - Konfiguracja z AvatarBuilder
+   * @param {string} params.gender - "boy" | "girl"
    * @returns {Promise<{url: string}>}
    */
-  async generateAvatar({ playerName, avatarPrompt, avatarConfig }) {
-    // Wzbogać prompt o styl
-    const skinDesc = avatarConfig?.skinColor || "light";
-    const hairDesc = avatarConfig?.hairStyle || "short";
-    const hairColor = avatarConfig?.hairColor || "brown";
+  async generateAvatar({ playerName, avatarPrompt, avatarConfig, gender, equipment }) {
+    if (avatarPrompt) {
+      return this.generate(avatarPrompt, { imageSize: "square_hd", numSteps: 4 });
+    }
 
-    const prompt = avatarPrompt ||
-      `A cute child character named ${playerName}, ${skinDesc} skin, ${hairDesc} ${hairColor} hair, ` +
-      `${BASE_STYLE}, portrait, centered, clean background, friendly smile, adventure outfit`;
+    // Mapowanie ID kolorów z buildera na opisy do promptu
+    const SKIN_NAMES = {
+      light: "fair light", medium: "warm medium", tan: "tanned olive",
+      brown: "brown", dark: "dark brown",
+    };
+    const EYE_NAMES = {
+      blue: "bright blue", green: "emerald green", brown: "warm brown",
+      hazel: "hazel", gray: "steel gray", amber: "golden amber", dark: "deep dark brown",
+    };
+    const COLOR_NAMES = {
+      white: "white", red: "red", blue: "blue", green: "green",
+      yellow: "yellow", purple: "purple", orange: "orange", pink: "pink",
+      navy: "dark navy blue", black: "black", brown: "brown",
+    };
+
+    // Mapowanie ekwipunku na opisy wizualne do promptu
+    const EQUIPMENT_VISUALS = {
+      magnifier:        "holding a golden magnifying glass",
+      shield:           "carrying a glowing blue shield on the arm",
+      book:             "holding an ancient wisdom book",
+      backpack:         "wearing a colorful adventure backpack",
+      green_cape:       "wearing a flowing green cape",
+      time_compass:     "with a magical compass on the belt",
+      inventor_goggles: "wearing steampunk inventor goggles on the head",
+      courage_crown:    "wearing a shining golden crown",
+      crystal_heart:    "with a glowing crystal heart pendant on the chest",
+      wisdom_scroll:    "holding a glowing scroll in hand",
+      peace_branch:     "holding a white dove branch",
+      team_medal:       "wearing a shiny team medal on the chest",
+      star_boots:       "wearing glowing star-patterned boots",
+      diamond_chest:    "with a small diamond chest floating beside",
+    };
+
+    const cfg = avatarConfig || {};
+    const skinDesc = SKIN_NAMES[cfg.skinColor] || "light";
+    const eyeDesc = EYE_NAMES[cfg.eyeColor] || "blue";
+    const shirtDesc = COLOR_NAMES[cfg.shirtColor] || "white";
+    const shortsDesc = COLOR_NAMES[cfg.shortsColor] || "white";
+    const shoesDesc = COLOR_NAMES[cfg.shoesColor] || "white";
+    const genderDesc = gender === "girl" ? "girl" : "boy";
+
+    // Zbuduj opis ekwipunku
+    const equipList = (equipment || [])
+      .map(id => EQUIPMENT_VISUALS[id])
+      .filter(Boolean);
+    const equipDesc = equipList.length > 0
+      ? `, ${equipList.join(", ")}`
+      : "";
+
+    const prompt =
+      `A cute ${genderDesc} child character, full body standing pose, ` +
+      `${skinDesc} skin tone, big round ${eyeDesc} eyes, ` +
+      `wearing a ${shirtDesc} t-shirt, ${shortsDesc} shorts, and ${shoesDesc} sneakers, ` +
+      `bald head (no hair), friendly cheerful smile${equipDesc}, ` +
+      `${BASE_STYLE}, portrait, centered, clean soft gradient background, adventure-ready pose`;
+
+    console.log("[FalService] Avatar prompt from config:", prompt.slice(0, 300));
 
     return this.generate(prompt, {
       imageSize: "square_hd",

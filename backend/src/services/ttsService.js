@@ -11,9 +11,9 @@
 
 const VOICES = {
   // Głosy ElevenLabs — ID mogą się zmieniać, sprawdź w panelu
-  narrator: "pFZP5JQG7iQjIQuC4Bku",   // Lily — ciepły, opiekuńczy
-  mystical: "jBpfAFnaylXbOcRDIFMR",    // Aria — tajemniczy
-  excited:  "EXAVITQu4vr4xnSDxMaL",    // Sarah — entuzjastyczny
+  narrator: "XrYxa2QP5oFX1cg3JPdt",   // kobietka — główny głos narratora
+  mystical: "XrYxa2QP5oFX1cg3JPdt",   // kobietka
+  excited:  "XrYxa2QP5oFX1cg3JPdt",   // kobietka
 };
 
 const LAND_VOICES = {

@@ -28,7 +28,7 @@ export function imageRoutes() {
   // ── Generuj awatar gracza ──────────────────────────────────────────
   router.post("/avatar", async (req, res) => {
     try {
-      const { playerName, avatarPrompt, avatarConfig } = req.body;
+      const { playerName, avatarPrompt, avatarConfig, gender, equipment } = req.body;
 
       if (!playerName) {
         return res.status(400).json({ error: "playerName is required" });
@@ -45,6 +45,8 @@ export function imageRoutes() {
         playerName,
         avatarPrompt,
         avatarConfig: avatarConfig || {},
+        gender: gender || "boy",
+        equipment: equipment || [],
       });
 
       res.json({

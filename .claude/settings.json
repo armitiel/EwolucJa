@@ -17,7 +17,28 @@
       "Bash(ssh ubuntu@57.129.80.192 \"cd /home/ubuntu && git clone https://github.com/armitiel/EwolucJa.git && cd EwolucJa && cd backend && npm install && cd ../frontend && npm install && npm run build\")",
       "Bash(ssh ubuntu@57.129.80.192 \"cd /home/ubuntu/EwolucJa && pm2 start backend/src/server.js --name ewolucja-backend && pm2 save\")",
       "Bash(ssh ubuntu@57.129.80.192:*)",
-      "Bash(gh api:*)"
+      "Bash(gh api:*)",
+      "Bash(taskkill //PID 19180 //F)",
+      "Bash(taskkill //PID 10204 //F)",
+      "Bash(taskkill //PID 20764 //F)",
+      "Bash(npm run:*)",
+      "Bash(tasklist //FI \"PID eq 24648\" //FO CSV //NH)",
+      "Bash(tasklist //FI \"PID eq 2116\" //FO CSV //NH)",
+      "Bash(tasklist //FI \"PID eq 9240\" //FO CSV //NH)",
+      "Bash(taskkill //F //PID 24648 //PID 2116 //PID 9240)",
+      "Bash(npx -y acorn --ecma2020 --jsx frontend/src/App.jsx)",
+      "Bash(node -e \"try { require\\(''fs''\\).readFileSync\\(''frontend/src/App.jsx'',''utf8''\\); console.log\\(''file ok''\\); } catch\\(e\\) { console.log\\(e\\); }\")",
+      "Bash(node -c \"const x = 1;\")",
+      "Bash(npx vite:*)",
+      "Bash(node -e \"try { require\\(''''@babel/parser''''\\).parse\\(require\\(''''fs''''\\).readFileSync\\(''''src/App.jsx'''',''''utf8''''\\), {sourceType:''''module'''',plugins:[''''jsx'''']}\\); console.log\\(''''OK''''\\); } catch\\(e\\) { console.log\\(e.message\\); }\")",
+      "Bash(node -e \"try { require\\(''@babel/parser''\\).parse\\(require\\(''fs''\\).readFileSync\\(''src/components/NarratorVoice.jsx'',''utf8''\\), {sourceType:''module'',plugins:[''jsx'']}\\); console.log\\(''OK''\\); } catch\\(e\\) { console.log\\(e.message\\); }\")",
+      "Bash(ls c:/Users/DELL/EwolucJA/frontend/public/tlo*)",
+      "Bash(node -e \"try { require\\(''@babel/parser''\\).parse\\(require\\(''fs''\\).readFileSync\\(''src/App.jsx'',''utf8''\\), {sourceType:''module'',plugins:[''jsx'']}\\); console.log\\(''OK''\\); } catch\\(e\\) { console.log\\(e.message.split\\(''\\\\n''\\)[0]\\); }\")",
+      "Bash(node -e \"require\\(''''fs''''\\).readFileSync\\(''''frontend/src/App.jsx'''',''''utf8''''\\); console.log\\(''''File reads OK''''\\)\")",
+      "Bash(node --check frontend/src/App.jsx)",
+      "Bash(npx esbuild:*)",
+      "Bash(git stash:*)",
+      "Bash(git checkout:*)"
     ]
   }
 }

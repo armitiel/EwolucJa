@@ -115,7 +115,7 @@ const SCORING = {
 
 const styles = {
   app: {
-    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    fontFamily: "'Lato', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
     minHeight: "100vh",
     display: "flex",
     flexDirection: "column",
@@ -128,7 +128,7 @@ const styles = {
   container: {
     maxWidth: "480px",
     width: "100%",
-    padding: "20px",
+    padding: "20px 20px 90px",
     boxSizing: "border-box",
   },
   header: {
@@ -144,7 +144,8 @@ const styles = {
     marginBottom: "4px",
   },
   subtitle: {
-    fontSize: "14px",
+    fontSize: "20px",
+    fontWeight: "600",
     color: "#8899aa",
   },
   card: {
@@ -190,6 +191,7 @@ const styles = {
     fontSize: "16px",
     boxSizing: "border-box",
     marginBottom: "12px",
+    textAlign: "center",
   },
   landBadge: (color) => ({
     display: "inline-block",
@@ -773,6 +775,10 @@ export default function App() {
   const [equipment, setEquipment] = useState([]);
   const [newItem, setNewItem] = useState(null);
 
+  // ── Avatar AI update po zdobyciu ekwipunku ──
+  const [avatarUpdatePhase, setAvatarUpdatePhase] = useState(null); // null | "generating" | "ready"
+  const [avatarAiUrl, setAvatarAiUrl] = useState(null);
+
   // Stan splash-screen / przejscie miedzy krainami
   const [showTransition, setShowTransition] = useState(false);
   const [transitionLand, setTransitionLand] = useState(null);
@@ -830,7 +836,17 @@ export default function App() {
 
   const dismissNewItem = useCallback(() => {
     setNewItem(null);
-  }, []);
+    // Po zamknięciu powiadomienia o nowym przedmiocie → generuj AI awatar
+    setAvatarUpdatePhase("generating");
+    agentAPI.generateAvatar(playerName, avatarConfig, playerGender, equipment)
+      .then((result) => {
+        if (result?.url) setAvatarAiUrl(result.url);
+        setAvatarUpdatePhase("ready");
+      })
+      .catch(() => {
+        setAvatarUpdatePhase(null); // fallback — kontynuuj grę
+      });
+  }, [playerName, avatarConfig, playerGender, equipment]);
 
   // ── Ekran startowy ────────────────────────────────────────────────
 
@@ -871,92 +887,133 @@ export default function App() {
                 src="/Logo.png"
                 alt="EwolucJA"
                 style={{
-                  width: "280px",
-                  maxWidth: "80vw",
+                  width: "840px",
+                  maxWidth: "90vw",
                   height: "auto",
                   animation: "scaleRotateIn 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards",
                   filter: "drop-shadow(0 4px 20px rgba(233, 69, 96, 0.3))",
                 }}
               />
 
-              {/* Podtytuł — fade in z opóźnieniem */}
-              <p style={{
-                fontSize: "15px",
-                opacity: 0,
-                animation: "slideUpFade 0.8s ease-out 0.8s both",
-                color: "rgba(255,255,255,0.5)",
-                marginTop: "16px",
-              }}>Odkryj swoje supermoce!</p>
-
-              {/* Przycisk — pojawia się po animacjach logo */}
-              <button
-                onClick={() => {
-                  ttsPlayer.unlock();
-                  setStartPhase("welcome");
-                }}
-                style={{
-                  marginTop: "50px",
-                  padding: "16px 40px",
-                  borderRadius: "30px",
-                  border: "2px solid rgba(233, 69, 96, 0.5)",
-                  background: "linear-gradient(135deg, rgba(233,69,96,0.2), rgba(255,213,84,0.15))",
-                  color: "#fff",
-                  fontSize: "17px",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                  opacity: 0,
-                  animation: "slideUpFade 0.6s ease-out 1.6s both, invitePulse 2s ease-in-out 2.2s infinite",
-                  letterSpacing: "0.5px",
-                }}
-              >
-                Dotknij, aby rozpocząć
-              </button>
+              {/* Przycisk z cząsteczkami */}
+              <div style={{ position: "relative", display: "inline-block", marginTop: "50px" }}>
+                <button
+                  className="cta-splash"
+                  onMouseEnter={(e) => {
+                    const container = e.currentTarget.parentElement;
+                    if (container._hoverInterval) return;
+                    container._hoverInterval = setInterval(() => {
+                      const btn = container.querySelector("button");
+                      const rect = btn.getBoundingClientRect();
+                      const contRect = container.getBoundingClientRect();
+                      for (let i = 0; i < 2; i++) {
+                        const p = document.createElement("span");
+                        p.className = "cta-particle";
+                        const x = Math.random() * rect.width;
+                        const y = Math.random() * rect.height;
+                        p.style.left = (rect.left - contRect.left + x) + "px";
+                        p.style.top = (rect.top - contRect.top + y) + "px";
+                        p.style.setProperty("--dx", (Math.random() - 0.5) * 60 + "px");
+                        p.style.setProperty("--dy", (Math.random() - 0.5) * 60 - 20 + "px");
+                        p.style.background = Math.random() > 0.5
+                          ? "rgba(233, 69, 96, " + (0.6 + Math.random() * 0.4) + ")"
+                          : "rgba(255, 213, 84, " + (0.6 + Math.random() * 0.4) + ")";
+                        container.appendChild(p);
+                        setTimeout(() => p.remove(), 800);
+                      }
+                    }, 80);
+                  }}
+                  onMouseLeave={(e) => {
+                    const container = e.currentTarget.parentElement;
+                    clearInterval(container._hoverInterval);
+                    container._hoverInterval = null;
+                  }}
+                  onClick={(e) => {
+                    const btn = e.currentTarget;
+                    const container = btn.parentElement;
+                    const rect = btn.getBoundingClientRect();
+                    const contRect = container.getBoundingClientRect();
+                    const cx = rect.left - contRect.left + rect.width / 2;
+                    const cy = rect.top - contRect.top + rect.height / 2;
+                    for (let i = 0; i < 70; i++) {
+                      const p = document.createElement("span");
+                      p.className = "cta-particle cta-particle-explode";
+                      p.style.left = cx + "px";
+                      p.style.top = cy + "px";
+                      const angle = (Math.PI * 2 * i) / 70 + (Math.random() - 0.5) * 0.5;
+                      const dist = 80 + Math.random() * 180;
+                      p.style.setProperty("--dx", Math.cos(angle) * dist + "px");
+                      p.style.setProperty("--dy", Math.sin(angle) * dist + "px");
+                      p.style.background = ["rgba(233,69,96,1)", "rgba(255,213,84,1)", "rgba(255,255,255,0.9)"][i % 3];
+                      const size = (6 + Math.random() * 8) + "px";
+                      p.style.width = size;
+                      p.style.height = size;
+                      p.style.animationDelay = (Math.random() * 0.3) + "s";
+                      container.appendChild(p);
+                      setTimeout(() => p.remove(), 3000);
+                    }
+                    clearInterval(container._hoverInterval);
+                    container._hoverInterval = null;
+                    setTimeout(() => {
+                      ttsPlayer.unlock();
+                      setStartPhase("welcome");
+                    }, 2800);
+                  }}
+                  style={{
+                    padding: "16px 40px",
+                    borderRadius: "30px",
+                    border: "2px solid rgba(233, 69, 96, 0.6)",
+                    background: "linear-gradient(135deg, rgba(233,69,96,0.25), rgba(255,213,84,0.2))",
+                    color: "rgba(255,255,255,0.9)",
+                    fontSize: "17px",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                    opacity: 0,
+                    animation: "slideUpFade 0.6s ease-out 1.6s both, invitePulse 2s ease-in-out 2.2s infinite",
+                    letterSpacing: "0.5px",
+                    position: "relative",
+                    zIndex: 1,
+                  }}
+                >
+                  Odkryj swoje supermoce!
+                </button>
+              </div>
             </div>
           )}
 
           {/* ═══ FAZA 2: Powitanie glosowe + tekst animowany ═══ */}
           {startPhase === "welcome" && (
-            <div style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              minHeight: "80vh",
-              gap: "0",
-              padding: "0 20px",
-            }}>
-              {/* Logo — mniejsze, z glow */}
-              <img
-                src="/Logo.png"
-                alt="EwolucJA"
-                style={{
-                  width: "200px",
-                  maxWidth: "60vw",
-                  height: "auto",
-                  animation: "float 3s ease-in-out infinite",
-                  filter: "drop-shadow(0 4px 20px rgba(233, 69, 96, 0.3))",
-                  marginBottom: "40px",
-                }}
-              />
-
+            <div
+              onClick={() => { ttsPlayer.stop(); setStartPhase("name"); }}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                minHeight: "80vh",
+                gap: "0",
+                padding: "0 20px",
+                cursor: "pointer",
+              }}
+            >
               {/* Tekst powitania — pojawia się z animacją */}
               <div style={{
-                maxWidth: "360px",
+                maxWidth: "500px",
                 textAlign: "center",
                 opacity: 0,
                 animation: "slideUpFade 1s ease-out 0.3s both",
               }}>
                 <p style={{
-                  fontSize: "17px",
+                  fontSize: "24px",
                   lineHeight: "1.7",
                   color: "rgba(255,255,255,0.85)",
-                  margin: "0 0 8px",
-                  fontWeight: "500",
+                  margin: "0 0 12px",
+                  fontWeight: "600",
                 }}>
                   Witaj w magicznym świecie Ewolucji!
                 </p>
                 <p style={{
-                  fontSize: "15px",
+                  fontSize: "18px",
                   lineHeight: "1.6",
                   color: "rgba(255,255,255,0.6)",
                   margin: "0",
@@ -981,6 +1038,40 @@ export default function App() {
                   onEnd={() => setStartPhase("name")}
                 />
               </div>
+
+              {/* Logo na dole ekranu */}
+              <img
+                src="/logo2.svg"
+                alt="EwolucJA"
+                style={{
+                  position: "fixed",
+                  bottom: "80px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  width: "260px",
+                  maxWidth: "40vw",
+                  height: "auto",
+                  filter: "drop-shadow(0 4px 20px rgba(233, 69, 96, 0.3))",
+                  opacity: 0.7,
+                  pointerEvents: "none",
+                  zIndex: 20,
+                }}
+              />
+
+              {/* Podpowiedź — dotknij aby pominąć */}
+              <div style={{
+                position: "fixed",
+                bottom: "24px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                fontSize: "13px",
+                color: "rgba(255,255,255,0.4)",
+                opacity: 0,
+                animation: "fadeIn 0.5s ease-out 3s both",
+                pointerEvents: "none",
+              }}>
+                Dotknij aby pominąć
+              </div>
             </div>
           )}
 
@@ -992,20 +1083,8 @@ export default function App() {
               alignItems: "center",
               minHeight: "80vh",
               paddingTop: "60px",
+              paddingBottom: "90px",
             }}>
-              {/* Logo kompaktowe */}
-              <img
-                src="/Logo.png"
-                alt="EwolucJA"
-                style={{
-                  width: "160px",
-                  maxWidth: "50vw",
-                  height: "auto",
-                  animation: "float 3s ease-in-out infinite",
-                  filter: "drop-shadow(0 4px 15px rgba(233, 69, 96, 0.25))",
-                  marginBottom: "24px",
-                }}
-              />
 
               {/* Karta z polem imienia */}
               <div style={{
@@ -1132,7 +1211,7 @@ export default function App() {
       }}>
         <div style={styles.header}>
           <img
-            src="/Logo.png"
+            src="/logo2.svg"
             alt="EwolucJA"
             style={{
               width: "120px",
@@ -1151,8 +1230,8 @@ export default function App() {
                 src={aiAvatarUrl}
                 alt={playerName}
                 style={{
-                  width: 80,
-                  height: 80,
+                  width: 234,
+                  height: 234,
                   borderRadius: "50%",
                   objectFit: "cover",
                   border: "3px solid " + (landColor || "#ffd54f"),
@@ -1183,8 +1262,98 @@ export default function App() {
           </div>
         )}
 
+        {/* Ekran aktualizacji AI awatara po zdobyciu ekwipunku */}
+        {!newItem && avatarUpdatePhase && (
+          <div style={{
+            ...styles.card,
+            padding: "24px",
+            textAlign: "center",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "16px",
+          }}>
+            {avatarUpdatePhase === "generating" && (
+              <>
+                <div style={{ fontSize: "18px", fontWeight: 600, color: "#fff" }}>
+                  Aktualizacja awatara...
+                </div>
+                <div style={{
+                  width: 280,
+                  height: 280,
+                  borderRadius: "24px",
+                  overflow: "hidden",
+                  position: "relative",
+                  background: "rgba(255,255,255,0.05)",
+                }}>
+                  {avatarConfig && (
+                    <AvatarDisplay
+                      avatarConfig={avatarConfig}
+                      equipment={equipment}
+                      playerName={playerName}
+                      compact={false}
+                    />
+                  )}
+                  <div style={{
+                    position: "absolute",
+                    bottom: 12,
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    background: "rgba(0,0,0,0.6)",
+                    borderRadius: "20px",
+                    padding: "6px 16px",
+                    fontSize: "12px",
+                    color: "rgba(255,255,255,0.8)",
+                    backdropFilter: "blur(4px)",
+                  }}>
+                    <span style={{ animation: "pulse 1.5s ease infinite", display: "inline-block" }}>
+                      Tworzenie portretu AI...
+                    </span>
+                  </div>
+                </div>
+              </>
+            )}
+            {avatarUpdatePhase === "ready" && (
+              <>
+                <div style={{ fontSize: "18px", fontWeight: 600, color: "#fff" }}>
+                  Twój awatar ewoluuje!
+                </div>
+                {avatarAiUrl && (
+                  <img
+                    src={avatarAiUrl}
+                    alt="AI Avatar"
+                    style={{
+                      width: 280,
+                      height: 280,
+                      borderRadius: "24px",
+                      objectFit: "cover",
+                      boxShadow: "0 0 30px rgba(255,215,0,0.3)",
+                    }}
+                  />
+                )}
+                <button
+                  onClick={() => setAvatarUpdatePhase(null)}
+                  style={{
+                    padding: "12px 32px",
+                    borderRadius: "30px",
+                    border: "none",
+                    background: "linear-gradient(135deg, #6C63FF, #48E0C4)",
+                    color: "#fff",
+                    fontSize: "16px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    boxShadow: "0 4px 15px rgba(108,99,255,0.4)",
+                  }}
+                >
+                  {"Kontynuuj przygodę! \u2192"}
+                </button>
+              </>
+            )}
+          </div>
+        )}
+
         {/* Pasek postępu */}
-        {!newItem && (
+        {!newItem && !avatarUpdatePhase && (
           <div style={styles.progressBar}>
             {GAME_STEPS.map((_, i) => (
               <div key={i} style={styles.progressDot(i === stepIndex, i < stepIndex)} />
@@ -1192,7 +1361,7 @@ export default function App() {
           </div>
         )}
 
-        {!newItem && (
+        {!newItem && !avatarUpdatePhase && (
           <div style={{
             ...styles.card,
             background: cardGlow,

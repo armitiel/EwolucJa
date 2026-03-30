@@ -162,8 +162,8 @@ async function imageFetch(endpoint, body = {}) {
 /**
  * 9. GENERUJ AWATAR AI — fal.ai tworzy obraz postaci
  */
-export async function generateAvatar(playerName, avatarConfig = {}) {
-  return imageFetch("/avatar", { playerName, avatarConfig });
+export async function generateAvatar(playerName, avatarConfig = {}, gender = "boy", equipment = []) {
+  return imageFetch("/avatar", { playerName, avatarConfig, gender, equipment });
 }
 
 /**
