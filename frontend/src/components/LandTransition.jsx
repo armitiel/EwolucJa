@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import NarratorVoice from "./NarratorVoice";
+import { ttsPlayer } from "../services/ttsPlayer";
 
 /* ════════════════════════════════════════════════════════════════════════
    LandTransition — Splash screen animowany przy wejściu do nowej krainy
@@ -71,6 +72,9 @@ export default function LandTransition({ land, playerName, onComplete }) {
   const config = LAND_CONFIG[land];
 
   useEffect(() => {
+    // Zatrzymaj poprzedni dzwiek zanim splash zacznie swoj
+    ttsPlayer.stop();
+
     // Generuj losowe cząsteczki
     const pts = [];
     for (let i = 0; i < 20; i++) {
@@ -90,7 +94,7 @@ export default function LandTransition({ land, playerName, onComplete }) {
     const showTimer = setTimeout(() => setPhase("show"), 100);
     // Po 3s automatycznie zamknij
     const exitTimer = setTimeout(() => setPhase("exit"), 3000);
-    const doneTimer = setTimeout(() => onComplete(), 3600);
+    const doneTimer = setTimeout(() => { ttsPlayer.stop(); onComplete(); }, 3600);
 
     return () => {
       clearTimeout(showTimer);
@@ -216,12 +220,13 @@ export default function LandTransition({ land, playerName, onComplete }) {
           text={`${config.title}. ${config.description}`}
           land={land}
           compact={true}
+          autoPlayDelay={800}
         />
       )}
 
       {/* Kliknij aby pominąć */}
       <button
-        onClick={() => { setPhase("exit"); setTimeout(onComplete, 400); }}
+        onClick={() => { ttsPlayer.stop(); setPhase("exit"); setTimeout(onComplete, 400); }}
         style={{
           position: "absolute",
           bottom: "40px",

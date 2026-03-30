@@ -865,6 +865,7 @@ export default function App() {
                 }}
                 onClick={() => {
                   ttsPlayer.stop();
+                  ttsPlayer._pendingText = null;
                   ttsPlayer.unlock();
                   prevLandRef.current = null;
                   setTransitionLand("dolina_selfie");
