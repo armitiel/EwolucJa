@@ -116,7 +116,11 @@ export default function AvatarBoy({ config = DEFAULT_AVATAR_CONFIG, size = 200, 
         }
       }
       if (!cancelled && containerRef.current) {
-        containerRef.current.innerHTML = _svgCache[cacheKey];
+        // Wytnij DOCTYPE/XML przed <svg — bo ]> z DOCTYPE renderuje się jako tekst
+        let clean = _svgCache[cacheKey];
+        const svgStart = clean.indexOf("<svg");
+        if (svgStart > 0) clean = clean.slice(svgStart);
+        containerRef.current.innerHTML = clean;
         const svg = containerRef.current.querySelector("svg");
         if (svg) {
           svg.setAttribute("width", "100%");
