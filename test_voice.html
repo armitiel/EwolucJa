@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Test Głosu GAMA-1</title>
+  <style>
+    body { font-family: Arial; background: #1a1a2e; color: #f0f0f0; display: flex; flex-direction: column; align-items: center; padding: 40px; }
+    button { padding: 16px 32px; font-size: 18px; border-radius: 12px; border: 2px solid #e94560; background: rgba(233,69,96,0.2); color: #fff; cursor: pointer; margin: 10px; }
+    button:hover { background: rgba(233,69,96,0.4); }
+    #status { margin-top: 20px; color: #ffd54f; font-style: italic; }
+    .ok { color: #2ecc71; }
+    .err { color: #e74c3c; }
+  </style>
+</head>
+<body>
+  <h1>🎙️ Test Głosu GAMA-1</h1>
+  <p>Kliknij przycisk żeby usłyszeć narratora:</p>
+
+  <button onclick="testTTS()">🔊 Odtwórz głos narratora</button>
+  <button onclick="checkStatus()">📡 Sprawdź status TTS</button>
+
+  <div id="status"></div>
+
+  <script>
+    const API = "http://localhost:3001";
+    const status = document.getElementById("status");
+
+    async function checkStatus() {
+      status.textContent = "Sprawdzam...";
+      try {
+        const r = await fetch(API + "/api/tts/status");
+        const d = await r.json();
+        status.innerHTML = '<span class="ok">✅ TTS dostępny!</span><br>Model: ' + d.model + '<br>Voice: ' + d.defaultVoice;
+      } catch (e) {
+        status.innerHTML = '<span class="err">❌ Błąd: ' + e.message + '</span><br>Czy backend działa na localhost:3001?';
+      }
+    }
+
+    async function testTTS() {
+      status.textContent = "Generuję mowę...";
+      try {
+        const r = await fetch(API + "/api/tts/speak", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text: "Witaj podróżniku! Jestem GAMA-1, twój przewodnik po magicznym świecie Ewolucji. Przygoda dopiero się zaczyna!",
+            land: "dolina_selfie"
+          })
+        });
+
+        if (!r.ok) {
+          const err = await r.text();
+          status.innerHTML = '<span class="err">❌ API Error ' + r.status + ': ' + err + '</span>';
+          return;
+        }
+
+        const blob = await r.blob();
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        audio.volume = 0.8;
+
+        status.innerHTML = '<span class="ok">🔊 Odtwarzam... (' + Math.round(blob.size/1024) + ' KB)</span>';
+
+        audio.onended = () => {
+          status.innerHTML = '<span class="ok">✅ Gotowe!</span>';
+        };
+
+        audio.onerror = () => {
+          status.innerHTML = '<span class="err">❌ Błąd odtwarzania audio</span>';
+        };
+
+        await audio.play();
+      } catch (e) {
+        status.innerHTML = '<span class="err">❌ Błąd: ' + e.message + '</span>';
+      }
+    }
+
+    // Auto-check on load
+    checkStatus();
+  </script>
+</body>
+</html>

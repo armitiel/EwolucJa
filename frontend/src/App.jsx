@@ -183,12 +183,13 @@ const styles = {
   },
   input: {
     width: "100%",
-    padding: "12px 16px",
+    padding: "16px 20px",
     borderRadius: "12px",
     border: "2px solid rgba(255,255,255,0.15)",
     background: "rgba(255,255,255,0.05)",
     color: "#f0f0f0",
-    fontSize: "16px",
+    fontSize: "24px",
+    fontWeight: "600",
     boxSizing: "border-box",
     marginBottom: "12px",
     textAlign: "center",
@@ -853,9 +854,9 @@ export default function App() {
 
   const dismissNewItem = useCallback(() => {
     setNewItem(null);
-    // Po zamknięciu powiadomienia o nowym przedmiocie → generuj AI awatar
+    // Po zamknięciu powiadomienia o nowym przedmiocie → generuj AI awatar z referencją do poprzedniego
     setAvatarUpdatePhase("generating");
-    agentAPI.generateAvatar(playerName, avatarConfig, playerGender, equipment)
+    agentAPI.generateAvatar(playerName, avatarConfig, playerGender, equipment, avatarAiUrl)
       .then((result) => {
         if (result?.url) setAvatarAiUrl(result.url);
         setAvatarUpdatePhase("ready");
@@ -863,7 +864,7 @@ export default function App() {
       .catch(() => {
         setAvatarUpdatePhase(null); // fallback — kontynuuj grę
       });
-  }, [playerName, avatarConfig, playerGender, equipment]);
+  }, [playerName, avatarConfig, playerGender, equipment, avatarAiUrl]);
 
   // ── Ekran startowy ────────────────────────────────────────────────
 
@@ -1098,9 +1099,9 @@ export default function App() {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              minHeight: "80vh",
-              paddingTop: "60px",
-              paddingBottom: "90px",
+              justifyContent: "center",
+              minHeight: "100vh",
+              padding: "20px",
             }}>
 
               {/* Karta z polem imienia — wycentrowana */}
@@ -1167,6 +1168,16 @@ export default function App() {
                     Wyruszam w przygodę!
                   </button>
                 )}
+              </div>
+
+              {/* Kontrolki dźwięku — na dole ekranu */}
+              <div style={styles.bottomNarrator}>
+                <NarratorVoice
+                  text="Powiedz mi, jak masz na imię? Wpisz swoje imię, a Twoja przygoda się rozpocznie!"
+                  land="dolina_selfie"
+                  autoPlayDelay={400}
+                  compact={false}
+                />
               </div>
             </div>
           )}

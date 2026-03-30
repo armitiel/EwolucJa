@@ -105,6 +105,71 @@ class FalService {
   }
 
   /**
+   * Image-to-image — generuje nowy obraz na bazie poprzedniego (zachowuje spójność)
+   */
+  async _generateImg2Img(prompt, imageUrl, options = {}) {
+    if (!this.isAvailable()) {
+      throw new Error("Fal.ai API key not configured");
+    }
+
+    const {
+      imageSize = "square_hd",
+      numSteps = 4,
+      strength = 0.55,
+    } = options;
+
+    // Użyj flux/dev/image-to-image dla img2img
+    const model = "fal-ai/flux/dev/image-to-image";
+    const url = `${FAL_API_URL}/${model}`;
+
+    const body = {
+      prompt,
+      image_url: imageUrl,
+      image_size: imageSize,
+      num_inference_steps: Math.max(numSteps, 15), // img2img potrzebuje więcej kroków
+      num_images: 1,
+      strength, // 0 = identyczny, 1 = zupełnie nowy
+      enable_safety_checker: true,
+    };
+
+    console.log(`[FalService] Img2Img with strength=${strength}, model=${model}`);
+    console.log(`[FalService] Prompt: ${prompt.slice(0, 120)}...`);
+
+    const startTime = Date.now();
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Authorization": `Key ${this.apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`[FalService] Img2Img error ${response.status}:`, errorText);
+      // Fallback do zwykłego text2img
+      console.log("[FalService] Falling back to text2img...");
+      return this.generate(prompt, { imageSize, numSteps });
+    }
+
+    const data = await response.json();
+    const elapsed = Date.now() - startTime;
+    console.log(`[FalService] Img2Img generated in ${elapsed}ms`);
+
+    const image = data.images?.[0] || {};
+    return {
+      url: image.url || "",
+      width: image.width || 1024,
+      height: image.height || 1024,
+      seed: data.seed || 0,
+      timings: data.timings || {},
+      elapsed_ms: elapsed,
+    };
+  }
+
+  /**
    * Wykonuje żądanie do fal.ai API (synchronous mode)
    */
   async _doGenerate(model, prompt, negativePrompt, imageSize, numSteps, enableSafetyChecker) {
@@ -173,7 +238,7 @@ class FalService {
    * @param {string} params.gender - "boy" | "girl"
    * @returns {Promise<{url: string}>}
    */
-  async generateAvatar({ playerName, avatarPrompt, avatarConfig, gender, equipment }) {
+  async generateAvatar({ playerName, avatarPrompt, avatarConfig, gender, equipment, previousAvatarUrl }) {
     if (avatarPrompt) {
       return this.generate(avatarPrompt, { imageSize: "square_hd", numSteps: 4 });
     }
@@ -235,6 +300,16 @@ class FalService {
       `${BASE_STYLE}, portrait, centered, clean soft gradient background, adventure-ready pose`;
 
     console.log("[FalService] Avatar prompt from config:", prompt.slice(0, 300));
+
+    // Jeśli mamy poprzedni avatar — użyj image-to-image dla spójności
+    if (previousAvatarUrl) {
+      console.log("[FalService] Using img2img with previous avatar for consistency");
+      return this._generateImg2Img(prompt, previousAvatarUrl, {
+        imageSize: "square_hd",
+        numSteps: 4,
+        strength: 0.55, // Niska siła — zachowaj podobieństwo, dodaj nowy ekwipunek
+      });
+    }
 
     return this.generate(prompt, {
       imageSize: "square_hd",
