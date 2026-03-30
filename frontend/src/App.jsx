@@ -934,7 +934,7 @@ export default function App() {
                   margin: "0 0 8px",
                   fontWeight: "500",
                 }}>
-                  Witaj w magicznym swiecie Ewolucji!
+                  Witaj w magicznym świecie Ewolucji!
                 </p>
                 <p style={{
                   fontSize: "15px",
@@ -944,7 +944,7 @@ export default function App() {
                   opacity: 0,
                   animation: "slideUpFade 0.8s ease-out 1s both",
                 }}>
-                  Czekaja na Ciebie krainy pelne wyzwan, ktore pomoga Ci odkryc, jakim bohaterem jestes.
+                  Czekają na Ciebie krainy pełne wyzwań, które pomogą Ci odkryć, jakim bohaterem jesteś.
                 </p>
               </div>
 
