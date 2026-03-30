@@ -891,7 +891,7 @@ export default function App() {
                   letterSpacing: "0.5px",
                 }}
               >
-                Dotknij, aby rozpoczac
+                Dotknij, aby rozpocząć
               </button>
             </div>
           )}
@@ -955,7 +955,7 @@ export default function App() {
                 animation: "fadeIn 0.5s ease-out 0.5s both",
               }}>
                 <NarratorVoice
-                  text="Witaj w magicznym swiecie Ewolucji! Czekaja na Ciebie krainy pelne wyzwan, ktore pomoga Ci odkryc, jakim bohaterem jestes."
+                  text="Witaj w magicznym świecie Ewolucji! Czekają na Ciebie krainy pełne wyzwań, które pomogą Ci odkryć, jakim bohaterem jesteś."
                   land="dolina_selfie"
                   autoPlayDelay={600}
                   compact={true}
@@ -995,7 +995,7 @@ export default function App() {
                 width: "100%",
               }}>
                 <NarratorVoice
-                  text="Powiedz mi, jak masz na imie? Wpisz swoje imie, a Twoja przygoda sie rozpocznie!"
+                  text="Powiedz mi, jak masz na imię? Wpisz swoje imię, a Twoja przygoda się rozpocznie!"
                   land="dolina_selfie"
                   autoPlayDelay={400}
                   compact={false}
@@ -1009,8 +1009,8 @@ export default function App() {
                   opacity: 0,
                   animation: "slideUpFade 0.6s ease-out 0.5s both",
                 }}>
-                  Powiedz mi, jak masz na imie?<br/>
-                  Wpisz je ponizej, a Twoja przygoda sie rozpocznie!
+                  Powiedz mi, jak masz na imię?<br/>
+                  Wpisz je poniżej, a Twoja przygoda się rozpocznie!
                 </p>
                 <div style={{
                   opacity: 0,
@@ -1019,7 +1019,7 @@ export default function App() {
                   <input
                     autoFocus
                     style={styles.input}
-                    placeholder="Twoje imie..."
+                    placeholder="Twoje imię..."
                     value={playerName}
                     onChange={(e) => setPlayerName(e.target.value)}
                   />
@@ -1047,7 +1047,7 @@ export default function App() {
                       setPhase("playing");
                     }}
                   >
-                    Wyruszam w przygode!
+                    Wyruszam w przygodę!
                   </button>
                 )}
               </div>
