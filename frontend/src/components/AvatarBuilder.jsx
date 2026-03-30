@@ -151,7 +151,9 @@ export default function AvatarBuilder({ onComplete, playerName }) {
   return (
     <div style={builderStyles.wrapper}>
       {/* Narracja z głosem */}
-      <NarratorVoice text={ttsNarrations[step]} land="dolina_selfie" />
+      <div style={{ position: "absolute", opacity: 0, pointerEvents: "none", height: 0, overflow: "hidden" }}>
+        <NarratorVoice text={ttsNarrations[step]} land="dolina_selfie" />
+      </div>
       <p style={builderStyles.narration}>{narrations[step]}</p>
 
       {/* Podgląd awatara */}
