@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import AvatarSVG, { EQUIPMENT_DEFS } from "./AvatarSVG";
+import AvatarBoy from "./AvatarBoy";
+import { EQUIPMENT_DEFS } from "./AvatarSVG";
 
 /**
  * AvatarDisplay — Wyświetla awatar gracza z ekwipunkiem w panelu bocznym/górnym.
@@ -131,12 +132,7 @@ export default function AvatarDisplay({
           </button>
         </div>
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <AvatarSVG
-            config={avatarConfig}
-            equipment={equipment}
-            size={140}
-            animate={true}
-          />
+          <AvatarBoy config={avatarConfig} size={140} />
         </div>
       </div>
     );
@@ -147,13 +143,7 @@ export default function AvatarDisplay({
     return (
       <div style={displayStyles.compactContainer}>
         <style>{keyframesStyle}</style>
-        <AvatarSVG
-          config={avatarConfig}
-          equipment={equipment}
-          size={50}
-          animate={false}
-          showAura={false}
-        />
+        <AvatarBoy config={avatarConfig} size={50} />
         <div>
           <div style={{ fontSize: "13px", fontWeight: "600", color: "#eee" }}>
             {playerName}
@@ -187,12 +177,7 @@ export default function AvatarDisplay({
   return (
     <div style={displayStyles.container}>
       <style>{keyframesStyle}</style>
-      <AvatarSVG
-        config={avatarConfig}
-        equipment={equipment}
-        size={180}
-        animate={true}
-      />
+      <AvatarBoy config={avatarConfig} size={180} />
       {equipment.length > 0 && (
         <div style={displayStyles.inventoryRow}>
           {equipment.map((id) => {

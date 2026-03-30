@@ -1,17 +1,17 @@
 import React, { useState } from "react";
-import AvatarSVG, {
-  SKIN_TONES,
-  HAIR_COLORS,
-  HAIR_STYLES,
-  EYE_COLORS,
-  AURA_COLORS,
-} from "./AvatarSVG";
+import AvatarBoy, {
+  SKIN_COLORS,
+  SHIRT_COLORS,
+  SHORTS_COLORS,
+  SHOES_COLORS,
+  DEFAULT_AVATAR_CONFIG,
+} from "./AvatarBoy";
 import NarratorVoice from "./NarratorVoice";
 
 /**
  * AvatarBuilder — Kreator awatara w Dolinie Selfie.
  *
- * Gracz wybiera: karnację, fryzurę, kolor włosów, kolor oczu i kolor aury.
+ * Gracz wybiera: karnację, kolor koszulki, spodenek i butów.
  * Po zatwierdzeniu, config trafia do stanu gry.
  *
  * Props:
@@ -64,17 +64,6 @@ const builderStyles = {
     boxShadow: selected ? "0 0 12px rgba(255,213,84,0.4)" : "none",
     transform: selected ? "scale(1.15)" : "scale(1)",
   }),
-  stylePill: (selected) => ({
-    padding: "8px 16px",
-    borderRadius: "20px",
-    background: selected ? "rgba(233,69,96,0.25)" : "rgba(255,255,255,0.06)",
-    border: selected ? "2px solid #e94560" : "2px solid rgba(255,255,255,0.12)",
-    color: selected ? "#fff" : "#aab",
-    fontSize: "13px",
-    fontWeight: "500",
-    cursor: "pointer",
-    transition: "all 0.2s",
-  }),
   confirmBtn: {
     display: "block",
     width: "100%",
@@ -101,55 +90,44 @@ const builderStyles = {
 };
 
 export default function AvatarBuilder({ onComplete, playerName }) {
-  const [config, setConfig] = useState({
-    skinTone: "light",
-    hairStyle: "short",
-    hairColor: "brown",
-    eyeColor: "brown",
-    auraColor: "golden",
-  });
-
-  const [step, setStep] = useState(0); // 0-4 etapy konfiguracji
+  const [config, setConfig] = useState({ ...DEFAULT_AVATAR_CONFIG });
+  const [step, setStep] = useState(0);
 
   const steps = [
     {
       title: "Karnacja",
-      key: "skinTone",
-      type: "color",
-      options: SKIN_TONES,
+      key: "skinColor",
+      options: SKIN_COLORS,
     },
     {
-      title: "Fryzura",
-      key: "hairStyle",
-      type: "pill",
-      options: HAIR_STYLES,
+      title: "Koszulka",
+      key: "shirtColor",
+      options: SHIRT_COLORS,
     },
     {
-      title: "Kolor włosów",
-      key: "hairColor",
-      type: "color",
-      options: HAIR_COLORS,
+      title: "Spodenki",
+      key: "shortsColor",
+      options: SHORTS_COLORS,
     },
     {
-      title: "Kolor oczu",
-      key: "eyeColor",
-      type: "color",
-      options: EYE_COLORS,
-    },
-    {
-      title: "Kolor aury",
-      key: "auraColor",
-      type: "color",
-      options: AURA_COLORS,
+      title: "Buty",
+      key: "shoesColor",
+      options: SHOES_COLORS,
     },
   ];
 
   const narrations = [
-    `Zwierciadło Prawdy mruga i mówi: „${playerName}, pokaż mi swoją twarz! Zacznijmy od odcienia skóry."`,
-    `„Pięknie! A teraz — jaka fryzura najlepiej Cię opisuje?"`,
-    `„Oho! Teraz kolory — jaki kolor mają Twoje włosy w magicznym świecie?"`,
-    `„Widzę! A Twoje oczy — jakiego są koloru? To ważne, bo oczy to okna duszy!"`,
-    `„Ostatni krok — wybierz kolor swojej aury! Aura to niewidzialna energia, która Cię otacza. Jaka jest Twoja?"`,
+    `Zwierciadło Prawdy mruga i mówi: \u201e${playerName}, pokaż mi swoją twarz! Zacznijmy od odcienia skóry.\u201D`,
+    `\u201ePięknie! A teraz \u2014 jaki kolor koszulki chcesz nosić w magicznym świecie?\u201D`,
+    `\u201eSuper wybór! Teraz spodenki \u2014 jaki kolor najbardziej do Ciebie pasuje?\u201D`,
+    `\u201eOstatni krok \u2014 wybierz kolor butów! Dobre buty to podstawa każdej przygody!\u201D`,
+  ];
+
+  const ttsNarrations = [
+    `${playerName}, pokaż mi swoją twarz! Zacznijmy od odcienia skóry.`,
+    `Pięknie! A teraz, jaki kolor koszulki chcesz nosić w magicznym świecie?`,
+    `Super wybór! Teraz spodenki, jaki kolor najbardziej do Ciebie pasuje?`,
+    `Ostatni krok! Wybierz kolor butów. Dobre buty to podstawa każdej przygody!`,
   ];
 
   const currentStepData = steps[step];
@@ -170,15 +148,6 @@ export default function AvatarBuilder({ onComplete, playerName }) {
     if (step > 0) setStep(step - 1);
   };
 
-  // Tekst do TTS (bez cudzysłowów i znaków specjalnych)
-  const ttsNarrations = [
-    `${playerName}, pokaż mi swoją twarz! Zacznijmy od odcienia skóry.`,
-    `Pięknie! A teraz, jaka fryzura najlepiej Cię opisuje?`,
-    `Oho! Teraz kolory. Jaki kolor mają Twoje włosy w magicznym świecie?`,
-    `Widzę! A Twoje oczy, jakiego są koloru? To ważne, bo oczy to okna duszy!`,
-    `Ostatni krok! Wybierz kolor swojej aury. Aura to niewidzialna energia, która Cię otacza. Jaka jest Twoja?`,
-  ];
-
   return (
     <div style={builderStyles.wrapper}>
       {/* Narracja z głosem */}
@@ -187,46 +156,28 @@ export default function AvatarBuilder({ onComplete, playerName }) {
 
       {/* Podgląd awatara */}
       <div style={builderStyles.previewBox}>
-        <AvatarSVG config={config} equipment={[]} size={180} animate={true} />
+        <AvatarBoy config={config} size={220} />
       </div>
 
-      {/* Selektor cech */}
+      {/* Selektor kolorów */}
       <div style={builderStyles.section}>
         <div style={builderStyles.sectionTitle}>{currentStepData.title}</div>
         <div style={builderStyles.optionsRow}>
-          {currentStepData.type === "color"
-            ? currentStepData.options.map((opt) => (
-                <div key={opt.id} style={{ textAlign: "center" }}>
-                  <div
-                    style={builderStyles.colorSwatch(
-                      opt.hex,
-                      config[currentStepData.key] === opt.id
-                    )}
-                    onClick={() => handleSelect(opt.id)}
-                    title={opt.name}
-                  />
-                  <div
-                    style={{
-                      fontSize: "10px",
-                      color: "#889",
-                      marginTop: "4px",
-                    }}
-                  >
-                    {opt.name}
-                  </div>
-                </div>
-              ))
-            : currentStepData.options.map((opt) => (
-                <div
-                  key={opt.id}
-                  style={builderStyles.stylePill(
-                    config[currentStepData.key] === opt.id
-                  )}
-                  onClick={() => handleSelect(opt.id)}
-                >
-                  {opt.name}
-                </div>
-              ))}
+          {currentStepData.options.map((opt) => (
+            <div key={opt.id} style={{ textAlign: "center" }}>
+              <div
+                style={builderStyles.colorSwatch(
+                  opt.hex,
+                  config[currentStepData.key] === opt.id
+                )}
+                onClick={() => handleSelect(opt.id)}
+                title={opt.name}
+              />
+              <div style={{ fontSize: "10px", color: "#889", marginTop: "4px" }}>
+                {opt.name}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -244,22 +195,16 @@ export default function AvatarBuilder({ onComplete, playerName }) {
             }}
             onClick={handleBack}
           >
-            ← Wróć
+            \u2190 Wróć
           </button>
         )}
         <button style={builderStyles.confirmBtn} onClick={handleNext}>
-          {step < steps.length - 1 ? "Dalej →" : "✨ Tworzę awatara!"}
+          {step < steps.length - 1 ? "Dalej \u2192" : "\u2728 Tworzę awatara!"}
         </button>
       </div>
 
       {/* Wskaźnik kroków */}
-      <div
-        style={{
-          display: "flex",
-          gap: "6px",
-          justifyContent: "center",
-        }}
-      >
+      <div style={{ display: "flex", gap: "6px", justifyContent: "center" }}>
         {steps.map((_, i) => (
           <div
             key={i}
@@ -268,11 +213,7 @@ export default function AvatarBuilder({ onComplete, playerName }) {
               height: "8px",
               borderRadius: "50%",
               background:
-                i === step
-                  ? "#ffd54f"
-                  : i < step
-                  ? "#e94560"
-                  : "rgba(255,255,255,0.2)",
+                i === step ? "#ffd54f" : i < step ? "#e94560" : "rgba(255,255,255,0.2)",
               transition: "all 0.3s",
             }}
           />
