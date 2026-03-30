@@ -30,7 +30,7 @@ const btnBase = {
   outline: "none",
 };
 
-export default function NarratorVoice({ text, land, autoPlay = true, autoPlayDelay = 0, compact = false }) {
+export default function NarratorVoice({ text, land, autoPlay = true, autoPlayDelay = 0, compact = false, onEnd = null }) {
   const [playing, setPlaying] = useState(false);
   const [available, setAvailable] = useState(null);
   const [unlocked, setUnlocked] = useState(ttsPlayer.isUnlocked);
@@ -79,7 +79,10 @@ export default function NarratorVoice({ text, land, autoPlay = true, autoPlayDel
       if (cancelled) return;
       setPlayingSync(true);
       await ttsPlayer.speak(text, { land });
-      if (!cancelled && mountedRef.current) setPlayingSync(false);
+      if (!cancelled && mountedRef.current) {
+        setPlayingSync(false);
+        if (onEnd) onEnd();
+      }
     }, autoPlayDelay);
 
     return () => {
@@ -88,7 +91,7 @@ export default function NarratorVoice({ text, land, autoPlay = true, autoPlayDel
       ttsPlayer.stop();
       if (mountedRef.current) setPlayingSync(false);
     };
-  }, [text, available, muted, autoPlay, autoPlayDelay, land, unlocked, setPlayingSync]);
+  }, [text, available, muted, autoPlay, autoPlayDelay, land, unlocked, setPlayingSync, onEnd]);
 
   const handleSpeak = useCallback(async () => {
     if (!text || !available) return;
@@ -98,8 +101,11 @@ export default function NarratorVoice({ text, land, autoPlay = true, autoPlayDel
     lastTextRef.current = text;
     setPlayingSync(true);
     await ttsPlayer.speak(text, { land });
-    if (mountedRef.current) setPlayingSync(false);
-  }, [text, land, available, setPlayingSync]);
+    if (mountedRef.current) {
+      setPlayingSync(false);
+      if (onEnd) onEnd();
+    }
+  }, [text, land, available, setPlayingSync, onEnd]);
 
   const handleToggle = useCallback(() => {
     if (playing || playingRef.current) {

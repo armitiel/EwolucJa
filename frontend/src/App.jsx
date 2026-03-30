@@ -761,6 +761,7 @@ const TASK_DATA = {
 
 export default function App() {
   const [phase, setPhase] = useState("start"); // start | playing | done
+  const [startPhase, setStartPhase] = useState("welcome"); // welcome | name
   const [playerName, setPlayerName] = useState("");
   const [stepIndex, setStepIndex] = useState(0);
   const [scores, setScores] = useState({ EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 });
@@ -833,51 +834,114 @@ export default function App() {
 
   if (phase === "start") {
     return (
-      <div style={styles.app}>
+      <div style={styles.app} onClick={() => ttsPlayer.unlock()}>
         <div style={styles.container}>
-          <div style={{ textAlign: "center", marginTop: "60px", marginBottom: "40px" }}>
-            <div style={{ fontSize: "64px", marginBottom: "16px" }}>🌟</div>
-            <div style={styles.title}>EWOLUCJA</div>
-            <p style={styles.subtitle}>Odkryj swoje supermoce!</p>
-          </div>
-          <div style={styles.card}>
-            <NarratorVoice text="Witaj w magicznym świecie Ewolucji! Czekają na Ciebie krainy pełne wyzwań, które pomogą Ci odkryć, jakim bohaterem jesteś. Wpisz swoje imię, aby rozpocząć przygodę!" land="dolina_selfie" autoPlayDelay={3000} />
-            <p style={{ margin: "0 0 16px", fontSize: "15px" }}>
-              Witaj w magicznym świecie Ewolucji! Czekają na Ciebie krainy pełne wyzwań,
-              które pomogą Ci odkryć, jakim bohaterem jesteś.
-            </p>
-            <input
-              style={styles.input}
-              placeholder="Wpisz swoje imię..."
-              value={playerName}
-              onClick={() => ttsPlayer.unlock()}
-              onChange={(e) => { ttsPlayer.unlock(); setPlayerName(e.target.value); }}
-            />
-            {playerName.trim().length > 0 && (
-              <button
-                style={{
-                  ...styles.button,
+          {/* ── FAZA 1: Logo + powitanie głosowe ── */}
+          {startPhase === "welcome" && (
+            <>
+              <div style={{
+                textAlign: "center",
+                marginTop: "100px",
+                animation: "fadeIn 1s ease-out",
+              }}>
+                <div style={{
+                  fontSize: "80px",
+                  marginBottom: "20px",
+                  animation: "float 3s ease-in-out infinite",
+                }}>🌟</div>
+                <div style={styles.title}>EWOLUCJA</div>
+                <p style={{
+                  ...styles.subtitle,
+                  marginTop: "12px",
+                  opacity: 0.7,
+                  fontSize: "14px",
+                }}>Odkryj swoje supermoce!</p>
+              </div>
+              <div style={{
+                textAlign: "center",
+                marginTop: "40px",
+                opacity: 0.6,
+                fontSize: "13px",
+                color: "#aaa",
+              }}>
+                <NarratorVoice
+                  text="Witaj w magicznym swiecie Ewolucji! Czekaja na Ciebie krainy pelne wyzwan, ktore pomoga Ci odkryc, jakim bohaterem jestes."
+                  land="dolina_selfie"
+                  autoPlayDelay={1500}
+                  compact={true}
+                  onEnd={() => setStartPhase("name")}
+                />
+              </div>
+            </>
+          )}
+
+          {/* ── FAZA 2: Pole imienia + narracja zachecajaca ── */}
+          {startPhase === "name" && (
+            <>
+              <div style={{
+                textAlign: "center",
+                marginTop: "60px",
+                marginBottom: "30px",
+                animation: "fadeIn 0.8s ease-out",
+              }}>
+                <div style={{ fontSize: "64px", marginBottom: "16px" }}>🌟</div>
+                <div style={styles.title}>EWOLUCJA</div>
+              </div>
+              <div style={{
+                ...styles.card,
+                animation: "fadeIn 0.8s ease-out",
+              }}>
+                <NarratorVoice
+                  text="Powiedz mi, jak masz na imie? Wpisz je ponizej, a Twoja przygoda sie rozpocznie!"
+                  land="dolina_selfie"
+                  autoPlayDelay={300}
+                  compact={false}
+                />
+                <p style={{
+                  margin: "12px 0 16px",
+                  fontSize: "15px",
+                  lineHeight: "1.5",
                   textAlign: "center",
-                  background: "linear-gradient(135deg, rgba(233,69,96,0.3), rgba(255,213,84,0.3))",
-                  borderColor: "#e94560",
-                  fontSize: "18px",
-                  fontWeight: "600",
-                }}
-                onClick={() => {
-                  ttsPlayer.stop();
-                  ttsPlayer._pendingText = null;
-                  ttsPlayer.unlock();
-                  prevLandRef.current = null;
-                  setTransitionLand("dolina_selfie");
-                  setShowTransition(true);
-                  setContentVisible(false);
-                  setPhase("playing");
-                }}
-              >
-                Wyruszam w przygodę!
-              </button>
-            )}
-          </div>
+                  color: "#ccc",
+                }}>
+                  Powiedz mi, jak masz na imie?
+                  Wpisz je ponizej, a Twoja przygoda sie rozpocznie!
+                </p>
+                <input
+                  autoFocus
+                  style={styles.input}
+                  placeholder="Wpisz swoje imie..."
+                  value={playerName}
+                  onChange={(e) => { ttsPlayer.unlock(); setPlayerName(e.target.value); }}
+                />
+                {playerName.trim().length > 0 && (
+                  <button
+                    style={{
+                      ...styles.button,
+                      textAlign: "center",
+                      background: "linear-gradient(135deg, rgba(233,69,96,0.3), rgba(255,213,84,0.3))",
+                      borderColor: "#e94560",
+                      fontSize: "18px",
+                      fontWeight: "600",
+                      animation: "fadeIn 0.5s ease-out",
+                    }}
+                    onClick={() => {
+                      ttsPlayer.stop();
+                      ttsPlayer._pendingText = null;
+                      ttsPlayer.unlock();
+                      prevLandRef.current = null;
+                      setTransitionLand("dolina_selfie");
+                      setShowTransition(true);
+                      setContentVisible(false);
+                      setPhase("playing");
+                    }}
+                  >
+                    Wyruszam w przygode!
+                  </button>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
     );
