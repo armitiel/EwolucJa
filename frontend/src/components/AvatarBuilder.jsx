@@ -117,10 +117,10 @@ export default function AvatarBuilder({ onComplete, playerName }) {
   ];
 
   const narrations = [
-    `Zwierciadło Prawdy mruga i mówi: \u201e${playerName}, pokaż mi swoją twarz! Zacznijmy od odcienia skóry.\u201D`,
-    `\u201ePięknie! A teraz \u2014 jaki kolor koszulki chcesz nosić w magicznym świecie?\u201D`,
-    `\u201eSuper wybór! Teraz spodenki \u2014 jaki kolor najbardziej do Ciebie pasuje?\u201D`,
-    `\u201eOstatni krok \u2014 wybierz kolor butów! Dobre buty to podstawa każdej przygody!\u201D`,
+    `Zwierciadło Prawdy mruga i mówi: "${playerName}, pokaż mi swoją twarz! Zacznijmy od odcienia skóry."`,
+    `"Pięknie! A teraz - jaki kolor koszulki chcesz nosić w magicznym świecie?"`,
+    `"Super wybór! Teraz spodenki - jaki kolor najbardziej do Ciebie pasuje?"`,
+    `"Ostatni krok - wybierz kolor butów! Dobre buty to podstawa każdej przygody!"`,
   ];
 
   const ttsNarrations = [

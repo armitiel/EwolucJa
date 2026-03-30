@@ -157,11 +157,11 @@ export default function NarratorVoice({ text, land, autoPlay = true, autoPlayDel
       <div style={{ display: "flex", gap: "4px" }}>
         <button onClick={handleToggle} style={playing ? activeBtn : btnBase}
           title={playing ? "Zatrzymaj" : "Posłuchaj"}>
-          {playing ? "\u23F9\uFE0F" : "\uD83D\uDD0A"}
+          {playing ? "⏹" : "▶"}
         </button>
         <button onClick={handleMuteToggle} style={muteBtn}
           title={muted ? "Włącz głos" : "Wyłącz głos"}>
-          {muted ? "\uD83D\uDD07" : "\uD83D\uDD08"}
+          {muted ? "🔇" : "🔈"}
         </button>
       </div>
     );
@@ -171,11 +171,11 @@ export default function NarratorVoice({ text, land, autoPlay = true, autoPlayDel
     <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
       <style>{pulseKeyframes}</style>
       <button onClick={handleToggle} style={playing ? activeBtn : btnBase}>
-        {playing ? "\u23F9\uFE0F Zatrzymaj" : "\uD83D\uDD0A Posłuchaj"}
+        {playing ? "⏹ Zatrzymaj" : "▶ Posłuchaj"}
       </button>
       <button onClick={handleMuteToggle} style={muteBtn}
         title={muted ? "Włącz głos narratora" : "Wyłącz głos narratora"}>
-        {muted ? "\uD83D\uDD07" : "\uD83D\uDD08"}
+        {muted ? "🔇" : "🔈"}
       </button>
       {playing && (
         <span style={{

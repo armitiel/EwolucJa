@@ -715,7 +715,7 @@ const TASK_DATA = {
   },
   2: {
     narration:
-      'Szlak prowadzi przez gęsty las. Ścieżka się rozdziela \u2014 prosta droga wiedzie do Zamku. Po prawej widzisz zarośniętą ścieżkę z tabliczką: \u201eTędy do niczego nie dojdziesz\u201D. Co robisz?',
+      'Szlak prowadzi przez gęsty las. Ścieżka się rozdziela \u2014 prosta droga wiedzie do Zamku. Po prawej widzisz zarośniętą ścieżkę z tabliczką: "Tędy do niczego nie dojdziesz". Co robisz?',
     choices: [
       { id: "A", icon: "🏰", label: "Idę prosto do celu — Zamek czeka!" },
       { id: "B", icon: "🌿", label: "Sprawdzam zarośniętą ścieżkę — tabliczka mnie nie powstrzyma!" },
@@ -741,7 +741,7 @@ const TASK_DATA = {
   },
   8: {
     narration:
-      'W przystani dwa stworzenia kłócą się przy mapie. Krabor krzyczy: \u201eNa PÓŁNOC!\u201D Żółwinka płacze: \u201eNa POŁUDNIE, tam bezpieczniej...\u201D Obydwoje patrzą na Ciebie. Co robisz?',
+      'W przystani dwa stworzenia kłócą się przy mapie. Krabor krzyczy: "Na PÓŁNOC!" Żółwinka płacze: "Na POŁUDNIE, tam bezpieczniej..." Obydwoje patrzą na Ciebie. Co robisz?',
     choices: [
       { id: "A", icon: "📢", label: "CISZA! Ja tu decyduję!" },
       { id: "B", icon: "🗳️", label: "Głosujmy! Każdy powie, czego chce." },
