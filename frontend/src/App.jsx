@@ -1044,7 +1044,7 @@ export default function App() {
                       setTransitionLand("dolina_selfie");
                       setShowTransition(true);
                       setContentVisible(false);
-                      setPhase("playing");
+                      setStartPhase("transition");
                     }}
                   >
                     Wyruszam w przygodę!
@@ -1052,6 +1052,20 @@ export default function App() {
                 )}
               </div>
             </div>
+          )}
+
+          {/* ═══ FAZA 4: Splash Dolina Selfie (izolowany) ═══ */}
+          {startPhase === "transition" && showTransition && transitionLand && (
+            <LandTransition
+              land={transitionLand}
+              playerName={playerName}
+              onComplete={() => {
+                setShowTransition(false);
+                setTransitionLand(null);
+                setContentVisible(true);
+                setPhase("playing");
+              }}
+            />
           )}
 
         </div>
