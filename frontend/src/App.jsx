@@ -847,27 +847,26 @@ export default function App() {
               minHeight: "80vh",
               gap: "0",
             }}>
-              {/* Gwiazdka — wlatuje z obrotem */}
-              <div style={{
-                fontSize: "90px",
-                animation: "scaleRotateIn 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards",
-                marginBottom: "16px",
-              }}>🌟</div>
+              {/* Logo — wlatuje z animacją */}
+              <img
+                src="/Logo.png"
+                alt="EwolucJA"
+                style={{
+                  width: "280px",
+                  maxWidth: "80vw",
+                  height: "auto",
+                  animation: "scaleRotateIn 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards",
+                  filter: "drop-shadow(0 4px 20px rgba(233, 69, 96, 0.3))",
+                }}
+              />
 
-              {/* Tytuł — fade in z opóźnieniem */}
-              <div style={{
-                ...styles.title,
-                animation: "slideUpFade 0.8s ease-out 0.5s both",
-              }}>EWOLUCJA</div>
-
-              {/* Podtytuł — fade in z większym opóźnieniem */}
+              {/* Podtytuł — fade in z opóźnieniem */}
               <p style={{
-                ...styles.subtitle,
                 fontSize: "15px",
                 opacity: 0,
-                animation: "slideUpFade 0.8s ease-out 1s both",
+                animation: "slideUpFade 0.8s ease-out 0.8s both",
                 color: "rgba(255,255,255,0.5)",
-                marginTop: "8px",
+                marginTop: "16px",
               }}>Odkryj swoje supermoce!</p>
 
               {/* Przycisk — pojawia się po animacjach logo */}
@@ -908,17 +907,18 @@ export default function App() {
               padding: "0 20px",
             }}>
               {/* Logo — mniejsze, z glow */}
-              <div style={{
-                fontSize: "56px",
-                animation: "float 3s ease-in-out infinite",
-                marginBottom: "12px",
-              }}>🌟</div>
-              <div style={{
-                ...styles.title,
-                fontSize: "28px",
-                animation: "logoGlow 3s ease-in-out infinite",
-                marginBottom: "40px",
-              }}>EWOLUCJA</div>
+              <img
+                src="/Logo.png"
+                alt="EwolucJA"
+                style={{
+                  width: "200px",
+                  maxWidth: "60vw",
+                  height: "auto",
+                  animation: "float 3s ease-in-out infinite",
+                  filter: "drop-shadow(0 4px 20px rgba(233, 69, 96, 0.3))",
+                  marginBottom: "40px",
+                }}
+              />
 
               {/* Tekst powitania — pojawia się z animacją */}
               <div style={{
@@ -975,16 +975,18 @@ export default function App() {
               paddingTop: "60px",
             }}>
               {/* Logo kompaktowe */}
-              <div style={{
-                fontSize: "48px",
-                animation: "float 3s ease-in-out infinite",
-                marginBottom: "8px",
-              }}>🌟</div>
-              <div style={{
-                ...styles.title,
-                fontSize: "24px",
-                marginBottom: "30px",
-              }}>EWOLUCJA</div>
+              <img
+                src="/Logo.png"
+                alt="EwolucJA"
+                style={{
+                  width: "160px",
+                  maxWidth: "50vw",
+                  height: "auto",
+                  animation: "float 3s ease-in-out infinite",
+                  filter: "drop-shadow(0 4px 15px rgba(233, 69, 96, 0.25))",
+                  marginBottom: "24px",
+                }}
+              />
 
               {/* Karta z polem imienia */}
               <div style={{
@@ -1104,7 +1106,15 @@ export default function App() {
         transition: "opacity 0.5s ease, transform 0.5s ease",
       }}>
         <div style={styles.header}>
-          <div style={styles.title}>EWOLUCJA</div>
+          <img
+            src="/Logo.png"
+            alt="EwolucJA"
+            style={{
+              width: "120px",
+              height: "auto",
+              filter: "drop-shadow(0 2px 8px rgba(233, 69, 96, 0.2))",
+            }}
+          />
           <p style={styles.subtitle}>{landIcon} {playerName} — {landName}</p>
         </div>
 
