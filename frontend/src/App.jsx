@@ -761,7 +761,7 @@ const TASK_DATA = {
 
 export default function App() {
   const [phase, setPhase] = useState("start"); // start | playing | done
-  const [startPhase, setStartPhase] = useState("welcome"); // welcome | name
+  const [startPhase, setStartPhase] = useState("logo"); // logo | welcome | name
   const [playerName, setPlayerName] = useState("");
   const [stepIndex, setStepIndex] = useState(0);
   const [scores, setScores] = useState({ EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 });
@@ -834,86 +834,196 @@ export default function App() {
 
   if (phase === "start") {
     return (
-      <div style={styles.app} onClick={() => ttsPlayer.unlock()}>
+      <div style={styles.app}>
         <div style={styles.container}>
-          {/* ── FAZA 1: Logo + powitanie głosowe ── */}
+
+          {/* ═══ FAZA 1: Logo animowane + przycisk "Dotknij" ═══ */}
+          {startPhase === "logo" && (
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: "80vh",
+              gap: "0",
+            }}>
+              {/* Gwiazdka — wlatuje z obrotem */}
+              <div style={{
+                fontSize: "90px",
+                animation: "scaleRotateIn 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards",
+                marginBottom: "16px",
+              }}>🌟</div>
+
+              {/* Tytuł — fade in z opóźnieniem */}
+              <div style={{
+                ...styles.title,
+                animation: "slideUpFade 0.8s ease-out 0.5s both",
+              }}>EWOLUCJA</div>
+
+              {/* Podtytuł — fade in z większym opóźnieniem */}
+              <p style={{
+                ...styles.subtitle,
+                fontSize: "15px",
+                opacity: 0,
+                animation: "slideUpFade 0.8s ease-out 1s both",
+                color: "rgba(255,255,255,0.5)",
+                marginTop: "8px",
+              }}>Odkryj swoje supermoce!</p>
+
+              {/* Przycisk — pojawia się po animacjach logo */}
+              <button
+                onClick={() => {
+                  ttsPlayer.unlock();
+                  setStartPhase("welcome");
+                }}
+                style={{
+                  marginTop: "50px",
+                  padding: "16px 40px",
+                  borderRadius: "30px",
+                  border: "2px solid rgba(233, 69, 96, 0.5)",
+                  background: "linear-gradient(135deg, rgba(233,69,96,0.2), rgba(255,213,84,0.15))",
+                  color: "#fff",
+                  fontSize: "17px",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  opacity: 0,
+                  animation: "slideUpFade 0.6s ease-out 1.6s both, invitePulse 2s ease-in-out 2.2s infinite",
+                  letterSpacing: "0.5px",
+                }}
+              >
+                Dotknij, aby rozpoczac
+              </button>
+            </div>
+          )}
+
+          {/* ═══ FAZA 2: Powitanie glosowe + tekst animowany ═══ */}
           {startPhase === "welcome" && (
-            <>
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: "80vh",
+              gap: "0",
+              padding: "0 20px",
+            }}>
+              {/* Logo — mniejsze, z glow */}
               <div style={{
+                fontSize: "56px",
+                animation: "float 3s ease-in-out infinite",
+                marginBottom: "12px",
+              }}>🌟</div>
+              <div style={{
+                ...styles.title,
+                fontSize: "28px",
+                animation: "logoGlow 3s ease-in-out infinite",
+                marginBottom: "40px",
+              }}>EWOLUCJA</div>
+
+              {/* Tekst powitania — pojawia się z animacją */}
+              <div style={{
+                maxWidth: "360px",
                 textAlign: "center",
-                marginTop: "100px",
-                animation: "fadeIn 1s ease-out",
+                opacity: 0,
+                animation: "slideUpFade 1s ease-out 0.3s both",
               }}>
-                <div style={{
-                  fontSize: "80px",
-                  marginBottom: "20px",
-                  animation: "float 3s ease-in-out infinite",
-                }}>🌟</div>
-                <div style={styles.title}>EWOLUCJA</div>
                 <p style={{
-                  ...styles.subtitle,
-                  marginTop: "12px",
-                  opacity: 0.7,
-                  fontSize: "14px",
-                }}>Odkryj swoje supermoce!</p>
+                  fontSize: "17px",
+                  lineHeight: "1.7",
+                  color: "rgba(255,255,255,0.85)",
+                  margin: "0 0 8px",
+                  fontWeight: "500",
+                }}>
+                  Witaj w magicznym swiecie Ewolucji!
+                </p>
+                <p style={{
+                  fontSize: "15px",
+                  lineHeight: "1.6",
+                  color: "rgba(255,255,255,0.6)",
+                  margin: "0",
+                  opacity: 0,
+                  animation: "slideUpFade 0.8s ease-out 1s both",
+                }}>
+                  Czekaja na Ciebie krainy pelne wyzwan, ktore pomoga Ci odkryc, jakim bohaterem jestes.
+                </p>
               </div>
+
+              {/* Narrator — czyta powitanie, po zakonczeniu przechodzi do fazy "name" */}
               <div style={{
-                textAlign: "center",
-                marginTop: "40px",
-                opacity: 0.6,
-                fontSize: "13px",
-                color: "#aaa",
+                marginTop: "24px",
+                opacity: 0,
+                animation: "fadeIn 0.5s ease-out 0.5s both",
               }}>
                 <NarratorVoice
                   text="Witaj w magicznym swiecie Ewolucji! Czekaja na Ciebie krainy pelne wyzwan, ktore pomoga Ci odkryc, jakim bohaterem jestes."
                   land="dolina_selfie"
-                  autoPlayDelay={1500}
+                  autoPlayDelay={600}
                   compact={true}
                   onEnd={() => setStartPhase("name")}
                 />
               </div>
-            </>
+            </div>
           )}
 
-          {/* ── FAZA 2: Pole imienia + narracja zachecajaca ── */}
+          {/* ═══ FAZA 3: Pole imienia + narracja zachecajaca ═══ */}
           {startPhase === "name" && (
-            <>
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              minHeight: "80vh",
+              paddingTop: "60px",
+            }}>
+              {/* Logo kompaktowe */}
               <div style={{
-                textAlign: "center",
-                marginTop: "60px",
+                fontSize: "48px",
+                animation: "float 3s ease-in-out infinite",
+                marginBottom: "8px",
+              }}>🌟</div>
+              <div style={{
+                ...styles.title,
+                fontSize: "24px",
                 marginBottom: "30px",
-                animation: "fadeIn 0.8s ease-out",
-              }}>
-                <div style={{ fontSize: "64px", marginBottom: "16px" }}>🌟</div>
-                <div style={styles.title}>EWOLUCJA</div>
-              </div>
+              }}>EWOLUCJA</div>
+
+              {/* Karta z polem imienia */}
               <div style={{
                 ...styles.card,
-                animation: "fadeIn 0.8s ease-out",
+                opacity: 0,
+                animation: "slideUpFade 0.8s ease-out 0.1s both",
+                maxWidth: "400px",
+                width: "100%",
               }}>
                 <NarratorVoice
-                  text="Powiedz mi, jak masz na imie? Wpisz je ponizej, a Twoja przygoda sie rozpocznie!"
+                  text="Powiedz mi, jak masz na imie? Wpisz swoje imie, a Twoja przygoda sie rozpocznie!"
                   land="dolina_selfie"
-                  autoPlayDelay={300}
+                  autoPlayDelay={400}
                   compact={false}
                 />
                 <p style={{
-                  margin: "12px 0 16px",
-                  fontSize: "15px",
-                  lineHeight: "1.5",
+                  margin: "12px 0 20px",
+                  fontSize: "16px",
+                  lineHeight: "1.6",
                   textAlign: "center",
-                  color: "#ccc",
+                  color: "rgba(255,255,255,0.75)",
+                  opacity: 0,
+                  animation: "slideUpFade 0.6s ease-out 0.5s both",
                 }}>
-                  Powiedz mi, jak masz na imie?
+                  Powiedz mi, jak masz na imie?<br/>
                   Wpisz je ponizej, a Twoja przygoda sie rozpocznie!
                 </p>
-                <input
-                  autoFocus
-                  style={styles.input}
-                  placeholder="Wpisz swoje imie..."
-                  value={playerName}
-                  onChange={(e) => { ttsPlayer.unlock(); setPlayerName(e.target.value); }}
-                />
+                <div style={{
+                  opacity: 0,
+                  animation: "slideUpFade 0.6s ease-out 0.8s both",
+                }}>
+                  <input
+                    autoFocus
+                    style={styles.input}
+                    placeholder="Twoje imie..."
+                    value={playerName}
+                    onChange={(e) => setPlayerName(e.target.value)}
+                  />
+                </div>
                 {playerName.trim().length > 0 && (
                   <button
                     style={{
@@ -923,7 +1033,8 @@ export default function App() {
                       borderColor: "#e94560",
                       fontSize: "18px",
                       fontWeight: "600",
-                      animation: "fadeIn 0.5s ease-out",
+                      animation: "slideUpFade 0.4s ease-out both, invitePulse 2.5s ease-in-out 0.5s infinite",
+                      width: "100%",
                     }}
                     onClick={() => {
                       ttsPlayer.stop();
@@ -940,8 +1051,9 @@ export default function App() {
                   </button>
                 )}
               </div>
-            </>
+            </div>
           )}
+
         </div>
       </div>
     );
