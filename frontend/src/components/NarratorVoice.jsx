@@ -153,29 +153,18 @@ export default function NarratorVoice({ text, land, autoPlay = true, autoPlayDel
   `;
 
   if (compact) {
-    return (
-      <div style={{ display: "flex", gap: "4px" }}>
-        <button onClick={handleToggle} style={playing ? activeBtn : btnBase}
-          title={playing ? "Zatrzymaj" : "Posłuchaj"}>
-          {playing ? "⏹" : "▶"}
-        </button>
-        <button onClick={handleMuteToggle} style={muteBtn}
-          title={muted ? "Włącz głos" : "Wyłącz głos"}>
-          {muted ? "🔇" : "🔈"}
-        </button>
-      </div>
-    );
+    return null;
   }
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
       <style>{pulseKeyframes}</style>
       <button onClick={handleToggle} style={playing ? activeBtn : btnBase}>
-        {playing ? "⏹ Zatrzymaj" : "▶ Posłuchaj"}
+        {playing ? "Stop" : "Posuchaj"}
       </button>
       <button onClick={handleMuteToggle} style={muteBtn}
-        title={muted ? "Włącz głos narratora" : "Wyłącz głos narratora"}>
-        {muted ? "🔇" : "🔈"}
+        title={muted ? "Wlacz glos" : "Wylacz glos"}>
+        {muted ? "Wyciszono" : "Glosnik"}
       </button>
       {playing && (
         <span style={{
