@@ -834,8 +834,22 @@ export default function App() {
 
   if (phase === "start") {
     return (
-      <div style={styles.app}>
-        <div style={styles.container}>
+      <div style={{
+        ...styles.app,
+        backgroundImage: "url(/tlo.png)",
+        backgroundSize: "cover",
+        backgroundPosition: "center bottom",
+        backgroundRepeat: "no-repeat",
+        position: "relative",
+      }}>
+        {/* Ciemna nakładka dla czytelności tekstu */}
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.5) 100%)",
+          zIndex: 0,
+        }} />
+        <div style={{ ...styles.container, position: "relative", zIndex: 1 }}>
 
           {/* ═══ FAZA 1: Logo animowane + przycisk "Dotknij" ═══ */}
           {startPhase === "logo" && (
