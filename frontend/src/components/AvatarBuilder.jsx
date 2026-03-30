@@ -89,7 +89,7 @@ const builderStyles = {
   },
 };
 
-export default function AvatarBuilder({ onComplete, playerName }) {
+export default function AvatarBuilder({ onComplete, playerName, gender = "boy" }) {
   const [config, setConfig] = useState({ ...DEFAULT_AVATAR_CONFIG });
   const [step, setStep] = useState(0);
 

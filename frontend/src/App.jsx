@@ -8,6 +8,7 @@ import { ttsPlayer } from "./services/ttsPlayer";
 import agentAPI from "./services/agentAPI";
 import { TASK_EQUIPMENT_MAP, EQUIPMENT_DEFS } from "./components/AvatarSVG";
 import { GROWTH_TIPS, DAILY_MISSIONS } from "./growthData";
+import detectGender from "./utils/detectGender";
 
 /* ════════════════════════════════════════════════════════════════════════
    EWOLUCJA — Prototyp PWA (Single-file React App)
@@ -763,6 +764,7 @@ export default function App() {
   const [phase, setPhase] = useState("start"); // start | playing | done
   const [startPhase, setStartPhase] = useState("logo"); // logo | welcome | name
   const [playerName, setPlayerName] = useState("");
+  const [playerGender, setPlayerGender] = useState("boy"); // boy | girl | unknown
   const [stepIndex, setStepIndex] = useState(0);
   const [scores, setScores] = useState({ EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 });
 
@@ -1040,7 +1042,13 @@ export default function App() {
                     style={styles.input}
                     placeholder="Twoje imię..."
                     value={playerName}
-                    onChange={(e) => setPlayerName(e.target.value)}
+                    onChange={(e) => {
+                      const name = e.target.value;
+                      setPlayerName(name);
+                      if (name.trim().length >= 2) {
+                        setPlayerGender(detectGender(name));
+                      }
+                    }}
                   />
                 </div>
                 {playerName.trim().length > 0 && (
@@ -1195,6 +1203,7 @@ export default function App() {
             {currentStep?.type === "avatar_builder" ? (
               <AvatarBuilder
                 playerName={playerName}
+                gender={playerGender}
                 onComplete={(config) => {
                   setAvatarConfig(config);
                   // Uruchom generowanie AI awatara w tle

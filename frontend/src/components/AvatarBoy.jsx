@@ -82,9 +82,11 @@ function darkenHex(hex, amount = 0.2) {
   return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, "0")}`;
 }
 
-let _svgCache = null;
+const _svgCache = { boy: null, girl: null };
 
-export default function AvatarBoy({ config = DEFAULT_AVATAR_CONFIG, size = 200, style = {} }) {
+export default function AvatarBoy({ config = DEFAULT_AVATAR_CONFIG, size = 200, style = {}, gender = "boy" }) {
+  // Wybierz plik SVG na podstawie płci (girl fallback na boy jeśli brak pliku)
+  const svgFile = gender === "girl" ? "/avatar_girl.svg" : "/avatar_boy.svg";
   const containerRef = useRef(null);
   const [loaded, setLoaded] = useState(false);
 
@@ -92,17 +94,29 @@ export default function AvatarBoy({ config = DEFAULT_AVATAR_CONFIG, size = 200, 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      if (!_svgCache) {
+      const cacheKey = gender === "girl" ? "girl" : "boy";
+      if (!_svgCache[cacheKey]) {
         try {
-          const res = await fetch("/avatar_boy.svg");
-          _svgCache = await res.text();
+          const res = await fetch(svgFile);
+          if (!res.ok) {
+            // Fallback do boy jeśli girl nie istnieje
+            if (cacheKey === "girl") {
+              const fallback = await fetch("/avatar_boy.svg");
+              _svgCache[cacheKey] = await fallback.text();
+            } else {
+              console.warn("[AvatarBoy] Failed to load SVG:", res.status);
+              return;
+            }
+          } else {
+            _svgCache[cacheKey] = await res.text();
+          }
         } catch (e) {
           console.warn("[AvatarBoy] Failed to load SVG:", e);
           return;
         }
       }
       if (!cancelled && containerRef.current) {
-        containerRef.current.innerHTML = _svgCache;
+        containerRef.current.innerHTML = _svgCache[cacheKey];
         const svg = containerRef.current.querySelector("svg");
         if (svg) {
           svg.setAttribute("width", "100%");
@@ -113,7 +127,7 @@ export default function AvatarBoy({ config = DEFAULT_AVATAR_CONFIG, size = 200, 
       }
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [gender, svgFile]);
 
   // Aplikuj kolory na warstwy gdy config się zmieni
   useEffect(() => {
