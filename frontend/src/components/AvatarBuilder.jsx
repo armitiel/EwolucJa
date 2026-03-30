@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { ttsPlayer } from "../services/ttsPlayer";
 import AvatarBoy, {
   SKIN_COLORS,
   SHIRT_COLORS,
@@ -6,7 +7,7 @@ import AvatarBoy, {
   SHOES_COLORS,
   DEFAULT_AVATAR_CONFIG,
 } from "./AvatarBoy";
-import NarratorVoice from "./NarratorVoice";
+
 
 /**
  * AvatarBuilder — Kreator awatara w Dolinie Selfie.
@@ -131,6 +132,18 @@ export default function AvatarBuilder({ onComplete, playerName, gender = "boy" }
   ];
 
   const currentStepData = steps[step];
+  const lastSpokenRef = useRef("");
+
+  // Odtwarzaj narrację głosową bez renderowania komponentu NarratorVoice
+  useEffect(() => {
+    const text = ttsNarrations[step];
+    if (text && text !== lastSpokenRef.current) {
+      lastSpokenRef.current = text;
+      ttsPlayer.stop();
+      ttsPlayer.speak(text, { land: "dolina_selfie" });
+    }
+    return () => ttsPlayer.stop();
+  }, [step]);
 
   const handleSelect = (value) => {
     setConfig((prev) => ({ ...prev, [currentStepData.key]: value }));
@@ -150,10 +163,6 @@ export default function AvatarBuilder({ onComplete, playerName, gender = "boy" }
 
   return (
     <div style={builderStyles.wrapper}>
-      {/* Narracja z głosem */}
-      <div style={{ position: "absolute", opacity: 0, pointerEvents: "none", height: 0, overflow: "hidden" }}>
-        <NarratorVoice text={ttsNarrations[step]} land="dolina_selfie" />
-      </div>
       <p style={builderStyles.narration}>{narrations[step]}</p>
 
       {/* Podgląd awatara */}
