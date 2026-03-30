@@ -660,7 +660,7 @@ export default function App() {
             <p style={styles.subtitle}>Odkryj swoje supermoce!</p>
           </div>
           <div style={styles.card}>
-            <NarratorVoice text="Witaj w magicznym świecie Ewolucji! Czekają na Ciebie krainy pełne wyzwań, które pomogą Ci odkryć, jakim bohaterem jesteś. Wpisz swoje imię, aby rozpocząć przygodę!" land="dolina_selfie" />
+            <NarratorVoice text="Witaj w magicznym świecie Ewolucji! Czekają na Ciebie krainy pełne wyzwań, które pomogą Ci odkryć, jakim bohaterem jesteś. Wpisz swoje imię, aby rozpocząć przygodę!" land="dolina_selfie" autoPlayDelay={3000} />
             <p style={{ margin: "0 0 16px", fontSize: "15px" }}>
               Witaj w magicznym świecie Ewolucji! Czekają na Ciebie krainy pełne wyzwań,
               które pomogą Ci odkryć, jakim bohaterem jesteś.

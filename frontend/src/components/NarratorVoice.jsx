@@ -30,15 +30,15 @@ const btnBase = {
   outline: "none",
 };
 
-export default function NarratorVoice({ text, land, autoPlay = true, compact = false }) {
+export default function NarratorVoice({ text, land, autoPlay = true, autoPlayDelay = 0, compact = false }) {
   const [playing, setPlaying] = useState(false);
   const [available, setAvailable] = useState(null);
   const [muted, setMuted] = useState(() => {
-    // Zapamiętaj preferencję mute w sessionStorage
     try { return sessionStorage.getItem("ewolucja_muted") === "1"; } catch { return false; }
   });
   const lastTextRef = useRef("");
   const mountedRef = useRef(true);
+  const playingRef = useRef(false); // zsynchronizowany z playing, ale bez opóźnienia setState
 
   // Sprawdź dostępność TTS (raz)
   useEffect(() => {
@@ -48,45 +48,52 @@ export default function NarratorVoice({ text, land, autoPlay = true, compact = f
     return () => { mountedRef.current = false; };
   }, []);
 
-  // Auto-play gdy tekst się zmieni
+  const setPlayingSync = useCallback((val) => {
+    playingRef.current = val;
+    setPlaying(val);
+  }, []);
+
+  // Auto-play gdy tekst się zmieni (z opcjonalnym opóźnieniem)
   useEffect(() => {
     if (!autoPlay || !available || muted || !text) return;
-    if (text === lastTextRef.current) return; // nie powtarzaj tego samego
+    if (text === lastTextRef.current) return;
     lastTextRef.current = text;
 
     let cancelled = false;
-    const go = async () => {
+    const timer = setTimeout(async () => {
       if (cancelled) return;
-      setPlaying(true);
+      setPlayingSync(true);
       await ttsPlayer.speak(text, { land });
-      if (!cancelled && mountedRef.current) setPlaying(false);
-    };
-    go();
+      if (!cancelled && mountedRef.current) setPlayingSync(false);
+    }, autoPlayDelay);
 
     return () => {
       cancelled = true;
+      clearTimeout(timer);
       ttsPlayer.stop();
-      if (mountedRef.current) setPlaying(false);
+      if (mountedRef.current) setPlayingSync(false);
     };
-  }, [text, available, muted, autoPlay, land]);
+  }, [text, available, muted, autoPlay, autoPlayDelay, land, setPlayingSync]);
 
   const handleSpeak = useCallback(async () => {
     if (!text || !available) return;
-    ttsPlayer.unlock(); // na wypadek gdyby jeszcze nie odblokowany
+    ttsPlayer.unlock();
+    // Zatrzymaj cokolwiek gra aktualnie
+    ttsPlayer.stop();
     lastTextRef.current = text;
-    setPlaying(true);
+    setPlayingSync(true);
     await ttsPlayer.speak(text, { land });
-    if (mountedRef.current) setPlaying(false);
-  }, [text, land, available]);
+    if (mountedRef.current) setPlayingSync(false);
+  }, [text, land, available, setPlayingSync]);
 
   const handleToggle = useCallback(() => {
-    if (playing) {
+    if (playing || playingRef.current) {
       ttsPlayer.stop();
-      setPlaying(false);
+      setPlayingSync(false);
     } else {
       handleSpeak();
     }
-  }, [playing, handleSpeak]);
+  }, [playing, handleSpeak, setPlayingSync]);
 
   const handleMuteToggle = useCallback(() => {
     const newMuted = !muted;
