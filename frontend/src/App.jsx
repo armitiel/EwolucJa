@@ -126,7 +126,7 @@ const styles = {
     color: "#f0f0f0",
   },
   container: {
-    maxWidth: "480px",
+    maxWidth: "820px",
     width: "100%",
     padding: "20px 20px 90px",
     boxSizing: "border-box",
@@ -831,14 +831,26 @@ export default function App() {
     }
   }, [stepIndex]);
 
-  // Dodawanie ekwipunku na podstawie wyboru
+  // Automatyczne przejście po 8 sekundach gdy awatar AI jest gotowy
+  useEffect(() => {
+    if (avatarUpdatePhase !== "ready") return;
+    const timer = setTimeout(() => {
+      setAvatarUpdatePhase(null);
+      advance();
+    }, 8000); // 8 sekund na obejrzenie ewolucji awatara
+    return () => clearTimeout(timer);
+  }, [avatarUpdatePhase, advance]);
+
+  // Dodawanie ekwipunku na podstawie wyboru - zwraca czy coś się dodało
   const addEquipment = useCallback((taskId, choiceId) => {
     const key = `${taskId}_${choiceId}`;
     const itemId = TASK_EQUIPMENT_MAP[key];
     if (itemId && !equipment.includes(itemId)) {
       setEquipment((prev) => [...prev, itemId]);
       setNewItem(itemId);
+      return true; // Nowy item został dodany
     }
+    return false; // Nic się nie dodało
   }, [equipment]);
 
   const handleChoice = useCallback(
@@ -846,8 +858,11 @@ export default function App() {
       const key = `${taskId}_${choiceId}`;
       const pts = SCORING[key] || {};
       setScores((prev) => applyPoints(prev, pts));
-      addEquipment(taskId, choiceId);
-      advance();
+      const itemAdded = addEquipment(taskId, choiceId);
+      // Jeśli dodano nowy item, nie przesuwaj się do przodu - czekaj na zakończenie opowiadania z awatarem
+      if (!itemAdded) {
+        advance();
+      }
     },
     [advance, addEquipment]
   );
@@ -863,8 +878,9 @@ export default function App() {
       })
       .catch(() => {
         setAvatarUpdatePhase(null); // fallback — kontynuuj grę
+        advance(); // Przejdź do następnego kroku
       });
-  }, [playerName, avatarConfig, playerGender, equipment, avatarAiUrl]);
+  }, [playerName, avatarConfig, playerGender, equipment, avatarAiUrl, advance]);
 
   // ── Ekran startowy ────────────────────────────────────────────────
 
@@ -1244,33 +1260,6 @@ export default function App() {
           <p style={styles.subtitle}>{landIcon} {playerName} — {landName}</p>
         </div>
 
-        {/* Kompaktowy awatar (widoczny po stworzeniu) — SVG lub AI */}
-        {avatarConfig && currentStep?.type !== "avatar_builder" && currentStep?.type !== "final" && !newItem && (
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: "12px" }}>
-            {aiAvatarUrl ? (
-              <img
-                src={aiAvatarUrl}
-                alt={playerName}
-                style={{
-                  width: 234,
-                  height: 234,
-                  borderRadius: "50%",
-                  objectFit: "cover",
-                  border: "3px solid " + (landColor || "#ffd54f"),
-                  boxShadow: "0 2px 12px " + (cardGlow || "rgba(255,255,255,0.1)"),
-                }}
-              />
-            ) : (
-              <AvatarDisplay
-                avatarConfig={avatarConfig}
-                equipment={equipment}
-                playerName={playerName}
-                compact={true}
-              />
-            )}
-          </div>
-        )}
-
         {/* Powiadomienie o nowym przedmiocie */}
         {newItem && avatarConfig && (
           <div style={{ ...styles.card, padding: "16px" }}>
@@ -1354,7 +1343,10 @@ export default function App() {
                   />
                 )}
                 <button
-                  onClick={() => setAvatarUpdatePhase(null)}
+                  onClick={() => {
+                    setAvatarUpdatePhase(null);
+                    advance();
+                  }}
                   style={{
                     padding: "12px 32px",
                     borderRadius: "30px",
@@ -1385,11 +1377,73 @@ export default function App() {
 
         {!newItem && !avatarUpdatePhase && (
           <div style={{
-            ...styles.card,
-            background: cardGlow,
-            border: `1px solid ${cardBorder}`,
-            boxShadow: `0 4px 30px ${cardGlow}`,
+            display: "flex",
+            gap: "20px",
+            alignItems: "stretch",
           }}>
+            {/* Avatar po lewej — rozciąga się na wysokość karty */}
+            {avatarConfig && currentStep?.type !== "avatar_builder" && currentStep?.type !== "final" && (
+              <div style={{
+                flexShrink: 0,
+                width: 280,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                borderRadius: "24px",
+                overflow: "hidden",
+                background: "rgba(255,255,255,0.10)",
+                border: "3px solid " + (landColor || "#ffd54f"),
+              }}>
+                {aiAvatarUrl ? (
+                  <img
+                    src={aiAvatarUrl}
+                    alt={playerName}
+                    style={{
+                      width: "100%",
+                      flex: 1,
+                      objectFit: "cover",
+                    }}
+                  />
+                ) : (
+                  <div style={{
+                    width: "100%",
+                    flex: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}>
+                    <AvatarDisplay
+                      avatarConfig={avatarConfig}
+                      equipment={equipment}
+                      playerName={playerName}
+                      compact={false}
+                    />
+                  </div>
+                )}
+                <div style={{
+                  padding: "8px 0",
+                  fontSize: "14px",
+                  color: "rgba(255,255,255,0.6)",
+                  fontWeight: 600,
+                  textAlign: "center",
+                  background: "rgba(0,0,0,0.2)",
+                  width: "100%",
+                  flexShrink: 0,
+                }}>
+                  {playerName}
+                </div>
+              </div>
+            )}
+
+            {/* Karta gry po prawej */}
+            <div style={{
+              ...styles.card,
+              background: cardGlow,
+              border: `1px solid ${cardBorder}`,
+              boxShadow: `0 4px 30px ${cardGlow}`,
+              flex: 1,
+              minWidth: 0,
+            }}>
             {/* NOWY: Kreator awatara */}
             {currentStep?.type === "avatar_builder" ? (
               <AvatarBuilder
@@ -1426,13 +1480,13 @@ export default function App() {
               <TimerScreen
                 onWait={() => {
                   setScores((s) => applyPoints(s, { ST: 3 }));
-                  addEquipment(4, "WAIT");
-                  setTimeout(advance, 2000);
+                  const added = addEquipment(4, "WAIT");
+                  if (!added) setTimeout(advance, 2000);
                 }}
                 onClick={(elapsed) => {
                   setScores((s) => applyPoints(s, { LD: 1 }));
-                  addEquipment(4, "CLICK");
-                  setTimeout(advance, 2000);
+                  const added = addEquipment(4, "CLICK");
+                  if (!added) setTimeout(advance, 2000);
                 }}
                 landColor={landColor}
                 landName={landName}
@@ -1442,13 +1496,13 @@ export default function App() {
               <EmotionMatchScreen
                 onComplete={(correct) => {
                   setScores((s) => applyPoints(s, { EM: correct, DT: correct }));
-                  if (correct >= 2) {
-                    setEquipment((prev) =>
-                      prev.includes("inventor_goggles") ? prev : [...prev, "inventor_goggles"]
-                    );
+                  let itemAdded = false;
+                  if (correct >= 2 && !equipment.includes("inventor_goggles")) {
+                    setEquipment((prev) => [...prev, "inventor_goggles"]);
                     setNewItem("inventor_goggles");
+                    itemAdded = true;
                   }
-                  advance();
+                  if (!itemAdded) advance();
                 }}
                 landColor={landColor}
                 landName={landName}
@@ -1458,17 +1512,20 @@ export default function App() {
               <CreativityScreen
                 onSubmit={(text, score) => {
                   setScores((s) => applyPoints(s, { KR: score }));
+                  let itemAdded = false;
                   if (score >= 3 && !equipment.includes("star_boots")) {
                     setEquipment((prev) => [...prev, "star_boots"]);
                     setNewItem("star_boots");
+                    itemAdded = true;
                   }
-                  advance();
+                  if (!itemAdded) advance();
                 }}
                 landColor={landColor}
                 landName={landName}
                 land={land}
               />
             ) : null}
+            </div>
           </div>
         )}
       </div>
