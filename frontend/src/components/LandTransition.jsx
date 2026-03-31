@@ -12,7 +12,7 @@ const LAND_CONFIG = {
     icon: "",
     title: "Dolina Selfie",
     subtitle: "Poznaj siebie w magicznym zwierciadle",
-    gradient: "#1a1040 url(/tlo3.png) center bottom/contain no-repeat",
+    gradient: "url(/tlo3.png) center bottom/cover no-repeat",
     particles: ["✨", "🌸", "💜", "⭐"],
     bgEmoji: "🏔️",
     description: "Tutaj wszystko się zaczyna — odkryjesz kim naprawdę jesteś!",
