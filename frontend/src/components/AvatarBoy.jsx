@@ -333,38 +333,37 @@ export default function AvatarBoy({ config = DEFAULT_AVATAR_CONFIG, size = 200, 
     });
 
     // ── Włosy — kolor ────────────────────────────────────────────────
-    // Każda fryzura ma warstwy: kolor (id z "kolor"), shadow (id z "shadow"), outline
-    // Koloruj kolor = wybrany kolor, shadow = ciemniejszy o 40%, outline = nie ruszaj
+    // Każda fryzura ma warstwy: kolor, shadow, outline
+    // Używamy data-name attribute do identyfikacji (niezawodne niezależnie od struktury SVG)
     const hairColor = findColor(HAIR_COLORS, config.hairColor);
-    const hairShadow = darkenHex(hairColor.hex, 0.2);   // lekko ciemniejszy od bazowego
-    const hairOutline = darkenHex(hairColor.hex, 0.55);  // wyraźnie ciemniejszy
+    const hairShadow = darkenHex(hairColor.hex, 0.25);   // średnio ciemniejszy
+    const hairOutline = darkenHex(hairColor.hex, 0.6);   // wyraźnie ciemniejszy
     const selectedHairEl = root.querySelector(`#${CSS.escape(selectedStyle)}`);
     if (selectedHairEl) {
-      // Helper: sprawdź czy element ma dokładnie daną klasę CSS
-      const hasClass = (cls, name) => cls.split(/\s+/).includes(name);
-
       selectedHairEl.querySelectorAll("path, circle, ellipse, line").forEach(p => {
-        const pid = (p.getAttribute("id") || "").toLowerCase();
-        const parentId = (p.parentElement?.getAttribute("id") || "").toLowerCase();
-        const cls = p.getAttribute("class") || "";
+        const dataName = (p.getAttribute("data-name") || "").toLowerCase();
+        const parentDataName = (p.parentElement?.getAttribute("data-name") || "").toLowerCase();
+        const layerType = dataName || parentDataName;
 
-        // Outline — ciemniejszy kolor włosów (id "outline" lub stroke classes)
-        if (pid.includes("outline") || parentId.includes("outline") ||
-            hasClass(cls, "st3") || hasClass(cls, "st5") || hasClass(cls, "st6") ||
-            hasClass(cls, "st7") || hasClass(cls, "st8")) {
-          setFill(p, hairOutline);
+        // Outline — trzecia (najciemniejsza) warstwa
+        if (layerType === "outline") {
+          // Outline paths should be stroke-only (fill: none)
+          p.style.fill = 'none';
           setStroke(p, hairOutline);
           return;
         }
 
-        // Shadow — id zawiera "shadow", lub klasy cieni (st9, st37)
-        if (pid.includes("shadow") || parentId.includes("shadow") ||
-            hasClass(cls, "st9") || hasClass(cls, "st37")) {
+        // Shadow — druga (średnio ciemna) warstwa
+        if (layerType === "shadow") {
           setFill(p, hairShadow);
-        } else {
-          // Kolor główny
-          setFill(p, hairColor.hex);
+          setStroke(p, hairShadow);
+          return;
         }
+
+        // Kolor główny — pierwsza (jasna) warstwa (domyślnie)
+        // Dotyczy: data-name="kolor" lub elementy bez data-name
+        setFill(p, hairColor.hex);
+        setStroke(p, hairColor.hex);
       });
     }
 
