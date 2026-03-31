@@ -61,10 +61,10 @@ export const HAIR_STYLES = [
 
 export const EQUIPMENT_DEFS = {
   // Starter items (Zadanie 1 — Dolina Selfie)
-  magnifier:    { name: "Lupa Odkrywcy",      profile: "DT", emoji: "🔍", slot: "hand_right" },
-  shield:       { name: "Tarcza Odwagi",       profile: "LD", emoji: "🛡️", slot: "hand_left" },
-  book:         { name: "Księga Mądrości",     profile: "ST", emoji: "📚", slot: "hand_right" },
-  backpack:     { name: "Plecak Podróżnika",  profile: "KR", emoji: "🎒", slot: "back" },
+  magnifier:    { name: "Lupa Odkrywcy",      profile: "DT", emoji: "🔍", slot: "hand_right", image: "/lupa.png" },
+  shield:       { name: "Tarcza Odwagi",       profile: "LD", emoji: "🛡️", slot: "hand_left", image: "/tarcza.png" },
+  book:         { name: "Księga Mądrości",     profile: "ST", emoji: "📚", slot: "hand_right", image: "/ksiazki.png" },
+  backpack:     { name: "Plecak Podróżnika",  profile: "KR", emoji: "🎒", slot: "back", image: "/plecak.png" },
 
   // Nagrody za krainy
   green_cape:     { name: "Zielona Peleryna",    profile: "EM", emoji: "🧥", slot: "back" },

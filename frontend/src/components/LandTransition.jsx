@@ -21,7 +21,7 @@ const LAND_CONFIG = {
     icon: "🌲",
     title: "Las Decyzji",
     subtitle: "Każda ścieżka prowadzi gdzie indziej...",
-    gradient: "linear-gradient(135deg, #16a34a 0%, #22c55e 40%, #86efac 100%)",
+    gradient: "url(/tlo4.png) center bottom/cover no-repeat",
     particles: ["🍃", "🌿", "🦊", "🌲"],
     bgEmoji: "🌳",
     description: "Gęsty las pełen tajemnic. Twoje wybory kształtują przygodę!",

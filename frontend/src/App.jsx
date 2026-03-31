@@ -9,6 +9,7 @@ import agentAPI from "./services/agentAPI";
 import { TASK_EQUIPMENT_MAP, EQUIPMENT_DEFS } from "./components/AvatarSVG";
 import { GROWTH_TIPS, DAILY_MISSIONS } from "./growthData";
 import detectGender from "./utils/detectGender";
+import bgMusic from "./services/bgMusic";
 
 /* ════════════════════════════════════════════════════════════════════════
    EWOLUCJA — Prototyp PWA (Single-file React App)
@@ -307,7 +308,13 @@ function ChoiceScreen({ narration, choices, onChoice, landColor, landName, land 
           onMouseLeave={() => setHovered(null)}
           onClick={() => { ttsPlayer.unlock(); onChoice(c.id); }}
         >
-          {c.icon && <span style={{ marginRight: 8 }}>{c.icon}</span>}
+          {c.icon && (
+            c.icon.startsWith("/") ? (
+              <img src={c.icon} alt="" style={{ width: 32, height: 32, marginRight: 10, verticalAlign: "middle", objectFit: "contain", filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))" }} />
+            ) : (
+              <span style={{ marginRight: 8 }}>{c.icon}</span>
+            )
+          )}
           {c.label}
         </button>
       ))}
@@ -713,10 +720,10 @@ const TASK_DATA = {
     narration:
       'Wspaniale! Twój awatar jest gotowy. Teraz Zwierciadło Prawdy mówi: „Wybierz swój element startowy — to pierwszy krok Twojej przygody!"',
     choices: [
-      { id: "A", icon: "🔍", label: "Lupa Odkrywcy — chcę patrzeć z bliska na wszystko" },
-      { id: "B", icon: "🛡️", label: "Tarcza Odwagi — chcę chronić siebie i innych" },
-      { id: "C", icon: "📚", label: "Księga Mądrości — chcę wiedzieć jak najwięcej" },
-      { id: "D", icon: "🎒", label: "Plecak Podróżnika — zbieram różne rzeczy" },
+      { id: "A", icon: "/lupa.png", label: "Lupa Odkrywcy — chcę patrzeć z bliska na wszystko" },
+      { id: "B", icon: "/tarcza.png", label: "Tarcza Odwagi — chcę chronić siebie i innych" },
+      { id: "C", icon: "/ksiazki.png", label: "Księga Mądrości — chcę wiedzieć jak najwięcej" },
+      { id: "D", icon: "/plecak.png", label: "Plecak Podróżnika — zbieram różne rzeczy" },
     ],
   },
   2: {
@@ -781,9 +788,6 @@ export default function App() {
   // ── Avatar AI update po zdobyciu ekwipunku ──
   const [avatarUpdatePhase, setAvatarUpdatePhase] = useState(null); // null | "generating" | "ready"
 
-  // ── Oczekiwanie na klik użytkownika po stworzeniu awatara ──
-  const [avatarCreated, setAvatarCreated] = useState(false);
-
   // Stan splash-screen / przejscie miedzy krainami
   const [showTransition, setShowTransition] = useState(false);
   const [transitionLand, setTransitionLand] = useState(null);
@@ -815,7 +819,6 @@ export default function App() {
 
   const advance = useCallback(() => {
     ttsPlayer.stop();
-    setAvatarCreated(false); // Reset avatara - pokaż builder w następnym kroku
     if (stepIndex + 1 >= GAME_STEPS.length) {
       setPhase("done");
     } else {
@@ -823,15 +826,7 @@ export default function App() {
     }
   }, [stepIndex]);
 
-  // Automatyczne przejście po 8 sekundach gdy awatar AI jest gotowy
-  useEffect(() => {
-    if (avatarUpdatePhase !== "ready") return;
-    const timer = setTimeout(() => {
-      setAvatarUpdatePhase(null);
-      advance();
-    }, 8000); // 8 sekund na obejrzenie ewolucji awatara
-    return () => clearTimeout(timer);
-  }, [avatarUpdatePhase, advance]);
+  // Gracz sam klika "Kontynuuj przygodę!" — brak auto-advance
 
   // Dodawanie ekwipunku na podstawie wyboru - zwraca czy coś się dodało
   const addEquipment = useCallback((taskId, choiceId) => {
@@ -1012,6 +1007,14 @@ export default function App() {
                     setTimeout(() => {
                       ttsPlayer.unlock();
                       setStartPhase("welcome");
+                      // Muzyka w tle — fade-in po chwili
+                      setTimeout(() => {
+                        bgMusic.play("VEDhdAQYFM8", {
+                          startSeconds: 747,
+                          fadeDuration: 4000,
+                          volume: 25,
+                        });
+                      }, 1500);
                     }, 2800);
                   }}
                   style={{
@@ -1261,114 +1264,19 @@ export default function App() {
       {contentVisible && <div style={{
         ...styles.container,
       }}>
-        {/* Powiadomienie o nowym przedmiocie */}
+        {/* Powiadomienie o nowym przedmiocie (AvatarDisplay renderuje fixed overlay) */}
         {newItem && avatarConfig && (
-          <div style={{ ...styles.card, padding: "16px" }}>
-            <AvatarDisplay
-              avatarConfig={avatarConfig}
-              equipment={equipment}
-              playerName={playerName}
-              newItem={newItem}
-              onNewItemDismiss={dismissNewItem}
-            />
-          </div>
-        )}
-
-        {/* Ekran aktualizacji AI awatara - tymczasowo pusty, przenosze na koniec */}
-        {false && avatarUpdatePhase && (
-          <div style={{
-            ...styles.card,
-            padding: "24px",
-            textAlign: "center",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "16px",
-          }}>
-            {avatarUpdatePhase === "generating" && (
-              <>
-                <div style={{ fontSize: "18px", fontWeight: 600, color: "#fff" }}>
-                  Aktualizacja awatara...
-                </div>
-                <div style={{
-                  width: 280,
-                  height: 280,
-                  borderRadius: "24px",
-                  overflow: "hidden",
-                  position: "relative",
-                  background: "rgba(255,255,255,0.05)",
-                }}>
-                  {avatarConfig && (
-                    <AvatarDisplay
-                      avatarConfig={avatarConfig}
-                      equipment={equipment}
-                      playerName={playerName}
-                      compact={false}
-                    />
-                  )}
-                  <div style={{
-                    position: "absolute",
-                    bottom: 12,
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    background: "rgba(0,0,0,0.6)",
-                    borderRadius: "20px",
-                    padding: "6px 16px",
-                    fontSize: "12px",
-                    color: "rgba(255,255,255,0.8)",
-                    backdropFilter: "blur(4px)",
-                  }}>
-                    <span style={{ animation: "pulse 1.5s ease infinite", display: "inline-block" }}>
-                      Tworzenie portretu AI...
-                    </span>
-                  </div>
-                </div>
-              </>
-            )}
-            {avatarUpdatePhase === "ready" && (
-              <>
-                <div style={{ fontSize: "18px", fontWeight: 600, color: "#fff" }}>
-                  Twój awatar ewoluuje!
-                </div>
-                {aiAvatarUrl && (
-                  <img
-                    src={aiAvatarUrl}
-                    alt="AI Avatar"
-                    style={{
-                      width: 280,
-                      height: 280,
-                      borderRadius: "24px",
-                      objectFit: "cover",
-                      boxShadow: "0 0 30px rgba(255,215,0,0.3)",
-                    }}
-                  />
-                )}
-                <button
-                  onClick={() => {
-                    setAvatarUpdatePhase(null);
-                    advance();
-                  }}
-                  style={{
-                    padding: "12px 32px",
-                    borderRadius: "30px",
-                    border: "none",
-                    background: "linear-gradient(135deg, #6C63FF, #48E0C4)",
-                    color: "#fff",
-                    fontSize: "16px",
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    boxShadow: "0 4px 15px rgba(108,99,255,0.4)",
-                  }}
-                >
-                  {"Kontynuuj przygodę! \u2192"}
-                </button>
-              </>
-            )}
-          </div>
+          <AvatarDisplay
+            avatarConfig={avatarConfig}
+            equipment={equipment}
+            playerName={playerName}
+            newItem={newItem}
+            onNewItemDismiss={dismissNewItem}
+          />
         )}
 
         {/* Pasek postępu */}
-        {!newItem && !avatarUpdatePhase && (
+        {!newItem && (
           <div style={styles.progressBar}>
             {GAME_STEPS.map((_, i) => (
               <div key={i} style={styles.progressDot(i === stepIndex, i < stepIndex)} />
@@ -1376,7 +1284,7 @@ export default function App() {
           </div>
         )}
 
-        {!newItem && !avatarUpdatePhase && (
+        {!newItem && (
           <div style={{
             display: "flex",
             gap: "20px",
@@ -1447,79 +1355,21 @@ export default function App() {
             }}>
             {/* NOWY: Kreator awatara */}
             {currentStep?.type === "avatar_builder" ? (
-              avatarCreated ? (
-                // Ekran review awatara - czeka na klik użytkownika
-                <div style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "24px",
-                  padding: "24px",
-                  textAlign: "center",
-                }}>
-                  <div style={{
-                    fontSize: "24px",
-                    fontWeight: "600",
-                    color: "#fff",
-                  }}>
-                    Fantastic! Oto Twój awatar {playerName}!
-                  </div>
-                  <div style={{
-                    width: "280px",
-                    height: "280px",
-                    borderRadius: "16px",
-                    overflow: "hidden",
-                    background: "rgba(255,255,255,0.05)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}>
-                    {avatarConfig && (
-                      <AvatarDisplay
-                        avatarConfig={avatarConfig}
-                        equipment={equipment}
-                        playerName={playerName}
-                        compact={true}
-                      />
-                    )}
-                  </div>
-                  <button
-                    style={{
-                      ...styles.button,
-                      textAlign: "center",
-                      background: "linear-gradient(135deg, rgba(233,69,96,0.3), rgba(255,213,84,0.3))",
-                      borderColor: "#e94560",
-                      fontSize: "16px",
-                      fontWeight: "600",
-                      maxWidth: "300px",
-                    }}
-                    onClick={() => {
-                      setAvatarCreated(false);
-                      advance();
-                    }}
-                  >
-                    Wyruszam w przygodę! →
-                  </button>
-                </div>
-              ) : (
-                <AvatarBuilder
-                  playerName={playerName}
-                  gender={playerGender}
-                  onComplete={(config, gender) => {
-                    setAvatarConfig(config);
-                    if (gender) setPlayerGender(gender);
-                    agentAPI.generateAvatar(playerName, config, gender || playerGender).then((result) => {
-                      if (result?.url) {
-                        setAiAvatarUrl(result.url);
-                        console.log("[AI Avatar] Generated:", result.url);
-                      }
-                    }).catch(() => {});
-                    // Zamiast od razu advance(), pokazuj ekran review
-                    setAvatarCreated(true);
-                  }}
-                />
-              )
+              <AvatarBuilder
+                playerName={playerName}
+                gender={playerGender}
+                onComplete={(config, gender) => {
+                  setAvatarConfig(config);
+                  if (gender) setPlayerGender(gender);
+                  agentAPI.generateAvatar(playerName, config, gender || playerGender).then((result) => {
+                    if (result?.url) {
+                      setAiAvatarUrl(result.url);
+                      console.log("[AI Avatar] Generated:", result.url);
+                    }
+                  }).catch(() => {});
+                  advance();
+                }}
+              />
             ) : phase === "done" || currentStep?.type === "final" ? (
               <FinalScreen
                 scores={scores}
@@ -1608,110 +1458,110 @@ export default function App() {
         />
       )}
 
-      {/* Globalny overlay dla aktualizacji awatara - wycentrowany na środku */}
+      {/* Globalny overlay dla aktualizacji awatara — ciemny fiolet, czeka na klik */}
       {avatarUpdatePhase && (
         <div style={{
           position: "fixed",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          background: "linear-gradient(135deg, rgba(255,213,84,0.15), rgba(233,69,96,0.15))",
-          borderRadius: "24px",
-          padding: "32px",
-          border: "1px solid rgba(255,213,84,0.3)",
-          textAlign: "center",
+          inset: 0,
+          background: "rgba(20, 10, 40, 0.92)",
           zIndex: 1000,
-          minWidth: "400px",
-          maxWidth: "500px",
-          backdropFilter: "blur(10px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backdropFilter: "blur(12px)",
         }}>
-          {avatarUpdatePhase === "generating" && (
-            <>
-              <div style={{ fontSize: "24px", fontWeight: 600, color: "#fff", marginBottom: "24px" }}>
-                Aktualizacja awatara...
-              </div>
-              <div style={{
-                width: 350,
-                height: 350,
-                margin: "0 auto",
-                borderRadius: "24px",
-                overflow: "hidden",
-                position: "relative",
-                background: "rgba(255,255,255,0.05)",
-              }}>
-                {avatarConfig && (
-                  <AvatarDisplay
-                    avatarConfig={avatarConfig}
-                    equipment={equipment}
-                    playerName={playerName}
-                    compact={false}
+          <div style={{
+            textAlign: "center",
+            maxWidth: "500px",
+            padding: "40px 32px",
+          }}>
+            {avatarUpdatePhase === "generating" && (
+              <>
+                <div style={{ fontSize: "24px", fontWeight: 600, color: "#fff", marginBottom: "24px" }}>
+                  Twój awatar ewoluuje...
+                </div>
+                <div style={{
+                  width: 350,
+                  height: 350,
+                  margin: "0 auto",
+                  borderRadius: "24px",
+                  overflow: "hidden",
+                  position: "relative",
+                  background: "rgba(255,255,255,0.05)",
+                  border: "2px solid rgba(255,213,84,0.2)",
+                }}>
+                  {avatarConfig && (
+                    <AvatarDisplay
+                      avatarConfig={avatarConfig}
+                      equipment={equipment}
+                      playerName={playerName}
+                      compact={false}
+                    />
+                  )}
+                  <div style={{
+                    position: "absolute",
+                    bottom: 16,
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    background: "rgba(0,0,0,0.7)",
+                    borderRadius: "20px",
+                    padding: "8px 20px",
+                    fontSize: "14px",
+                    color: "rgba(255,255,255,0.9)",
+                  }}>
+                    <span style={{ animation: "pulse 1.5s ease infinite", display: "inline-block" }}>
+                      Tworzenie portretu AI...
+                    </span>
+                  </div>
+                </div>
+              </>
+            )}
+            {avatarUpdatePhase === "ready" && (
+              <>
+                <div style={{ fontSize: "26px", fontWeight: 700, color: "#ffd54f", marginBottom: "24px" }}>
+                  Twój awatar ewoluuje!
+                </div>
+                {aiAvatarUrl && (
+                  <img
+                    src={aiAvatarUrl}
+                    alt="AI Avatar"
+                    style={{
+                      width: 400,
+                      height: 400,
+                      borderRadius: "24px",
+                      objectFit: "cover",
+                      boxShadow: "0 0 50px rgba(255,215,0,0.3)",
+                      marginBottom: "32px",
+                    }}
                   />
                 )}
-                <div style={{
-                  position: "absolute",
-                  bottom: 16,
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  background: "rgba(0,0,0,0.7)",
-                  borderRadius: "20px",
-                  padding: "8px 20px",
-                  fontSize: "14px",
-                  color: "rgba(255,255,255,0.9)",
-                  backdropFilter: "blur(8px)",
-                }}>
-                  <span style={{ animation: "pulse 1.5s ease infinite", display: "inline-block" }}>
-                    Tworzenie portretu AI...
-                  </span>
-                </div>
-              </div>
-            </>
-          )}
-          {avatarUpdatePhase === "ready" && (
-            <>
-              <div style={{ fontSize: "24px", fontWeight: 600, color: "#fff", marginBottom: "24px" }}>
-                Twój awatar ewoluuje!
-              </div>
-              {aiAvatarUrl && (
-                <img
-                  src={aiAvatarUrl}
-                  alt="AI Avatar"
-                  style={{
-                    width: 400,
-                    height: 400,
-                    borderRadius: "24px",
-                    objectFit: "cover",
-                    boxShadow: "0 0 40px rgba(255,215,0,0.4)",
-                    marginBottom: "24px",
+                <button
+                  onClick={() => {
+                    setAvatarUpdatePhase(null);
+                    advance();
                   }}
-                />
-              )}
-              <button
-                onClick={() => {
-                  setAvatarUpdatePhase(null);
-                  advance();
-                }}
-                style={{
-                  padding: "16px 40px",
-                  borderRadius: "30px",
-                  border: "none",
-                  background: "linear-gradient(135deg, #6C63FF, #48E0C4)",
-                  color: "#fff",
-                  fontSize: "18px",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  boxShadow: "0 6px 20px rgba(108,99,255,0.4)",
-                  transition: "transform 0.2s",
-                }}
-                onMouseOver={(e) => e.target.style.transform = "translateY(-2px)"}
-                onMouseLeave={(e) => e.target.style.transform = "translateY(0)"}
-              >
-                Kontynuuj przygodę! →
-              </button>
-            </>
-          )}
+                  style={{
+                    padding: "16px 40px",
+                    borderRadius: "30px",
+                    border: "none",
+                    background: "linear-gradient(135deg, #6C63FF, #48E0C4)",
+                    color: "#fff",
+                    fontSize: "18px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    boxShadow: "0 6px 20px rgba(108,99,255,0.4)",
+                    transition: "transform 0.2s",
+                  }}
+                  onMouseOver={(e) => e.target.style.transform = "translateY(-2px)"}
+                  onMouseLeave={(e) => e.target.style.transform = "translateY(0)"}
+                >
+                  Kontynuuj przygodę! →
+                </button>
+              </>
+            )}
+          </div>
         </div>
       )}
     </div>
   );
 }
-

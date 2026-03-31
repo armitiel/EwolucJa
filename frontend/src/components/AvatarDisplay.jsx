@@ -127,7 +127,11 @@ export default function AvatarDisplay({
         <div style={displayStyles.newItemOverlay}>
           <div style={displayStyles.newItemTitle}>Nowy przedmiot!</div>
           <div style={{ ...displayStyles.newItemEmoji, animation: "float-in 0.6s ease-out" }}>
-            {item.emoji}
+            {item.image ? (
+              <img src={item.image} alt={item.name} style={{ width: 56, height: 56, objectFit: "contain", filter: "drop-shadow(0 2px 8px rgba(255,213,84,0.5))" }} />
+            ) : (
+              item.emoji
+            )}
           </div>
           <div style={displayStyles.newItemName}>{item.name}</div>
           <div style={{ fontSize: "12px", color: "#aab" }}>
@@ -166,7 +170,11 @@ export default function AvatarDisplay({
               if (!item) return null;
               return (
                 <span key={id} style={displayStyles.itemBadge(false)} title={item.name}>
-                  {item.emoji} {item.name}
+                  {item.image ? (
+                    <img src={item.image} alt="" style={{ width: 18, height: 18, objectFit: "contain", verticalAlign: "middle" }} />
+                  ) : (
+                    item.emoji
+                  )}{" "}{item.name}
                 </span>
               );
             })}
@@ -188,7 +196,11 @@ export default function AvatarDisplay({
             if (!item) return null;
             return (
               <span key={id} style={displayStyles.itemBadge(false)} title={item.name}>
-                {item.emoji}
+                {item.image ? (
+                  <img src={item.image} alt={item.name} style={{ width: 20, height: 20, objectFit: "contain" }} />
+                ) : (
+                  item.emoji
+                )}
               </span>
             );
           })}
