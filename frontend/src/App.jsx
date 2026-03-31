@@ -265,7 +265,7 @@ const styles = {
     bottom: "24px",
     left: "50%",
     transform: "translateX(-50%)",
-    zIndex: 30,
+    zIndex: 900,
   },
 };
 
@@ -795,7 +795,7 @@ export default function App() {
 
   // ── Avatar AI update po zdobyciu ekwipunku ──
   const [avatarUpdatePhase, setAvatarUpdatePhase] = useState(null); // null | "generating" | "ready"
-  const [avatarAiUrl, setAvatarAiUrl] = useState(null);
+
 
   // Stan splash-screen / przejscie miedzy krainami
   const [showTransition, setShowTransition] = useState(false);
@@ -807,6 +807,8 @@ export default function App() {
 
   // AI avatar image
   const [aiAvatarUrl, setAiAvatarUrl] = useState(null);
+  const aiAvatarUrlRef = useRef(null);
+  useEffect(() => { aiAvatarUrlRef.current = aiAvatarUrl; }, [aiAvatarUrl]);
 
   const currentStep = GAME_STEPS[stepIndex];
 
@@ -871,21 +873,24 @@ export default function App() {
 
   const dismissNewItem = useCallback(() => {
     setNewItem(null);
-    // Po zamknięciu powiadomienia o nowym przedmiocie → generuj AI awatar z referencją do poprzedniego
     setAvatarUpdatePhase("generating");
-    // Użyj equipmentRef.current zamiast equipment z closure — gwarantuje aktualny stan po setEquipment
+    // Czytaj z refów — gwarantuje najnowszy stan (nie stale closure)
     const currentEquipment = equipmentRef.current;
-    console.log("[dismissNewItem] Generating avatar with equipment:", currentEquipment);
-    agentAPI.generateAvatar(playerName, avatarConfig, playerGender, currentEquipment, avatarAiUrl)
+    const currentAvatarUrl = aiAvatarUrlRef.current;
+    console.log("[dismissNewItem] Equipment (from ref):", currentEquipment);
+    console.log("[dismissNewItem] Previous avatar URL:", currentAvatarUrl ? currentAvatarUrl.slice(0, 80) : "null");
+    agentAPI.generateAvatar(playerName, avatarConfig, playerGender, currentEquipment, currentAvatarUrl)
       .then((result) => {
-        if (result?.url) setAvatarAiUrl(result.url);
+        console.log("[dismissNewItem] Avatar generated:", result?.url ? result.url.slice(0, 80) : "NO URL");
+        if (result?.url) setAiAvatarUrl(result.url);
         setAvatarUpdatePhase("ready");
       })
-      .catch(() => {
-        setAvatarUpdatePhase(null); // fallback — kontynuuj grę
-        advance(); // Przejdź do następnego kroku
+      .catch((err) => {
+        console.error("[dismissNewItem] Avatar generation failed:", err);
+        setAvatarUpdatePhase(null);
+        advance();
       });
-  }, [playerName, avatarConfig, playerGender, avatarAiUrl, advance]);
+  }, [playerName, avatarConfig, playerGender, advance]);
 
   // ── Ekran startowy ────────────────────────────────────────────────
 
@@ -1253,15 +1258,6 @@ export default function App() {
         transition: "opacity 0.5s ease, transform 0.5s ease",
       }}>
         <div style={styles.header}>
-          <img
-            src="/logo2.svg"
-            alt="EwolucJA"
-            style={{
-              width: "120px",
-              height: "auto",
-              filter: "drop-shadow(0 2px 8px rgba(233, 69, 96, 0.2))",
-            }}
-          />
           <p style={styles.subtitle}>{landIcon} {playerName} — {landName}</p>
         </div>
 
@@ -1334,9 +1330,9 @@ export default function App() {
                 <div style={{ fontSize: "18px", fontWeight: 600, color: "#fff" }}>
                   Twój awatar ewoluuje!
                 </div>
-                {avatarAiUrl && (
+                {aiAvatarUrl && (
                   <img
-                    src={avatarAiUrl}
+                    src={aiAvatarUrl}
                     alt="AI Avatar"
                     style={{
                       width: 280,
