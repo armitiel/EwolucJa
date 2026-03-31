@@ -91,6 +91,15 @@ const PROFILE_LABELS = {
   MD: { name: "Mediator", icon: "🕊️", color: "#1abc9c" },
 };
 
+const PROFILE_DESCRIPTIONS = {
+  EM: "Masz wielkie serce i potrafisz wyczuć, co czują inni. Kiedy ktoś jest smutny, Ty to widzisz pierwszy. Twoja wrażliwość to supermoc — dzięki niej ludzie czują się przy Tobie bezpiecznie.",
+  ST: "Twój umysł działa jak komputer — analizujesz, planujesz i widzisz trzy kroki do przodu. Potrafisz znaleźć najlepszą drogę nawet w najtrudniejszym labiryncie. Logika to Twój najlepszy przyjaciel!",
+  KR: "Widzisz świat inaczej niż wszyscy — tam, gdzie inni widzą zwykły karton, Ty widzisz kosmiczny statek! Twoja wyobraźnia nie zna granic i to właśnie sprawia, że jesteś wyjątkowy.",
+  LD: "Kiedy grupa nie wie co robić, Ty bierzesz sprawy w swoje ręce. Inspirujesz innych, podejmujesz decyzje i nie boisz się odpowiedzialności. Ludzie za Tobą podążają, bo im ufasz i oni ufają Tobie.",
+  DT: "Nic nie umknie Twojej uwadze! Dostrzegasz szczegóły, zadajesz pytania i dochodzisz do prawdy. Twoja ciekawość świata sprawia, że odkrywasz rzeczy, których inni nawet nie szukali.",
+  MD: "Potrafisz połączyć ludzi nawet wtedy, gdy się kłócą. Słuchasz obu stron, szukasz kompromisów i budujesz mosty. Dzięki Tobie grupa trzyma się razem — jesteś klejem, który wszystko łączy.",
+};
+
 const HYBRID_TITLES = {
   DT_KR: "Wizjoner Tajemnic", EM_MD: "Strażnik Pokoju",
   LD_ST: "Generał Przygody", KR_ST: "Architekt Przyszłości",
@@ -286,31 +295,93 @@ function applyPoints(scores, points) {
 
 // ── Komponenty krain ──────────────────────────────────────────────────
 
-function ChoiceScreen({ narration, choices, onChoice, landColor, landName, land }) {
+function ChoiceScreen({ narration, choices, onChoice, landColor, landName, land, timerSeconds = 0, timerAutoChoice = null }) {
   const [hovered, setHovered] = useState(null);
+  const [selected, setSelected] = useState(null);
+  const [timeLeft, setTimeLeft] = useState(timerSeconds);
+  const selectedRef = React.useRef(null);
 
   // Buduj pełny tekst TTS: narracja + opcje wyboru
   const choicesText = choices.map((c) => c.label).join(". ");
   const fullTTS = `${narration}. Spójrz, masz do wyboru: ${choicesText}.`;
 
+  // Timer countdown
+  React.useEffect(() => {
+    if (timerSeconds <= 0 || !timerAutoChoice) return;
+    if (selectedRef.current) return;
+    if (timeLeft <= 0) {
+      selectedRef.current = timerAutoChoice;
+      setSelected(timerAutoChoice);
+      setTimeout(() => onChoice(timerAutoChoice), 1200);
+      return;
+    }
+    const t = setTimeout(() => setTimeLeft((prev) => prev - 1), 1000);
+    return () => clearTimeout(t);
+  }, [timeLeft, timerSeconds, timerAutoChoice]);
+
+  const handleSelect = (id) => {
+    if (selected || selectedRef.current) return;
+    ttsPlayer.unlock();
+    selectedRef.current = id;
+    setSelected(id);
+    setTimeout(() => onChoice(id), 1200);
+  };
+
+  const timerRatio = timerSeconds > 0 ? timeLeft / timerSeconds : 1;
+  const timerColor = timerRatio > 0.5 ? "#2ecc71" : timerRatio > 0.25 ? "#f39c12" : "#e94560";
+
   return (
     <div>
       <span style={styles.landBadge(landColor)}>{landName}</span>
       <div style={styles.narration}>{narration}</div>
+
+      {/* Timer bar */}
+      {timerSeconds > 0 && !selected && (
+        <div style={{ margin: "0 0 16px", textAlign: "center" }}>
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
+            marginBottom: "6px",
+          }}>
+            <span style={{ fontSize: "22px" }}>⏱️</span>
+            <span style={{
+              fontSize: "28px", fontWeight: "700", fontVariantNumeric: "tabular-nums",
+              color: timerColor, transition: "color 0.3s",
+              textShadow: timeLeft <= 5 ? `0 0 12px ${timerColor}` : "none",
+              animation: timeLeft <= 5 ? "pulse 0.5s ease infinite" : "none",
+            }}>
+              {timeLeft}s
+            </span>
+          </div>
+          <div style={{
+            width: "100%", height: "6px", borderRadius: "3px",
+            background: "rgba(255,255,255,0.1)", overflow: "hidden",
+          }}>
+            <div style={{
+              width: `${timerRatio * 100}%`, height: "100%",
+              borderRadius: "3px", background: timerColor,
+              transition: "width 1s linear, background 0.3s",
+            }} />
+          </div>
+        </div>
+      )}
+
       {choices.map((c) => (
         <button
           key={c.id}
           style={{
             ...styles.button,
             ...(hovered === c.id ? styles.buttonHover : {}),
+            ...(selected === c.id ? { borderColor: "#2ecc71", background: "rgba(46,204,113,0.25)", transform: "scale(1.03)" } : {}),
+            ...(selected && selected !== c.id ? { opacity: 0.4, pointerEvents: "none" } : {}),
+            transition: "all 0.3s ease",
           }}
           onMouseEnter={() => setHovered(c.id)}
           onMouseLeave={() => setHovered(null)}
-          onClick={() => { ttsPlayer.unlock(); onChoice(c.id); }}
+          onClick={() => handleSelect(c.id)}
         >
           {c.icon && (
             c.icon.startsWith("/") ? (
-              <img src={c.icon} alt="" style={{ width: 32, height: 32, marginRight: 10, verticalAlign: "middle", objectFit: "contain", filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))" }} />
+              <img src={c.icon} alt="" style={{ width: 52, height: 52, marginRight: 12, verticalAlign: "middle", objectFit: "contain", filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.4))" }} />
             ) : (
               <span style={{ marginRight: 8 }}>{c.icon}</span>
             )
@@ -318,6 +389,13 @@ function ChoiceScreen({ narration, choices, onChoice, landColor, landName, land 
           {c.label}
         </button>
       ))}
+      {selected && (
+        <div style={{ textAlign: "center", marginTop: "12px", fontSize: "15px", color: "#2ecc71", animation: "fadeIn 0.3s ease" }}>
+          {selected === timerAutoChoice && timeLeft <= 0
+            ? "⏱️ Czas minął! Idziesz dalej..."
+            : "✓ Wybrano! Przechodzę dalej..."}
+        </div>
+      )}
     </div>
   );
 }
@@ -563,6 +641,30 @@ function FinalScreen({ scores, playerName, avatarConfig, equipment }) {
         talenty {PROFILE_LABELS[sorted[0][0]].name} i{" "}
         {PROFILE_LABELS[sorted[1][0]].name}!
       </div>
+
+      {/* Podsumowanie osobowości — top 2 profile */}
+      {topProfiles.map((profileKey) => {
+        const profile = PROFILE_LABELS[profileKey];
+        const desc = PROFILE_DESCRIPTIONS[profileKey];
+        return (
+          <div key={profileKey} style={{
+            ...styles.card,
+            background: `linear-gradient(135deg, ${profile.color}15 0%, ${profile.color}08 100%)`,
+            border: `1px solid ${profile.color}30`,
+            marginBottom: "12px",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+              <span style={{ fontSize: "28px" }}>{profile.icon}</span>
+              <h3 style={{ margin: 0, fontSize: "17px", color: profile.color }}>{profile.name}</h3>
+              <span style={{ fontSize: "11px", color: "#ffd54f", fontWeight: "600" }}>★ TWOJA MOC</span>
+            </div>
+            <p style={{ margin: 0, fontSize: "14px", color: "#ddd", lineHeight: "1.6" }}>
+              {desc}
+            </p>
+          </div>
+        );
+      })}
+
       <div style={{ ...styles.card, background: "rgba(255,255,255,0.05)" }}>
         <h3 style={{ margin: "0 0 12px", fontSize: "16px" }}>Twoje supermoce:</h3>
         <ScoreDisplay scores={scores} />
@@ -582,7 +684,18 @@ function FinalScreen({ scores, playerName, avatarConfig, equipment }) {
           return (
             <div key={profileKey} style={{ marginBottom: "10px" }}>
               <button
-                onClick={() => setShowTips(isOpen ? null : profileKey)}
+                onClick={() => {
+                  if (isOpen) {
+                    ttsPlayer.stop();
+                    setShowTips(null);
+                  } else {
+                    setShowTips(profileKey);
+                    const tipsText = growth.tips.join(". ");
+                    const narratorText = `${profile.name}. ${growth.desc} ${tipsText}`;
+                    ttsPlayer.stop();
+                    setTimeout(() => ttsPlayer.speak(narratorText, { land: "gora_podsumowania" }), 300);
+                  }
+                }}
                 style={{
                   display: "flex", alignItems: "center", gap: "8px",
                   width: "100%", padding: "10px 14px",
@@ -742,6 +855,8 @@ const TASK_DATA = {
       { id: "B", icon: "👥", label: "Szukam kogoś innego, kto może pomóc" },
       { id: "C", icon: "⏩", label: "Idę dalej — punkty za czas są ważniejsze" },
     ],
+    timer: 20,
+    timerAutoChoice: "C",
   },
   6: {
     narration:
@@ -1379,12 +1494,15 @@ export default function App() {
               />
             ) : currentStep?.type === "choice" ? (
               <ChoiceScreen
+                key={currentStep.task}
                 narration={TASK_DATA[currentStep.task]?.narration}
                 choices={TASK_DATA[currentStep.task]?.choices || []}
                 onChoice={(id) => handleChoice(currentStep.task, id)}
                 landColor={landColor}
                 landName={landName}
                 land={land}
+                timerSeconds={TASK_DATA[currentStep.task]?.timer || 0}
+                timerAutoChoice={TASK_DATA[currentStep.task]?.timerAutoChoice || null}
               />
             ) : currentStep?.type === "timer" ? (
               <TimerScreen

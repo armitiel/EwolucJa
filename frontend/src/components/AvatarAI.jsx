@@ -53,7 +53,7 @@ export default function AvatarAI({
         if (mode === "avatar") {
           result = await agentAPI.generateAvatar(playerName, avatarConfig, gender, equipment);
         } else if (mode === "hero-card") {
-          result = await agentAPI.generateHeroCard(playerName, hybridTitle, equipment);
+          result = await agentAPI.generateHeroCard(playerName, hybridTitle, equipment, avatarConfig, gender);
         } else if (mode === "land") {
           result = await agentAPI.generateLandBackground(landName);
         }

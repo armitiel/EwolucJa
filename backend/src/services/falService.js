@@ -412,17 +412,76 @@ class FalService {
   /**
    * Generuje kartę bohatera (podsumowanie końcowe)
    */
-  async generateHeroCard({ playerName, hybridTitle, imagePrompt, equipment }) {
-    const equipmentStr = (equipment || []).join(", ");
+  async generateHeroCard({ playerName, hybridTitle, imagePrompt, equipment, avatarConfig, gender }) {
+    // Te same mapowania co w generateAvatar
+    const SKIN_NAMES = {
+      light: "fair light", medium: "warm medium", tan: "tanned olive",
+      brown: "brown", dark: "dark brown",
+    };
+    const EYE_NAMES = {
+      blue: "bright blue", green: "emerald green", brown: "warm brown",
+      hazel: "hazel", gray: "steel gray", amber: "golden amber", dark: "deep dark brown",
+    };
+    const COLOR_NAMES = {
+      white: "white", red: "red", blue: "blue", green: "green",
+      yellow: "yellow", purple: "purple", orange: "orange", pink: "pink",
+      navy: "dark navy blue", black: "black", brown: "brown",
+    };
+    const HAIR_COLOR_NAMES = {
+      black: "black", brown: "brown", blonde: "blonde", red: "red",
+      ginger: "light ginger", platinum: "platinum blonde",
+      blue: "blue", purple: "purple", green: "green", pink: "pink",
+    };
+    const HAIR_STYLE_NAMES = {
+      "boy_x5F_1": "short messy",
+      "girl_x5F_1": "long flowing",
+      "girl_x5F_2": "medium wavy",
+    };
+
+    const EQUIPMENT_VISUALS = {
+      magnifier: "holding a golden magnifying glass",
+      shield: "carrying a glowing blue shield",
+      book: "holding an ancient wisdom book",
+      backpack: "wearing a colorful adventure backpack",
+      green_cape: "wearing a flowing green cape",
+      time_compass: "with a magical compass on the belt",
+      inventor_goggles: "wearing steampunk inventor goggles",
+      courage_crown: "wearing a shining golden crown",
+      crystal_heart: "with a glowing crystal heart pendant",
+      wisdom_scroll: "holding a glowing scroll",
+      peace_branch: "holding a white dove branch",
+      team_medal: "wearing a shiny team medal",
+      star_boots: "wearing glowing star-patterned boots",
+      diamond_chest: "with a small diamond chest floating beside",
+    };
+
+    const cfg = avatarConfig || {};
+    const genderDesc = gender === "girl" ? "girl" : "boy";
+    const skinDesc = SKIN_NAMES[cfg.skinColor] || "light";
+    const eyeDesc = EYE_NAMES[cfg.eyeColor] || "blue";
+    const hairColorDesc = HAIR_COLOR_NAMES[cfg.hairColor] || "brown";
+    const hairStyleDesc = HAIR_STYLE_NAMES[cfg.hairStyle] || "short";
+    const shirtDesc = COLOR_NAMES[cfg.shirtColor] || "white";
+    const shortsDesc = COLOR_NAMES[cfg.shortsColor] || "white";
+    const shoesDesc = COLOR_NAMES[cfg.shoesColor] || "white";
+
+    const equipList = (equipment || [])
+      .map(id => EQUIPMENT_VISUALS[id])
+      .filter(Boolean);
+    const equipDesc = equipList.length > 0 ? `, ${equipList.join(", ")}` : "";
 
     const prompt = imagePrompt ||
-      `A heroic child character called "${hybridTitle}", holding magical items (${equipmentStr}), ` +
-      `standing on a mountain peak with golden light behind them, ` +
-      `${BASE_STYLE}, epic hero pose, achievement celebration, sparkles and stars`;
+      `A heroic ${genderDesc} child character "${hybridTitle}", ` +
+      `${skinDesc} skin tone, big round ${eyeDesc} eyes, ${hairStyleDesc} ${hairColorDesc} hair, ` +
+      `wearing a ${shirtDesc} t-shirt, ${shortsDesc} shorts, and ${shoesDesc} sneakers${equipDesc}, ` +
+      `standing on a mountain peak with golden light behind them, epic hero pose, ` +
+      `${BASE_STYLE}, achievement celebration, sparkles and stars, full body`;
+
+    console.log("[FalService] Hero card prompt:", prompt);
 
     return this.generate(prompt, {
       imageSize: "portrait_4_3",
-      numSteps: 4,
+      numSteps: 8,
     });
   }
 

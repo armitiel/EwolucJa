@@ -176,8 +176,8 @@ export async function generateLandBackground(landName) {
 /**
  * 11. GENERUJ KARTE BOHATERA — fal.ai hero image
  */
-export async function generateHeroCard(playerName, hybridTitle, equipment = []) {
-  return imageFetch("/hero-card", { playerName, hybridTitle, equipment });
+export async function generateHeroCard(playerName, hybridTitle, equipment = [], avatarConfig = {}, gender = "boy") {
+  return imageFetch("/hero-card", { playerName, hybridTitle, equipment, avatarConfig, gender });
 }
 
 /**
@@ -206,6 +206,13 @@ export async function getImageStatus() {
   }
 }
 
+/**
+ * 15. OPIS POSTACI — Spersonalizowany opis gracza generowany przez AI.
+ */
+export async function generateCharacterDescription(playerName, scores, title, topProfiles, equipment, gender) {
+  return agentFetch("/character-description", { playerName, scores, title, topProfiles, equipment, gender });
+}
+
 // ── Eksport zbiorczy ────────────────────────────────────────────────
 
 const agentAPI = {
@@ -218,6 +225,7 @@ const agentAPI = {
   finalizeGameFull,
   getImagePrompt,
   getMetrics,
+  generateCharacterDescription,
   // Obrazy fal.ai
   generateAvatar,
   generateLandBackground,

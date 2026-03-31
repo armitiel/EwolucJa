@@ -91,7 +91,7 @@ export function imageRoutes() {
   // ── Generuj kartę bohatera ─────────────────────────────────────────
   router.post("/hero-card", async (req, res) => {
     try {
-      const { playerName, hybridTitle, imagePrompt, equipment } = req.body;
+      const { playerName, hybridTitle, imagePrompt, equipment, avatarConfig, gender } = req.body;
 
       if (!playerName) {
         return res.status(400).json({ error: "playerName is required" });
@@ -106,6 +106,8 @@ export function imageRoutes() {
         hybridTitle: hybridTitle || "Bohater",
         imagePrompt,
         equipment: equipment || [],
+        avatarConfig: avatarConfig || {},
+        gender: gender || "boy",
       });
 
       res.json({

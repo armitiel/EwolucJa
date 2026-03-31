@@ -200,6 +200,25 @@ export function agentRoutes(db) {
     }
   });
 
+  // ── POST /api/agents/character-description ─────────────────────
+
+  router.post("/character-description", async (req, res) => {
+    try {
+      const { playerName, scores, title, topProfiles, equipment, gender } = req.body;
+      if (!playerName || !scores || !title) {
+        return res.status(400).json({ error: "Brak playerName, scores lub title" });
+      }
+
+      const description = await orchestrator.generateCharacterDescription({
+        playerName, scores, title, topProfiles, equipment: equipment || [], gender: gender || "boy",
+      });
+      res.json({ description });
+    } catch (err) {
+      console.error("[agents/character-description]", err);
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // ── GET /api/agents/metrics ───────────────────────────────────
 
   router.get("/metrics", (req, res) => {

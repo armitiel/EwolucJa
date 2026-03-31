@@ -291,6 +291,48 @@ export class GameOrchestrator {
     };
   }
 
+  /**
+   * Generowanie spersonalizowanego opisu postaci gracza.
+   * Nie wymaga player_id w DB — dane przychodzą z frontendu.
+   */
+  async generateCharacterDescription({ playerName, scores, title, topProfiles, equipment, gender }) {
+    const profileNames = {
+      EM: "Empata", ST: "Strateg", KR: "Kreator",
+      LD: "Lider", DT: "Detektyw", MD: "Mediator",
+    };
+
+    const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+    const strongest = sorted.slice(0, 2).map(([k]) => profileNames[k]).join(" i ");
+    const weakest = profileNames[sorted[sorted.length - 1][0]];
+
+    const equipmentList = equipment.length > 0
+      ? `Zdobyte przedmioty: ${equipment.join(", ")}.`
+      : "Nie zdobył żadnych przedmiotów.";
+
+    const prompt = `Jesteś narratorem gry edukacyjnej "EwolucJA" dla dzieci 6-10 lat.
+
+Napisz spersonalizowany, ciepły i inspirujący opis postaci gracza. Tekst powinien być:
+- Napisany w 2. osobie ("Jesteś...", "Twoja siła to...")
+- 3-4 zdania o tym KIM jest ta postać (charakter, temperament, styl działania)
+- 2-3 zdania o SUPERMOCY — jak te talenty pomagają w codziennym życiu
+- 1-2 zdania z radą/zachętą do rozwoju słabszej strony (ale pozytywnie!)
+- Język prosty, ale nie infantylny. Ciepły, pełen zachwytu.
+- Bez emoji, bez listy punktów.
+- Maksymalnie 120 słów.
+
+Dane gracza:
+- Imię: ${playerName}
+- Płeć: ${gender === "girl" ? "dziewczynka" : "chłopiec"}
+- Tytuł bohatera: ${title}
+- Najsilniejsze cechy: ${strongest} (wyniki: ${sorted.map(([k, v]) => `${profileNames[k]}=${v}`).join(", ")})
+- Najsłabsza cecha: ${weakest}
+- ${equipmentList}
+
+Odpowiedz TYLKO tekstem opisu, bez nagłówków ani formatowania.`;
+
+    return this.narrator.call(prompt);
+  }
+
   // ── Metryki ───────────────────────────────────────────────────────
 
   getMetrics() {

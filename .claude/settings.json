@@ -39,7 +39,9 @@
       "Bash(npx esbuild:*)",
       "Bash(git stash:*)",
       "Bash(git checkout:*)",
-      "Bash(ls -la /c/Users/DELL/EwolucJA/frontend/public/tlo*)"
+      "Bash(ls -la /c/Users/DELL/EwolucJA/frontend/public/tlo*)",
+      "Read(//tmp/**)",
+      "Read(//c/Users/DELL/EwolucJA/**)"
     ]
   }
 }
