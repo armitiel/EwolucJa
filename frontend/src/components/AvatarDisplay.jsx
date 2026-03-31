@@ -55,41 +55,41 @@ const displayStyles = {
     left: "50%",
     transform: "translate(-50%, -50%)",
     background: "linear-gradient(135deg, rgba(255,213,84,0.15), rgba(233,69,96,0.15))",
-    borderRadius: "16px",
-    padding: "20px",
+    borderRadius: "24px",
+    padding: "40px 48px",
     border: "1px solid rgba(255,213,84,0.3)",
     textAlign: "center",
     zIndex: 1000,
-    minWidth: "300px",
-    maxWidth: "400px",
+    minWidth: "400px",
+    maxWidth: "500px",
     backdropFilter: "blur(10px)",
   },
   newItemTitle: {
-    fontSize: "14px",
+    fontSize: "20px",
     fontWeight: "600",
     color: "#ffd54f",
-    marginBottom: "4px",
+    marginBottom: "12px",
   },
   newItemName: {
-    fontSize: "18px",
+    fontSize: "26px",
     fontWeight: "700",
     color: "#fff",
-    marginBottom: "4px",
+    marginBottom: "8px",
   },
   newItemEmoji: {
-    fontSize: "36px",
-    marginBottom: "8px",
-    filter: "drop-shadow(0 2px 8px rgba(255,213,84,0.5))",
+    fontSize: "48px",
+    marginBottom: "16px",
+    filter: "drop-shadow(0 4px 16px rgba(255,213,84,0.5))",
   },
   dismissBtn: {
-    padding: "8px 20px",
-    borderRadius: "10px",
+    padding: "12px 28px",
+    borderRadius: "14px",
     background: "rgba(255,255,255,0.08)",
     border: "1px solid rgba(255,255,255,0.15)",
     color: "#ccc",
-    fontSize: "13px",
+    fontSize: "16px",
     cursor: "pointer",
-    marginTop: "8px",
+    marginTop: "16px",
   },
 };
 
@@ -128,7 +128,7 @@ export default function AvatarDisplay({
           <div style={displayStyles.newItemTitle}>Nowy przedmiot!</div>
           <div style={{ ...displayStyles.newItemEmoji, animation: "float-in 0.6s ease-out" }}>
             {item.image ? (
-              <img src={item.image} alt={item.name} style={{ width: 56, height: 56, objectFit: "contain", filter: "drop-shadow(0 2px 8px rgba(255,213,84,0.5))" }} />
+              <img src={item.image} alt={item.name} style={{ width: 120, height: 120, objectFit: "contain", filter: "drop-shadow(0 4px 16px rgba(255,213,84,0.5))" }} />
             ) : (
               item.emoji
             )}
