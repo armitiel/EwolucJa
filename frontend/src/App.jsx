@@ -781,6 +781,8 @@ export default function App() {
   // ── Avatar AI update po zdobyciu ekwipunku ──
   const [avatarUpdatePhase, setAvatarUpdatePhase] = useState(null); // null | "generating" | "ready"
 
+  // ── Oczekiwanie na klik użytkownika po stworzeniu awatara ──
+  const [avatarCreated, setAvatarCreated] = useState(false);
 
   // Stan splash-screen / przejscie miedzy krainami
   const [showTransition, setShowTransition] = useState(false);
@@ -813,6 +815,7 @@ export default function App() {
 
   const advance = useCallback(() => {
     ttsPlayer.stop();
+    setAvatarCreated(false); // Reset avatara - pokaż builder w następnym kroku
     if (stepIndex + 1 >= GAME_STEPS.length) {
       setPhase("done");
     } else {
@@ -864,6 +867,7 @@ export default function App() {
     const currentAvatarUrl = aiAvatarUrlRef.current;
     console.log("[dismissNewItem] Equipment (from ref):", currentEquipment);
     console.log("[dismissNewItem] Previous avatar URL:", currentAvatarUrl ? currentAvatarUrl.slice(0, 80) : "null");
+    console.log("[dismissNewItem] AvatarConfig being sent to API:", avatarConfig);
     agentAPI.generateAvatar(playerName, avatarConfig, playerGender, currentEquipment, currentAvatarUrl)
       .then((result) => {
         console.log("[dismissNewItem] Avatar generated:", result?.url ? result.url.slice(0, 80) : "NO URL");
@@ -1257,10 +1261,6 @@ export default function App() {
       {contentVisible && <div style={{
         ...styles.container,
       }}>
-        <div style={styles.header}>
-          <p style={styles.subtitle}>{landIcon} {playerName} — {landName}</p>
-        </div>
-
         {/* Powiadomienie o nowym przedmiocie */}
         {newItem && avatarConfig && (
           <div style={{ ...styles.card, padding: "16px" }}>
@@ -1274,8 +1274,8 @@ export default function App() {
           </div>
         )}
 
-        {/* Ekran aktualizacji AI awatara po zdobyciu ekwipunku */}
-        {!newItem && avatarUpdatePhase && (
+        {/* Ekran aktualizacji AI awatara - tymczasowo pusty, przenosze na koniec */}
+        {false && avatarUpdatePhase && (
           <div style={{
             ...styles.card,
             padding: "24px",
@@ -1447,21 +1447,79 @@ export default function App() {
             }}>
             {/* NOWY: Kreator awatara */}
             {currentStep?.type === "avatar_builder" ? (
-              <AvatarBuilder
-                playerName={playerName}
-                gender={playerGender}
-                onComplete={(config, gender) => {
-                  setAvatarConfig(config);
-                  if (gender) setPlayerGender(gender);
-                  agentAPI.generateAvatar(playerName, config, gender || playerGender).then((result) => {
-                    if (result?.url) {
-                      setAiAvatarUrl(result.url);
-                      console.log("[AI Avatar] Generated:", result.url);
-                    }
-                  }).catch(() => {});
-                  advance();
-                }}
-              />
+              avatarCreated ? (
+                // Ekran review awatara - czeka na klik użytkownika
+                <div style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "24px",
+                  padding: "24px",
+                  textAlign: "center",
+                }}>
+                  <div style={{
+                    fontSize: "24px",
+                    fontWeight: "600",
+                    color: "#fff",
+                  }}>
+                    Fantastic! Oto Twój awatar {playerName}!
+                  </div>
+                  <div style={{
+                    width: "280px",
+                    height: "280px",
+                    borderRadius: "16px",
+                    overflow: "hidden",
+                    background: "rgba(255,255,255,0.05)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}>
+                    {avatarConfig && (
+                      <AvatarDisplay
+                        avatarConfig={avatarConfig}
+                        equipment={equipment}
+                        playerName={playerName}
+                        compact={true}
+                      />
+                    )}
+                  </div>
+                  <button
+                    style={{
+                      ...styles.button,
+                      textAlign: "center",
+                      background: "linear-gradient(135deg, rgba(233,69,96,0.3), rgba(255,213,84,0.3))",
+                      borderColor: "#e94560",
+                      fontSize: "16px",
+                      fontWeight: "600",
+                      maxWidth: "300px",
+                    }}
+                    onClick={() => {
+                      setAvatarCreated(false);
+                      advance();
+                    }}
+                  >
+                    Wyruszam w przygodę! →
+                  </button>
+                </div>
+              ) : (
+                <AvatarBuilder
+                  playerName={playerName}
+                  gender={playerGender}
+                  onComplete={(config, gender) => {
+                    setAvatarConfig(config);
+                    if (gender) setPlayerGender(gender);
+                    agentAPI.generateAvatar(playerName, config, gender || playerGender).then((result) => {
+                      if (result?.url) {
+                        setAiAvatarUrl(result.url);
+                        console.log("[AI Avatar] Generated:", result.url);
+                      }
+                    }).catch(() => {});
+                    // Zamiast od razu advance(), pokazuj ekran review
+                    setAvatarCreated(true);
+                  }}
+                />
+              )
             ) : phase === "done" || currentStep?.type === "final" ? (
               <FinalScreen
                 scores={scores}
@@ -1536,6 +1594,121 @@ export default function App() {
       {contentVisible && gameTtsText && !newItem && !avatarUpdatePhase && (
         <div style={styles.bottomNarrator}>
           <NarratorVoice text={gameTtsText} land={land} />
+        </div>
+      )}
+
+      {/* Globalny overlay dla nowych przedmiotów - poza kontenerami */}
+      {newItem && avatarConfig && (
+        <AvatarDisplay
+          avatarConfig={avatarConfig}
+          equipment={equipment}
+          playerName={playerName}
+          newItem={newItem}
+          onNewItemDismiss={dismissNewItem}
+        />
+      )}
+
+      {/* Globalny overlay dla aktualizacji awatara - wycentrowany na środku */}
+      {avatarUpdatePhase && (
+        <div style={{
+          position: "fixed",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          background: "linear-gradient(135deg, rgba(255,213,84,0.15), rgba(233,69,96,0.15))",
+          borderRadius: "24px",
+          padding: "32px",
+          border: "1px solid rgba(255,213,84,0.3)",
+          textAlign: "center",
+          zIndex: 1000,
+          minWidth: "400px",
+          maxWidth: "500px",
+          backdropFilter: "blur(10px)",
+        }}>
+          {avatarUpdatePhase === "generating" && (
+            <>
+              <div style={{ fontSize: "24px", fontWeight: 600, color: "#fff", marginBottom: "24px" }}>
+                Aktualizacja awatara...
+              </div>
+              <div style={{
+                width: 350,
+                height: 350,
+                margin: "0 auto",
+                borderRadius: "24px",
+                overflow: "hidden",
+                position: "relative",
+                background: "rgba(255,255,255,0.05)",
+              }}>
+                {avatarConfig && (
+                  <AvatarDisplay
+                    avatarConfig={avatarConfig}
+                    equipment={equipment}
+                    playerName={playerName}
+                    compact={false}
+                  />
+                )}
+                <div style={{
+                  position: "absolute",
+                  bottom: 16,
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  background: "rgba(0,0,0,0.7)",
+                  borderRadius: "20px",
+                  padding: "8px 20px",
+                  fontSize: "14px",
+                  color: "rgba(255,255,255,0.9)",
+                  backdropFilter: "blur(8px)",
+                }}>
+                  <span style={{ animation: "pulse 1.5s ease infinite", display: "inline-block" }}>
+                    Tworzenie portretu AI...
+                  </span>
+                </div>
+              </div>
+            </>
+          )}
+          {avatarUpdatePhase === "ready" && (
+            <>
+              <div style={{ fontSize: "24px", fontWeight: 600, color: "#fff", marginBottom: "24px" }}>
+                Twój awatar ewoluuje!
+              </div>
+              {aiAvatarUrl && (
+                <img
+                  src={aiAvatarUrl}
+                  alt="AI Avatar"
+                  style={{
+                    width: 400,
+                    height: 400,
+                    borderRadius: "24px",
+                    objectFit: "cover",
+                    boxShadow: "0 0 40px rgba(255,215,0,0.4)",
+                    marginBottom: "24px",
+                  }}
+                />
+              )}
+              <button
+                onClick={() => {
+                  setAvatarUpdatePhase(null);
+                  advance();
+                }}
+                style={{
+                  padding: "16px 40px",
+                  borderRadius: "30px",
+                  border: "none",
+                  background: "linear-gradient(135deg, #6C63FF, #48E0C4)",
+                  color: "#fff",
+                  fontSize: "18px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  boxShadow: "0 6px 20px rgba(108,99,255,0.4)",
+                  transition: "transform 0.2s",
+                }}
+                onMouseOver={(e) => e.target.style.transform = "translateY(-2px)"}
+                onMouseLeave={(e) => e.target.style.transform = "translateY(0)"}
+              >
+                Kontynuuj przygodę! →
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>
