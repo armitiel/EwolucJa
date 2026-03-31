@@ -150,14 +150,9 @@ export default function NarratorVoice({ text, land, autoPlay = true, autoPlayDel
 
   return (
     <div style={{
-      position: "fixed",
-      bottom: "24px",
-      left: "50%",
-      transform: "translateX(-50%)",
       display: "flex",
       alignItems: "center",
-      gap: "12px",
-      zIndex: 900,
+      gap: "8px",
     }}>
       <button onClick={handleToggle} style={playing ? activeBtn : circleBtn}
         title={playing ? "Stop" : "Posłuchaj"}>

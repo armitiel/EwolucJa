@@ -14,13 +14,13 @@
 const FAL_API_URL = "https://fal.run";
 
 // Styl bazowy dla wszystkich generacji
-const BASE_STYLE = "3D Pixar claymorphism style, soft clay-like textures, rounded shapes, " +
-  "vibrant saturated colors, matte finish, soft shadows, warm lighting, " +
-  "chibi proportions, big expressive eyes, cozy safe look, children-friendly";
+const BASE_STYLE = "2D cartoon illustration style, bold clean outlines, flat cel-shaded colors, " +
+  "hand-drawn look, vibrant saturated palette, minimal shading, " +
+  "expressive cartoon eyes, playful proportions, children's book illustration, adventure cartoon";
 
-const NEGATIVE_PROMPT = "realistic, photographic, dark, scary, violent, blood, " +
-  "nsfw, ugly, deformed, noisy, blurry, low contrast, text, watermark, " +
-  "sharp edges, angular, adult content";
+const NEGATIVE_PROMPT = "realistic, photographic, 3D render, clay, claymorphism, CGI, " +
+  "dark, scary, violent, blood, nsfw, ugly, deformed, noisy, blurry, " +
+  "low contrast, text, watermark, adult content";
 
 // Predefiniowane prompty dla krain (tła splash screenów)
 const LAND_PROMPTS = {
@@ -72,8 +72,8 @@ class FalService {
       enableSafetyChecker = true,
     } = options;
 
-    // Cache check
-    const cacheKey = `${model}:${prompt.slice(0, 100)}:${imageSize}`;
+    // Cache check — pełny prompt w kluczu żeby uniknąć fałszywych hitów przy zmianie ekwipunku
+    const cacheKey = `${model}:${prompt}:${imageSize}`;
     if (this.cache.has(cacheKey)) {
       console.log("[FalService] Cache hit:", cacheKey.slice(0, 60));
       return this.cache.get(cacheKey);
@@ -102,6 +102,42 @@ class FalService {
     } finally {
       this.generating.delete(cacheKey);
     }
+  }
+
+  /**
+   * Usuwa tło z obrazu — zwraca PNG z przezroczystością
+   */
+  async _removeBackground(imageUrl) {
+    const model = "fal-ai/bria/background/remove";
+    const url = `${FAL_API_URL}/${model}`;
+
+    console.log("[FalService] Removing background...");
+    const startTime = Date.now();
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Authorization": `Key ${this.apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ image_url: imageUrl }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Background removal failed: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    const elapsed = Date.now() - startTime;
+    console.log(`[FalService] Background removed in ${elapsed}ms`);
+
+    const image = data.image || {};
+    return {
+      url: image.url || "",
+      width: image.width || 1024,
+      height: image.height || 1024,
+    };
   }
 
   /**
@@ -276,6 +312,17 @@ class FalService {
       diamond_chest:    "with a small diamond chest floating beside",
     };
 
+    const HAIR_COLOR_NAMES = {
+      black: "black", brown: "brown", blonde: "blonde", red: "red",
+      ginger: "light ginger", platinum: "platinum blonde",
+      blue: "blue", purple: "purple", green: "green", pink: "pink",
+    };
+    const HAIR_STYLE_NAMES = {
+      "boy_x5F_1": "short messy",
+      "girl_x5F_1": "long flowing",
+      "girl_x5F_2": "medium wavy",
+    };
+
     const cfg = avatarConfig || {};
     const skinDesc = SKIN_NAMES[cfg.skinColor] || "light";
     const eyeDesc = EYE_NAMES[cfg.eyeColor] || "blue";
@@ -283,6 +330,8 @@ class FalService {
     const shortsDesc = COLOR_NAMES[cfg.shortsColor] || "white";
     const shoesDesc = COLOR_NAMES[cfg.shoesColor] || "white";
     const genderDesc = gender === "girl" ? "girl" : "boy";
+    const hairColorDesc = HAIR_COLOR_NAMES[cfg.hairColor] || "brown";
+    const hairStyleDesc = HAIR_STYLE_NAMES[cfg.hairStyle] || "short";
 
     // Zbuduj opis ekwipunku
     const equipList = (equipment || [])
@@ -292,29 +341,59 @@ class FalService {
       ? `, ${equipList.join(", ")}`
       : "";
 
-    const prompt =
-      `A cute ${genderDesc} child character, full body standing pose, ` +
-      `${skinDesc} skin tone, big round ${eyeDesc} eyes, ` +
-      `wearing a ${shirtDesc} t-shirt, ${shortsDesc} shorts, and ${shoesDesc} sneakers, ` +
-      `bald head (no hair), friendly cheerful smile${equipDesc}, ` +
-      `${BASE_STYLE}, portrait, centered, clean soft gradient background, adventure-ready pose`;
-
-    console.log("[FalService] Avatar prompt from config:", prompt.slice(0, 300));
-
-    // Jeśli mamy poprzedni avatar — użyj image-to-image dla spójności
-    if (previousAvatarUrl) {
-      console.log("[FalService] Using img2img with previous avatar for consistency");
-      return this._generateImg2Img(prompt, previousAvatarUrl, {
-        imageSize: "square_hd",
-        numSteps: 4,
-        strength: 0.55, // Niska siła — zachowaj podobieństwo, dodaj nowy ekwipunek
-      });
+    // Buduj prompt — ekwipunek jako centralny, wyraźny element
+    let prompt;
+    if (equipList.length > 0) {
+      // Ekwipunek jako PIERWSZY i NAJWAŻNIEJSZY element promptu
+      const equipFocus = equipList.join(", and ");
+      prompt =
+        `A cute ${genderDesc} child character ${equipFocus}, ` +
+        `full body standing pose, ` +
+        `${skinDesc} skin tone, big round ${eyeDesc} eyes, ` +
+        `${hairStyleDesc} ${hairColorDesc} hair, ` +
+        `wearing a ${shirtDesc} t-shirt, ${shortsDesc} shorts, and ${shoesDesc} sneakers, ` +
+        `friendly cheerful smile, ` +
+        `the ${equipList[equipList.length - 1]} is clearly visible and prominent, ` +
+        `${BASE_STYLE}, portrait, centered, clean soft gradient background, adventure-ready pose`;
+    } else {
+      prompt =
+        `A cute ${genderDesc} child character, full body standing pose, ` +
+        `${skinDesc} skin tone, big round ${eyeDesc} eyes, ` +
+        `${hairStyleDesc} ${hairColorDesc} hair, ` +
+        `wearing a ${shirtDesc} t-shirt, ${shortsDesc} shorts, and ${shoesDesc} sneakers, ` +
+        `friendly cheerful smile, ` +
+        `${BASE_STYLE}, portrait, centered, clean soft gradient background, adventure-ready pose`;
     }
 
-    return this.generate(prompt, {
+    console.log("[FalService] Avatar config received:", JSON.stringify(cfg));
+    console.log("[FalService] Hair: style=%s (%s), color=%s (%s)", cfg.hairStyle, hairStyleDesc, cfg.hairColor, hairColorDesc);
+    console.log("[FalService] Skin: %s, Eyes: %s, Shirt: %s, Shorts: %s, Shoes: %s", skinDesc, eyeDesc, shirtDesc, shortsDesc, shoesDesc);
+    console.log("[FalService] Equipment received:", equipment);
+    console.log("[FalService] Full avatar prompt:", prompt);
+
+    let result;
+
+    // Zawsze txt2img — img2img zbyt mocno trzyma się oryginału i gubi ekwipunek
+    // Większa liczba kroków = lepsza jakość i wierność promptowi
+    result = await this.generate(prompt, {
       imageSize: "square_hd",
-      numSteps: 4,
+      numSteps: equipList.length > 0 ? 8 : 4, // więcej kroków gdy ekwipunek
     });
+
+    // Krok 2: Usuń tło — daje PNG z przezroczystością
+    if (result?.url) {
+      try {
+        const noBgResult = await this._removeBackground(result.url);
+        if (noBgResult?.url) {
+          console.log("[FalService] Background removed successfully");
+          return { ...result, url: noBgResult.url, transparentBg: true };
+        }
+      } catch (err) {
+        console.warn("[FalService] Background removal failed, using original:", err.message);
+      }
+    }
+
+    return result;
   }
 
   /**

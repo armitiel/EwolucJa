@@ -131,9 +131,6 @@ export default function AvatarDisplay({
             Super! Idę dalej →
           </button>
         </div>
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <AvatarBoy config={avatarConfig} size={182} />
-        </div>
       </div>
     );
   }

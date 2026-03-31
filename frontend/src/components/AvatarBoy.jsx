@@ -3,26 +3,32 @@ import React, { useEffect, useRef, useState } from "react";
 /**
  * AvatarBoy — Wyświetla avatar_boy.svg z dynamicznie zmienianymi kolorami warstw.
  *
- * SVG ma warstwy (g id=):
- *   skin          — skóra (#FAC9A4)
- *   shadow        — cienie skóry (#F2A67E)
- *   outline       — obrys ciała (#6C4E3C, stroke)
- *   buty          — buty (#FEFEFE)
- *   spodenki      — spodenki (#FDF5E8)
- *   t_x5F_shirt   — koszulka (#FDF5E8)
- *   shadow_*      — cienie ubrań (#DED6CB)
- *   outline_x5F_ciuchy — obrys ubrań (#6C4E3C)
+ * NOWA STRUKTURA SVG (po aktualizacji):
  *
- *   Usta          — grupa ust z wariantami 1-12
- *   Kolor_x5F_oczu — kolor tęczówki lewego oka
- *   Kolor_x5F_oczu_* — kolor tęczówki prawego oka
- *   _x31_2 (=12)  — domyślny wariant ust (widoczny)
- *   _x31_1 .. _x31_ (=11..1) — ukryte warianty ust
+ *   skin
+ *     kolor, kolor1-5  — skóra (st1 = #FAC9A4)
+ *     shadow           — cienie skóry (st21 = #F2A67E)
+ *     outline          — obrys (st16 = #6C4E3C)
  *
- * Props:
- *  - config: { skinColor, shirtColor, shortsColor, shoesColor, eyeColor, mouthVariant }
- *  - size: number (domyślnie 200)
- *  - style: dodatkowe style na wrapper
+ *   buty               — buty (kolor6 st42, outline1 st16)
+ *   spodenki           — spodenki (st17 kolor, st41 cień, outline2 st16)
+ *   t_x5F_shirt        — koszulka (st17 kolor, st41 cień, st31 obrys)
+ *
+ *   Oczy
+ *     kolor11, kolor12 — tęczówki (st39 = #2D78BD)
+ *
+ *   Usta               — warianty ust, ukryte st34 = display:none
+ *     _x31_2           — domyślnie widoczny
+ *     _x31_1, _x39_, _x38_, _x36_, _x35_, _x34_, _x32_, _x31_ — ukryte
+ *
+ *   Włosy
+ *     girl_x5F_2       — widoczna domyślnie (kolor13 st44, shadow st37, outline4 st7)
+ *     girl_x5F_1       — ukryta st34 (kolor14 st23, shadow st9, outline5 group)
+ *     boy_x5F_1        — ukryta st34 (kolor15 st44, shadow st37, outline9 st5)
+ *
+ * Klasa ukrywania: st34 = display:none
+ * Kolorowanie: zawsze style.fill (nadpisuje CSS klasy)
+ * Włosy: kolor + shadow (ciemniejszy o 40%)
  */
 
 // ── Palety kolorów ────────────────────────────────────────────────
@@ -76,19 +82,53 @@ export const EYE_COLORS = [
   { id: "dark",    hex: "#3B2F2F", name: "Ciemne" },
 ];
 
-// Warianty ust (1-12). ID w SVG to _x3{d}_ (Adobe Illustrator encoding).
-// Wariant 12 jest domyślnie widoczny, reszta display="none".
+// ── Włosy ────────────────────────────────────────────────────────────
+
+export const HAIR_COLORS = [
+  { id: "black",    hex: "#2C1810", name: "Czarne" },
+  { id: "brown",    hex: "#6B3A2A", name: "Brązowe" },
+  { id: "blonde",   hex: "#D4A843", name: "Blond" },
+  { id: "red",      hex: "#B84430", name: "Rude" },
+  { id: "ginger",   hex: "#E87040", name: "Rude jasne" },
+  { id: "platinum", hex: "#E8DCC8", name: "Platynowe" },
+  { id: "blue",     hex: "#4A90D9", name: "Niebieskie" },
+  { id: "purple",   hex: "#8B5CF6", name: "Fioletowe" },
+  { id: "green",    hex: "#34D399", name: "Zielone" },
+  { id: "pink",     hex: "#F472B6", name: "Różowe" },
+];
+
+// Fryzury — ID warstw w SVG
+// Wszystkie fryzury dostępne dla każdej płci
+export const HAIR_STYLES_BOY = [
+  { id: "boy_x5F_1",  svgId: "boy_x5F_1",  name: "Fryzura 1" },
+  { id: "girl_x5F_1", svgId: "girl_x5F_1", name: "Fryzura 2" },
+  { id: "girl_x5F_2", svgId: "girl_x5F_2", name: "Fryzura 3" },
+];
+
+export const HAIR_STYLES_GIRL = [
+  { id: "girl_x5F_1", svgId: "girl_x5F_1", name: "Fryzura 1" },
+  { id: "girl_x5F_2", svgId: "girl_x5F_2", name: "Fryzura 2" },
+  { id: "boy_x5F_1",  svgId: "boy_x5F_1",  name: "Fryzura 3" },
+];
+
+// Wszystkie fryzury (do przełączania widoczności — unikalne ID)
+export const ALL_HAIR_STYLES = [
+  { id: "boy_x5F_1",  svgId: "boy_x5F_1",  name: "Fryzura 1" },
+  { id: "girl_x5F_1", svgId: "girl_x5F_1", name: "Fryzura 2" },
+  { id: "girl_x5F_2", svgId: "girl_x5F_2", name: "Fryzura 3" },
+];
+
+// Warianty ust — dostępne w nowym SVG.
+// st34 = display:none. Wariant 12 domyślnie widoczny.
+// Usunięte: 3 (_x33_), 7 (_x37_), 10 (_x31_0) — brak w SVG.
 export const MOUTH_VARIANTS = [
   { id: 1,  svgId: "_x31_",  name: "Usta 1" },
   { id: 2,  svgId: "_x32_",  name: "Usta 2" },
-  { id: 3,  svgId: "_x33_",  name: "Usta 3" },
   { id: 4,  svgId: "_x34_",  name: "Usta 4" },
   { id: 5,  svgId: "_x35_",  name: "Usta 5" },
   { id: 6,  svgId: "_x36_",  name: "Usta 6" },
-  { id: 7,  svgId: "_x37_",  name: "Usta 7" },
   { id: 8,  svgId: "_x38_",  name: "Usta 8" },
   { id: 9,  svgId: "_x39_",  name: "Usta 9" },
-  { id: 10, svgId: "_x31_0", name: "Usta 10" },
   { id: 11, svgId: "_x31_1", name: "Usta 11" },
   { id: 12, svgId: "_x31_2", name: "Usta 12" },
 ];
@@ -96,6 +136,8 @@ export const MOUTH_VARIANTS = [
 // Domyślna konfiguracja
 export const DEFAULT_AVATAR_CONFIG = {
   skinColor: "light",
+  hairColor: "brown",
+  hairStyle: "boy_x5F_1",
   shirtColor: "white",
   shortsColor: "white",
   shoesColor: "white",
@@ -117,11 +159,17 @@ function darkenHex(hex, amount = 0.2) {
   return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, "0")}`;
 }
 
-const _svgCache = { boy: null, girl: null };
+const _svgCache = {};
+
+// ── Mapowanie klas CSS do ról w SVG ──────────────────────────────────
+// Włosy: elementy z id zawierającym "kolor" = kolor główny, "shadow" = cień
+// Outline (id zawierający "outline") nie jest kolorowany — zostaje oryginalny
+// Inne klasy wg kontekstu:
+//   Włosy shadow: st37, st9 (ciemniejsze warianty)
+//   Włosy kolor:  st44, st23, st35 (jasne warianty)
 
 export default function AvatarBoy({ config = DEFAULT_AVATAR_CONFIG, size = 200, style = {}, gender = "boy" }) {
-  // Wybierz plik SVG na podstawie płci (girl fallback na boy jeśli brak pliku)
-  const svgFile = gender === "girl" ? "/avatar_girl.svg" : "/avatar_boy.svg";
+  const svgFile = "/avatar_boy.svg";
   const containerRef = useRef(null);
   const [loaded, setLoaded] = useState(false);
 
@@ -129,29 +177,21 @@ export default function AvatarBoy({ config = DEFAULT_AVATAR_CONFIG, size = 200, 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const cacheKey = gender === "girl" ? "girl" : "boy";
+      const cacheKey = "shared";
       if (!_svgCache[cacheKey]) {
         try {
           const res = await fetch(svgFile);
           if (!res.ok) {
-            // Fallback do boy jeśli girl nie istnieje
-            if (cacheKey === "girl") {
-              const fallback = await fetch("/avatar_boy.svg");
-              _svgCache[cacheKey] = await fallback.text();
-            } else {
-              console.warn("[AvatarBoy] Failed to load SVG:", res.status);
-              return;
-            }
-          } else {
-            _svgCache[cacheKey] = await res.text();
+            console.warn("[AvatarBoy] Failed to load SVG:", res.status);
+            return;
           }
+          _svgCache[cacheKey] = await res.text();
         } catch (e) {
           console.warn("[AvatarBoy] Failed to load SVG:", e);
           return;
         }
       }
       if (!cancelled && containerRef.current) {
-        // Wytnij DOCTYPE/XML przed <svg — bo ]> z DOCTYPE renderuje się jako tekst
         let clean = _svgCache[cacheKey];
         const svgStart = clean.indexOf("<svg");
         if (svgStart > 0) clean = clean.slice(svgStart);
@@ -162,23 +202,28 @@ export default function AvatarBoy({ config = DEFAULT_AVATAR_CONFIG, size = 200, 
           svg.setAttribute("height", "100%");
           svg.style.display = "block";
 
-          // Przenieś warstwy cieni na górę SVG i ustaw multiply blend mode
-          const shadowSkin = svg.querySelector("#shadow");
-          const shadowCloth = svg.querySelector('[id^="shadow_0000"]');
-          if (shadowSkin) {
-            svg.appendChild(shadowSkin);
-            shadowSkin.style.mixBlendMode = "multiply";
-          }
-          if (shadowCloth) {
-            svg.appendChild(shadowCloth);
-            shadowCloth.style.mixBlendMode = "multiply";
-          }
+          // Ukryj/pokaż fryzury — st34 = display:none w CSS
+          ALL_HAIR_STYLES.forEach(hs => {
+            const hairEl = svg.querySelector(`#${CSS.escape(hs.svgId)}`);
+            if (hairEl) {
+              hairEl.style.display = hs.svgId === (config.hairStyle || "boy_x5F_1") ? "inline" : "none";
+            }
+          });
+
+          // Pokaż domyślne usta — st34 = display:none w CSS
+          const defaultMouthId = config.mouthVariant || 12;
+          MOUTH_VARIANTS.forEach(mv => {
+            const mouthEl = svg.querySelector(`#${CSS.escape(mv.svgId)}`);
+            if (mouthEl) {
+              mouthEl.style.display = mv.id === defaultMouthId ? "inline" : "none";
+            }
+          });
         }
         setLoaded(true);
       }
     })();
     return () => { cancelled = true; };
-  }, [gender, svgFile]);
+  }, [svgFile]);
 
   // Aplikuj kolory na warstwy gdy config się zmieni
   useEffect(() => {
@@ -190,93 +235,162 @@ export default function AvatarBoy({ config = DEFAULT_AVATAR_CONFIG, size = 200, 
     const shorts = findColor(SHORTS_COLORS, config.shortsColor);
     const shoes = findColor(SHOES_COLORS, config.shoesColor);
 
-    // Skóra
+    // Helper: ustaw fill na elemencie (style.fill nadpisuje CSS klasy)
+    const setFill = (el, color) => { el.style.fill = color; };
+    const setFillAll = (group, selector, color) => {
+      if (!group) return;
+      group.querySelectorAll(selector).forEach(el => setFill(el, color));
+    };
+
+    // Helper: ustaw stroke na elemencie
+    const setStroke = (el, color) => { el.style.stroke = color; };
+
+    // ── Skóra ────────────────────────────────────────────────────────
+    const skinOutline = darkenHex(skin.hex, 0.5);
     const skinGroup = root.querySelector("#skin");
     if (skinGroup) {
-      skinGroup.querySelectorAll("path").forEach((p) => {
-        p.setAttribute("fill", skin.hex);
+      // Koloruj grupy kolor, kolor1-5
+      skinGroup.querySelectorAll('[id^="kolor"]').forEach(g => {
+        setFillAll(g, "path, circle, ellipse", skin.hex);
       });
+      // Cienie skóry
+      const shadowGroup = skinGroup.querySelector("#shadow");
+      if (shadowGroup) {
+        setFillAll(shadowGroup, "path, circle, ellipse", skin.shadow);
+      }
+      // Outline skóry — ciemniejsza tonacja skóry
+      const outlineGroup = skinGroup.querySelector("#outline");
+      if (outlineGroup) {
+        outlineGroup.querySelectorAll("path, circle, ellipse, line").forEach(el => {
+          setFill(el, skinOutline);
+          setStroke(el, skinOutline);
+        });
+      }
     }
 
-    // Cienie skóry
-    const shadowGroup = root.querySelector("#shadow");
-    if (shadowGroup) {
-      shadowGroup.querySelectorAll("path").forEach((p) => {
-        p.setAttribute("fill", skin.shadow);
-      });
-    }
-
-    // Koszulka
+    // ── Koszulka ─────────────────────────────────────────────────────
+    const shirtOutline = darkenHex(shirt.hex, 0.5);
     const shirtGroup = root.querySelector('[id="t_x5F_shirt"]');
     if (shirtGroup) {
-      shirtGroup.querySelectorAll("path").forEach((p) => {
-        p.setAttribute("fill", shirt.hex);
-      });
-    }
-
-    // Spodenki
-    const shortsGroup = root.querySelector("#spodenki");
-    if (shortsGroup) {
-      shortsGroup.querySelectorAll("path").forEach((p) => {
-        p.setAttribute("fill", shorts.hex);
-      });
-    }
-
-    // Buty
-    const butyGroup = root.querySelector("#buty");
-    if (butyGroup) {
-      butyGroup.querySelectorAll("path").forEach((p) => {
-        p.setAttribute("fill", shoes.hex);
-      });
-    }
-
-    // Cienie ubrań — rozdzielone: koszulka vs spodenki
-    // Ścieżki z centrum Y > 600 to cienie spodenek (pas + nogawki), reszta to koszulka
-    const clothShadowGroup = root.querySelector('[id^="shadow_0000"]');
-    if (clothShadowGroup) {
-      clothShadowGroup.querySelectorAll("path").forEach((p) => {
-        try {
-          const bbox = p.getBBox();
-          const centerY = bbox.y + bbox.height / 2;
-          if (centerY > 600) {
-            // Cień spodenek
-            p.setAttribute("fill", shorts.shadow || darkenHex(shorts.hex));
-          } else {
-            // Cień koszulki
-            p.setAttribute("fill", shirt.shadow || darkenHex(shirt.hex));
-          }
-        } catch {
-          p.setAttribute("fill", shirt.shadow || darkenHex(shirt.hex));
+      shirtGroup.querySelectorAll("path, circle, ellipse").forEach(el => {
+        const cls = el.getAttribute("class") || "";
+        const eid = (el.getAttribute("id") || "").toLowerCase();
+        const pid = (el.parentElement?.getAttribute("id") || "").toLowerCase();
+        if (cls.includes("st41")) {
+          setFill(el, shirt.shadow || darkenHex(shirt.hex));
+        } else if (cls.includes("st31") || cls.includes("st16") || eid.includes("outline") || pid.includes("outline")) {
+          setFill(el, shirtOutline);
+          setStroke(el, shirtOutline);
+        } else {
+          setFill(el, shirt.hex);
         }
       });
     }
 
-    // Kolor oczu — obie tęczówki (lewe i prawe oko)
-    const eye = findColor(EYE_COLORS, config.eyeColor);
-    const eyeSelectors = [
-      '#Kolor_x5F_oczu',
-      '[id^="Kolor_x5F_oczu_"]'
-    ];
-    eyeSelectors.forEach(sel => {
-      const group = root.querySelector(sel);
-      if (group) {
-        const iris = group.querySelector("circle");
-        if (iris) iris.setAttribute("fill", eye.hex);
+    // ── Spodenki ─────────────────────────────────────────────────────
+    const shortsOutline = darkenHex(shorts.hex, 0.5);
+    const shortsGroup = root.querySelector("#spodenki");
+    if (shortsGroup) {
+      shortsGroup.querySelectorAll("path, circle, ellipse").forEach(el => {
+        const cls = el.getAttribute("class") || "";
+        const eid = (el.getAttribute("id") || "").toLowerCase();
+        const pid = (el.parentElement?.getAttribute("id") || "").toLowerCase();
+        if (cls.includes("st41")) {
+          setFill(el, shorts.shadow || darkenHex(shorts.hex));
+        } else if (cls.includes("st16") || eid.includes("outline") || pid.includes("outline")) {
+          setFill(el, shortsOutline);
+          setStroke(el, shortsOutline);
+        } else {
+          setFill(el, shorts.hex);
+        }
+      });
+    }
+
+    // ── Buty ─────────────────────────────────────────────────────────
+    const shoesOutline = darkenHex(shoes.hex, 0.5);
+    const shoesGroup = root.querySelector("#buty");
+    if (shoesGroup) {
+      shoesGroup.querySelectorAll("path, circle, ellipse").forEach(el => {
+        const cls = el.getAttribute("class") || "";
+        const eid = (el.getAttribute("id") || "").toLowerCase();
+        const pid = (el.parentElement?.getAttribute("id") || "").toLowerCase();
+        if (cls.includes("st16") || eid.includes("outline") || pid.includes("outline")) {
+          setFill(el, shoesOutline);
+          setStroke(el, shoesOutline);
+        } else {
+          setFill(el, shoes.hex);
+        }
+      });
+    }
+
+    // ── Włosy — przełączanie fryzur ─────────────────────────────────
+    const selectedStyle = config.hairStyle || "boy_x5F_1";
+    ALL_HAIR_STYLES.forEach(hs => {
+      const el = root.querySelector(`#${CSS.escape(hs.svgId)}`);
+      if (el) {
+        el.style.display = hs.svgId === selectedStyle ? "inline" : "none";
       }
     });
 
-    // Wariant ust — pokaż wybrany, ukryj resztę
+    // ── Włosy — kolor ────────────────────────────────────────────────
+    // Każda fryzura ma warstwy: kolor (id z "kolor"), shadow (id z "shadow"), outline
+    // Koloruj kolor = wybrany kolor, shadow = ciemniejszy o 40%, outline = nie ruszaj
+    const hairColor = findColor(HAIR_COLORS, config.hairColor);
+    const hairShadow = darkenHex(hairColor.hex, 0.2);   // lekko ciemniejszy od bazowego
+    const hairOutline = darkenHex(hairColor.hex, 0.55);  // wyraźnie ciemniejszy
+    const selectedHairEl = root.querySelector(`#${CSS.escape(selectedStyle)}`);
+    if (selectedHairEl) {
+      // Helper: sprawdź czy element ma dokładnie daną klasę CSS
+      const hasClass = (cls, name) => cls.split(/\s+/).includes(name);
+
+      selectedHairEl.querySelectorAll("path, circle, ellipse, line").forEach(p => {
+        const pid = (p.getAttribute("id") || "").toLowerCase();
+        const parentId = (p.parentElement?.getAttribute("id") || "").toLowerCase();
+        const cls = p.getAttribute("class") || "";
+
+        // Outline — ciemniejszy kolor włosów (id "outline" lub stroke classes)
+        if (pid.includes("outline") || parentId.includes("outline") ||
+            hasClass(cls, "st3") || hasClass(cls, "st5") || hasClass(cls, "st6") ||
+            hasClass(cls, "st7") || hasClass(cls, "st8")) {
+          setFill(p, hairOutline);
+          setStroke(p, hairOutline);
+          return;
+        }
+
+        // Shadow — id zawiera "shadow", lub klasy cieni (st9, st37)
+        if (pid.includes("shadow") || parentId.includes("shadow") ||
+            hasClass(cls, "st9") || hasClass(cls, "st37")) {
+          setFill(p, hairShadow);
+        } else {
+          // Kolor główny
+          setFill(p, hairColor.hex);
+        }
+      });
+    }
+
+    // ── Kolor oczu ───────────────────────────────────────────────────
+    // Nowa struktura: Oczy > kolor11, kolor12 — tęczówki
+    // Wewnątrz: circle.st39 = kolor tęczówki
+    const eye = findColor(EYE_COLORS, config.eyeColor);
+    ["#kolor11", "#kolor12"].forEach(sel => {
+      const group = root.querySelector(sel);
+      if (group) {
+        group.querySelectorAll("circle").forEach(c => {
+          const cls = c.getAttribute("class") || "";
+          // st39 = kolor tęczówki (niebieski domyślnie)
+          if (cls.includes("st39")) {
+            setFill(c, eye.hex);
+          }
+        });
+      }
+    });
+
+    // ── Usta — przełączanie wariantów ────────────────────────────────
     const mouthId = config.mouthVariant || 12;
     MOUTH_VARIANTS.forEach(mv => {
       const el = root.querySelector(`#${CSS.escape(mv.svgId)}`);
       if (el) {
-        if (mv.id === mouthId) {
-          el.removeAttribute("display");
-          el.style.display = "";
-        } else {
-          el.setAttribute("display", "none");
-          el.style.display = "none";
-        }
+        el.style.display = mv.id === mouthId ? "inline" : "none";
       }
     });
 
