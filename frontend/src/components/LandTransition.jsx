@@ -12,7 +12,7 @@ const LAND_CONFIG = {
     icon: "",
     title: "Dolina Selfie",
     subtitle: "Poznaj siebie w magicznym zwierciadle",
-    gradient: "url(/tlo3.png) center/cover no-repeat",
+    gradient: "#1a1040 url(/tlo3.png) center bottom/contain no-repeat",
     particles: ["✨", "🌸", "💜", "⭐"],
     bgEmoji: "🏔️",
     description: "Tutaj wszystko się zaczyna — odkryjesz kim naprawdę jesteś!",
@@ -79,12 +79,8 @@ export default function LandTransition({ land, playerName, onComplete }) {
     setTimeout(() => { ttsPlayer.stop(); onComplete(); }, 600);
   }, [phase, onComplete]);
 
-  // Gdy narrator skonczy mowic — odczekaj chwile i zamknij
-  useEffect(() => {
-    if (!narratorDone) return;
-    const timer = setTimeout(startExit, 800);
-    return () => clearTimeout(timer);
-  }, [narratorDone, startExit]);
+  // Gdy narrator skonczy mowic — czekaj na klikniecie uzytkownika
+  // (nie zamykamy automatycznie)
 
   useEffect(() => {
     // Zatrzymaj poprzedni dzwiek zanim splash zacznie swoj
@@ -216,19 +212,21 @@ export default function LandTransition({ land, playerName, onComplete }) {
         />
       )}
 
-      {/* Podpowiedź — dotknij aby pominąć */}
+      {/* Podpowiedź — dotknij aby kontynuować */}
       <div
         style={{
           position: "absolute",
           bottom: "40px",
-          fontSize: "13px",
-          color: "rgba(255,255,255,0.5)",
+          fontSize: "15px",
+          fontWeight: "600",
+          color: narratorDone ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.5)",
           opacity: phase === "show" ? 1 : 0,
           transition: "all 0.5s ease 2s",
           pointerEvents: "none",
+          animation: narratorDone ? "pulseButton 1.5s ease-in-out infinite" : "none",
         }}
       >
-        Dotknij aby pominąć
+        {narratorDone ? "▶ Dotknij aby kontynuować" : "Dotknij aby pominąć"}
       </div>
     </div>
   );
