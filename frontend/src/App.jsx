@@ -311,9 +311,6 @@ function ChoiceScreen({ narration, choices, onChoice, landColor, landName, land 
           {c.label}
         </button>
       ))}
-      <div style={styles.bottomNarrator}>
-        <NarratorVoice text={fullTTS} land={land} />
-      </div>
     </div>
   );
 }
@@ -377,9 +374,6 @@ function TimerScreen({ onWait, onClick, landColor, landName, land }) {
           Otworzyłeś skrzynię! Dostajesz 1 złoty kryształ.
         </div>
       )}
-      <div style={styles.bottomNarrator}>
-        <NarratorVoice text="Oto Skarbiec Czasu. Jeśli otworzysz skrzynię teraz, dostaniesz jeden złoty kryształ. Ale jeśli nie dotkniesz ekranu przez trzydzieści sekund, skrzynia zamieni się w diamentową i da Ci aż pięć kryształów! Co wybierasz? Otwierasz teraz, czy czekasz cierpliwie?" land={land} />
-      </div>
     </div>
   );
 }
@@ -448,9 +442,6 @@ function EmotionMatchScreen({ onComplete, landColor, landName, land }) {
           Świetna robota! Zobaczmy, jak Ci poszło...
         </div>
       )}
-      <div style={styles.bottomNarrator}>
-        <NarratorVoice text="Strażnik pokazuje Ci trzy magiczne kryształy z twarzami. To nie proste emocje, to uczucia złożone! Dopasuj nazwę do każdej miny. Masz do wyboru trzy uczucia: frustracja, zakłopotanie i duma. Przypisz każde do odpowiedniej twarzy!" land={land} />
-      </div>
     </div>
   );
 }
@@ -491,9 +482,6 @@ function CreativityScreen({ onSubmit, landColor, landName, land }) {
           {p.label}
         </button>
       ))}
-      <div style={styles.bottomNarrator}>
-        <NarratorVoice text="Droga się urywa, przed Tobą przepaść! W starym pudełku znajdziesz trzy przedmioty: parasol, pustą puszkę i rolkę sznurka. Jak ich użyjesz, żeby się dostać na drugą stronę? Możesz wpisać swój własny pomysł, albo wybrać jeden z gotowych: Zbuduję most ze sznurka. Użyję parasola jako spadochronu i przelecę. Puszka będzie kołem, sznurek osią, a parasol żaglem. Zrobię tyrolkę ze sznurka i zjadę na parasolu." land={land} />
-      </div>
     </div>
   );
 }
@@ -700,9 +688,6 @@ function FinalScreen({ scores, playerName, avatarConfig, equipment }) {
           </div>
         </div>
       )}
-      <div style={styles.bottomNarrator}>
-        <NarratorVoice text={finalNarration} land="gora_podsumowania" />
-      </div>
     </div>
   );
 }
@@ -892,6 +877,28 @@ export default function App() {
       });
   }, [playerName, avatarConfig, playerGender, advance]);
 
+  // ── Tekst TTS dla bieżącego ekranu gry (hook musi być PRZED warunkowymi return) ──
+  const gameTtsText = React.useMemo(() => {
+    if (!currentStep) return "";
+    const type = currentStep.type;
+    if (type === "choice") {
+      const td = TASK_DATA[currentStep.task];
+      if (!td) return "";
+      const choicesText = (td.choices || []).map(c => c.label).join(". ");
+      return `${td.narration}. Spójrz, masz do wyboru: ${choicesText}.`;
+    }
+    if (type === "timer") return "Oto Skarbiec Czasu. Jeśli otworzysz skrzynię teraz, dostaniesz jeden złoty kryształ. Ale jeśli nie dotkniesz ekranu przez trzydzieści sekund, skrzynia zamieni się w diamentową i da Ci aż pięć kryształów!";
+    if (type === "emotion_match") return "Strażnik pokazuje Ci trzy magiczne kryształy z twarzami. Dopasuj nazwę do każdej miny!";
+    if (type === "creativity") return "Droga się urywa, przed Tobą przepaść! Jak użyjesz parasola, puszki i sznurka?";
+    if (type === "final") {
+      const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+      if (sorted.length >= 2) {
+        return `Brawo, ${playerName}! Jesteś połączeniem talentów ${PROFILE_LABELS[sorted[0][0]]?.name || ""} i ${PROFILE_LABELS[sorted[1][0]]?.name || ""}!`;
+      }
+    }
+    return "";
+  }, [currentStep, stepIndex, scores, playerName]);
+
   // ── Ekran startowy ────────────────────────────────────────────────
 
   if (phase === "start") {
@@ -1069,16 +1076,12 @@ export default function App() {
               </div>
 
               {/* Narrator — czyta powitanie, po zakonczeniu przechodzi do fazy "name" */}
-              <div style={{
-                marginTop: "24px",
-                opacity: 0,
-                animation: "fadeIn 0.5s ease-out 0.5s both",
-              }}>
+              <div style={styles.bottomNarrator}>
                 <NarratorVoice
                   text="Witaj w magicznym świecie Ewolucji! Czekają na Ciebie krainy pełne wyzwań, które pomogą Ci odkryć, jakim bohaterem jesteś."
                   land="dolina_selfie"
                   autoPlayDelay={600}
-                  compact={true}
+                  compact={false}
                   onEnd={() => setStartPhase("name")}
                 />
               </div>
@@ -1251,11 +1254,8 @@ export default function App() {
           }}
         />
       )}
-      <div style={{
+      {contentVisible && <div style={{
         ...styles.container,
-        opacity: contentVisible ? 1 : 0,
-        transform: contentVisible ? "none" : "translateY(20px)",
-        transition: "opacity 0.5s ease, transform 0.5s ease",
       }}>
         <div style={styles.header}>
           <p style={styles.subtitle}>{landIcon} {playerName} — {landName}</p>
@@ -1450,9 +1450,10 @@ export default function App() {
               <AvatarBuilder
                 playerName={playerName}
                 gender={playerGender}
-                onComplete={(config) => {
+                onComplete={(config, gender) => {
                   setAvatarConfig(config);
-                  agentAPI.generateAvatar(playerName, config).then((result) => {
+                  if (gender) setPlayerGender(gender);
+                  agentAPI.generateAvatar(playerName, config, gender || playerGender).then((result) => {
                     if (result?.url) {
                       setAiAvatarUrl(result.url);
                       console.log("[AI Avatar] Generated:", result.url);
@@ -1529,7 +1530,14 @@ export default function App() {
             </div>
           </div>
         )}
-      </div>
+      </div>}
+
+      {/* Globalny NarratorVoice — zawsze na dole ekranu */}
+      {contentVisible && gameTtsText && !newItem && !avatarUpdatePhase && (
+        <div style={styles.bottomNarrator}>
+          <NarratorVoice text={gameTtsText} land={land} />
+        </div>
+      )}
     </div>
   );
 }
