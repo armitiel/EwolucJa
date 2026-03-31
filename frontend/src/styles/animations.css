@@ -3,6 +3,11 @@
    Styl: Claymorphism / Pixar — obłe, płynne, magiczne
    ════════════════════════════════════════════════════════════════════════ */
 
+input::placeholder {
+  color: #313272 !important;
+  opacity: 1;
+}
+
 /* Reset globalne */
 *, *::before, *::after {
   box-sizing: border-box;
