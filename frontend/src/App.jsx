@@ -894,10 +894,9 @@ export default function App() {
       <div style={{
         ...styles.app,
         backgroundImage: "url(/tlo.png)",
-        backgroundSize: "contain",
+        backgroundSize: "cover",
         backgroundPosition: "center bottom",
         backgroundRepeat: "no-repeat",
-        backgroundColor: "#0d0b2e",
         position: "relative",
         padding: 0,
         margin: 0,
