@@ -1254,7 +1254,7 @@ export default function App() {
       <div style={{
         ...styles.container,
         opacity: contentVisible ? 1 : 0,
-        transform: contentVisible ? "translateY(0)" : "translateY(20px)",
+        transform: contentVisible ? "none" : "translateY(20px)",
         transition: "opacity 0.5s ease, transform 0.5s ease",
       }}>
         <div style={styles.header}>
