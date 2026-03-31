@@ -801,6 +801,8 @@ export default function App() {
   const [showTransition, setShowTransition] = useState(false);
   const [transitionLand, setTransitionLand] = useState(null);
   const prevLandRef = useRef(null);
+  const equipmentRef = useRef(equipment);
+  useEffect(() => { equipmentRef.current = equipment; }, [equipment]);
   const [contentVisible, setContentVisible] = useState(true);
 
   // AI avatar image
@@ -871,7 +873,10 @@ export default function App() {
     setNewItem(null);
     // Po zamknięciu powiadomienia o nowym przedmiocie → generuj AI awatar z referencją do poprzedniego
     setAvatarUpdatePhase("generating");
-    agentAPI.generateAvatar(playerName, avatarConfig, playerGender, equipment, avatarAiUrl)
+    // Użyj equipmentRef.current zamiast equipment z closure — gwarantuje aktualny stan po setEquipment
+    const currentEquipment = equipmentRef.current;
+    console.log("[dismissNewItem] Generating avatar with equipment:", currentEquipment);
+    agentAPI.generateAvatar(playerName, avatarConfig, playerGender, currentEquipment, avatarAiUrl)
       .then((result) => {
         if (result?.url) setAvatarAiUrl(result.url);
         setAvatarUpdatePhase("ready");
@@ -880,7 +885,7 @@ export default function App() {
         setAvatarUpdatePhase(null); // fallback — kontynuuj grę
         advance(); // Przejdź do następnego kroku
       });
-  }, [playerName, avatarConfig, playerGender, equipment, avatarAiUrl, advance]);
+  }, [playerName, avatarConfig, playerGender, avatarAiUrl, advance]);
 
   // ── Ekran startowy ────────────────────────────────────────────────
 
@@ -889,9 +894,10 @@ export default function App() {
       <div style={{
         ...styles.app,
         backgroundImage: "url(/tlo.png)",
-        backgroundSize: "cover",
-        backgroundPosition: "center center",
+        backgroundSize: "contain",
+        backgroundPosition: "center bottom",
         backgroundRepeat: "no-repeat",
+        backgroundColor: "#0d0b2e",
         position: "relative",
         padding: 0,
         margin: 0,
