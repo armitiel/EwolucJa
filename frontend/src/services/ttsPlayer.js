@@ -1,13 +1,8 @@
 /**
  * EwolucJA — TTS Player (Frontend)
- *
  * Odtwarza narrację głosem GAMA-1 przez ElevenLabs API.
- * Obsługuje autoplay z obejściem browser autoplay policy.
- *
- * Użycie:
- *   import { ttsPlayer } from "../services/ttsPlayer";
- *   ttsPlayer.unlock();  // po pierwszym kliknięciu użytkownika
- *   await ttsPlayer.speak("Witaj!", { land: "dolina_selfie" });
+ * Fallback na Web Speech API gdy ElevenLabs niedostępny.
+ * iOS Safari compatible — persistent Audio element + global auto-unlock.
  */
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
@@ -19,9 +14,34 @@ class TTSPlayer {
     this._enabled = true;
     this._volume = 0.8;
     this._cache = new Map();
-    this._unlocked = false;     // czy browser pozwala na autoplay
-    this._pendingText = null;   // tekst czekający na odblokowanie
+    this._unlocked = false;
+    this._pendingText = null;
     this._pendingOpts = null;
+    this._elevenLabsAvailable = null;
+    this._useFallback = false;
+    this._audioCtx = null;
+    this._autoUnlockInstalled = false;
+
+    this._checkElevenLabs();
+    this._installAutoUnlock();
+  }
+
+  _installAutoUnlock() {
+    if (this._autoUnlockInstalled || typeof window === "undefined") return;
+    this._autoUnlockInstalled = true;
+
+    const handler = () => {
+      if (!this._unlocked) this.unlock();
+      window.removeEventListener("click", handler, true);
+      window.removeEventListener("touchstart", handler, true);
+      window.removeEventListener("keydown", handler, true);
+      window.removeEventListener("pointerdown", handler, true);
+    };
+
+    window.addEventListener("click", handler, true);
+    window.addEventListener("touchstart", handler, { capture: true, passive: true });
+    window.addEventListener("keydown", handler, true);
+    window.addEventListener("pointerdown", handler, true);
   }
 
   get enabled() { return this._enabled; }
@@ -39,25 +59,45 @@ class TTSPlayer {
   get isPlaying() { return this._playing; }
   get isUnlocked() { return this._unlocked; }
 
-  /**
-   * Odblokuj autoplay — wywołaj po KAŻDYM kliknięciu użytkownika.
-   * Przeglądarki wymagają user gesture przed odtworzeniem audio.
-   * Jeśli jest pending tekst, odtworzy go natychmiast.
-   */
+  async _checkElevenLabs() {
+    try {
+      const res = await fetch(`${API_BASE}/api/tts/status`, { signal: AbortSignal.timeout(3000) });
+      if (!res.ok) { this._elevenLabsAvailable = false; this._useFallback = true; return; }
+      const data = await res.json();
+      this._elevenLabsAvailable = data.available === true;
+      this._useFallback = !this._elevenLabsAvailable;
+      console.log(`[TTS] ElevenLabs: ${this._elevenLabsAvailable ? "dostępny" : "niedostępny, fallback → Web Speech API"}`);
+    } catch {
+      this._elevenLabsAvailable = false;
+      this._useFallback = true;
+      console.log("[TTS] Backend niedostępny, fallback → Web Speech API");
+    }
+  }
+
   unlock() {
     if (this._unlocked) return;
-
-    // Stwórz cichy audio context żeby odblokować
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const buf = ctx.createBuffer(1, 1, 22050);
-      const src = ctx.createBufferSource();
+      this._audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (this._audioCtx.state === "suspended") this._audioCtx.resume();
+      const buf = this._audioCtx.createBuffer(1, 1, 22050);
+      const src = this._audioCtx.createBufferSource();
       src.buffer = buf;
-      src.connect(ctx.destination);
+      src.connect(this._audioCtx.destination);
       src.start(0);
-      this._unlocked = true;
 
-      // Odtwórz pending tekst
+      if (!this._audio) {
+        this._audio = new Audio();
+        this._audio.volume = this._volume;
+        this._audio.src = "data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABhgC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAAYYAAAAAAAAAAAAAAAAA";
+        this._audio.play().then(() => {
+          this._audio.pause();
+          this._audio.currentTime = 0;
+        }).catch(() => {});
+      }
+
+      this._unlocked = true;
+      console.log("[TTS] Odblokowano audio");
+
       if (this._pendingText) {
         const text = this._pendingText;
         const opts = this._pendingOpts;
@@ -66,28 +106,25 @@ class TTSPlayer {
         this.speak(text, opts);
       }
     } catch (e) {
-      // Fallback — oznacz jako odblokowany i tak
       this._unlocked = true;
+      console.warn("[TTS] Unlock fallback:", e.message);
     }
   }
 
-  /**
-   * Wypowiedz tekst głosem narratora
-   */
   async speak(text, options = {}) {
     if (!this._enabled || !text) return;
-
     const { land, voiceId, interrupt = true } = options;
 
-    // Jeśli browser nie odblokowany — zapamiętaj i czekaj
     if (!this._unlocked) {
       this._pendingText = text;
       this._pendingOpts = options;
       return;
     }
 
-    if (interrupt && this._playing) {
-      this.stop();
+    if (interrupt && this._playing) this.stop();
+
+    if (this._useFallback || this._elevenLabsAvailable === false) {
+      return this._speakFallback(text);
     }
 
     const cacheKey = `${text.slice(0, 80)}_${land || voiceId || "d"}`;
@@ -103,8 +140,8 @@ class TTSPlayer {
         });
 
         if (!res.ok) {
-          console.warn("[TTS] API error:", res.status);
-          return;
+          console.warn("[TTS] ElevenLabs error, fallback:", res.status);
+          return this._speakFallback(text);
         }
 
         const blob = await res.blob();
@@ -120,20 +157,16 @@ class TTSPlayer {
 
       return this._play(audioUrl);
     } catch (err) {
-      console.warn("[TTS] Error:", err.message);
+      console.warn("[TTS] Network error, fallback:", err.message);
+      return this._speakFallback(text);
     }
   }
 
-  /**
-   * Prefetch — ściągnij audio w tle, żeby potem odtworzyć natychmiast
-   */
   async prefetch(text, options = {}) {
-    if (!this._enabled || !text) return;
+    if (!this._enabled || !text || this._useFallback) return;
     const { land, voiceId } = options;
     const cacheKey = `${text.slice(0, 80)}_${land || voiceId || "d"}`;
-
-    if (this._cache.has(cacheKey)) return; // już w cache
-
+    if (this._cache.has(cacheKey)) return;
     try {
       const res = await fetch(`${API_BASE}/api/tts/speak`, {
         method: "POST",
@@ -143,7 +176,6 @@ class TTSPlayer {
       if (!res.ok) return;
       const blob = await res.blob();
       const audioUrl = URL.createObjectURL(blob);
-
       if (this._cache.size >= 50) {
         const firstKey = this._cache.keys().next().value;
         URL.revokeObjectURL(this._cache.get(firstKey));
@@ -155,41 +187,57 @@ class TTSPlayer {
 
   _play(url) {
     return new Promise((resolve) => {
-      this._audio = new Audio(url);
+      if (!this._audio) this._audio = new Audio();
       this._audio.volume = this._volume;
+      this._audio.src = url;
       this._playing = true;
-
-      this._audio.onended = () => {
+      this._audio.onended = () => { this._playing = false; resolve(); };
+      this._audio.onerror = () => { this._playing = false; resolve(); };
+      this._audio.play().catch((err) => {
+        console.warn("[TTS] Play error:", err.message);
         this._playing = false;
-        resolve();
-      };
-      this._audio.onerror = () => {
-        this._playing = false;
-        resolve();
-      };
-
-      this._audio.play().catch(() => {
-        this._playing = false;
-        resolve();
+        this._speakFallback(url).then(resolve);
       });
     });
   }
 
+  _speakFallback(text) {
+    return new Promise((resolve) => {
+      if (!window.speechSynthesis) { resolve(); return; }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "pl-PL";
+      utterance.rate = 0.95;
+      utterance.pitch = 1.05;
+      utterance.volume = this._volume;
+      const voices = window.speechSynthesis.getVoices();
+      const polishVoice = voices.find((v) => v.lang.startsWith("pl")) || voices[0];
+      if (polishVoice) utterance.voice = polishVoice;
+      this._playing = true;
+      this._currentUtterance = utterance;
+      utterance.onend = () => { this._playing = false; this._currentUtterance = null; resolve(); };
+      utterance.onerror = () => { this._playing = false; this._currentUtterance = null; resolve(); };
+      setTimeout(() => { window.speechSynthesis.speak(utterance); }, 50);
+    });
+  }
+
   stop() {
-    if (this._audio) {
-      this._audio.pause();
-      this._audio.currentTime = 0;
-      this._audio = null;
-    }
+    if (this._audio) { this._audio.pause(); this._audio.currentTime = 0; this._audio.src = ""; }
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
     this._playing = false;
     this._pendingText = null;
     this._pendingOpts = null;
+    this._currentUtterance = null;
   }
 
   togglePause() {
-    if (!this._audio) return;
-    if (this._audio.paused) this._audio.play();
-    else this._audio.pause();
+    if (this._audio && this._audio.src && !this._audio.src.startsWith("data:")) {
+      if (this._audio.paused) this._audio.play();
+      else this._audio.pause();
+    } else if (window.speechSynthesis) {
+      if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+      else if (window.speechSynthesis.speaking) window.speechSynthesis.pause();
+    }
   }
 
   async checkAvailability() {

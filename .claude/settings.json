@@ -41,7 +41,14 @@
       "Bash(git checkout:*)",
       "Bash(ls -la /c/Users/DELL/EwolucJA/frontend/public/tlo*)",
       "Read(//tmp/**)",
-      "Read(//c/Users/DELL/EwolucJA/**)"
+      "Read(//c/Users/DELL/EwolucJA/**)",
+      "PowerShell(Get-Command pandoc -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Command python -ErrorAction SilentlyContinue)",
+      "PowerShell($pandoc = Get-Command pandoc -ErrorAction SilentlyContinue; $py = Get-Command python -ErrorAction SilentlyContinue; $py3 = Get-Command python3 -ErrorAction SilentlyContinue; \"pandoc: $\\($pandoc.Source\\)\"; \"python: $\\($py.Source\\)\"; \"python3: $\\($py3.Source\\)\")",
+      "PowerShell(powershell -ExecutionPolicy Bypass -File \"c:\\\\Users\\\\DELL\\\\EwolucJA\\\\docs\\\\generate_summary_docx.ps1\")",
+      "PowerShell($p = 'c:\\\\Users\\\\DELL\\\\EwolucJA\\\\docs\\\\generate_summary_docx.ps1'; $content = [System.IO.File]::ReadAllText\\($p, [System.Text.UTF8Encoding]::new\\($false\\)\\); $utf8Bom = New-Object System.Text.UTF8Encoding $true; [System.IO.File]::WriteAllText\\($p, $content, $utf8Bom\\); 'BOM added')",
+      "PowerShell($p = 'c:\\\\Users\\\\DELL\\\\EwolucJA\\\\docs\\\\generate_summary_docx.ps1'; $content = [System.IO.File]::ReadAllText\\($p, [System.Text.UTF8Encoding]::new\\($false\\)\\); $utf8Bom = New-Object System.Text.UTF8Encoding $true; [System.IO.File]::WriteAllText\\($p, $content, $utf8Bom\\); powershell -ExecutionPolicy Bypass -File $p)",
+      "PowerShell($p = 'c:\\\\Users\\\\DELL\\\\EwolucJA\\\\EwolucJA_Podsumowanie.docx'; Add-Type -AssemblyName System.IO.Compression.FileSystem; $zip = [System.IO.Compression.ZipFile]::OpenRead\\($p\\); $zip.Entries | Select-Object FullName, Length | Format-Table -AutoSize; $zip.Dispose\\(\\))"
     ]
   }
 }

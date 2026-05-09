@@ -647,16 +647,29 @@ function FinalScreen({ scores, playerName, avatarConfig, equipment }) {
         const profile = PROFILE_LABELS[profileKey];
         const desc = PROFILE_DESCRIPTIONS[profileKey];
         return (
-          <div key={profileKey} style={{
-            ...styles.card,
-            background: `linear-gradient(135deg, ${profile.color}15 0%, ${profile.color}08 100%)`,
-            border: `1px solid ${profile.color}30`,
-            marginBottom: "12px",
-          }}>
+          <div
+            key={profileKey}
+            onClick={() => {
+              ttsPlayer.unlock();
+              ttsPlayer.stop();
+              setTimeout(() => ttsPlayer.speak(`${profile.name}. ${desc}`, { land: "gora_podsumowania" }), 200);
+            }}
+            style={{
+              ...styles.card,
+              background: `linear-gradient(135deg, ${profile.color}15 0%, ${profile.color}08 100%)`,
+              border: `1px solid ${profile.color}30`,
+              marginBottom: "12px",
+              cursor: "pointer",
+              transition: "transform 0.2s, box-shadow 0.2s",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.02)"; e.currentTarget.style.boxShadow = `0 4px 20px ${profile.color}30`; }}
+            onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "none"; }}
+          >
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
               <span style={{ fontSize: "28px" }}>{profile.icon}</span>
               <h3 style={{ margin: 0, fontSize: "17px", color: profile.color }}>{profile.name}</h3>
               <span style={{ fontSize: "11px", color: "#ffd54f", fontWeight: "600" }}>★ TWOJA MOC</span>
+              <span style={{ fontSize: "11px", color: "#889", marginLeft: "auto" }}>🔊 kliknij by posłuchać</span>
             </div>
             <p style={{ margin: 0, fontSize: "14px", color: "#ddd", lineHeight: "1.6" }}>
               {desc}
@@ -685,6 +698,7 @@ function FinalScreen({ scores, playerName, avatarConfig, equipment }) {
             <div key={profileKey} style={{ marginBottom: "10px" }}>
               <button
                 onClick={() => {
+                  ttsPlayer.unlock();
                   if (isOpen) {
                     ttsPlayer.stop();
                     setShowTips(null);

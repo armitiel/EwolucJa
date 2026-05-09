@@ -10,10 +10,14 @@
 // ── Konfiguracja głosów ──────────────────────────────────────────────
 
 const VOICES = {
-  // Głosy ElevenLabs — ID mogą się zmieniać, sprawdź w panelu
-  narrator: "XrYxa2QP5oFX1cg3JPdt",   // kobietka — główny głos narratora
-  mystical: "XrYxa2QP5oFX1cg3JPdt",   // kobietka
-  excited:  "XrYxa2QP5oFX1cg3JPdt",   // kobietka
+  // Głosy ElevenLabs — ID mogą się zmieniać, sprawdź w panelu.
+  // Narrator GAMA-1 (kobiecy, ciepły, lekko tajemniczy)
+  narrator: process.env.ELEVENLABS_VOICE_ID || "XrYxa2QP5oFX1cg3JPdt",
+  mystical: process.env.ELEVENLABS_VOICE_ID || "XrYxa2QP5oFX1cg3JPdt",
+  excited:  process.env.ELEVENLABS_VOICE_ID || "XrYxa2QP5oFX1cg3JPdt",
+  // Głos Mentora (rodzic/nauczyciel) — odróżnialny od narratora.
+  // Fallback do narratora, jeśli nie ustawiony.
+  mentor:   process.env.ELEVENLABS_MENTOR_VOICE_ID || process.env.ELEVENLABS_VOICE_ID || "XrYxa2QP5oFX1cg3JPdt",
 };
 
 const LAND_VOICES = {
@@ -23,6 +27,10 @@ const LAND_VOICES = {
   wyspa_talentow:      "excited",
   przystan_wspolpracy: "narrator",
   gora_podsumowania:   "mystical",
+  // V2 — rozdziały spójnego świata
+  wezwanie_kroniki:    "mystical",
+  // Mentor (osobny ton)
+  mentor:              "mentor",
 };
 
 // ── Serwis TTS ───────────────────────────────────────────────────────
