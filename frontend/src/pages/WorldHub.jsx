@@ -169,7 +169,7 @@ export default function WorldHub() {
           </div>
         </div>
 
-        <NarratorVoice text={greeting} land="dolina_selfie" autoPlay />
+        <NarratorVoice text={greeting} land="dolina_selfie" tone="warm" autoPlay />
       </div>
 
       <TabBar current="home" />

@@ -145,6 +145,7 @@ export default function Onboarding() {
             <NarratorVoice
               text="Witaj w Krainie Kroniki. Zanim wyruszymy, powiedz, jak się nazywasz."
               land="dolina_selfie"
+              tone="warm"
               autoPlay
             />
 
@@ -161,7 +162,7 @@ export default function Onboarding() {
               <h2 className="t-display" style={{ fontSize: 26, lineHeight: 1.2, margin: 0, flex: 1 }}>
                 {quiz.questions[questionIdx].question}
               </h2>
-              <NarratorVoice text={quiz.questions[questionIdx].question} land="las_decyzji" autoPlay />
+              <NarratorVoice text={quiz.questions[questionIdx].question} land="las_decyzji" tone="neutral" autoPlay />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -234,7 +235,7 @@ function ArchetypeReveal({ result, onEnter }) {
         )}
       </div>
 
-      <NarratorVoice text={revealText} land="gora_podsumowania" autoPlay />
+      <NarratorVoice text={revealText} land="gora_podsumowania" tone="celebration" autoPlay />
 
       <button className="btn btn-magic btn-block" style={{ maxWidth: 380 }} onClick={onEnter}>
         Wyrusz w drogę ✦

@@ -286,7 +286,7 @@ function MissionVerifyCard({ mission, onVerify }) {
         <div style={{ background: "rgba(184,134,232,.12)", borderRadius: 12, padding: "8px 10px", marginBottom: 10 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
             <p style={{ fontSize: 11, color: "var(--p-ink-soft)", margin: 0, fontWeight: 800 }}>ECHO DZIECKA</p>
-            <NarratorVoice text={proofText} land="mentor" autoPlay={false} />
+            <NarratorVoice text={proofText} land="mentor" tone="calm" autoPlay={false} />
           </div>
           <p style={{ fontSize: 14, marginTop: 4, fontFamily: "Caveat, cursive", lineHeight: 1.3 }}>{proofText}</p>
         </div>

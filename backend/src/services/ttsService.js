@@ -35,6 +35,19 @@ const LAND_VOICES = {
 
 // ── Serwis TTS ───────────────────────────────────────────────────────
 
+
+// ── Presety tonu narracji ─────────────────────────────────────────
+// stability: 0=żywiołowy, 1=monotonny • style: 0=neutralny, 1=ekspresyjny
+// similarity_boost: 0=swobodnie, 1=trzymaj się referencji
+const TONE_PRESETS = {
+  warm:        { stability: 0.55, similarity_boost: 0.78, style: 0.30 },  // domyślnie ciepły
+  neutral:     { stability: 0.65, similarity_boost: 0.75, style: 0.15 },  // pytania quizu, instrukcje
+  mystery:     { stability: 0.45, similarity_boost: 0.80, style: 0.55 },  // otwieranie zwoju, intro misji
+  celebration: { stability: 0.35, similarity_boost: 0.75, style: 0.70 },  // reward, reveal archetypu
+  whisper:     { stability: 0.70, similarity_boost: 0.82, style: 0.20 },  // szept Mentora
+  calm:        { stability: 0.75, similarity_boost: 0.78, style: 0.10 },  // panel Mentora
+};
+
 const ELEVENLABS_API = "https://api.elevenlabs.io/v1/text-to-speech";
 
 export class TTSService {
@@ -89,13 +102,15 @@ export class TTSService {
     // Wybierz głos
     const voiceId = options.voiceId || (options.land ? this.getVoiceForLand(options.land) : this.defaultVoice);
 
+    // Tone preset (warm/mystery/celebration/whisper/calm/neutral) lub explicit values
+    const preset = TONE_PRESETS[options.tone] || TONE_PRESETS.warm;
     const body = {
       text: cleanText,
       model_id: this.model,
       voice_settings: {
-        stability: options.stability ?? 0.5,
-        similarity_boost: options.similarityBoost ?? 0.75,
-        style: 0.3,           // lekka ekspresja
+        stability: options.stability ?? preset.stability,
+        similarity_boost: options.similarityBoost ?? preset.similarity_boost,
+        style: options.style ?? preset.style,
         use_speaker_boost: true,
       },
     };

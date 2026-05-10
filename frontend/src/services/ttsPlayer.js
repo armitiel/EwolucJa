@@ -113,7 +113,7 @@ class TTSPlayer {
 
   async speak(text, options = {}) {
     if (!this._enabled || !text) return;
-    const { land, voiceId, interrupt = true } = options;
+    const { land, voiceId, tone, interrupt = true } = options;
 
     if (!this._unlocked) {
       this._pendingText = text;
@@ -127,7 +127,7 @@ class TTSPlayer {
       return this._speakFallback(text);
     }
 
-    const cacheKey = `${text.slice(0, 80)}_${land || voiceId || "d"}`;
+    const cacheKey = `${text.slice(0, 80)}_${land || voiceId || "d"}_${tone || ""}`;
 
     try {
       let audioUrl = this._cache.get(cacheKey);
@@ -136,7 +136,7 @@ class TTSPlayer {
         const res = await fetch(`${API_BASE}/api/tts/speak`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text, land, voiceId }),
+          body: JSON.stringify({ text, land, voiceId, tone }),
         });
 
         if (!res.ok) {
@@ -164,14 +164,14 @@ class TTSPlayer {
 
   async prefetch(text, options = {}) {
     if (!this._enabled || !text || this._useFallback) return;
-    const { land, voiceId } = options;
-    const cacheKey = `${text.slice(0, 80)}_${land || voiceId || "d"}`;
+    const { land, voiceId, tone } = options;
+    const cacheKey = `${text.slice(0, 80)}_${land || voiceId || "d"}_${tone || ""}`;
     if (this._cache.has(cacheKey)) return;
     try {
       const res = await fetch(`${API_BASE}/api/tts/speak`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, land, voiceId }),
+        body: JSON.stringify({ text, land, voiceId, tone }),
       });
       if (!res.ok) return;
       const blob = await res.blob();
