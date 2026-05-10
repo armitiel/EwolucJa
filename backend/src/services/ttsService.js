@@ -12,12 +12,12 @@
 const VOICES = {
   // Głosy ElevenLabs — ID mogą się zmieniać, sprawdź w panelu.
   // Narrator GAMA-1 (kobiecy, ciepły, lekko tajemniczy)
-  narrator: process.env.ELEVENLABS_VOICE_ID || "XrYxa2QP5oFX1cg3JPdt",
-  mystical: process.env.ELEVENLABS_VOICE_ID || "XrYxa2QP5oFX1cg3JPdt",
-  excited:  process.env.ELEVENLABS_VOICE_ID || "XrYxa2QP5oFX1cg3JPdt",
+  narrator: (process.env.ELEVENLABS_VOICE_ID || "").trim() || "XrYxa2QP5oFX1cg3JPdt",
+  mystical: (process.env.ELEVENLABS_VOICE_ID || "").trim() || "XrYxa2QP5oFX1cg3JPdt",
+  excited:  (process.env.ELEVENLABS_VOICE_ID || "").trim() || "XrYxa2QP5oFX1cg3JPdt",
   // Głos Mentora (rodzic/nauczyciel) — odróżnialny od narratora.
   // Fallback do narratora, jeśli nie ustawiony.
-  mentor:   process.env.ELEVENLABS_MENTOR_VOICE_ID || process.env.ELEVENLABS_VOICE_ID || "XrYxa2QP5oFX1cg3JPdt",
+  mentor:   (process.env.ELEVENLABS_MENTOR_VOICE_ID || "").trim() || (process.env.ELEVENLABS_VOICE_ID || "").trim() || "XrYxa2QP5oFX1cg3JPdt",
 };
 
 const LAND_VOICES = {
@@ -39,9 +39,10 @@ const ELEVENLABS_API = "https://api.elevenlabs.io/v1/text-to-speech";
 
 export class TTSService {
   constructor() {
-    this.apiKey = process.env.ELEVENLABS_API_KEY || "";
-    this.model = process.env.ELEVENLABS_MODEL || "eleven_flash_v2_5";
-    this.defaultVoice = process.env.ELEVENLABS_VOICE_ID || VOICES.narrator;
+    // .trim() na wszystkim — chroni przed śmieciami w env vars (np. \r\n, spacje)
+    this.apiKey = (process.env.ELEVENLABS_API_KEY || "").trim();
+    this.model = (process.env.ELEVENLABS_MODEL || "eleven_flash_v2_5").trim();
+    this.defaultVoice = (process.env.ELEVENLABS_VOICE_ID || VOICES.narrator).trim();
     this._cache = new Map();       // prosty cache: hash(text) → Buffer
     this._cacheMaxSize = 100;
   }
