@@ -177,26 +177,27 @@ export default function Onboarding() {
               PYTANIE {questionIdx + 1} Z {quiz.questions.length}
             </p>
 
-            {/* Czarodziej-narrator — wyrazny podczas intro, znika gdy odpowiedzi sa juz aktywne */}
-            {questionIdx === 0 && !narrationDone && (
-              <div className="pop-in" style={{ display: "flex", justifyContent: "center", padding: "8px 0 4px", position: "relative" }}>
-                <div style={{ position: "relative", animation: "float-slow 4s ease-in-out infinite" }}>
-                  <img
-                    src="/assets/wiz.png"
-                    alt="Czarodziej-przewodnik"
-                    style={{
-                      width: 180,
-                      height: 180,
-                      objectFit: "contain",
-                      filter: "drop-shadow(0 10px 20px rgba(80,40,140,.35))",
-                    }}
-                  />
-                  <div style={{ position: "absolute", top: 2, right: -6 }}><Sparkle size={22} /></div>
-                  <div style={{ position: "absolute", bottom: 14, left: -10 }}><Sparkle size={16} delay={0.5} /></div>
+            {/* Czarodziej-narrator (wiz2) — wyrazny podczas intro 1. pytania, mniejszy przy kolejnych */}
+            <div className="pop-in" style={{ display: "flex", justifyContent: "center", padding: "8px 0 4px", position: "relative" }}>
+              <div style={{ position: "relative", animation: "float-slow 4s ease-in-out infinite" }}>
+                <img
+                  src="/wiz2.png"
+                  alt="Strażniczka Zakątka"
+                  style={{
+                    width: questionIdx === 0 && !narrationDone ? 180 : 120,
+                    height: "auto",
+                    objectFit: "contain",
+                    filter: "drop-shadow(0 10px 20px rgba(80,40,140,.35))",
+                    transition: "width 0.5s ease",
+                  }}
+                />
+                <div style={{ position: "absolute", top: 2, right: -6 }}><Sparkle size={20} /></div>
+                <div style={{ position: "absolute", bottom: 14, left: -10 }}><Sparkle size={14} delay={0.5} /></div>
+                {questionIdx === 0 && !narrationDone && (
                   <div style={{ position: "absolute", top: 40, left: -14 }}><Sparkle size={12} delay={1} /></div>
-                </div>
+                )}
               </div>
-            )}
+            </div>
 
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
               <h2 className="t-display" style={{ fontSize: 26, lineHeight: 1.2, margin: 0, flex: 1 }}>
