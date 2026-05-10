@@ -104,7 +104,7 @@ export default function MissionView() {
               <div style={{ fontSize: 13, marginTop: 4 }}>Zapisz lub nagraj odpowiedź dorosłego — to ona stanie się Twoim artefaktem.</div>
             </div>
             <button className="btn btn-magic btn-block" style={{ marginTop: 10 }} onClick={() => setStep(3)}>Mam już pytanie — dalej</button>
-            <NarratorVoice text={narrationText} land="las_decyzji" tone="mystery" autoPlay />
+            <NarratorVoice text={narrationText} land="las_decyzji" tone="mystery" inlinePauses autoPlay />
           </div>
         )}
 

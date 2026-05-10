@@ -235,7 +235,7 @@ function ArchetypeReveal({ result, onEnter }) {
         )}
       </div>
 
-      <NarratorVoice text={revealText} land="gora_podsumowania" tone="celebration" autoPlay />
+      <NarratorVoice text={revealText} land="gora_podsumowania" tone="celebration" pauseBefore={600} inlinePauses autoPlay />
 
       <button className="btn btn-magic btn-block" style={{ maxWidth: 380 }} onClick={onEnter}>
         Wyrusz w drogę ✦
