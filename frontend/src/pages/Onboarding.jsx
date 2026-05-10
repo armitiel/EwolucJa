@@ -177,13 +177,23 @@ export default function Onboarding() {
               PYTANIE {questionIdx + 1} Z {quiz.questions.length}
             </p>
 
-            {/* Awatar — wyrazny podczas intro, mniejszy przy kolejnych pytaniach */}
+            {/* Czarodziej-narrator — wyrazny podczas intro, znika gdy odpowiedzi sa juz aktywne */}
             {questionIdx === 0 && !narrationDone && (
               <div className="pop-in" style={{ display: "flex", justifyContent: "center", padding: "8px 0 4px", position: "relative" }}>
-                <div style={{ position: "relative" }}>
-                  <Avatar kind="fox" size={130} evolved={1} />
-                  <div style={{ position: "absolute", top: -4, right: -10 }}><Sparkle size={20} /></div>
-                  <div style={{ position: "absolute", bottom: 6, left: -14 }}><Sparkle size={14} delay={0.5} /></div>
+                <div style={{ position: "relative", animation: "float-slow 4s ease-in-out infinite" }}>
+                  <img
+                    src="/assets/wiz.png"
+                    alt="Czarodziej-przewodnik"
+                    style={{
+                      width: 180,
+                      height: 180,
+                      objectFit: "contain",
+                      filter: "drop-shadow(0 10px 20px rgba(80,40,140,.35))",
+                    }}
+                  />
+                  <div style={{ position: "absolute", top: 2, right: -6 }}><Sparkle size={22} /></div>
+                  <div style={{ position: "absolute", bottom: 14, left: -10 }}><Sparkle size={16} delay={0.5} /></div>
+                  <div style={{ position: "absolute", top: 40, left: -14 }}><Sparkle size={12} delay={1} /></div>
                 </div>
               </div>
             )}
