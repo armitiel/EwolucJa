@@ -380,7 +380,7 @@ export const WorldMap = ({ width = 320, height = 380, currentRegion = "forest", 
         />
         <text x="240" y="200" fontSize="14" fill="#7A4DC2" fontFamily="Fredoka">⛵</text>
         <text x="20" y="350" fontSize="11" fill="#7A4D10" fontFamily="Fredoka" fontWeight="600">
-          Kraina Kroniki
+          Zakątek Gamma
         </text>
         <g transform="translate(280 50)">
           <circle r="14" fill="#FCF5E1" stroke="#A8762A" strokeWidth="1" />

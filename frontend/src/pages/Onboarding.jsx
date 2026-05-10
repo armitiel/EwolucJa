@@ -143,7 +143,7 @@ export default function Onboarding() {
             </button>
 
             <NarratorVoice
-              text="Witaj w Krainie Kroniki. Zanim wyruszymy, powiedz, jak się nazywasz."
+              text="Witaj w Zakątku Gamma. Zanim wyruszymy, powiedz, jak się nazywasz."
               land="dolina_selfie"
               tone="warm"
               autoPlay

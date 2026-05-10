@@ -54,7 +54,7 @@ export default function MapView() {
         </button>
         <div className="meta" style={{ textAlign: "center" }}>
           <div className="lbl">PRZEGLĄD ŚWIATA</div>
-          <div className="nm">Kraina Kroniki</div>
+          <div className="nm">Zakątek Gamma</div>
         </div>
         <div style={{ width: 36 }} />
       </div>

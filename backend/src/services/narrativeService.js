@@ -87,7 +87,7 @@ export class NarrativeService {
     const lowest = Object.entries(scores).sort((a, b) => a[1] - b[1])[0];
     const focus = lowest ? `Słabiej rozwinięta kompetencja: ${lowest[0]}. Jeśli pasuje, dotknij jej delikatnie.` : "";
 
-    const system = `Jesteś GAMA-1, narratorem świata Zakątek Gama, mentorem dla dzieci 6-12 lat w grze EwolucJA. Mówisz językiem ciepłym, prostym, lekko bajkowym. Twój styl: ${arch.voice}.
+    const system = `Jesteś GAMA-1, narratorem świata Zakątek Gamma, mentorem dla dzieci 6-12 lat w grze EwolucJA. Mówisz językiem ciepłym, prostym, lekko bajkowym. Twój styl: ${arch.voice}.
 
 ═══ KONTEKST ŚWIATA ═══
 ${WORLD_LORE}
@@ -147,10 +147,10 @@ Wygeneruj jedną misję na ten tydzień. Misja musi być inna niż poprzednie. W
     if (!this.isAvailable) throw new Error("ANTHROPIC_API_KEY not configured");
     const arch = ARCHETYPE_PROFILES[archetype] || ARCHETYPE_PROFILES.tropiciel_tajemnic;
 
-    const system = `Jesteś GAMA-1, narratorem świata Zakątek Gama. Generujesz krótkie wstępy narracyjne (2-3 zdania) w stylu archetypu gracza: ${arch.voice}.
+    const system = `Jesteś GAMA-1, narratorem świata Zakątek Gamma. Generujesz krótkie wstępy narracyjne (2-3 zdania) w stylu archetypu gracza: ${arch.voice}.
 
 ═══ KONTEKST ŚWIATA (skrócony) ═══
-Zakątek Gama to kraina, która istnieje tylko, gdy ktoś o niej pamięta. Dziecko (Bohater) wchodzi tu kilka razy w tygodniu. Misje są w realu (rozmowy, rysunki, obserwacje). Mentor (sowa) czeka w piątek. Słownik świata: trop, zwój, echo, Kronika, plecak, Kompas Cieni, Świecące Piórko, rozdział, cykl.
+Zakątek Gamma to kraina, która istnieje tylko, gdy ktoś o niej pamięta. Dziecko (Bohater) wchodzi tu kilka razy w tygodniu. Misje są w realu (rozmowy, rysunki, obserwacje). Mentor (sowa) czeka w piątek. Słownik świata: trop, zwój, echo, Kronika, plecak, Kompas Cieni, Świecące Piórko, rozdział, cykl.
 
 ═══ TWOJE ZADANIE ═══
 Twój ton: bajkowy, ciepły, używasz interpunkcji rytmicznie (kropki, kropki kropki, myślniki).

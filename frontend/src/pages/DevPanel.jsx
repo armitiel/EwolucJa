@@ -12,7 +12,7 @@ const PROFILE_LABELS = {
   LD: "Lider", DT: "Detektyw", MD: "Mediator",
 };
 
-// Słowa-klucze świata Zakątek Gama — używane do heurystycznej oceny "czy używa lore"
+// Słowa-klucze świata Zakątek Gamma — używane do heurystycznej oceny "czy używa lore"
 const LORE_KEYWORDS = ["trop", "zwój", "echo", "kronik", "plecak", "kompas cieni", "świecąc", "swieca", "tropi", "zwoj", "kompas"];
 
 // Słowa charakterystyczne per archetyp — dopasowanie tekstu do osobowości

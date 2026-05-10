@@ -1,8 +1,8 @@
-# Zakątek Gama — Opis Świata
+# Zakątek Gamma — Opis Świata
 
-## Czym jest Zakątek Gama
+## Czym jest Zakątek Gamma
 
-Zakątek Gama to **kraina, która istnieje tylko wtedy, gdy ktoś o niej pamięta**. Nie ma jej na żadnej mapie szkolnej — pojawia się dopiero, gdy dziecko otworzy Kronikę. Wtedy las staje się Lasem Pytań, a chmury zaczynają mieć imiona.
+Zakątek Gamma to **kraina, która istnieje tylko wtedy, gdy ktoś o niej pamięta**. Nie ma jej na żadnej mapie szkolnej — pojawia się dopiero, gdy dziecko otworzy Kronikę. Wtedy las staje się Lasem Pytań, a chmury zaczynają mieć imiona.
 
 To miejsce **na granicy snu i jawy**, gdzie:
 - każde **pytanie** zostawia trop, który można odnaleźć
@@ -25,7 +25,7 @@ Czas w Zakątku biegnie inaczej. Gracz wchodzi tam **kilka razy w tygodniu**, na
 
 ## Sześć krain
 
-Zakątek Gama dzieli się na **sześć regionów**, każdy odpowiada innej kompetencji miękkiej:
+Zakątek Gamma dzieli się na **sześć regionów**, każdy odpowiada innej kompetencji miękkiej:
 
 ### 🌲 Las Pytań (DT — Detektyw)
 Tu rosną pytania jak grzyby po deszczu. Niektóre szepczą, niektóre świecą po zmroku. Tropiciel Tajemnic czuje się tu jak u siebie. Las Pytań uczy: **dociekliwość, eksploracja, ciekawość poznawcza**.
