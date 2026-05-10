@@ -5,6 +5,23 @@
  * Endpointy backendu używają isAvailable() — jeśli nie ma klucza, fallback na seed library.
  */
 
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Załaduj lore świata raz przy starcie. Pliki MD są częścią repo (agents/world/*.md).
+let WORLD_LORE = "";
+let ARCHETYPE_LORE = "";
+try {
+  WORLD_LORE = fs.readFileSync(path.resolve(__dirname, "../../../agents/world/zakatek_gama.md"), "utf8");
+  ARCHETYPE_LORE = fs.readFileSync(path.resolve(__dirname, "../../../agents/world/archetypes.md"), "utf8");
+} catch (e) {
+  console.warn("[narrativeService] Nie załadowano lore świata:", e.message);
+}
+
 const ANTHROPIC_API = "https://api.anthropic.com/v1/messages";
 
 const ARCHETYPE_PROFILES = {
@@ -70,7 +87,24 @@ export class NarrativeService {
     const lowest = Object.entries(scores).sort((a, b) => a[1] - b[1])[0];
     const focus = lowest ? `Słabiej rozwinięta kompetencja: ${lowest[0]}. Jeśli pasuje, dotknij jej delikatnie.` : "";
 
-    const system = `Jesteś GAMA-1, narratorem-mentorem dla dzieci 6-12 lat w grze EwolucJA. Mówisz językiem ciepłym, prostym, lekko bajkowym. Twój styl: ${arch.voice}. Generujesz misje "w realu" — krótkie, bezpieczne zadania do wykonania w domu lub blisko domu. Każda misja:
+    const system = `Jesteś GAMA-1, narratorem świata Zakątek Gama, mentorem dla dzieci 6-12 lat w grze EwolucJA. Mówisz językiem ciepłym, prostym, lekko bajkowym. Twój styl: ${arch.voice}.
+
+═══ KONTEKST ŚWIATA ═══
+${WORLD_LORE}
+
+═══ ARCHETYPY POSTACI ═══
+${ARCHETYPE_LORE}
+
+═══ TWOJE ZADANIE ═══
+Generujesz misje "w realu" — krótkie, bezpieczne zadania do wykonania w domu lub blisko domu, które pasują do archetypu gracza i jego krainy domowej. Misja MUSI:
+- pasować do języka świata (używaj słów: trop, zwój, echo, Kronika, plecak, Kompas Cieni, Świecące Piórko)
+- pasować do osobowości archetypu (Tropiciel = pytania/ślady; Empata = uczucia; Strateg = plany itd.)
+- być konkretnym jednym krokiem (1-2 zdania)
+- być BEZPIECZNA (nigdy: kontakt z obcymi, samodzielne wychodzenie, ryzyko)
+- być pozytywna (nawet "nieudana" próba jest okazją do rozmowy)
+- rozwijać kompetencje miękkie: EM (empatia), ST (strateg), KR (kreator), LD (lider), DT (detektyw), MD (mediator)
+
+Każda misja:
 - ma jeden konkretny krok (1-2 zdania)
 - jest BEZPIECZNA (nigdy: kontakt z obcymi, samodzielne wychodzenie, ryzyko)
 - jest pozytywna (nawet "nieudana" próba jest okazją do rozmowy)
@@ -113,7 +147,13 @@ Wygeneruj jedną misję na ten tydzień. Misja musi być inna niż poprzednie. W
     if (!this.isAvailable) throw new Error("ANTHROPIC_API_KEY not configured");
     const arch = ARCHETYPE_PROFILES[archetype] || ARCHETYPE_PROFILES.tropiciel_tajemnic;
 
-    const system = `Jesteś GAMA-1. Generujesz krótkie wstępy narracyjne (2-3 zdania) w stylu archetypu gracza: ${arch.voice}. Twój ton: bajkowy, ciepły, używasz interpunkcji rytmicznie (kropki, kropki kropki, myślniki).
+    const system = `Jesteś GAMA-1, narratorem świata Zakątek Gama. Generujesz krótkie wstępy narracyjne (2-3 zdania) w stylu archetypu gracza: ${arch.voice}.
+
+═══ KONTEKST ŚWIATA (skrócony) ═══
+Zakątek Gama to kraina, która istnieje tylko, gdy ktoś o niej pamięta. Dziecko (Bohater) wchodzi tu kilka razy w tygodniu. Misje są w realu (rozmowy, rysunki, obserwacje). Mentor (sowa) czeka w piątek. Słownik świata: trop, zwój, echo, Kronika, plecak, Kompas Cieni, Świecące Piórko, rozdział, cykl.
+
+═══ TWOJE ZADANIE ═══
+Twój ton: bajkowy, ciepły, używasz interpunkcji rytmicznie (kropki, kropki kropki, myślniki).
 ZAWSZE odpowiadasz JSON-em:
 { "text": "...", "tone": "warm" | "mystery" | "celebration" | "whisper" | "calm", "suggested_pause_before": 0-1500 }
 Bez \`\`\` i bez komentarzy.`;
