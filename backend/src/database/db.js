@@ -6,6 +6,9 @@ import pg from "pg";
 
 const { Pool } = pg;
 
+// pg requires JSONB params as strings (no auto-stringification)
+const J = (v) => v == null ? null : JSON.stringify(v);
+
 let _pool = null;
 let _schemaReady = null;
 
@@ -169,19 +172,19 @@ export async function savePlayer(_unused, profile) {
     [
       profile.player_id,
       profile.player_name,
-      profile.avatar || {},
-      profile.scores || { EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 },
+      J(profile.avatar || {}),
+      J(profile.scores || { EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 }),
       profile.current_land || null,
-      profile.completed_lands || [],
-      profile.choices_log || [],
-      profile.final_profile || null,
+      J(profile.completed_lands || []),
+      J(profile.choices_log || []),
+      J(profile.final_profile),
       profile.archetype || null,
       profile.archetype_assigned_at || null,
-      profile.onboarding_answers || [],
-      profile.lifetime_scores || { EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 },
+      J(profile.onboarding_answers || []),
+      J(profile.lifetime_scores || { EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 }),
       profile.current_cycle_id || null,
       profile.current_chapter || null,
-      profile.backpack || [],
+      J(profile.backpack || []),
       profile.gm_persona_id || null,
     ]
   );
@@ -238,7 +241,7 @@ export async function getCurrentCycle(_unused, playerId) {
 
 export async function closeCycle(_unused, cycleId, summary) {
   const pool = await initDatabase();
-  await pool.query("UPDATE cycles SET status='closed', cycle_summary=$1 WHERE id=$2", [summary || {}, cycleId]);
+  await pool.query("UPDATE cycles SET status='closed', cycle_summary=$1 WHERE id=$2", [J(summary || {}), cycleId]);
 }
 
 function mapMissionRow(row) {
@@ -268,7 +271,7 @@ export async function createMission(_unused, mission) {
   await pool.query(
     `INSERT INTO missions (id, cycle_id, player_id, title, body, narrative_intro, competency_focus, proof_type, estimated_minutes, safety_notes, status)
      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'pending')`,
-    [id, mission.cycle_id, mission.player_id, mission.title, mission.body, mission.narrative_intro || null, mission.competency_focus || [], mission.proof_type || "conversation", mission.estimated_minutes || 15, mission.safety_notes || null]
+    [id, mission.cycle_id, mission.player_id, mission.title, mission.body, mission.narrative_intro || null, J(mission.competency_focus || []), mission.proof_type || "conversation", mission.estimated_minutes || 15, mission.safety_notes || null]
   );
   return { ...mission, mission_id: id };
 }
@@ -290,14 +293,14 @@ export async function getCurrentMission(_unused, playerId) {
 
 export async function submitMissionProof(_unused, missionId, proof) {
   const pool = await initDatabase();
-  await pool.query("UPDATE missions SET status='submitted', submitted_proof=$1 WHERE id=$2", [proof, missionId]);
+  await pool.query("UPDATE missions SET status='submitted', submitted_proof=$1 WHERE id=$2", [J(proof), missionId]);
 }
 
 export async function verifyMission(_unused, missionId, verification) {
   const pool = await initDatabase();
   const verdict = verification.verdict || "approved";
   const newStatus = verdict === "highlighted" ? "highlighted" : verdict === "needs_followup" ? "needs_followup" : "verified";
-  await pool.query("UPDATE missions SET status=$1, gm_verification=$2 WHERE id=$3", [newStatus, verification, missionId]);
+  await pool.query("UPDATE missions SET status=$1, gm_verification=$2 WHERE id=$3", [newStatus, J(verification), missionId]);
 }
 
 export async function getMissionQueueForGM(_unused, gmAccountId) {
@@ -386,6 +389,6 @@ export async function addArtifactToBackpack(_unused, playerId, artifact) {
     awarded_at: new Date().toISOString(),
     cycle_id: artifact.cycle_id || null,
   });
-  await pool.query("UPDATE players SET backpack=$1 WHERE id=$2", [current, playerId]);
+  await pool.query("UPDATE players SET backpack=$1 WHERE id=$2", [J(current), playerId]);
   return current;
 }

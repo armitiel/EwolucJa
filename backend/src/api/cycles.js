@@ -75,7 +75,7 @@ export function missionRoutes(db) {
         safety_notes: seed.safety_notes || null,
       });
       const pool = await getPool();
-      await pool.query("UPDATE missions SET artifact_reward=$1 WHERE id=$2", [seed.artifact_reward || null, mission.mission_id]);
+      await pool.query("UPDATE missions SET artifact_reward=$1 WHERE id=$2", [seed.artifact_reward ? JSON.stringify(seed.artifact_reward) : null, mission.mission_id]);
       res.json(mission);
     } catch (e) { console.error("[mission generate]", e); res.status(500).json({ error: e.message }); }
   });
