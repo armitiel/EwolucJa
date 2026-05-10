@@ -5,6 +5,8 @@
  * iOS Safari compatible — persistent Audio element + global auto-unlock.
  */
 
+import bgMusic from "./bgMusic.js";
+
 const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "" : "http://localhost:3001");
 
 class TTSPlayer {
@@ -191,8 +193,9 @@ class TTSPlayer {
       this._audio.volume = this._volume;
       this._audio.src = url;
       this._playing = true;
-      this._audio.onended = () => { this._playing = false; resolve(); };
-      this._audio.onerror = () => { this._playing = false; resolve(); };
+      try { bgMusic.duck(); } catch {}
+      this._audio.onended = () => { this._playing = false; try { bgMusic.unduck(); } catch {} resolve(); };
+      this._audio.onerror = () => { this._playing = false; try { bgMusic.unduck(); } catch {} resolve(); };
       this._audio.play().catch((err) => {
         console.warn("[TTS] Play error:", err.message);
         this._playing = false;

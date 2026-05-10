@@ -48,7 +48,8 @@
       "PowerShell(powershell -ExecutionPolicy Bypass -File \"c:\\\\Users\\\\DELL\\\\EwolucJA\\\\docs\\\\generate_summary_docx.ps1\")",
       "PowerShell($p = 'c:\\\\Users\\\\DELL\\\\EwolucJA\\\\docs\\\\generate_summary_docx.ps1'; $content = [System.IO.File]::ReadAllText\\($p, [System.Text.UTF8Encoding]::new\\($false\\)\\); $utf8Bom = New-Object System.Text.UTF8Encoding $true; [System.IO.File]::WriteAllText\\($p, $content, $utf8Bom\\); 'BOM added')",
       "PowerShell($p = 'c:\\\\Users\\\\DELL\\\\EwolucJA\\\\docs\\\\generate_summary_docx.ps1'; $content = [System.IO.File]::ReadAllText\\($p, [System.Text.UTF8Encoding]::new\\($false\\)\\); $utf8Bom = New-Object System.Text.UTF8Encoding $true; [System.IO.File]::WriteAllText\\($p, $content, $utf8Bom\\); powershell -ExecutionPolicy Bypass -File $p)",
-      "PowerShell($p = 'c:\\\\Users\\\\DELL\\\\EwolucJA\\\\EwolucJA_Podsumowanie.docx'; Add-Type -AssemblyName System.IO.Compression.FileSystem; $zip = [System.IO.Compression.ZipFile]::OpenRead\\($p\\); $zip.Entries | Select-Object FullName, Length | Format-Table -AutoSize; $zip.Dispose\\(\\))"
+      "PowerShell($p = 'c:\\\\Users\\\\DELL\\\\EwolucJA\\\\EwolucJA_Podsumowanie.docx'; Add-Type -AssemblyName System.IO.Compression.FileSystem; $zip = [System.IO.Compression.ZipFile]::OpenRead\\($p\\); $zip.Entries | Select-Object FullName, Length | Format-Table -AutoSize; $zip.Dispose\\(\\))",
+      "PowerShell(git add frontend/public/Mindful_Forest_Path.mp3 frontend/src/components/BackgroundMusic.jsx frontend/src/main.jsx)"
     ]
   }
 }
