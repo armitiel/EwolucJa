@@ -168,10 +168,10 @@ export default function Onboarding() {
               </h2>
               {questionIdx === 0 ? (
                 <NarratorVoice
-                  text={`Zanim wyruszymy w przygodę… zadam ci kilka pytań. Twoje odpowiedzi pomogą Kronice rozpoznać — kim naprawdę jesteś. A potem… ułoży się dla ciebie świat pełen krain, zagadek i gier, w których będziesz zdobywać nowe moce. A teraz… ${quiz.questions[0].question}`}
+                  text={`Cześć. Bardzo się cieszę, że tu jesteś. Zakątek Gamma właśnie otwiera przed tobą swoje bramy… Czeka cię tu mnóstwo radości, gier i zupełnie nowych, tajemniczych miejsc do zbadania. Żeby ta podróż była dla ciebie jak najciekawsza — warto na samym początku sprawdzić, jaka niezwykła siła w tobie drzemie. Dlatego przygotowałem dla ciebie kilka prostych pytań. Dzięki twoim szczerym odpowiedziom dowiesz się, z jakim magicznym opiekunem wyruszycie w drogę. Może to będzie wspierający Empata… a może bystry Strateg? Twój nowy przyjaciel poprowadzi cię przez wszystkie wyzwania i pokaże ci świat, w którym nauka jest najfajniejszą zabawą. Zaufaj sobie… i zobaczmy, od czego zacznie się twoja historia. A teraz… ${quiz.questions[0].question}`}
                   land="las_decyzji"
                   tone="warm"
-                  speed={0.9}
+                  speed={0.92}
                   pauseBefore={500}
                   inlinePauses
                   autoPlay
