@@ -50,6 +50,55 @@ const TONE_PRESETS = {
 };
 
 /**
+ * Polski wybor formy liczby mnogiej (1 / 2-4 / 5+ z odstepstwami dla 12-14 i 22-24...).
+ *  pluralPL(1, "godzina","godziny","godzin") => "godzina"
+ *  pluralPL(2, "godzina","godziny","godzin") => "godziny"
+ *  pluralPL(5, "godzina","godziny","godzin") => "godzin"
+ *  pluralPL(22,"godzina","godziny","godzin") => "godziny"
+ */
+function pluralPL(n, one, few, many) {
+  const abs = Math.abs(Number(n));
+  if (abs === 1) return one;
+  const mod10 = abs % 10;
+  const mod100 = abs % 100;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return few;
+  return many;
+}
+
+/**
+ * Rozwija polskie skroty czasowe do pelnych slow z poprawna odmiana.
+ *  "5h"      => "5 godzin"
+ *  "2h"      => "2 godziny"
+ *  "1h"      => "1 godzina"
+ *  "4d"      => "4 dni"
+ *  "1d"      => "1 dzien"
+ *  "2d 5h"   => "2 dni 5 godzin"
+ *  "30min"   => "30 minut"
+ *  "5 tyg"   => "5 tygodni"
+ *  "3 mies"  => "3 miesiace"
+ * Granica slowa zapobiega kolizji ze "h2" / "5htm" itp.
+ */
+function expandPolishAbbreviations(text) {
+  if (!text) return text;
+  let t = text;
+  // godziny
+  t = t.replace(/\b(\d+)\s*h\b/gi, (_, n) => `${n} ${pluralPL(n, "godzina", "godziny", "godzin")}`);
+  // dni (skrot "d" tylko jak osobny token, nie myl z "5d6h" — \b zalatwia sprawe)
+  t = t.replace(/\b(\d+)\s*d\b/gi, (_, n) => `${n} ${pluralPL(n, "dzień", "dni", "dni")}`);
+  // minuty
+  t = t.replace(/\b(\d+)\s*min\b/gi, (_, n) => `${n} ${pluralPL(n, "minuta", "minuty", "minut")}`);
+  // sekundy
+  t = t.replace(/\b(\d+)\s*sek\b/gi, (_, n) => `${n} ${pluralPL(n, "sekunda", "sekundy", "sekund")}`);
+  // tygodnie
+  t = t.replace(/\b(\d+)\s*(?:tyg|tydz)\.?\b/gi, (_, n) => `${n} ${pluralPL(n, "tydzień", "tygodnie", "tygodni")}`);
+  // miesiace
+  t = t.replace(/\b(\d+)\s*(?:mies|msc)\.?\b/gi, (_, n) => `${n} ${pluralPL(n, "miesiąc", "miesiące", "miesięcy")}`);
+  // lata
+  t = t.replace(/\b(\d+)\s*l\b/gi, (_, n) => `${n} ${pluralPL(n, "rok", "lata", "lat")}`);
+  return t;
+}
+
+/**
  * Wstawia tagi SSML break/audio do tekstu.
  *  - pauseBefore: ms — wstaw <break time="X.Xs" /> NA POCZĄTKU
  *  - pauseAfter: IGNOROWANE — trailing <break> w eleven_flash_v2_5 powoduje
@@ -129,7 +178,10 @@ export class TTSService {
     }
 
     // Ogranicz długość tekstu (ElevenLabs limit: ~5000 znaków)
-    const cleanText = text.replace(/<[^>]*>/g, "").trim().slice(0, 4500);
+    // + rozwin polskie skroty czasowe ("2h" -> "2 godziny", "4d" -> "4 dni" itd.)
+    const cleanText = expandPolishAbbreviations(
+      text.replace(/<[^>]*>/g, "").trim()
+    ).slice(0, 4500);
 
     // Cache check
     const cacheKey = `${cleanText.slice(0, 100)}_${options.voiceId || options.land || "default"}`;
