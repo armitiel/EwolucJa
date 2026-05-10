@@ -166,7 +166,19 @@ export default function Onboarding() {
               <h2 className="t-display" style={{ fontSize: 26, lineHeight: 1.2, margin: 0, flex: 1 }}>
                 {quiz.questions[questionIdx].question}
               </h2>
-              <NarratorVoice text={quiz.questions[questionIdx].question} land="las_decyzji" tone="neutral" autoPlay />
+              {questionIdx === 0 ? (
+                <NarratorVoice
+                  text={`Zanim wyruszymy w przygodę… zadam ci kilka pytań. Twoje odpowiedzi pomogą Kronice rozpoznać — kim naprawdę jesteś. A potem… ułoży się dla ciebie świat pełen krain, zagadek i gier, w których będziesz zdobywać nowe moce. A teraz… ${quiz.questions[0].question}`}
+                  land="las_decyzji"
+                  tone="warm"
+                  speed={0.9}
+                  pauseBefore={500}
+                  inlinePauses
+                  autoPlay
+                />
+              ) : (
+                <NarratorVoice text={quiz.questions[questionIdx].question} land="las_decyzji" tone="calm" speed={0.94} inlinePauses autoPlay />
+              )}
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
