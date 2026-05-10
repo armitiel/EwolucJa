@@ -31,7 +31,7 @@ const circleBtn = {
   padding: 0,
 };
 
-export default function NarratorVoice({ text, land, tone, speed, pauseBefore, pauseAfter, inlinePauses, autoPlay = true, autoPlayDelay = 0, compact = false, onEnd = null }) {
+export default function NarratorVoice({ text, land, tone, speed, pauseBefore, pauseAfter, inlinePauses, autoPlay = true, autoPlayDelay = 0, compact = false, onEnd = null, playOnceKey = null }) {
   const [playing, setPlaying] = useState(false);
   const [available, setAvailable] = useState(null);
   const [unlocked, setUnlocked] = useState(ttsPlayer.isUnlocked);
@@ -73,6 +73,19 @@ export default function NarratorVoice({ text, land, tone, speed, pauseBefore, pa
   useEffect(() => {
     if (!autoPlay || !available || muted || !text || !unlocked) return;
     if (text === lastTextRef.current) return;
+
+    // playOnceKey — odtwórz raz na sesję (per klucz). Klucz "dom_greeting" itp.
+    // Klucz może mieć przyrostek, np. zmiana misji => nowy klucz, więc znów się odtworzy.
+    if (playOnceKey) {
+      try {
+        const flag = sessionStorage.getItem(`narrator_played_${playOnceKey}`);
+        if (flag === "1") {
+          lastTextRef.current = text; // żeby ręczny przycisk nadal mógł grać
+          return;
+        }
+      } catch {}
+    }
+
     lastTextRef.current = text;
 
     let cancelled = false;
@@ -82,6 +95,9 @@ export default function NarratorVoice({ text, land, tone, speed, pauseBefore, pa
       await ttsPlayer.speak(text, { land, tone, speed, pauseBefore, pauseAfter, inlinePauses });
       if (!cancelled && mountedRef.current) {
         setPlayingSync(false);
+        if (playOnceKey) {
+          try { sessionStorage.setItem(`narrator_played_${playOnceKey}`, "1"); } catch {}
+        }
         if (onEnd) onEnd();
       }
     }, autoPlayDelay);
@@ -92,7 +108,7 @@ export default function NarratorVoice({ text, land, tone, speed, pauseBefore, pa
       ttsPlayer.stop();
       if (mountedRef.current) setPlayingSync(false);
     };
-  }, [text, available, muted, autoPlay, autoPlayDelay, land, tone, unlocked, setPlayingSync, onEnd]);
+  }, [text, available, muted, autoPlay, autoPlayDelay, land, tone, unlocked, setPlayingSync, onEnd, playOnceKey]);
 
   const handleSpeak = useCallback(async () => {
     if (!text || !available) return;
