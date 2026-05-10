@@ -48,9 +48,11 @@ export default function WorldHub() {
 
   const greeting = useMemo(() => {
     if (!player) return "";
-    const parts = [`Witaj z powrotem, ${player.player_name}.`];
-    if (mission) parts.push(`Twoja misja na ten tydzień: ${mission.title}.`);
-    if (friday && !friday.passed) parts.push(`Zostało ${friday.label}.`);
+    // Naturalny rytm: imię — pauza, misja — pauza, czas — pauza.
+    // "…" daje 600ms pauzy (inlinePauses), "—" daje 350ms.
+    const parts = [`Witaj z powrotem… ${player.player_name}.`];
+    if (mission) parts.push(`Twoja misja na ten tydzień — ${mission.title}.`);
+    if (friday && !friday.passed) parts.push(`Mamy czas… zostało jeszcze ${friday.label}.`);
     return parts.join(" ");
   }, [player, mission, friday]);
 
@@ -169,7 +171,17 @@ export default function WorldHub() {
           </div>
         </div>
 
-        <NarratorVoice text={greeting} land="dolina_selfie" tone="warm" autoPlay playOnceKey="worldhub_greeting" />
+        <NarratorVoice
+          text={greeting}
+          land="dolina_selfie"
+          tone="calm"
+          speed={0.86}
+          pauseBefore={500}
+          inlinePauses
+          autoPlayDelay={900}
+          autoPlay
+          playOnceKey="worldhub_greeting"
+        />
       </div>
 
       <TabBar current="home" />
