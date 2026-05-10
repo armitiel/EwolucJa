@@ -94,10 +94,10 @@ export default function Onboarding() {
       <div className="screen-scroll" style={{ flex: 1, padding: "10px 18px 28px" }}>
         {step === "name" && (
           <form onSubmit={handleStart} className="pop-in" style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-            <h1 className="t-display" style={{ fontSize: 34, margin: "8px 0 0", color: "var(--p-ink)" }}>
+            <h1 className="t-display" style={{ fontSize: 34, margin: "8px 0 4px", color: "var(--p-ink)", lineHeight: 1.18, letterSpacing: "-0.3px" }}>
               Witaj w Krainie&nbsp;Kroniki
             </h1>
-            <p className="t-hand" style={{ margin: 0, fontSize: 20, color: "var(--p-ink-soft)" }}>
+            <p className="t-hand" style={{ margin: "4px 0 8px", fontSize: 20, color: "var(--p-ink-soft)", lineHeight: 1.5 }}>
               Zanim wyruszymy — powiedz, jak się nazywasz?
             </p>
 
@@ -143,9 +143,13 @@ export default function Onboarding() {
             </button>
 
             <NarratorVoice
-              text="Witaj w Zakątku Gamma. Zanim wyruszymy, powiedz, jak się nazywasz."
+              text="Witaj w Zakątku Gamma… Zanim ruszymy w tę przygodę — powiedz mi, jak masz na imię?"
               land="dolina_selfie"
               tone="warm"
+              speed={0.95}
+              pauseBefore={500}
+              inlinePauses
+              autoPlayDelay={1200}
               autoPlay
             />
 
