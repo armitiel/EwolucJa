@@ -57,13 +57,20 @@ export const PROFILE_TO_ARCHETYPE = {
   LD: "gwardzista_odwagi",
   MD: "straznik_mostu",
 };
-export const MVP_AVAILABLE_ARCHETYPES = ["tropiciel_tajemnic"];
+export const MVP_AVAILABLE_ARCHETYPES = [
+  "tropiciel_tajemnic",
+  "zaklinacz_uczuc",
+  "mistrz_map",
+  "tkacz_snow",
+  "gwardzista_odwagi",
+  "straznik_mostu",
+];
 
 function pickArchetype(scores) {
   const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
   for (const [profile] of sorted) {
     const arch = PROFILE_TO_ARCHETYPE[profile];
-    if (MVP_AVAILABLE_ARCHETYPES.includes(arch)) {
+    if (arch && MVP_AVAILABLE_ARCHETYPES.includes(arch)) {
       return { archetype: arch, dominant_profile: profile };
     }
   }
