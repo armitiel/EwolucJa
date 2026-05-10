@@ -1,16 +1,6 @@
-/**
- * API Routes — Onboarding (quiz wstępny → archetyp).
- *
- * MVP: jeden archetyp ("tropiciel_tajemnic" / DT). W przyszłości:
- * mapowanie wyniku quizu na 1 z 6 archetypów.
- */
-
 import { Router } from "express";
 import { getPlayer, savePlayer, createCycle } from "../database/db.js";
 
-// Quiz: 5 pytań po 3 odpowiedzi, każda przyznaje punkty do profili.
-// Na MVP wynik i tak prowadzi do "tropiciel_tajemnic", ale punkty zostają
-// zapisane do dalszego strojenia.
 export const ONBOARDING_QUIZ = [
   {
     question_id: "q1",
@@ -59,9 +49,6 @@ export const ONBOARDING_QUIZ = [
   },
 ];
 
-// Mapowanie najwyższego profilu na archetyp.
-// MVP: wszystkie wyniki mapują się do tropiciel_tajemnic (jeden archetyp w produkcji),
-// ale logika jest gotowa pod 6 archetypów.
 export const PROFILE_TO_ARCHETYPE = {
   DT: "tropiciel_tajemnic",
   EM: "zaklinacz_uczuc",
@@ -70,7 +57,6 @@ export const PROFILE_TO_ARCHETYPE = {
   LD: "gwardzista_odwagi",
   MD: "straznik_mostu",
 };
-
 export const MVP_AVAILABLE_ARCHETYPES = ["tropiciel_tajemnic"];
 
 function pickArchetype(scores) {
@@ -81,14 +67,12 @@ function pickArchetype(scores) {
       return { archetype: arch, dominant_profile: profile };
     }
   }
-  // fallback
   return { archetype: "tropiciel_tajemnic", dominant_profile: "DT" };
 }
 
 export function onboardingRoutes(db) {
   const router = Router();
 
-  // GET /api/onboarding/quiz — pobierz pytania (bez punktacji, dla gracza)
   router.get("/quiz", (req, res) => {
     res.json({
       questions: ONBOARDING_QUIZ.map((q) => ({
@@ -99,7 +83,6 @@ export function onboardingRoutes(db) {
     });
   });
 
-  // GET /api/onboarding/quiz-debug — pełny quiz z punktacją (dev only)
   router.get("/quiz-debug", (req, res) => {
     res.json({
       questions: ONBOARDING_QUIZ,
@@ -108,40 +91,49 @@ export function onboardingRoutes(db) {
     });
   });
 
-  // POST /api/onboarding/submit — zapis odpowiedzi + przypisanie archetypu + start pierwszego cyklu
-  router.post("/submit", (req, res) => {
-    const { player_id, answers } = req.body;
-    const player = getPlayer(db, player_id);
-    if (!player) return res.status(404).json({ error: "Gracz nie znaleziony" });
-
-    if (!Array.isArray(answers) || answers.length === 0) {
-      return res.status(400).json({ error: "Brak odpowiedzi z quizu" });
-    }
-
-    // Skoringuj odpowiedzi
-    const scores = { EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 };
-    const log = [];
-    for (const ans of answers) {
-      const q = ONBOARDING_QUIZ.find((x) => x.question_id === ans.question_id);
-      if (!q) continue;
-      const a = q.answers.find((x) => x.answer_id === ans.answer_id);
-      if (!a) continue;
-      for (const [profile, pts] of Object.entries(a.points)) {
-        scores[profile] = (scores[profile] || 0) + pts;
+  router.post("/submit", async (req, res) => {
+    try {
+      const { player_id, answers } = req.body;
+      const player = await getPlayer(db, player_id);
+      if (!player) return res.status(404).json({ error: "Gracz nie znaleziony" });
+      if (!Array.isArray(answers) || answers.length === 0) {
+        return res.status(400).json({ error: "Brak odpowiedzi z quizu" });
       }
-      log.push({ question_id: ans.question_id, answer_id: ans.answer_id, points_awarded: a.points });
+      const scores = { EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 };
+      const log = [];
+      for (const ans of answers) {
+        const q = ONBOARDING_QUIZ.find((x) => x.question_id === ans.question_id);
+        if (!q) continue;
+        const a = q.answers.find((x) => x.answer_id === ans.answer_id);
+        if (!a) continue;
+        for (const [profile, pts] of Object.entries(a.points)) {
+          scores[profile] = (scores[profile] || 0) + pts;
+        }
+        log.push({ question_id: ans.question_id, answer_id: ans.answer_id, points_awarded: a.points });
+      }
+      const { archetype, dominant_profile } = pickArchetype(scores);
+      player.archetype = archetype;
+      player.archetype_assigned_at = new Date().toISOString();
+      player.onboarding_answers = log;
+      player.lifetime_scores = player.lifetime_scores || { EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 };
+      for (const [k, v] of Object.entries(scores)) {
+        player.lifetime_scores[k] = (player.lifetime_scores[k] || 0) + v;
+      }
+      player.current_chapter = "wezwanie_kroniki";
+      await savePlayer(db, player);
+      const cycle = await createCycle(db, player.player_id);
+      res.json({
+        player_id: player.player_id,
+        archetype,
+        dominant_profile,
+        onboarding_scores: scores,
+        first_cycle: cycle,
+      });
+    } catch (e) {
+      console.error("[onboarding submit]", e);
+      res.status(500).json({ error: e.message });
     }
+  });
 
-    const { archetype, dominant_profile } = pickArchetype(scores);
-
-    player.archetype = archetype;
-    player.archetype_assigned_at = new Date().toISOString();
-    player.onboarding_answers = log;
-    // dodaj punkty z quizu do lifetime_scores (żeby quiz miał wagę)
-    player.lifetime_scores = player.lifetime_scores || { EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 };
-    for (const [k, v] of Object.entries(scores)) {
-      player.lifetime_scores[k] = (player.lifetime_scores[k] || 0) + v;
-    }
-    // current_chapter to "wezwanie_kroniki" — start spójnego świata
-    player.current_chapter = "wezwanie_kroniki";
-
+  return router;
+}

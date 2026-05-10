@@ -31,7 +31,7 @@ const circleBtn = {
   padding: 0,
 };
 
-export default function NarratorVoice({ text, land, autoPlay = true, autoPlayDelay = 0, compact = false, onEnd = null }) {
+export default function NarratorVoice({ text, land, tone, speed, pauseBefore, pauseAfter, inlinePauses, autoPlay = true, autoPlayDelay = 0, compact = false, onEnd = null }) {
   const [playing, setPlaying] = useState(false);
   const [available, setAvailable] = useState(null);
   const [unlocked, setUnlocked] = useState(ttsPlayer.isUnlocked);
@@ -79,7 +79,7 @@ export default function NarratorVoice({ text, land, autoPlay = true, autoPlayDel
     const timer = setTimeout(async () => {
       if (cancelled) return;
       setPlayingSync(true);
-      await ttsPlayer.speak(text, { land });
+      await ttsPlayer.speak(text, { land, tone, speed, pauseBefore, pauseAfter, inlinePauses });
       if (!cancelled && mountedRef.current) {
         setPlayingSync(false);
         if (onEnd) onEnd();
@@ -92,7 +92,7 @@ export default function NarratorVoice({ text, land, autoPlay = true, autoPlayDel
       ttsPlayer.stop();
       if (mountedRef.current) setPlayingSync(false);
     };
-  }, [text, available, muted, autoPlay, autoPlayDelay, land, unlocked, setPlayingSync, onEnd]);
+  }, [text, available, muted, autoPlay, autoPlayDelay, land, tone, unlocked, setPlayingSync, onEnd]);
 
   const handleSpeak = useCallback(async () => {
     if (!text || !available) return;
@@ -101,12 +101,12 @@ export default function NarratorVoice({ text, land, autoPlay = true, autoPlayDel
     ttsPlayer.stop();
     lastTextRef.current = text;
     setPlayingSync(true);
-    await ttsPlayer.speak(text, { land });
+    await ttsPlayer.speak(text, { land, tone, speed, pauseBefore, pauseAfter, inlinePauses });
     if (mountedRef.current) {
       setPlayingSync(false);
       if (onEnd) onEnd();
     }
-  }, [text, land, available, setPlayingSync, onEnd]);
+  }, [text, land, tone, available, setPlayingSync, onEnd]);
 
   const handleToggle = useCallback(() => {
     if (playing || playingRef.current) {

@@ -18,7 +18,7 @@ export function ttsRoutes() {
    */
   router.post("/speak", async (req, res) => {
     try {
-      const { text, land, voiceId } = req.body;
+      const { text, land, voiceId, tone, speed, pauseBefore, pauseAfter, inlinePauses } = req.body;
 
       if (!text) {
         return res.status(400).json({ error: "Brak tekstu" });
@@ -28,7 +28,7 @@ export function ttsRoutes() {
         return res.status(503).json({ error: "TTS niedostępny — brak ELEVENLABS_API_KEY" });
       }
 
-      const audioBuffer = await ttsService.synthesize(text, { land, voiceId });
+      const audioBuffer = await ttsService.synthesize(text, { land, voiceId, tone, speed, pauseBefore, pauseAfter, inlinePauses });
 
       res.set({
         "Content-Type": "audio/mpeg",
