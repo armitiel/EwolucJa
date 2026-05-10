@@ -129,7 +129,7 @@ class TTSPlayer {
       return this._speakFallback(text);
     }
 
-    const cacheKey = `${text.slice(0, 80)}_${land || voiceId || "d"}_${tone || ""}_${speed || ""}_${pauseBefore||""}_${pauseAfter||""}_${inlinePauses?"i":""}`;
+    const cacheKey = `v2_${text.slice(0, 80)}_${land || voiceId || "d"}_${tone || ""}_${speed || ""}_${pauseBefore||""}_${pauseAfter||""}_${inlinePauses?"i":""}`;
 
     try {
       let audioUrl = this._cache.get(cacheKey);
@@ -167,7 +167,7 @@ class TTSPlayer {
   async prefetch(text, options = {}) {
     if (!this._enabled || !text || this._useFallback) return;
     const { land, voiceId, tone, speed, pauseBefore, pauseAfter, inlinePauses } = options;
-    const cacheKey = `${text.slice(0, 80)}_${land || voiceId || "d"}_${tone || ""}_${speed || ""}_${pauseBefore||""}_${pauseAfter||""}_${inlinePauses?"i":""}`;
+    const cacheKey = `v2_${text.slice(0, 80)}_${land || voiceId || "d"}_${tone || ""}_${speed || ""}_${pauseBefore||""}_${pauseAfter||""}_${inlinePauses?"i":""}`;
     if (this._cache.has(cacheKey)) return;
     try {
       const res = await fetch(`${API_BASE}/api/tts/speak`, {
@@ -193,12 +193,46 @@ class TTSPlayer {
       this._audio.volume = this._volume;
       this._audio.src = url;
       this._playing = true;
+      let fadeTimer = null;
+      let endedHandled = false;
       try { bgMusic.duck(); } catch {}
-      this._audio.onended = () => { this._playing = false; try { bgMusic.unduck(); } catch {} resolve(); };
-      this._audio.onerror = () => { this._playing = false; try { bgMusic.unduck(); } catch {} resolve(); };
+
+      const cleanup = () => {
+        if (endedHandled) return;
+        endedHandled = true;
+        if (fadeTimer) clearInterval(fadeTimer);
+        this._playing = false;
+        try { bgMusic.unduck(); } catch {}
+        resolve();
+      };
+
+      // Fade-out ostatnich ~250ms żeby ukryć ewentualny artefakt klikającego końcówki
+      const onTimeUpdate = () => {
+        if (!this._audio || endedHandled) return;
+        const dur = this._audio.duration;
+        const t = this._audio.currentTime;
+        if (!isFinite(dur) || dur <= 0) return;
+        const remaining = dur - t;
+        if (remaining < 0.25 && !fadeTimer) {
+          const startVol = this._audio.volume;
+          const steps = 8;
+          const dt = Math.max(20, (remaining * 1000) / steps);
+          let i = 0;
+          fadeTimer = setInterval(() => {
+            i++;
+            if (!this._audio) { clearInterval(fadeTimer); fadeTimer = null; return; }
+            this._audio.volume = Math.max(0, startVol * (1 - i / steps));
+            if (i >= steps) { clearInterval(fadeTimer); fadeTimer = null; }
+          }, dt);
+        }
+      };
+
+      this._audio.ontimeupdate = onTimeUpdate;
+      this._audio.onended = cleanup;
+      this._audio.onerror = cleanup;
       this._audio.play().catch((err) => {
         console.warn("[TTS] Play error:", err.message);
-        this._playing = false;
+        cleanup();
         this._speakFallback(url).then(resolve);
       });
     });

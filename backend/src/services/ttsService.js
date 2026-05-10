@@ -51,9 +51,12 @@ const TONE_PRESETS = {
 
 /**
  * Wstawia tagi SSML break/audio do tekstu.
- *  - pauseBefore/After: ms — wstaw <break time="X.Xs" /> na początku/końcu
- *  - inlinePauses: zamienia "…" na 600ms pauzę, "—" na 350ms, "." na 200ms (delikatnie)
- *  - emphasis: 'soft' otacza tekst w prefix/postfix promptu (działa dla v3 modeli)
+ *  - pauseBefore: ms — wstaw <break time="X.Xs" /> NA POCZĄTKU
+ *  - pauseAfter: IGNOROWANE — trailing <break> w eleven_flash_v2_5 powoduje
+ *    słyszalny "urywek"/klik/szum na samym końcu klipu (znany artefakt modelu).
+ *    Ciszę po wypowiedzi robimy klientem (setTimeout/onEnd), nie SSML-em.
+ *  - inlinePauses: zamienia "…" na 600ms pauzę, "—" na 350ms (delikatnie)
+ *  - usuwa też trailing whitespace + dba o czyste zakończenie zdania
  */
 function decorateText(text, opts = {}) {
   let t = String(text || "").trim();
@@ -66,10 +69,19 @@ function decorateText(text, opts = {}) {
       .replace(/\.\.\./g, ' <break time="0.6s" /> ');
   }
 
+  // Wytnij ewentualne tagi break na samym końcu (gdyby ktoś dał "…" jako ostatni znak)
+  t = t.replace(/(\s*<break\s+time="[^"]+"\s*\/?>\s*)+$/gi, "");
+  t = t.trim();
+
+  // Upewnij się że jest jakiś znak interpunkcyjny na końcu — model lepiej kończy frazę
+  if (!/[.!?…]$/.test(t)) {
+    t = t + ".";
+  }
+
   const before = Math.max(0, Math.min(3000, opts.pauseBefore || 0));
-  const after  = Math.max(0, Math.min(3000, opts.pauseAfter  || 0));
   if (before > 0) t = `<break time="${(before/1000).toFixed(2)}s" /> ` + t;
-  if (after  > 0) t = t + ` <break time="${(after /1000).toFixed(2)}s" />`;
+
+  // pauseAfter celowo nie dodajemy — trailing break = artefakt w eleven_flash_v2_5
 
   return t;
 }
@@ -170,29 +182,4 @@ export class TTSService {
 
     // Cache (LRU-like)
     if (this._cache.size >= this._cacheMaxSize) {
-      const firstKey = this._cache.keys().next().value;
-      this._cache.delete(firstKey);
-    }
-    this._cache.set(cacheKey, buffer);
-
-    return buffer;
-  }
-
-  /** Wyczyść cache */
-  clearCache() {
-    this._cache.clear();
-  }
-
-  /** Info o serwisie */
-  getInfo() {
-    return {
-      available: this.isAvailable,
-      model: this.model,
-      defaultVoice: this.defaultVoice,
-      cacheSize: this._cache.size,
-    };
-  }
-}
-
-// Singleton
-export const ttsService = new TTSService();
+      const firstKey = this.
