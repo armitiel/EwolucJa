@@ -12,7 +12,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { session } from "../services/api.js";
 import { ttsPlayer } from "../services/ttsPlayer";
-import bgMusic from "../services/bgMusic";
 
 export default function DevTools() {
   const navigate = useNavigate();
@@ -99,9 +98,6 @@ export default function DevTools() {
       </div>
 
       <div style={styles.section}>
-        <button style={styles.btn} onClick={() => { bgMusic.toggle(); }}>
-          🎵 Muzyka: włącz/wyłącz
-        </button>
         <button style={styles.btnLink} onClick={() => { setOpen(false); navigate("/dev"); }}>
           → Inspektor quizu i stanu
         </button>

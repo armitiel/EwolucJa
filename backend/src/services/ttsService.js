@@ -182,4 +182,29 @@ export class TTSService {
 
     // Cache (LRU-like)
     if (this._cache.size >= this._cacheMaxSize) {
-      const firstKey = this.
+      const firstKey = this._cache.keys().next().value;
+      this._cache.delete(firstKey);
+    }
+    this._cache.set(cacheKey, buffer);
+
+    return buffer;
+  }
+
+  /** Wyczysc cache */
+  clearCache() {
+    this._cache.clear();
+  }
+
+  /** Info o serwisie */
+  getInfo() {
+    return {
+      available: this.isAvailable,
+      model: this.model,
+      defaultVoice: this.defaultVoice,
+      cacheSize: this._cache.size,
+    };
+  }
+}
+
+// Singleton
+export const ttsService = new TTSService();

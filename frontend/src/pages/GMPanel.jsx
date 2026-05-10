@@ -1,17 +1,21 @@
+/**
+ * GMPanel — panel Game Mastera (rodzic / nauczyciel).
+ *
+ * Architektura: dziecko widzi JEDNĄ personę GM. Tu dorosły loguje się
+ * własnym kontem (rejestracja → kod parowania → kolejka misji do weryfikacji).
+ */
+
 import React, { useEffect, useState } from "react";
 import { api, session } from "../services/api.js";
-import PageShell from "../components/PageShell.jsx";
 import NarratorVoice from "../components/NarratorVoice.jsx";
-import { Avatar, MoonPhase } from "../components/art.jsx";
 
 export default function GMPanel() {
   const [account, setAccount] = useState(null);
-  const [step, setStep] = useState("auth");
-  const [authMode, setAuthMode] = useState("register");
+  const [step, setStep] = useState("auth"); // auth | dashboard
+  const [authMode, setAuthMode] = useState("register"); // register | login
   const [form, setForm] = useState({ role: "parent", name: "", email: "", pairing_code: "" });
   const [loginId, setLoginId] = useState("");
   const [queue, setQueue] = useState([]);
-  const [tab, setTab] = useState("children");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -88,216 +92,229 @@ export default function GMPanel() {
     setQueue([]);
   }
 
+  // ── UI ──
   if (step === "auth") {
     return (
-      <PageShell sky="dawn">
-        <div className="topbar">
-          <div className="meta" style={{ textAlign: "center" }}>
-            <div className="lbl">PANEL MENTORA</div>
-            <div className="nm">Witaj, dorosły</div>
-          </div>
-          <div style={{ width: 36, fontSize: 24, textAlign: "right" }}>🦉</div>
-        </div>
-        <div style={{ flex: 1, padding: "10px 18px 28px", display: "flex", flexDirection: "column", gap: 14 }}>
-          <p className="t-hand" style={{ fontSize: 18, color: "var(--p-ink-soft)", margin: 0, textAlign: "center" }}>
-            Z perspektywy dziecka pozostajesz jednym wspólnym Mentorem.
+      <div style={styles.wrap}>
+        <div style={styles.card}>
+          <h1 style={styles.title}>Panel Mentora</h1>
+          <p style={styles.muted}>
+            Tu logujesz się jako rodzic lub nauczyciel. Z perspektywy dziecka pozostajesz
+            jednym wspólnym Mentorem.
           </p>
-          <div style={{ display: "flex", background: "rgba(255,255,255,.7)", borderRadius: 14, padding: 4 }}>
-            {[["register", "Nowe konto"], ["login", "Mam konto"]].map(([k, l]) => (
-              <button key={k} onClick={() => setAuthMode(k)} style={{ flex: 1, border: "none", cursor: "pointer", padding: "8px 6px", fontFamily: "Nunito, sans-serif", fontWeight: 800, fontSize: 13, borderRadius: 10, background: authMode === k ? "linear-gradient(180deg,#FFD269,#E89A3D)" : "transparent", color: authMode === k ? "#4A2A0E" : "var(--p-ink-soft)", boxShadow: authMode === k ? "0 2px 0 #B47322" : "none" }}>{l}</button>
-            ))}
+
+          <div style={styles.tabs}>
+            <button
+              style={authMode === "register" ? styles.tabActive : styles.tab}
+              onClick={() => setAuthMode("register")}
+            >
+              Nowe konto
+            </button>
+            <button
+              style={authMode === "login" ? styles.tabActive : styles.tab}
+              onClick={() => setAuthMode("login")}
+            >
+              Mam konto
+            </button>
           </div>
+
           {authMode === "register" ? (
-            <form onSubmit={handleRegister} className="card" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <Label>Rola</Label>
-              <div style={{ display: "flex", gap: 8 }}>
-                {[["parent", "Rodzic"], ["teacher", "Nauczyciel"]].map(([k, l]) => (
-                  <button type="button" key={k} className={form.role === k ? "btn btn-primary btn-sm" : "btn btn-ghost btn-sm"} style={{ flex: 1 }} onClick={() => setForm({ ...form, role: k })}>{l}</button>
-                ))}
+            <form onSubmit={handleRegister}>
+              <label style={styles.label}>Rola</label>
+              <div style={styles.roleRow}>
+                <button
+                  type="button"
+                  style={form.role === "parent" ? styles.roleBtnActive : styles.roleBtn}
+                  onClick={() => setForm({ ...form, role: "parent" })}
+                >
+                  Rodzic
+                </button>
+                <button
+                  type="button"
+                  style={form.role === "teacher" ? styles.roleBtnActive : styles.roleBtn}
+                  onClick={() => setForm({ ...form, role: "teacher" })}
+                >
+                  Nauczyciel
+                </button>
               </div>
-              <Label>Twoje imię</Label>
-              <Input value={form.name} onChange={(v) => setForm({ ...form, name: v })} required />
-              <Label>E-mail (opcjonalnie)</Label>
-              <Input type="email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} />
-              <Label>Kod parowania od dziecka (opcjonalnie)</Label>
-              <Input value={form.pairing_code} onChange={(v) => setForm({ ...form, pairing_code: v.toUpperCase() })} placeholder="ABC123" />
-              <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
+              <label style={styles.label}>Twoje imię</label>
+              <input
+                style={styles.input}
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                required
+              />
+              <label style={styles.label}>E-mail (opcjonalnie)</label>
+              <input
+                style={styles.input}
+                type="email"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
+              <label style={styles.label}>Kod parowania od dziecka (opcjonalnie)</label>
+              <input
+                style={styles.input}
+                value={form.pairing_code}
+                onChange={(e) => setForm({ ...form, pairing_code: e.target.value.toUpperCase() })}
+                placeholder="ABC123"
+              />
+              <button type="submit" style={styles.btn} disabled={loading}>
                 {loading ? "Tworzę…" : "Utwórz konto Mentora"}
               </button>
             </form>
           ) : (
-            <form onSubmit={handleLogin} className="card" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <Label>Identyfikator konta GM</Label>
-              <Input value={loginId} onChange={setLoginId} placeholder="gm_..." required />
-              <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
+            <form onSubmit={handleLogin}>
+              <label style={styles.label}>Identyfikator konta GM</label>
+              <input
+                style={styles.input}
+                value={loginId}
+                onChange={(e) => setLoginId(e.target.value)}
+                placeholder="gm_..."
+                required
+              />
+              <button type="submit" style={styles.btn} disabled={loading}>
                 {loading ? "Loguję…" : "Zaloguj"}
               </button>
             </form>
           )}
-          {error && <p style={{ color: "#B85B47" }}>{error}</p>}
+
+          {error && <p style={styles.err}>{error}</p>}
         </div>
-      </PageShell>
+      </div>
     );
   }
 
+  // dashboard
   return (
-    <PageShell sky="dawn">
-      <div className="topbar">
-        <button className="btn btn-ghost btn-sm" onClick={logout}>Wyloguj</button>
-        <div className="meta" style={{ textAlign: "center" }}>
-          <div className="lbl">PANEL MENTORA · {account.role === "parent" ? "rodzic" : "nauczyciel"}</div>
-          <div className="nm">{account.name}</div>
+    <div style={styles.wrap}>
+      <header style={styles.header}>
+        <div>
+          <p style={styles.muted}>Mentor ({account.role === "parent" ? "rodzic" : "nauczyciel"})</p>
+          <h1 style={styles.title}>{account.name}</h1>
+          <p style={{ ...styles.muted, fontSize: 12 }}>ID: {account.account_id}</p>
         </div>
-        <div style={{ width: 36, fontSize: 24, textAlign: "right" }}>🦉</div>
-      </div>
-      <div style={{ flex: 1, overflowY: "auto", minHeight: 0, padding: "4px 18px 28px", display: "flex", flexDirection: "column", gap: 14 }}>
-        <div style={{ display: "flex", background: "rgba(255,255,255,.7)", borderRadius: 14, padding: 4 }}>
-          {[["children", "Tropiciele"], ["week", "Ten cykl"], ["settings", "Ton i tempo"]].map(([k, l]) => (
-            <button key={k} onClick={() => setTab(k)} style={{ flex: 1, border: "none", cursor: "pointer", padding: "8px 6px", fontFamily: "Nunito, sans-serif", fontWeight: 800, fontSize: 12, borderRadius: 10, background: tab === k ? "linear-gradient(180deg,#FFD269,#E89A3D)" : "transparent", color: tab === k ? "#4A2A0E" : "var(--p-ink-soft)", boxShadow: tab === k ? "0 2px 0 #B47322" : "none" }}>{l}</button>
-          ))}
-        </div>
+        <button style={styles.logout} onClick={logout}>Wyloguj</button>
+      </header>
 
-        {tab === "children" && (
-          <>
-            {account.paired_player_ids.length === 0 ? (
-              <div className="card">
-                <p style={{ fontSize: 14, color: "var(--p-ink-soft)" }}>
-                  Nikt jeszcze nie jest podpięty. Poproś dziecko o kod parowania.
-                </p>
-              </div>
-            ) : (
-              account.paired_player_ids.map((pid) => <ChildCard key={pid} playerId={pid} />)
-            )}
-            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-ink-soft)", marginTop: 6 }}>
-              MISJE DO WERYFIKACJI ({queue.length})
-            </div>
-            {queue.length === 0 ? (
-              <div className="card">
-                <p style={{ fontSize: 13, color: "var(--p-ink-soft)" }}>
-                  Wszystko ogarnięte. W piątek wracaj — tam się dzieje.
-                </p>
-              </div>
-            ) : (
-              queue.map((m) => <MissionVerifyCard key={m.mission_id} mission={m} onVerify={handleVerify} />)
-            )}
-          </>
+      <section style={styles.card}>
+        <h2 style={styles.section}>Twoi podopieczni</h2>
+        {account.paired_player_ids.length === 0 ? (
+          <p style={styles.muted}>
+            Nikt jeszcze nie jest podpięty. Poproś dziecko (lub drugiego rodzica)
+            o kod parowania, a potem wpisz go w nowym koncie albo użyj opcji "dodaj kod".
+          </p>
+        ) : (
+          <ul style={styles.list}>
+            {account.paired_player_ids.map((pid) => (
+              <li key={pid} style={styles.listItem}>{pid}</li>
+            ))}
+          </ul>
         )}
+      </section>
 
-        {tab === "week" && (
-          <>
-            <div className="card">
-              <div className="t-display" style={{ fontSize: 22 }}>Cykl tygodnia — dzień 4 z 5</div>
-              <div className="prog magic" style={{ marginTop: 10 }}><i style={{ width: "60%" }} /></div>
-              <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-                <Pillar phase={1} label="Pytanie" status="✓" />
-                <Pillar phase={2} label="Słuchanie" status="✓" />
-                <Pillar phase={3} label="Tropienie" status="…" active />
-                <Pillar phase={0} label="Echo" status="—" />
-              </div>
-            </div>
-            <div className="card">
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-ink-soft)" }}>WGLĄD</div>
-              <div className="t-hand" style={{ fontSize: 19, marginTop: 4 }}>
-                „Twoje dziecko chętnie zadaje pytania, ale rzadko zapisuje odpowiedzi."
-              </div>
-            </div>
-          </>
+      <section style={styles.card}>
+        <h2 style={styles.section}>Misje czekają na weryfikację ({queue.length})</h2>
+        {queue.length === 0 ? (
+          <p style={styles.muted}>Wszystko ogarnięte. W piątek wracaj — tam się dzieje.</p>
+        ) : (
+          queue.map((m) => <MissionVerifyCard key={m.mission_id} mission={m} onVerify={handleVerify} />)
         )}
-
-        {tab === "settings" && (
-          <>
-            <div className="card">
-              <div className="t-display" style={{ fontSize: 20 }}>Ton wiadomości</div>
-              <div style={{ fontSize: 12, color: "var(--p-ink-soft)", marginBottom: 10 }}>
-                Jak ma się zwracać do dziecka jego mentor-przewodnik?
-              </div>
-              {[["cieplo", "Ciepły bajarz"], ["energia", "Energiczny przewodnik (wybrane)"], ["tajemnica", "Tajemniczy mentor"]].map(([k, l], i) => (
-                <label key={k} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 12, cursor: "pointer", background: i === 1 ? "rgba(184,134,232,.16)" : "transparent", marginTop: 6 }}>
-                  <input type="radio" name="ton" defaultChecked={i === 1} style={{ accentColor: "var(--p-magic-dk)" }} />
-                  <span style={{ fontWeight: 700, fontSize: 14 }}>{l}</span>
-                </label>
-              ))}
-            </div>
-            <div className="card">
-              <div className="t-display" style={{ fontSize: 20 }}>Tempo cykli</div>
-              <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                {["7 dni", "5 dni", "3 dni"].map((d, i) => (
-                  <button key={d} className={i === 0 ? "btn btn-magic btn-sm" : "btn btn-ghost btn-sm"} style={{ flex: 1 }}>{d}</button>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-    </PageShell>
-  );
-}
-
-const Label = ({ children }) => (
-  <label style={{ fontSize: 13, fontWeight: 700, color: "var(--p-ink-soft)" }}>{children}</label>
-);
-
-const Input = ({ value, onChange, ...rest }) => (
-  <input value={value} onChange={(e) => onChange(e.target.value)} style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1.5px solid rgba(122,77,194,.30)", background: "rgba(255,255,255,.85)", fontSize: 15, fontFamily: "inherit", outline: "none", boxSizing: "border-box" }} {...rest} />
-);
-
-const Pillar = ({ phase, label, status, active }) => (
-  <div style={{ flex: 1, textAlign: "center", padding: "10px 4px", borderRadius: 14, background: active ? "rgba(184,134,232,.18)" : "rgba(255,255,255,.5)", boxShadow: active ? "inset 0 0 0 2px var(--p-magic-dk)" : "none" }}>
-    <div style={{ display: "flex", justifyContent: "center", marginBottom: 4 }}>
-      <MoonPhase phase={phase} size={28} glow={active} />
-    </div>
-    <div style={{ fontSize: 10, fontWeight: 800, color: "var(--p-ink-soft)" }}>{label}</div>
-    <div style={{ fontSize: 14, fontWeight: 800, color: status === "✓" ? "var(--p-leaf-dk)" : "var(--p-magic-dk)" }}>{status}</div>
-  </div>
-);
-
-function ChildCard({ playerId }) {
-  const [child, setChild] = useState(null);
-  useEffect(() => {
-    api.getPlayer(playerId).then(setChild).catch(() => {});
-  }, [playerId]);
-  if (!child) return <div className="card"><div style={{ opacity: 0.6 }}>Ładuję…</div></div>;
-  return (
-    <div className="card" style={{ display: "flex", gap: 12, alignItems: "center" }}>
-      <Avatar kind="fox" size={56} evolved={1} />
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div className="t-display" style={{ fontSize: 20 }}>{child.player_name}</div>
-        <div style={{ fontSize: 11, color: "var(--p-ink-soft)" }}>Cykl #1</div>
-        <div className="prog magic" style={{ marginTop: 6 }}><i style={{ width: "60%" }} /></div>
-        <div className="t-hand" style={{ fontSize: 16, marginTop: 4, color: "var(--p-ink-soft)" }}>
-          {(child.backpack || []).length > 0 ? `zdobył: ${child.backpack[child.backpack.length - 1].artifact_name}` : "jeszcze nic nie zdobył"}
-        </div>
-      </div>
+      </section>
     </div>
   );
 }
 
 function MissionVerifyCard({ mission, onVerify }) {
   const [comment, setComment] = useState("");
+  // Mentor odsłuchuje wpis dziecka głosem Mentora (osobny voice ID)
   const proofText = mission.submitted_proof?.proof_text || "";
   return (
-    <div className="card">
-      <p style={{ fontSize: 11, color: "var(--p-ink-soft)", margin: 0 }}>
-        {mission.player_name} · cykl {mission.cycle_id?.slice(-6)}
-      </p>
-      <h3 className="t-display" style={{ fontSize: 17, margin: "4px 0" }}>{mission.title}</h3>
-      <p style={{ fontSize: 14, color: "var(--p-ink-soft)", marginBottom: 8 }}>{mission.body}</p>
+    <div style={styles.missionCard}>
+      <p style={styles.muted}>{mission.player_name} • cykl {mission.cycle_id?.slice(-6)}</p>
+      <h3 style={styles.missionTitle}>{mission.title}</h3>
+      <p style={styles.missionBody}>{mission.body}</p>
       {proofText && (
-        <div style={{ background: "rgba(184,134,232,.12)", borderRadius: 12, padding: "8px 10px", marginBottom: 10 }}>
+        <div style={styles.proof}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
-            <p style={{ fontSize: 11, color: "var(--p-ink-soft)", margin: 0, fontWeight: 800 }}>ECHO DZIECKA</p>
-            <NarratorVoice text={proofText} land="mentor" tone="calm" autoPlay={false} />
+            <p style={styles.muted}>Dziecko napisało:</p>
+            <NarratorVoice text={proofText} land="mentor" autoPlay={false} />
           </div>
-          <p style={{ fontSize: 14, marginTop: 4, fontFamily: "Caveat, cursive", lineHeight: 1.3 }}>{proofText}</p>
+          <p>{proofText}</p>
         </div>
       )}
-      <textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Komentarz Mentora (opcjonalnie)" rows={2}
-        style={{ width: "100%", padding: 10, borderRadius: 10, border: "1.5px solid rgba(122,77,194,.20)", background: "rgba(255,255,255,.85)", fontSize: 14, fontFamily: "inherit", boxSizing: "border-box", resize: "vertical" }} />
-      <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-        <button className="btn btn-leaf btn-sm" style={{ flex: 1 }} onClick={() => onVerify(mission.mission_id, "approved", comment)}>✓ Zatwierdź</button>
-        <button className="btn btn-primary btn-sm" style={{ flex: 1 }} onClick={() => onVerify(mission.mission_id, "highlighted", comment)}>✦ Wyróżnij</button>
-        <button className="btn btn-ghost btn-sm" style={{ flex: 1 }} onClick={() => onVerify(mission.mission_id, "needs_followup", comment)}>💬 Dopytaj</button>
+      <textarea
+        style={styles.textarea}
+        rows={2}
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+        placeholder="Komentarz Mentora (opcjonalnie)"
+      />
+      <div style={styles.btnRow}>
+        <button style={styles.btnApprove} onClick={() => onVerify(mission.mission_id, "approved", comment)}>
+          ✅ Zatwierdź
+        </button>
+        <button style={styles.btnHighlight} onClick={() => onVerify(mission.mission_id, "highlighted", comment)}>
+          🌟 Wyróżnij
+        </button>
+        <button style={styles.btnFollowup} onClick={() => onVerify(mission.mission_id, "needs_followup", comment)}>
+          💬 Dopytaj
+        </button>
       </div>
     </div>
   );
 }
+
+const styles = {
+  wrap: {
+    minHeight: "100vh",
+    background: "linear-gradient(135deg, #0f1730 0%, #182447 50%, #0f1730 100%)",
+    color: "#fff",
+    padding: "24px 18px 60px",
+    maxWidth: 720,
+    margin: "0 auto",
+    boxSizing: "border-box",
+  },
+  header: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 },
+  card: {
+    background: "rgba(255,255,255,0.06)",
+    border: "1px solid rgba(255,255,255,0.1)",
+    borderRadius: 22, padding: 20, marginBottom: 16,
+  },
+  title: { fontSize: 26, margin: "0" },
+  muted: { opacity: 0.65, fontSize: 13, margin: "0 0 4px" },
+  section: { fontSize: 17, marginTop: 0 },
+  list: { listStyle: "none", padding: 0, margin: 0 },
+  listItem: { padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.08)", fontSize: 14 },
+  tabs: { display: "flex", gap: 6, marginBottom: 14 },
+  tab: { flex: 1, padding: "10px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, color: "#fff", cursor: "pointer" },
+  tabActive: { flex: 1, padding: "10px", background: "rgba(155,89,182,0.25)", border: "1px solid #9b59b6", borderRadius: 12, color: "#fff", cursor: "pointer", fontWeight: 600 },
+  label: { display: "block", margin: "10px 0 6px", fontSize: 13, opacity: 0.85 },
+  input: {
+    width: "100%", padding: "12px 14px",
+    borderRadius: 12, border: "1px solid rgba(255,255,255,0.18)",
+    background: "rgba(255,255,255,0.07)", color: "#fff",
+    fontSize: 15, boxSizing: "border-box",
+  },
+  roleRow: { display: "flex", gap: 8, marginBottom: 6 },
+  roleBtn: { flex: 1, padding: "10px", background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 12, color: "#fff", cursor: "pointer" },
+  roleBtnActive: { flex: 1, padding: "10px", background: "linear-gradient(135deg, #6a3aa3, #4f2680)", border: "1px solid #9b59b6", borderRadius: 12, color: "#fff", fontWeight: 600, cursor: "pointer" },
+  btn: {
+    width: "100%", marginTop: 14, padding: 14,
+    background: "linear-gradient(135deg, #6a3aa3, #4f2680)",
+    border: "none", borderRadius: 14,
+    color: "#fff", fontSize: 16, fontWeight: 600, cursor: "pointer",
+  },
+  logout: { background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: 10, padding: "6px 12px", cursor: "pointer", height: "fit-content" },
+  err: { color: "#ff8a8a", marginTop: 10 },
+  missionCard: {
+    background: "rgba(255,255,255,0.04)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: 16, padding: 14, marginBottom: 12,
+  },
+  missionTitle: { fontSize: 17, margin: "4px 0" },
+  missionBody: { fontSize: 14, opacity: 0.9, marginBottom: 8 },
+  proof: { padding: "8px 10px", background: "rgba(255,255,255,0.05)", borderRadius: 10, marginBottom: 10, fontSize: 14 },
+  textarea: { width: "100%", padding: 10, borderRadius: 10, border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.06)", color: "#fff", fontSize: 14, fontFamily: "inherit", boxSizing: "border-box", resize: "vertical" },
+  btnRow: { display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" },
+  btnApprove: { flex: 1, padding: "10px", background: "rgba(46,204,113,0.2)", border: "1px solid #2ecc71", borderRadius: 10, color: "#fff", cursor: "pointer", fontSize: 14 },
+  btnHighlight: { flex: 1,

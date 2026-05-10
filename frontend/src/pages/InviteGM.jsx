@@ -1,14 +1,11 @@
+/**
+ * InviteGM — generuje kod parowania, który dziecko (lub jego rodzic) przekazuje
+ * drugiemu opiekunowi. Z perspektywy dziecka — Mentor pozostaje JEDEN.
+ */
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, session } from "../services/api.js";
-import PageShell from "../components/PageShell.jsx";
-import { FakeQR } from "../components/art.jsx";
-
-function formatCode(code) {
-  if (!code) return "—";
-  if (code.length >= 6) return `${code.slice(0, 3)} · ${code.slice(3)}`;
-  return code;
-}
 
 export default function InviteGM() {
   const navigate = useNavigate();
@@ -33,77 +30,104 @@ export default function InviteGM() {
   }
 
   return (
-    <PageShell>
-      <div className="topbar">
-        <button className="btn btn-ghost btn-sm" onClick={() => navigate("/world")}>‹</button>
-        <div className="meta" style={{ textAlign: "center" }}>
-          <div className="lbl">ZAPROŚ MENTORA</div>
-          <div className="nm">Sygnał w butelce</div>
-        </div>
-        <div style={{ width: 36 }} />
-      </div>
-
-      <div style={{ flex: 1, padding: "4px 18px 28px", display: "flex", flexDirection: "column", alignItems: "center", gap: 14, overflowY: "auto", minHeight: 0 }}>
-        <p className="t-hand" style={{ fontSize: 20, textAlign: "center", color: "var(--p-ink-soft)", margin: "4px 12px 0" }}>
-          Daj kod dorosłemu — rodzicowi, dziadkowi, ulubionej cioci. To oni będą Twoim Mentorem.
+    <div style={styles.wrap}>
+      <button style={styles.back} onClick={() => navigate("/world")}>← Wróć</button>
+      <div style={styles.card}>
+        <h1 style={styles.title}>Zaproś Mentora</h1>
+        <p style={styles.lead}>
+          Mentor to jedna postać widziana przez Ciebie. Może być nią rodzic lub nauczyciel —
+          albo oboje, ale dla Ciebie zawsze brzmi tym samym głosem.
         </p>
 
-        <div className="card" style={{ width: "100%", maxWidth: 380, padding: 12 }}>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-ink-soft)", marginBottom: 8 }}>
-            KOGO ZAPRASZASZ?
-          </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            {[["parent", "Rodzic"], ["teacher", "Nauczyciel"]].map(([k, l]) => (
-              <button
-                key={k}
-                className={role === k ? "btn btn-magic btn-sm" : "btn btn-ghost btn-sm"}
-                style={{ flex: 1 }}
-                onClick={() => setRole(k)}
-              >
-                {l}
-              </button>
-            ))}
-          </div>
+        <label style={styles.label}>Kogo zapraszasz?</label>
+        <div style={styles.roleRow}>
+          <button
+            style={role === "parent" ? styles.roleBtnActive : styles.roleBtn}
+            onClick={() => setRole("parent")}
+          >
+            Rodzic
+          </button>
+          <button
+            style={role === "teacher" ? styles.roleBtnActive : styles.roleBtn}
+            onClick={() => setRole("teacher")}
+          >
+            Nauczyciel
+          </button>
         </div>
 
-        {!code && (
-          <button className="btn btn-magic btn-block" style={{ maxWidth: 380 }} onClick={generate} disabled={loading}>
-            {loading ? "Generuję…" : "Wygeneruj kod"}
-          </button>
-        )}
-
-        {error && <p style={{ color: "#B85B47" }}>{error}</p>}
+        <button style={styles.btnPrimary} onClick={generate} disabled={loading}>
+          {loading ? "Generuję…" : "Wygeneruj kod"}
+        </button>
+        {error && <p style={styles.err}>{error}</p>}
 
         {code && (
-          <div className="card card-paper pop-in" style={{ width: "100%", maxWidth: 380, display: "flex", flexDirection: "column", alignItems: "center", padding: "22px 18px", gap: 10 }}>
-            <div style={{ width: 160, height: 160, background: "#fff", borderRadius: 16, padding: 10, boxShadow: "inset 0 0 0 2px rgba(122,77,194,.30)" }}>
-              <FakeQR />
-            </div>
-            <div style={{ fontSize: 11, fontWeight: 800, color: "var(--p-ink-soft)", letterSpacing: 1.5 }}>RUNICZNY KOD</div>
-            <div className="t-display" style={{ fontSize: 30, letterSpacing: 2 }}>{formatCode(code.code)}</div>
-            <div style={{ display: "flex", gap: 10, fontSize: 12, color: "var(--p-ink-soft)" }}>
-              <span>⌛ ważny 7 dni</span><span>·</span><span>jednorazowy</span>
-            </div>
-            <div style={{ display: "flex", gap: 10, width: "100%", marginTop: 6 }}>
-              <button className="btn btn-magic btn-block" style={{ flex: 1 }} onClick={() => navigator.share?.({ text: `Kod do EwolucJA: ${code.code}` }).catch(() => {})}>
-                Udostępnij
-              </button>
-              <button className="btn btn-ghost btn-block" style={{ flex: 1 }} onClick={() => navigator.clipboard?.writeText(code.code)}>
-                Skopiuj
-              </button>
-            </div>
+          <div style={styles.codeBox}>
+            <p style={styles.muted}>Kod do przekazania:</p>
+            <p style={styles.code}>{code.code}</p>
+            <p style={styles.muted}>
+              Powiedz dorosłemu, żeby wszedł na ekran "Mentor" w aplikacji i wpisał ten kod.
+              Kod jest ważny 7 dni.
+            </p>
           </div>
         )}
-
-        <div className="card" style={{ width: "100%", maxWidth: 380 }}>
-          <div className="t-display" style={{ fontSize: 18 }}>Co dorosły zobaczy?</div>
-          <ul style={{ paddingLeft: 18, margin: "6px 0 0", fontSize: 13, color: "var(--p-ink-soft)", lineHeight: 1.5 }}>
-            <li>kim jesteś i jakie masz aktualne cykle</li>
-            <li>czy wykonujesz misje (treść Twoich pytań pozostaje Twoja)</li>
-            <li>możliwość pisania do Ciebie szeptów</li>
-          </ul>
-        </div>
       </div>
-    </PageShell>
+    </div>
   );
 }
+
+const styles = {
+  wrap: {
+    minHeight: "100vh",
+    background: "linear-gradient(135deg, #1a1040 0%, #2d1b4e 50%, #1a1a2e 100%)",
+    color: "#fff",
+    padding: "20px 18px 60px",
+    maxWidth: 560,
+    margin: "0 auto",
+    boxSizing: "border-box",
+  },
+  back: {
+    background: "transparent", color: "#fff",
+    border: "1px solid rgba(255,255,255,0.2)",
+    borderRadius: 12, padding: "8px 14px",
+    marginBottom: 16, cursor: "pointer",
+  },
+  card: {
+    background: "rgba(255,255,255,0.06)",
+    border: "1px solid rgba(255,255,255,0.1)",
+    borderRadius: 22, padding: 22,
+  },
+  title: { fontSize: 26, marginTop: 0 },
+  lead: { fontSize: 14, opacity: 0.85, marginBottom: 18 },
+  label: { display: "block", marginBottom: 8, fontSize: 14, opacity: 0.85 },
+  roleRow: { display: "flex", gap: 10, marginBottom: 18 },
+  roleBtn: {
+    flex: 1, padding: "12px",
+    background: "rgba(255,255,255,0.08)",
+    border: "1px solid rgba(255,255,255,0.15)",
+    borderRadius: 12, color: "#fff", cursor: "pointer",
+  },
+  roleBtnActive: {
+    flex: 1, padding: "12px",
+    background: "linear-gradient(135deg, #9b59b6, #6a3aa3)",
+    border: "1px solid #9b59b6",
+    borderRadius: 12, color: "#fff", cursor: "pointer", fontWeight: 600,
+  },
+  btnPrimary: {
+    width: "100%", padding: 14,
+    background: "linear-gradient(135deg, #9b59b6, #6a3aa3)",
+    border: "none", borderRadius: 14,
+    color: "#fff", fontSize: 16, fontWeight: 600, cursor: "pointer",
+  },
+  err: { color: "#ff8a8a", marginTop: 10 },
+  muted: { opacity: 0.65, fontSize: 13, margin: "8px 0" },
+  codeBox: {
+    marginTop: 18, padding: 18,
+    background: "rgba(255,209,102,0.08)",
+    border: "1px solid rgba(255,209,102,0.25)",
+    borderRadius: 14, textAlign: "center",
+  },
+  code: {
+    fontSize: 38, letterSpacing: 6, fontWeight: 700,
+    margin: "8px 0", color: "#ffd166",
+  },
+};

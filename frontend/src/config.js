@@ -3,8 +3,7 @@
  */
 
 export const API_BASE =
-  import.meta.env.VITE_API_BASE ||
-  (import.meta.env.PROD ? "/api" : "http://localhost:3001/api");
+  import.meta.env.VITE_API_BASE || "http://localhost:3001/api";
 
 // Aktualnie dostępny archetyp w MVP. Reszta odłożona do kolejnych iteracji.
 export const ARCHETYPES = {

@@ -1,135 +1,185 @@
 /**
- * bgMusic — muzyka w tle (lokalny plik MP3 z public/).
- * Wymaga gestu użytkownika do odtworzenia (autoplay policy przeglądarki).
- * Współpracuje z ttsPlayer: gdy lektor mówi, muzyka cichnie (duck), potem wraca.
+ * bgMusic — Muzyka w tle z YouTube IFrame API.
+ *
+ * Odtwarza audio z YouTube w ukrytym iframe.
+ * Obsługuje fade-in, fade-out, pauza/resume, volume.
  */
 
-const DEFAULT_TRACK = "/Mindful_Forest_Path.mp3";
-const STORAGE_KEY = "ewolucja.bgmusic";
+let player = null;
+let ready = false;
+let pendingPlay = null;
+let fadeInterval = null;
+let currentVolume = 0;
+let targetVolume = 30; // domyślna głośność (0-100)
 
-class BgMusic {
-  constructor() {
-    this._audio = null;
-    this._enabled = this._readEnabled();
-    this._volume = 0.25;        // 25% domyślnie
-    this._duckedVolume = 0.05;  // gdy TTS mówi
-    this._target = this._volume;
-    this._fadeTimer = null;
-    this._unlocked = false;
-    this._track = DEFAULT_TRACK;
-    this._installAutoUnlock();
+// Załaduj YouTube IFrame API
+function loadAPI() {
+  if (window.YT && window.YT.Player) {
+    return Promise.resolve();
   }
-
-  _readEnabled() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw === null ? true : raw === "1";
-    } catch {
-      return true;
+  return new Promise((resolve) => {
+    if (document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+      // Skrypt już dodany, czekaj na callback
+      const check = setInterval(() => {
+        if (window.YT && window.YT.Player) {
+          clearInterval(check);
+          resolve();
+        }
+      }, 100);
+      return;
     }
-  }
-
-  _writeEnabled(v) {
-    try { localStorage.setItem(STORAGE_KEY, v ? "1" : "0"); } catch {}
-  }
-
-  _installAutoUnlock() {
-    if (typeof window === "undefined" || this._unlockInstalled) return;
-    this._unlockInstalled = true;
-    const handler = () => {
-      if (this._unlocked) return;
-      this._unlocked = true;
-      if (this._enabled) this._start();
-      window.removeEventListener("click", handler, true);
-      window.removeEventListener("touchstart", handler, true);
-      window.removeEventListener("keydown", handler, true);
-      window.removeEventListener("pointerdown", handler, true);
-    };
-    window.addEventListener("click", handler, true);
-    window.addEventListener("touchstart", handler, { capture: true, passive: true });
-    window.addEventListener("keydown", handler, true);
-    window.addEventListener("pointerdown", handler, true);
-  }
-
-  _ensureAudio() {
-    if (this._audio) return this._audio;
-    const a = new Audio(this._track);
-    a.loop = true;
-    a.volume = 0;
-    a.preload = "auto";
-    this._audio = a;
-    return a;
-  }
-
-  _fade(toVolume, durationMs = 1200) {
-    if (!this._audio) return;
-    if (this._fadeTimer) clearInterval(this._fadeTimer);
-    const from = this._audio.volume;
-    const steps = Math.max(1, Math.floor(durationMs / 50));
-    const delta = (toVolume - from) / steps;
-    let step = 0;
-    this._fadeTimer = setInterval(() => {
-      step++;
-      const next = from + delta * step;
-      if (this._audio) this._audio.volume = Math.max(0, Math.min(1, next));
-      if (step >= steps) {
-        clearInterval(this._fadeTimer);
-        this._fadeTimer = null;
-      }
-    }, 50);
-  }
-
-  _start() {
-    const a = this._ensureAudio();
-    a.play()
-      .then(() => this._fade(this._target, 1500))
-      .catch((e) => console.warn("[bgMusic] play blocked:", e.message));
-  }
-
-  /** Włącz lub wyłącz (zapamiętane w localStorage). */
-  setEnabled(v) {
-    this._enabled = !!v;
-    this._writeEnabled(this._enabled);
-    if (this._enabled) {
-      if (this._unlocked) this._start();
-    } else {
-      this._fade(0, 600);
-      setTimeout(() => { if (this._audio) this._audio.pause(); }, 700);
-    }
-  }
-
-  toggle() { this.setEnabled(!this._enabled); return this._enabled; }
-  isEnabled() { return this._enabled; }
-
-  /** Ustawia głośność (0-1). */
-  setVolume(v) {
-    this._volume = Math.max(0, Math.min(1, v));
-    this._target = this._volume;
-    if (this._audio && this._enabled) this._fade(this._volume, 400);
-  }
-
-  /** Ducking: ścisz, gdy lektor mówi. Wywołuje TTS player. */
-  duck() {
-    if (!this._enabled || !this._audio) return;
-    this._fade(this._duckedVolume, 250);
-  }
-
-  /** Przywrócenie głośności po końcu lektora. */
-  unduck() {
-    if (!this._enabled || !this._audio) return;
-    this._fade(this._volume, 700);
-  }
-
-  /** Zmiana utworu (opcjonalnie). */
-  setTrack(url) {
-    this._track = url;
-    if (this._audio) {
-      const wasPlaying = !this._audio.paused;
-      this._audio.src = url;
-      if (wasPlaying && this._enabled) this._start();
-    }
-  }
+    window.onYouTubeIframeAPIReady = () => resolve();
+    const tag = document.createElement("script");
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.head.appendChild(tag);
+  });
 }
 
-const bgMusic = new BgMusic();
+// Utwórz ukryty div dla playera
+function createContainer() {
+  let el = document.getElementById("yt-bg-music");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "yt-bg-music";
+    el.style.cssText = "position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;pointer-events:none;opacity:0;";
+    document.body.appendChild(el);
+  }
+  return el;
+}
+
+function fadeVolume(from, to, durationMs, onDone) {
+  if (fadeInterval) clearInterval(fadeInterval);
+  const steps = 30;
+  const stepTime = durationMs / steps;
+  const stepSize = (to - from) / steps;
+  let current = from;
+  let step = 0;
+
+  fadeInterval = setInterval(() => {
+    step++;
+    current += stepSize;
+    currentVolume = Math.round(Math.max(0, Math.min(100, current)));
+    try { player?.setVolume(currentVolume); } catch {}
+    if (step >= steps) {
+      clearInterval(fadeInterval);
+      fadeInterval = null;
+      currentVolume = to;
+      try { player?.setVolume(to); } catch {}
+      if (onDone) onDone();
+    }
+  }, stepTime);
+}
+
+const bgMusic = {
+  /**
+   * Rozpocznij odtwarzanie z fade-in.
+   * @param {string} videoId — YouTube video ID
+   * @param {number} startSeconds — punkt startowy w sekundach
+   * @param {number} fadeDuration — czas fade-in w ms (domyślnie 3000)
+   * @param {number} volume — docelowa głośność 0-100 (domyślnie 30)
+   */
+  async play(videoId, { startSeconds = 0, fadeDuration = 3000, volume = 30 } = {}) {
+    targetVolume = volume;
+
+    await loadAPI();
+    const container = createContainer();
+
+    if (player && ready) {
+      // Player już istnieje — zmień video
+      try {
+        player.setVolume(0);
+        currentVolume = 0;
+        player.loadVideoById({ videoId, startSeconds });
+        fadeVolume(0, targetVolume, fadeDuration);
+      } catch (e) {
+        console.warn("[bgMusic] Error switching track:", e);
+      }
+      return;
+    }
+
+    // Twórz nowego playera
+    pendingPlay = { videoId, startSeconds, fadeDuration };
+
+    player = new window.YT.Player(container, {
+      height: "1",
+      width: "1",
+      videoId,
+      playerVars: {
+        autoplay: 1,
+        start: Math.floor(startSeconds),
+        loop: 1,
+        playlist: videoId, // wymagane dla loop
+        controls: 0,
+        disablekb: 1,
+        fs: 0,
+        modestbranding: 1,
+        rel: 0,
+        showinfo: 0,
+      },
+      events: {
+        onReady: (e) => {
+          ready = true;
+          e.target.setVolume(0);
+          currentVolume = 0;
+          e.target.playVideo();
+          const pp = pendingPlay;
+          pendingPlay = null;
+          fadeVolume(0, targetVolume, pp?.fadeDuration || fadeDuration);
+        },
+        onStateChange: (e) => {
+          // Restart gdy kończy się video
+          if (e.data === window.YT.PlayerState.ENDED) {
+            e.target.seekTo(startSeconds);
+            e.target.playVideo();
+          }
+        },
+        onError: (e) => {
+          console.warn("[bgMusic] YouTube player error:", e.data);
+        },
+      },
+    });
+  },
+
+  /** Zatrzymaj z fade-out */
+  stop(fadeDuration = 2000) {
+    if (!player || !ready) return;
+    fadeVolume(currentVolume, 0, fadeDuration, () => {
+      try { player.pauseVideo(); } catch {}
+    });
+  },
+
+  /** Pauza z fade-out */
+  pause(fadeDuration = 1500) {
+    if (!player || !ready) return;
+    fadeVolume(currentVolume, 0, fadeDuration, () => {
+      try { player.pauseVideo(); } catch {}
+    });
+  },
+
+  /** Resume z fade-in */
+  resume(fadeDuration = 2000) {
+    if (!player || !ready) return;
+    try {
+      player.playVideo();
+      fadeVolume(0, targetVolume, fadeDuration);
+    } catch {}
+  },
+
+  /** Ustaw głośność (0-100) */
+  setVolume(vol) {
+    targetVolume = vol;
+    currentVolume = vol;
+    try { player?.setVolume(vol); } catch {}
+  },
+
+  /** Czy gra? */
+  isPlaying() {
+    try {
+      return ready && player?.getPlayerState() === window.YT.PlayerState.PLAYING;
+    } catch {
+      return false;
+    }
+  },
+};
+
 export default bgMusic;
