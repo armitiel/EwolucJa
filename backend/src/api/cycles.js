@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { narrativeService } from "../services/narrativeService.js";
 import {
   getPlayer, createCycle, getCurrentCycle, closeCycle,
   createMission, getCurrentMission, getMission, submitMissionProof,
@@ -62,20 +63,43 @@ export function missionRoutes(db) {
       const cycle = cycle_id ? { cycle_id } : await getCurrentCycle(db, player_id);
       if (!cycle) return res.status(400).json({ error: "Brak cyklu" });
       const used = (player.choices_log || []).filter((c) => c.cycle_id && c.task_id === "mission").map((c) => c.choice_id);
-      const seed = pickSeedMission(used);
+
+      // Próbuj Claude API (spersonalizowana misja); fallback do seed library
+      let payload;
+      let source = "seed";
+      if (narrativeService.isAvailable) {
+        try {
+          const ai = await narrativeService.generateMission({
+            playerName: player.player_name,
+            archetype: player.archetype || "tropiciel_tajemnic",
+            completedMissionTitles: used,
+            scores: player.scores,
+            chapter: player.current_chapter || "wezwanie_kroniki",
+          });
+          payload = ai;
+          source = "claude";
+        } catch (claudeErr) {
+          console.warn("[mission generate] Claude fallback:", claudeErr.message);
+          payload = pickSeedMission(used);
+        }
+      } else {
+        payload = pickSeedMission(used);
+      }
+
       const mission = await createMission(db, {
         cycle_id: cycle.cycle_id,
         player_id,
-        title: seed.title,
-        body: seed.body,
-        narrative_intro: seed.narrative_intro,
-        competency_focus: seed.competency_focus,
-        proof_type: seed.proof_type,
-        estimated_minutes: seed.estimated_minutes,
-        safety_notes: seed.safety_notes || null,
+        title: payload.title,
+        body: payload.body,
+        narrative_intro: payload.narrative_intro,
+        competency_focus: payload.competency_focus,
+        proof_type: payload.proof_type,
+        estimated_minutes: payload.estimated_minutes,
+        safety_notes: payload.safety_notes || null,
       });
       const pool = await getPool();
-      await pool.query("UPDATE missions SET artifact_reward=$1 WHERE id=$2", [seed.artifact_reward ? JSON.stringify(seed.artifact_reward) : null, mission.mission_id]);
+      await pool.query("UPDATE missions SET artifact_reward=$1 WHERE id=$2", [payload.artifact_reward ? JSON.stringify(payload.artifact_reward) : null, mission.mission_id]);
+      mission.source = source;
       res.json(mission);
     } catch (e) { console.error("[mission generate]", e); res.status(500).json({ error: e.message }); }
   });

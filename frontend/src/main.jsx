@@ -14,6 +14,7 @@ import InviteGM from "./pages/InviteGM.jsx";
 import GMPanel from "./pages/GMPanel.jsx";
 import DevPanel from "./pages/DevPanel.jsx";
 import DevTools from "./components/DevTools.jsx";
+import BackgroundMusic from "./components/BackgroundMusic.jsx";
 import "./styles/ewolucja.css";
 import "./styles/animations.css";
 
@@ -36,7 +37,4 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/dev" element={<DevPanel />} />
         <Route path="/play" element={<App />} />
       </Routes>
-      <DevTools />
-    </BrowserRouter>
-  </React.StrictMode>
-);
+ 
