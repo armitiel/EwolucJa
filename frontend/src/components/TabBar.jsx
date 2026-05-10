@@ -19,17 +19,20 @@ export default function TabBar({ current }) {
   const active = current || TABS.find((t) => t.path === location.pathname)?.id || "home";
 
   return (
-    <div className="tabbar">
-      {TABS.map((tab) => (
-        <button
-          key={tab.id}
-          className={`tab ${active === tab.id ? "active" : ""}`}
-          onClick={() => navigate(tab.path)}
-        >
-          {tab.icon}
-          <span>{tab.label}</span>
-        </button>
-      ))}
-    </div>
+    <React.Fragment>
+      <div className="tabbar-spacer" aria-hidden="true" />
+      <nav className="tabbar" aria-label="Nawigacja glowna">
+        {TABS.map((tab) => (
+          <button
+            key={tab.id}
+            className={`tab ${active === tab.id ? "active" : ""}`}
+            onClick={() => navigate(tab.path)}
+          >
+            {tab.icon}
+            <span>{tab.label}</span>
+          </button>
+        ))}
+      </nav>
+    </React.Fragment>
   );
 }
