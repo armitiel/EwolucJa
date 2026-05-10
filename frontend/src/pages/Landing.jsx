@@ -83,4 +83,8 @@ const styles = {
     border: "none", borderRadius: 18, color: "#fff", cursor: "pointer",
   },
   btnIcon: { fontSize: 30 },
-  btnLabel: { fontSiz
+  btnLabel: { fontSize: 18, fontWeight: 700 },
+  btnSub: { fontSize: 12, opacity: 0.85 },
+  note: { marginTop: 24, fontSize: 13, opacity: 0.7 },
+  link: { color: "#ffd166", textDecoration: "underline" },
+};

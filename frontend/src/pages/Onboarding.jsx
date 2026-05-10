@@ -1,18 +1,15 @@
-/**
- * Onboarding — tworzenie konta dziecka + krótki quiz wstępny.
- * Po zakończeniu quizu: archetyp jest przypisany natychmiast i startuje pierwszy cykl.
- */
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, session } from "../services/api.js";
 import { ARCHETYPES } from "../config.js";
-import NarratorVoice from "../components/NarratorVoice.jsx";
 import { ttsPlayer } from "../services/ttsPlayer";
+import NarratorVoice from "../components/NarratorVoice.jsx";
+import PageShell from "../components/PageShell.jsx";
+import { Avatar, Sparkle } from "../components/art.jsx";
 
 export default function Onboarding() {
   const navigate = useNavigate();
-  const [step, setStep] = useState("name"); // name | quiz | result
+  const [step, setStep] = useState("name");
   const [name, setName] = useState("");
   const [playerId, setPlayerId] = useState(null);
   const [quiz, setQuiz] = useState(null);
@@ -31,7 +28,6 @@ export default function Onboarding() {
   async function handleStart(e) {
     e.preventDefault();
     if (!name.trim()) return;
-    // Pierwszy gest użytkownika — odblokuj TTS (iOS/Safari)
     ttsPlayer.unlock();
     setLoading(true);
     setError(null);
@@ -47,29 +43,23 @@ export default function Onboarding() {
     }
   }
 
-  function selectAnswer(questionId, answerId) {
-    setAnswers((prev) => ({ ...prev, [questionId]: answerId }));
+  function selectAnswer(qid, aid) {
+    setAnswers((prev) => ({ ...prev, [qid]: aid }));
     if (quiz && questionIdx < quiz.questions.length - 1) {
       setQuestionIdx((i) => i + 1);
     } else {
-      submitQuiz({ ...answers, [questionId]: answerId });
+      submitQuiz({ ...answers, [qid]: aid });
     }
   }
 
   async function submitQuiz(finalAnswers) {
     setLoading(true);
     try {
-      const payload = Object.entries(finalAnswers).map(([q, a]) => ({
-        question_id: q,
-        answer_id: a,
-      }));
+      const payload = Object.entries(finalAnswers).map(([q, a]) => ({ question_id: q, answer_id: a }));
       const res = await api.submitQuiz(playerId, payload);
       setResult(res);
       setStep("result");
-      // wygeneruj pierwszą misję od razu — żeby było co robić w realu
-      try {
-        await api.generateMission(playerId);
-      } catch {}
+      try { await api.generateMission(playerId); } catch {}
     } catch (err) {
       setError(err.message);
     } finally {
@@ -77,62 +67,125 @@ export default function Onboarding() {
     }
   }
 
-  function enterWorld() {
-    navigate("/world");
-  }
+  const totalSteps = 1 + (quiz?.questions?.length || 5) + 1;
+  const currentStepIdx = step === "name" ? 0 : step === "quiz" ? 1 + questionIdx : totalSteps - 1;
 
-  // ── UI ──
   return (
-    <div style={styles.wrap}>
-      <div style={styles.card}>
-        {step === "name" && (
-          <form onSubmit={handleStart}>
-            <h1 style={styles.title}>EwolucJA</h1>
-            <div style={styles.narrationRow}>
-              <p style={styles.lead}>
-                Witaj w Krainie Kroniki. Zanim wyruszymy, powiedz, jak się nazywasz.
-              </p>
-              <NarratorVoice
-                text="Witaj w Krainie Kroniki. Zanim wyruszymy, powiedz, jak się nazywasz."
-                land="dolina_selfie"
-                autoPlay
-              />
-            </div>
-            <input
-              style={styles.input}
-              autoFocus
-              placeholder="Twoje imię"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              maxLength={30}
+    <PageShell>
+      <div className="topbar" style={{ position: "relative", zIndex: 1 }}>
+        <button className="btn btn-ghost btn-sm" onClick={() => navigate("/")}>‹ Wróć</button>
+        <div style={{ flex: 1 }} />
+        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+          {Array.from({ length: totalSteps }).map((_, i) => (
+            <div
+              key={i}
+              style={{
+                width: i === currentStepIdx ? 28 : 8,
+                height: 8,
+                borderRadius: 4,
+                background: i <= currentStepIdx ? "var(--p-magic-dk)" : "rgba(43,42,74,.20)",
+                transition: "all .25s",
+              }}
             />
-            <button type="submit" style={styles.btnPrimary} disabled={loading || !name.trim()}>
-              {loading ? "Otwieram bramę…" : "Wejdź"}
+          ))}
+        </div>
+      </div>
+
+      <div className="screen-scroll" style={{ flex: 1, padding: "10px 18px 28px" }}>
+        {step === "name" && (
+          <form onSubmit={handleStart} className="pop-in" style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+            <h1 className="t-display" style={{ fontSize: 34, margin: "8px 0 4px", color: "var(--p-ink)", lineHeight: 1.18, letterSpacing: "-0.3px" }}>
+              Witaj w Zakątku&nbsp;Gamma
+            </h1>
+            <p className="t-hand" style={{ margin: "4px 0 8px", fontSize: 20, color: "var(--p-ink-soft)", lineHeight: 1.5 }}>
+              Zanim wyruszymy — powiedz, jak się nazywasz?
+            </p>
+
+            <div style={{ position: "relative", marginTop: 6 }}>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                maxLength={16}
+                autoFocus
+                style={{
+                  width: "100%",
+                  fontSize: 24,
+                  fontFamily: "var(--font-display, 'Fredoka'), sans-serif",
+                  fontWeight: 700,
+                  padding: "18px 20px",
+                  border: "2.5px solid var(--p-magic-dk)",
+                  borderRadius: 18,
+                  background: "rgba(255,255,255,.85)",
+                  outline: "none",
+                  boxSizing: "border-box",
+                }}
+              />
+              <span
+                style={{
+                  position: "absolute",
+                  top: -10,
+                  left: 18,
+                  background: "var(--p-magic-dk)",
+                  color: "#fff",
+                  fontSize: 11,
+                  fontWeight: 800,
+                  padding: "2px 10px",
+                  borderRadius: 6,
+                  letterSpacing: 1,
+                }}
+              >
+                TWOJE IMIĘ
+              </span>
+            </div>
+
+            <button type="submit" className="btn btn-magic btn-block" disabled={loading || !name.trim()}>
+              {loading ? "Otwieram bramę…" : "Dalej →"}
             </button>
-            {error && <p style={styles.error}>{error}</p>}
+
+            <NarratorVoice
+              text="Witaj w Zakątku Gamma… Zanim ruszymy w tę przygodę — powiedz mi, jak masz na imię?"
+              land="dolina_selfie"
+              tone="warm"
+              speed={0.95}
+              pauseBefore={500}
+              inlinePauses
+              autoPlayDelay={1200}
+              autoPlay
+            />
+
+            {error && <p style={{ color: "#B85B47" }}>{error}</p>}
           </form>
         )}
 
         {step === "quiz" && quiz && (
-          <div>
-            <p style={styles.muted}>
-              Pytanie {questionIdx + 1} z {quiz.questions.length}
+          <div className="pop-in" key={questionIdx} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <p style={{ opacity: 0.65, fontSize: 12, fontWeight: 800, letterSpacing: 1.5, margin: 0 }}>
+              PYTANIE {questionIdx + 1} Z {quiz.questions.length}
             </p>
-            <div style={styles.narrationRow}>
-              <h2 style={styles.questionTitle}>{quiz.questions[questionIdx].question}</h2>
-              <NarratorVoice
-                text={quiz.questions[questionIdx].question}
-                land="las_decyzji"
-                autoPlay
-              />
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+              <h2 className="t-display" style={{ fontSize: 26, lineHeight: 1.2, margin: 0, flex: 1 }}>
+                {quiz.questions[questionIdx].question}
+              </h2>
+              <NarratorVoice text={quiz.questions[questionIdx].question} land="las_decyzji" tone="neutral" autoPlay />
             </div>
-            <div style={styles.answers}>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {quiz.questions[questionIdx].answers.map((a) => (
                 <button
                   key={a.answer_id}
-                  style={styles.answerBtn}
+                  className="card card-tight"
                   onClick={() => selectAnswer(quiz.questions[questionIdx].question_id, a.answer_id)}
                   disabled={loading}
+                  style={{
+                    border: "none",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    padding: "14px 16px",
+                    fontSize: 15,
+                    fontFamily: "var(--font-body, 'Nunito'), sans-serif",
+                    fontWeight: 600,
+                    color: "var(--p-ink)",
+                  }}
                 >
                   {a.text}
                 </button>
@@ -142,88 +195,55 @@ export default function Onboarding() {
         )}
 
         {step === "result" && result && (
-          <ArchetypeReveal result={result} onEnter={enterWorld} />
+          <ArchetypeReveal result={result} onEnter={() => navigate("/world")} />
         )}
       </div>
-    </div>
+    </PageShell>
   );
 }
 
 function ArchetypeReveal({ result, onEnter }) {
   const arch = ARCHETYPES[result.archetype] || ARCHETYPES.tropiciel_tajemnic;
-  const revealText = `Kronika rozpoznała Cię jako: ${arch.name}. ${arch.tagline} ${arch.description || ""}`;
+  const revealText = `Kronika rozpoznała Cię jako: ${arch.name}. ${arch.tagline}`;
   return (
-    <div>
-      <div style={styles.narrationRow}>
-        <p style={styles.muted}>Kronika rozpoznała Cię jako…</p>
-        <NarratorVoice text={revealText} land="gora_podsumowania" autoPlay />
+    <div className="pop-in" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+      <p style={{ opacity: 0.65, fontSize: 12, fontWeight: 800, letterSpacing: 1.5, margin: 0 }}>
+        KRONIKA ROZPOZNAŁA CIĘ JAKO…
+      </p>
+
+      <div style={{ position: "relative" }}>
+        <Avatar kind="fox" size={140} evolved={2} />
+        <div style={{ position: "absolute", top: -6, right: -10 }}>
+          <Sparkle size={22} />
+        </div>
+        <div style={{ position: "absolute", bottom: 10, left: -16 }}>
+          <Sparkle size={16} delay={0.5} />
+        </div>
       </div>
-      <div
-        style={{
-          ...styles.archetypeCard,
-          boxShadow: `0 20px 60px ${arch.glow_color || "rgba(155,89,182,0.25)"}`,
-          borderColor: arch.accent_color,
-        }}
-      >
-        <div style={{ ...styles.archetypeIcon, background: arch.accent_color }}>🔍</div>
-        <h2 style={styles.archetypeName}>{arch.name}</h2>
-        <p style={styles.archetypeTag}>{arch.tagline}</p>
-        <p style={styles.archetypeDesc}>{arch.description}</p>
-        <p style={styles.starter}>
-          Pierwszy artefakt w plecaku: <strong>{arch.starter_artifact?.name}</strong>
+
+      <h2 className="t-display" style={{ fontSize: 32, margin: "4px 0 0", textAlign: "center" }}>
+        {arch.name}
+      </h2>
+      <p className="t-hand" style={{ fontSize: 20, color: "var(--p-ink-soft)", margin: 0, textAlign: "center", maxWidth: 320 }}>
+        {arch.tagline}
+      </p>
+
+      <div className="card card-paper" style={{ width: "100%", maxWidth: 380 }}>
+        <p style={{ fontSize: 14, lineHeight: 1.5, margin: 0, color: "var(--p-ink-soft)" }}>
+          {arch.description}
         </p>
+        {arch.starter_artifact && (
+          <p style={{ marginTop: 10, fontSize: 13 }}>
+            Pierwszy artefakt w plecaku: <strong>{arch.starter_artifact.name}</strong>
+          </p>
+        )}
       </div>
-      <button style={styles.btnPrimary} onClick={onEnter}>
-        Wejdź do świata
+
+      <NarratorVoice text={revealText} land="gora_podsumowania" tone="celebration" pauseBefore={600} inlinePauses autoPlay />
+
+      <button className="btn btn-magic btn-block" style={{ maxWidth: 380 }} onClick={onEnter}>
+        Wyrusz w drogę ✦
       </button>
     </div>
   );
 }
-
-const styles = {
-  wrap: {
-    minHeight: "100vh",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    background: "linear-gradient(135deg, #1a1040 0%, #2d1b4e 50%, #1a1a2e 100%)",
-    padding: 20,
-  },
-  card: {
-    maxWidth: 560,
-    width: "100%",
-    background: "rgba(255,255,255,0.06)",
-    borderRadius: 28,
-    padding: "36px 32px",
-    color: "#fff",
-    border: "1px solid rgba(255,255,255,0.1)",
-    backdropFilter: "blur(8px)",
-  },
-  title: { fontSize: 42, margin: "0 0 8px", letterSpacing: 1 },
-  lead: { fontSize: 17, opacity: 0.8, marginBottom: 24 },
-  input: {
-    width: "100%",
-    padding: "14px 18px",
-    borderRadius: 16,
-    border: "1px solid rgba(255,255,255,0.2)",
-    background: "rgba(255,255,255,0.08)",
-    color: "#fff",
-    fontSize: 18,
-    marginBottom: 20,
-    boxSizing: "border-box",
-  },
-  btnPrimary: {
-    width: "100%",
-    padding: "16px",
-    borderRadius: 16,
-    border: "none",
-    background: "linear-gradient(135deg, #9b59b6, #6a3aa3)",
-    color: "#fff",
-    fontSize: 17,
-    fontWeight: 600,
-    cursor: "pointer",
-    marginTop: 16,
-  },
-  error: { color: "#ff8a8a", marginTop: 12 },
-  muted: { opacity: 0.6, fontSize: 14, marginBottom: 6 },
-  narrationRow: { display: "flex", justifyContent: "space-between", alignItems: "fle
