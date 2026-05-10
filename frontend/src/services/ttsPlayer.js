@@ -14,7 +14,7 @@ class TTSPlayer {
     this._audio = null;
     this._playing = false;
     this._enabled = true;
-    this._volume = 0.8;
+    this._volume = 0.52; // 0.8 - 35% (cichszy lektor wzgledem muzyki w tle)
     this._cache = new Map();
     this._unlocked = false;
     this._pendingText = null;
