@@ -60,8 +60,17 @@ export function missionRoutes(db) {
       const { player_id, cycle_id } = req.body;
       const player = await getPlayer(db, player_id);
       if (!player) return res.status(404).json({ error: "Gracz nie znaleziony" });
-      const cycle = cycle_id ? { cycle_id } : await getCurrentCycle(db, player_id);
-      if (!cycle) return res.status(400).json({ error: "Brak cyklu" });
+      let cycle = cycle_id ? { cycle_id } : await getCurrentCycle(db, player_id);
+      // Jesli gracz nie ma jeszcze aktywnego cyklu — utworz pierwszy automatycznie.
+      // Dzieki temu po onboardingu /missions/generate dziala bez osobnego /cycles/start.
+      if (!cycle) {
+        try {
+          cycle = await createCycle(db, player_id);
+        } catch (cycleErr) {
+          console.error("[mission generate] auto-cycle failed:", cycleErr.message);
+          return res.status(500).json({ error: `Nie udalo sie utworzyc cyklu: ${cycleErr.message}` });
+        }
+      }
       const used = (player.choices_log || []).filter((c) => c.cycle_id && c.task_id === "mission").map((c) => c.choice_id);
 
       // Próbuj Claude API (spersonalizowana misja); fallback do seed library
