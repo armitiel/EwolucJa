@@ -177,32 +177,35 @@ export default function Onboarding() {
               PYTANIE {questionIdx + 1} Z {quiz.questions.length}
             </p>
 
-            {/* Czarodziej-narrator (wiz2) — wyrazny podczas intro 1. pytania, mniejszy przy kolejnych */}
+            {/* Czarodziej-narrator (wiz2) — duzy podczas intro 1. pytania, mniejszy przy kolejnych (2x wzgledem poprzedniej wersji) */}
             <div className="pop-in" style={{ display: "flex", justifyContent: "center", padding: "8px 0 4px", position: "relative" }}>
               <div style={{ position: "relative", animation: "float-slow 4s ease-in-out infinite" }}>
                 <img
                   src="/wiz2.png"
                   alt="Strażniczka Zakątka"
                   style={{
-                    width: questionIdx === 0 && !narrationDone ? 180 : 120,
+                    width: questionIdx === 0 && !narrationDone ? 360 : 240,
+                    maxWidth: "85vw",
                     height: "auto",
                     objectFit: "contain",
-                    filter: "drop-shadow(0 10px 20px rgba(80,40,140,.35))",
+                    filter: "drop-shadow(0 14px 28px rgba(80,40,140,.4))",
                     transition: "width 0.5s ease",
                   }}
                 />
-                <div style={{ position: "absolute", top: 2, right: -6 }}><Sparkle size={20} /></div>
-                <div style={{ position: "absolute", bottom: 14, left: -10 }}><Sparkle size={14} delay={0.5} /></div>
+                <div style={{ position: "absolute", top: 4, right: -8 }}><Sparkle size={24} /></div>
+                <div style={{ position: "absolute", bottom: 22, left: -14 }}><Sparkle size={18} delay={0.5} /></div>
                 {questionIdx === 0 && !narrationDone && (
-                  <div style={{ position: "absolute", top: 40, left: -14 }}><Sparkle size={12} delay={1} /></div>
+                  <div style={{ position: "absolute", top: 60, left: -18 }}><Sparkle size={14} delay={1} /></div>
                 )}
               </div>
             </div>
 
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
-              <h2 className="t-display" style={{ fontSize: 26, lineHeight: 1.2, margin: 0, flex: 1 }}>
-                {quiz.questions[questionIdx].question}
-              </h2>
+            <h2 className="t-display" style={{ fontSize: 26, lineHeight: 1.2, margin: 0, textAlign: "center" }}>
+              {quiz.questions[questionIdx].question}
+            </h2>
+
+            {/* Kontrolka lektora — wysrodkowana pod pytaniem */}
+            <div style={{ display: "flex", justifyContent: "center", margin: "4px 0 8px" }}>
               {questionIdx === 0 ? (
                 <NarratorVoice
                   text={`Cześć. Bardzo się cieszę, że tu jesteś. Zakątek Gamma właśnie otwiera przed tobą swoje bramy… Czeka cię tu mnóstwo radości, gier i zupełnie nowych, tajemniczych miejsc do zbadania. Żeby ta podróż była dla ciebie jak najciekawsza — warto na samym początku sprawdzić, jaka niezwykła siła w tobie drzemie. Dlatego przygotowałam dla ciebie kilka prostych pytań. Dzięki twoim szczerym odpowiedziom dowiesz się, z jakim magicznym opiekunem wyruszycie w drogę. Może to będzie wspierający Empata… a może bystra Strateżka? Twój nowy przyjaciel poprowadzi cię przez wszystkie wyzwania i pokaże ci świat, w którym nauka jest najfajniejszą zabawą. Zaufaj sobie… i zobaczmy, od czego zacznie się twoja historia. A teraz… ${quiz.questions[0].question}`}
