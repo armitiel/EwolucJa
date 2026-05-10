@@ -7,6 +7,16 @@ import NarratorVoice from "../components/NarratorVoice.jsx";
 import PageShell from "../components/PageShell.jsx";
 import { Avatar, Sparkle } from "../components/art.jsx";
 
+// Krotkie teksty przejsciowe miedzy odpowiedzia a kolejnym pytaniem.
+// Indeksowane po numerze pytania DO KTOREGO przechodzimy (1 -> 4).
+const TRANSITIONS = [
+  "",                                          // przed pyt. 1 (nieuzywane — tam jest intro)
+  "Dobrze… słyszę cię. A teraz powiedz mi…",   // przed pyt. 2
+  "Hmm, to ciekawe. Pomyśl chwilę nad tym…",   // przed pyt. 3
+  "Czuję, że zaczynam cię już rozumieć. Jeszcze jedno…", // przed pyt. 4
+  "Ostatnie pytanie. Skup się jeszcze na chwilę…",       // przed pyt. 5
+];
+
 export default function Onboarding() {
   const navigate = useNavigate();
   const [step, setStep] = useState("name");
@@ -18,6 +28,9 @@ export default function Onboarding() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  // Czy lektor skonczyl mowic (intro lub przejscie) — dopiero wtedy pokazujemy odpowiedzi.
+  // Przy 1. pytaniu blokuje wszystko do konca intro. Przy kolejnych — do konca przejscia.
+  const [narrationDone, setNarrationDone] = useState(false);
 
   useEffect(() => {
     if (step === "quiz" && !quiz) {
@@ -46,6 +59,7 @@ export default function Onboarding() {
   function selectAnswer(qid, aid) {
     setAnswers((prev) => ({ ...prev, [qid]: aid }));
     if (quiz && questionIdx < quiz.questions.length - 1) {
+      setNarrationDone(false); // zablokuj odpowiedzi przy nastepnym pytaniu az lektor skonczy
       setQuestionIdx((i) => i + 1);
     } else {
       submitQuiz({ ...answers, [qid]: aid });
@@ -162,46 +176,88 @@ export default function Onboarding() {
             <p style={{ opacity: 0.65, fontSize: 12, fontWeight: 800, letterSpacing: 1.5, margin: 0 }}>
               PYTANIE {questionIdx + 1} Z {quiz.questions.length}
             </p>
+
+            {/* Awatar — wyrazny podczas intro, mniejszy przy kolejnych pytaniach */}
+            {questionIdx === 0 && !narrationDone && (
+              <div className="pop-in" style={{ display: "flex", justifyContent: "center", padding: "8px 0 4px", position: "relative" }}>
+                <div style={{ position: "relative" }}>
+                  <Avatar kind="fox" size={130} evolved={1} />
+                  <div style={{ position: "absolute", top: -4, right: -10 }}><Sparkle size={20} /></div>
+                  <div style={{ position: "absolute", bottom: 6, left: -14 }}><Sparkle size={14} delay={0.5} /></div>
+                </div>
+              </div>
+            )}
+
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
               <h2 className="t-display" style={{ fontSize: 26, lineHeight: 1.2, margin: 0, flex: 1 }}>
                 {quiz.questions[questionIdx].question}
               </h2>
               {questionIdx === 0 ? (
                 <NarratorVoice
-                  text={`Cześć. Bardzo się cieszę, że tu jesteś. Zakątek Gamma właśnie otwiera przed tobą swoje bramy… Czeka cię tu mnóstwo radości, gier i zupełnie nowych, tajemniczych miejsc do zbadania. Żeby ta podróż była dla ciebie jak najciekawsza — warto na samym początku sprawdzić, jaka niezwykła siła w tobie drzemie. Dlatego przygotowałem dla ciebie kilka prostych pytań. Dzięki twoim szczerym odpowiedziom dowiesz się, z jakim magicznym opiekunem wyruszycie w drogę. Może to będzie wspierający Empata… a może bystry Strateg? Twój nowy przyjaciel poprowadzi cię przez wszystkie wyzwania i pokaże ci świat, w którym nauka jest najfajniejszą zabawą. Zaufaj sobie… i zobaczmy, od czego zacznie się twoja historia. A teraz… ${quiz.questions[0].question}`}
+                  text={`Cześć. Bardzo się cieszę, że tu jesteś. Zakątek Gamma właśnie otwiera przed tobą swoje bramy… Czeka cię tu mnóstwo radości, gier i zupełnie nowych, tajemniczych miejsc do zbadania. Żeby ta podróż była dla ciebie jak najciekawsza — warto na samym początku sprawdzić, jaka niezwykła siła w tobie drzemie. Dlatego przygotowałam dla ciebie kilka prostych pytań. Dzięki twoim szczerym odpowiedziom dowiesz się, z jakim magicznym opiekunem wyruszycie w drogę. Może to będzie wspierający Empata… a może bystra Strateżka? Twój nowy przyjaciel poprowadzi cię przez wszystkie wyzwania i pokaże ci świat, w którym nauka jest najfajniejszą zabawą. Zaufaj sobie… i zobaczmy, od czego zacznie się twoja historia. A teraz… ${quiz.questions[0].question}`}
                   land="las_decyzji"
                   tone="warm"
                   speed={0.92}
                   pauseBefore={500}
                   inlinePauses
                   autoPlay
+                  onEnd={() => setNarrationDone(true)}
                 />
               ) : (
-                <NarratorVoice text={quiz.questions[questionIdx].question} land="las_decyzji" tone="calm" speed={0.94} inlinePauses autoPlay />
+                <NarratorVoice
+                  text={`${TRANSITIONS[questionIdx] || ""} ${quiz.questions[questionIdx].question}`.trim()}
+                  land="las_decyzji"
+                  tone="calm"
+                  speed={0.94}
+                  pauseBefore={300}
+                  inlinePauses
+                  autoPlay
+                  onEnd={() => setNarrationDone(true)}
+                />
               )}
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {quiz.questions[questionIdx].answers.map((a) => (
+            {/* Odpowiedzi — pojawiaja sie dopiero po skonczeniu narracji, z animacja fade-up */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+                opacity: narrationDone ? 1 : 0,
+                transform: narrationDone ? "translateY(0)" : "translateY(12px)",
+                transition: "opacity 0.5s ease, transform 0.5s ease",
+                pointerEvents: narrationDone ? "auto" : "none",
+              }}
+            >
+              {quiz.questions[questionIdx].answers.map((a, idx) => (
                 <button
                   key={a.answer_id}
                   className="card card-tight"
                   onClick={() => selectAnswer(quiz.questions[questionIdx].question_id, a.answer_id)}
-                  disabled={loading}
+                  disabled={loading || !narrationDone}
                   style={{
                     border: "none",
-                    cursor: "pointer",
+                    cursor: narrationDone ? "pointer" : "default",
                     textAlign: "left",
                     padding: "14px 16px",
                     fontSize: 15,
                     fontFamily: "var(--font-body, 'Nunito'), sans-serif",
                     fontWeight: 600,
                     color: "var(--p-ink)",
+                    transition: `opacity 0.4s ease ${idx * 0.08}s, transform 0.4s ease ${idx * 0.08}s`,
+                    opacity: narrationDone ? 1 : 0,
+                    transform: narrationDone ? "translateY(0)" : "translateY(8px)",
                   }}
                 >
                   {a.text}
                 </button>
               ))}
+
+              {!narrationDone && (
+                <p style={{ opacity: 0.55, fontSize: 13, textAlign: "center", margin: "8px 0 0", fontStyle: "italic" }}>
+                  Posłuchaj uważnie… za chwilę pojawią się odpowiedzi.
+                </p>
+              )}
             </div>
           </div>
         )}

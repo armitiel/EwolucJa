@@ -129,7 +129,7 @@ class TTSPlayer {
       return this._speakFallback(text);
     }
 
-    const cacheKey = `v2_${text.slice(0, 80)}_${land || voiceId || "d"}_${tone || ""}_${speed || ""}_${pauseBefore||""}_${pauseAfter||""}_${inlinePauses?"i":""}`;
+    const cacheKey = `v3_${text.slice(0, 80)}_${land || voiceId || "d"}_${tone || ""}_${speed || ""}_${pauseBefore||""}_${pauseAfter||""}_${inlinePauses?"i":""}`;
 
     try {
       let audioUrl = this._cache.get(cacheKey);
@@ -167,7 +167,7 @@ class TTSPlayer {
   async prefetch(text, options = {}) {
     if (!this._enabled || !text || this._useFallback) return;
     const { land, voiceId, tone, speed, pauseBefore, pauseAfter, inlinePauses } = options;
-    const cacheKey = `v2_${text.slice(0, 80)}_${land || voiceId || "d"}_${tone || ""}_${speed || ""}_${pauseBefore||""}_${pauseAfter||""}_${inlinePauses?"i":""}`;
+    const cacheKey = `v3_${text.slice(0, 80)}_${land || voiceId || "d"}_${tone || ""}_${speed || ""}_${pauseBefore||""}_${pauseAfter||""}_${inlinePauses?"i":""}`;
     if (this._cache.has(cacheKey)) return;
     try {
       const res = await fetch(`${API_BASE}/api/tts/speak`, {
