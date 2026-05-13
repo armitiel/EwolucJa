@@ -10,8 +10,8 @@ import { useAppData } from "../contexts/AppData.jsx";
 import NarratorVoice from "../components/NarratorVoice.jsx";
 import PageShell from "../components/PageShell.jsx";
 import TabBar from "../components/TabBar.jsx";
-import { MusicToggleInline } from "../components/MusicToggle.jsx";
-import { Sparkle, Coin, CoinPill, Avatar, ScrollIcon } from "../components/art.jsx";
+import TopBar from "../components/TopBar.jsx";
+import { Sparkle, Coin, CoinPill, Avatar, ScrollIcon, AdviceIcon } from "../components/art.jsx";
 
 // ─── WeekProgress — pasek 7-dniowy + odliczanie do piątku ───
 // Rozpoznaje aktualny dzien tygodnia (PN=0..ND=6) i koloruje:
@@ -229,51 +229,7 @@ export default function WorldHub() {
 
   return (
     <PageShell>
-      {/* Sticky topbar — avatar/imie/archetyp + sterowanie lektorem + CoinPill */}
-      <div
-        className="safe-top entrance-topbar"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          padding: "28px 16px 24px",
-          position: "relative",
-          zIndex: 5,
-        }}
-      >
-        <div style={{ flexShrink: 0 }}>
-          <Avatar kind={avatarKind} size={48} evolved={1} />
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            className="t-display"
-            style={{ fontSize: 26, lineHeight: 1, color: "var(--p-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
-          >
-            {player.player_name}
-          </div>
-        </div>
-        {/* Sterowanie lektorem (play/stop + mute) */}
-        <div style={{ flexShrink: 0 }}>
-          <NarratorVoice
-            text={greeting}
-            land="dolina_selfie"
-            tone="calm"
-            speed={0.86}
-            pauseBefore={500}
-            inlinePauses
-            autoPlayDelay={900}
-            autoPlay
-            playOnceKey="worldhub_greeting"
-          />
-        </div>
-        {/* Przelacznik muzyki tla — w tej samej linii co kontrolki lektora */}
-        <div style={{ flexShrink: 0 }}>
-          <MusicToggleInline />
-        </div>
-        <div style={{ flexShrink: 0 }}>
-          <CoinPill value={totalCoins} onClick={() => navigate("/backpack")} />
-        </div>
-      </div>
+      <TopBar narratorText={greeting} playOnceKey="worldhub_greeting" tone="calm" speed={0.86} />
 
       <div className="screen-scroll entrance-stagger" style={{ display: "flex", flexDirection: "column", gap: 14, paddingTop: 4, position: "relative", zIndex: 1, flex: 1 }}>
         {/* Postep tygodnia + dni — auto-detekcja dnia tygodnia */}
@@ -402,7 +358,7 @@ export default function WorldHub() {
           </div>
         </button>
 
-        {/* Karta 4: Komnata Refleksji */}
+        {/* Karta 4: Porada dnia */}
         <button
           onClick={() => navigate("/invite-gm")}
           style={{ border: "none", padding: 0, background: "transparent", cursor: "pointer", textAlign: "left" }}
@@ -419,29 +375,26 @@ export default function WorldHub() {
               minHeight: 120,
             }}
           >
-            <div style={{ width: 70, height: 80, display: "flex", justifyContent: "center", alignItems: "center", flex: "none" }}>
-              <img
-                src="/wizard.png"
-                alt=""
-                aria-hidden="true"
-                width="60"
-                height="80"
-                loading="eager"
-                fetchpriority="high"
-                decoding="async"
-                style={{
-                  width: 60,
-                  height: 80,
-                  transform: "scaleX(-1)",
-                  filter: "drop-shadow(0 4px 8px rgba(80,40,140,.35))",
-                  objectFit: "contain",
-                }}
-              />
+            <div
+              style={{
+                width: 70,
+                height: 80,
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                flex: "none",
+                animation: "float-mid 3.5s ease-in-out infinite",
+              }}
+            >
+              <AdviceIcon size={64} />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <h2 className="t-display" style={{ fontSize: 22, margin: 0, lineHeight: 1.15 }}>
-                Komnata Refleksji
+                Porada dnia
               </h2>
+              <div style={{ fontSize: 13, color: "var(--p-ink-soft)", fontWeight: 600, marginTop: 2 }}>
+                ✦ Mędrzec ma dla Ciebie myśl
+              </div>
             </div>
             <span style={{ fontSize: 32, color: "var(--p-magic-dk)", fontWeight: 700 }}>›</span>
           </div>

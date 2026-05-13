@@ -599,6 +599,80 @@ export const ScrollIcon = ({ size = 60 }) => (
   </svg>
 );
 
+// ─── AdviceIcon (Porada dnia - swietlista perla z gwiazda) ─────
+// Magiczna kula / lampka madrosci - zamiast wizarda na karcie "Porada dnia".
+// Inline SVG = brak requestu HTTP, brak reflow.
+export const AdviceIcon = ({ size = 60 }) => {
+  const uid = `adv-${size}`;
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 60 60"
+      style={{ display: "block" }}
+      aria-hidden="true"
+    >
+      <defs>
+        <radialGradient id={`${uid}-glow`} cx="50%" cy="50%" r="50%">
+          <stop offset="0" stopColor="#FFE4A0" stopOpacity=".9" />
+          <stop offset=".4" stopColor="#FFC178" stopOpacity=".5" />
+          <stop offset="1" stopColor="#FFC178" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id={`${uid}-orb`} cx="35%" cy="32%" r="70%">
+          <stop offset="0" stopColor="#FFF6D8" />
+          <stop offset=".5" stopColor="#FFD269" />
+          <stop offset="1" stopColor="#B886E8" />
+        </radialGradient>
+        <radialGradient id={`${uid}-shine`} cx="35%" cy="30%" r="22%">
+          <stop offset="0" stopColor="#fff" stopOpacity=".95" />
+          <stop offset="1" stopColor="#fff" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id={`${uid}-base`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#9C7AD8" />
+          <stop offset="1" stopColor="#5A2BAE" />
+        </linearGradient>
+      </defs>
+
+      {/* Zewnetrzny glow */}
+      <circle cx="30" cy="28" r="28" fill={`url(#${uid}-glow)`} />
+
+      {/* Kula madrosci */}
+      <circle cx="30" cy="28" r="18" fill={`url(#${uid}-orb)`} stroke="#7A4DC2" strokeWidth="1.5" opacity=".9" />
+
+      {/* Wewnetrzna gwiazda */}
+      <path
+        d="M30 18 L32 25 L39 26 L33.5 30.5 L35 37 L30 33.5 L25 37 L26.5 30.5 L21 26 L28 25 Z"
+        fill="#fff"
+        opacity=".85"
+      />
+      <path
+        d="M30 19.5 L31.5 25 L37 25.5 L33 29 L34 34 L30 31.5 L26 34 L27 29 L23 25.5 L28.5 25 Z"
+        fill="#7A4DC2"
+        opacity=".6"
+      />
+
+      {/* Blik */}
+      <ellipse cx="22" cy="20" rx="6" ry="3" fill={`url(#${uid}-shine)`} />
+
+      {/* Podstawka (poduszka pod kula) */}
+      <ellipse cx="30" cy="48" rx="14" ry="3" fill="#4A2D80" opacity=".25" />
+      <path
+        d="M 18 46 Q 30 50 42 46 L 40 53 Q 30 57 20 53 Z"
+        fill={`url(#${uid}-base)`}
+        stroke="#4A2D80"
+        strokeWidth="1"
+      />
+      <ellipse cx="30" cy="47" rx="11" ry="2" fill="#C8A0F0" opacity=".5" />
+
+      {/* Iskierki dookola */}
+      <circle cx="8" cy="12" r="1.5" fill="#FFD269" opacity=".8" />
+      <circle cx="52" cy="14" r="1.2" fill="#FFD269" opacity=".7" />
+      <circle cx="6" cy="32" r="1" fill="#fff" opacity=".7" />
+      <circle cx="54" cy="30" r="1.3" fill="#fff" opacity=".7" />
+    </svg>
+  );
+};
+
 // ─── Fake QR (do ekranu Invite) ────────────────────────────────
 export const FakeQR = () => {
   const cells = [];

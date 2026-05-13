@@ -8,6 +8,7 @@ import { session } from "../services/api.js";
 import { useAppData } from "../contexts/AppData.jsx";
 import PageShell from "../components/PageShell.jsx";
 import TabBar from "../components/TabBar.jsx";
+import TopBar from "../components/TopBar.jsx";
 import { Artifact } from "../components/art.jsx";
 
 // Stałe sloty "do odkrycia" — wizualizacja przyszłych krain
@@ -54,18 +55,7 @@ export default function Backpack() {
 
   return (
     <PageShell>
-      <div className="topbar">
-        <button className="btn btn-ghost btn-sm" onClick={() => navigate("/world")}>
-          ‹
-        </button>
-        <div className="meta" style={{ textAlign: "center" }}>
-          <div className="lbl">PLECAK ARTEFAKTÓW</div>
-          <div className="nm">
-            {items.length} z {totalSlots} odnalezione
-          </div>
-        </div>
-        <div style={{ width: 36 }} />
-      </div>
+      <TopBar />
 
       <div
         style={{

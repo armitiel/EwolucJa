@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageShell from "../components/PageShell.jsx";
 import TabBar from "../components/TabBar.jsx";
+import TopBar from "../components/TopBar.jsx";
 import { RegionIcon } from "../components/art.jsx";
 
 const REGIONS = {
@@ -36,14 +37,7 @@ export default function MapView() {
 
   return (
     <PageShell>
-      <div className="topbar">
-        <button className="btn btn-ghost btn-sm" onClick={() => navigate("/world")}>‹</button>
-        <div className="meta" style={{ textAlign: "center" }}>
-          <div className="lbl">TWOJA PODRÓŻ</div>
-          <div className="nm">Kraina Kroniki</div>
-        </div>
-        <div style={{ width: 36 }} />
-      </div>
+      <TopBar />
 
       <div
         style={{

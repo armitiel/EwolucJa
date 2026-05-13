@@ -5,6 +5,7 @@ import { ttsPlayer } from "../services/ttsPlayer";
 import { useAppData } from "../contexts/AppData.jsx";
 import PageShell from "../components/PageShell.jsx";
 import TabBar from "../components/TabBar.jsx";
+import TopBar from "../components/TopBar.jsx";
 import { Avatar } from "../components/art.jsx";
 
 const STAGES = [
@@ -64,14 +65,7 @@ export default function Profile() {
 
   return (
     <PageShell>
-      <div className="topbar">
-        <button className="btn btn-ghost btn-sm" onClick={() => navigate("/world")}>‹</button>
-        <div className="meta" style={{ textAlign: "center" }}>
-          <div className="lbl">EWOLUCJA BOHATERA</div>
-          <div className="nm">{player.player_name}</div>
-        </div>
-        <div style={{ width: 36 }} />
-      </div>
+      <TopBar />
 
       <div style={{ flex: 1, overflowY: "auto", minHeight: 0, padding: "4px 18px 18px", display: "flex", flexDirection: "column", gap: 14 }}>
         <div className="card" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, padding: "22px 16px", position: "relative", overflow: "hidden" }}>
