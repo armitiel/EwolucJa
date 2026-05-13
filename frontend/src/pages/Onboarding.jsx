@@ -181,7 +181,7 @@ export default function Onboarding() {
             <div className="pop-in" style={{ display: "flex", justifyContent: "center", padding: "8px 0 4px", position: "relative" }}>
               <div style={{ position: "relative", animation: "float-slow 4s ease-in-out infinite" }}>
                 <img
-                  src="/wiz2.png"
+                  src="/wizard.png"
                   alt="Strażniczka Zakątka"
                   style={{
                     width: questionIdx === 0 && !narrationDone ? 360 : 240,

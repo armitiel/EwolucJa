@@ -1,11 +1,14 @@
 /**
- * Landing — pierwszy ekran. Wybór ścieżki: dziecko (gracz) lub Mentor (rodzic/nauczyciel).
+ * Landing / ScreenStart — pierwszy ekran w stylu Ghibli/Claymorphism.
+ * Wielka ksiega z aurora "JA", podtytul, jeden CTA "Rozpocznij przygode",
+ * pod spodem dyskretny link "Jestes doroslym? - zaloguj sie jako Mentor".
  */
 
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { session } from "../services/api.js";
 import { ttsPlayer } from "../services/ttsPlayer";
+import PageShell from "../components/PageShell.jsx";
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -13,78 +16,111 @@ export default function Landing() {
   const gmId = session.getGM();
 
   function goChild() {
-    // Pierwszy gest użytkownika — odblokuj audio dla TTS (iOS/Safari wymaga gestu).
+    // Pierwszy gest uzytkownika - odblokuj audio dla TTS (iOS/Safari wymaga gestu)
     ttsPlayer.unlock();
     navigate(playerId ? "/world" : "/onboarding");
   }
 
-  function goGM() {
+  function goGM(e) {
+    e?.preventDefault?.();
     ttsPlayer.unlock();
-    navigate("/gm");
+    navigate(gmId ? "/gm" : "/gm");
   }
 
   return (
-    <div style={styles.wrap}>
-      <div style={styles.card}>
-        <h1 style={styles.title}>EwolucJA</h1>
-        <p style={styles.lead}>
-          Świat, w którym Twoje wybory w realu rosną razem z Twoim bohaterem.
-        </p>
+    <PageShell>
+      <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column" }}>
+        <div
+          style={{
+            flex: 1,
+            padding: "90px 24px 0",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 18,
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
+          {/* Ksiega z aureola */}
+          <div style={{ marginTop: 4, animation: "float-mid 4s ease-in-out infinite", position: "relative" }}>
+            <div
+              style={{
+                position: "absolute",
+                inset: "-12% -8% 4%",
+                borderRadius: "50%",
+                background: "radial-gradient(circle, rgba(255,210,105,.45), transparent 65%)",
+                filter: "blur(4px)",
+              }}
+            />
+            <img
+              src="/book.png"
+              alt=""
+              style={{
+                position: "relative",
+                width: 160,
+                height: "auto",
+                display: "block",
+                filter: "drop-shadow(0 14px 22px rgba(80,40,140,.35))",
+              }}
+            />
+          </div>
 
-        <div style={styles.row}>
-          <button style={styles.btnChild} onClick={goChild}>
-            <span style={styles.btnIcon}>🧙</span>
-            <span style={styles.btnLabel}>Jestem bohaterem</span>
-            <span style={styles.btnSub}>{playerId ? "Wróć do świata" : "Rozpocznij przygodę"}</span>
-          </button>
+          {/* Tytul EwolucJA - z aurora "JA" */}
+          <h1
+            style={{
+              fontFamily: "'Lilita One', 'Baloo 2', sans-serif",
+              fontSize: 72,
+              fontWeight: 400,
+              margin: "8px 0 0",
+              textAlign: "center",
+              letterSpacing: "-1px",
+              color: "var(--p-ink)",
+              textShadow: "0 3px 0 rgba(255,255,255,.55), 0 6px 0 rgba(43,42,74,.06)",
+              lineHeight: 1,
+            }}
+          >
+            Ewoluc<span className="aurora-text">JA</span>
+          </h1>
 
-          <button style={styles.btnGM} onClick={goGM}>
-            <span style={styles.btnIcon}>🌟</span>
-            <span style={styles.btnLabel}>Jestem Mentorem</span>
-            <span style={styles.btnSub}>{gmId ? "Wróć do panelu" : "Panel rodzica / nauczyciela"}</span>
-          </button>
+          <p
+            className="t-hand"
+            style={{
+              fontSize: 22,
+              margin: 0,
+              color: "var(--p-ink-soft)",
+              textAlign: "center",
+              maxWidth: 300,
+              lineHeight: 1.25,
+            }}
+          >
+            Baw się, odkrywaj i zdobywaj nowe moce z każdym krokiem.
+          </p>
+
+          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 10, marginTop: 18, maxWidth: 380 }}>
+            <button className="btn btn-magic btn-block" onClick={goChild}>
+              <span style={{ fontSize: 20, marginRight: 6 }}>✦</span>
+              {playerId ? "Wróć do świata" : "Rozpocznij przygodę"}
+            </button>
+          </div>
+
+          <p style={{ marginTop: 20, fontSize: 13, color: "var(--p-ink-soft)", textAlign: "center" }}>
+            Jesteś dorosłym? —{" "}
+            <a
+              href="#"
+              onClick={goGM}
+              style={{
+                color: "var(--p-magic-dk)",
+                fontWeight: 700,
+                textDecoration: "underline",
+                textUnderlineOffset: 3,
+              }}
+            >
+              zaloguj się jako Mentor
+            </a>
+          </p>
         </div>
-
-        <p style={styles.note}>
-          Tryb klasyczny (wersja 1.0) — <a style={styles.link} href="/play">Otwórz starą grę</a>
-        </p>
       </div>
-    </div>
+    </PageShell>
   );
 }
-
-const styles = {
-  wrap: {
-    minHeight: "100vh",
-    display: "flex", alignItems: "center", justifyContent: "center",
-    background: "linear-gradient(135deg, #1a1040 0%, #2d1b4e 50%, #1a1a2e 100%)",
-    padding: 20,
-  },
-  card: {
-    maxWidth: 640, width: "100%",
-    background: "rgba(255,255,255,0.06)",
-    borderRadius: 28, padding: "40px 32px",
-    color: "#fff", textAlign: "center",
-    border: "1px solid rgba(255,255,255,0.1)",
-  },
-  title: { fontSize: 48, margin: "0 0 8px" },
-  lead: { fontSize: 17, opacity: 0.85, marginBottom: 28 },
-  row: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 },
-  btnChild: {
-    display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
-    padding: "24px 16px",
-    background: "linear-gradient(135deg, #9b59b6, #6a3aa3)",
-    border: "none", borderRadius: 18, color: "#fff", cursor: "pointer",
-  },
-  btnGM: {
-    display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
-    padding: "24px 16px",
-    background: "linear-gradient(135deg, #f39c12, #d35400)",
-    border: "none", borderRadius: 18, color: "#fff", cursor: "pointer",
-  },
-  btnIcon: { fontSize: 30 },
-  btnLabel: { fontSize: 18, fontWeight: 700 },
-  btnSub: { fontSize: 12, opacity: 0.85 },
-  note: { marginTop: 24, fontSize: 13, opacity: 0.7 },
-  link: { color: "#ffd166", textDecoration: "underline" },
-};
