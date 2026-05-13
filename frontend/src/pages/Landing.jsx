@@ -98,4 +98,29 @@ export default function Landing() {
           </p>
 
           <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 10, marginTop: 18, maxWidth: 380 }}>
-            <b
+            <button className="btn btn-magic btn-block" onClick={goChild}>
+              <span style={{ fontSize: 20, marginRight: 6 }}>✦</span>
+              {playerId ? "Wróć do świata" : "Rozpocznij przygodę"}
+            </button>
+          </div>
+
+          <p style={{ marginTop: 20, fontSize: 13, color: "var(--p-ink-soft)", textAlign: "center" }}>
+            Jesteś dorosłym? —{" "}
+            <a
+              href="#"
+              onClick={goGM}
+              style={{
+                color: "var(--p-magic-dk)",
+                fontWeight: 700,
+                textDecoration: "underline",
+                textUnderlineOffset: 3,
+              }}
+            >
+              zaloguj się jako Mentor
+            </a>
+          </p>
+        </div>
+      </div>
+    </PageShell>
+  );
+}

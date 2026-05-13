@@ -491,4 +491,77 @@ export const CoinPill = ({ value = 0, size = 22, recent = null, onClick }) => (
       alignItems: "center",
       gap: 6,
       height: 36,
- 
+      background: "linear-gradient(180deg,#FFF1B0,#FFD269)",
+      color: "#7A4D10",
+      fontWeight: 800,
+      fontSize: 15,
+      padding: "0 14px 0 8px",
+      borderRadius: 999,
+      boxShadow: "inset 0 0 0 1.8px #E1B66A, 0 3px 0 #B47322, 0 4px 10px rgba(160,110,30,.30)",
+      border: "none",
+      cursor: onClick ? "pointer" : "default",
+      position: "relative",
+      whiteSpace: "nowrap",
+      fontFamily: "var(--font-body, 'Nunito'), sans-serif",
+    }}
+  >
+    <Coin size={size} anim />
+    <span style={{ lineHeight: 1 }}>{Number(value).toLocaleString("pl-PL")}</span>
+    {recent != null && recent > 0 && (
+      <span
+        style={{
+          position: "absolute",
+          top: -10,
+          right: -6,
+          background: "#5FA76F",
+          color: "#fff",
+          fontWeight: 800,
+          fontSize: 11,
+          padding: "2px 7px",
+          borderRadius: 999,
+          boxShadow: "0 2px 4px rgba(74,143,102,.45)",
+          animation: "coin-bump .6s ease-out",
+        }}
+      >
+        +{recent}
+      </span>
+    )}
+  </button>
+);
+
+// ─── Chmury ───────────────────────────────────────────────────
+export const Cloud = ({ size = 80, opacity = 0.7 }) => (
+  <svg width={size} height={size * 0.6} viewBox="0 0 100 60" style={{ opacity }}>
+    <ellipse cx="30" cy="40" rx="22" ry="14" fill="#fff" />
+    <ellipse cx="50" cy="32" rx="22" ry="18" fill="#fff" />
+    <ellipse cx="72" cy="40" rx="20" ry="14" fill="#fff" />
+    <ellipse cx="50" cy="44" rx="32" ry="10" fill="#fff" />
+  </svg>
+);
+
+// ─── Fake QR (do ekranu Invite) ────────────────────────────────
+export const FakeQR = () => {
+  const cells = [];
+  const seed = (i, j) => ((i * 7 + j * 13 + ((i * j) % 5)) % 5) > 1;
+  for (let i = 0; i < 14; i++)
+    for (let j = 0; j < 14; j++) {
+      if (seed(i, j)) cells.push(<rect key={`${i}-${j}`} x={j * 10} y={i * 10} width={10} height={10} fill="#4e4d76" />);
+    }
+  return (
+    <svg viewBox="0 0 140 140" width="100%" height="100%">
+      <rect width="140" height="140" fill="#fff" />
+      {cells}
+      <rect x="0" y="0" width="40" height="40" fill="#fff" />
+      <rect x="0" y="0" width="40" height="40" fill="none" stroke="#4e4d76" strokeWidth="8" />
+      <rect x="14" y="14" width="12" height="12" fill="#4e4d76" />
+      <rect x="100" y="0" width="40" height="40" fill="#fff" />
+      <rect x="100" y="0" width="40" height="40" fill="none" stroke="#4e4d76" strokeWidth="8" />
+      <rect x="114" y="14" width="12" height="12" fill="#4e4d76" />
+      <rect x="0" y="100" width="40" height="40" fill="#fff" />
+      <rect x="0" y="100" width="40" height="40" fill="none" stroke="#4e4d76" strokeWidth="8" />
+      <rect x="14" y="114" width="12" height="12" fill="#4e4d76" />
+      <circle cx="70" cy="70" r="14" fill="#7A4DC2" />
+      <path d="M70 60 L73 68 L82 68 L75 73 L78 82 L70 76 L62 82 L65 73 L58 68 L67 68 Z" fill="#FFD269" />
+    </svg>
+  );
+};

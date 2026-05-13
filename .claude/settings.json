@@ -48,7 +48,15 @@
       "PowerShell(powershell -ExecutionPolicy Bypass -File \"c:\\\\Users\\\\DELL\\\\EwolucJA\\\\docs\\\\generate_summary_docx.ps1\")",
       "PowerShell($p = 'c:\\\\Users\\\\DELL\\\\EwolucJA\\\\docs\\\\generate_summary_docx.ps1'; $content = [System.IO.File]::ReadAllText\\($p, [System.Text.UTF8Encoding]::new\\($false\\)\\); $utf8Bom = New-Object System.Text.UTF8Encoding $true; [System.IO.File]::WriteAllText\\($p, $content, $utf8Bom\\); 'BOM added')",
       "PowerShell($p = 'c:\\\\Users\\\\DELL\\\\EwolucJA\\\\docs\\\\generate_summary_docx.ps1'; $content = [System.IO.File]::ReadAllText\\($p, [System.Text.UTF8Encoding]::new\\($false\\)\\); $utf8Bom = New-Object System.Text.UTF8Encoding $true; [System.IO.File]::WriteAllText\\($p, $content, $utf8Bom\\); powershell -ExecutionPolicy Bypass -File $p)",
-      "PowerShell($p = 'c:\\\\Users\\\\DELL\\\\EwolucJA\\\\EwolucJA_Podsumowanie.docx'; Add-Type -AssemblyName System.IO.Compression.FileSystem; $zip = [System.IO.Compression.ZipFile]::OpenRead\\($p\\); $zip.Entries | Select-Object FullName, Length | Format-Table -AutoSize; $zip.Dispose\\(\\))"
+      "PowerShell($p = 'c:\\\\Users\\\\DELL\\\\EwolucJA\\\\EwolucJA_Podsumowanie.docx'; Add-Type -AssemblyName System.IO.Compression.FileSystem; $zip = [System.IO.Compression.ZipFile]::OpenRead\\($p\\); $zip.Entries | Select-Object FullName, Length | Format-Table -AutoSize; $zip.Dispose\\(\\))",
+      "Bash(npx --yes esbuild src/components/TabBar.jsx --loader=jsx --bundle=false --log-level=warning)",
+      "PowerShell(git add frontend/src/components/TabBar.jsx frontend/src/styles/ewolucja.css)",
+      "PowerShell(git push origin v2-postgres-vercel)",
+      "PowerShell(git add frontend/src/pages/Onboarding.jsx)",
+      "PowerShell(git add backend/src/api/onboarding.js frontend/src/config.js)",
+      "PowerShell($src = \"frontend\\\\public\\\\Loading 40 _ Paperplane.lottie\"; $dst = \"$env:TEMP\\\\lottie_extract\"; if \\(Test-Path $dst\\) { Remove-Item $dst -Recurse -Force }; Expand-Archive -LiteralPath $src -DestinationPath $dst; Get-ChildItem -Recurse $dst | Select-Object FullName, Length)",
+      "PowerShell(git add frontend/package.json frontend/package-lock.json frontend/src/pages/Backpack.jsx frontend/src/pages/MissionView.jsx frontend/src/pages/Profile.jsx frontend/src/components/Celebration.jsx \"frontend/public/Loading animation blue.lottie\" \"frontend/public/Celebrations Begin.lottie\")",
+      "PowerShell(git push)"
     ]
   }
 }

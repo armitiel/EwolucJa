@@ -1,0 +1,483 @@
+// art.jsx — SVG illustrations for EwolucJA
+// Avatars, region icons, artifacts, scroll, moon phases, sparkles, world map.
+
+const Sparkle = ({ size=16, c='#FFD269', delay=0 }) => (
+  <svg width={size} height={size} viewBox="0 0 16 16" style={{ animation:`sparkle 1.8s ease-in-out infinite`, animationDelay:`${delay}s` }}>
+    <path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill={c}/>
+  </svg>
+);
+
+// ─── Avatars: small ghibli-ish creatures ──────────────────────
+const Avatar = ({ kind='fox', size=80, evolved=0 }) => {
+  const wrap = { width:size, height:size, position:'relative', display:'inline-block' };
+  return (
+    <div style={wrap}>
+      {evolved > 0 && <div className="aura" style={{ opacity: 0.4 + evolved*0.2 }}/>}
+      <svg width={size} height={size} viewBox="0 0 100 100" style={{ position:'relative' }}>
+        <ellipse cx="50" cy="92" rx="22" ry="3" fill="rgba(0,0,0,.16)"/>
+        {kind==='fox' && <FoxArt evolved={evolved}/>}
+        {kind==='owl' && <OwlArt evolved={evolved}/>}
+        {kind==='rabbit' && <RabbitArt evolved={evolved}/>}
+        {kind==='dragon' && <DragonArt evolved={evolved}/>}
+        {kind==='cat' && <CatArt evolved={evolved}/>}
+      </svg>
+    </div>
+  );
+};
+
+const FoxArt = ({ evolved=0 }) => (
+  <g>
+    {/* tail */}
+    <path d="M22 60 Q10 50 14 38 Q18 28 28 32 L36 60 Z" fill="#E89A3D"/>
+    <path d="M14 38 Q12 32 16 28" stroke="#fff" strokeWidth="3" fill="none" strokeLinecap="round"/>
+    {/* body */}
+    <ellipse cx="55" cy="65" rx="28" ry="22" fill="#F0A957"/>
+    <ellipse cx="55" cy="70" rx="20" ry="14" fill="#FBE2C0"/>
+    {/* head */}
+    <path d="M30 42 L42 22 L52 36 L68 36 L78 22 L86 44 Q86 60 58 60 Q30 60 30 42 Z" fill="#E89A3D"/>
+    <path d="M42 22 L48 35 L40 30 Z" fill="#A8612A"/>
+    <path d="M78 22 L72 35 L80 30 Z" fill="#A8612A"/>
+    <ellipse cx="48" cy="46" rx="3" ry="3.5" fill="#2B2A4A"/>
+    <ellipse cx="68" cy="46" rx="3" ry="3.5" fill="#2B2A4A"/>
+    <circle cx="49" cy="45" r="1" fill="#fff"/>
+    <circle cx="69" cy="45" r="1" fill="#fff"/>
+    {/* snout */}
+    <ellipse cx="58" cy="55" rx="9" ry="5" fill="#FBE2C0"/>
+    <ellipse cx="58" cy="52" rx="2" ry="1.5" fill="#2B2A4A"/>
+    {/* cheek mark */}
+    <circle cx="40" cy="52" r="2" fill="#F0A957" opacity=".7"/>
+    <circle cx="76" cy="52" r="2" fill="#F0A957" opacity=".7"/>
+    {/* hat / cape with evolution */}
+    {evolved >= 1 && <g>
+      <path d="M28 30 Q58 14 88 30 L86 36 Q58 22 30 36 Z" fill="#7A4DC2"/>
+      <circle cx="58" cy="20" r="4" fill="#FFD269"/>
+    </g>}
+    {evolved >= 2 && <g>
+      <path d="M22 60 Q12 50 14 36" stroke="#FFD269" strokeWidth="2" fill="none" opacity=".7"/>
+    </g>}
+  </g>
+);
+
+const OwlArt = ({ evolved=0 }) => (
+  <g>
+    <ellipse cx="50" cy="60" rx="30" ry="32" fill="#7A8FB8"/>
+    <ellipse cx="50" cy="65" rx="22" ry="22" fill="#D6DDEB"/>
+    {/* face heart */}
+    <path d="M30 38 Q30 28 40 28 Q50 28 50 36 Q50 28 60 28 Q70 28 70 38 Q70 52 50 64 Q30 52 30 38 Z" fill="#F4E3B8"/>
+    {/* eyes */}
+    <circle cx="40" cy="42" r="7" fill="#fff"/>
+    <circle cx="60" cy="42" r="7" fill="#fff"/>
+    <circle cx="40" cy="43" r="4" fill="#2B2A4A"/>
+    <circle cx="60" cy="43" r="4" fill="#2B2A4A"/>
+    <circle cx="41" cy="42" r="1.4" fill="#fff"/>
+    <circle cx="61" cy="42" r="1.4" fill="#fff"/>
+    {/* beak */}
+    <path d="M50 50 L46 56 L54 56 Z" fill="#E89A3D"/>
+    {/* feet */}
+    <path d="M42 88 L42 92 M46 88 L46 92" stroke="#E89A3D" strokeWidth="3" strokeLinecap="round"/>
+    <path d="M54 88 L54 92 M58 88 L58 92" stroke="#E89A3D" strokeWidth="3" strokeLinecap="round"/>
+    {/* tufts */}
+    <path d="M28 30 L34 22 L36 32 Z" fill="#7A8FB8"/>
+    <path d="M72 30 L66 22 L64 32 Z" fill="#7A8FB8"/>
+    {evolved >= 1 && <g>
+      <circle cx="50" cy="22" r="6" fill="#FFD269" opacity=".9"/>
+      <path d="M44 22 L56 22 M50 16 L50 28" stroke="#fff" strokeWidth="1.5"/>
+    </g>}
+  </g>
+);
+
+const RabbitArt = ({ evolved=0 }) => (
+  <g>
+    {/* ears */}
+    <ellipse cx="38" cy="20" rx="5" ry="16" fill="#F4D6E0"/>
+    <ellipse cx="62" cy="20" rx="5" ry="16" fill="#F4D6E0"/>
+    <ellipse cx="38" cy="22" rx="2" ry="10" fill="#F08C8C"/>
+    <ellipse cx="62" cy="22" rx="2" ry="10" fill="#F08C8C"/>
+    {/* body */}
+    <ellipse cx="50" cy="65" rx="26" ry="24" fill="#FBE2EA"/>
+    <ellipse cx="50" cy="70" rx="18" ry="14" fill="#fff"/>
+    {/* face */}
+    <ellipse cx="42" cy="48" rx="2.6" ry="3" fill="#2B2A4A"/>
+    <ellipse cx="58" cy="48" rx="2.6" ry="3" fill="#2B2A4A"/>
+    <circle cx="43" cy="47" r="1" fill="#fff"/>
+    <circle cx="59" cy="47" r="1" fill="#fff"/>
+    {/* nose mouth */}
+    <path d="M48 56 Q50 58 52 56" stroke="#2B2A4A" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+    <path d="M50 53 L48 56 L52 56 Z" fill="#F08C8C"/>
+    <circle cx="36" cy="55" r="3" fill="#F4B7C9" opacity=".7"/>
+    <circle cx="64" cy="55" r="3" fill="#F4B7C9" opacity=".7"/>
+    {evolved >= 1 && <g>
+      <path d="M30 32 Q50 18 70 32" stroke="#7A4DC2" strokeWidth="3" fill="none" strokeLinecap="round"/>
+      <circle cx="30" cy="32" r="3" fill="#FFD269"/>
+      <circle cx="70" cy="32" r="3" fill="#FFD269"/>
+    </g>}
+  </g>
+);
+
+const DragonArt = ({ evolved=0 }) => (
+  <g>
+    {/* tail */}
+    <path d="M22 70 Q8 70 12 56 Q16 48 26 52" stroke="#5FA76F" strokeWidth="8" fill="none" strokeLinecap="round"/>
+    {/* body */}
+    <ellipse cx="55" cy="64" rx="28" ry="22" fill="#5FA76F"/>
+    <ellipse cx="55" cy="70" rx="20" ry="14" fill="#A6D9AE"/>
+    {/* spikes */}
+    <path d="M40 46 L44 38 L48 46 Z" fill="#3F8056"/>
+    <path d="M52 42 L56 32 L60 42 Z" fill="#3F8056"/>
+    <path d="M64 46 L68 38 L72 46 Z" fill="#3F8056"/>
+    {/* head */}
+    <ellipse cx="55" cy="50" rx="22" ry="18" fill="#5FA76F"/>
+    <ellipse cx="44" cy="46" rx="3" ry="3.5" fill="#fff"/>
+    <ellipse cx="66" cy="46" rx="3" ry="3.5" fill="#fff"/>
+    <ellipse cx="44" cy="47" rx="1.5" ry="2.2" fill="#2B2A4A"/>
+    <ellipse cx="66" cy="47" rx="1.5" ry="2.2" fill="#2B2A4A"/>
+    <ellipse cx="55" cy="58" rx="6" ry="3" fill="#3F8056"/>
+    <circle cx="52" cy="58" r="1" fill="#2B2A4A"/>
+    <circle cx="58" cy="58" r="1" fill="#2B2A4A"/>
+    {/* wings */}
+    <path d="M24 56 Q14 40 28 30 Q34 38 36 50 Z" fill="#A6D9AE"/>
+    <path d="M76 56 Q86 40 72 30 Q66 38 64 50 Z" fill="#A6D9AE"/>
+    {evolved >= 1 && <g>
+      <circle cx="55" cy="32" r="3" fill="#FFD269"/>
+      <Sparkle/>
+    </g>}
+  </g>
+);
+
+const CatArt = ({ evolved=0 }) => (
+  <g>
+    {/* body */}
+    <ellipse cx="50" cy="68" rx="26" ry="22" fill="#3F3855"/>
+    <ellipse cx="50" cy="72" rx="18" ry="13" fill="#FBE2C0"/>
+    {/* head */}
+    <path d="M28 44 L34 28 L42 38 L58 38 L66 28 L72 44 Q72 58 50 58 Q28 58 28 44 Z" fill="#3F3855"/>
+    {/* ears inner */}
+    <path d="M34 28 L38 38 L40 32 Z" fill="#7A6B98"/>
+    <path d="M66 28 L62 38 L60 32 Z" fill="#7A6B98"/>
+    {/* eyes */}
+    <ellipse cx="42" cy="46" rx="3.5" ry="4" fill="#FFD269"/>
+    <ellipse cx="58" cy="46" rx="3.5" ry="4" fill="#FFD269"/>
+    <ellipse cx="42" cy="46" rx="1" ry="3" fill="#2B2A4A"/>
+    <ellipse cx="58" cy="46" rx="1" ry="3" fill="#2B2A4A"/>
+    {/* mouth */}
+    <path d="M50 52 L47 55 M50 52 L53 55" stroke="#2B2A4A" strokeWidth="1.5" strokeLinecap="round"/>
+    <circle cx="50" cy="52" r="1.5" fill="#F08C8C"/>
+    {/* whiskers */}
+    <path d="M30 50 L42 51 M30 54 L42 53" stroke="#fff" strokeWidth="1" opacity=".7"/>
+    <path d="M70 50 L58 51 M70 54 L58 53" stroke="#fff" strokeWidth="1" opacity=".7"/>
+    {/* tail */}
+    <path d="M76 70 Q88 60 84 50" stroke="#3F3855" strokeWidth="7" fill="none" strokeLinecap="round"/>
+    {evolved >= 1 && <g>
+      <Sparkle delay={0.3}/>
+      <circle cx="76" cy="22" r="6" fill="#FFD269" opacity=".7"/>
+    </g>}
+  </g>
+);
+
+// ─── Region icons (map) ───────────────────────────────────────
+const RegionIcon = ({ kind, size=44 }) => {
+  const icons = {
+    forest: <g>
+      <ellipse cx="22" cy="38" rx="20" ry="4" fill="rgba(0,0,0,.15)"/>
+      <path d="M22 4 L8 26 L14 26 L6 38 L20 38 L20 44 L24 44 L24 38 L38 38 L30 26 L36 26 Z" fill="#4A8F66"/>
+      <path d="M22 8 L12 24 L18 24 L11 36 L33 36 L26 24 L32 24 Z" fill="#5FA76F"/>
+    </g>,
+    mountain: <g>
+      <ellipse cx="22" cy="38" rx="20" ry="4" fill="rgba(0,0,0,.15)"/>
+      <path d="M4 38 L18 14 L26 26 L32 18 L40 38 Z" fill="#7A8FB8"/>
+      <path d="M14 22 L18 14 L22 22 Z" fill="#fff"/>
+      <path d="M30 24 L32 18 L34 24 Z" fill="#fff"/>
+    </g>,
+    sea: <g>
+      <circle cx="22" cy="22" r="20" fill="#7BC0E8"/>
+      <path d="M4 24 Q12 20 22 24 T40 24" stroke="#fff" strokeWidth="2" fill="none" opacity=".7"/>
+      <path d="M4 30 Q12 26 22 30 T40 30" stroke="#fff" strokeWidth="2" fill="none" opacity=".7"/>
+      <path d="M22 8 L26 16 L34 16 L28 22 L30 30 L22 26 L14 30 L16 22 L10 16 L18 16 Z" fill="#FFD269"/>
+    </g>,
+    castle: <g>
+      <ellipse cx="22" cy="38" rx="20" ry="4" fill="rgba(0,0,0,.15)"/>
+      <rect x="8" y="20" width="28" height="20" fill="#C8B898"/>
+      <rect x="6" y="14" width="6" height="8" fill="#7A4DC2"/>
+      <rect x="32" y="14" width="6" height="8" fill="#7A4DC2"/>
+      <rect x="19" y="10" width="6" height="14" fill="#7A4DC2"/>
+      <rect x="19" y="28" width="6" height="12" fill="#5A3A92" rx="3"/>
+      <path d="M19 10 L22 6 L25 10 Z" fill="#E89A3D"/>
+    </g>,
+    desert: <g>
+      <ellipse cx="22" cy="38" rx="20" ry="4" fill="rgba(0,0,0,.15)"/>
+      <path d="M2 38 Q12 28 22 32 Q32 36 42 30 L42 40 L2 40 Z" fill="#E1C68A"/>
+      <circle cx="32" cy="14" r="6" fill="#FFD269"/>
+      <path d="M16 38 Q14 28 18 26 L20 38 Z" fill="#5FA76F"/>
+    </g>,
+    sky: <g>
+      <circle cx="14" cy="22" r="6" fill="#fff"/>
+      <ellipse cx="22" cy="22" rx="10" ry="6" fill="#fff"/>
+      <circle cx="30" cy="20" r="5" fill="#fff"/>
+      <path d="M30 30 L22 38 L18 32 Z" fill="#B886E8"/>
+      <Sparkle/>
+    </g>,
+  };
+  return <svg width={size} height={size} viewBox="0 0 44 44">{icons[kind]}</svg>;
+};
+
+// ─── Artifacts ────────────────────────────────────────────────
+const Artifact = ({ kind, size=64 }) => {
+  if (kind === 'crystal') {
+    return (
+      <div style={{ width:size, height:size, position:'relative', display:'inline-block' }}>
+        <div style={{ position:'absolute', inset:0, borderRadius:'50%', background:'radial-gradient(circle, rgba(184,134,232,.55), transparent 65%)', filter:'blur(2px)' }}/>
+        <img src="assets/krysztal.png" alt="" style={{ position:'relative', width:'100%', height:'100%', objectFit:'contain', filter:'drop-shadow(0 4px 8px rgba(122,77,194,.4))' }}/>
+      </div>
+    );
+  }
+  const items = {
+    feather: <g>
+      <path d="M16 56 Q20 36 32 22 Q40 14 48 12 Q46 28 38 38 Q30 48 22 54 Z" fill="#7BC0E8"/>
+      <path d="M22 54 Q28 38 38 26 Q42 22 46 18" stroke="#fff" strokeWidth="1.2" fill="none" opacity=".8"/>
+      <path d="M16 56 L20 60" stroke="#7A6B98" strokeWidth="2" strokeLinecap="round"/>
+    </g>,
+    book: <g>
+      <rect x="10" y="14" width="44" height="40" rx="3" fill="#7A4DC2"/>
+      <rect x="14" y="18" width="36" height="32" rx="1" fill="#FBF1D6"/>
+      <path d="M22 28 L42 28 M22 34 L42 34 M22 40 L36 40" stroke="#7A4DC2" strokeWidth="1.4" strokeLinecap="round"/>
+      <circle cx="32" cy="32" r="4" fill="#FFD269" stroke="#E89A3D" strokeWidth="1"/>
+    </g>,
+    key: <g>
+      <circle cx="20" cy="32" r="14" fill="none" stroke="#FFD269" strokeWidth="6"/>
+      <circle cx="20" cy="32" r="6" fill="#E89A3D"/>
+      <rect x="34" y="28" width="22" height="8" fill="#FFD269"/>
+      <rect x="46" y="28" width="4" height="14" fill="#FFD269"/>
+      <rect x="52" y="28" width="4" height="10" fill="#FFD269"/>
+    </g>,
+    leaf: <g>
+      <path d="M32 8 Q12 18 16 38 Q20 56 32 56 Q44 56 48 38 Q52 18 32 8 Z" fill="#5FA76F"/>
+      <path d="M32 12 L32 54" stroke="#3F8056" strokeWidth="1.5"/>
+      <path d="M32 22 Q26 24 22 30 M32 32 Q26 34 22 40 M32 22 Q38 24 42 30 M32 32 Q38 34 42 40" stroke="#3F8056" strokeWidth="1" fill="none"/>
+    </g>,
+    shell: <g>
+      <path d="M32 8 Q14 14 14 36 Q14 56 32 58 Q50 56 50 36 Q50 14 32 8 Z" fill="#F4D6E0"/>
+      <path d="M32 12 L32 56 M22 16 Q24 36 30 56 M42 16 Q40 36 34 56 M16 28 Q22 38 32 44 Q42 38 48 28" stroke="#E8A8BD" strokeWidth="1.2" fill="none"/>
+    </g>,
+  };
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64">
+      <ellipse cx="32" cy="60" rx="20" ry="2" fill="rgba(0,0,0,.18)"/>
+      {items[kind]}
+    </svg>
+  );
+};
+
+// ─── Moon phases / sun ─────────────────────────────────────────
+const MoonPhase = ({ phase=0, size=48, glow=true }) => {
+  // 0 new, 1 quarter, 2 half, 3 three-quarter, 4 full, 5 sun
+  return (
+    <svg width={size} height={size} viewBox="0 0 48 48">
+      {glow && <circle cx="24" cy="24" r="22" fill="#FFD269" opacity={phase===5?.4:.18}/>}
+      {phase===5 && <g>
+        <circle cx="24" cy="24" r="13" fill="#FFD269"/>
+        {[0,45,90,135,180,225,270,315].map(a=>{
+          const r = a*Math.PI/180;
+          return <line key={a} x1={24+Math.cos(r)*16} y1={24+Math.sin(r)*16} x2={24+Math.cos(r)*22} y2={24+Math.sin(r)*22} stroke="#FFD269" strokeWidth="3" strokeLinecap="round"/>;
+        })}
+      </g>}
+      {phase!==5 && <g>
+        <circle cx="24" cy="24" r="14" fill="#F4E3B8"/>
+        {phase===0 && <circle cx="24" cy="24" r="14" fill="#2B2A4A" opacity=".85"/>}
+        {phase===1 && <path d="M24 10 A14 14 0 0 0 24 38 A8 14 0 0 1 24 10 Z" fill="#2B2A4A" opacity=".75"/>}
+        {phase===2 && <path d="M24 10 A14 14 0 0 0 24 38 Z" fill="#2B2A4A" opacity=".75"/>}
+        {phase===3 && <path d="M24 10 A14 14 0 0 0 24 38 A4 14 0 0 0 24 10 Z" fill="#2B2A4A" opacity=".60"/>}
+        <circle cx="20" cy="20" r="2" fill="#D6C58A" opacity=".6"/>
+        <circle cx="28" cy="26" r="1.4" fill="#D6C58A" opacity=".6"/>
+      </g>}
+    </svg>
+  );
+};
+
+// ─── World map (parchment with regions) ───────────────────────
+const WorldMap = ({ width=320, height=380, currentRegion='forest', onPick }) => {
+  const regions = [
+    { id:'forest',  x:24, y:62, label:'Las Pytań' },
+    { id:'sea',     x:78, y:48, label:'Morze Słów' },
+    { id:'mountain',x:60, y:18, label:'Góry Liczb' },
+    { id:'castle',  x:26, y:24, label:'Zamek Czasu' },
+    { id:'desert',  x:80, y:78, label:'Pustynia Pomysłów' },
+    { id:'sky',     x:48, y:6,  label:'Niebo Marzeń' },
+  ];
+  return (
+    <div style={{ position:'relative', width, height }}>
+      <svg width={width} height={height} viewBox="0 0 320 380" style={{ display:'block' }}>
+        <defs>
+          <radialGradient id="mapBg" cx="50%" cy="50%" r="60%">
+            <stop offset="0%" stopColor="#FCF5E1"/>
+            <stop offset="100%" stopColor="#E1CB94"/>
+          </radialGradient>
+          <pattern id="mapGrain" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+            <circle cx="3" cy="5" r="0.6" fill="#A8762A" opacity=".15"/>
+            <circle cx="14" cy="12" r="0.5" fill="#A8762A" opacity=".10"/>
+          </pattern>
+        </defs>
+        <rect width="320" height="380" rx="22" fill="url(#mapBg)"/>
+        <rect width="320" height="380" rx="22" fill="url(#mapGrain)"/>
+        {/* sea */}
+        <path d="M180 130 Q260 120 280 180 Q300 240 240 270 Q200 280 220 220 Q230 180 180 170 Z" fill="#A8D8F0" opacity=".7"/>
+        <path d="M200 170 Q230 175 240 200" stroke="#fff" strokeWidth="1.5" fill="none" opacity=".7"/>
+        {/* forest */}
+        <ellipse cx="80" cy="240" rx="65" ry="40" fill="#A6D9AE" opacity=".7"/>
+        {[[40,230],[60,250],[80,235],[100,255],[120,240]].map((p,i)=>
+          <path key={i} d={`M${p[0]} ${p[1]+10} L${p[0]-6} ${p[1]} L${p[0]+6} ${p[1]} Z M${p[0]} ${p[1]} L${p[0]-8} ${p[1]-8} L${p[0]+8} ${p[1]-8} Z`} fill="#5FA76F"/>
+        )}
+        {/* mountain */}
+        <path d="M150 80 L200 30 L250 80 Z" fill="#B5C4D9"/>
+        <path d="M180 50 L200 30 L220 50 Z" fill="#fff"/>
+        {/* castle perch */}
+        <ellipse cx="80" cy="100" rx="38" ry="24" fill="#D5C29A" opacity=".7"/>
+        {/* desert */}
+        <path d="M210 280 Q280 280 290 320 L210 320 Z" fill="#E1C68A" opacity=".7"/>
+        {/* path: dotted travel route */}
+        <path d="M80 320 Q130 290 100 240 Q70 200 130 160 Q170 140 220 80" stroke="#A8762A" strokeWidth="2.5" strokeDasharray="3 5" fill="none" opacity=".7"/>
+        {/* tiny boat / landmark */}
+        <text x="240" y="200" fontSize="14" fill="#7A4DC2" fontFamily="Baloo 2">⛵</text>
+        <text x="20" y="350" fontSize="11" fill="#7A4D10" fontFamily="Baloo 2" fontWeight="600">Kraina Kroniki</text>
+        {/* compass */}
+        <g transform="translate(280 50)">
+          <circle r="14" fill="#FCF5E1" stroke="#A8762A" strokeWidth="1"/>
+          <path d="M0 -10 L3 0 L0 10 L-3 0 Z" fill="#7A4DC2"/>
+          <text y="-16" textAnchor="middle" fontSize="10" fill="#7A4D10" fontFamily="Baloo 2" fontWeight="700">N</text>
+        </g>
+      </svg>
+      {regions.map(r=>(
+        <button key={r.id} className={`pin ${currentRegion===r.id?'active':''}`}
+          style={{ left:`${r.x}%`, top:`${r.y}%`, background:'transparent', border:'none', padding:0 }}
+          onClick={()=>onPick && onPick(r.id)}>
+          <div className="pin-label">{r.label}</div>
+          <div className="pin-dot"/>
+        </button>
+      ))}
+    </div>
+  );
+};
+
+// ─── Tab icons ────────────────────────────────────────────────
+const TabIcons = {
+  home: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11l9-8 9 8v10a2 2 0 01-2 2h-4v-7h-6v7H5a2 2 0 01-2-2z"/></svg>,
+  map: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v16M15 6v16"/></svg>,
+  bag: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V5a3 3 0 016 0v3"/></svg>,
+  hero: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="9" r="4"/><path d="M5 21c0-4 3-7 7-7s7 3 7 7"/></svg>,
+};
+
+// ─── Cloud silhouette ─────────────────────────────────────────
+const Cloud = ({ size=80, opacity=.7 }) => (
+  <svg width={size} height={size*.6} viewBox="0 0 100 60" style={{ opacity }}>
+    <ellipse cx="30" cy="40" rx="22" ry="14" fill="#fff"/>
+    <ellipse cx="50" cy="32" rx="22" ry="18" fill="#fff"/>
+    <ellipse cx="72" cy="40" rx="20" ry="14" fill="#fff"/>
+    <ellipse cx="50" cy="44" rx="32" ry="10" fill="#fff"/>
+  </svg>
+);
+
+// ─── Floating fantasy island ──────────────────────────────────
+const FloatingIsland = ({ size=140 }) => (
+  <svg width={size} height={size} viewBox="0 0 160 160" style={{ display:'block', filter:'drop-shadow(0 10px 18px rgba(40,20,80,.18))' }}>
+    {/* sun/moon halo */}
+    <circle cx="116" cy="40" r="14" fill="#FFD269" opacity=".85"/>
+    <circle cx="116" cy="40" r="22" fill="#FFD269" opacity=".18"/>
+    {/* tiny cloud */}
+    <g opacity=".85">
+      <ellipse cx="32" cy="48" rx="12" ry="6" fill="#fff"/>
+      <ellipse cx="42" cy="46" rx="10" ry="7" fill="#fff"/>
+      <ellipse cx="22" cy="50" rx="8" ry="5" fill="#fff"/>
+    </g>
+    {/* island shadow on ground */}
+    <ellipse cx="80" cy="142" rx="42" ry="5" fill="rgba(40,20,80,.18)"/>
+    {/* island base (rocky underside) */}
+    <path d="M28 96 Q22 110 36 122 Q50 134 80 134 Q110 134 122 122 Q138 108 130 96 Q120 88 80 88 Q40 88 28 96 Z" fill="#7A4DC2"/>
+    <path d="M48 124 Q56 134 64 128" stroke="#5A3490" strokeWidth="2" fill="none" strokeLinecap="round"/>
+    <path d="M96 128 Q104 134 112 126" stroke="#5A3490" strokeWidth="2" fill="none" strokeLinecap="round"/>
+    {/* grass top */}
+    <ellipse cx="80" cy="92" rx="56" ry="14" fill="#5FA76F"/>
+    <path d="M24 92 Q80 76 136 92" fill="none" stroke="#7AC089" strokeWidth="3"/>
+    {/* little tree */}
+    <rect x="62" y="72" width="5" height="14" rx="1" fill="#6B4226"/>
+    <circle cx="64.5" cy="68" r="11" fill="#4A8F66"/>
+    <circle cx="59" cy="64" r="6" fill="#5FA76F"/>
+    <circle cx="70" cy="64" r="6" fill="#5FA76F"/>
+    {/* mushroom */}
+    <rect x="100" y="80" width="4" height="8" fill="#FFF6E1"/>
+    <ellipse cx="102" cy="80" rx="8" ry="5" fill="#F08C8C"/>
+    <circle cx="99" cy="79" r="1.4" fill="#fff"/>
+    <circle cx="104" cy="78" r="1.2" fill="#fff"/>
+    {/* tiny flag/spire */}
+    <line x1="84" y1="88" x2="84" y2="76" stroke="#7A4D10" strokeWidth="1.8"/>
+    <path d="M84 76 L92 79 L84 82 Z" fill="#FFD269"/>
+    {/* dangling roots */}
+    <path d="M44 122 L42 134" stroke="#5A3490" strokeWidth="2" strokeLinecap="round"/>
+    <path d="M118 122 L120 132" stroke="#5A3490" strokeWidth="2" strokeLinecap="round"/>
+    {/* sparkles */}
+    <g>
+      <path d="M140 70 L142 76 L148 78 L142 80 L140 86 L138 80 L132 78 L138 76 Z" fill="#FFD269" opacity=".85"/>
+      <path d="M22 78 L23 82 L27 83 L23 84 L22 88 L21 84 L17 83 L21 82 Z" fill="#B886E8" opacity=".7"/>
+    </g>
+  </svg>
+);
+
+// ─── Coin (Złota Moneta) — currency icon ──────────────────────
+const Coin = ({ size=22, anim=false, delay=0 }) => (
+  <svg width={size} height={size} viewBox="0 0 32 32"
+       style={{ display:'inline-block', verticalAlign:'middle',
+                animation: anim ? `coin-spin 2.6s ease-in-out infinite` : 'none',
+                animationDelay: `${delay}s`,
+                filter: 'drop-shadow(0 2px 3px rgba(120,80,10,.45))' }}>
+    <defs>
+      <radialGradient id={`coinG-${size}-${delay}`} cx="35%" cy="32%" r="70%">
+        <stop offset="0" stopColor="#FFF1B0"/>
+        <stop offset=".55" stopColor="#FFD269"/>
+        <stop offset="1" stopColor="#C2851E"/>
+      </radialGradient>
+      <linearGradient id={`coinR-${size}-${delay}`} x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#FFE39A"/>
+        <stop offset="1" stopColor="#A66614"/>
+      </linearGradient>
+    </defs>
+    {/* outer rim */}
+    <circle cx="16" cy="16" r="15" fill={`url(#coinR-${size}-${delay})`}/>
+    {/* inner face */}
+    <circle cx="16" cy="16" r="12" fill={`url(#coinG-${size}-${delay})`}/>
+    {/* inner ring */}
+    <circle cx="16" cy="16" r="11" fill="none" stroke="#B47322" strokeWidth=".8" opacity=".55"/>
+    {/* embossed star */}
+    <path d="M16 7.5 L17.6 13.4 L23.6 14.0 L18.9 17.6 L20.6 23.4 L16 19.9 L11.4 23.4 L13.1 17.6 L8.4 14.0 L14.4 13.4 Z"
+          fill="#B47322" opacity=".42"/>
+    <path d="M16 8.5 L17.4 13.6 L22.6 14.1 L18.5 17.1 L19.9 22.1 L16 19.0 L12.1 22.1 L13.5 17.1 L9.4 14.1 L14.6 13.6 Z"
+          fill="#FFEFA8"/>
+    {/* shine highlight */}
+    <ellipse cx="11.5" cy="11" rx="2.6" ry="1.4" fill="#fff" opacity=".75"/>
+  </svg>
+);
+
+// Pill that shows current coin balance — drop in topbar or anywhere
+const CoinPill = ({ value=0, size=22, recent=null, onClick }) => (
+  <button onClick={onClick} style={{
+    display:'inline-flex', alignItems:'center', gap:6,
+    background:'linear-gradient(180deg,#FFF1B0,#FFD269)',
+    color:'#7A4D10', fontWeight:800, fontSize:14,
+    padding:'5px 11px 5px 6px', borderRadius:999,
+    boxShadow:'inset 0 0 0 1.5px #E1B66A, 0 2px 4px rgba(160,110,30,.25)',
+    border:'none', cursor: onClick?'pointer':'default',
+    position:'relative', whiteSpace:'nowrap',
+    fontFamily:"var(--font-body,'Nunito'),sans-serif",
+  }}>
+    <Coin size={size} anim/>
+    <span style={{ lineHeight:1 }}>{value.toLocaleString('pl-PL')}</span>
+    {recent != null && recent > 0 && (
+      <span style={{
+        position:'absolute', top:-10, right:-6,
+        background:'#5FA76F', color:'#fff', fontWeight:800,
+        fontSize:11, padding:'2px 7px', borderRadius:999,
+        boxShadow:'0 2px 4px rgba(74,143,102,.45)',
+        animation:'coin-bump .6s ease-out',
+      }}>+{recent}</span>
+    )}
+  </button>
+);
+
+Object.assign(window, { Sparkle, Avatar, RegionIcon, Artifact, MoonPhase, WorldMap, TabIcons, Cloud, FloatingIsland, Coin, CoinPill });
