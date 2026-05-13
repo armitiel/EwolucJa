@@ -1,50 +1,54 @@
 import { Router } from "express";
 import { getPlayer, savePlayer, createCycle } from "../database/db.js";
 
+// QUIZ ZBALANSOWANY (v2):
+// Kazdy z 6 archetypow pojawia sie we WSZYSTKICH 5 pytaniach.
+// Max punktow do zdobycia: DT/EM/ST = 8 pkt | KR/LD/MD = 7 pkt (roznica tylko 1 pkt).
+// Kazda odpowiedz daje 2 pkt do PIERWSZEGO archetypu + 1 pkt do DRUGIEGO.
 export const ONBOARDING_QUIZ = [
   {
     question_id: "q1",
-    question: "Znajdujesz w lesie tajemniczą skrzynię. Co robisz?",
+    question: "Wracasz z lasu i widzisz tajemniczą skrzynię. Co robisz?",
     answers: [
-      { answer_id: "a", text: "Otwieram od razu, muszę wiedzieć, co tam jest!", points: { DT: 2, LD: 1 } },
-      { answer_id: "b", text: "Najpierw oglądam ze wszystkich stron i szukam wskazówek.", points: { DT: 2, ST: 1 } },
-      { answer_id: "c", text: "Wołam kogoś, żebyśmy otworzyli ją razem.", points: { MD: 2, EM: 1 } },
+      { answer_id: "a", text: "Spokojnie. Najpierw obejdę ją dookoła, sprawdzę zamek — dopiero wtedy zdecyduję.", points: { ST: 2, MD: 1 } },
+      { answer_id: "b", text: "Coś tu się ukrywa! Szukam wokół śladów i wskazówek.", points: { DT: 2, KR: 1 } },
+      { answer_id: "c", text: "Otwieram odważnie. Strach minie, ciekawość zostanie!", points: { LD: 2, EM: 1 } },
     ],
   },
   {
     question_id: "q2",
-    question: "Twój przyjaciel jest smutny. Co czujesz najpierw?",
+    question: "Twój najlepszy przyjaciel siedzi smutny w kącie. Co robisz?",
     answers: [
-      { answer_id: "a", text: "Chcę wiedzieć, dlaczego — pytam, co się stało.", points: { EM: 2, DT: 1 } },
-      { answer_id: "b", text: "Wymyślam coś, żeby go rozśmieszyć.", points: { KR: 2, EM: 1 } },
-      { answer_id: "c", text: "Mówię: 'damy radę' i prowadzę go do działania.", points: { LD: 2 } },
+      { answer_id: "a", text: 'Siadam obok i pytam: „co czujesz?" — czekam, aż się otworzy.', points: { EM: 2, DT: 1 } },
+      { answer_id: "b", text: "Wymyślam głupkowate przebranie albo grę, żeby go rozśmieszyć.", points: { KR: 2, LD: 1 } },
+      { answer_id: "c", text: 'Mówię: „jutro znajdziemy coś fajnego" — i razem to planujemy.', points: { ST: 2, MD: 1 } },
     ],
   },
   {
     question_id: "q3",
-    question: "Masz wybrać między dwiema ścieżkami. Pierwsza prowadzi do skarbu szybciej, druga ma znaki zapytania.",
+    question: "Dwie osoby w domu się kłócą. Co robisz?",
     answers: [
-      { answer_id: "a", text: "Idę szybciej — czas to skarb.", points: { ST: 2, LD: 1 } },
-      { answer_id: "b", text: "Idę tą z pytaniami — chcę zrozumieć.", points: { DT: 3 } },
-      { answer_id: "c", text: "Wymyślam trzecią drogę.", points: { KR: 2 } },
+      { answer_id: "a", text: "Słucham każdej z osobna, szukam tego, co je łączy — i o tym mówię.", points: { MD: 2, EM: 1 } },
+      { answer_id: "b", text: 'Pytam każdą: „co się NAPRAWDĘ stało?" — chcę zrozumieć.', points: { DT: 2, ST: 1 } },
+      { answer_id: "c", text: 'Mówię: „STOP! Wymyśliłem coś, co robimy razem!"', points: { KR: 2, LD: 1 } },
     ],
   },
   {
     question_id: "q4",
-    question: "Dwie postacie się kłócą. Co robisz?",
+    question: "Dostajesz tydzień na zrobienie czegoś wielkiego. Jak zaczynasz?",
     answers: [
-      { answer_id: "a", text: "Słucham obu i pomagam znaleźć kompromis.", points: { MD: 3, EM: 1 } },
-      { answer_id: "b", text: "Zadaję im pytania, żeby zrozumiały, o co naprawdę chodzi.", points: { DT: 2, MD: 1 } },
-      { answer_id: "c", text: "Mówię: dość, idziemy dalej, decyduję.", points: { LD: 2 } },
+      { answer_id: "a", text: "Wyciągam kartkę i planuję dzień po dniu, krok po kroku.", points: { ST: 2, DT: 1 } },
+      { answer_id: "b", text: "Zbieram drużynę, rozdzielam role, ruszamy razem.", points: { LD: 2, MD: 1 } },
+      { answer_id: "c", text: "Sprawdzam, czy nikt mi nie pomoże — razem szybciej i fajniej.", points: { EM: 2, KR: 1 } },
     ],
   },
   {
     question_id: "q5",
-    question: "Dostałeś zadanie domowe na cały tydzień. Co robisz w pierwszy dzień?",
+    question: "W twojej grupie jest ktoś nowy, kto siedzi sam. Co robisz?",
     answers: [
-      { answer_id: "a", text: "Planuję wszystko po kolei na kartce.", points: { ST: 3 } },
-      { answer_id: "b", text: "Zaczynam od najciekawszej części — cieszę się tym, że robię to inaczej.", points: { KR: 2, DT: 1 } },
-      { answer_id: "c", text: "Robię od razu, żeby już mieć z głowy.", points: { LD: 2, ST: 1 } },
+      { answer_id: "a", text: 'Podchodzę cicho, mówię: „cześć, lubisz tu?" — i słucham.', points: { EM: 2, ST: 1 } },
+      { answer_id: "b", text: "Pytam, co lubi robić — szukam czegoś wspólnego.", points: { DT: 2, KR: 1 } },
+      { answer_id: "c", text: "Łączę go z osobą, która ma podobne hobby — robię most.", points: { MD: 2, LD: 1 } },
     ],
   },
 ];
