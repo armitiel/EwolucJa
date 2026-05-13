@@ -31,6 +31,8 @@ export default function Onboarding() {
   // Czy lektor skonczyl mowic (intro lub przejscie) — dopiero wtedy pokazujemy odpowiedzi.
   // Przy 1. pytaniu blokuje wszystko do konca intro. Przy kolejnych — do konca przejscia.
   const [narrationDone, setNarrationDone] = useState(false);
+  // Animowane potwierdzenie wyboru — id zaznaczonej odpowiedzi, delay przed przejsciem.
+  const [pickedAnswerId, setPickedAnswerId] = useState(null);
 
   useEffect(() => {
     if (step === "quiz" && !quiz) {
@@ -57,13 +59,19 @@ export default function Onboarding() {
   }
 
   function selectAnswer(qid, aid) {
-    setAnswers((prev) => ({ ...prev, [qid]: aid }));
-    if (quiz && questionIdx < quiz.questions.length - 1) {
-      setNarrationDone(false); // zablokuj odpowiedzi przy nastepnym pytaniu az lektor skonczy
-      setQuestionIdx((i) => i + 1);
-    } else {
-      submitQuiz({ ...answers, [qid]: aid });
-    }
+    if (pickedAnswerId) return; // chrona przed double-clickiem
+    setPickedAnswerId(aid);
+    // Zostaw chwile na animacje zaznaczenia (pulse + glow), potem przejdz dalej.
+    setTimeout(() => {
+      setAnswers((prev) => ({ ...prev, [qid]: aid }));
+      if (quiz && questionIdx < quiz.questions.length - 1) {
+        setNarrationDone(false);
+        setQuestionIdx((i) => i + 1);
+        setPickedAnswerId(null);
+      } else {
+        submitQuiz({ ...answers, [qid]: aid });
+      }
+    }, 700);
   }
 
   async function submitQuiz(finalAnswers) {
@@ -184,11 +192,11 @@ export default function Onboarding() {
                   src="/wizard.png"
                   alt="Strażniczka Zakątka"
                   style={{
-                    width: questionIdx === 0 && !narrationDone ? 360 : 240,
-                    maxWidth: "85vw",
+                    width: questionIdx === 0 && !narrationDone ? 180 : 120,
+                    maxWidth: "60vw",
                     height: "auto",
                     objectFit: "contain",
-                    filter: "drop-shadow(0 14px 28px rgba(80,40,140,.4))",
+                    filter: "drop-shadow(0 10px 18px rgba(80,40,140,.35))",
                     transition: "width 0.5s ease",
                   }}
                 />
@@ -243,29 +251,88 @@ export default function Onboarding() {
                 pointerEvents: narrationDone ? "auto" : "none",
               }}
             >
-              {quiz.questions[questionIdx].answers.map((a, idx) => (
-                <button
-                  key={a.answer_id}
-                  className="card card-tight"
-                  onClick={() => selectAnswer(quiz.questions[questionIdx].question_id, a.answer_id)}
-                  disabled={loading || !narrationDone}
-                  style={{
-                    border: "none",
-                    cursor: narrationDone ? "pointer" : "default",
-                    textAlign: "left",
-                    padding: "14px 16px",
-                    fontSize: 15,
-                    fontFamily: "var(--font-body, 'Nunito'), sans-serif",
-                    fontWeight: 600,
-                    color: "var(--p-ink)",
-                    transition: `opacity 0.4s ease ${idx * 0.08}s, transform 0.4s ease ${idx * 0.08}s`,
-                    opacity: narrationDone ? 1 : 0,
-                    transform: narrationDone ? "translateY(0)" : "translateY(8px)",
-                  }}
-                >
-                  {a.text}
-                </button>
-              ))}
+              {quiz.questions[questionIdx].answers.map((a, idx) => {
+                const isPicked = pickedAnswerId === a.answer_id;
+                const isDimmed = pickedAnswerId && !isPicked;
+                return (
+                  <button
+                    key={a.answer_id}
+                    className="card card-tight"
+                    onClick={() => selectAnswer(quiz.questions[questionIdx].question_id, a.answer_id)}
+                    disabled={loading || !narrationDone || !!pickedAnswerId}
+                    style={{
+                      border: "none",
+                      cursor: narrationDone && !pickedAnswerId ? "pointer" : "default",
+                      textAlign: "left",
+                      padding: "14px 16px",
+                      fontSize: 15,
+                      fontFamily: "var(--font-body, 'Nunito'), sans-serif",
+                      fontWeight: 600,
+                      color: isPicked ? "#fff" : "var(--p-ink)",
+                      background: isPicked
+                        ? "linear-gradient(180deg, #C8A0F0 0%, #7A4DC2 100%)"
+                        : undefined,
+                      boxShadow: isPicked
+                        ? "0 0 0 4px rgba(184,134,232,.35), 0 8px 24px rgba(122,77,194,.45), 0 3px 0 #4A2D80"
+                        : undefined,
+                      transform: !narrationDone
+                        ? "translateY(8px)"
+                        : isPicked
+                        ? "scale(1.02)"
+                        : isDimmed
+                        ? "scale(0.97)"
+                        : "translateY(0)",
+                      opacity: !narrationDone ? 0 : isDimmed ? 0.45 : 1,
+                      filter: isDimmed ? "grayscale(.3)" : "none",
+                      transition: !narrationDone
+                        ? `opacity 0.4s ease ${idx * 0.08}s, transform 0.4s ease ${idx * 0.08}s`
+                        : "opacity 0.35s ease, transform 0.35s cubic-bezier(.34,1.56,.64,1), background 0.3s ease, box-shadow 0.3s ease, color 0.3s ease, filter 0.3s ease",
+                      position: "relative",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {a.text}
+                    {/* Pulsujace halo wokol zaznaczonej */}
+                    {isPicked && (
+                      <span
+                        aria-hidden="true"
+                        style={{
+                          position: "absolute",
+                          inset: -2,
+                          borderRadius: "inherit",
+                          pointerEvents: "none",
+                          boxShadow: "0 0 0 0 rgba(184,134,232,.6)",
+                          animation: "pulse-ring 0.9s ease-out forwards",
+                        }}
+                      />
+                    )}
+                    {/* Checkmark po prawej */}
+                    {isPicked && (
+                      <span
+                        style={{
+                          position: "absolute",
+                          right: 14,
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          width: 22,
+                          height: 22,
+                          borderRadius: "50%",
+                          background: "#fff",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 14,
+                          fontWeight: 900,
+                          color: "var(--p-magic-dk)",
+                          animation: "coin-bump .5s cubic-bezier(.34,1.56,.64,1) both",
+                        }}
+                      >
+                        ✓
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
 
               {!narrationDone && (
                 <p style={{ opacity: 0.55, fontSize: 13, textAlign: "center", margin: "8px 0 0", fontStyle: "italic" }}>
