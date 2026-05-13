@@ -10,7 +10,104 @@ import NarratorVoice from "../components/NarratorVoice.jsx";
 import PageShell from "../components/PageShell.jsx";
 import Loading from "../components/Loading.jsx";
 import TabBar from "../components/TabBar.jsx";
-import { Sparkle } from "../components/art.jsx";
+import { Sparkle, Coin, CoinPill } from "../components/art.jsx";
+
+// ─── WeekProgress — pasek 7-dniowy + monety + streak + Skarb tygodnia ───
+function WeekProgress({ done = 0, coins = 0, streak = 0, goal = 7 }) {
+  const days = ["PN", "WT", "ŚR", "CZ", "PT", "SO", "ND"];
+  const pct = Math.round((done / goal) * 100);
+  return (
+    <div className="card" style={{ padding: "14px 16px" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-magic-dk)" }}>POSTĘP TYGODNIA</div>
+          <div className="t-display" style={{ fontSize: 18, marginTop: 2 }}>{done} z {goal} zadań</div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#C2851E", fontWeight: 800, fontSize: 13 }}>
+          <Coin size={18} /> <span>+{coins} w tym tyg.</span>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6, marginTop: 2 }}>
+        {days.map((d, i) => {
+          const isDone = i < done;
+          const isToday = i === done && done < goal;
+          return (
+            <div key={d} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+              <div
+                style={{
+                  width: 32, height: 32, borderRadius: "50%", position: "relative",
+                  background: isDone
+                    ? "linear-gradient(180deg,#FFD269,#E89A3D)"
+                    : isToday ? "rgba(184,134,232,.20)" : "rgba(255,255,255,.55)",
+                  boxShadow: isDone
+                    ? "0 2px 0 #B47322, 0 3px 8px rgba(232,154,61,.45)"
+                    : isToday ? "inset 0 0 0 2.2px var(--p-magic-dk)" : "inset 0 0 0 1.4px rgba(43,42,74,.10)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  animation: isDone ? `wk-bump .5s ${i * 0.06}s cubic-bezier(.34,1.56,.64,1) both` : "none",
+                }}
+              >
+                {isDone && <Coin size={20} />}
+                {isToday && <span style={{ width: 10, height: 10, borderRadius: "50%", background: "var(--p-magic-dk)" }} />}
+              </div>
+              <div
+                style={{
+                  fontSize: 10, fontWeight: 800, letterSpacing: 0.5,
+                  color: isToday ? "var(--p-magic-dk)" : "var(--p-ink-soft)",
+                  opacity: isDone ? 1 : 0.7,
+                }}
+              >
+                {d}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 12 }}>
+        <div style={{ flex: 1 }}>
+          <div className="prog magic"><i style={{ width: `${pct}%` }} /></div>
+          <div style={{ fontSize: 10, fontWeight: 800, color: "var(--p-ink-soft)", marginTop: 4, letterSpacing: 0.5 }}>
+            {done >= goal
+              ? "TYDZIEŃ UKOŃCZONY ✦"
+              : `JESZCZE ${goal - done} ${goal - done === 1 ? "ZADANIE" : (goal - done < 5 ? "ZADANIA" : "ZADAŃ")} DO SKARBU`}
+          </div>
+        </div>
+        <div
+          style={{
+            display: "flex", alignItems: "center", gap: 5,
+            background: "linear-gradient(180deg,#FFC178,#E8632D)", color: "#fff",
+            padding: "5px 11px", borderRadius: 999, fontSize: 13, fontWeight: 800,
+            boxShadow: "0 2px 0 #A03A12, 0 3px 8px rgba(232,99,45,.45)",
+          }}
+          title="seria dni z rzedu"
+        >
+          <span style={{ display: "inline-block", animation: "streak-flame 1.4s ease-in-out infinite", transformOrigin: "50% 80%" }}>🔥</span>
+          <span>{streak} dni</span>
+        </div>
+      </div>
+
+      <div
+        style={{
+          marginTop: 10, padding: "8px 10px", borderRadius: 14,
+          background: done >= goal ? "linear-gradient(135deg,#FFE7B0,#FFD269)" : "rgba(122,77,194,.10)",
+          display: "flex", alignItems: "center", gap: 10,
+        }}
+      >
+        <div style={{ fontSize: 22, animation: done >= goal ? "wiggle .8s ease-in-out infinite" : "none", flex: "none" }}>
+          {done >= goal ? "🎁" : "📜"}
+        </div>
+        <div style={{ flex: 1, fontSize: 12, color: "var(--p-ink-soft)", fontWeight: 600, lineHeight: 1.3 }}>
+          {done >= goal ? (
+            <><b style={{ color: "#7A4D10" }}>Skarb tygodnia odblokowany!</b> Odbierz +50 monet i artefakt cykli.</>
+          ) : (
+            <><b style={{ color: "var(--p-magic-dk)" }}>Skarb tygodnia:</b> +50 monet · rzadki artefakt · ewolucja</>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // Zegar cyklu — radialny pasek postepu 1..N dni z nazwa i odliczeniem.
 function CycleClock({ days = 5, dayIndex = 1, label = "Wieża Pytań", remainingText = "" }) {
@@ -147,8 +244,19 @@ export default function WorldHub() {
   }
   if (!player) return <Loading text="Otwieranie Kroniki…" />;
 
+  // Skarbiec — liczone z lifetime_scores + backpack (placeholder logika)
+  const totalCoins = ((player.lifetime_scores?.DT || 0) + (player.lifetime_scores?.EM || 0)) * 10 + 12;
+  const weekDone = Math.min(7, (player.backpack || []).length);
+  const weekCoins = weekDone * 12;
+  const streak = (player.scores?.streak || 0) + Math.max(1, weekDone);
+
   return (
     <PageShell>
+      {/* Floating CoinPill w prawym gornym rogu */}
+      <div style={{ position: "absolute", top: 14, right: 14, zIndex: 5 }}>
+        <CoinPill value={totalCoins} onClick={() => navigate("/backpack")} />
+      </div>
+
       <div className="screen-scroll" style={{ display: "flex", flexDirection: "column", gap: 16, paddingTop: 24, position: "relative", zIndex: 1, flex: 1 }}>
         {/* Hero — wielki wizard + powitanie */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, marginTop: 4 }}>
@@ -196,6 +304,9 @@ export default function WorldHub() {
           label={cycle ? `Cykl #${cycle.cycle_number || 1} — Wieża Pytań` : "Wieża Pytań"}
           remainingText={friday && !friday.passed ? `Zostało ${friday.label} do nagrody` : ""}
         />
+
+        {/* Postep tygodnia + skarb */}
+        <WeekProgress done={weekDone} coins={weekCoins} streak={streak} />
 
         {/* Karta misji — zwoj zamkniety */}
         <button

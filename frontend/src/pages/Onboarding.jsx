@@ -5,7 +5,7 @@ import { ARCHETYPES } from "../config.js";
 import { ttsPlayer } from "../services/ttsPlayer";
 import NarratorVoice from "../components/NarratorVoice.jsx";
 import PageShell from "../components/PageShell.jsx";
-import { Avatar, Sparkle } from "../components/art.jsx";
+import { Avatar, Sparkle, Coin, CoinPill } from "../components/art.jsx";
 
 // Krotkie teksty przejsciowe miedzy odpowiedzia a kolejnym pytaniem.
 // Indeksowane po numerze pytania DO KTOREGO przechodzimy (1 -> 4).
@@ -277,7 +277,7 @@ export default function Onboarding() {
         )}
 
         {step === "result" && result && (
-          <ArchetypeReveal result={result} onEnter={() => navigate("/world")} />
+          <CelebrationThenArchetype result={result} onEnter={() => navigate("/world")} />
         )}
       </div>
     </PageShell>
@@ -326,6 +326,139 @@ function ArchetypeReveal({ result, onEnter }) {
       <button className="btn btn-magic btn-block" style={{ maxWidth: 380 }} onClick={onEnter}>
         Wyrusz w drogę ✦
       </button>
+    </div>
+  );
+}
+
+// ─── Ekran nagrody po quizie — najpierw burst + monety, potem ArchetypeReveal ───
+function CelebrationThenArchetype({ result, onEnter }) {
+  const [phase, setPhase] = useState("burst"); // burst -> archetype
+  const [coinCount, setCoinCount] = useState(0);
+  const REWARD = 50;
+
+  useEffect(() => {
+    if (phase !== "burst") return;
+    // Animowane licznik monet 0 -> 50 w 1.5s
+    const start = Date.now();
+    const duration = 1500;
+    const tick = setInterval(() => {
+      const t = Math.min(1, (Date.now() - start) / duration);
+      setCoinCount(Math.round(REWARD * t));
+      if (t >= 1) clearInterval(tick);
+    }, 40);
+    // Po 3.5s przelacz na ArchetypeReveal
+    const t1 = setTimeout(() => setPhase("archetype"), 3500);
+    return () => {
+      clearInterval(tick);
+      clearTimeout(t1);
+    };
+  }, [phase]);
+
+  if (phase === "archetype") {
+    return <ArchetypeReveal result={result} onEnter={onEnter} />;
+  }
+
+  const colors = ["#FFD269", "#B886E8", "#7BC0E8", "#F08C8C", "#5FA76F"];
+  return (
+    <div
+      className="pop-in"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 14,
+        padding: "20px 0",
+        position: "relative",
+        minHeight: 480,
+      }}
+    >
+      {/* Latajace platki/konfetti */}
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+        {Array.from({ length: 16 }).map((_, i) => {
+          const a = (i / 16) * Math.PI * 2;
+          const cx = 50 + Math.cos(a) * 35;
+          const cy = 35 + Math.sin(a) * 22;
+          return (
+            <div
+              key={i}
+              style={{
+                position: "absolute",
+                left: `${cx}%`,
+                top: `${cy}%`,
+                width: 14,
+                height: 14,
+                borderRadius: "60% 0 60% 0",
+                background: colors[i % colors.length],
+                transform: `rotate(${i * 32}deg)`,
+                animation: `petal-fly 1.6s cubic-bezier(.34,1.56,.64,1) ${i * 0.05}s both`,
+              }}
+            />
+          );
+        })}
+      </div>
+
+      <p style={{ opacity: 0.65, fontSize: 12, fontWeight: 800, letterSpacing: 1.5, margin: 0, color: "var(--p-magic-dk)" }}>
+        ZWYCIĘSTWO!
+      </p>
+      <h1 className="t-display" style={{ fontSize: 42, margin: "0 0 4px", color: "var(--p-magic-dk)", textAlign: "center" }}>
+        Kronika Cię&nbsp;rozpoznała!
+      </h1>
+      <p className="t-hand" style={{ fontSize: 20, color: "var(--p-ink-soft)", margin: 0, textAlign: "center", maxWidth: 320 }}>
+        Twoje szczere odpowiedzi zasłużyły na pierwszą nagrodę.
+      </p>
+
+      {/* Wielka pigulka z monetami - animowana */}
+      <div style={{ margin: "10px 0", position: "relative", animation: "coin-tally .6s ease-out" }}>
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 12,
+            background: "linear-gradient(180deg,#FFF1B0,#FFD269)",
+            color: "#7A4D10",
+            fontWeight: 800,
+            fontSize: 36,
+            padding: "16px 28px",
+            borderRadius: 999,
+            boxShadow: "inset 0 0 0 2.5px #E1B66A, 0 8px 20px rgba(160,110,30,.35)",
+            fontFamily: "var(--font-display, 'Baloo 2'), sans-serif",
+          }}
+        >
+          <Coin size={44} anim />
+          <span style={{ lineHeight: 1 }}>+{coinCount}</span>
+        </div>
+        <div style={{ position: "absolute", top: -10, right: -14 }}>
+          <Sparkle size={26} />
+        </div>
+        <div style={{ position: "absolute", bottom: -8, left: -10 }}>
+          <Sparkle size={18} delay={0.4} />
+        </div>
+      </div>
+
+      <div className="card card-paper" style={{ maxWidth: 360, width: "100%", textAlign: "center" }}>
+        <p style={{ fontSize: 14, color: "var(--p-ink-soft)", margin: 0, lineHeight: 1.5 }}>
+          <b style={{ color: "var(--p-magic-dk)" }}>Pierwsze monety w skarbcu!</b>
+          <br />
+          Za każde ukończone zadanie dostaniesz kolejne. Zbieraj 7/tydzień by odblokować Skarb Tygodnia ✦
+        </p>
+      </div>
+
+      <button
+        className="btn btn-magic btn-block"
+        style={{ maxWidth: 360, marginTop: 6 }}
+        onClick={() => setPhase("archetype")}
+      >
+        Zobacz, kim jesteś →
+      </button>
+
+      <NarratorVoice
+        text={`Brawo! Zdobyłeś pierwsze ${REWARD} złotych monet. Twój skarbiec dopiero się otwiera.`}
+        land="gora_podsumowania"
+        tone="celebration"
+        pauseBefore={300}
+        inlinePauses
+        autoPlay
+      />
     </div>
   );
 }
