@@ -331,21 +331,22 @@ export default function WorldHub() {
               display: "flex",
               alignItems: "center",
               gap: 14,
+              minHeight: 120,
               background: "linear-gradient(135deg, rgba(123,192,232,.30), rgba(184,134,232,.30))",
             }}
           >
             <div
               style={{
-                width: 64,
-                height: 64,
+                width: 70,
+                height: 70,
                 flex: "none",
                 borderRadius: 18,
-                background: "linear-gradient(180deg,#B886E8,#7A4DC2)",
+                background: "linear-gradient(180deg,#FFE0B5,#FFC178)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 34,
-                boxShadow: "0 6px 14px rgba(122,77,194,.35)",
+                fontSize: 36,
+                boxShadow: "inset 0 0 0 2px rgba(255,255,255,.65), 0 6px 14px rgba(232,154,61,.35)",
                 animation: "float-mid 3.5s ease-in-out infinite",
               }}
             >
@@ -395,20 +396,22 @@ export default function WorldHub() {
               display: "flex",
               alignItems: "center",
               gap: 14,
+              minHeight: 120,
               background: "linear-gradient(135deg, rgba(255,224,181,.55), rgba(255,210,105,.40))",
             }}
           >
-            <img
-              src="/assets/zwoj-closed.png"
-              alt=""
-              style={{
-                width: 64,
-                height: "auto",
-                flex: "none",
-                filter: "drop-shadow(0 6px 12px rgba(80,50,10,.35))",
-                animation: "float-mid 3s ease-in-out infinite",
-              }}
-            />
+            <div style={{ width: 70, display: "flex", justifyContent: "center", flex: "none" }}>
+              <img
+                src="/assets/zwoj-closed.png"
+                alt=""
+                style={{
+                  width: 45,
+                  height: "auto",
+                  filter: "drop-shadow(0 6px 12px rgba(80,50,10,.35))",
+                  animation: "float-mid 3s ease-in-out infinite",
+                }}
+              />
+            </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-magic-dk)" }}>
                 DZISIEJSZY ZWÓJ — ZADANIE Z REALA

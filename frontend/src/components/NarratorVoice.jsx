@@ -18,17 +18,18 @@ const circleBtn = {
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
-  width: "44px",
-  height: "44px",
+  width: "36px",
+  height: "36px",
   borderRadius: "50%",
-  border: "1px solid rgba(255,255,255,0.15)",
-  background: "rgba(255,255,255,0.06)",
-  color: "#ddd",
-  fontSize: "18px",
+  border: "none",
+  background: "linear-gradient(180deg, #B886E8, #7A4DC2)",
+  color: "#fff",
+  fontSize: "15px",
   cursor: "pointer",
   transition: "all 0.2s",
   outline: "none",
   padding: 0,
+  boxShadow: "0 3px 0 #5A2BAE, 0 4px 12px rgba(122,77,194,.45)",
 };
 
 export default function NarratorVoice({ text, land, tone, speed, pauseBefore, pauseAfter, inlinePauses, autoPlay = true, autoPlayDelay = 0, compact = false, onEnd = null, playOnceKey = null }) {
@@ -150,14 +151,20 @@ export default function NarratorVoice({ text, land, tone, speed, pauseBefore, pa
   // ── Style dynamiczne ──
   const activeBtn = {
     ...circleBtn,
-    background: "rgba(233,69,96,0.15)",
-    borderColor: "rgba(233,69,96,0.4)",
-    color: "#e94560",
+    background: "linear-gradient(180deg, #FF8AA3, #E94560)",
+    boxShadow: "0 3px 0 #B82238, 0 4px 12px rgba(233,69,96,.45)",
+    color: "#fff",
   };
 
   const muteBtn = {
     ...circleBtn,
-    ...(muted ? { background: "rgba(255,255,255,0.03)", color: "#667" } : {}),
+    ...(muted
+      ? {
+          background: "linear-gradient(180deg, #C7BFD8, #8C8499)",
+          boxShadow: "0 3px 0 #5F586B, 0 4px 10px rgba(70,60,90,.30)",
+          color: "#fff",
+        }
+      : {}),
   };
 
   if (compact) {
