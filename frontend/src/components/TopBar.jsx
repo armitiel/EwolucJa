@@ -35,19 +35,29 @@ export default function TopBar({
   const totalCoins = ((player.lifetime_scores?.DT || 0) + (player.lifetime_scores?.EM || 0)) * 10 + 12;
 
   return (
-    <div
+    <>
+      {/* Spacer pod fixed-topbar — zachowuje przestrzen w flow zeby tresc nie zaczynala sie pod paskiem */}
+      <div aria-hidden="true" style={{ height: "calc(28px + 48px + 24px + env(safe-area-inset-top, 0px))", flexShrink: 0 }} />
+
+      <div
       className="safe-top"
       style={{
         display: "flex",
         alignItems: "center",
         gap: 10,
         padding: "28px 16px 24px",
-        position: "sticky",
+        position: "fixed",
         top: 0,
+        left: 0,
+        right: 0,
+        maxWidth: 480,
+        margin: "0 auto",
         zIndex: 50,
         background: "linear-gradient(180deg, rgba(255,255,255,.92) 0%, rgba(255,255,255,.85) 70%, rgba(255,255,255,0) 100%)",
         backdropFilter: "blur(10px)",
         WebkitBackdropFilter: "blur(10px)",
+        transform: "translateZ(0)",
+        willChange: "transform",
       }}
     >
       <div style={{ flexShrink: 0 }}>
@@ -92,5 +102,6 @@ export default function TopBar({
         <CoinPill value={totalCoins} onClick={() => navigate("/backpack")} />
       </div>
     </div>
+    </>
   );
 }

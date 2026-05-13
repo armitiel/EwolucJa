@@ -18,17 +18,29 @@
 
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;}
+/* Wylacz rubber-band bounce na iOS i Androidzie — sticky topbar nie bedzie sie przesuwal */
+html{
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: auto;
+}
 body{
   font-family: var(--font-body), system-ui, sans-serif;
   background: #1a1430;
   color: var(--p-ink);
   min-height:100vh;
   overflow-x:hidden;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: auto;
   /* Lepsza ostrosc PL znakow (ą, ę, ł, ż, ź, ć, ś) */
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: "kern" 1, "liga" 1;
+}
+/* Glowny scroll dzieje sie w .screen-scroll, nie w body */
+.screen-scroll{
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Naglowki/dyspley uzywaja Baloo 2 globalnie */
