@@ -6,6 +6,10 @@
   --p-paper:#FBF1D6; --p-paper-2:#F4E3B8; --p-ink:#2B2A4A; --p-ink-soft:#5A4F77;
   --p-rose:#F08C8C; --p-shadow: rgba(43,42,74,.18);
 
+  /* Typografia: Display = Baloo 2 (kid-friendly + pelne PL znaki), Body = Nunito */
+  --font-display: 'Baloo 2', system-ui, sans-serif;
+  --font-body: 'Nunito', system-ui, sans-serif;
+
   --r-card:22px; --r-pill:999px;
   --shadow-sm: 0 2px 0 rgba(43,42,74,.08), 0 4px 14px rgba(43,42,74,.10);
   --shadow-md: 0 3px 0 rgba(43,42,74,.10), 0 10px 24px rgba(43,42,74,.14);
@@ -15,11 +19,22 @@
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;}
 body{
-  font-family: var(--font-body, 'Nunito'), system-ui, sans-serif;
+  font-family: var(--font-body), system-ui, sans-serif;
   background: #1a1430;
   color: var(--p-ink);
   min-height:100vh;
   overflow-x:hidden;
+  /* Lepsza ostrosc PL znakow (ą, ę, ł, ż, ź, ć, ś) */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+
+/* Naglowki/dyspley uzywaja Baloo 2 globalnie */
+h1, h2, h3, h4, h5, h6,
+.t-display {
+  font-family: var(--font-display), system-ui, sans-serif;
 }
 
 /* page background — sky over hills */

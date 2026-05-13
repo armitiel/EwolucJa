@@ -69,9 +69,9 @@ export default function Landing() {
           {/* Tytul EwolucJA - z aurora "JA" */}
           <h1
             style={{
-              fontFamily: "'Lilita One', 'Baloo 2', sans-serif",
+              fontFamily: "var(--font-display, 'Baloo 2'), sans-serif",
               fontSize: 72,
-              fontWeight: 400,
+              fontWeight: 800,
               margin: "8px 0 0",
               textAlign: "center",
               letterSpacing: "-1px",
