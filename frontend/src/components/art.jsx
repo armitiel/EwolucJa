@@ -539,6 +539,66 @@ export const Cloud = ({ size = 80, opacity = 0.7 }) => (
   </svg>
 );
 
+// ─── ScrollIcon (pergamin zwoju zamknietego) ───────────────────
+// Inline SVG zamiast PNG - laduje sie natychmiast, skaluje plynnie, nie wpada w reflow.
+export const ScrollIcon = ({ size = 60 }) => (
+  <svg
+    width={size}
+    height={size * 1.55}
+    viewBox="0 0 60 93"
+    style={{ display: "block", filter: "drop-shadow(0 6px 12px rgba(120,80,30,.35))" }}
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="scrollPaper" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#FBF1D6" />
+        <stop offset="1" stopColor="#E5C988" />
+      </linearGradient>
+      <linearGradient id="scrollRod" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#C68A3F" />
+        <stop offset=".5" stopColor="#A66614" />
+        <stop offset="1" stopColor="#7C4810" />
+      </linearGradient>
+      <linearGradient id="scrollRodLight" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#E1A968" />
+        <stop offset="1" stopColor="#B47322" />
+      </linearGradient>
+    </defs>
+
+    {/* Gorny drazek */}
+    <ellipse cx="30" cy="8" rx="26" ry="6" fill="url(#scrollRod)" />
+    <ellipse cx="30" cy="6" rx="26" ry="4" fill="url(#scrollRodLight)" />
+    {/* Galki na koncach drazka */}
+    <circle cx="4" cy="8" r="6" fill="#7C4810" />
+    <circle cx="4" cy="8" r="4" fill="#A66614" />
+    <circle cx="3" cy="7" r="1.5" fill="#E1A968" opacity=".7" />
+    <circle cx="56" cy="8" r="6" fill="#7C4810" />
+    <circle cx="56" cy="8" r="4" fill="#A66614" />
+    <circle cx="55" cy="7" r="1.5" fill="#E1A968" opacity=".7" />
+
+    {/* Glowny papier zwoju (zwiniety) */}
+    <path
+      d="M 10 12 L 10 82 Q 30 90 50 82 L 50 12 Q 30 18 10 12 Z"
+      fill="url(#scrollPaper)"
+      stroke="#C9A65C"
+      strokeWidth="1"
+    />
+    {/* Tlocenia papieru - drobne linie sugerujace tekst */}
+    <line x1="18" y1="32" x2="42" y2="33" stroke="#A88A4A" strokeWidth=".7" opacity=".55" />
+    <line x1="18" y1="40" x2="40" y2="41" stroke="#A88A4A" strokeWidth=".7" opacity=".55" />
+    <line x1="18" y1="48" x2="42" y2="49" stroke="#A88A4A" strokeWidth=".7" opacity=".55" />
+    <line x1="18" y1="56" x2="38" y2="57" stroke="#A88A4A" strokeWidth=".7" opacity=".55" />
+    <line x1="18" y1="64" x2="42" y2="65" stroke="#A88A4A" strokeWidth=".7" opacity=".55" />
+
+    {/* Dolny drazek */}
+    <ellipse cx="30" cy="84" rx="22" ry="5" fill="url(#scrollRod)" />
+    <ellipse cx="30" cy="83" rx="22" ry="3" fill="url(#scrollRodLight)" />
+
+    {/* Maly blik */}
+    <ellipse cx="20" cy="20" rx="3" ry="6" fill="#fff" opacity=".35" />
+  </svg>
+);
+
 // ─── Fake QR (do ekranu Invite) ────────────────────────────────
 export const FakeQR = () => {
   const cells = [];

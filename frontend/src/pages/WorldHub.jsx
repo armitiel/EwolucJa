@@ -11,7 +11,7 @@ import NarratorVoice from "../components/NarratorVoice.jsx";
 import PageShell from "../components/PageShell.jsx";
 import TabBar from "../components/TabBar.jsx";
 import { MusicToggleInline } from "../components/MusicToggle.jsx";
-import { Sparkle, Coin, CoinPill, Avatar } from "../components/art.jsx";
+import { Sparkle, Coin, CoinPill, Avatar, ScrollIcon } from "../components/art.jsx";
 
 // ─── WeekProgress — pasek 7-dniowy + odliczanie do piątku ───
 // Rozpoznaje aktualny dzien tygodnia (PN=0..ND=6) i koloruje:
@@ -355,24 +355,28 @@ export default function WorldHub() {
               background: "linear-gradient(135deg, rgba(255,224,181,.55), rgba(255,210,105,.40))",
             }}
           >
-            <div style={{ width: 70, height: 80, display: "flex", justifyContent: "center", alignItems: "center", flex: "none" }}>
-              <img
-                src="/assets/zwoj-closed.png"
-                alt=""
-                width="36"
-                height="74"
-                style={{
-                  width: 36,
-                  height: 74,
-                  filter: "drop-shadow(0 6px 12px rgba(80,50,10,.35))",
-                  animation: "float-mid 3s ease-in-out infinite",
-                }}
-              />
+            <div
+              style={{
+                width: 70,
+                height: 80,
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                flex: "none",
+                animation: "float-mid 3s ease-in-out infinite",
+              }}
+            >
+              <ScrollIcon size={40} />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <h2 className="t-display" style={{ fontSize: 22, margin: 0, lineHeight: 1.15 }}>
-                {mission ? mission.title : "Kronika szuka tropu…"}
+                Zadania w realu
               </h2>
+              {mission && (
+                <div style={{ fontSize: 13, color: "var(--p-ink-soft)", fontWeight: 600, marginTop: 2, lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical" }}>
+                  {mission.title}
+                </div>
+              )}
               {mission && (
                 <div style={{ display: "flex", gap: 6, marginTop: 6, alignItems: "center" }}>
                   <span
@@ -422,6 +426,9 @@ export default function WorldHub() {
                 aria-hidden="true"
                 width="60"
                 height="80"
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
                 style={{
                   width: 60,
                   height: 80,
