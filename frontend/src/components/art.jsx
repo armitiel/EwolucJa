@@ -599,147 +599,85 @@ export const ScrollIcon = ({ size = 60 }) => (
   </svg>
 );
 
-// ─── MissionScroll (zwoj misji - zamkniety/otwarty z animacja rozwijania) ───
-// Stan: "closed" = drazki sciete razem | "opening" = animacja rozsuwania | "open" = pelen pergamin
-// Rozwija sie GORA-DOL: gorny drazek na gorze, dolny drazek odjezdza w dol, papier rosnie miedzy nimi.
-// Uzycie:
-//   <MissionScroll state="closed">  // tylko drazki + ikona ✦
-//   <MissionScroll state="open">  // pelny pergamin z zawartoscia
-//     <h2>Tytul misji</h2>
-//     <p>Tresc...</p>
-//   </MissionScroll>
+// ─── MissionScroll (zwoj misji - SVG asset z 3 grupami #Gora #srodek #Dol) ───
+// Animacja: srodek (papier) skaluje sie pionowo z 0.05 → 1, Dol (dolny drazek) podjezdza w gore gdy zamkniety.
+// Gorny drazek (Gora) zawsze w miejscu. Zawartosc tekstu pojawia sie nakladka po rozwinieciu.
+// Uzycie identyczne jak poprzedni:
+//   <MissionScroll state="closed">
+//   <MissionScroll state="open"><h2>Tytul</h2><p>Tresc</p></MissionScroll>
+import zwojRaw from "../assets/zwoj.svg?raw";
+
 export const MissionScroll = ({ state = "closed", width = 280, children }) => {
-  const rodH = 26;
-  const closedPaperH = 8;
-  const openPaperH = 360;
-  const paperH = state === "closed" ? closedPaperH : openPaperH;
-  const totalH = rodH * 2 + paperH;
+  // Aspect ratio z viewBox 1139.7 x 1271.5
+  const aspect = 1271.5 / 1139.7; // ~1.116
+  const height = width * aspect;
 
   return (
     <div
+      className={`mission-scroll mission-scroll--${state}`}
       style={{
         position: "relative",
         width,
-        height: totalH,
-        transition: "height 1.4s cubic-bezier(.33,.0,.30,1)",
+        height,
         margin: "0 auto",
+        filter: "drop-shadow(0 14px 26px rgba(80,50,10,.30))",
       }}
       aria-label={state === "closed" ? "Zwoj zamkniety" : "Zwoj otwarty"}
     >
-      {/* Gorny drazek */}
-      <RodSVG width={width} height={rodH} style={{ position: "absolute", top: 0, left: 0 }} />
-
-      {/* Papier pergaminu - rosnie miedzy drazkami */}
+      {/* Surowy SVG z 3 grupami - CSS animuje #srodek i #Dol */}
       <div
-        style={{
-          position: "absolute",
-          top: rodH - 2,
-          left: 12,
-          right: 12,
-          height: paperH + 4,
-          background: "linear-gradient(180deg, #FBF1D6 0%, #F4E3B8 50%, #E5C988 100%)",
-          borderLeft: "2px solid #C9A65C",
-          borderRight: "2px solid #C9A65C",
-          boxShadow: "inset 0 2px 8px rgba(160,110,30,.15), inset 0 -2px 6px rgba(160,110,30,.10)",
-          transition: "height 1.4s cubic-bezier(.33,.0,.30,1)",
-          overflow: "hidden",
-        }}
-      >
-        {/* Cienie zwiniecia na gorze i dole papieru (subtelne efekty zaginania) */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 14,
-            background: "linear-gradient(180deg, rgba(160,110,30,.30) 0%, transparent 100%)",
-            pointerEvents: "none",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 14,
-            background: "linear-gradient(0deg, rgba(160,110,30,.30) 0%, transparent 100%)",
-            pointerEvents: "none",
-          }}
-        />
-
-        {/* Zawartosc — tylko gdy otwarte */}
-        {state === "open" && (
-          <div
-            style={{
-              position: "absolute",
-              inset: "22px 28px 22px 28px",
-              opacity: 0,
-              animation: "fadeIn .5s ease .9s forwards",
-              color: "#3B2A12",
-            }}
-          >
-            {children}
-          </div>
-        )}
-
-        {/* Ikona ✦ centralnie gdy zwiniety */}
-        {state === "closed" && (
-          <div
-            style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              fontSize: 26,
-              color: "#7A4DC2",
-              textShadow: "0 2px 4px rgba(255,255,255,.7)",
-            }}
-          >
-            ✦
-          </div>
-        )}
-      </div>
-
-      {/* Dolny drazek - pozycjonowany absolutnie dolem, automatycznie odjezdza wraz z rozrostem papieru */}
-      <RodSVG
-        width={width}
-        height={rodH}
-        style={{ position: "absolute", bottom: 0, left: 0 }}
+        className="mission-scroll__svg"
+        style={{ position: "absolute", inset: 0 }}
+        dangerouslySetInnerHTML={{ __html: zwojRaw }}
       />
+
+      {/* Ikona ✦ na zamknietym zwoju */}
+      {state === "closed" && (
+        <div
+          style={{
+            position: "absolute",
+            top: "21%",
+            left: "50%",
+            transform: "translateX(-50%)",
+            fontSize: width * 0.12,
+            color: "#7A4DC2",
+            textShadow: "0 2px 4px rgba(255,255,255,.7)",
+            pointerEvents: "none",
+            zIndex: 2,
+          }}
+        >
+          ✦
+        </div>
+      )}
+
+      {/* Zawartosc tekstowa - widoczna tylko gdy otwarty, z fadeIn po rozwinieciu */}
+      {state === "open" && children && (
+        <div
+          style={{
+            position: "absolute",
+            // Obszar papieru srodek: y=232..1002 w viewBox 1271 → 18%..78%
+            // Pionowy padding wewnatrz papieru
+            top: "21%",
+            bottom: "23%",
+            left: "13%",
+            right: "13%",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            overflow: "hidden",
+            opacity: 0,
+            animation: "fadeIn .5s ease 1s forwards",
+            color: "#3B2A12",
+            pointerEvents: "auto",
+            zIndex: 2,
+          }}
+        >
+          {children}
+        </div>
+      )}
     </div>
   );
 };
-
-// Pomocniczy SVG drazka zwoju
-const RodSVG = ({ width = 280, height = 26, style = {} }) => (
-  <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={style} aria-hidden="true">
-    <defs>
-      <linearGradient id={`rod-${width}-${height}`} x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#C68A3F" />
-        <stop offset=".5" stopColor="#A66614" />
-        <stop offset="1" stopColor="#7C4810" />
-      </linearGradient>
-      <linearGradient id={`rod-light-${width}-${height}`} x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#E1A968" />
-        <stop offset="1" stopColor="#B47322" />
-      </linearGradient>
-    </defs>
-    {/* Glowny korpus drazka */}
-    <rect x={height / 2} y={height * 0.25} width={width - height} height={height * 0.5} rx={height * 0.25} fill={`url(#rod-${width}-${height})`} />
-    {/* Blik na drazku */}
-    <rect x={height / 2 + 6} y={height * 0.32} width={width - height - 12} height={height * 0.18} rx={2} fill={`url(#rod-light-${width}-${height})`} opacity=".6" />
-    {/* Lewa galka */}
-    <circle cx={height / 2} cy={height / 2} r={height / 2 - 2} fill="#7C4810" />
-    <circle cx={height / 2} cy={height / 2} r={height / 2 - 5} fill="#A66614" />
-    <circle cx={height / 2 - 2} cy={height / 2 - 2} r={2} fill="#E1A968" opacity=".7" />
-    {/* Prawa galka */}
-    <circle cx={width - height / 2} cy={height / 2} r={height / 2 - 2} fill="#7C4810" />
-    <circle cx={width - height / 2} cy={height / 2} r={height / 2 - 5} fill="#A66614" />
-    <circle cx={width - height / 2 - 2} cy={height / 2 - 2} r={2} fill="#E1A968" opacity=".7" />
-  </svg>
-);
 
 // ─── AdviceIcon (Porada dnia - swietlista perla z gwiazda) ─────
 // Magiczna kula / lampka madrosci - zamiast wizarda na karcie "Porada dnia".
