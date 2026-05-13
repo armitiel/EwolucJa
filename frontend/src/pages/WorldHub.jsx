@@ -27,13 +27,10 @@ function WeekProgress({ done = null, coins = 0, streak = 0, goal = 7, todayIndex
 
   return (
     <div className="card" style={{ padding: "14px 16px" }}>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
-        <div>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-magic-dk)" }}>POSTĘP TYGODNIA</div>
-          <div className="t-display" style={{ fontSize: 18, marginTop: 2 }}>{computedDone} z {goal} zadań</div>
-        </div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+        <div className="t-display" style={{ fontSize: 20 }}>{computedDone}/{goal}</div>
         <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#C2851E", fontWeight: 800, fontSize: 13 }}>
-          <Coin size={18} /> <span>+{coins} w tym tyg.</span>
+          <Coin size={18} /> <span>+{coins}</span>
         </div>
       </div>
 
@@ -84,11 +81,6 @@ function WeekProgress({ done = null, coins = 0, streak = 0, goal = 7, todayIndex
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 12 }}>
         <div style={{ flex: 1 }}>
           <div className="prog magic"><i style={{ width: `${pct}%` }} /></div>
-          <div style={{ fontSize: 10, fontWeight: 800, color: "var(--p-ink-soft)", marginTop: 4, letterSpacing: 0.5 }}>
-            {computedDone >= goal
-              ? "TYDZIEŃ UKOŃCZONY ✦"
-              : `JESZCZE ${goal - computedDone} ${goal - computedDone === 1 ? "ZADANIE" : (goal - computedDone < 5 ? "ZADANIA" : "ZADAŃ")} DO SKARBU`}
-          </div>
         </div>
         <div
           style={{
@@ -104,10 +96,9 @@ function WeekProgress({ done = null, coins = 0, streak = 0, goal = 7, todayIndex
         </div>
       </div>
 
-      {(cycleLabel || remainingText) && (
-        <div style={{ marginTop: 10, fontSize: 11, color: "var(--p-ink-soft)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          {cycleLabel && <span style={{ fontWeight: 800, letterSpacing: 1, color: "var(--p-magic-dk)" }}>{cycleLabel}</span>}
-          {remainingText && <span>{remainingText} ✦</span>}
+      {remainingText && (
+        <div style={{ marginTop: 8, fontSize: 12, color: "var(--p-ink-soft)", textAlign: "center", fontWeight: 600 }}>
+          ⌛ {remainingText} do piątku
         </div>
       )}
     </div>
@@ -284,12 +275,9 @@ export default function WorldHub() {
           <Avatar kind={avatarKind} size={48} evolved={1} />
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-magic-dk)" }}>
-            {archetypeLabel}
-          </div>
           <div
             className="t-display"
-            style={{ fontSize: 20, lineHeight: 1.1, color: "var(--p-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+            style={{ fontSize: 26, lineHeight: 1, color: "var(--p-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
           >
             {player.player_name}
           </div>
@@ -319,7 +307,7 @@ export default function WorldHub() {
           coins={weekCoins}
           streak={streak}
           cycleLabel={cycle ? `Cykl #${cycle.cycle_number || 1}` : "Cykl #1"}
-          remainingText={friday && !friday.passed ? `Zostało ${friday.label} do piątku` : ""}
+          remainingText={friday && !friday.passed ? friday.label : ""}
         />
 
         {/* Karta 2: GRY na ten tydzien */}
@@ -356,14 +344,10 @@ export default function WorldHub() {
               🎮
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-magic-dk)" }}>
-                GRY TYGODNIA
-              </div>
-              <h2 className="t-display" style={{ fontSize: 22, margin: "2px 0 0" }}>
-                3 wyzwania na ten tydzień
+              <h2 className="t-display" style={{ fontSize: 22, margin: 0, lineHeight: 1.15 }}>
+                Gry tygodnia
               </h2>
               <div style={{ display: "flex", gap: 6, marginTop: 6, alignItems: "center" }}>
-                <span className="chip magic" style={{ fontSize: 11, padding: "2px 8px" }}>0/3 ukończone</span>
                 <span
                   style={{
                     display: "inline-flex",
@@ -380,6 +364,7 @@ export default function WorldHub() {
                 >
                   <Coin size={12} /> +30
                 </span>
+                <span style={{ fontSize: 12, color: "var(--p-ink-soft)", fontWeight: 700 }}>0/3</span>
               </div>
             </div>
             <span style={{ fontSize: 32, color: "var(--p-magic-dk)", fontWeight: 700 }}>›</span>
@@ -416,10 +401,7 @@ export default function WorldHub() {
               />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-magic-dk)" }}>
-                DZISIEJSZY ZWÓJ — ZADANIE Z REALA
-              </div>
-              <h2 className="t-display" style={{ fontSize: 22, margin: "2px 0 0" }}>
+              <h2 className="t-display" style={{ fontSize: 22, margin: 0, lineHeight: 1.15 }}>
                 {mission ? mission.title : "Kronika szuka tropu…"}
               </h2>
               {mission && (
@@ -440,7 +422,6 @@ export default function WorldHub() {
                   >
                     <Coin size={12} /> +12
                   </span>
-                  <span className="chip magic" style={{ fontSize: 11, padding: "2px 8px" }}>+3 ✦</span>
                 </div>
               )}
             </div>
@@ -477,11 +458,8 @@ export default function WorldHub() {
               }}
             />
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-magic-dk)" }}>
-                KOMNATA REFLEKSJI
-              </div>
-              <div className="t-display" style={{ fontSize: 18, lineHeight: 1.15, marginTop: 2 }}>
-                Mędrzec ma dla Ciebie myśl
+              <div className="t-display" style={{ fontSize: 20, lineHeight: 1.15 }}>
+                Komnata Refleksji
               </div>
             </div>
             <span style={{ fontSize: 28, color: "var(--p-magic-dk)", fontWeight: 700 }}>›</span>
@@ -504,7 +482,6 @@ export default function WorldHub() {
                 <span style={{ fontSize: 11, color: "var(--p-ink-soft)", fontWeight: 800 }}>{regionsUnlocked}/{totalRegions}</span>
               </div>
               <div className="t-display" style={{ fontSize: 16, lineHeight: 1.1 }}>Mapa Świata</div>
-              <div style={{ fontSize: 11, color: "var(--p-ink-soft)" }}>krainy do odkrycia</div>
             </div>
           </button>
           {/* Plecak */}
@@ -521,7 +498,6 @@ export default function WorldHub() {
                 <span style={{ fontSize: 11, color: "var(--p-ink-soft)", fontWeight: 800 }}>{backpackItems}/{backpackGoal}</span>
               </div>
               <div className="t-display" style={{ fontSize: 16, lineHeight: 1.1 }}>Plecak</div>
-              <div style={{ fontSize: 11, color: "var(--p-ink-soft)" }}>artefakty zdobyte</div>
             </div>
           </button>
         </div>
