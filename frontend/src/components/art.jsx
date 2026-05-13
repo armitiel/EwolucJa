@@ -631,24 +631,7 @@ export const MissionScroll = ({ state = "closed", width = 280, children }) => {
         dangerouslySetInnerHTML={{ __html: zwojRaw }}
       />
 
-      {/* Ikona ✦ na zamknietym zwoju */}
-      {state === "closed" && (
-        <div
-          style={{
-            position: "absolute",
-            top: "21%",
-            left: "50%",
-            transform: "translateX(-50%)",
-            fontSize: width * 0.12,
-            color: "#7A4DC2",
-            textShadow: "0 2px 4px rgba(255,255,255,.7)",
-            pointerEvents: "none",
-            zIndex: 2,
-          }}
-        >
-          ✦
-        </div>
-      )}
+      {/* (gwiazdka na zwoju zamknietym usunieta) */}
 
       {/* Zawartosc tekstowa - widoczna tylko gdy otwarty, z fadeIn po rozwinieciu */}
       {state === "open" && children && (

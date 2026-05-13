@@ -249,13 +249,15 @@ h3.title{ font-size: 22px; margin:0; }
 .mission-scroll #Dol {
   transform-origin: 50% 50%;
 }
-/* Closed: srodek (papier) zwiniety do ~18% wysokosci, widoczny jako zwoj miedzy dwoma drazkami.
-   Dol podjezdza w gore tak, by przylegal do dolnej krawedzi zwinietego papieru. */
+/* Closed: srodek (papier) skompresowany do ~30%, widoczny jako wyrazny pas miedzy Gora a Dol.
+   Dol podjezdza w gore tak, by przylegal do dolnej krawedzi zwinietego papieru.
+   Obliczenie: srodek visible height = 770*0.30 = 231 viewBox units.
+   Dol top docelowo na 232+231=463. Natural Dol top=988. Translate = -525 vbu / 98 (Dol height) = -536%. */
 .mission-scroll--closed #srodek {
-  transform: scaleY(0.18);
+  transform: scaleY(0.30);
 }
 .mission-scroll--closed #Dol {
-  transform: translateY(-622%);
+  transform: translateY(-536%);
 }
 .mission-scroll--open #srodek {
   transform: scaleY(1);
