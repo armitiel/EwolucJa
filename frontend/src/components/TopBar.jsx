@@ -36,7 +36,7 @@ export default function TopBar({
 
   return (
     <div
-      className="safe-top entrance-topbar"
+      className="safe-top"
       style={{
         display: "flex",
         alignItems: "center",
