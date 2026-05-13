@@ -267,7 +267,7 @@ export default function WorldHub() {
           display: "flex",
           alignItems: "center",
           gap: 10,
-          padding: "0 14px 8px",
+          padding: "16px 14px 18px",
           position: "relative",
           zIndex: 5,
         }}
