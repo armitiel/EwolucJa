@@ -179,11 +179,25 @@ export default function NarratorVoice({ text, land, tone, speed, pauseBefore, pa
     }}>
       <button onClick={handleToggle} style={playing ? activeBtn : circleBtn}
         title={playing ? "Stop" : "Posłuchaj"}>
-        {playing ? "\u23F9" : "\u25B6"}
+        {playing ? (
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="#fff"><rect x="3" y="3" width="8" height="8" rx="1"/></svg>
+        ) : (
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="#fff" style={{ marginLeft: 2 }}><path d="M3 2 L11 7 L3 12 Z"/></svg>
+        )}
       </button>
       <button onClick={handleMuteToggle} style={muteBtn}
         title={muted ? "Włącz głos" : "Wyłącz głos"}>
-        {muted ? "\uD83D\uDD07" : "\uD83D\uDD0A"}
+        {muted ? (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
+            <path d="M3 9v6h4l5 4V5L7 9H3z" />
+            <path d="M16.5 8.5l5 5M21.5 8.5l-5 5" stroke="#fff" strokeWidth="2" strokeLinecap="round" fill="none" />
+          </svg>
+        ) : (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
+            <path d="M3 9v6h4l5 4V5L7 9H3z" />
+            <path d="M16 8a5 5 0 0 1 0 8 M19 5a9 9 0 0 1 0 14" stroke="#fff" strokeWidth="2" strokeLinecap="round" fill="none" />
+          </svg>
+        )}
       </button>
     </div>
   );

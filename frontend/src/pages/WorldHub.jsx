@@ -12,12 +12,12 @@ import Loading from "../components/Loading.jsx";
 import TabBar from "../components/TabBar.jsx";
 import { Sparkle, Coin, CoinPill, Avatar } from "../components/art.jsx";
 
-// ─── WeekProgress — pasek 7-dniowy + monety + streak + Skarb tygodnia ───
+// ─── WeekProgress — pasek 7-dniowy + monety + streak ───
 // Rozpoznaje aktualny dzien tygodnia (PN=0..ND=6) i koloruje:
 //   - dni przed dzisiejszym = zlote monety (ukonczone)
 //   - dzien dzisiejszy      = fioletowy ring (todayIndex)
 //   - dni przyszle          = puste kola
-function WeekProgress({ done = null, coins = 0, streak = 0, goal = 7, todayIndex = null }) {
+function WeekProgress({ done = null, coins = 0, streak = 0, goal = 7, todayIndex = null, cycleLabel = null, remainingText = null }) {
   const days = ["PN", "WT", "ŚR", "CZ", "PT", "SO", "ND"];
   // Auto-detekcja PL: getDay() => Sun=0..Sat=6, my chcemy Mon=0..Sun=6.
   const computedToday = todayIndex != null ? todayIndex : ((new Date().getDay() + 6) % 7);
@@ -104,24 +104,12 @@ function WeekProgress({ done = null, coins = 0, streak = 0, goal = 7, todayIndex
         </div>
       </div>
 
-      <div
-        style={{
-          marginTop: 10, padding: "8px 10px", borderRadius: 14,
-          background: computedDone >= goal ? "linear-gradient(135deg,#FFE7B0,#FFD269)" : "rgba(122,77,194,.10)",
-          display: "flex", alignItems: "center", gap: 10,
-        }}
-      >
-        <div style={{ fontSize: 22, animation: computedDone >= goal ? "wiggle .8s ease-in-out infinite" : "none", flex: "none" }}>
-          {computedDone >= goal ? "🎁" : "📜"}
+      {(cycleLabel || remainingText) && (
+        <div style={{ marginTop: 10, fontSize: 11, color: "var(--p-ink-soft)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          {cycleLabel && <span style={{ fontWeight: 800, letterSpacing: 1, color: "var(--p-magic-dk)" }}>{cycleLabel}</span>}
+          {remainingText && <span>{remainingText} ✦</span>}
         </div>
-        <div style={{ flex: 1, fontSize: 12, color: "var(--p-ink-soft)", fontWeight: 600, lineHeight: 1.3 }}>
-          {computedDone >= goal ? (
-            <><b style={{ color: "#7A4D10" }}>Skarb tygodnia odblokowany!</b> Odbierz +50 monet i artefakt cykli.</>
-          ) : (
-            <><b style={{ color: "var(--p-magic-dk)" }}>Skarb tygodnia:</b> +50 monet · rzadki artefakt · ewolucja</>
-          )}
-        </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -282,11 +270,12 @@ export default function WorldHub() {
     <PageShell>
       {/* Sticky topbar — avatar/imie/archetyp + sterowanie lektorem + CoinPill */}
       <div
+        className="safe-top"
         style={{
           display: "flex",
           alignItems: "center",
           gap: 10,
-          padding: "12px 14px 8px",
+          padding: "0 14px 8px",
           position: "relative",
           zIndex: 5,
         }}
@@ -325,16 +314,13 @@ export default function WorldHub() {
       </div>
 
       <div className="screen-scroll" style={{ display: "flex", flexDirection: "column", gap: 14, paddingTop: 4, position: "relative", zIndex: 1, flex: 1 }}>
-        {/* Zegar cyklu */}
-        <CycleClock
-          days={days}
-          dayIndex={dayIndex}
-          label={cycle ? `Cykl #${cycle.cycle_number || 1} — Wieża Pytań` : "Wieża Pytań"}
-          remainingText={friday && !friday.passed ? `Zostało ${friday.label} do nagrody` : ""}
+        {/* Postep tygodnia + dni — auto-detekcja dnia tygodnia */}
+        <WeekProgress
+          coins={weekCoins}
+          streak={streak}
+          cycleLabel={cycle ? `Cykl #${cycle.cycle_number || 1}` : "Cykl #1"}
+          remainingText={friday && !friday.passed ? `Zostało ${friday.label} do piątku` : ""}
         />
-
-        {/* Postep tygodnia + skarb — auto-detekcja dnia tygodnia */}
-        <WeekProgress coins={weekCoins} streak={streak} />
 
         {/* Karta 2: GRY na ten tydzien */}
         <button
