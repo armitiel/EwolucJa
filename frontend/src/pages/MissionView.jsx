@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { api, session } from "../services/api.js";
 import NarratorVoice from "../components/NarratorVoice.jsx";
 import PageShell from "../components/PageShell.jsx";
+import Loading from "../components/Loading.jsx";
+import Celebration from "../components/Celebration.jsx";
 import { Sparkle } from "../components/art.jsx";
 
 export default function MissionView() {
@@ -11,6 +13,7 @@ export default function MissionView() {
   const [step, setStep] = useState(0);
   const [answer, setAnswer] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [celebrating, setCelebrating] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -36,16 +39,16 @@ export default function MissionView() {
     setSubmitting(true);
     try {
       await api.submitMissionProof(mission.mission_id, { proof_text: answer });
-      navigate("/reward");
+      setCelebrating(true);
+      setTimeout(() => navigate("/reward"), 1800);
     } catch (err) {
       setError(err.message);
-    } finally {
       setSubmitting(false);
     }
   }
 
   if (error) return <PageShell><div style={{ padding: 40 }}><p style={{ color: "#B85B47" }}>{error}</p></div></PageShell>;
-  if (!mission) return <PageShell><div style={{ padding: 40, textAlign: "center" }}><p>Otwieranie zwoju…</p></div></PageShell>;
+  if (!mission) return <Loading text="Otwieranie zwoju…" />;
 
   return (
     <PageShell>
@@ -133,6 +136,7 @@ export default function MissionView() {
           </div>
         )}
       </div>
+      <Celebration active={celebrating} />
     </PageShell>
   );
 }

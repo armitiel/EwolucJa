@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { api, session } from "../services/api.js";
 import { ttsPlayer } from "../services/ttsPlayer";
 import PageShell from "../components/PageShell.jsx";
+import Loading from "../components/Loading.jsx";
 import TabBar from "../components/TabBar.jsx";
 import { Avatar } from "../components/art.jsx";
 
@@ -56,7 +57,7 @@ export default function Profile() {
   }
 
   if (error) return <PageShell><div style={{ padding: 40 }}><p style={{ color: "#B85B47" }}>{error}</p></div></PageShell>;
-  if (!player) return <PageShell><div style={{ padding: 40, textAlign: "center" }}><p>Otwieranie kroniki bohatera…</p></div></PageShell>;
+  if (!player) return <Loading text="Otwieranie kroniki bohatera…" />;
 
   const lvl = levelFromScores(player.lifetime_scores);
   const stage = STAGES[lvl - 1] || STAGES[0];

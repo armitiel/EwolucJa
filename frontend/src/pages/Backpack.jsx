@@ -6,6 +6,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, session } from "../services/api.js";
 import PageShell from "../components/PageShell.jsx";
+import Loading from "../components/Loading.jsx";
 import TabBar from "../components/TabBar.jsx";
 import { Artifact } from "../components/art.jsx";
 
@@ -51,14 +52,7 @@ export default function Backpack() {
         </div>
       </PageShell>
     );
-  if (!player)
-    return (
-      <PageShell>
-        <div style={{ padding: 40, textAlign: "center" }}>
-          <p>Otwieranie plecaka…</p>
-        </div>
-      </PageShell>
-    );
+  if (!player) return <Loading text="Otwieranie plecaka…" />;
 
   const items = (player.backpack || []).slice().reverse(); // newest first
   const totalSlots = items.length + PLACEHOLDER_SLOTS.length;
