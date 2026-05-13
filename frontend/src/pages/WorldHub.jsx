@@ -13,12 +13,12 @@ import TabBar from "../components/TabBar.jsx";
 import { MusicToggleInline } from "../components/MusicToggle.jsx";
 import { Sparkle, Coin, CoinPill, Avatar } from "../components/art.jsx";
 
-// ─── WeekProgress — pasek 7-dniowy + monety + streak ───
+// ─── WeekProgress — pasek 7-dniowy + odliczanie do piątku ───
 // Rozpoznaje aktualny dzien tygodnia (PN=0..ND=6) i koloruje:
 //   - dni przed dzisiejszym = zlote monety (ukonczone)
 //   - dzien dzisiejszy      = fioletowy ring (todayIndex)
 //   - dni przyszle          = puste kola
-function WeekProgress({ done = null, coins = 0, streak = 0, goal = 7, todayIndex = null, cycleLabel = null, remainingText = null }) {
+function WeekProgress({ done = null, goal = 7, todayIndex = null, daysToFriday = null }) {
   const days = ["PN", "WT", "ŚR", "CZ", "PT", "SO", "ND"];
   // Auto-detekcja PL: getDay() => Sun=0..Sat=6, my chcemy Mon=0..Sun=6.
   const computedToday = todayIndex != null ? todayIndex : ((new Date().getDay() + 6) % 7);
@@ -27,14 +27,7 @@ function WeekProgress({ done = null, coins = 0, streak = 0, goal = 7, todayIndex
   const pct = Math.round((computedDone / goal) * 100);
 
   return (
-    <div className="card" style={{ padding: "14px 16px" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-        <div className="t-display" style={{ fontSize: 20 }}>{computedDone}/{goal}</div>
-        <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#C2851E", fontWeight: 800, fontSize: 13 }}>
-          <Coin size={18} /> <span>+{coins}</span>
-        </div>
-      </div>
-
+    <div className="card" style={{ padding: "12px 16px" }}>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6, marginTop: 2 }}>
         {days.map((d, i) => {
           const isDone = i < computedDone;
@@ -83,25 +76,21 @@ function WeekProgress({ done = null, coins = 0, streak = 0, goal = 7, todayIndex
         <div style={{ flex: 1 }}>
           <div className="prog magic"><i style={{ width: `${pct}%` }} /></div>
         </div>
-        <div
-          style={{
-            display: "flex", alignItems: "center", gap: 5,
-            background: "linear-gradient(180deg,#FFC178,#E8632D)", color: "#fff",
-            padding: "5px 11px", borderRadius: 999, fontSize: 13, fontWeight: 800,
-            boxShadow: "0 2px 0 #A03A12, 0 3px 8px rgba(232,99,45,.45)",
-          }}
-          title="seria dni z rzedu"
-        >
-          <span style={{ display: "inline-block", animation: "streak-flame 1.4s ease-in-out infinite", transformOrigin: "50% 80%" }}>🔥</span>
-          <span>{streak} dni</span>
-        </div>
+        {daysToFriday != null && daysToFriday > 0 && (
+          <div
+            style={{
+              display: "flex", alignItems: "center", gap: 5,
+              background: "linear-gradient(180deg,#FFC178,#E8632D)", color: "#fff",
+              padding: "5px 11px", borderRadius: 999, fontSize: 13, fontWeight: 800,
+              boxShadow: "0 2px 0 #A03A12, 0 3px 8px rgba(232,99,45,.45)",
+            }}
+            title="dni do piątku"
+          >
+            <span style={{ display: "inline-block", animation: "streak-flame 1.4s ease-in-out infinite", transformOrigin: "50% 80%" }}>⏳</span>
+            <span>{daysToFriday} {daysToFriday === 1 ? "dzień" : "dni"}</span>
+          </div>
+        )}
       </div>
-
-      {remainingText && (
-        <div style={{ marginTop: 8, fontSize: 12, color: "var(--p-ink-soft)", textAlign: "center", fontWeight: 600 }}>
-          ⌛ {remainingText}
-        </div>
-      )}
     </div>
   );
 }
@@ -243,9 +232,6 @@ export default function WorldHub() {
 
   // Skarbiec — liczone z lifetime_scores + backpack (placeholder logika)
   const totalCoins = ((player.lifetime_scores?.DT || 0) + (player.lifetime_scores?.EM || 0)) * 10 + 12;
-  const weekDone = Math.min(7, (player.backpack || []).length);
-  const weekCoins = weekDone * 12;
-  const streak = (player.scores?.streak || 0) + Math.max(1, weekDone);
 
   // Archetyp + avatar
   const archetypeKey = player.archetype || "tropiciel_tajemnic";
@@ -267,7 +253,7 @@ export default function WorldHub() {
           display: "flex",
           alignItems: "center",
           gap: 10,
-          padding: "16px 14px 18px",
+          padding: "28px 16px 24px",
           position: "relative",
           zIndex: 5,
         }}
@@ -309,10 +295,7 @@ export default function WorldHub() {
       <div className="screen-scroll entrance-stagger" style={{ display: "flex", flexDirection: "column", gap: 14, paddingTop: 4, position: "relative", zIndex: 1, flex: 1 }}>
         {/* Postep tygodnia + dni — auto-detekcja dnia tygodnia */}
         <WeekProgress
-          coins={weekCoins}
-          streak={streak}
-          cycleLabel={cycle ? `Cykl #${cycle.cycle_number || 1}` : "Cykl #1"}
-          remainingText={friday && !friday.passed ? friday.label : ""}
+          daysToFriday={friday && !friday.passed ? friday.days : null}
         />
 
         {/* Karta 2: GRY na ten tydzien */}
@@ -513,3 +496,4 @@ export default function WorldHub() {
     </PageShell>
   );
 }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             

@@ -92,9 +92,8 @@ export const ARCHETYPES = {
 export function timeUntilFriday(deadlineIso) {
   if (!deadlineIso) return null;
   const ms = new Date(deadlineIso).getTime() - Date.now();
-  if (ms <= 0) return { passed: true, label: "Termin minął" };
+  if (ms <= 0) return { passed: true, label: "Termin minął", days: 0, hours: 0 };
   const days = Math.floor(ms / (24 * 60 * 60 * 1000));
   const hours = Math.floor((ms % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
-  if (days >= 1) return { passed: false, label: `${days}d ${hours}h do piątku` };
-  return { passed: false, label: `${hours}h do piątku` };
-}
+  // Zaokrąglenie w górę dla pigułki na karcie WeekProgress: <24h → 1 dzień.
+  const daysRoundedUp = days + (hours > 0 ?
