@@ -249,11 +249,13 @@ h3.title{ font-size: 22px; margin:0; }
 .mission-scroll #Dol {
   transform-origin: 50% 50%;
 }
+/* Closed: srodek (papier) zwiniety do ~18% wysokosci, widoczny jako zwoj miedzy dwoma drazkami.
+   Dol podjezdza w gore tak, by przylegal do dolnej krawedzi zwinietego papieru. */
 .mission-scroll--closed #srodek {
-  transform: scaleY(0.05);
+  transform: scaleY(0.18);
 }
 .mission-scroll--closed #Dol {
-  transform: translateY(-732%);
+  transform: translateY(-622%);
 }
 .mission-scroll--open #srodek {
   transform: scaleY(1);

@@ -91,7 +91,7 @@ export default function MissionView() {
                 position: "relative",
               }}
             >
-              <MissionScroll state={step === 0 ? "closed" : "open"} width={300}>
+              <MissionScroll state={step === 0 ? "closed" : "open"} width={380}>
                 <div style={{ display: "flex", gap: 5, marginBottom: 8, flexWrap: "wrap" }}>
                   <span className="chip magic" style={{ fontSize: 10, padding: "3px 8px" }}>Las Pytań</span>
                   <span className="chip amber" style={{ fontSize: 10, padding: "3px 8px" }}>+3 ✦ +Artefakt</span>
