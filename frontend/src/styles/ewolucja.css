@@ -249,22 +249,23 @@ h3.title{ font-size: 22px; margin:0; }
 @keyframes shimmer   { 0%{ background-position: -180% 0 } 100%{ background-position: 180% 0 } }
 @keyframes spin-slow { to { transform: rotate(360deg) } }
 @keyframes drift     { from{ transform: translateX(-30%) } to{ transform: translateX(130%) } }
-@keyframes el-up    { 0%{ opacity:0; transform: translateY(20px) } 100%{ opacity:1; transform: translateY(0) } }
-@keyframes el-down  { 0%{ opacity:0; transform: translateY(-14px) } 100%{ opacity:1; transform: translateY(0) } }
-@keyframes el-left  { 0%{ opacity:0; transform: translateX(-22px) } 100%{ opacity:1; transform: translateX(0) } }
-@keyframes el-right { 0%{ opacity:0; transform: translateX(22px) } 100%{ opacity:1; transform: translateX(0) } }
-@keyframes el-pop   { 0%{ opacity:0; transform: scale(.7) } 65%{ transform: scale(1.06) } 100%{ opacity:1; transform: scale(1) } }
+@keyframes el-up    { 0%{ opacity:0; transform: translate3d(0, 10px, 0) } 100%{ opacity:1; transform: translate3d(0,0,0) } }
+@keyframes el-down  { 0%{ opacity:0; transform: translate3d(0, -8px, 0) } 100%{ opacity:1; transform: translate3d(0,0,0) } }
 
-/* Kaskadowe wejscie dla bezposrednich dzieci kontenera */
-.entrance-stagger > * { animation: el-up .55s cubic-bezier(.22,.9,.28,1) both; }
-.entrance-stagger > *:nth-child(1) { animation-delay: .05s; animation-name: el-pop; }
-.entrance-stagger > *:nth-child(2) { animation-delay: .14s; animation-name: el-left; }
-.entrance-stagger > *:nth-child(3) { animation-delay: .22s; animation-name: el-right; }
-.entrance-stagger > *:nth-child(4) { animation-delay: .30s; animation-name: el-left; }
-.entrance-stagger > *:nth-child(5) { animation-delay: .38s; animation-name: el-right; }
-.entrance-stagger > *:nth-child(6) { animation-delay: .46s; animation-name: el-up; }
-.entrance-stagger > *:nth-child(7) { animation-delay: .54s; animation-name: el-up; }
-.entrance-topbar { animation: el-down .5s cubic-bezier(.22,.9,.28,1) .02s both; }
+/* Wszystkie karty uzywaja jednej, plynnej animacji "el-up". Bez slide-in z bokow ani pop scale,
+   zeby wysokosci kart nie skakaly nawet jak obrazki sie wgrywaja. */
+.entrance-stagger > * {
+  animation: el-up .45s cubic-bezier(.22,.9,.28,1) both;
+  will-change: opacity, transform;
+}
+.entrance-stagger > *:nth-child(1) { animation-delay: .05s; }
+.entrance-stagger > *:nth-child(2) { animation-delay: .11s; }
+.entrance-stagger > *:nth-child(3) { animation-delay: .17s; }
+.entrance-stagger > *:nth-child(4) { animation-delay: .23s; }
+.entrance-stagger > *:nth-child(5) { animation-delay: .29s; }
+.entrance-stagger > *:nth-child(6) { animation-delay: .35s; }
+.entrance-stagger > *:nth-child(7) { animation-delay: .41s; }
+.entrance-topbar { animation: el-down .35s cubic-bezier(.22,.9,.28,1) .02s both; will-change: opacity, transform; }
 @keyframes coin-spin { 0%,100%{ transform: rotateY(0) } 50%{ transform: rotateY(360deg) } }
 @keyframes coin-bump { 0%{ transform: scale(.4); opacity:0 } 60%{ transform: scale(1.2); opacity:1 } 100%{ transform: scale(1); opacity:1 } }
 @keyframes coin-fly  { 0%{ transform: translate(0,0) scale(1); opacity:1 } 100%{ transform: translate(var(--tx,0px), var(--ty,-60px)) scale(.4); opacity:0 } }

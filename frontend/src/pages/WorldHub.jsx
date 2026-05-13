@@ -376,13 +376,15 @@ export default function WorldHub() {
               background: "linear-gradient(135deg, rgba(255,224,181,.55), rgba(255,210,105,.40))",
             }}
           >
-            <div style={{ width: 70, display: "flex", justifyContent: "center", flex: "none" }}>
+            <div style={{ width: 70, height: 92, display: "flex", justifyContent: "center", alignItems: "center", flex: "none" }}>
               <img
                 src="/assets/zwoj-closed.png"
                 alt=""
+                width="45"
+                height="92"
                 style={{
                   width: 45,
-                  height: "auto",
+                  height: 92,
                   filter: "drop-shadow(0 6px 12px rgba(80,50,10,.35))",
                   animation: "float-mid 3s ease-in-out infinite",
                 }}
@@ -433,16 +435,19 @@ export default function WorldHub() {
               padding: "14px 16px",
             }}
           >
-            <div style={{ width: 70, display: "flex", justifyContent: "center", flex: "none" }}>
+            <div style={{ width: 70, height: 80, display: "flex", justifyContent: "center", alignItems: "center", flex: "none" }}>
               <img
                 src="/wizard.png"
                 alt=""
                 aria-hidden="true"
+                width="60"
+                height="80"
                 style={{
                   width: 60,
-                  height: "auto",
+                  height: 80,
                   transform: "scaleX(-1)",
                   filter: "drop-shadow(0 4px 8px rgba(80,40,140,.35))",
+                  objectFit: "contain",
                 }}
               />
             </div>
