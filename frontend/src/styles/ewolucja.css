@@ -258,6 +258,12 @@ h3.title{ font-size: 22px; margin:0; }
 @keyframes pulse-halo{ 0%,100%{ transform: translate(-50%,-50%) scale(1); opacity:.85 } 50%{ transform: translate(-50%,-50%) scale(1.18); opacity:.45 } }
 @keyframes pulse-dot { 0%,100%{ transform: scale(1); opacity:1 } 50%{ transform: scale(1.4); opacity:.5 } }
 @keyframes petal-fly { 0%{ transform: rotate(0) scale(0); opacity:0 } 60%{ opacity:1 } 100%{ transform: rotate(720deg) scale(1) translateY(40px); opacity:0 } }
+@keyframes confetti-fall {
+  0%   { transform: translate3d(0, -30px, 0) rotate(0deg); opacity: 0; }
+  10%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { transform: translate3d(var(--tx, 0px), 110vh, 0) rotate(720deg); opacity: 0; }
+}
 @keyframes glow-ring { 0%{ transform: scale(.6); opacity:.7 } 100%{ transform: scale(2); opacity:0 } }
 @keyframes float-art { 0%,100%{ transform: translateY(0) rotate(0) } 50%{ transform: translateY(-12px) rotate(4deg) } }
 @keyframes pulse-ring{ 0%{transform:scale(.6); opacity:.7} 100%{transform:scale(1.6); opacity:0} }
