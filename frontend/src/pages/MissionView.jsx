@@ -1,25 +1,26 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, session } from "../services/api.js";
+import { useAppData } from "../contexts/AppData.jsx";
 import NarratorVoice from "../components/NarratorVoice.jsx";
 import PageShell from "../components/PageShell.jsx";
-import Loading from "../components/Loading.jsx";
+import TopBar from "../components/TopBar.jsx";
+import TabBar from "../components/TabBar.jsx";
 import Celebration from "../components/Celebration.jsx";
-import { Sparkle } from "../components/art.jsx";
+import { Sparkle, ScrollIcon } from "../components/art.jsx";
 
 export default function MissionView() {
   const navigate = useNavigate();
-  const [mission, setMission] = useState(null);
+  // Misja z globalnego kontekstu - byla zaladowana razem z domem, brak czekania
+  const { mission, error: ctxError } = useAppData();
   const [step, setStep] = useState(0);
   const [answer, setAnswer] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(ctxError);
 
   useEffect(() => {
-    const id = session.getPlayer();
-    if (!id) { navigate("/onboarding"); return; }
-    api.getCurrentMission(id).then(setMission).catch((e) => setError(e.message));
+    if (!session.getPlayer()) navigate("/onboarding");
   }, [navigate]);
 
   useEffect(() => {
@@ -47,22 +48,41 @@ export default function MissionView() {
     }
   }
 
-  if (error) return <PageShell><div style={{ padding: 40 }}><p style={{ color: "#B85B47" }}>{error}</p></div></PageShell>;
-  if (!mission) return <Loading text="Otwieranie zwoju…" />;
+  if (error) {
+    return (
+      <PageShell>
+        <TopBar />
+        <div style={{ padding: 40 }}>
+          <p style={{ color: "#B85B47" }}>{error}</p>
+        </div>
+        <TabBar current="home" />
+      </PageShell>
+    );
+  }
 
   return (
     <PageShell>
-      <div className="topbar">
-        <button className="btn btn-ghost btn-sm" onClick={() => navigate("/world")}>‹</button>
-        <div className="meta" style={{ textAlign: "center" }}>
-          <div className="lbl">LAS PYTAŃ — MISJA</div>
-          <div className="nm">{mission.title}</div>
-        </div>
-        <div style={{ width: 36 }} />
-      </div>
+      <TopBar />
 
-      <div className="screen-scroll" style={{ flex: 1, padding: "4px 18px 28px", display: "flex", flexDirection: "column", gap: 14 }}>
-        {step === 0 && (
+      <div className="screen-scroll" style={{ flex: 1, padding: "4px 18px 84px", display: "flex", flexDirection: "column", gap: 14 }}>
+        {!mission && (
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, padding: "40px 0" }}>
+            <div style={{ animation: "float-mid 3s ease-in-out infinite" }}>
+              <ScrollIcon size={80} />
+            </div>
+            <p className="t-hand" style={{ fontSize: 18, color: "var(--p-ink-soft)", margin: 0, textAlign: "center" }}>
+              Kronika szuka tropu dla Ciebie…
+            </p>
+          </div>
+        )}
+        {mission && (
+          <>
+            <div className="t-display" style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-magic-dk)", textAlign: "center", marginTop: 4 }}>
+              LAS PYTAŃ — MISJA
+            </div>
+          </>
+        )}
+        {mission && step === 0 && (
           <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 18, padding: "12px 0" }}>
             <div style={{ position: "relative", animation: "float-mid 3s ease-in-out infinite" }}>
               <img src="/assets/zwoj-closed.png" alt="" style={{ width: 170, height: "auto", display: "block", filter: "drop-shadow(0 18px 26px rgba(80,50,10,.40))" }} />
@@ -80,7 +100,7 @@ export default function MissionView() {
           </div>
         )}
 
-        {step === 1 && (
+        {mission && step === 1 && (
           <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <div style={{ position: "relative", width: "100%", maxWidth: 320, aspectRatio: "610 / 522" }}>
               <img src="/assets/zwoj-open.png" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", filter: "drop-shadow(0 14px 26px rgba(80,50,10,.35))", animation: "unroll 1.9s cubic-bezier(.33,.0,.30,1) forwards", transformOrigin: "center", transform: "scaleX(.08)", willChange: "transform" }} />
@@ -89,7 +109,7 @@ export default function MissionView() {
           </div>
         )}
 
-        {step === 2 && (
+        {mission && step === 2 && (
           <div className="pop-in" style={{ width: "100%", margin: "8px 0" }}>
             <div style={{ position: "relative", width: "100%", aspectRatio: "610 / 522" }}>
               <img src="/assets/zwoj-open.png" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", filter: "drop-shadow(0 14px 26px rgba(80,50,10,.35))" }} />
@@ -111,7 +131,7 @@ export default function MissionView() {
           </div>
         )}
 
-        {step === 3 && (
+        {mission && step === 3 && (
           <div className="pop-in" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <div className="card">
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-ink-soft)" }}>TWOJE PYTANIE / DOWÓD</div>
@@ -137,6 +157,7 @@ export default function MissionView() {
         )}
       </div>
       <Celebration active={celebrating} />
+      <TabBar current="home" />
     </PageShell>
   );
 }
