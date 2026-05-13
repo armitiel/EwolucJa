@@ -1,5 +1,5 @@
 /**
- * Loading — wskaźnik ładowania na pełnym ekranie z animacją Lottie.
+ * Loading — wskaznik ladowania na pelnym ekranie z animacja Lottie.
  * Wycentrowany pionowo i poziomo w PageShell.
  */
 import React from "react";
@@ -24,6 +24,8 @@ export default function Loading({ text = "Ładowanie…", dark = false }) {
           paddingBottom: "25vh",
           gap: 0,
           minHeight: "70vh",
+          position: "relative",
+          zIndex: 1,
         }}
       >
         <DotLottieReact
@@ -33,11 +35,11 @@ export default function Loading({ text = "Ładowanie…", dark = false }) {
           style={{ width: 330, height: 330 }}
         />
         <p
+          className="t-display"
           style={{
             margin: 0,
             marginTop: -64,
             color: textColor,
-            fontFamily: "var(--font-display, 'Fredoka'), sans-serif",
             fontWeight: 500,
             fontSize: 21,
             letterSpacing: 0.2,
