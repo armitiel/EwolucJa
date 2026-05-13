@@ -7,6 +7,7 @@ import Onboarding from "./pages/Onboarding.jsx";
 import WorldHub from "./pages/WorldHub.jsx";
 import MissionView from "./pages/MissionView.jsx";
 import MapView from "./pages/MapView.jsx";
+import Games from "./pages/Games.jsx";
 import Backpack from "./pages/Backpack.jsx";
 import Profile from "./pages/Profile.jsx";
 import Reward from "./pages/Reward.jsx";
@@ -29,6 +30,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/world" element={<WorldHub />} />
         <Route path="/map" element={<MapView />} />
+        <Route path="/games" element={<Games />} />
         <Route path="/backpack" element={<Backpack />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/mission" element={<MissionView />} />

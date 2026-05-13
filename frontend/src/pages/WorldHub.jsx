@@ -10,7 +10,7 @@ import NarratorVoice from "../components/NarratorVoice.jsx";
 import PageShell from "../components/PageShell.jsx";
 import Loading from "../components/Loading.jsx";
 import TabBar from "../components/TabBar.jsx";
-import { Sparkle, Coin, CoinPill } from "../components/art.jsx";
+import { Sparkle, Coin, CoinPill, Avatar } from "../components/art.jsx";
 
 // ─── WeekProgress — pasek 7-dniowy + monety + streak + Skarb tygodnia ───
 function WeekProgress({ done = 0, coins = 0, streak = 0, goal = 7 }) {
@@ -250,53 +250,64 @@ export default function WorldHub() {
   const weekCoins = weekDone * 12;
   const streak = (player.scores?.streak || 0) + Math.max(1, weekDone);
 
+  // Archetyp + avatar
+  const archetypeKey = player.archetype || "tropiciel_tajemnic";
+  const archetypeLabel = (ARCHETYPES[archetypeKey]?.name || "Tropiciel").toUpperCase();
+  const avatarKind = player.avatar_kind || "fox";
+
+  // Postepy do progress barow na kaflach (Mapa: ile krain odblokowano /6, Plecak: artefakty)
+  const regionsUnlocked = 1; // tylko Las Pytan w MVP
+  const totalRegions = 6;
+  const backpackItems = (player.backpack || []).length;
+  const backpackGoal = 12;
+
   return (
     <PageShell>
-      {/* Floating CoinPill w prawym gornym rogu */}
-      <div style={{ position: "absolute", top: 14, right: 14, zIndex: 5 }}>
-        <CoinPill value={totalCoins} onClick={() => navigate("/backpack")} />
+      {/* Sticky topbar — avatar/imie/archetyp + sterowanie lektorem + CoinPill */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          padding: "12px 14px 8px",
+          position: "relative",
+          zIndex: 5,
+        }}
+      >
+        <div style={{ flexShrink: 0 }}>
+          <Avatar kind={avatarKind} size={48} evolved={1} />
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-magic-dk)" }}>
+            {archetypeLabel}
+          </div>
+          <div
+            className="t-display"
+            style={{ fontSize: 20, lineHeight: 1.1, color: "var(--p-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+          >
+            {player.player_name}
+          </div>
+        </div>
+        {/* Sterowanie lektorem (play/stop + mute) */}
+        <div style={{ flexShrink: 0 }}>
+          <NarratorVoice
+            text={greeting}
+            land="dolina_selfie"
+            tone="calm"
+            speed={0.86}
+            pauseBefore={500}
+            inlinePauses
+            autoPlayDelay={900}
+            autoPlay
+            playOnceKey="worldhub_greeting"
+          />
+        </div>
+        <div style={{ flexShrink: 0 }}>
+          <CoinPill value={totalCoins} onClick={() => navigate("/backpack")} />
+        </div>
       </div>
 
-      <div className="screen-scroll" style={{ display: "flex", flexDirection: "column", gap: 16, paddingTop: 24, position: "relative", zIndex: 1, flex: 1 }}>
-        {/* Hero — wielki wizard + powitanie */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, marginTop: 4 }}>
-          <div style={{ position: "relative" }}>
-            <div
-              style={{
-                position: "absolute",
-                inset: "-12% -8% 6%",
-                borderRadius: "50%",
-                background: "radial-gradient(circle, rgba(184,134,232,.45), transparent 65%)",
-                filter: "blur(4px)",
-              }}
-            />
-            <div style={{ position: "relative", animation: "float-mid 4s ease-in-out infinite" }}>
-              <img
-                src="/wizard.png"
-                alt="Mędrzec Zakątka"
-                style={{
-                  width: 160,
-                  height: "auto",
-                  display: "block",
-                  filter: "drop-shadow(0 12px 22px rgba(80,40,140,.45))",
-                }}
-              />
-            </div>
-            <div style={{ position: "absolute", top: 24, left: -6 }}>
-              <Sparkle size={16} />
-            </div>
-            <div style={{ position: "absolute", top: 60, left: -14 }}>
-              <Sparkle size={12} delay={0.5} />
-            </div>
-          </div>
-          <h2 className="t-display" style={{ fontSize: 30, margin: "4px 0 0", textAlign: "center" }}>
-            Cześć, {player.player_name}!
-          </h2>
-          <p className="t-hand" style={{ fontSize: 18, margin: 0, color: "var(--p-ink-soft)" }}>
-            Zwój już na Ciebie czeka ✦
-          </p>
-        </div>
-
+      <div className="screen-scroll" style={{ display: "flex", flexDirection: "column", gap: 14, paddingTop: 4, position: "relative", zIndex: 1, flex: 1 }}>
         {/* Zegar cyklu */}
         <CycleClock
           days={days}
@@ -308,7 +319,70 @@ export default function WorldHub() {
         {/* Postep tygodnia + skarb */}
         <WeekProgress done={weekDone} coins={weekCoins} streak={streak} />
 
-        {/* Karta misji — zwoj zamkniety */}
+        {/* Karta 2: GRY na ten tydzien */}
+        <button
+          onClick={() => navigate("/games")}
+          style={{ border: "none", background: "transparent", padding: 0, cursor: "pointer", textAlign: "left", position: "relative" }}
+        >
+          <div
+            className="card"
+            style={{
+              padding: "14px 16px",
+              display: "flex",
+              alignItems: "center",
+              gap: 14,
+              background: "linear-gradient(135deg, rgba(123,192,232,.30), rgba(184,134,232,.30))",
+            }}
+          >
+            <div
+              style={{
+                width: 64,
+                height: 64,
+                flex: "none",
+                borderRadius: 18,
+                background: "linear-gradient(180deg,#B886E8,#7A4DC2)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 34,
+                boxShadow: "0 6px 14px rgba(122,77,194,.35)",
+                animation: "float-mid 3.5s ease-in-out infinite",
+              }}
+            >
+              🎮
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-magic-dk)" }}>
+                GRY TYGODNIA
+              </div>
+              <h2 className="t-display" style={{ fontSize: 22, margin: "2px 0 0" }}>
+                3 wyzwania na ten tydzień
+              </h2>
+              <div style={{ display: "flex", gap: 6, marginTop: 6, alignItems: "center" }}>
+                <span className="chip magic" style={{ fontSize: 11, padding: "2px 8px" }}>0/3 ukończone</span>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                    background: "rgba(255,255,255,.85)",
+                    color: "#7A4D10",
+                    fontWeight: 800,
+                    fontSize: 11,
+                    padding: "2px 8px",
+                    borderRadius: 999,
+                    boxShadow: "inset 0 0 0 1.2px #E1B66A",
+                  }}
+                >
+                  <Coin size={12} /> +30
+                </span>
+              </div>
+            </div>
+            <span style={{ fontSize: 32, color: "var(--p-magic-dk)", fontWeight: 700 }}>›</span>
+          </div>
+        </button>
+
+        {/* Karta 3: Aktualna misja (zwoj z zadaniami z reala) */}
         <button
           onClick={() => mission && navigate("/mission")}
           disabled={!mission}
@@ -337,7 +411,7 @@ export default function WorldHub() {
             />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-magic-dk)" }}>
-                DZISIEJSZY ZWÓJ
+                DZISIEJSZY ZWÓJ — ZADANIE Z REALA
               </div>
               <h2 className="t-display" style={{ fontSize: 22, margin: "2px 0 0" }}>
                 {mission ? mission.title : "Kronika szuka tropu…"}
@@ -358,25 +432,17 @@ export default function WorldHub() {
                       boxShadow: "inset 0 0 0 1.2px #E1B66A",
                     }}
                   >
-                    <span style={{ fontSize: 12 }}>✦</span> +12
+                    <Coin size={12} /> +12
                   </span>
-                  <span className="chip magic" style={{ fontSize: 11, padding: "2px 8px" }}>
-                    +3 ✦
-                  </span>
+                  <span className="chip magic" style={{ fontSize: 11, padding: "2px 8px" }}>+3 ✦</span>
                 </div>
               )}
             </div>
             <span style={{ fontSize: 32, color: "var(--p-magic-dk)", fontWeight: 700 }}>›</span>
           </div>
-          <div style={{ position: "absolute", top: -8, left: 50 }}>
-            <Sparkle size={20} />
-          </div>
-          <div style={{ position: "absolute", bottom: -4, left: 30 }}>
-            <Sparkle size={14} delay={0.6} />
-          </div>
         </button>
 
-        {/* Komnata Refleksji — wejscie do Mentora */}
+        {/* Karta 4: Komnata Refleksji */}
         <button
           onClick={() => navigate("/invite-gm")}
           style={{ border: "none", padding: 0, background: "transparent", cursor: "pointer", textAlign: "left" }}
@@ -389,7 +455,7 @@ export default function WorldHub() {
               display: "flex",
               alignItems: "center",
               gap: 14,
-              padding: "16px 18px",
+              padding: "14px 16px",
             }}
           >
             <img
@@ -397,7 +463,7 @@ export default function WorldHub() {
               alt=""
               aria-hidden="true"
               style={{
-                width: 80,
+                width: 64,
                 height: "auto",
                 flex: "none",
                 transform: "scaleX(-1)",
@@ -405,10 +471,10 @@ export default function WorldHub() {
               }}
             />
             <div style={{ flex: 1 }}>
-              <div className="t-display" style={{ fontSize: 20 }}>
-                Komnata Refleksji
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-magic-dk)" }}>
+                KOMNATA REFLEKSJI
               </div>
-              <div style={{ fontSize: 13, color: "var(--p-ink-soft)", marginTop: 2 }}>
+              <div className="t-display" style={{ fontSize: 18, lineHeight: 1.15, marginTop: 2 }}>
                 Mędrzec ma dla Ciebie myśl
               </div>
             </div>
@@ -416,18 +482,43 @@ export default function WorldHub() {
           </div>
         </button>
 
-        {/* Lektor — ukryty, gra raz na sesje */}
-        <NarratorVoice
-          text={greeting}
-          land="dolina_selfie"
-          tone="calm"
-          speed={0.86}
-          pauseBefore={500}
-          inlinePauses
-          autoPlayDelay={900}
-          autoPlay
-          playOnceKey="worldhub_greeting"
-        />
+        {/* Mniejsze kafelki: Mapa + Plecak (z paskami postepu na gorze) */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          {/* Mapa */}
+          <button
+            onClick={() => navigate("/map")}
+            style={{ border: "none", background: "transparent", padding: 0, cursor: "pointer", textAlign: "left" }}
+          >
+            <div className="card card-tight" style={{ padding: "10px 12px 12px" }}>
+              <div className="prog" style={{ height: 5, marginBottom: 8 }}>
+                <i style={{ width: `${Math.round((regionsUnlocked / totalRegions) * 100)}%`, background: "linear-gradient(90deg,#5FA76F,#FFD269)" }} />
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                <span style={{ fontSize: 22 }}>🌲</span>
+                <span style={{ fontSize: 11, color: "var(--p-ink-soft)", fontWeight: 800 }}>{regionsUnlocked}/{totalRegions}</span>
+              </div>
+              <div className="t-display" style={{ fontSize: 16, lineHeight: 1.1 }}>Mapa Świata</div>
+              <div style={{ fontSize: 11, color: "var(--p-ink-soft)" }}>krainy do odkrycia</div>
+            </div>
+          </button>
+          {/* Plecak */}
+          <button
+            onClick={() => navigate("/backpack")}
+            style={{ border: "none", background: "transparent", padding: 0, cursor: "pointer", textAlign: "left" }}
+          >
+            <div className="card card-tight" style={{ padding: "10px 12px 12px" }}>
+              <div className="prog" style={{ height: 5, marginBottom: 8 }}>
+                <i style={{ width: `${Math.round((backpackItems / backpackGoal) * 100)}%`, background: "linear-gradient(90deg,#B886E8,#FFD269)" }} />
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                <span style={{ fontSize: 22 }}>💜</span>
+                <span style={{ fontSize: 11, color: "var(--p-ink-soft)", fontWeight: 800 }}>{backpackItems}/{backpackGoal}</span>
+              </div>
+              <div className="t-display" style={{ fontSize: 16, lineHeight: 1.1 }}>Plecak</div>
+              <div style={{ fontSize: 11, color: "var(--p-ink-soft)" }}>artefakty zdobyte</div>
+            </div>
+          </button>
+        </div>
       </div>
 
       <TabBar current="home" />
