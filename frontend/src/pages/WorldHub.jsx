@@ -13,15 +13,24 @@ import TabBar from "../components/TabBar.jsx";
 import { Sparkle, Coin, CoinPill, Avatar } from "../components/art.jsx";
 
 // ─── WeekProgress — pasek 7-dniowy + monety + streak + Skarb tygodnia ───
-function WeekProgress({ done = 0, coins = 0, streak = 0, goal = 7 }) {
+// Rozpoznaje aktualny dzien tygodnia (PN=0..ND=6) i koloruje:
+//   - dni przed dzisiejszym = zlote monety (ukonczone)
+//   - dzien dzisiejszy      = fioletowy ring (todayIndex)
+//   - dni przyszle          = puste kola
+function WeekProgress({ done = null, coins = 0, streak = 0, goal = 7, todayIndex = null }) {
   const days = ["PN", "WT", "ŚR", "CZ", "PT", "SO", "ND"];
-  const pct = Math.round((done / goal) * 100);
+  // Auto-detekcja PL: getDay() => Sun=0..Sat=6, my chcemy Mon=0..Sun=6.
+  const computedToday = todayIndex != null ? todayIndex : ((new Date().getDay() + 6) % 7);
+  // Jesli nie podano "done", domyslnie zalozmy ze gracz ukonczyl wszystkie poprzednie dni (todayIndex)
+  const computedDone = done != null ? done : computedToday;
+  const pct = Math.round((computedDone / goal) * 100);
+
   return (
     <div className="card" style={{ padding: "14px 16px" }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
         <div>
           <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-magic-dk)" }}>POSTĘP TYGODNIA</div>
-          <div className="t-display" style={{ fontSize: 18, marginTop: 2 }}>{done} z {goal} zadań</div>
+          <div className="t-display" style={{ fontSize: 18, marginTop: 2 }}>{computedDone} z {goal} zadań</div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#C2851E", fontWeight: 800, fontSize: 13 }}>
           <Coin size={18} /> <span>+{coins} w tym tyg.</span>
@@ -30,8 +39,9 @@ function WeekProgress({ done = 0, coins = 0, streak = 0, goal = 7 }) {
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6, marginTop: 2 }}>
         {days.map((d, i) => {
-          const isDone = i < done;
-          const isToday = i === done && done < goal;
+          const isDone = i < computedDone;
+          const isToday = i === computedToday && !isDone;
+          const isFuture = i > computedToday;
           return (
             <div key={d} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
               <div
@@ -42,9 +52,16 @@ function WeekProgress({ done = 0, coins = 0, streak = 0, goal = 7 }) {
                     : isToday ? "rgba(184,134,232,.20)" : "rgba(255,255,255,.55)",
                   boxShadow: isDone
                     ? "0 2px 0 #B47322, 0 3px 8px rgba(232,154,61,.45)"
-                    : isToday ? "inset 0 0 0 2.2px var(--p-magic-dk)" : "inset 0 0 0 1.4px rgba(43,42,74,.10)",
+                    : isToday
+                    ? "inset 0 0 0 2.2px var(--p-magic-dk), 0 0 0 4px rgba(184,134,232,.18)"
+                    : "inset 0 0 0 1.4px rgba(43,42,74,.10)",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  animation: isDone ? `wk-bump .5s ${i * 0.06}s cubic-bezier(.34,1.56,.64,1) both` : "none",
+                  animation: isDone
+                    ? `wk-bump .5s ${i * 0.06}s cubic-bezier(.34,1.56,.64,1) both`
+                    : isToday
+                    ? "pulse-dot 2.4s ease-in-out infinite"
+                    : "none",
+                  opacity: isFuture ? 0.7 : 1,
                 }}
               >
                 {isDone && <Coin size={20} />}
@@ -53,8 +70,8 @@ function WeekProgress({ done = 0, coins = 0, streak = 0, goal = 7 }) {
               <div
                 style={{
                   fontSize: 10, fontWeight: 800, letterSpacing: 0.5,
-                  color: isToday ? "var(--p-magic-dk)" : "var(--p-ink-soft)",
-                  opacity: isDone ? 1 : 0.7,
+                  color: isToday ? "var(--p-magic-dk)" : isDone ? "#7A4D10" : "var(--p-ink-soft)",
+                  opacity: isFuture ? 0.55 : 1,
                 }}
               >
                 {d}
@@ -68,9 +85,9 @@ function WeekProgress({ done = 0, coins = 0, streak = 0, goal = 7 }) {
         <div style={{ flex: 1 }}>
           <div className="prog magic"><i style={{ width: `${pct}%` }} /></div>
           <div style={{ fontSize: 10, fontWeight: 800, color: "var(--p-ink-soft)", marginTop: 4, letterSpacing: 0.5 }}>
-            {done >= goal
+            {computedDone >= goal
               ? "TYDZIEŃ UKOŃCZONY ✦"
-              : `JESZCZE ${goal - done} ${goal - done === 1 ? "ZADANIE" : (goal - done < 5 ? "ZADANIA" : "ZADAŃ")} DO SKARBU`}
+              : `JESZCZE ${goal - computedDone} ${goal - computedDone === 1 ? "ZADANIE" : (goal - computedDone < 5 ? "ZADANIA" : "ZADAŃ")} DO SKARBU`}
           </div>
         </div>
         <div
@@ -90,15 +107,15 @@ function WeekProgress({ done = 0, coins = 0, streak = 0, goal = 7 }) {
       <div
         style={{
           marginTop: 10, padding: "8px 10px", borderRadius: 14,
-          background: done >= goal ? "linear-gradient(135deg,#FFE7B0,#FFD269)" : "rgba(122,77,194,.10)",
+          background: computedDone >= goal ? "linear-gradient(135deg,#FFE7B0,#FFD269)" : "rgba(122,77,194,.10)",
           display: "flex", alignItems: "center", gap: 10,
         }}
       >
-        <div style={{ fontSize: 22, animation: done >= goal ? "wiggle .8s ease-in-out infinite" : "none", flex: "none" }}>
-          {done >= goal ? "🎁" : "📜"}
+        <div style={{ fontSize: 22, animation: computedDone >= goal ? "wiggle .8s ease-in-out infinite" : "none", flex: "none" }}>
+          {computedDone >= goal ? "🎁" : "📜"}
         </div>
         <div style={{ flex: 1, fontSize: 12, color: "var(--p-ink-soft)", fontWeight: 600, lineHeight: 1.3 }}>
-          {done >= goal ? (
+          {computedDone >= goal ? (
             <><b style={{ color: "#7A4D10" }}>Skarb tygodnia odblokowany!</b> Odbierz +50 monet i artefakt cykli.</>
           ) : (
             <><b style={{ color: "var(--p-magic-dk)" }}>Skarb tygodnia:</b> +50 monet · rzadki artefakt · ewolucja</>
@@ -316,8 +333,8 @@ export default function WorldHub() {
           remainingText={friday && !friday.passed ? `Zostało ${friday.label} do nagrody` : ""}
         />
 
-        {/* Postep tygodnia + skarb */}
-        <WeekProgress done={weekDone} coins={weekCoins} streak={streak} />
+        {/* Postep tygodnia + skarb — auto-detekcja dnia tygodnia */}
+        <WeekProgress coins={weekCoins} streak={streak} />
 
         {/* Karta 2: GRY na ten tydzien */}
         <button
