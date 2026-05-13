@@ -44,12 +44,12 @@ const FoxArt = ({ evolved = 0 }) => (
     <path d="M30 42 L42 22 L52 36 L68 36 L78 22 L86 44 Q86 60 58 60 Q30 60 30 42 Z" fill="#E89A3D" />
     <path d="M42 22 L48 35 L40 30 Z" fill="#A8612A" />
     <path d="M78 22 L72 35 L80 30 Z" fill="#A8612A" />
-    <ellipse cx="48" cy="46" rx="3" ry="3.5" fill="#2B2A4A" />
-    <ellipse cx="68" cy="46" rx="3" ry="3.5" fill="#2B2A4A" />
+    <ellipse cx="48" cy="46" rx="3" ry="3.5" fill="#4e4d76" />
+    <ellipse cx="68" cy="46" rx="3" ry="3.5" fill="#4e4d76" />
     <circle cx="49" cy="45" r="1" fill="#fff" />
     <circle cx="69" cy="45" r="1" fill="#fff" />
     <ellipse cx="58" cy="55" rx="9" ry="5" fill="#FBE2C0" />
-    <ellipse cx="58" cy="52" rx="2" ry="1.5" fill="#2B2A4A" />
+    <ellipse cx="58" cy="52" rx="2" ry="1.5" fill="#4e4d76" />
     <circle cx="40" cy="52" r="2" fill="#F0A957" opacity=".7" />
     <circle cx="76" cy="52" r="2" fill="#F0A957" opacity=".7" />
     {evolved >= 1 && (
@@ -73,8 +73,8 @@ const OwlArt = ({ evolved = 0 }) => (
     <path d="M30 38 Q30 28 40 28 Q50 28 50 36 Q50 28 60 28 Q70 28 70 38 Q70 52 50 64 Q30 52 30 38 Z" fill="#F4E3B8" />
     <circle cx="40" cy="42" r="7" fill="#fff" />
     <circle cx="60" cy="42" r="7" fill="#fff" />
-    <circle cx="40" cy="43" r="4" fill="#2B2A4A" />
-    <circle cx="60" cy="43" r="4" fill="#2B2A4A" />
+    <circle cx="40" cy="43" r="4" fill="#4e4d76" />
+    <circle cx="60" cy="43" r="4" fill="#4e4d76" />
     <circle cx="41" cy="42" r="1.4" fill="#fff" />
     <circle cx="61" cy="42" r="1.4" fill="#fff" />
     <path d="M50 50 L46 56 L54 56 Z" fill="#E89A3D" />
@@ -99,11 +99,11 @@ const RabbitArt = ({ evolved = 0 }) => (
     <ellipse cx="62" cy="22" rx="2" ry="10" fill="#F08C8C" />
     <ellipse cx="50" cy="65" rx="26" ry="24" fill="#FBE2EA" />
     <ellipse cx="50" cy="70" rx="18" ry="14" fill="#fff" />
-    <ellipse cx="42" cy="48" rx="2.6" ry="3" fill="#2B2A4A" />
-    <ellipse cx="58" cy="48" rx="2.6" ry="3" fill="#2B2A4A" />
+    <ellipse cx="42" cy="48" rx="2.6" ry="3" fill="#4e4d76" />
+    <ellipse cx="58" cy="48" rx="2.6" ry="3" fill="#4e4d76" />
     <circle cx="43" cy="47" r="1" fill="#fff" />
     <circle cx="59" cy="47" r="1" fill="#fff" />
-    <path d="M48 56 Q50 58 52 56" stroke="#2B2A4A" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+    <path d="M48 56 Q50 58 52 56" stroke="#4e4d76" strokeWidth="1.5" fill="none" strokeLinecap="round" />
     <path d="M50 53 L48 56 L52 56 Z" fill="#F08C8C" />
     <circle cx="36" cy="55" r="3" fill="#F4B7C9" opacity=".7" />
     <circle cx="64" cy="55" r="3" fill="#F4B7C9" opacity=".7" />
@@ -128,11 +128,11 @@ const DragonArt = ({ evolved = 0 }) => (
     <ellipse cx="55" cy="50" rx="22" ry="18" fill="#5FA76F" />
     <ellipse cx="44" cy="46" rx="3" ry="3.5" fill="#fff" />
     <ellipse cx="66" cy="46" rx="3" ry="3.5" fill="#fff" />
-    <ellipse cx="44" cy="47" rx="1.5" ry="2.2" fill="#2B2A4A" />
-    <ellipse cx="66" cy="47" rx="1.5" ry="2.2" fill="#2B2A4A" />
+    <ellipse cx="44" cy="47" rx="1.5" ry="2.2" fill="#4e4d76" />
+    <ellipse cx="66" cy="47" rx="1.5" ry="2.2" fill="#4e4d76" />
     <ellipse cx="55" cy="58" rx="6" ry="3" fill="#3F8056" />
-    <circle cx="52" cy="58" r="1" fill="#2B2A4A" />
-    <circle cx="58" cy="58" r="1" fill="#2B2A4A" />
+    <circle cx="52" cy="58" r="1" fill="#4e4d76" />
+    <circle cx="58" cy="58" r="1" fill="#4e4d76" />
     <path d="M24 56 Q14 40 28 30 Q34 38 36 50 Z" fill="#A6D9AE" />
     <path d="M76 56 Q86 40 72 30 Q66 38 64 50 Z" fill="#A6D9AE" />
     {evolved >= 1 && <circle cx="55" cy="32" r="3" fill="#FFD269" />}
@@ -148,9 +148,9 @@ const CatArt = ({ evolved = 0 }) => (
     <path d="M66 28 L62 38 L60 32 Z" fill="#7A6B98" />
     <ellipse cx="42" cy="46" rx="3.5" ry="4" fill="#FFD269" />
     <ellipse cx="58" cy="46" rx="3.5" ry="4" fill="#FFD269" />
-    <ellipse cx="42" cy="46" rx="1" ry="3" fill="#2B2A4A" />
-    <ellipse cx="58" cy="46" rx="1" ry="3" fill="#2B2A4A" />
-    <path d="M50 52 L47 55 M50 52 L53 55" stroke="#2B2A4A" strokeWidth="1.5" strokeLinecap="round" />
+    <ellipse cx="42" cy="46" rx="1" ry="3" fill="#4e4d76" />
+    <ellipse cx="58" cy="46" rx="1" ry="3" fill="#4e4d76" />
+    <path d="M50 52 L47 55 M50 52 L53 55" stroke="#4e4d76" strokeWidth="1.5" strokeLinecap="round" />
     <circle cx="50" cy="52" r="1.5" fill="#F08C8C" />
     <path d="M30 50 L42 51 M30 54 L42 53" stroke="#fff" strokeWidth="1" opacity=".7" />
     <path d="M70 50 L58 51 M70 54 L58 53" stroke="#fff" strokeWidth="1" opacity=".7" />
@@ -318,10 +318,10 @@ export const MoonPhase = ({ phase = 0, size = 48, glow = true }) => (
     {phase !== 5 && (
       <g>
         <circle cx="24" cy="24" r="14" fill="#F4E3B8" />
-        {phase === 0 && <circle cx="24" cy="24" r="14" fill="#2B2A4A" opacity=".85" />}
-        {phase === 1 && <path d="M24 10 A14 14 0 0 0 24 38 A8 14 0 0 1 24 10 Z" fill="#2B2A4A" opacity=".75" />}
-        {phase === 2 && <path d="M24 10 A14 14 0 0 0 24 38 Z" fill="#2B2A4A" opacity=".75" />}
-        {phase === 3 && <path d="M24 10 A14 14 0 0 0 24 38 A4 14 0 0 0 24 10 Z" fill="#2B2A4A" opacity=".60" />}
+        {phase === 0 && <circle cx="24" cy="24" r="14" fill="#4e4d76" opacity=".85" />}
+        {phase === 1 && <path d="M24 10 A14 14 0 0 0 24 38 A8 14 0 0 1 24 10 Z" fill="#4e4d76" opacity=".75" />}
+        {phase === 2 && <path d="M24 10 A14 14 0 0 0 24 38 Z" fill="#4e4d76" opacity=".75" />}
+        {phase === 3 && <path d="M24 10 A14 14 0 0 0 24 38 A4 14 0 0 0 24 10 Z" fill="#4e4d76" opacity=".60" />}
         <circle cx="20" cy="20" r="2" fill="#D6C58A" opacity=".6" />
         <circle cx="28" cy="26" r="1.4" fill="#D6C58A" opacity=".6" />
       </g>
@@ -491,77 +491,4 @@ export const CoinPill = ({ value = 0, size = 22, recent = null, onClick }) => (
       alignItems: "center",
       gap: 6,
       height: 36,
-      background: "linear-gradient(180deg,#FFF1B0,#FFD269)",
-      color: "#7A4D10",
-      fontWeight: 800,
-      fontSize: 15,
-      padding: "0 14px 0 8px",
-      borderRadius: 999,
-      boxShadow: "inset 0 0 0 1.8px #E1B66A, 0 3px 0 #B47322, 0 4px 10px rgba(160,110,30,.30)",
-      border: "none",
-      cursor: onClick ? "pointer" : "default",
-      position: "relative",
-      whiteSpace: "nowrap",
-      fontFamily: "var(--font-body, 'Nunito'), sans-serif",
-    }}
-  >
-    <Coin size={size} anim />
-    <span style={{ lineHeight: 1 }}>{Number(value).toLocaleString("pl-PL")}</span>
-    {recent != null && recent > 0 && (
-      <span
-        style={{
-          position: "absolute",
-          top: -10,
-          right: -6,
-          background: "#5FA76F",
-          color: "#fff",
-          fontWeight: 800,
-          fontSize: 11,
-          padding: "2px 7px",
-          borderRadius: 999,
-          boxShadow: "0 2px 4px rgba(74,143,102,.45)",
-          animation: "coin-bump .6s ease-out",
-        }}
-      >
-        +{recent}
-      </span>
-    )}
-  </button>
-);
-
-// ─── Chmury ───────────────────────────────────────────────────
-export const Cloud = ({ size = 80, opacity = 0.7 }) => (
-  <svg width={size} height={size * 0.6} viewBox="0 0 100 60" style={{ opacity }}>
-    <ellipse cx="30" cy="40" rx="22" ry="14" fill="#fff" />
-    <ellipse cx="50" cy="32" rx="22" ry="18" fill="#fff" />
-    <ellipse cx="72" cy="40" rx="20" ry="14" fill="#fff" />
-    <ellipse cx="50" cy="44" rx="32" ry="10" fill="#fff" />
-  </svg>
-);
-
-// ─── Fake QR (do ekranu Invite) ────────────────────────────────
-export const FakeQR = () => {
-  const cells = [];
-  const seed = (i, j) => ((i * 7 + j * 13 + ((i * j) % 5)) % 5) > 1;
-  for (let i = 0; i < 14; i++)
-    for (let j = 0; j < 14; j++) {
-      if (seed(i, j)) cells.push(<rect key={`${i}-${j}`} x={j * 10} y={i * 10} width={10} height={10} fill="#2B2A4A" />);
-    }
-  return (
-    <svg viewBox="0 0 140 140" width="100%" height="100%">
-      <rect width="140" height="140" fill="#fff" />
-      {cells}
-      <rect x="0" y="0" width="40" height="40" fill="#fff" />
-      <rect x="0" y="0" width="40" height="40" fill="none" stroke="#2B2A4A" strokeWidth="8" />
-      <rect x="14" y="14" width="12" height="12" fill="#2B2A4A" />
-      <rect x="100" y="0" width="40" height="40" fill="#fff" />
-      <rect x="100" y="0" width="40" height="40" fill="none" stroke="#2B2A4A" strokeWidth="8" />
-      <rect x="114" y="14" width="12" height="12" fill="#2B2A4A" />
-      <rect x="0" y="100" width="40" height="40" fill="#fff" />
-      <rect x="0" y="100" width="40" height="40" fill="none" stroke="#2B2A4A" strokeWidth="8" />
-      <rect x="14" y="114" width="12" height="12" fill="#2B2A4A" />
-      <circle cx="70" cy="70" r="14" fill="#7A4DC2" />
-      <path d="M70 60 L73 68 L82 68 L75 73 L78 82 L70 76 L62 82 L65 73 L58 68 L67 68 Z" fill="#FFD269" />
-    </svg>
-  );
-};
+ 

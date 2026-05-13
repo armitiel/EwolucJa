@@ -9,7 +9,7 @@ import PageShell from "./PageShell.jsx";
 const LOTTIE_SRC = "/Loading%20animation%20blue.lottie";
 
 export default function Loading({ text = "Ładowanie…", dark = false }) {
-  const textColor = dark ? "#FBF1D6" : "#2B2A4A";
+  const textColor = dark ? "#FBF1D6" : "#4e4d76";
 
   return (
     <PageShell dark={dark}>

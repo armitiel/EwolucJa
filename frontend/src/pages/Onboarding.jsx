@@ -97,7 +97,7 @@ export default function Onboarding() {
                 width: i === currentStepIdx ? 28 : 8,
                 height: 8,
                 borderRadius: 4,
-                background: i <= currentStepIdx ? "var(--p-magic-dk)" : "rgba(43,42,74,.20)",
+                background: i <= currentStepIdx ? "var(--p-magic-dk)" : "rgba(78,77,118,.20)",
                 transition: "all .25s",
               }}
             />

@@ -70,7 +70,7 @@ export default function MapView() {
         >
           <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#7A4DC2" }} />
           <span>TU JESTEŚ</span>
-          <span style={{ width: 18, height: 1, background: "rgba(43,42,74,.25)" }} />
+          <span style={{ width: 18, height: 1, background: "rgba(78,77,118,.25)" }} />
           <span style={{ opacity: 0.55 }}>↑ JESZCZE NIEDOSTĘPNE</span>
         </div>
 
@@ -138,7 +138,7 @@ export default function MapView() {
                 <div
                   style={{
                     background: "rgba(255,255,255,.92)",
-                    color: "rgba(43,42,74,.55)",
+                    color: "rgba(78,77,118,.55)",
                     fontFamily: "var(--font-display, 'Baloo 2'), sans-serif",
                     fontWeight: 700,
                     fontSize: 12,
@@ -159,7 +159,7 @@ export default function MapView() {
                     style={{
                       fontSize: 9,
                       fontWeight: 800,
-                      background: "rgba(43,42,74,.10)",
+                      background: "rgba(78,77,118,.10)",
                       padding: "1px 6px",
                       borderRadius: 8,
                     }}
@@ -242,7 +242,7 @@ export default function MapView() {
                 <span className="chip magic">tu jesteś</span>
               </>
             ) : (
-              <span className="chip" style={{ background: "rgba(43,42,74,.12)" }}>🔒 niedostępne</span>
+              <span className="chip" style={{ background: "rgba(78,77,118,.12)" }}>🔒 niedostępne</span>
             )}
           </div>
           <button

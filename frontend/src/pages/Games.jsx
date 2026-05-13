@@ -117,7 +117,7 @@ export default function Games() {
                   display: "flex",
                   alignItems: "center",
                   gap: 14,
-                  background: locked ? "rgba(43,42,74,.08)" : g.bg,
+                  background: locked ? "rgba(78,77,118,.08)" : g.bg,
                   filter: locked ? "grayscale(.6)" : "none",
                   position: "relative",
                   overflow: "hidden",
@@ -171,7 +171,7 @@ export default function Games() {
                       +{g.xp} ✦
                     </span>
                     {locked && (
-                      <span className="chip" style={{ background: "rgba(43,42,74,.12)", fontSize: 11, padding: "2px 8px" }}>
+                      <span className="chip" style={{ background: "rgba(78,77,118,.12)", fontSize: 11, padding: "2px 8px" }}>
                         🔒 ukończ poprzednią
                       </span>
                     )}
