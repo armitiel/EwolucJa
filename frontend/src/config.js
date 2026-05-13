@@ -95,5 +95,9 @@ export function timeUntilFriday(deadlineIso) {
   if (ms <= 0) return { passed: true, label: "Termin minął", days: 0, hours: 0 };
   const days = Math.floor(ms / (24 * 60 * 60 * 1000));
   const hours = Math.floor((ms % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
-  // Zaokrąglenie w górę dla pigułki na karcie WeekProgress: <24h → 1 dzień.
-  const daysRoundedUp = days + (hours > 0 ?
+  const daysRoundedUp = days + (hours > 0 ? 1 : 0);
+  if (days >= 1) {
+    return { passed: false, label: `${days}d ${hours}h do piątku`, days: daysRoundedUp, hours };
+  }
+  return { passed: false, label: `${hours}h do piątku`, days: daysRoundedUp, hours };
+}
