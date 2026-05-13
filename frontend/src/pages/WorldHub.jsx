@@ -314,22 +314,18 @@ export default function WorldHub() {
               background: "linear-gradient(135deg, rgba(123,192,232,.30), rgba(184,134,232,.30))",
             }}
           >
-            <div
-              style={{
-                width: 70,
-                height: 70,
-                flex: "none",
-                borderRadius: 18,
-                background: "linear-gradient(180deg,#FFE0B5,#FFC178)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 36,
-                boxShadow: "inset 0 0 0 2px rgba(255,255,255,.65), 0 6px 14px rgba(232,154,61,.35)",
-                animation: "float-mid 3.5s ease-in-out infinite",
-              }}
-            >
-              🎮
+            <div style={{ width: 70, height: 80, display: "flex", justifyContent: "center", alignItems: "center", flex: "none" }}>
+              <span
+                style={{
+                  fontSize: 52,
+                  lineHeight: 1,
+                  filter: "drop-shadow(0 6px 12px rgba(80,50,10,.35))",
+                  animation: "float-mid 3.5s ease-in-out infinite",
+                  display: "inline-block",
+                }}
+              >
+                🎮
+              </span>
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <h2 className="t-display" style={{ fontSize: 22, margin: 0, lineHeight: 1.15 }}>
@@ -376,15 +372,15 @@ export default function WorldHub() {
               background: "linear-gradient(135deg, rgba(255,224,181,.55), rgba(255,210,105,.40))",
             }}
           >
-            <div style={{ width: 70, height: 92, display: "flex", justifyContent: "center", alignItems: "center", flex: "none" }}>
+            <div style={{ width: 70, height: 80, display: "flex", justifyContent: "center", alignItems: "center", flex: "none" }}>
               <img
                 src="/assets/zwoj-closed.png"
                 alt=""
-                width="45"
-                height="92"
+                width="36"
+                height="74"
                 style={{
-                  width: 45,
-                  height: 92,
+                  width: 36,
+                  height: 74,
                   filter: "drop-shadow(0 6px 12px rgba(80,50,10,.35))",
                   animation: "float-mid 3s ease-in-out infinite",
                 }}
@@ -433,6 +429,7 @@ export default function WorldHub() {
               alignItems: "center",
               gap: 14,
               padding: "14px 16px",
+              minHeight: 120,
             }}
           >
             <div style={{ width: 70, height: 80, display: "flex", justifyContent: "center", alignItems: "center", flex: "none" }}>
@@ -452,11 +449,11 @@ export default function WorldHub() {
               />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div className="t-display" style={{ fontSize: 22, lineHeight: 1.15 }}>
+              <h2 className="t-display" style={{ fontSize: 22, margin: 0, lineHeight: 1.15 }}>
                 Komnata Refleksji
-              </div>
+              </h2>
             </div>
-            <span style={{ fontSize: 28, color: "var(--p-magic-dk)", fontWeight: 700 }}>›</span>
+            <span style={{ fontSize: 32, color: "var(--p-magic-dk)", fontWeight: 700 }}>›</span>
           </div>
         </button>
 
@@ -501,3 +498,4 @@ export default function WorldHub() {
     </PageShell>
   );
 }
+                                                                                                                                                                                                                                                                                                                                                                                                                            
