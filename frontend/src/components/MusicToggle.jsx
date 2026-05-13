@@ -27,7 +27,8 @@ export default function MusicToggle() {
     setEnabled(next);
   }
 
-  return (
+  // inline=true -> bez fixed positioning, dopasowany do topbara (jak kontrolki lektora)
+  return MusicToggle.inline ? null : (
     <button
       onClick={handleToggle}
       title={enabled ? "Wycisz muzykę krainy" : "Włącz muzykę krainy"}
@@ -53,6 +54,73 @@ export default function MusicToggle() {
       }}
     >
       {enabled ? "🎵" : "🔇"}
+    </button>
+  );
+}
+
+// Inline wariant — uzywany w topbarze WorldHub obok kontrolek lektora.
+// Ten sam wyglad co przyciski lektora (36px, fioletowy gradient, biala ikona SVG).
+export function MusicToggleInline() {
+  const [enabled, setEnabled] = useState(bgMusic.isEnabled());
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      const cur = bgMusic.isEnabled();
+      if (cur !== enabled) setEnabled(cur);
+    }, 1000);
+    return () => clearInterval(t);
+  }, [enabled]);
+
+  function handleToggle() {
+    const next = bgMusic.toggle();
+    setEnabled(next);
+  }
+
+  const baseStyle = {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: 36,
+    height: 36,
+    borderRadius: "50%",
+    border: "none",
+    color: "#fff",
+    cursor: "pointer",
+    transition: "all 0.2s",
+    outline: "none",
+    padding: 0,
+  };
+
+  const activeStyle = {
+    ...baseStyle,
+    background: "linear-gradient(180deg, #FFD269, #E89A3D)",
+    boxShadow: "0 3px 0 #B47322, 0 4px 12px rgba(232,154,61,.45)",
+  };
+
+  const mutedStyle = {
+    ...baseStyle,
+    background: "linear-gradient(180deg, #C7BFD8, #8C8499)",
+    boxShadow: "0 3px 0 #5F586B, 0 4px 10px rgba(70,60,90,.30)",
+  };
+
+  return (
+    <button
+      onClick={handleToggle}
+      title={enabled ? "Wycisz muzykę krainy" : "Włącz muzykę krainy"}
+      style={enabled ? activeStyle : mutedStyle}
+    >
+      {enabled ? (
+        // Nutka muzyczna
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
+          <path d="M9 17.5a3 3 0 1 1-2-2.83V5l11-3v11.5a3 3 0 1 1-2-2.83V5l-7 1.9V17.5z" />
+        </svg>
+      ) : (
+        // Przekreślona nutka
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
+          <path d="M9 17.5a3 3 0 1 1-2-2.83V5l11-3v11.5a3 3 0 1 1-2-2.83V5l-7 1.9V17.5z" />
+          <path d="M3 3l18 18" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+        </svg>
+      )}
     </button>
   );
 }

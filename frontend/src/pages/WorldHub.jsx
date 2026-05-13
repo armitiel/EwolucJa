@@ -10,6 +10,7 @@ import NarratorVoice from "../components/NarratorVoice.jsx";
 import PageShell from "../components/PageShell.jsx";
 import Loading from "../components/Loading.jsx";
 import TabBar from "../components/TabBar.jsx";
+import { MusicToggleInline } from "../components/MusicToggle.jsx";
 import { Sparkle, Coin, CoinPill, Avatar } from "../components/art.jsx";
 
 // ─── WeekProgress — pasek 7-dniowy + monety + streak ───
@@ -295,6 +296,10 @@ export default function WorldHub() {
             autoPlay
             playOnceKey="worldhub_greeting"
           />
+        </div>
+        {/* Przelacznik muzyki tla — w tej samej linii co kontrolki lektora */}
+        <div style={{ flexShrink: 0 }}>
+          <MusicToggleInline />
         </div>
         <div style={{ flexShrink: 0 }}>
           <CoinPill value={totalCoins} onClick={() => navigate("/backpack")} />

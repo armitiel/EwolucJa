@@ -15,7 +15,7 @@ import InviteGM from "./pages/InviteGM.jsx";
 import GMPanel from "./pages/GMPanel.jsx";
 import DevPanel from "./pages/DevPanel.jsx";
 import DevTools from "./components/DevTools.jsx";
-import MusicToggle from "./components/MusicToggle.jsx";
+// MusicToggle przeniesiony do topbara WorldHub (MusicToggleInline). Globalny mount usuniety.
 import "./services/bgMusic";
 import "./styles/ewolucja.css";
 import "./styles/animations.css";
@@ -40,7 +40,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/dev" element={<DevPanel />} />
         <Route path="/play" element={<App />} />
       </Routes>
-      <MusicToggle />
       <DevTools />
     </BrowserRouter>
   </React.StrictMode>
