@@ -239,6 +239,8 @@ h3.title{ font-size: 22px; margin:0; }
   width: 100%;
   height: 100%;
   display: block;
+  /* Eliminuje pusta gore SVG nad grupa #Gora (148/1271 = ~11.6%) */
+  transform: translateY(-11.6%);
 }
 .mission-scroll #srodek,
 .mission-scroll #Dol {

@@ -84,14 +84,26 @@ export default function MissionView() {
         )}
         {mission && (step === 0 || step === 1 || step === 2) && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "8px 0 0" }}>
-            {/* SVG zwoju - state zmienia sie z closed na open, CSS height transition animuje rozwijanie gora-dol */}
+            {/* SVG zwoju - klikalny: zamkniety → otwarty → zamkniety. CSS transition animuje rozwijanie */}
             <div
               style={{
                 animation: step === 0 ? "float-mid 3s ease-in-out infinite" : "none",
                 position: "relative",
               }}
             >
-              <MissionScroll state={step === 0 ? "closed" : "open"} width={380}>
+              <MissionScroll
+                state={step === 0 ? "closed" : "open"}
+                width={380}
+                onClick={() => {
+                  if (step === 0) {
+                    setStep(1);
+                    setTimeout(() => setStep(2), 2000);
+                  } else if (step === 2) {
+                    // Zwin z powrotem
+                    setStep(0);
+                  }
+                }}
+              >
                 <div style={{ display: "flex", gap: 5, marginBottom: 8, flexWrap: "wrap" }}>
                   <span className="chip magic" style={{ fontSize: 10, padding: "3px 8px" }}>Las Pytań</span>
                   <span className="chip amber" style={{ fontSize: 10, padding: "3px 8px" }}>+3 ✦ +Artefakt</span>
@@ -110,27 +122,6 @@ export default function MissionView() {
                 </>
               )}
             </div>
-
-            {step === 0 && (
-              <>
-                <h2 className="t-display" style={{ fontSize: 24, textAlign: "center", margin: "8px 0 0" }}>
-                  Zwój czeka na Ciebie
-                </h2>
-                <p className="t-hand" style={{ fontSize: 18, textAlign: "center", color: "var(--p-ink-soft)", margin: 0, maxWidth: 260 }}>
-                  Naciśnij, aby rozwinąć i poznać dzisiejsze zadanie.
-                </p>
-                <button
-                  className="btn btn-magic btn-block"
-                  style={{ maxWidth: 320 }}
-                  onClick={() => {
-                    setStep(1);
-                    setTimeout(() => setStep(2), 2000);
-                  }}
-                >
-                  Rozwiń zwój ✦
-                </button>
-              </>
-            )}
 
             {step === 2 && (
               <>

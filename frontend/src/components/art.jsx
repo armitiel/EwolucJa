@@ -607,10 +607,14 @@ export const ScrollIcon = ({ size = 60 }) => (
 //   <MissionScroll state="open"><h2>Tytul</h2><p>Tresc</p></MissionScroll>
 import zwojRaw from "../assets/zwoj.svg?raw";
 
-export const MissionScroll = ({ state = "closed", width = 280, children }) => {
+export const MissionScroll = ({ state = "closed", width = 280, children, onClick }) => {
   // Aspect ratio z viewBox 1139.7 x 1271.5
   const aspect = 1271.5 / 1139.7; // ~1.116
-  const height = width * aspect;
+  const fullHeight = width * aspect;
+  // Wysokosc kontenera kurczy sie w stanie zamknietym, by Gora i Dol byly blisko
+  const closedHeight = width * 0.42;
+  const openHeight = fullHeight * 0.886;
+  const currentHeight = state === "closed" ? closedHeight : openHeight;
 
   return (
     <div
@@ -618,20 +622,23 @@ export const MissionScroll = ({ state = "closed", width = 280, children }) => {
       style={{
         position: "relative",
         width,
-        height,
+        height: currentHeight,
         margin: "0 auto",
-        filter: "drop-shadow(0 14px 26px rgba(80,50,10,.30))",
+        overflow: "hidden",
+        transition: "height 1.4s cubic-bezier(.33, 0, .30, 1)",
+        cursor: onClick ? "pointer" : "default",
+        filter: "drop-shadow(0 10px 18px rgba(80,50,10,.30))",
       }}
-      aria-label={state === "closed" ? "Zwoj zamkniety" : "Zwoj otwarty"}
+      onClick={onClick}
+      role={onClick ? "button" : undefined}
+      aria-label={state === "closed" ? "Zwoj zamkniety - kliknij aby rozwinac" : "Zwoj otwarty - kliknij aby zwinac"}
     >
       {/* Surowy SVG z 3 grupami - CSS animuje #srodek i #Dol */}
       <div
         className="mission-scroll__svg"
-        style={{ position: "absolute", inset: 0 }}
+        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: fullHeight }}
         dangerouslySetInnerHTML={{ __html: zwojRaw }}
       />
-
-      {/* (gwiazdka na zwoju zamknietym usunieta) */}
 
       {/* Zawartosc tekstowa - widoczna tylko gdy otwarty, z fadeIn po rozwinieciu */}
       {state === "open" && children && (
