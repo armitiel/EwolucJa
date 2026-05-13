@@ -98,7 +98,7 @@ function WeekProgress({ done = null, coins = 0, streak = 0, goal = 7, todayIndex
 
       {remainingText && (
         <div style={{ marginTop: 8, fontSize: 12, color: "var(--p-ink-soft)", textAlign: "center", fontWeight: 600 }}>
-          ⌛ {remainingText} do piątku
+          ⌛ {remainingText}
         </div>
       )}
     </div>
@@ -261,7 +261,7 @@ export default function WorldHub() {
     <PageShell>
       {/* Sticky topbar — avatar/imie/archetyp + sterowanie lektorem + CoinPill */}
       <div
-        className="safe-top"
+        className="safe-top entrance-topbar"
         style={{
           display: "flex",
           alignItems: "center",
@@ -301,7 +301,7 @@ export default function WorldHub() {
         </div>
       </div>
 
-      <div className="screen-scroll" style={{ display: "flex", flexDirection: "column", gap: 14, paddingTop: 4, position: "relative", zIndex: 1, flex: 1 }}>
+      <div className="screen-scroll entrance-stagger" style={{ display: "flex", flexDirection: "column", gap: 14, paddingTop: 4, position: "relative", zIndex: 1, flex: 1 }}>
         {/* Postep tygodnia + dni — auto-detekcja dnia tygodnia */}
         <WeekProgress
           coins={weekCoins}
@@ -352,19 +352,19 @@ export default function WorldHub() {
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
-                    gap: 4,
-                    background: "rgba(255,255,255,.85)",
+                    gap: 5,
+                    background: "rgba(255,255,255,.92)",
                     color: "#7A4D10",
                     fontWeight: 800,
-                    fontSize: 11,
-                    padding: "2px 8px",
+                    fontSize: 14,
+                    padding: "4px 12px 4px 8px",
                     borderRadius: 999,
-                    boxShadow: "inset 0 0 0 1.2px #E1B66A",
+                    boxShadow: "inset 0 0 0 1.5px #E1B66A, 0 1px 3px rgba(120,80,10,.15)",
                   }}
                 >
-                  <Coin size={12} /> +30
+                  <Coin size={16} /> +30
                 </span>
-                <span style={{ fontSize: 12, color: "var(--p-ink-soft)", fontWeight: 700 }}>0/3</span>
+                <span style={{ fontSize: 13, color: "var(--p-ink-soft)", fontWeight: 700 }}>0/3</span>
               </div>
             </div>
             <span style={{ fontSize: 32, color: "var(--p-magic-dk)", fontWeight: 700 }}>›</span>
@@ -410,17 +410,17 @@ export default function WorldHub() {
                     style={{
                       display: "inline-flex",
                       alignItems: "center",
-                      gap: 4,
-                      background: "rgba(255,255,255,.85)",
+                      gap: 5,
+                      background: "rgba(255,255,255,.92)",
                       color: "#7A4D10",
                       fontWeight: 800,
-                      fontSize: 11,
-                      padding: "2px 8px",
+                      fontSize: 14,
+                      padding: "4px 12px 4px 8px",
                       borderRadius: 999,
-                      boxShadow: "inset 0 0 0 1.2px #E1B66A",
+                      boxShadow: "inset 0 0 0 1.5px #E1B66A, 0 1px 3px rgba(120,80,10,.15)",
                     }}
                   >
-                    <Coin size={12} /> +12
+                    <Coin size={16} /> +12
                   </span>
                 </div>
               )}
@@ -445,20 +445,21 @@ export default function WorldHub() {
               padding: "14px 16px",
             }}
           >
-            <img
-              src="/wizard.png"
-              alt=""
-              aria-hidden="true"
-              style={{
-                width: 64,
-                height: "auto",
-                flex: "none",
-                transform: "scaleX(-1)",
-                filter: "drop-shadow(0 4px 8px rgba(80,40,140,.35))",
-              }}
-            />
-            <div style={{ flex: 1 }}>
-              <div className="t-display" style={{ fontSize: 20, lineHeight: 1.15 }}>
+            <div style={{ width: 70, display: "flex", justifyContent: "center", flex: "none" }}>
+              <img
+                src="/wizard.png"
+                alt=""
+                aria-hidden="true"
+                style={{
+                  width: 60,
+                  height: "auto",
+                  transform: "scaleX(-1)",
+                  filter: "drop-shadow(0 4px 8px rgba(80,40,140,.35))",
+                }}
+              />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="t-display" style={{ fontSize: 22, lineHeight: 1.15 }}>
                 Komnata Refleksji
               </div>
             </div>
