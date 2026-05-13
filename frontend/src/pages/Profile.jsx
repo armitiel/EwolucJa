@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { api, session } from "../services/api.js";
+import { session } from "../services/api.js";
 import { ttsPlayer } from "../services/ttsPlayer";
+import { useAppData } from "../contexts/AppData.jsx";
 import PageShell from "../components/PageShell.jsx";
-import Loading from "../components/Loading.jsx";
 import TabBar from "../components/TabBar.jsx";
 import { Avatar } from "../components/art.jsx";
 
@@ -40,13 +40,10 @@ const Stat = ({ val, label, c }) => (
 
 export default function Profile() {
   const navigate = useNavigate();
-  const [player, setPlayer] = useState(null);
-  const [error, setError] = useState(null);
+  const { player, error } = useAppData();
 
   useEffect(() => {
-    const id = session.getPlayer();
-    if (!id) { navigate("/onboarding"); return; }
-    api.getPlayer(id).then(setPlayer).catch((e) => setError(e.message));
+    if (!session.getPlayer()) navigate("/onboarding");
   }, [navigate]);
 
   function logoutFresh() {
@@ -57,7 +54,7 @@ export default function Profile() {
   }
 
   if (error) return <PageShell><div style={{ padding: 40 }}><p style={{ color: "#B85B47" }}>{error}</p></div></PageShell>;
-  if (!player) return <Loading text="Otwieranie kroniki bohatera…" />;
+  if (!player) return null;
 
   const lvl = levelFromScores(player.lifetime_scores);
   const stage = STAGES[lvl - 1] || STAGES[0];

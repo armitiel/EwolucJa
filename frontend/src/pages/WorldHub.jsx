@@ -2,13 +2,13 @@
  * WorldHub / ScreenHome — ekran "Dom" w stylu Ghibli/Claymorphism.
  * Wielki wizard u gory + powitanie + zegar cyklu + karta zwoju misji + karta Komnaty.
  */
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { api, session } from "../services/api.js";
+import { session } from "../services/api.js";
 import { ARCHETYPES, timeUntilFriday } from "../config.js";
+import { useAppData } from "../contexts/AppData.jsx";
 import NarratorVoice from "../components/NarratorVoice.jsx";
 import PageShell from "../components/PageShell.jsx";
-import Loading from "../components/Loading.jsx";
 import TabBar from "../components/TabBar.jsx";
 import { MusicToggleInline } from "../components/MusicToggle.jsx";
 import { Sparkle, Coin, CoinPill, Avatar } from "../components/art.jsx";
@@ -72,24 +72,29 @@ function WeekProgress({ done = null, goal = 7, todayIndex = null, daysToFriday =
         })}
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 12 }}>
+      {/* Wiersz: pasek postepu + pigulka. minHeight rezerwuje miejsce dla pigulki
+          zeby karta nie podskakiwala gdy 'daysToFriday' doleci z API. */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 12, minHeight: 30 }}>
         <div style={{ flex: 1 }}>
           <div className="prog magic"><i style={{ width: `${pct}%` }} /></div>
         </div>
-        {daysToFriday != null && daysToFriday > 0 && (
-          <div
-            style={{
-              display: "flex", alignItems: "center", gap: 5,
-              background: "linear-gradient(180deg,#FFC178,#E8632D)", color: "#fff",
-              padding: "5px 11px", borderRadius: 999, fontSize: 13, fontWeight: 800,
-              boxShadow: "0 2px 0 #A03A12, 0 3px 8px rgba(232,99,45,.45)",
-            }}
-            title="dni do piątku"
-          >
-            <span style={{ display: "inline-block", animation: "streak-flame 1.4s ease-in-out infinite", transformOrigin: "50% 80%" }}>⏳</span>
-            <span>{daysToFriday} {daysToFriday === 1 ? "dzień" : "dni"}</span>
-          </div>
-        )}
+        <div
+          style={{
+            display: "flex", alignItems: "center", gap: 5,
+            background: "linear-gradient(180deg,#FFC178,#E8632D)", color: "#fff",
+            padding: "5px 11px", borderRadius: 999, fontSize: 13, fontWeight: 800,
+            boxShadow: "0 2px 0 #A03A12, 0 3px 8px rgba(232,99,45,.45)",
+            visibility: daysToFriday != null && daysToFriday > 0 ? "visible" : "hidden",
+            // visibility (zamiast warunkowego renderu) zachowuje rezerwacje miejsca
+            // od pierwszego renderu, ale ukrywa pigulke az API odda 'daysToFriday'.
+            minHeight: 28,
+          }}
+          title="dni do piątku"
+          aria-hidden={daysToFriday == null || daysToFriday <= 0}
+        >
+          <span style={{ display: "inline-block", animation: "streak-flame 1.4s ease-in-out infinite", transformOrigin: "50% 80%" }}>⏳</span>
+          <span>{daysToFriday ?? 0} {daysToFriday === 1 ? "dzień" : "dni"}</span>
+        </div>
       </div>
     </div>
   );
@@ -166,35 +171,12 @@ function CycleClock({ days = 5, dayIndex = 1, label = "Wieża Pytań", remaining
 
 export default function WorldHub() {
   const navigate = useNavigate();
-  const [player, setPlayer] = useState(null);
-  const [cycle, setCycle] = useState(null);
-  const [mission, setMission] = useState(null);
-  const [error, setError] = useState(null);
+  // Dane z globalnego AppData - bez fetcha lokalnego, dzieki czemu przelaczanie zakladek jest instant.
+  const { player, cycle, mission, error } = useAppData();
 
+  // Jesli nie ma gracza w sesji - kieruj do onboardingu
   useEffect(() => {
-    const id = session.getPlayer();
-    if (!id) {
-      navigate("/onboarding");
-      return;
-    }
-    (async () => {
-      try {
-        const p = await api.getPlayer(id);
-        setPlayer(p);
-        try {
-          setCycle(await api.getCurrentCycle(id));
-        } catch {}
-        try {
-          setMission(await api.getCurrentMission(id));
-        } catch {
-          try {
-            setMission(await api.generateMission(id));
-          } catch {}
-        }
-      } catch (e) {
-        setError(e.message);
-      }
-    })();
+    if (!session.getPlayer()) navigate("/onboarding");
   }, [navigate]);
 
   const friday = cycle ? timeUntilFriday(cycle.friday_deadline) : null;
@@ -228,7 +210,8 @@ export default function WorldHub() {
       </PageShell>
     );
   }
-  if (!player) return <Loading text="Otwieranie Kroniki…" />;
+  // Global loader pokazuje sie w main.jsx, gdy player jest null po zaladowaniu - kieruj do onboardingu
+  if (!player) return null;
 
   // Skarbiec — liczone z lifetime_scores + backpack (placeholder logika)
   const totalCoins = ((player.lifetime_scores?.DT || 0) + (player.lifetime_scores?.EM || 0)) * 10 + 12;

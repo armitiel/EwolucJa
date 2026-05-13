@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import App from "./App.jsx";
 import Landing from "./pages/Landing.jsx";
 import Onboarding from "./pages/Onboarding.jsx";
@@ -15,32 +15,43 @@ import InviteGM from "./pages/InviteGM.jsx";
 import GMPanel from "./pages/GMPanel.jsx";
 import DevPanel from "./pages/DevPanel.jsx";
 import DevTools from "./components/DevTools.jsx";
-// MusicToggle przeniesiony do topbara WorldHub (MusicToggleInline). Globalny mount usuniety.
+import Loading from "./components/Loading.jsx";
+import AppDataProvider, { useAppData } from "./contexts/AppData.jsx";
 import "./services/bgMusic";
 import "./styles/ewolucja.css";
 import "./styles/animations.css";
 
+// Wrapper — gdy AppData laduje sie po raz pierwszy, pokazujemy jeden globalny loader.
+// Po tym kazda zmiana zakladki (Dom/Mapa/Plecak/Profil) jest natychmiastowa.
+function AppRoutes() {
+  const { loading } = useAppData();
+  if (loading) return <Loading text="Otwieram Kronikę…" />;
+  return (
+    <Routes>
+      <Route path="/" element={<Landing />} />
+      <Route path="/onboarding" element={<Onboarding />} />
+      <Route path="/world" element={<WorldHub />} />
+      <Route path="/map" element={<MapView />} />
+      <Route path="/games" element={<Games />} />
+      <Route path="/backpack" element={<Backpack />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/mission" element={<MissionView />} />
+      <Route path="/reward" element={<Reward />} />
+      <Route path="/invite-gm" element={<InviteGM />} />
+      <Route path="/gm" element={<GMPanel />} />
+      <Route path="/dev" element={<DevPanel />} />
+      <Route path="/play" element={<App />} />
+    </Routes>
+  );
+}
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <BrowserRouter
-      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-    >
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/onboarding" element={<Onboarding />} />
-        <Route path="/world" element={<WorldHub />} />
-        <Route path="/map" element={<MapView />} />
-        <Route path="/games" element={<Games />} />
-        <Route path="/backpack" element={<Backpack />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/mission" element={<MissionView />} />
-        <Route path="/reward" element={<Reward />} />
-        <Route path="/invite-gm" element={<InviteGM />} />
-        <Route path="/gm" element={<GMPanel />} />
-        <Route path="/dev" element={<DevPanel />} />
-        <Route path="/play" element={<App />} />
-      </Routes>
-      <DevTools />
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <AppDataProvider>
+        <AppRoutes />
+        <DevTools />
+      </AppDataProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

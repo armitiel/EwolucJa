@@ -4,9 +4,9 @@
  */
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api, session } from "../services/api.js";
+import { session } from "../services/api.js";
+import { useAppData } from "../contexts/AppData.jsx";
 import PageShell from "../components/PageShell.jsx";
-import Loading from "../components/Loading.jsx";
 import TabBar from "../components/TabBar.jsx";
 import { Artifact } from "../components/art.jsx";
 
@@ -31,17 +31,11 @@ function artifactKind(name = "") {
 
 export default function Backpack() {
   const navigate = useNavigate();
-  const [player, setPlayer] = useState(null);
+  const { player, error } = useAppData();
   const [open, setOpen] = useState(0);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const id = session.getPlayer();
-    if (!id) {
-      navigate("/onboarding");
-      return;
-    }
-    api.getPlayer(id).then(setPlayer).catch((e) => setError(e.message));
+    if (!session.getPlayer()) navigate("/onboarding");
   }, [navigate]);
 
   if (error)
@@ -52,7 +46,7 @@ export default function Backpack() {
         </div>
       </PageShell>
     );
-  if (!player) return <Loading text="Otwieranie plecaka…" />;
+  if (!player) return null;
 
   const items = (player.backpack || []).slice().reverse(); // newest first
   const totalSlots = items.length + PLACEHOLDER_SLOTS.length;
