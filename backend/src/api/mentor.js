@@ -55,6 +55,23 @@ export function mentorRoutes() {
     }
   });
 
+  r.delete("/classes/:id/students/:playerId", async (req, res) => {
+    try {
+      const pool = await initDatabase();
+      // Verify mentor owns the class
+      const { rows: cls } = await pool.query(
+        `SELECT id FROM mentor_classes WHERE id = $1 AND gm_account_id = $2`,
+        [req.params.id, req.mentor.gmAccountId]
+      );
+      if (!cls.length) return res.status(404).json({ error: "Klasa nie znaleziona lub brak uprawnien" });
+      // Cascade: players row removed -> class_memberships, missions, cycles, pair_assignments all CASCADE deleted
+      await pool.query(`DELETE FROM players WHERE id = $1`, [req.params.playerId]);
+      res.json({ ok: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   r.post("/classes/:id/regenerate", async (req, res) => {
     try {
       const result = await regenerateInviteCode(req.mentor.gmAccountId, req.params.id);

@@ -89,7 +89,19 @@ export default function MentorClassDetail() {
             </p>
           </div>
         ) : (
-          data.students.map((s) => <StudentRow key={s.id} student={s} />)
+          data.students.map((s) => (
+            <StudentRow
+              key={s.id}
+              student={s}
+              onDelete={async () => {
+                if (!confirm(`Usunąć ${s.name} z klasy? Cały postęp ucznia zostanie skasowany.`)) return;
+                try {
+                  await mentorApi.deleteStudent(id, s.id);
+                  setData({ ...data, students: data.students.filter((st) => st.id !== s.id) });
+                } catch (e) { alert(e.message); }
+              }}
+            />
+          ))
         )}
 
         {data.students.length >= 2 && (
@@ -102,7 +114,7 @@ export default function MentorClassDetail() {
   );
 }
 
-function StudentRow({ student }) {
+function StudentRow({ student, onDelete }) {
   const lastActivity = student.last_activity ? new Date(student.last_activity) : null;
   return (
     <div className="card pop-in" style={{ padding: "12px 14px", display: "flex", alignItems: "center", gap: 12 }}>
@@ -117,6 +129,15 @@ function StudentRow({ student }) {
       <div style={{ fontSize: 11, color: "var(--p-ink-soft)", textAlign: "right" }}>
         {lastActivity ? timeAgo(lastActivity) : "—"}
       </div>
+      {onDelete && (
+        <button
+          onClick={onDelete}
+          title="Usuń z klasy"
+          style={{ background: "none", border: "none", color: "#B85B47", fontSize: 16, cursor: "pointer", padding: "4px 8px", marginLeft: 4 }}
+        >
+          ✕
+        </button>
+      )}
     </div>
   );
 }
