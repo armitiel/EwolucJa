@@ -7,7 +7,7 @@ import PageShell from "../components/PageShell.jsx";
 import TopBar from "../components/TopBar.jsx";
 import TabBar from "../components/TabBar.jsx";
 import Celebration from "../components/Celebration.jsx";
-import { Sparkle, ScrollIcon, MissionScroll } from "../components/art.jsx";
+import { Sparkle, ScrollIcon, MissionScroll, Coin } from "../components/art.jsx";
 
 export default function MissionView() {
   const navigate = useNavigate();
@@ -29,6 +29,19 @@ export default function MissionView() {
       return () => clearTimeout(id);
     }
   }, [step]);
+
+  // Krotki burst konfetti przy otwarciu zwoju (WOW efekt)
+  const [openBurst, setOpenBurst] = useState(false);
+  useEffect(() => {
+    if (step === 2) {
+      setOpenBurst(true);
+      const id = setTimeout(() => setOpenBurst(false), 2400);
+      return () => clearTimeout(id);
+    }
+  }, [step]);
+
+  // Zwoj otwarty (step 2 lub 3) = ciemne tlo + glow
+  const scrollOpen = step === 2 || step === 3;
 
   const narrationText = useMemo(() => {
     if (!mission) return "";
@@ -61,10 +74,10 @@ export default function MissionView() {
   }
 
   return (
-    <PageShell>
+    <PageShell sky={scrollOpen ? "night" : "default"} dark={scrollOpen}>
       <TopBar />
 
-      <div className="screen-scroll" style={{ flex: 1, padding: "12px 18px 96px", display: "flex", flexDirection: "column", gap: 14 }}>
+      <div className="screen-scroll" style={{ flex: 1, padding: "12px 18px 96px", display: "flex", flexDirection: "column", gap: 14, transition: "color .8s ease" }}>
         {!mission && (
           <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, padding: "40px 0" }}>
             <div style={{ animation: "float-mid 3s ease-in-out infinite" }}>
@@ -84,6 +97,22 @@ export default function MissionView() {
                 position: "relative",
               }}
             >
+              {/* GLOW HALO za zwojem - widoczne tylko gdy otwarty, animuje WOW efekt */}
+              {scrollOpen && (
+                <div
+                  aria-hidden="true"
+                  className="mission-scroll-halo"
+                  style={{
+                    position: "absolute",
+                    inset: "-40% -25%",
+                    zIndex: 0,
+                    pointerEvents: "none",
+                    background:
+                      "radial-gradient(ellipse at center, rgba(255,220,140,.55) 0%, rgba(255,180,80,.30) 25%, rgba(120,80,200,.18) 55%, transparent 75%)",
+                    filter: "blur(8px)",
+                  }}
+                />
+              )}
               <MissionScroll
                 state={step === 0 ? "closed" : "open"}
                 width={300}
@@ -98,7 +127,7 @@ export default function MissionView() {
               >
                 <div style={{ display: "flex", gap: 5, marginBottom: 8, flexWrap: "wrap", justifyContent: "center" }}>
                   <span className="chip magic" style={{ fontSize: 10, padding: "3px 8px" }}>Las Pytań</span>
-                  <span className="chip amber" style={{ fontSize: 10, padding: "3px 8px" }}>+3 ✦ +Artefakt</span>
+                  <span className="chip amber" style={{ fontSize: 10, padding: "3px 8px" }}>+Artefakt</span>
                 </div>
                 <h2 className="t-display" style={{ fontSize: 18, lineHeight: 1.2, margin: "2px 0 8px", color: "#3B2A12", textAlign: "center" }}>
                   {mission.title}
@@ -106,6 +135,11 @@ export default function MissionView() {
                 <p className="t-hand" style={{ fontSize: 15, lineHeight: 1.35, margin: 0, color: "#5C4220", textAlign: "center" }}>
                   {mission.body}
                 </p>
+                {/* Coin bonus - pojawia sie na pergaminie po rozwinieciu */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 12, padding: "6px 12px", background: "rgba(255,213,105,.30)", borderRadius: 999, alignSelf: "center", width: "fit-content" }}>
+                  <Coin size={20} anim />
+                  <span className="t-display" style={{ fontSize: 16, color: "#7A4D10", fontWeight: 800 }}>+3 monety bonusu</span>
+                </div>
               </MissionScroll>
               {step === 0 && (
                 <>
@@ -137,13 +171,16 @@ export default function MissionView() {
             {/* CTA po rozwinieciu */}
             {step === 2 && (
               <>
-                <div className="pop-in" style={{ background: "rgba(122,77,194,.10)", borderRadius: 14, padding: "10px 12px", width: "100%", maxWidth: 300 }}>
-                  <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-magic-dk)" }}>JAK WRACA ECHO</div>
+                <div className="pop-in" style={{ background: "rgba(255,255,255,.12)", backdropFilter: "blur(6px)", border: "1px solid rgba(255,220,140,.35)", borderRadius: 14, padding: "10px 14px", width: "100%", maxWidth: 300, color: "#F4E8C2" }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "#FFD269" }}>JAK WRACA ECHO</div>
                   <div style={{ fontSize: 13, marginTop: 4 }}>Zapisz lub nagraj odpowiedź dorosłego — to ona stanie się Twoim artefaktem.</div>
                 </div>
                 <button className="btn btn-magic btn-block pop-in" style={{ maxWidth: 300 }} onClick={() => setStep(3)}>
-                  Mam już pytanie — dalej
+                  Daj Odpowiedź ✦
                 </button>
+                <p className="t-hand pop-in" style={{ fontSize: 13, color: "#F4E8C2", margin: 0, textAlign: "center", opacity: .85, maxWidth: 300 }}>
+                  👁️ Twoja odpowiedź zostanie sprawdzona przez mentora
+                </p>
                 <NarratorVoice text={narrationText} land="las_decyzji" tone="mystery" inlinePauses autoPlay />
               </>
             )}
@@ -176,7 +213,7 @@ export default function MissionView() {
           </div>
         )}
       </div>
-      <Celebration active={celebrating} />
+      <Celebration active={celebrating || openBurst} />
       <TabBar current="home" />
     </PageShell>
   );
