@@ -123,10 +123,6 @@ export default function MissionView() {
             Rezerwujemy stale miejsce dla CTA pod zwojem zeby pozycja zwoju nie skakala miedzy stanami. */}
         {mission && step !== 3 && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "12px 0 0" }}>
-            {/* Label nad zwojem - tytul kategorii */}
-            <span className="chip magic" style={{ fontSize: 12, padding: "5px 14px", marginBottom: 14, fontWeight: 800, letterSpacing: .3 }}>
-              Zadanie w realu
-            </span>
             <div
               style={{
                 animation: step === 0 ? "float-mid 3s ease-in-out infinite" : "none",
@@ -214,7 +210,7 @@ export default function MissionView() {
                 </button>
               )}
               {step === 2 && (
-                <button className="btn btn-primary btn-block pop-in" style={{ width: "100%" }} onClick={() => setStep(3)}>
+                <button className="btn btn-leaf btn-block pop-in" style={{ width: "100%" }} onClick={() => setStep(3)}>
                   Daj Odpowiedź ✦
                 </button>
               )}
