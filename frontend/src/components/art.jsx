@@ -607,6 +607,16 @@ export const ScrollIcon = ({ size = 60 }) => (
 //   <MissionScroll state="open"><h2>Tytul</h2><p>Tresc</p></MissionScroll>
 import zwojRaw from "../assets/zwoj.svg?raw";
 
+// Defensywne czyszczenie: usuwamy ewentualne XML prolog/DOCTYPE Adobe Illustrator,
+// gdyby kiedys podrzucono SVG z preambula. Bez tego znak "]>" z DOCTYPE renderuje
+// sie jako widoczny tekst w divie z dangerouslySetInnerHTML.
+const zwojClean = zwojRaw
+  .replace(/<\?xml[\s\S]*?\?>/g, "")
+  .replace(/<!--[\s\S]*?-->/g, "")
+  .replace(/<!DOCTYPE[\s\S]*?\]>/gi, "")
+  .replace(/<!DOCTYPE[^>]*>/gi, "")
+  .trim();
+
 export const MissionScroll = ({ state = "closed", width = 280, children, onClick }) => {
   // Aspect ratio z viewBox 1139.7 x 1271.5
   const aspect = 1271.5 / 1139.7; // ~1.116
@@ -637,7 +647,7 @@ export const MissionScroll = ({ state = "closed", width = 280, children, onClick
       <div
         className="mission-scroll__svg"
         style={{ position: "absolute", top: 0, left: 0, width: "100%", height: fullHeight }}
-        dangerouslySetInnerHTML={{ __html: zwojRaw }}
+        dangerouslySetInnerHTML={{ __html: zwojClean }}
       />
 
       {/* Zawartosc tekstowa - widoczna tylko gdy otwarty, z fadeIn po rozwinieciu */}
