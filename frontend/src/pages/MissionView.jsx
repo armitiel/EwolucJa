@@ -75,12 +75,6 @@ export default function MissionView() {
             </p>
           </div>
         )}
-        {mission && (
-          <div className="t-display" style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-magic-dk)", textAlign: "center", marginTop: 4 }}>
-            LAS PYTAŃ — MISJA
-          </div>
-        )}
-
         {/* Etapy 0–2: zwoj zamkniety / w trakcie rozwijania / otwarty z tresci misji */}
         {mission && step !== 3 && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "12px 0 0" }}>
@@ -121,11 +115,23 @@ export default function MissionView() {
               )}
             </div>
 
-            {/* Podpowiedz pod zamknietym zwojem */}
+            {/* Podpowiedz + CTA rozwijania (alternatywa do klikniecia w zwoj) */}
             {step === 0 && (
-              <p className="t-hand pop-in" style={{ fontSize: 17, color: "var(--p-magic-dk)", margin: 0, textAlign: "center", opacity: .85 }}>
-                ✨ Kliknij zwój, by poznać dziś zadanie
-              </p>
+              <>
+                <p className="t-hand pop-in" style={{ fontSize: 17, color: "var(--p-magic-dk)", margin: 0, textAlign: "center", opacity: .85 }}>
+                  ✨ Kliknij zwój albo przycisk, by poznać dziś zadanie
+                </p>
+                <button
+                  className="btn btn-magic btn-block pop-in"
+                  style={{ maxWidth: 300 }}
+                  onClick={() => {
+                    setStep(1);
+                    setTimeout(() => setStep(2), 1200);
+                  }}
+                >
+                  Rozwiń zwój ✦
+                </button>
+              </>
             )}
 
             {/* CTA po rozwinieciu */}

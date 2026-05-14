@@ -646,15 +646,16 @@ export const MissionScroll = ({ state = "closed", width = 280, children, onClick
         }}
       />
 
-      {/* PAPIER MIEDZY BELKAMI - transition na height, img stretchowany w pionie */}
+      {/* PAPIER MIEDZY BELKAMI - transition TYLKO na height; szerokosc stala = 100% (jak belki) */}
       <div
         className="mission-paper"
         style={{
           position: "relative",
-          width: "94%",
-          margin: `${-Math.round(rodH * 0.18)}px auto`,
+          width: "100%",
+          marginTop: `${-Math.round(rodH * 0.18)}px`,
+          marginBottom: `${-Math.round(rodH * 0.18)}px`,
           height: isOpen ? paperOpenH : paperClosedH,
-          transition: "height 1.1s cubic-bezier(.33, 0, .30, 1), margin 1.1s cubic-bezier(.33, 0, .30, 1)",
+          transition: "height 1.1s cubic-bezier(.33, 0, .30, 1)",
           zIndex: 1,
           overflow: "hidden",
         }}
