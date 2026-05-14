@@ -37,6 +37,8 @@ export const mentorApi = {
 
   // Pary (Rozdarta Mapa) - GM strona
   listPairDefinitions: () => call("/pairs/definitions"),
+  suggestPairs: (classId) => call("/pairs/suggest", { method: "POST", body: { classId } }),
+  bulkAssignPairs: (assignments, gmAccountId) => call("/pairs/bulk-assign", { method: "POST", body: { assignments, gmAccountId } }),
   assignPair: (data) => call("/pairs/assign", { method: "POST", body: data }),
   listPairsForGm: (gmAccountId) => call(`/pairs/gm/${gmAccountId}/assignments`),
 };

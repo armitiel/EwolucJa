@@ -17,6 +17,7 @@ import DevPanel from "./pages/DevPanel.jsx";
 import MentorLogin from "./pages/MentorLogin.jsx";
 import MentorDashboard from "./pages/MentorDashboard.jsx";
 import MentorClassDetail from "./pages/MentorClassDetail.jsx";
+import MentorPairs from "./pages/MentorPairs.jsx";
 import JoinClass from "./pages/JoinClass.jsx";
 import DevTools from "./components/DevTools.jsx";
 import Loading from "./components/Loading.jsx";
@@ -49,6 +50,7 @@ function AppRoutes() {
       <Route path="/mentor/zaloguj" element={<MentorLogin />} />
       <Route path="/mentor" element={<MentorDashboard />} />
       <Route path="/mentor/klasa/:id" element={<MentorClassDetail />} />
+      <Route path="/mentor/klasa/:id/pary" element={<MentorPairs />} />
       <Route path="/dolacz" element={<JoinClass />} />
     </Routes>
   );

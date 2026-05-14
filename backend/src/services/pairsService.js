@@ -162,6 +162,87 @@ export async function markCompleted(_db, assignmentId, proof = null) {
   );
 }
 
+/**
+ * Greedy matching uczniow w klasie do 15 par archetypicznych.
+ * Idzie po definicjach 1..15 i bierze pierwszych dostepnych uczniow.
+ * Zwraca {suggestions: [{playerA, playerB, pairDefinitionId, definition}], unpaired: [...]}
+ */
+export async function suggestPairsForClass(classId) {
+  const pool = await pool_internal();
+  const { rows: students } = await pool.query(
+    `SELECT p.id, p.name, p.archetype
+       FROM class_memberships cm
+       JOIN players p ON p.id = cm.player_id
+       WHERE cm.class_id = $1 AND cm.left_at IS NULL AND p.archetype IS NOT NULL`,
+    [classId]
+  );
+
+  // Pulle per-archetyp (kopia listy, by mozna bylo wyciagac)
+  const pool_byArch = { EM: [], ST: [], KR: [], LD: [], DT: [], MD: [] };
+  for (const s of students) {
+    if (pool_byArch[s.archetype]) pool_byArch[s.archetype].push(s);
+  }
+
+  const suggestions = [];
+  for (const def of PAIR_DEFINITIONS) {
+    const aPool = pool_byArch[def.archetype_a];
+    const bPool = pool_byArch[def.archetype_b];
+    if (!aPool || !bPool) continue;
+    if (aPool.length === 0 || bPool.length === 0) continue;
+    // Wez pierwszych. Jezeli archetypy te same i pool ma mniej niz 2 - skip.
+    const playerA = aPool.shift();
+    if (def.archetype_a === def.archetype_b && bPool.length === 0) {
+      aPool.unshift(playerA); // odloz z powrotem
+      continue;
+    }
+    const playerB = bPool.shift();
+    suggestions.push({
+      pair_definition_id: def.id,
+      definition: def,
+      player_a: { id: playerA.id, name: playerA.name, archetype: playerA.archetype },
+      player_b: { id: playerB.id, name: playerB.name, archetype: playerB.archetype },
+    });
+  }
+
+  // Pozostali bez pary
+  const unpaired = [];
+  for (const arch of Object.keys(pool_byArch)) {
+    for (const s of pool_byArch[arch]) {
+      unpaired.push({ id: s.id, name: s.name, archetype: s.archetype });
+    }
+  }
+
+  // Uczniowie bez archetypu (jeszcze przed onboardingiem)
+  const noArchetype = students.filter((s) => !s.archetype).map((s) => ({ id: s.id, name: s.name, archetype: null }));
+
+  return { suggestions, unpaired, noArchetype, total_students: students.length };
+}
+
+// Helper dla suggestPairsForClass - getter dla pool poniewaz pool() jest juz uzyte powyzej w pliku
+async function pool_internal() {
+  const { initDatabase } = await import("../database/db.js");
+  return await initDatabase();
+}
+
+/** Bulk assign - lista par naraz. Zwroc liste utworzonych assignmentow. */
+export async function bulkAssignPairs(_db, assignments, gmAccountId = null) {
+  const created = [];
+  for (const a of assignments) {
+    try {
+      const result = await assignPair(null, {
+        playerAId: a.player_a_id,
+        playerBId: a.player_b_id,
+        pairDefinitionId: a.pair_definition_id,
+        gmAccountId,
+      });
+      created.push(result);
+    } catch (e) {
+      created.push({ error: e.message, ...a });
+    }
+  }
+  return created;
+}
+
 /** Lista assignmentow w klasie/grupie (dla GM panel). */
 export async function listAssignmentsForGm(_db, gmAccountId) {
   const p = await pool();

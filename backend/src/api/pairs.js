@@ -42,6 +42,30 @@ export function pairRoutes(db) {
     }
   });
 
+  r.post("/suggest", async (req, res) => {
+    try {
+      const { classId } = req.body || {};
+      if (!classId) return res.status(400).json({ error: "classId required" });
+      const result = await pairs.suggestPairsForClass(classId);
+      res.json(result);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  r.post("/bulk-assign", async (req, res) => {
+    try {
+      const { assignments, gmAccountId } = req.body || {};
+      if (!Array.isArray(assignments) || !assignments.length) {
+        return res.status(400).json({ error: "assignments[] required" });
+      }
+      const created = await pairs.bulkAssignPairs(db, assignments, gmAccountId || null);
+      res.status(201).json({ created });
+    } catch (e) {
+      res.status(400).json({ error: e.message });
+    }
+  });
+
   r.post("/assign", async (req, res) => {
     try {
       const { playerAId, playerBId, pairDefinitionId, gmAccountId } = req.body || {};
