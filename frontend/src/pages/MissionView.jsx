@@ -115,9 +115,10 @@ export default function MissionView() {
             </p>
           </div>
         )}
-        {/* Etapy 0–2: zwoj zamkniety / w trakcie rozwijania / otwarty z tresci misji */}
+        {/* Etapy 0–2: zwoj zamkniety / w trakcie rozwijania / otwarty z tresci misji.
+            Rezerwujemy stale miejsce dla CTA pod zwojem zeby pozycja zwoju nie skakala miedzy stanami. */}
         {mission && step !== 3 && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "12px 0 0" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "12px 0 0" }}>
             <div
               style={{
                 animation: step === 0 ? "float-mid 3s ease-in-out infinite" : "none",
@@ -194,37 +195,35 @@ export default function MissionView() {
             </div>
 
             {/* Podpowiedz + CTA rozwijania (alternatywa do klikniecia w zwoj) */}
-            {step === 0 && (
-              <button
-                className="btn btn-magic btn-block pop-in"
-                style={{ maxWidth: 360 }}
-                onClick={openScroll}
-              >
-                Rozwiń zwój ✦
-              </button>
-            )}
-
-            {/* Lektor startuje natychmiast po rozwinieciu zwoju (step 2). Kontrolki powiekszone przez scale. */}
-            {step === 2 && (
-              <div style={{ transform: "scale(1.5)", transformOrigin: "center top", margin: "4px 0 8px" }}>
-                <NarratorVoice
-                  text={narrationText}
-                  land="las_decyzji"
-                  tone="mystery"
-                  inlinePauses
-                  autoPlay
-                />
-              </div>
-            )}
-
-            {/* CTA po rozwinieciu */}
-            {step === 2 && (
-              <div className="pop-in" style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center", width: "100%", maxWidth: 360, marginTop: 4 }}>
-                <button className="btn btn-magic btn-block" style={{ width: "100%" }} onClick={() => setStep(3)}>
-                  Daj Odpowiedź ✦
+            {/* Stala strefa pod zwojem - zarezerwowane miejsce na CTA + lektora.
+                Zachowuje pozycje zwoju gdy zmienia sie step, bez "skoku" w layoucie. */}
+            <div style={{ width: "100%", maxWidth: 360, marginTop: 20, minHeight: 130, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+              {step === 0 && (
+                <button
+                  className="btn btn-magic btn-block pop-in"
+                  style={{ width: "100%" }}
+                  onClick={openScroll}
+                >
+                  Rozwiń zwój ✦
                 </button>
-              </div>
-            )}
+              )}
+              {step === 2 && (
+                <>
+                  <button className="btn btn-magic btn-block pop-in" style={{ width: "100%" }} onClick={() => setStep(3)}>
+                    Daj Odpowiedź ✦
+                  </button>
+                  <div style={{ transform: "scale(1.5)", transformOrigin: "center top", marginTop: 4 }}>
+                    <NarratorVoice
+                      text={narrationText}
+                      land="las_decyzji"
+                      tone="mystery"
+                      inlinePauses
+                      autoPlay
+                    />
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         )}
 

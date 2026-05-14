@@ -240,13 +240,7 @@ h3.title{ font-size: 22px; margin:0; }
    Animacja: tylko height + margin papieru, belki bez transformu, SVG inline w komponencie.
    Stara konstrukcja z zwoj.svg + scaleY grup #srodek/#Dol porzucona — za skomplikowana.
 */
-.mission-scroll {
-  /* Lekkie odbicie na klikniecie — feedback wizualny */
-  transition: transform .15s ease;
-}
-.mission-scroll:active {
-  transform: scale(.98);
-}
+/* Brak scale na klikniecie - psul plynnosc animacji rozwijania */
 
 /* Glow halo za otwartym zwojem - 2 warstwy, kazda z wlasnym rytmem */
 .mission-scroll-halo-outer {
