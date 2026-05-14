@@ -26,13 +26,18 @@ export default function MissionView() {
 
   useEffect(() => {
     if (step === 1) {
-      // Dzwieki + lektor wystartuja od razu przy rozpoczeciu rozwijania
-      fx.magicalAncient(0.6);
-      fx.dopamine(0.6);
       const id = setTimeout(() => setStep(2), 2000);
       return () => clearTimeout(id);
     }
   }, [step]);
+
+  // Wywolywane bezposrednio z onClick (user gesture) - bypass autoplay policy
+  function openScroll() {
+    fx.magicalAncient(0.6);
+    fx.dopamine(0.6);
+    setStep(1);
+    setTimeout(() => setStep(2), 1200);
+  }
 
   // Krotki burst konfetti przy otwarciu zwoju (WOW efekt)
   const [openBurst, setOpenBurst] = useState(false);
@@ -99,7 +104,7 @@ export default function MissionView() {
       />
       <TopBar />
 
-      <div className="screen-scroll" style={{ flex: 1, padding: "12px 18px 96px", display: "flex", flexDirection: "column", gap: 14, position: "relative", zIndex: 1, justifyContent: scrollOpen ? "center" : "flex-start" }}>
+      <div className="screen-scroll" style={{ flex: 1, padding: "12px 18px 96px", display: "flex", flexDirection: "column", gap: 14, position: "relative", zIndex: 1, justifyContent: "center" }}>
         {!mission && (
           <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, padding: "40px 0" }}>
             <div style={{ animation: "float-mid 3s ease-in-out infinite" }}>
@@ -158,8 +163,7 @@ export default function MissionView() {
                 width={360}
                 onClick={() => {
                   if (step === 0) {
-                    setStep(1);
-                    setTimeout(() => setStep(2), 1200);
+                    openScroll();
                   } else if (step === 2) {
                     setStep(0);
                   }
@@ -198,10 +202,7 @@ export default function MissionView() {
                 <button
                   className="btn btn-magic btn-block pop-in"
                   style={{ maxWidth: 360 }}
-                  onClick={() => {
-                    setStep(1);
-                    setTimeout(() => setStep(2), 1200);
-                  }}
+                  onClick={openScroll}
                 >
                   Rozwiń zwój ✦
                 </button>

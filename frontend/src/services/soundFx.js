@@ -21,7 +21,8 @@ export function playFx(src, volume = DEFAULT_VOLUME) {
   try {
     const a = getAudio(src);
     a.volume = Math.max(0, Math.min(1, volume));
-    a.currentTime = 0;
+    // currentTime = 0 throws gdy audio nie zaladowane - try/catch obejmuje to
+    try { a.currentTime = 0; } catch {}
     const p = a.play();
     if (p && typeof p.catch === "function") {
       p.catch((e) => console.warn("[soundFx] play blocked:", src, e?.message));
