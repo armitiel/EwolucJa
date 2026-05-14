@@ -204,17 +204,17 @@ export default function MissionView() {
               </button>
             )}
 
-            {/* Lektor wystartuje przy step 1 (klik Rozwin), kontrolki pojawia sie przy step 2.
-                Jednakowa pozycja w drzewie React zapewnia ciaglosc instancji audio. */}
-            {(step === 1 || step === 2) && (
-              <NarratorVoice
-                text={narrationText}
-                land="las_decyzji"
-                tone="mystery"
-                inlinePauses
-                autoPlay
-                compact={step === 1}
-              />
+            {/* Lektor startuje natychmiast po rozwinieciu zwoju (step 2). Kontrolki powiekszone przez scale. */}
+            {step === 2 && (
+              <div style={{ transform: "scale(1.5)", transformOrigin: "center top", margin: "4px 0 8px" }}>
+                <NarratorVoice
+                  text={narrationText}
+                  land="las_decyzji"
+                  tone="mystery"
+                  inlinePauses
+                  autoPlay
+                />
+              </div>
             )}
 
             {/* CTA po rozwinieciu */}
