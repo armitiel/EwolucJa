@@ -93,7 +93,7 @@ export default function MissionView() {
       />
       <TopBar />
 
-      <div className="screen-scroll" style={{ flex: 1, padding: "12px 18px 96px", display: "flex", flexDirection: "column", gap: 14, position: "relative", zIndex: 1 }}>
+      <div className="screen-scroll" style={{ flex: 1, padding: "12px 18px 96px", display: "flex", flexDirection: "column", gap: 14, position: "relative", zIndex: 1, justifyContent: scrollOpen ? "center" : "flex-start" }}>
         {!mission && (
           <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, padding: "40px 0" }}>
             <div style={{ animation: "float-mid 3s ease-in-out infinite" }}>
@@ -149,7 +149,7 @@ export default function MissionView() {
               )}
               <MissionScroll
                 state={step === 0 ? "closed" : "open"}
-                width={300}
+                width={360}
                 onClick={() => {
                   if (step === 0) {
                     setStep(1);
@@ -191,7 +191,7 @@ export default function MissionView() {
                 </p>
                 <button
                   className="btn btn-magic btn-block pop-in"
-                  style={{ maxWidth: 300 }}
+                  style={{ maxWidth: 360 }}
                   onClick={() => {
                     setStep(1);
                     setTimeout(() => setStep(2), 1200);
@@ -204,7 +204,7 @@ export default function MissionView() {
 
             {/* CTA po rozwinieciu */}
             {step === 2 && (
-              <div className="pop-in" style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center", width: "100%", maxWidth: 300, marginTop: 4 }}>
+              <div className="pop-in" style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center", width: "100%", maxWidth: 360, marginTop: 4 }}>
                 <button className="btn btn-magic btn-block" style={{ width: "100%" }} onClick={() => setStep(3)}>
                   Daj Odpowiedź ✦
                 </button>
