@@ -54,7 +54,7 @@ export default function JoinClass() {
     setSubmitting(true);
     try {
       const res = await joinApi.join({ invite_code: code.trim().toUpperCase(), player_name: playerName.trim() });
-      session.savePlayer(res.player_id);
+      session.setPlayer(res.player_id);
       navigate("/onboarding");
     } catch (e) {
       setError(e.message);
