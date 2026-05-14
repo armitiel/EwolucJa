@@ -214,7 +214,7 @@ export default function MissionView() {
                 </button>
               )}
               {step === 2 && (
-                <button className="btn btn-magic btn-block pop-in" style={{ width: "100%" }} onClick={() => setStep(3)}>
+                <button className="btn btn-primary btn-block pop-in" style={{ width: "100%" }} onClick={() => setStep(3)}>
                   Daj Odpowiedź ✦
                 </button>
               )}
