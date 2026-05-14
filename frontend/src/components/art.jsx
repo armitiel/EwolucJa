@@ -633,15 +633,15 @@ export const MissionScroll = ({ state = "closed", width = 280, children, onClick
       role={onClick ? "button" : undefined}
       aria-label={isOpen ? "Zwoj otwarty - kliknij aby zwinac" : "Zwoj zamkniety - kliknij aby rozwinac"}
     >
-      {/* PAPIER - absolute, zaczyna sie pol-belki od gory i konczy pol-belki przed dolem.
+      {/* PAPIER - absolute, 85% szerokosci wycentrowane, zaczyna sie pol-belki od gory i konczy pol-belki przed dolem.
           background-image z size 100% 100% wymusza rozciaganie SVG niezaleznie od preserveAspectRatio. */}
       <div
         className="mission-paper"
         aria-hidden="true"
         style={{
           position: "absolute",
-          left: 0,
-          right: 0,
+          left: "7.5%",
+          right: "7.5%",
           top: rodH / 2,
           bottom: rodH / 2,
           zIndex: 1,
