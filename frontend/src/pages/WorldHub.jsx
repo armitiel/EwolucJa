@@ -231,7 +231,7 @@ export default function WorldHub() {
     <PageShell>
       <TopBar narratorText={greeting} playOnceKey="worldhub_greeting" tone="calm" speed={0.86} />
 
-      <div className="screen-scroll entrance-stagger" style={{ display: "flex", flexDirection: "column", gap: 14, paddingTop: 4, position: "relative", zIndex: 1, flex: 1 }}>
+      <div className="screen-scroll entrance-stagger" style={{ display: "flex", flexDirection: "column", gap: 14, paddingTop: 12, paddingBottom: 52, position: "relative", zIndex: 1, flex: 1 }}>
         {/* Postep tygodnia + dni — auto-detekcja dnia tygodnia */}
         <WeekProgress
           daysToFriday={friday && !friday.passed ? friday.days : null}

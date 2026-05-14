@@ -40,13 +40,13 @@ export default function MapView() {
       <TopBar />
 
       <div
+        className="screen-scroll"
         style={{
           flex: 1,
-          padding: "4px 14px 14px",
+          padding: "12px 14px 52px",
           display: "flex",
           flexDirection: "column",
           gap: 12,
-          overflowY: "auto",
           minHeight: 0,
         }}
       >

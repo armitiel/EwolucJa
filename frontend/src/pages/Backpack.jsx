@@ -58,11 +58,11 @@ export default function Backpack() {
       <TopBar />
 
       <div
+        className="screen-scroll"
         style={{
           flex: 1,
-          overflowY: "auto",
           minHeight: 0,
-          padding: "4px 18px 18px",
+          padding: "12px 18px 52px",
           display: "flex",
           flexDirection: "column",
           gap: 14,

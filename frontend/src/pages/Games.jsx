@@ -60,13 +60,13 @@ export default function Games() {
       <TopBar />
 
       <div
+        className="screen-scroll"
         style={{
           flex: 1,
-          padding: "8px 14px 14px",
+          padding: "12px 14px 52px",
           display: "flex",
           flexDirection: "column",
           gap: 14,
-          overflowY: "auto",
           minHeight: 0,
         }}
       >

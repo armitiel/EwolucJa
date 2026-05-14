@@ -64,7 +64,7 @@ export default function MissionView() {
     <PageShell>
       <TopBar />
 
-      <div className="screen-scroll" style={{ flex: 1, padding: "4px 18px 84px", display: "flex", flexDirection: "column", gap: 14 }}>
+      <div className="screen-scroll" style={{ flex: 1, padding: "12px 18px 96px", display: "flex", flexDirection: "column", gap: 14 }}>
         {!mission && (
           <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, padding: "40px 0" }}>
             <div style={{ animation: "float-mid 3s ease-in-out infinite" }}>

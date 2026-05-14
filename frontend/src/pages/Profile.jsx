@@ -67,7 +67,7 @@ export default function Profile() {
     <PageShell>
       <TopBar />
 
-      <div style={{ flex: 1, overflowY: "auto", minHeight: 0, padding: "4px 18px 18px", display: "flex", flexDirection: "column", gap: 14 }}>
+      <div className="screen-scroll" style={{ flex: 1, minHeight: 0, padding: "12px 18px 52px", display: "flex", flexDirection: "column", gap: 14 }}>
         <div className="card" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, padding: "22px 16px", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 50% 30%, rgba(255,210,105,.40), transparent 60%)" }} />
           <Avatar kind="fox" size={128} evolved={Math.min(2, lvl - 1)} />

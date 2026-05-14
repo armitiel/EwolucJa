@@ -18,10 +18,10 @@
 
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;}
-/* Wylacz rubber-band bounce na iOS i Androidzie — sticky topbar nie bedzie sie przesuwal */
+/* TopBar i TabBar maja position:fixed, wiec rubber-band ich nie ruszy. Pozwalamy na delikatny bounce. */
 html{
-  overscroll-behavior: none;
-  -webkit-overflow-scrolling: auto;
+  overscroll-behavior-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 body{
   font-family: var(--font-body), system-ui, sans-serif;
@@ -29,18 +29,22 @@ body{
   color: var(--p-ink);
   min-height:100vh;
   overflow-x:hidden;
-  overscroll-behavior: none;
-  -webkit-overflow-scrolling: auto;
+  /* Wewnetrzny scroll (.screen-scroll) nie propaguje do body, ale lekki bounce na granicy jest naturalny */
+  overscroll-behavior-y: auto;
+  -webkit-overflow-scrolling: touch;
   /* Lepsza ostrosc PL znakow (ą, ę, ł, ż, ź, ć, ś) */
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: "kern" 1, "liga" 1;
 }
-/* Glowny scroll dzieje sie w .screen-scroll, nie w body */
+/* Glowny scroll dzieje sie w .screen-scroll, z naturalnym bounce na granicach */
 .screen-scroll{
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
+  /* Mala dodatkowa przestrzen scrollu pod tresci, by mozna bylo "ciagnac" lekko w gore/dol na granicach */
+  scroll-padding-top: 12px;
+  scroll-padding-bottom: 12px;
 }
 
 /* Naglowki/dyspley uzywaja Baloo 2 globalnie */
@@ -77,7 +81,10 @@ h1, h2, h3, h4, h5, h6,
 .screen-scroll{
   flex:1; overflow-y:auto; overflow-x:hidden;
   -webkit-overflow-scrolling: touch;
-  padding: 4px 18px 28px;
+  /* Padding bottom: 28px naturalnego + 24px luzu przy TabBar = 52px (uzytkownik moze "ciagnac" lekko w dol) */
+  padding: 12px 18px 52px;
+  /* Niech naturalny bounce dziala wewnatrz tego kontenera bez propagacji */
+  overscroll-behavior-y: contain;
 }
 .screen-scroll::-webkit-scrollbar{ display:none; }
 

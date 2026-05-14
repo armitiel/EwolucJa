@@ -113,7 +113,7 @@ export default function Onboarding() {
         </div>
       </div>
 
-      <div className="screen-scroll" style={{ flex: 1, padding: "10px 18px 28px" }}>
+      <div className="screen-scroll" style={{ flex: 1, padding: "16px 18px 48px" }}>
         {step === "name" && (
           <form onSubmit={handleStart} className="pop-in" style={{ display: "flex", flexDirection: "column", gap: 18 }}>
             <h1 className="t-display" style={{ fontSize: 34, margin: "8px 0 4px", color: "var(--p-ink)", lineHeight: 1.18, letterSpacing: "-0.3px" }}>
