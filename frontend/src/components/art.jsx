@@ -612,7 +612,7 @@ export const MissionScroll = ({ state = "closed", width = 280, children, onClick
   const rodH = Math.round(width / rodAspect);
   // Wysokosc PAPIERU w 2 stanach
   const paperClosedH = Math.round(width * 0.22); // cienka harmonijka miedzy belkami
-  const paperOpenH = Math.round(width * 1.0);    // pelny rozwiniety papier
+  const paperOpenH = Math.round(width * 0.80);   // rozwiniety papier - 80% szerokosci
   // Calkowita wysokosc kontenera = papier + ~70% wysokosci belek (belki wystaja w gore i w dol o pol-belki)
   const containerH = (isOpen ? paperOpenH : paperClosedH) + rodH;
 

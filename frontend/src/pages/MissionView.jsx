@@ -9,6 +9,7 @@ import TabBar from "../components/TabBar.jsx";
 import Celebration from "../components/Celebration.jsx";
 import { Sparkle, ScrollIcon, MissionScroll, Coin } from "../components/art.jsx";
 import { fx } from "../services/soundFx.js";
+import { ttsPlayer } from "../services/ttsPlayer.js";
 
 export default function MissionView() {
   const navigate = useNavigate();
@@ -35,6 +36,9 @@ export default function MissionView() {
   function openScroll() {
     fx.magicalAncient(0.36); // ambientowy szum tla - 36% (60% z 60%, mocno scieszony)
     fx.dopamine(0.6);
+    // KRITYCZNE: explicit unlock TTS w gestie usera. Bez tego NarratorVoice
+    // mountowany przy step 1 widzi unlocked=false i czeka na polling co 500ms.
+    ttsPlayer.unlock();
     setStep(1);
     setTimeout(() => setStep(2), 1200);
   }
@@ -119,6 +123,10 @@ export default function MissionView() {
             Rezerwujemy stale miejsce dla CTA pod zwojem zeby pozycja zwoju nie skakala miedzy stanami. */}
         {mission && step !== 3 && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "12px 0 0" }}>
+            {/* Label nad zwojem - tytul kategorii */}
+            <span className="chip magic" style={{ fontSize: 12, padding: "5px 14px", marginBottom: 14, fontWeight: 800, letterSpacing: .3 }}>
+              Zadanie w realu
+            </span>
             <div
               style={{
                 animation: step === 0 ? "float-mid 3s ease-in-out infinite" : "none",
@@ -170,20 +178,16 @@ export default function MissionView() {
                   }
                 }}
               >
-                <div style={{ display: "flex", gap: 5, marginBottom: 8, flexWrap: "wrap", justifyContent: "center" }}>
-                  <span className="chip magic" style={{ fontSize: 10, padding: "3px 8px" }}>Las Pytań</span>
-                  <span className="chip amber" style={{ fontSize: 10, padding: "3px 8px" }}>+Artefakt</span>
-                </div>
-                <h2 className="t-display" style={{ fontSize: 18, lineHeight: 1.2, margin: "2px 0 8px", color: "#3B2A12", textAlign: "center" }}>
+                <h2 className="t-display" style={{ fontSize: 18, lineHeight: 1.2, margin: "0 0 8px", color: "#3B2A12", textAlign: "center" }}>
                   {mission.title}
                 </h2>
                 <p className="t-hand" style={{ fontSize: 15, lineHeight: 1.35, margin: 0, color: "#5C4220", textAlign: "center" }}>
                   {mission.body}
                 </p>
                 {/* Coin bonus - pojawia sie na pergaminie po rozwinieciu */}
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 12, padding: "6px 12px", background: "rgba(255,213,105,.30)", borderRadius: 999, alignSelf: "center", width: "fit-content" }}>
-                  <Coin size={20} anim />
-                  <span className="t-display" style={{ fontSize: 16, color: "#7A4D10", fontWeight: 800 }}>+3 monety bonusu</span>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 14, padding: "8px 14px", background: "rgba(255,213,105,.30)", borderRadius: 999, alignSelf: "center", width: "fit-content" }}>
+                  <Coin size={32} anim />
+                  <span className="t-display" style={{ fontSize: 18, color: "#7A4D10", fontWeight: 800 }}>+3 monety bonusu</span>
                 </div>
               </MissionScroll>
               {step === 0 && (
