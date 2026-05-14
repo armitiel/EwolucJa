@@ -29,6 +29,11 @@ export const mentorApi = {
   me: () => call("/auth/me"),
   logout: () => call("/auth/logout", { method: "POST" }),
 
+  // Whitelist
+  listWhitelist: () => call("/mentor/whitelist"),
+  addWhitelist: (email, note) => call("/mentor/whitelist", { method: "POST", body: { email, note } }),
+  removeWhitelist: (email) => call(`/mentor/whitelist/${encodeURIComponent(email)}`, { method: "DELETE" }),
+
   // Klasy
   listClasses: () => call("/mentor/classes"),
   createClass: (data) => call("/mentor/classes", { method: "POST", body: data }),

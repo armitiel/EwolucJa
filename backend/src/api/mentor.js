@@ -10,6 +10,7 @@
 
 import { Router } from "express";
 import { requireMentor } from "../services/authService.js";
+import { initDatabase } from "../database/db.js";
 import {
   createClass,
   listMentorClasses,
@@ -60,6 +61,53 @@ export function mentorRoutes() {
       res.json(result);
     } catch (e) {
       res.status(400).json({ error: e.message });
+    }
+  });
+
+  // Whitelist mentorow
+  r.get("/whitelist", async (req, res) => {
+    try {
+      const pool = await initDatabase();
+      const { rows } = await pool.query(
+        `SELECT mw.email, mw.added_at, mw.note,
+                ga.name AS added_by_name,
+                gi.email AS added_by_email
+           FROM mentor_whitelist mw
+           LEFT JOIN gm_accounts ga ON ga.id = mw.added_by_gm_account_id
+           LEFT JOIN google_identities gi ON gi.gm_account_id = mw.added_by_gm_account_id
+           ORDER BY mw.added_at DESC`
+      );
+      res.json({ emails: rows });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  r.post("/whitelist", async (req, res) => {
+    try {
+      const { email, note } = req.body || {};
+      if (!email?.trim()) return res.status(400).json({ error: "email required" });
+      const normEmail = email.trim().toLowerCase();
+      const pool = await initDatabase();
+      await pool.query(
+        `INSERT INTO mentor_whitelist (email, added_by_gm_account_id, note)
+           VALUES ($1, $2, $3)
+           ON CONFLICT (email) DO UPDATE SET note = EXCLUDED.note`,
+        [normEmail, req.mentor.gmAccountId, note || null]
+      );
+      res.status(201).json({ email: normEmail, ok: true });
+    } catch (e) {
+      res.status(400).json({ error: e.message });
+    }
+  });
+
+  r.delete("/whitelist/:email", async (req, res) => {
+    try {
+      const pool = await initDatabase();
+      await pool.query(`DELETE FROM mentor_whitelist WHERE LOWER(email) = LOWER($1)`, [req.params.email]);
+      res.json({ ok: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
     }
   });
 

@@ -159,6 +159,15 @@ async function ensureSchema(pool) {
     CREATE INDEX IF NOT EXISTS idx_mentor_classes_gm ON mentor_classes(gm_account_id);
     CREATE INDEX IF NOT EXISTS idx_mentor_classes_invite ON mentor_classes(invite_code);
 
+    -- Whitelist emaili mentorow (kto moze zalozyc konto przez OAuth)
+    CREATE TABLE IF NOT EXISTS mentor_whitelist (
+      email TEXT PRIMARY KEY,
+      added_by_gm_account_id TEXT REFERENCES gm_accounts(id) ON DELETE SET NULL,
+      added_at TIMESTAMPTZ DEFAULT NOW(),
+      note TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_mentor_whitelist_added_by ON mentor_whitelist(added_by_gm_account_id);
+
     -- Czlonkostwo ucznia w klasie
     CREATE TABLE IF NOT EXISTS class_memberships (
       id TEXT PRIMARY KEY,

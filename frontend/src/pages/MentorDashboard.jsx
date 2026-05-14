@@ -82,11 +82,88 @@ export default function MentorDashboard() {
             </div>
           </>
         )}
+
+        <WhitelistPanel />
       </div>
 
       {showCreate && <CreateClassModal onClose={() => setShowCreate(false)} onCreate={handleCreate} />}
       {createdClass && <ClassCreatedModal cls={createdClass} onClose={() => setCreatedClass(null)} onGoToClass={() => navigate(`/mentor/klasa/${createdClass.id}`)} />}
     </PageShell>
+  );
+}
+
+function WhitelistPanel() {
+  const [open, setOpen] = useState(false);
+  const [list, setList] = useState(null);
+  const [email, setEmail] = useState("");
+  const [adding, setAdding] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (open && list === null) mentorApi.listWhitelist().then((d) => setList(d.emails || [])).catch((e) => setError(e.message));
+  }, [open, list]);
+
+  async function handleAdd() {
+    setError(null);
+    if (!email.trim()) return;
+    setAdding(true);
+    try {
+      await mentorApi.addWhitelist(email.trim(), null);
+      const d = await mentorApi.listWhitelist();
+      setList(d.emails || []);
+      setEmail("");
+    } catch (e) { setError(e.message); } finally { setAdding(false); }
+  }
+
+  async function handleRemove(em) {
+    if (!confirm(`Usunac ${em} z listy?`)) return;
+    await mentorApi.removeWhitelist(em).catch(() => {});
+    const d = await mentorApi.listWhitelist();
+    setList(d.emails || []);
+  }
+
+  return (
+    <div className="card" style={{ padding: "14px 16px", marginTop: 18 }}>
+      <button onClick={() => setOpen(!open)} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "left" }}>
+        <span style={{ fontSize: 18 }}>{open ? "▾" : "▸"}</span>
+        <div className="t-display" style={{ fontSize: 15, color: "var(--p-ink)", flex: 1 }}>Zaproś innych mentorów</div>
+        {list && <span style={{ fontSize: 12, color: "var(--p-ink-soft)" }}>{list.length} osób</span>}
+      </button>
+
+      {open && (
+        <div style={{ marginTop: 12 }}>
+          <p style={{ fontSize: 12, color: "var(--p-ink-soft)", margin: "0 0 10px", lineHeight: 1.4 }}>
+            Dodaj email Google osoby która ma móc zalogować się jako mentor. Bez dodania tu — Google zablokuje logowanie.
+          </p>
+          <div style={{ display: "flex", gap: 6 }}>
+            <input
+              type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && !adding && handleAdd()}
+              placeholder="mentor@gmail.com"
+              style={{ flex: 1, padding: "10px 12px", border: "1.5px solid rgba(78,77,118,.16)", borderRadius: 10, background: "rgba(255,255,255,.92)", fontSize: 14, color: "var(--p-ink)", outline: "none" }}
+            />
+            <button className="btn btn-magic btn-sm" onClick={handleAdd} disabled={adding || !email.trim()}>
+              {adding ? "..." : "+"}
+            </button>
+          </div>
+          {error && <p style={{ color: "#B85B47", fontSize: 12, margin: "6px 0 0" }}>{error}</p>}
+
+          {list && list.length > 0 && (
+            <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 6 }}>
+              {list.map((entry) => (
+                <div key={entry.email} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: "rgba(122,77,194,.06)", borderRadius: 10 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, color: "var(--p-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{entry.email}</div>
+                    {entry.added_by_name && <div style={{ fontSize: 10, color: "var(--p-ink-soft)" }}>dodał: {entry.added_by_name}</div>}
+                  </div>
+                  <button onClick={() => handleRemove(entry.email)} style={{ background: "none", border: "none", color: "#B85B47", fontSize: 14, cursor: "pointer", padding: "2px 6px" }}>✕</button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 

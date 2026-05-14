@@ -46,8 +46,8 @@ export default function MentorLogin() {
           </p>
 
           {error && (
-            <div style={{ background: "rgba(184,91,71,.10)", color: "#B85B47", borderRadius: 12, padding: "8px 12px", fontSize: 13, marginBottom: 14 }}>
-              {error === "no_code" ? "Logowanie anulowane" : `Błąd: ${error}`}
+            <div style={{ background: "rgba(184,91,71,.10)", color: "#B85B47", borderRadius: 12, padding: "10px 14px", fontSize: 13, marginBottom: 14, textAlign: "left", lineHeight: 1.4 }}>
+              {translateAuthError(error)}
             </div>
           )}
 
@@ -84,6 +84,16 @@ export default function MentorLogin() {
       </div>
     </PageShell>
   );
+}
+
+function translateAuthError(err) {
+  if (!err) return "";
+  if (err === "no_code") return "Logowanie anulowane.";
+  if (/nie jest na liscie|whitelist|not_whitelisted/i.test(err)) {
+    return "Twój email nie jest jeszcze na liście uprawnionych mentorów. Poproś mentora głównego (administratora) o dodanie Twojego adresu — zostaniesz powiadomiony gdy konto będzie aktywne.";
+  }
+  if (/email_verified/i.test(err)) return "Email Google nie jest zweryfikowany. Skonfiguruj weryfikację w Google i spróbuj ponownie.";
+  return `Błąd: ${err}`;
 }
 
 function GoogleIcon({ size = 18 }) {

@@ -76,7 +76,30 @@ export async function exchangeCodeForProfile(code) {
   };
 }
 
-/** Znajdz lub utworz gm_accounts + google_identities. Zwraca gm_account_id. */
+/**
+ * Sprawdz czy email jest dozwolony jako mentor.
+ * Reguly:
+ *   - Istniejacy mentor (juz w google_identities): zawsze dozwolony
+ *   - Pierwszy login w systemie (brak gm_accounts): bootstrap - dozwolony
+ *   - Email w mentor_whitelist: dozwolony
+ *   - W przeciwnym razie: blokada
+ */
+async function checkMentorAllowed(pool, email, existingMentor) {
+  if (existingMentor) return true; // logowanie zaufanego konta
+
+  // Bootstrap: jezeli nie ma zadnych mentorow, pierwszy moze sie zalogowac
+  const { rows: countRows } = await pool.query(`SELECT COUNT(*)::int AS n FROM gm_accounts`);
+  if (countRows[0].n === 0) return true;
+
+  // Whitelist check
+  const { rows: wlRows } = await pool.query(
+    `SELECT email FROM mentor_whitelist WHERE LOWER(email) = LOWER($1)`,
+    [email]
+  );
+  return wlRows.length > 0;
+}
+
+/** Znajdz lub utworz gm_accounts + google_identities. Zwraca gm_account_id. Rzuca jezeli not whitelisted. */
 export async function findOrCreateMentor(googleProfile) {
   const pool = await initDatabase();
   const { sub, email, name, picture } = googleProfile;
@@ -98,6 +121,14 @@ export async function findOrCreateMentor(googleProfile) {
       [existing.rows[0].gm_account_id, email, picture]
     );
     return existing.rows[0].gm_account_id;
+  }
+
+  // Whitelist guard (przed insertem)
+  const allowed = await checkMentorAllowed(pool, email, false);
+  if (!allowed) {
+    const err = new Error(`Email ${email} nie jest na liscie uprawnionych mentorow. Poprosz administratora o dodanie.`);
+    err.code = "not_whitelisted";
+    throw err;
   }
 
   // Nowy mentor: stworz gm_accounts + google_identities w transakcji
