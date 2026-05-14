@@ -258,3 +258,89 @@ Brak `}`, `)` lub `;` na końcu = podejrzenie ucięcia.
 3. ❌ `npm install` w workspace bash bez `&` i logfile → wisi
 4. ❌ Commit message z polskimi znakami w double-quotes z escaped quotes → łamie składnię cmd
 5. ❌ Zaufać że Edit zsynchronizował mount — zawsze sprawdź `wc -l` przed commitem
+
+---
+
+## Sesja 2026-05-14 — dodatki
+
+### Windows-MCP PowerShell — lżejsza alternatywa dla Desktop Commander
+
+Zamiast `start_process` + `interact_with_process` (które wymaga zarządzania PID-em i sesją), prościej jest użyć **`mcp__Windows-MCP__PowerShell`** dla jednorazowych komend git:
+
+```js
+mcp__Windows-MCP__PowerShell({
+  command: "cd C:\\Users\\DELL\\EwolucJA; git push origin v2-postgres-vercel 2>&1 | Select-Object -Last 5",
+  timeout: 60
+})
+```
+
+**Pitfalle PowerShella:**
+- PowerShell zwraca `Status Code: 1` (z błędem!) **nawet dla udanych git operacji**, bo git wypisuje progress na stderr. Patrz na ostatnie linie outputu — `fa8719e..3bd477f v2-postgres-vercel -> v2-postgres-vercel` = SUCCESS, ignoruj "RemoteException".
+- Polskie znaki w commit message → ten sam problem co w cmd. Użyj transliteracji ("scrollu" zamiast "scroll'a", "wiekszy" zamiast "większy").
+- `Stop-Process -Name git -Force` ratuje gdy `index.lock` się zaciął: `Get-Process -Name git -ErrorAction SilentlyContinue | Stop-Process -Force; Remove-Item .git\index.lock -Force -EA SilentlyContinue`
+
+### Mount sync — git nie widzi zmian z Edit/Write
+
+**Objaw świeży z tej sesji:** Edit zwraca sukces, plik na dysku ma zmiany, ale `git status` ich nie widzi (zwraca `working tree clean` lub ignoruje konkretny plik).
+
+**Powód:** mtime pliku nie został zaktualizowany przez Edit przez mount sync delay.
+
+**Naprawa (Linux bash):**
+```bash
+touch /sessions/cool-gifted-allen/mnt/EwolucJA/frontend/src/pages/Foo.jsx
+git status --short  # teraz powinien widzieć
+```
+
+To wymusza odświeżenie mtime — git ponownie sprawdza hash.
+
+### Pliki "kurczą się" same po Edit — wykrywanie
+
+**Test po Edicie na dużym pliku:**
+```bash
+wc -l C:\Users\DELL\EwolucJA\frontend\src\components\art.jsx
+# Porownaj z:
+git -C C:\Users\DELL\EwolucJA show HEAD:frontend/src/components/art.jsx | wc -l
+```
+
+Jeśli current < HEAD i nie spodziewałeś się tylu skreśleń → **mount sync ucięło plik**. Restore z HEAD i zacznij od nowa:
+```bash
+# Linux side
+git show HEAD:frontend/src/components/art.jsx > /tmp/art_head.jsx
+cp /tmp/art_head.jsx /sessions/cool-gifted-allen/mnt/EwolucJA/frontend/src/components/art.jsx
+# Teraz znów aplikuj Edity przez Windows path
+```
+
+`git restore` często rzuca `Operation not permitted` (Windows mount blokuje unlink) — `cp` z HEAD-snapshot działa.
+
+### Pełen flow naprawy po truncacji
+
+1. `wc -l <file>` vs `git show HEAD:<file> | wc -l` — porównanie wykrywa truncację
+2. Jeśli mniej linii niż w HEAD → `git show HEAD:<file> > /tmp/file.bak && cp /tmp/file.bak <linux-path-to-file>`
+3. Sprawdź `git diff --stat <file>` — powinno być pusto (clean)
+4. Reaplikuj wszystkie zmiany przez Edit (małe kawałki, sprawdzaj po każdym)
+5. Po wszystkich edycjach: `touch <file>` żeby git widział
+6. `git status` → `git add <files>` → commit → push przez Windows-MCP PowerShell
+
+### Skróty diagnostyczne
+
+```bash
+# Co jest niezsynchronizowane (i nie zacommitowane)
+cd /sessions/cool-gifted-allen/mnt/EwolucJA && git status --short | grep -v "^??" | wc -l
+
+# Czy plik X ma moje zmiany czy jest stary?
+grep -n "PATTERN_MOJE_ZMIANY" /sessions/cool-gifted-allen/mnt/EwolucJA/path/to/file
+
+# Ostatnie 3 commity (czy mój push przeszedł?)
+cd /sessions/cool-gifted-allen/mnt/EwolucJA && git log --oneline -3
+```
+
+### Vercel — sprawdzanie czy deploy poszedł
+
+Po pushu Vercel auto-deploy startuje w ciągu 10-30s, build trwa ~60s. Sprawdzenie:
+
+```cmd
+:: PowerShell
+cd C:\Users\DELL\EwolucJA; vercel ls --scope armitiels-projects 2>&1 | Select-Object -First 15
+```
+
+Najnowszy wpis powinien mieć status `Ready` i być z tej samej minuty co `git push`.
