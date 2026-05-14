@@ -180,11 +180,6 @@ export default function MissionView() {
                 <p className="t-hand" style={{ fontSize: 15, lineHeight: 1.35, margin: 0, color: "#5C4220", textAlign: "center" }}>
                   {mission.body}
                 </p>
-                {/* Coin bonus - pojawia sie na pergaminie po rozwinieciu */}
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 14, padding: "8px 14px", background: "rgba(255,213,105,.30)", borderRadius: 999, alignSelf: "center", width: "fit-content" }}>
-                  <Coin size={32} anim />
-                  <span className="t-display" style={{ fontSize: 18, color: "#7A4D10", fontWeight: 800 }}>+3 monety bonusu</span>
-                </div>
               </MissionScroll>
               {step === 0 && (
                 <>
