@@ -14,6 +14,9 @@
     "cors": "^2.8.5",
     "pg": "^8.13.0",
     "@anthropic-ai/sdk": "^0.30.1",
-    "dotenv": "^16.4.0"
+    "dotenv": "^16.4.0",
+    "google-auth-library": "^9.14.0",
+    "jsonwebtoken": "^9.0.2",
+    "cookie-parser": "^1.4.7"
   }
 }
