@@ -12,6 +12,7 @@ import { onboardingRoutes } from "./api/onboarding.js";
 import { cycleRoutes, missionRoutes } from "./api/cycles.js";
 import { gmRoutes } from "./api/gm.js";
 import { narrativeRoutes } from "./api/narrative.js";
+import { pairRoutes } from "./api/pairs.js";
 
 export function createApp() {
   const app = express();
@@ -29,6 +30,7 @@ export function createApp() {
   app.use("/api/missions", missionRoutes(db));
   app.use("/api/gm", gmRoutes(db));
   app.use("/api/narrative", narrativeRoutes(db));
+  app.use("/api/pairs", pairRoutes(db));
 
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() });

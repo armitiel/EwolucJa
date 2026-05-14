@@ -102,6 +102,23 @@ async function ensureSchema(pool) {
       used_at TIMESTAMPTZ,
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
+    -- System par "Rozdarta Mapa" - 15 statycznych definicji par archetypow + dynamiczne assignmenty
+    CREATE TABLE IF NOT EXISTS pair_assignments (
+      id TEXT PRIMARY KEY,
+      pair_definition_id INTEGER NOT NULL,         -- 1..15, FK do PAIR_DEFINITIONS w kodzie
+      player_a_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+      player_b_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+      gm_account_id TEXT REFERENCES gm_accounts(id) ON DELETE SET NULL,
+      status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','matched','completed')),
+      matched_at TIMESTAMPTZ,
+      completed_at TIMESTAMPTZ,
+      proof JSONB,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS idx_pair_assignments_player_a ON pair_assignments(player_a_id);
+    CREATE INDEX IF NOT EXISTS idx_pair_assignments_player_b ON pair_assignments(player_b_id);
+    CREATE INDEX IF NOT EXISTS idx_pair_assignments_gm ON pair_assignments(gm_account_id);
+    CREATE INDEX IF NOT EXISTS idx_pair_assignments_status ON pair_assignments(status);
   `);
 }
 
