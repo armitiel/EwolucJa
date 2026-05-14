@@ -16,6 +16,15 @@ import React, { createContext, useContext, useEffect, useState, useCallback, use
 import { useLocation } from "react-router-dom";
 import { api, session } from "../services/api.js";
 
+// Pre-load wszystkich assetow zwoju do cache przegladarki przy starcie appki.
+// Dzieki temu wchodzac w /mission obrazy sa juz w pamieci, nie ma wczytywania.
+if (typeof window !== "undefined") {
+  ["/zwoj-gora.svg", "/zwoj-papier.svg"].forEach((src) => {
+    const img = new Image();
+    img.src = src;
+  });
+}
+
 const AppDataCtx = createContext(null);
 
 export function useAppData() {

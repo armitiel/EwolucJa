@@ -33,7 +33,7 @@ export default function MissionView() {
 
   // Wywolywane bezposrednio z onClick (user gesture) - bypass autoplay policy
   function openScroll() {
-    fx.magicalAncient(0.6);
+    fx.magicalAncient(0.36); // ambientowy szum tla - 36% (60% z 60%, mocno scieszony)
     fx.dopamine(0.6);
     setStep(1);
     setTimeout(() => setStep(2), 1200);
@@ -196,7 +196,9 @@ export default function MissionView() {
 
             {/* Podpowiedz + CTA rozwijania (alternatywa do klikniecia w zwoj) */}
             {/* Stala strefa pod zwojem - zarezerwowane miejsce na CTA + lektora.
-                Zachowuje pozycje zwoju gdy zmienia sie step, bez "skoku" w layoucie. */}
+                Zachowuje pozycje zwoju gdy zmienia sie step, bez "skoku" w layoucie.
+                Lektor mountowany od step 1 (compact, autoplay z 600ms delay = zaraz po dzwiekach),
+                widoczne kontrolki pojawia sie przy step 2 (ten sam instance audio - bez przerwy). */}
             <div style={{ width: "100%", maxWidth: 360, marginTop: 20, minHeight: 130, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
               {step === 0 && (
                 <button
@@ -208,20 +210,22 @@ export default function MissionView() {
                 </button>
               )}
               {step === 2 && (
-                <>
-                  <button className="btn btn-magic btn-block pop-in" style={{ width: "100%" }} onClick={() => setStep(3)}>
-                    Daj Odpowiedź ✦
-                  </button>
-                  <div style={{ transform: "scale(1.5)", transformOrigin: "center top", marginTop: 4 }}>
-                    <NarratorVoice
-                      text={narrationText}
-                      land="las_decyzji"
-                      tone="mystery"
-                      inlinePauses
-                      autoPlay
-                    />
-                  </div>
-                </>
+                <button className="btn btn-magic btn-block pop-in" style={{ width: "100%" }} onClick={() => setStep(3)}>
+                  Daj Odpowiedź ✦
+                </button>
+              )}
+              {(step === 1 || step === 2) && (
+                <div style={{ transform: step === 2 ? "scale(1.5)" : "scale(1)", transformOrigin: "center top", marginTop: step === 2 ? 4 : 0 }}>
+                  <NarratorVoice
+                    text={narrationText}
+                    land="las_decyzji"
+                    tone="mystery"
+                    inlinePauses
+                    autoPlay
+                    autoPlayDelay={step === 1 ? 600 : 0}
+                    compact={step === 1}
+                  />
+                </div>
               )}
             </div>
           </div>
