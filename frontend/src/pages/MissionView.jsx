@@ -42,6 +42,8 @@ export default function MissionView() {
 
   // Zwoj otwarty (step 2 lub 3) = ciemne tlo + glow
   const scrollOpen = step === 2 || step === 3;
+  // Ciemny overlay zaczyna fade-in od step 1 (klikniecie 'Rozwin') - plynne przejscie kolor tla
+  const darkOverlayOn = step === 1 || step === 2 || step === 3;
 
   const narrationText = useMemo(() => {
     if (!mission) return "";
@@ -74,10 +76,24 @@ export default function MissionView() {
   }
 
   return (
-    <PageShell sky={scrollOpen ? "night" : "default"} dark={scrollOpen}>
+    <PageShell>
+      {/* Plynnie pojawiajacy sie ciemny overlay - zaczyna fade-in od momentu kilkniecia 'Rozwin zwoj' */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 0,
+          pointerEvents: "none",
+          opacity: darkOverlayOn ? 1 : 0,
+          transition: "opacity 1.2s cubic-bezier(.4, 0, .2, 1)",
+          background:
+            "radial-gradient(ellipse at 50% 35%, #2A1B5C 0%, #1A1238 45%, #0F0828 100%)",
+        }}
+      />
       <TopBar />
 
-      <div className="screen-scroll" style={{ flex: 1, padding: "12px 18px 96px", display: "flex", flexDirection: "column", gap: 14, transition: "color .8s ease" }}>
+      <div className="screen-scroll" style={{ flex: 1, padding: "12px 18px 96px", display: "flex", flexDirection: "column", gap: 14, position: "relative", zIndex: 1 }}>
         {!mission && (
           <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, padding: "40px 0" }}>
             <div style={{ animation: "float-mid 3s ease-in-out infinite" }}>
@@ -97,21 +113,39 @@ export default function MissionView() {
                 position: "relative",
               }}
             >
-              {/* GLOW HALO za zwojem - widoczne tylko gdy otwarty, animuje WOW efekt */}
+              {/* GLOW HALO za zwojem - 2 warstwy dla WOW efektu */}
               {scrollOpen && (
-                <div
-                  aria-hidden="true"
-                  className="mission-scroll-halo"
-                  style={{
-                    position: "absolute",
-                    inset: "-40% -25%",
-                    zIndex: 0,
-                    pointerEvents: "none",
-                    background:
-                      "radial-gradient(ellipse at center, rgba(255,220,140,.55) 0%, rgba(255,180,80,.30) 25%, rgba(120,80,200,.18) 55%, transparent 75%)",
-                    filter: "blur(8px)",
-                  }}
-                />
+                <>
+                  {/* Warstwa zewnetrzna - duza, miekka, fioletowo-purpurowa aura */}
+                  <div
+                    aria-hidden="true"
+                    className="mission-scroll-halo-outer"
+                    style={{
+                      position: "absolute",
+                      inset: "-60% -40%",
+                      zIndex: 0,
+                      pointerEvents: "none",
+                      background:
+                        "radial-gradient(ellipse at center, rgba(180,130,255,.55) 0%, rgba(140,90,220,.40) 30%, rgba(80,40,160,.20) 60%, transparent 80%)",
+                      filter: "blur(20px)",
+                    }}
+                  />
+                  {/* Warstwa wewnetrzna - intensywna ciepla zlota poswiata */}
+                  <div
+                    aria-hidden="true"
+                    className="mission-scroll-halo-inner"
+                    style={{
+                      position: "absolute",
+                      inset: "-25% -15%",
+                      zIndex: 0,
+                      pointerEvents: "none",
+                      background:
+                        "radial-gradient(ellipse at center, rgba(255,235,170,.85) 0%, rgba(255,200,100,.65) 25%, rgba(255,160,60,.35) 50%, transparent 75%)",
+                      filter: "blur(12px)",
+                      mixBlendMode: "screen",
+                    }}
+                  />
+                </>
               )}
               <MissionScroll
                 state={step === 0 ? "closed" : "open"}
@@ -170,19 +204,16 @@ export default function MissionView() {
 
             {/* CTA po rozwinieciu */}
             {step === 2 && (
-              <>
-                <div className="pop-in" style={{ background: "rgba(255,255,255,.12)", backdropFilter: "blur(6px)", border: "1px solid rgba(255,220,140,.35)", borderRadius: 14, padding: "10px 14px", width: "100%", maxWidth: 300, color: "#F4E8C2" }}>
-                  <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "#FFD269" }}>JAK WRACA ECHO</div>
-                  <div style={{ fontSize: 13, marginTop: 4 }}>Zapisz lub nagraj odpowiedź dorosłego — to ona stanie się Twoim artefaktem.</div>
-                </div>
-                <button className="btn btn-magic btn-block pop-in" style={{ maxWidth: 300 }} onClick={() => setStep(3)}>
+              <div className="pop-in" style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center", width: "100%", maxWidth: 300, marginTop: 4 }}>
+                <button className="btn btn-magic btn-block" style={{ width: "100%" }} onClick={() => setStep(3)}>
                   Daj Odpowiedź ✦
                 </button>
-                <p className="t-hand pop-in" style={{ fontSize: 13, color: "#F4E8C2", margin: 0, textAlign: "center", opacity: .85, maxWidth: 300 }}>
-                  👁️ Twoja odpowiedź zostanie sprawdzona przez mentora
-                </p>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#F4E8C2", opacity: .80, textAlign: "center" }}>
+                  <span style={{ fontSize: 14 }}>👁️</span>
+                  <span>Odpowiedź sprawdzi mentor</span>
+                </div>
                 <NarratorVoice text={narrationText} land="las_decyzji" tone="mystery" inlinePauses autoPlay />
-              </>
+              </div>
             )}
           </div>
         )}
