@@ -5,6 +5,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import { playerRoutes } from "./api/players.js";
 import { gameRoutes } from "./api/game.js";
 import { ttsRoutes } from "./api/tts.js";
@@ -13,11 +14,15 @@ import { cycleRoutes, missionRoutes } from "./api/cycles.js";
 import { gmRoutes } from "./api/gm.js";
 import { narrativeRoutes } from "./api/narrative.js";
 import { pairRoutes } from "./api/pairs.js";
+import { authRoutes } from "./api/auth.js";
+import { mentorRoutes } from "./api/mentor.js";
+import { classRoutes } from "./api/classes.js";
 
 export function createApp() {
   const app = express();
-  app.use(cors());
+  app.use(cors({ origin: true, credentials: true }));
   app.use(express.json({ limit: "2mb" }));
+  app.use(cookieParser());
 
   // db parameter is unused — wszystkie funkcje DB pobierają pool same przez getPool()
   const db = null;
@@ -31,6 +36,9 @@ export function createApp() {
   app.use("/api/gm", gmRoutes(db));
   app.use("/api/narrative", narrativeRoutes(db));
   app.use("/api/pairs", pairRoutes(db));
+  app.use("/api/auth", authRoutes());
+  app.use("/api/mentor", mentorRoutes());
+  app.use("/api/classes", classRoutes());
 
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() });

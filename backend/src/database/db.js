@@ -119,6 +119,57 @@ async function ensureSchema(pool) {
     CREATE INDEX IF NOT EXISTS idx_pair_assignments_player_b ON pair_assignments(player_b_id);
     CREATE INDEX IF NOT EXISTS idx_pair_assignments_gm ON pair_assignments(gm_account_id);
     CREATE INDEX IF NOT EXISTS idx_pair_assignments_status ON pair_assignments(status);
+
+    -- Mentor: Google identity (1 do 1 z gm_accounts)
+    CREATE TABLE IF NOT EXISTS google_identities (
+      gm_account_id TEXT PRIMARY KEY REFERENCES gm_accounts(id) ON DELETE CASCADE,
+      google_sub TEXT NOT NULL UNIQUE,
+      email TEXT NOT NULL,
+      picture TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS idx_google_identities_email ON google_identities(email);
+
+    -- Mentor: aktywne sesje (JWT hash do unievazniania)
+    CREATE TABLE IF NOT EXISTS mentor_sessions (
+      id TEXT PRIMARY KEY,
+      gm_account_id TEXT NOT NULL REFERENCES gm_accounts(id) ON DELETE CASCADE,
+      token_hash TEXT NOT NULL UNIQUE,
+      expires_at TIMESTAMPTZ NOT NULL,
+      user_agent TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      last_used_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS idx_mentor_sessions_gm ON mentor_sessions(gm_account_id);
+    CREATE INDEX IF NOT EXISTS idx_mentor_sessions_expires ON mentor_sessions(expires_at);
+
+    -- Klasy mentora
+    CREATE TABLE IF NOT EXISTS mentor_classes (
+      id TEXT PRIMARY KEY,
+      gm_account_id TEXT NOT NULL REFERENCES gm_accounts(id) ON DELETE CASCADE,
+      name TEXT NOT NULL,
+      description TEXT,
+      invite_code TEXT NOT NULL UNIQUE,
+      invite_code_expires_at TIMESTAMPTZ,
+      max_students INTEGER DEFAULT 30,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      archived_at TIMESTAMPTZ
+    );
+    CREATE INDEX IF NOT EXISTS idx_mentor_classes_gm ON mentor_classes(gm_account_id);
+    CREATE INDEX IF NOT EXISTS idx_mentor_classes_invite ON mentor_classes(invite_code);
+
+    -- Czlonkostwo ucznia w klasie
+    CREATE TABLE IF NOT EXISTS class_memberships (
+      id TEXT PRIMARY KEY,
+      class_id TEXT NOT NULL REFERENCES mentor_classes(id) ON DELETE CASCADE,
+      player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+      joined_at TIMESTAMPTZ DEFAULT NOW(),
+      left_at TIMESTAMPTZ,
+      UNIQUE(class_id, player_id)
+    );
+    CREATE INDEX IF NOT EXISTS idx_class_memberships_class ON class_memberships(class_id);
+    CREATE INDEX IF NOT EXISTS idx_class_memberships_player ON class_memberships(player_id);
   `);
 }
 
