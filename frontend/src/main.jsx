@@ -14,6 +14,10 @@ import Reward from "./pages/Reward.jsx";
 import InviteGM from "./pages/InviteGM.jsx";
 import GMPanel from "./pages/GMPanel.jsx";
 import DevPanel from "./pages/DevPanel.jsx";
+import MentorLogin from "./pages/MentorLogin.jsx";
+import MentorDashboard from "./pages/MentorDashboard.jsx";
+import MentorClassDetail from "./pages/MentorClassDetail.jsx";
+import JoinClass from "./pages/JoinClass.jsx";
 import DevTools from "./components/DevTools.jsx";
 import Loading from "./components/Loading.jsx";
 import AppDataProvider, { useAppData } from "./contexts/AppData.jsx";
@@ -41,6 +45,11 @@ function AppRoutes() {
       <Route path="/gm" element={<GMPanel />} />
       <Route path="/dev" element={<DevPanel />} />
       <Route path="/play" element={<App />} />
+      {/* Mentor & klasy */}
+      <Route path="/mentor/zaloguj" element={<MentorLogin />} />
+      <Route path="/mentor" element={<MentorDashboard />} />
+      <Route path="/mentor/klasa/:id" element={<MentorClassDetail />} />
+      <Route path="/dolacz" element={<JoinClass />} />
     </Routes>
   );
 }

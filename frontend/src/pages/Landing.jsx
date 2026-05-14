@@ -24,7 +24,7 @@ export default function Landing() {
   function goGM(e) {
     e?.preventDefault?.();
     ttsPlayer.unlock();
-    navigate(gmId ? "/gm" : "/gm");
+    navigate("/mentor/zaloguj");
   }
 
   return (
