@@ -8,6 +8,7 @@ import TopBar from "../components/TopBar.jsx";
 import TabBar from "../components/TabBar.jsx";
 import Celebration from "../components/Celebration.jsx";
 import { Sparkle, ScrollIcon, MissionScroll, Coin } from "../components/art.jsx";
+import { fx } from "../services/soundFx.js";
 
 export default function MissionView() {
   const navigate = useNavigate();
@@ -25,6 +26,9 @@ export default function MissionView() {
 
   useEffect(() => {
     if (step === 1) {
+      // Dzwieki + lektor wystartuja od razu przy rozpoczeciu rozwijania
+      fx.magicalAncient(0.6);
+      fx.dopamine(0.6);
       const id = setTimeout(() => setStep(2), 2000);
       return () => clearTimeout(id);
     }
@@ -55,6 +59,8 @@ export default function MissionView() {
     setSubmitting(true);
     try {
       await api.submitMissionProof(mission.mission_id, { proof_text: answer });
+      // Dzwiek nagrody + konfetti
+      fx.dopamine(0.6);
       setCelebrating(true);
       setTimeout(() => navigate("/reward"), 1800);
     } catch (err) {
@@ -202,6 +208,19 @@ export default function MissionView() {
               </>
             )}
 
+            {/* Lektor wystartuje przy step 1 (klik Rozwin), kontrolki pojawia sie przy step 2.
+                Jednakowa pozycja w drzewie React zapewnia ciaglosc instancji audio. */}
+            {(step === 1 || step === 2) && (
+              <NarratorVoice
+                text={narrationText}
+                land="las_decyzji"
+                tone="mystery"
+                inlinePauses
+                autoPlay
+                compact={step === 1}
+              />
+            )}
+
             {/* CTA po rozwinieciu */}
             {step === 2 && (
               <div className="pop-in" style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center", width: "100%", maxWidth: 360, marginTop: 4 }}>
@@ -212,7 +231,6 @@ export default function MissionView() {
                   <span style={{ fontSize: 14 }}>👁️</span>
                   <span>Odpowiedź sprawdzi mentor</span>
                 </div>
-                <NarratorVoice text={narrationText} land="las_decyzji" tone="mystery" inlinePauses autoPlay />
               </div>
             )}
           </div>
