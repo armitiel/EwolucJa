@@ -195,18 +195,13 @@ export default function MissionView() {
 
             {/* Podpowiedz + CTA rozwijania (alternatywa do klikniecia w zwoj) */}
             {step === 0 && (
-              <>
-                <p className="t-hand pop-in" style={{ fontSize: 17, color: "var(--p-magic-dk)", margin: 0, textAlign: "center", opacity: .85 }}>
-                  ✨ Kliknij zwój albo przycisk, by poznać dziś zadanie
-                </p>
-                <button
-                  className="btn btn-magic btn-block pop-in"
-                  style={{ maxWidth: 360 }}
-                  onClick={openScroll}
-                >
-                  Rozwiń zwój ✦
-                </button>
-              </>
+              <button
+                className="btn btn-magic btn-block pop-in"
+                style={{ maxWidth: 360 }}
+                onClick={openScroll}
+              >
+                Rozwiń zwój ✦
+              </button>
             )}
 
             {/* Lektor wystartuje przy step 1 (klik Rozwin), kontrolki pojawia sie przy step 2.
@@ -228,10 +223,6 @@ export default function MissionView() {
                 <button className="btn btn-magic btn-block" style={{ width: "100%" }} onClick={() => setStep(3)}>
                   Daj Odpowiedź ✦
                 </button>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#F4E8C2", opacity: .80, textAlign: "center" }}>
-                  <span style={{ fontSize: 14 }}>👁️</span>
-                  <span>Odpowiedź sprawdzi mentor</span>
-                </div>
               </div>
             )}
           </div>

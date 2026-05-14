@@ -25,6 +25,7 @@ export default function Celebration({ active }) {
       <DotLottieReact
         src={LOTTIE_SRC}
         autoplay
+        loop={false}
         style={{ width: "100%", height: "100%", maxWidth: 720 }}
       />
     </div>
