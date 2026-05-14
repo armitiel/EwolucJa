@@ -610,9 +610,11 @@ export const MissionScroll = ({ state = "closed", width = 280, children, onClick
   // Belka: szerokosc = width, wysokosc = width / 5.46
   const rodAspect = 1053.9 / 192.9;
   const rodH = Math.round(width / rodAspect);
-  // Wysokosc papieru w 2 stanach
-  const paperClosedH = Math.round(width * 0.24); // cienka harmonijka miedzy belkami
-  const paperOpenH = Math.round(width * 1.0);    // pelny rozwiniety papier (~ proporcja oryginalu)
+  // Wysokosc PAPIERU w 2 stanach
+  const paperClosedH = Math.round(width * 0.22); // cienka harmonijka miedzy belkami
+  const paperOpenH = Math.round(width * 1.0);    // pelny rozwiniety papier
+  // Calkowita wysokosc kontenera = papier + ~70% wysokosci belek (belki wystaja w gore i w dol o pol-belki)
+  const containerH = (isOpen ? paperOpenH : paperClosedH) + rodH;
 
   return (
     <div
@@ -620,6 +622,8 @@ export const MissionScroll = ({ state = "closed", width = 280, children, onClick
       style={{
         position: "relative",
         width,
+        height: containerH,
+        transition: "height 1.1s cubic-bezier(.33, 0, .30, 1)",
         margin: "0 auto",
         cursor: onClick ? "pointer" : "default",
         userSelect: "none",
@@ -629,33 +633,15 @@ export const MissionScroll = ({ state = "closed", width = 280, children, onClick
       role={onClick ? "button" : undefined}
       aria-label={isOpen ? "Zwoj otwarty - kliknij aby zwinac" : "Zwoj zamkniety - kliknij aby rozwinac"}
     >
-      {/* GORNA BELKA */}
-      <img
-        src="/zwoj-gora.svg"
-        alt=""
-        aria-hidden="true"
-        width={width}
-        height={rodH}
-        style={{
-          display: "block",
-          width: "100%",
-          height: rodH,
-          position: "relative",
-          zIndex: 3,
-          filter: "drop-shadow(0 4px 5px rgba(80,50,10,.22))",
-        }}
-      />
-
-      {/* PAPIER MIEDZY BELKAMI - transition TYLKO na height; szerokosc stala = 100% (jak belki) */}
+      {/* PAPIER - absolute, zaczyna sie pol-belki od gory i konczy pol-belki przed dolem */}
       <div
         className="mission-paper"
         style={{
-          position: "relative",
-          width: "100%",
-          marginTop: `${-Math.round(rodH * 0.18)}px`,
-          marginBottom: `${-Math.round(rodH * 0.18)}px`,
-          height: isOpen ? paperOpenH : paperClosedH,
-          transition: "height 1.1s cubic-bezier(.33, 0, .30, 1)",
+          position: "absolute",
+          left: 0,
+          right: 0,
+          top: rodH / 2,
+          bottom: rodH / 2,
           zIndex: 1,
           overflow: "hidden",
         }}
@@ -668,7 +654,6 @@ export const MissionScroll = ({ state = "closed", width = 280, children, onClick
             display: "block",
             width: "100%",
             height: "100%",
-            // Wymusza rozciaganie SVG w pionie bez zachowania aspect-ratio
             objectFit: "fill",
           }}
         />
@@ -693,7 +678,7 @@ export const MissionScroll = ({ state = "closed", width = 280, children, onClick
         )}
       </div>
 
-      {/* DOLNA BELKA */}
+      {/* GORNA BELKA - absolute, przyklejona do gornej krawedzi papieru (papier zaczyna sie od top: rodH/2) */}
       <img
         src="/zwoj-gora.svg"
         alt=""
@@ -701,10 +686,29 @@ export const MissionScroll = ({ state = "closed", width = 280, children, onClick
         width={width}
         height={rodH}
         style={{
-          display: "block",
+          position: "absolute",
+          top: 0,
+          left: 0,
           width: "100%",
           height: rodH,
-          position: "relative",
+          zIndex: 3,
+          filter: "drop-shadow(0 4px 5px rgba(80,50,10,.22))",
+        }}
+      />
+
+      {/* DOLNA BELKA - absolute, przyklejona do dolnej krawedzi papieru */}
+      <img
+        src="/zwoj-gora.svg"
+        alt=""
+        aria-hidden="true"
+        width={width}
+        height={rodH}
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          width: "100%",
+          height: rodH,
           zIndex: 3,
           filter: "drop-shadow(0 6px 8px rgba(80,50,10,.28))",
         }}
