@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Warstwa_1" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 814.5 295.9">
+  <!-- Generator: Adobe Illustrator 29.1.0, SVG Export Plug-In . SVG Version: 2.1.0 Build 142)  -->
+  <defs>
+    <style>
+      .st0 {
+        fill: url(#Gradient_bez_nazwy);
+        stroke: #d59e53;
+        stroke-miterlimit: 10;
+        stroke-width: 5px;
+      }
+    </style>
+    <linearGradient id="Gradient_bez_nazwy" data-name="Gradient bez nazwy" x1="407.2" y1="515.4" x2="407.2" y2="225.1" gradientTransform="translate(0 517.4) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#d59e53"/>
+      <stop offset="0" stop-color="#dca75c"/>
+      <stop offset="0" stop-color="#eabb6f"/>
+      <stop offset="0" stop-color="#f2c77b"/>
+      <stop offset=".1" stop-color="#f5cb7f"/>
+      <stop offset=".2" stop-color="#f6cd87"/>
+      <stop offset=".3" stop-color="#f8d69d"/>
+      <stop offset=".4" stop-color="#f9dcab"/>
+      <stop offset=".5" stop-color="#f9deb0"/>
+      <stop offset=".7" stop-color="#f9ddad"/>
+      <stop offset=".7" stop-color="#f8daa6"/>
+      <stop offset=".8" stop-color="#f7d59a"/>
+      <stop offset=".9" stop-color="#f6ce88"/>
+      <stop offset=".9" stop-color="#f5cb7f"/>
+      <stop offset="1" stop-color="#d59e53"/>
+    </linearGradient>
+  </defs>
+  <g id="srodek">
+    <rect class="st0" x="2.5" y="2.5" width="809.5" height="290.9"/>
+  </g>
+  <metadata>
+    <sfw xmlns="http://ns.adobe.com/SaveForWeb/1.0/">
+      <slices/>
+      <sliceSourceBounds x="-1468.65" y="599.29" width="814.47" height="295.94" bottomLeftOrigin="true"/>
+      <optimizationSettings>
+        <targetSettings fileFormat="PNG24Format" targetSettingsID="0">
+          <PNG24Format filtered="false" interlaced="false" matteColor="#FFFFFF" noMatteColor="false" transparency="false"/>
+        </targetSettings>
+      </optimizationSettings>
+    </sfw>
+  </metadata>
+</svg>

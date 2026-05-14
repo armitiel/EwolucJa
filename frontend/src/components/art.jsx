@@ -599,57 +599,20 @@ export const ScrollIcon = ({ size = 60 }) => (
   </svg>
 );
 
-// ─── MissionScroll (zwoj misji - kompozyt: gorna belka + papier + dolna belka) ───
-// Nowa konstrukcja od zera:
-//   closed: 2 belki blisko siebie + cienka zlozona "harmonijka" papieru miedzy nimi (~110px wysokosc)
-//   open:   2 belki rozsuniete + rozwiniety papier z tekstem (~ width × 1.1)
-// Animacja: papier (.mission-paper) ma transition na height; belki sa pozycjonowane wzgledem niego.
-// Klikalnym jest CALY kontener.
-
-// Wspolny SVG dla pojedynczej belki (drewniany walec z mosieznymi galkami).
-const ScrollRod = ({ width = 280 }) => {
-  const w = width;
-  const h = Math.round(width * 0.13);
-  const capR = h * 0.55;
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} width={w} height={h} style={{ display: "block" }} aria-hidden="true">
-      <defs>
-        <linearGradient id={`rod-${w}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#D49A4B" />
-          <stop offset=".25" stopColor="#C8843A" />
-          <stop offset=".55" stopColor="#A8651F" />
-          <stop offset="1" stopColor="#7C4810" />
-        </linearGradient>
-        <linearGradient id={`rod-hi-${w}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#F3CC8C" />
-          <stop offset="1" stopColor="#C8843A" stopOpacity="0" />
-        </linearGradient>
-        <radialGradient id={`cap-${w}`} cx=".35" cy=".35" r=".7">
-          <stop offset="0" stopColor="#F0BB72" />
-          <stop offset=".5" stopColor="#B57425" />
-          <stop offset="1" stopColor="#6B3D0E" />
-        </radialGradient>
-      </defs>
-      {/* Cylinder */}
-      <rect x={capR * 0.7} y="0" width={w - capR * 1.4} height={h} rx={h / 2} fill={`url(#rod-${w})`} />
-      {/* Podkreslenie blasku */}
-      <rect x={capR * 0.9} y={h * 0.18} width={w - capR * 1.8} height={h * 0.28} rx={h * 0.14} fill={`url(#rod-hi-${w})`} />
-      {/* Lewa galka */}
-      <circle cx={capR} cy={h / 2} r={capR} fill={`url(#cap-${w})`} />
-      <circle cx={capR * 0.85} cy={h / 2 - capR * 0.2} r={capR * 0.22} fill="#FFE5B8" opacity=".7" />
-      {/* Prawa galka */}
-      <circle cx={w - capR} cy={h / 2} r={capR} fill={`url(#cap-${w})`} />
-      <circle cx={w - capR * 1.15} cy={h / 2 - capR * 0.2} r={capR * 0.22} fill="#FFE5B8" opacity=".7" />
-    </svg>
-  );
-};
+// ─── MissionScroll (zwoj misji - assety SVG: zwoj-gora.svg + zwoj-papier.svg) ───
+// Konstrukcja: 2x belka SVG (gora + dol) + papier-img miedzy (rozciagliwy w pionie).
+// Animacja: tylko papier (height transition), belki pozostaja na miejscu.
+// Aspect ratio belki: 1053.9 / 192.9 ≈ 5.46:1
+// Aspect ratio papieru: 814.5 / 295.9 ≈ 2.75:1 (ale stretchujemy w pionie)
 
 export const MissionScroll = ({ state = "closed", width = 280, children, onClick }) => {
   const isOpen = state === "open";
-  const rodH = Math.round(width * 0.13);
+  // Belka: szerokosc = width, wysokosc = width / 5.46
+  const rodAspect = 1053.9 / 192.9;
+  const rodH = Math.round(width / rodAspect);
   // Wysokosc papieru w 2 stanach
-  const paperClosedH = Math.round(width * 0.22); // cienka harmonijka miedzy belkami
-  const paperOpenH = Math.round(width * 0.95);   // pelny rozwiniety papier
+  const paperClosedH = Math.round(width * 0.24); // cienka harmonijka miedzy belkami
+  const paperOpenH = Math.round(width * 1.0);    // pelny rozwiniety papier (~ proporcja oryginalu)
 
   return (
     <div
@@ -667,50 +630,53 @@ export const MissionScroll = ({ state = "closed", width = 280, children, onClick
       aria-label={isOpen ? "Zwoj otwarty - kliknij aby zwinac" : "Zwoj zamkniety - kliknij aby rozwinac"}
     >
       {/* GORNA BELKA */}
-      <div style={{ position: "relative", zIndex: 3, filter: "drop-shadow(0 4px 6px rgba(80,50,10,.25))" }}>
-        <ScrollRod width={width} />
-      </div>
+      <img
+        src="/zwoj-gora.svg"
+        alt=""
+        aria-hidden="true"
+        width={width}
+        height={rodH}
+        style={{
+          display: "block",
+          width: "100%",
+          height: rodH,
+          position: "relative",
+          zIndex: 3,
+          filter: "drop-shadow(0 4px 5px rgba(80,50,10,.22))",
+        }}
+      />
 
-      {/* PAPIER MIEDZY BELKAMI - transition na height */}
+      {/* PAPIER MIEDZY BELKAMI - transition na height, img stretchowany w pionie */}
       <div
         className="mission-paper"
         style={{
           position: "relative",
-          width: width * 0.94,
-          margin: `${-rodH * 0.15}px auto`,
+          width: "94%",
+          margin: `${-Math.round(rodH * 0.18)}px auto`,
           height: isOpen ? paperOpenH : paperClosedH,
           transition: "height 1.1s cubic-bezier(.33, 0, .30, 1), margin 1.1s cubic-bezier(.33, 0, .30, 1)",
-          background: isOpen
-            ? "linear-gradient(180deg, #F5DDA8 0%, #F1D192 50%, #E8C079 100%)"
-            : "repeating-linear-gradient(180deg, #E8C079 0px, #F1D192 6px, #E8C079 12px)",
-          boxShadow: isOpen
-            ? "inset 0 6px 10px rgba(124,72,16,.18), inset 0 -6px 10px rgba(124,72,16,.18), 0 2px 4px rgba(124,72,16,.10)"
-            : "inset 0 4px 6px rgba(124,72,16,.30), inset 0 -4px 6px rgba(124,72,16,.30)",
-          borderLeft: "1.5px solid rgba(124,72,16,.18)",
-          borderRight: "1.5px solid rgba(124,72,16,.18)",
           zIndex: 1,
           overflow: "hidden",
         }}
       >
-        {/* Tekstura papieru - subtelne plamki */}
-        {isOpen && (
-          <div
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              inset: 0,
-              background:
-                "radial-gradient(ellipse at 20% 30%, rgba(170,110,40,.06), transparent 40%), radial-gradient(ellipse at 80% 70%, rgba(170,110,40,.05), transparent 40%)",
-              pointerEvents: "none",
-            }}
-          />
-        )}
+        <img
+          src="/zwoj-papier.svg"
+          alt=""
+          aria-hidden="true"
+          style={{
+            display: "block",
+            width: "100%",
+            height: "100%",
+            // Wymusza rozciaganie SVG w pionie bez zachowania aspect-ratio
+            objectFit: "fill",
+          }}
+        />
         {/* Tresc - widoczna tylko gdy otwarty, z fade-in */}
         {isOpen && children && (
           <div
             style={{
               position: "absolute",
-              inset: "8% 8% 8% 8%",
+              inset: "9% 8% 9% 8%",
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
@@ -718,6 +684,7 @@ export const MissionScroll = ({ state = "closed", width = 280, children, onClick
               opacity: 0,
               animation: "fadeIn .55s ease .8s forwards",
               color: "#3B2A12",
+              pointerEvents: "auto",
             }}
           >
             {children}
@@ -726,9 +693,21 @@ export const MissionScroll = ({ state = "closed", width = 280, children, onClick
       </div>
 
       {/* DOLNA BELKA */}
-      <div style={{ position: "relative", zIndex: 3, filter: "drop-shadow(0 6px 8px rgba(80,50,10,.30))" }}>
-        <ScrollRod width={width} />
-      </div>
+      <img
+        src="/zwoj-gora.svg"
+        alt=""
+        aria-hidden="true"
+        width={width}
+        height={rodH}
+        style={{
+          display: "block",
+          width: "100%",
+          height: rodH,
+          position: "relative",
+          zIndex: 3,
+          filter: "drop-shadow(0 6px 8px rgba(80,50,10,.28))",
+        }}
+      />
     </div>
   );
 };
