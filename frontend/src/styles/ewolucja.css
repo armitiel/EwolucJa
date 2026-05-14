@@ -236,43 +236,16 @@ h3.title{ font-size: 22px; margin:0; }
 .chip.magic{ background:#E6D6FA; color:#4A2D80; box-shadow:inset 0 0 0 1.2px #C0A2EC;}
 .chip.rose{ background:#FFD7D7; color:#7A2A2A; box-shadow:inset 0 0 0 1.2px #ECA0A0;}
 
-/* ─── MissionScroll - animacja rozwijania ─────────────────────
-   Manipuluje 3 grupy w zwoj.svg: #Gora (stała), #srodek (scaleY), #Dol (translateY).
-   ViewBox SVG: 1139.7 x 1271.5
-   srodek y: 232..1002 (paper)  → transform-origin: top
-   Dol y:    988..1086          → translateY -732% gdy zamkniety (-718 viewBox units / 98 wysokosc Dol)
+/* ─── MissionScroll - nowa kompozycja (2 belki SVG + papier-div miedzy) ─────
+   Animacja: tylko height + margin papieru, belki bez transformu, SVG inline w komponencie.
+   Stara konstrukcja z zwoj.svg + scaleY grup #srodek/#Dol porzucona — za skomplikowana.
 */
-.mission-scroll svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-  /* Eliminuje pusta gore SVG nad grupa #Gora (148/1271 = ~11.6%) */
-  transform: translateY(-11.6%);
+.mission-scroll {
+  /* Lekkie odbicie na klikniecie — feedback wizualny */
+  transition: transform .15s ease;
 }
-.mission-scroll #srodek,
-.mission-scroll #Dol {
-  transform-box: fill-box;
-  transform-origin: 50% 0;
-  transition: transform 1.4s cubic-bezier(.33, 0, .30, 1);
-}
-.mission-scroll #Dol {
-  transform-origin: 50% 50%;
-}
-/* Closed: srodek (papier) skompresowany do ~30%, widoczny jako wyrazny pas miedzy Gora a Dol.
-   Dol podjezdza w gore tak, by przylegal do dolnej krawedzi zwinietego papieru.
-   Obliczenie: srodek visible height = 770*0.30 = 231 viewBox units.
-   Dol top docelowo na 232+231=463. Natural Dol top=988. Translate = -525 vbu / 98 (Dol height) = -536%. */
-.mission-scroll--closed #srodek {
-  transform: scaleY(0.30);
-}
-.mission-scroll--closed #Dol {
-  transform: translateY(-536%);
-}
-.mission-scroll--open #srodek {
-  transform: scaleY(1);
-}
-.mission-scroll--open #Dol {
-  transform: translateY(0);
+.mission-scroll:active {
+  transform: scale(.98);
 }
 
 /* ─── Safe area dla iPhone notch / Dynamic Island ─── */

@@ -76,15 +76,14 @@ export default function MissionView() {
           </div>
         )}
         {mission && (
-          <>
-            <div className="t-display" style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-magic-dk)", textAlign: "center", marginTop: 4 }}>
-              LAS PYTAŃ — MISJA
-            </div>
-          </>
+          <div className="t-display" style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-magic-dk)", textAlign: "center", marginTop: 4 }}>
+            LAS PYTAŃ — MISJA
+          </div>
         )}
-        {mission && (step === 0 || step === 1 || step === 2) && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "8px 0 0" }}>
-            {/* SVG zwoju - klikalny: zamkniety → otwarty → zamkniety. CSS transition animuje rozwijanie */}
+
+        {/* Etapy 0–2: zwoj zamkniety / w trakcie rozwijania / otwarty z tresci misji */}
+        {mission && step !== 3 && (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "12px 0 0" }}>
             <div
               style={{
                 animation: step === 0 ? "float-mid 3s ease-in-out infinite" : "none",
@@ -93,43 +92,50 @@ export default function MissionView() {
             >
               <MissionScroll
                 state={step === 0 ? "closed" : "open"}
-                width={380}
+                width={300}
                 onClick={() => {
                   if (step === 0) {
                     setStep(1);
-                    setTimeout(() => setStep(2), 2000);
+                    setTimeout(() => setStep(2), 1200);
                   } else if (step === 2) {
-                    // Zwin z powrotem
                     setStep(0);
                   }
                 }}
               >
-                <div style={{ display: "flex", gap: 5, marginBottom: 8, flexWrap: "wrap" }}>
+                <div style={{ display: "flex", gap: 5, marginBottom: 8, flexWrap: "wrap", justifyContent: "center" }}>
                   <span className="chip magic" style={{ fontSize: 10, padding: "3px 8px" }}>Las Pytań</span>
                   <span className="chip amber" style={{ fontSize: 10, padding: "3px 8px" }}>+3 ✦ +Artefakt</span>
                 </div>
-                <h2 className="t-display" style={{ fontSize: 19, lineHeight: 1.2, margin: "2px 0 6px", color: "#3B2A12" }}>
+                <h2 className="t-display" style={{ fontSize: 18, lineHeight: 1.2, margin: "2px 0 8px", color: "#3B2A12", textAlign: "center" }}>
                   {mission.title}
                 </h2>
-                <p className="t-hand" style={{ fontSize: 16, lineHeight: 1.3, margin: 0, color: "#5C4220" }}>
+                <p className="t-hand" style={{ fontSize: 15, lineHeight: 1.35, margin: 0, color: "#5C4220", textAlign: "center" }}>
                   {mission.body}
                 </p>
               </MissionScroll>
               {step === 0 && (
                 <>
                   <div style={{ position: "absolute", top: -6, left: -22 }}><Sparkle size={20} /></div>
-                  <div style={{ position: "absolute", bottom: 30, right: -26 }}><Sparkle size={16} delay={0.4} /></div>
+                  <div style={{ position: "absolute", bottom: 0, right: -26 }}><Sparkle size={16} delay={0.4} /></div>
                 </>
               )}
             </div>
 
+            {/* Podpowiedz pod zamknietym zwojem */}
+            {step === 0 && (
+              <p className="t-hand pop-in" style={{ fontSize: 17, color: "var(--p-magic-dk)", margin: 0, textAlign: "center", opacity: .85 }}>
+                ✨ Kliknij zwój, by poznać dziś zadanie
+              </p>
+            )}
+
+            {/* CTA po rozwinieciu */}
             {step === 2 && (
               <>
-                <div style={{ background: "rgba(122,77,194,.10)", borderRadius: 14, padding: "10px 12px", width: "100%", maxWidth: 320 }}>
+                <div className="pop-in" style={{ background: "rgba(122,77,194,.10)", borderRadius: 14, padding: "10px 12px", width: "100%", maxWidth: 300 }}>
                   <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-magic-dk)" }}>JAK WRACA ECHO</div>
                   <div style={{ fontSize: 13, marginTop: 4 }}>Zapisz lub nagraj odpowiedź dorosłego — to ona stanie się Twoim artefaktem.</div>
                 </div>
-                <button className="btn btn-magic btn-block" style={{ maxWidth: 320 }} onClick={() => setStep(3)}>
+                <button className="btn btn-magic btn-block pop-in" style={{ maxWidth: 300 }} onClick={() => setStep(3)}>
                   Mam już pytanie — dalej
                 </button>
                 <NarratorVoice text={narrationText} land="las_decyzji" tone="mystery" inlinePauses autoPlay />
@@ -138,6 +144,7 @@ export default function MissionView() {
           </div>
         )}
 
+        {/* Etap 3: formularz dowodu */}
         {mission && step === 3 && (
           <div className="pop-in" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <div className="card">
