@@ -10,14 +10,12 @@ import { session } from "../services/api.js";
 import { ttsPlayer } from "../services/ttsPlayer";
 import PageShell from "../components/PageShell.jsx";
 
-const SPLASH_SHOWN_KEY = "ewolucja.splashShown";
-
 function Splash({ onDone }) {
   const [fading, setFading] = useState(false);
   useEffect(() => {
-    // Po 1.6s zaczyna fade-out, po kolejnych 0.8s znika z drzewa
-    const t1 = setTimeout(() => setFading(true), 1600);
-    const t2 = setTimeout(() => onDone(), 2400);
+    // Po 2.8s zaczyna fade-out, po kolejnych 1.4s znika z drzewa (powolny fade)
+    const t1 = setTimeout(() => setFading(true), 2800);
+    const t2 = setTimeout(() => onDone(), 4200);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [onDone]);
   return (
@@ -28,7 +26,7 @@ function Splash({ onDone }) {
         background: "#1B1338",
         display: "flex", alignItems: "center", justifyContent: "center",
         opacity: fading ? 0 : 1,
-        transition: "opacity .8s ease",
+        transition: "opacity 1.4s ease",
         pointerEvents: fading ? "none" : "auto",
       }}
     >
@@ -38,7 +36,7 @@ function Splash({ onDone }) {
         style={{
           width: "100%", height: "100%", objectFit: "cover",
           objectPosition: "center center",
-          animation: "splash-pulse 2.4s ease-in-out forwards",
+          animation: "splash-pulse 4.2s ease-in-out forwards",
         }}
       />
     </div>
@@ -50,14 +48,9 @@ export default function Landing() {
   const playerId = session.getPlayer();
   const gmId = session.getGM();
 
-  // Splash widoczny tylko raz na sesje (otwarcie przegladarki)
-  const [showSplash, setShowSplash] = useState(() => {
-    try { return sessionStorage.getItem(SPLASH_SHOWN_KEY) !== "1"; } catch { return true; }
-  });
-  function handleSplashDone() {
-    try { sessionStorage.setItem(SPLASH_SHOWN_KEY, "1"); } catch {}
-    setShowSplash(false);
-  }
+  // Splash widoczny ZAWSZE przy wejsciu na strone glowna (bez cache w sessionStorage)
+  const [showSplash, setShowSplash] = useState(true);
+  const handleSplashDone = () => setShowSplash(false);
 
   function goChild() {
     // Pierwszy gest uzytkownika - odblokuj audio dla TTS (iOS/Safari wymaga gestu)
