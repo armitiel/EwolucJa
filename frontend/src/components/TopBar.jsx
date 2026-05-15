@@ -43,7 +43,7 @@ export default function TopBar({
   return (
     <>
       {/* Spacer pod fixed-topbar — zachowuje przestrzen w flow zeby tresc nie zaczynala sie pod paskiem */}
-      <div aria-hidden="true" style={{ height: "calc(20px + 96px + 16px + env(safe-area-inset-top, 0px))", flexShrink: 0 }} />
+      <div aria-hidden="true" style={{ height: "calc(12px + 60px + 12px + env(safe-area-inset-top, 0px))", flexShrink: 0 }} />
 
       <div
       className="safe-top"
@@ -51,7 +51,7 @@ export default function TopBar({
         display: "flex",
         alignItems: "center",
         gap: 10,
-        padding: "20px 16px 16px",
+        padding: "12px 16px 12px",
         position: "fixed",
         top: 0,
         left: 0,
@@ -66,9 +66,20 @@ export default function TopBar({
         willChange: "transform",
       }}
     >
-      <div style={{ flexShrink: 0 }}>
-        <ProfileAvatar profile={profile} size={96} variant="mini" />
-      </div>
+      {/* Avatar - klikalny prowadzi na Profil. Cropped (scale 1.4 + overflow hidden) zeby usunac padding SVG i pokazac sama postac. */}
+      <button
+        onClick={() => navigate("/profile")}
+        aria-label="Profil"
+        style={{
+          flexShrink: 0, padding: 0, border: "none", background: "none", cursor: "pointer",
+          width: 60, height: 60, borderRadius: "50%", overflow: "hidden",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}
+      >
+        <div style={{ transform: "scale(1.4)", transformOrigin: "center center" }}>
+          <ProfileAvatar profile={profile} size={60} variant="mini" />
+        </div>
+      </button>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div
           className="t-display"
@@ -115,14 +126,14 @@ export default function TopBar({
           style={{
             flexShrink: 0,
             width: 40, height: 40, borderRadius: "50%",
-            background: "rgba(255,255,255,.85)",
-            border: "1.5px solid rgba(78,77,118,.12)",
+            background: "linear-gradient(180deg, #FFC4DB 0%, #E84BA0 100%)",
+            border: "none",
             cursor: "pointer", padding: 0,
             display: "flex", alignItems: "center", justifyContent: "center",
-            boxShadow: "0 2px 0 rgba(78,77,118,.08), 0 4px 12px rgba(78,77,118,.08)",
+            boxShadow: "0 2px 0 #B82F7C, 0 4px 12px rgba(232,75,160,.40)",
           }}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B85B47" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
             <polyline points="16 17 21 12 16 7"/>
             <line x1="21" y1="12" x2="9" y2="12"/>

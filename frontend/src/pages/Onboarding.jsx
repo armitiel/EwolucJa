@@ -113,6 +113,20 @@ export default function Onboarding() {
     }
   }
 
+  // DEV: szybko przeskocz do ekranu wyniku z auto-odpowiedziami (pierwsza opcja kazdego pytania).
+  // Widoczne tylko jezeli localStorage 'ewolucja.dev' = '1' lub URL ?dev=1.
+  function devSkipQuiz() {
+    if (!quiz) return;
+    const auto = {};
+    for (const q of quiz.questions) auto[q.question_id] = q.answers[0].answer_id;
+    setAnswers(auto);
+    submitQuiz(auto);
+  }
+  const devMode = (typeof window !== "undefined") && (
+    new URLSearchParams(window.location.search).get("dev") === "1" ||
+    (() => { try { return localStorage.getItem("ewolucja.dev") === "1"; } catch { return false; } })()
+  );
+
   const totalSteps = 1 + (quiz?.questions?.length || 5) + 1;
   const currentStepIdx = step === "name" ? 0 : step === "quiz" ? 1 + questionIdx : totalSteps - 1;
 
@@ -144,6 +158,20 @@ export default function Onboarding() {
         </div>
       </div>
 
+      {devMode && step === "quiz" && (
+        <button
+          onClick={devSkipQuiz}
+          style={{
+            position: "fixed", bottom: 80, right: 18, zIndex: 80,
+            background: "#3B2A12", color: "#FFD269", fontWeight: 700, fontSize: 11,
+            border: "none", padding: "6px 12px", borderRadius: 999, cursor: "pointer",
+            boxShadow: "0 4px 12px rgba(0,0,0,.25)",
+          }}
+          title="Auto-odpowiedz na wszystkie pytania pierwsza opcja i skocz do wyniku"
+        >
+          ⚙️ DEV → wynik
+        </button>
+      )}
       <div className="screen-scroll" style={{ flex: 1, padding: "16px 18px 48px" }}>
         {step === "name" && (
           <form onSubmit={handleStart} className="pop-in" style={{ display: "flex", flexDirection: "column", gap: 18 }}>

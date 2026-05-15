@@ -98,6 +98,7 @@ export default function DevTools() {
       </div>
 
       <div style={styles.section}>
+        <DevToggle />
         <button style={styles.btnLink} onClick={() => { setOpen(false); navigate("/dev"); }}>
           → Inspektor quizu i stanu
         </button>
@@ -106,6 +107,22 @@ export default function DevTools() {
         </button>
       </div>
     </div>
+  );
+}
+
+function DevToggle() {
+  const [on, setOn] = React.useState(() => {
+    try { return localStorage.getItem("ewolucja.dev") === "1"; } catch { return false; }
+  });
+  function toggle() {
+    const next = !on;
+    try { localStorage.setItem("ewolucja.dev", next ? "1" : "0"); } catch {}
+    setOn(next);
+  }
+  return (
+    <button style={{ ...styles.btn, ...(on ? styles.btnActive : {}) }} onClick={toggle}>
+      {on ? "✓ DEV mode AKTYWNY" : "○ Wlacz DEV mode"}
+    </button>
   );
 }
 
@@ -161,6 +178,7 @@ const styles = {
     textAlign: "left",
   },
   btnDanger: { background: "rgba(231,76,60,0.15)", borderColor: "rgba(231,76,60,0.4)", color: "#ff8a8a" },
+  btnActive: { background: "rgba(46,204,113,0.18)", borderColor: "rgba(46,204,113,0.50)", color: "#5fd29a" },
   btnLink: {
     width: "100%",
     padding: "6px 8px",
