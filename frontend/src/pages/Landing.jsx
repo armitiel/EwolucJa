@@ -4,16 +4,60 @@
  * pod spodem dyskretny link "Jestes doroslym? - zaloguj sie jako Mentor".
  */
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { session } from "../services/api.js";
 import { ttsPlayer } from "../services/ttsPlayer";
 import PageShell from "../components/PageShell.jsx";
 
+const SPLASH_SHOWN_KEY = "ewolucja.splashShown";
+
+function Splash({ onDone }) {
+  const [fading, setFading] = useState(false);
+  useEffect(() => {
+    // Po 1.6s zaczyna fade-out, po kolejnych 0.8s znika z drzewa
+    const t1 = setTimeout(() => setFading(true), 1600);
+    const t2 = setTimeout(() => onDone(), 2400);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [onDone]);
+  return (
+    <div
+      aria-hidden="true"
+      style={{
+        position: "fixed", inset: 0, zIndex: 9999,
+        background: "#1B1338",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        opacity: fading ? 0 : 1,
+        transition: "opacity .8s ease",
+        pointerEvents: fading ? "none" : "auto",
+      }}
+    >
+      <img
+        src="/bckg.png"
+        alt=""
+        style={{
+          width: "100%", height: "100%", objectFit: "cover",
+          objectPosition: "center center",
+          animation: "splash-pulse 2.4s ease-in-out forwards",
+        }}
+      />
+    </div>
+  );
+}
+
 export default function Landing() {
   const navigate = useNavigate();
   const playerId = session.getPlayer();
   const gmId = session.getGM();
+
+  // Splash widoczny tylko raz na sesje (otwarcie przegladarki)
+  const [showSplash, setShowSplash] = useState(() => {
+    try { return sessionStorage.getItem(SPLASH_SHOWN_KEY) !== "1"; } catch { return true; }
+  });
+  function handleSplashDone() {
+    try { sessionStorage.setItem(SPLASH_SHOWN_KEY, "1"); } catch {}
+    setShowSplash(false);
+  }
 
   function goChild() {
     // Pierwszy gest uzytkownika - odblokuj audio dla TTS (iOS/Safari wymaga gestu)
@@ -28,6 +72,8 @@ export default function Landing() {
   }
 
   return (
+    <>
+      {showSplash && <Splash onDone={handleSplashDone} />}
     <PageShell>
       <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column" }}>
         <div
@@ -122,5 +168,6 @@ export default function Landing() {
         </div>
       </div>
     </PageShell>
+    </>
   );
 }
