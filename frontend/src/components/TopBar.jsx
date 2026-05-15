@@ -23,6 +23,8 @@ export default function TopBar({
   playOnceKey = null,
   showLektor = true,
   showMusic = true,
+  showLogout = false,
+  onLogout = null,
   tone = "calm",
   speed = 0.86,
 }) {
@@ -101,6 +103,28 @@ export default function TopBar({
       <div style={{ flexShrink: 0 }}>
         <CoinPill value={totalCoins} onClick={() => navigate("/backpack")} />
       </div>
+      {showLogout && (
+        <button
+          onClick={onLogout}
+          aria-label="Wyloguj"
+          title="Wyloguj"
+          style={{
+            flexShrink: 0,
+            width: 40, height: 40, borderRadius: "50%",
+            background: "rgba(255,255,255,.85)",
+            border: "1.5px solid rgba(78,77,118,.12)",
+            cursor: "pointer", padding: 0,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            boxShadow: "0 2px 0 rgba(78,77,118,.08), 0 4px 12px rgba(78,77,118,.08)",
+          }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B85B47" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </button>
+      )}
     </div>
     </>
   );
