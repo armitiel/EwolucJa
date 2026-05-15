@@ -83,8 +83,8 @@ export default function Profile() {
 
       <div className="screen-scroll" style={{ flex: 1, minHeight: 0, padding: "12px 18px 52px", display: "flex", flexDirection: "column", gap: 14 }}>
         {/* DUZY AVATAR - pierwsza rzecz na ekranie, z kolowym tlem + LV badge */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "8px 0 6px", opacity: 0, animation: "el-down .7s ease forwards" }}>
-          <div style={{ position: "relative", width: 240, height: 240, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "4px 0 0", opacity: 0, animation: "el-down .7s ease forwards" }}>
+          <div style={{ position: "relative", width: 300, height: 300, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
             {/* Koliste tlo - radialny gradient w kolorze profilu (pulse) */}
             <div aria-hidden="true" style={{
               position: "absolute", inset: 0, borderRadius: "50%",
@@ -94,32 +94,29 @@ export default function Profile() {
             }} />
             {/* Kolisty pierscien wokol (oddycha synchronicznie) */}
             <div aria-hidden="true" style={{
-              position: "absolute", inset: 18, borderRadius: "50%",
+              position: "absolute", inset: 22, borderRadius: "50%",
               background: "rgba(255,255,255,.40)",
               boxShadow: `inset 0 0 0 3px ${info.color}33, 0 8px 24px ${info.glow}`,
               animation: "profile-ring-pulse 3.2s ease-in-out infinite",
             }} />
             <div style={{ position: "relative", filter: `drop-shadow(0 14px 24px ${info.glow})`, animation: "float-mid 4s ease-in-out infinite" }}>
-              <ProfileAvatar profile={profile} size={200} />
+              <ProfileAvatar profile={profile} size={258} />
             </div>
             {/* LV BADGE - pomaranczowy z numerem */}
             <div style={{
-              position: "absolute", right: 26, bottom: 18,
-              width: 56, height: 56, borderRadius: "50%",
+              position: "absolute", right: 30, bottom: 20,
+              width: 60, height: 60, borderRadius: "50%",
               background: "linear-gradient(180deg, #FFD269 0%, #E89A3D 100%)",
               boxShadow: "0 0 0 4px #fff, 0 4px 14px rgba(232,154,61,.55), 0 2px 0 #B47322",
               display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
               color: "#4A2A0E", fontFamily: "var(--font-display, 'Baloo 2'), sans-serif",
             }}>
               <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: .5, marginTop: 4 }}>LV</span>
-              <span style={{ fontSize: 22, fontWeight: 800, lineHeight: 1 }}>{lvl}</span>
+              <span style={{ fontSize: 24, fontWeight: 800, lineHeight: 1 }}>{lvl}</span>
             </div>
           </div>
-          <div className="t-display" style={{ fontSize: 32, marginTop: 8, color: info.color, letterSpacing: -.3 }}>
+          <div className="t-display" style={{ fontSize: 32, marginTop: -4, color: info.color, letterSpacing: -.3 }}>
             {info.name}
-          </div>
-          <div className="t-hand" style={{ fontSize: 17, color: "var(--p-ink-soft)", marginTop: 2 }}>
-            Poziom {lvl}
           </div>
         </div>
 

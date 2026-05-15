@@ -24,7 +24,7 @@ export const PROFILE_INFO = {
   MD: { name: "Mediator", emoji: "🛡️", color: "#1D9E75", glow: "rgba(29,158,117,.28)",  svg: "/osmiornica.svg", svgMini: "/avatary-08.svg", animal: "Ośmiornica" },
 };
 
-export default function ProfileAvatar({ profile = "DT", size = 120, variant = "full" }) {
+function ProfileAvatarBase({ profile = "DT", size = 120, variant = "full" }) {
   const info = PROFILE_INFO[profile] || PROFILE_INFO.DT;
   // 'mini' = mała ikonka do top bara / list itemow (avatary-XX.svg, kwadratowy headshot)
   // 'full' = pelna postac (lis.svg itd) na ekrany glowne
@@ -36,9 +36,15 @@ export default function ProfileAvatar({ profile = "DT", size = 120, variant = "f
       width={size}
       height={size}
       loading="eager"
+      decoding="sync"
       style={{
         width: size,
         height: size,
+        minWidth: size,
+        minHeight: size,
+        maxWidth: size,
+        maxHeight: size,
+        aspectRatio: "1 / 1",
         objectFit: "contain",
         display: "block",
         flexShrink: 0,
@@ -46,3 +52,5 @@ export default function ProfileAvatar({ profile = "DT", size = 120, variant = "f
     />
   );
 }
+// React.memo - nie re-renderuje gdy props sie nie zmieniaja (np. przy nawigacji miedzy tabami top bar zachowuje avatar)
+export default React.memo(ProfileAvatarBase);
