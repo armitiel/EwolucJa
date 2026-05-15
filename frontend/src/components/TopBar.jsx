@@ -66,17 +66,19 @@ export default function TopBar({
         willChange: "transform",
       }}
     >
-      {/* Avatar - klikalny prowadzi na Profil. Cropped (scale 1.4 + overflow hidden) zeby usunac padding SVG i pokazac sama postac. */}
+      {/* Avatar - klikalny prowadzi na Profil. Lockowane proporcje 1:1 + crop scale 1.4 zeby usunac padding SVG. */}
       <button
         onClick={() => navigate("/profile")}
         aria-label="Profil"
         style={{
           flexShrink: 0, padding: 0, border: "none", background: "none", cursor: "pointer",
-          width: 60, height: 60, borderRadius: "50%", overflow: "hidden",
+          width: 60, height: 60, minWidth: 60, minHeight: 60, maxWidth: 60, maxHeight: 60,
+          aspectRatio: "1 / 1",
+          borderRadius: "50%", overflow: "hidden",
           display: "flex", alignItems: "center", justifyContent: "center",
         }}
       >
-        <div style={{ transform: "scale(1.4)", transformOrigin: "center center" }}>
+        <div style={{ width: 60, height: 60, transform: "scale(1.4)", transformOrigin: "center center", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <ProfileAvatar profile={profile} size={60} variant="mini" />
         </div>
       </button>

@@ -43,18 +43,20 @@ export default function CharakterBohatera({ player, profile, onDetails }) {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, alignItems: "center" }}>
-        {/* RADAR */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <RadarSvg traits={TRAITS} scores={scores} maxScore={maxScore} />
-        </div>
+      {/* RADAR na gorze, na pelnej szerokosci */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", margin: "8px 0 14px" }}>
+        <RadarSvg traits={TRAITS} scores={scores} maxScore={maxScore} />
+      </div>
 
-        {/* LISTA STATOW */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {TRAITS.map((t) => (
-            <StatRow key={t.code} trait={t} value={scores[t.code] || 0} />
-          ))}
-        </div>
+      {/* LISTA STATOW - grid 2 kolumny pod radarem, responsywny */}
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+        gap: 8,
+      }}>
+        {TRAITS.map((t) => (
+          <StatRow key={t.code} trait={t} value={scores[t.code] || 0} />
+        ))}
       </div>
 
       {/* DOLNY PASEK - postep tygodnia w profilu + Szczegoly */}
@@ -73,10 +75,10 @@ export default function CharakterBohatera({ player, profile, onDetails }) {
 }
 
 function RadarSvg({ traits, scores, maxScore }) {
-  const size = 200;
+  const size = 260;
   const cx = size / 2;
   const cy = size / 2;
-  const R = 70; // outer hexagon radius
+  const R = 92; // outer hexagon radius
   // 6 wierzcholkow heksagonu (start na gorze, zegarowy)
   function vertex(i, r = R) {
     const angle = -Math.PI / 2 + (i / 6) * Math.PI * 2;
@@ -127,8 +129,8 @@ function RadarSvg({ traits, scores, maxScore }) {
       {/* Etykiety wokol */}
       {labels.map(({ trait, x, y }) => (
         <g key={trait.code}>
-          <circle cx={x} cy={y} r="11" fill="#fff" stroke={trait.color} strokeWidth="1.5" />
-          <text x={x} y={y} fontSize="7" fontWeight="800" textAnchor="middle" dominantBaseline="middle" fill={trait.color} fontFamily="Baloo 2, sans-serif">
+          <circle cx={x} cy={y} r="14" fill="#fff" stroke={trait.color} strokeWidth="2" />
+          <text x={x} y={y} fontSize="9" fontWeight="800" textAnchor="middle" dominantBaseline="middle" fill={trait.color} fontFamily="Baloo 2, sans-serif">
             {trait.short}
           </text>
         </g>

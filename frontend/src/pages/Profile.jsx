@@ -85,17 +85,19 @@ export default function Profile() {
         {/* DUZY AVATAR - pierwsza rzecz na ekranie, z kolowym tlem + LV badge */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "8px 0 6px", opacity: 0, animation: "el-down .7s ease forwards" }}>
           <div style={{ position: "relative", width: 240, height: 240, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            {/* Koliste tlo - radialny gradient w kolorze profilu */}
+            {/* Koliste tlo - radialny gradient w kolorze profilu (pulse) */}
             <div aria-hidden="true" style={{
               position: "absolute", inset: 0, borderRadius: "50%",
               background: `radial-gradient(circle at 50% 40%, ${info.glow.replace(/[\d.]+\)/, "0.55)")} 0%, ${info.glow} 45%, transparent 75%)`,
               filter: "blur(2px)",
+              animation: "profile-glow-pulse 3.2s ease-in-out infinite",
             }} />
-            {/* Kolisty pierscien wokol */}
+            {/* Kolisty pierscien wokol (oddycha synchronicznie) */}
             <div aria-hidden="true" style={{
               position: "absolute", inset: 18, borderRadius: "50%",
               background: "rgba(255,255,255,.40)",
               boxShadow: `inset 0 0 0 3px ${info.color}33, 0 8px 24px ${info.glow}`,
+              animation: "profile-ring-pulse 3.2s ease-in-out infinite",
             }} />
             <div style={{ position: "relative", filter: `drop-shadow(0 14px 24px ${info.glow})`, animation: "float-mid 4s ease-in-out infinite" }}>
               <ProfileAvatar profile={profile} size={200} />
