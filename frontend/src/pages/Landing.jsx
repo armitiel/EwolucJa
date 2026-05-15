@@ -13,30 +13,37 @@ import PageShell from "../components/PageShell.jsx";
 function Splash({ onDone }) {
   const [fading, setFading] = useState(false);
   useEffect(() => {
-    // Po 2.8s zaczyna fade-out, po kolejnych 1.4s znika z drzewa (powolny fade)
-    const t1 = setTimeout(() => setFading(true), 2800);
-    const t2 = setTimeout(() => onDone(), 4200);
+    // Po 3.2s zaczyna fade-out, po kolejnych 1.6s znika z drzewa
+    const t1 = setTimeout(() => setFading(true), 3200);
+    const t2 = setTimeout(() => onDone(), 4800);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [onDone]);
   return (
     <div
       aria-hidden="true"
+      onClick={() => setFading(true)}  // klik moze przyspieszyc fade
       style={{
         position: "fixed", inset: 0, zIndex: 9999,
         background: "#1B1338",
         display: "flex", alignItems: "center", justifyContent: "center",
         opacity: fading ? 0 : 1,
-        transition: "opacity 1.4s ease",
+        transition: "opacity 1.6s ease",
         pointerEvents: fading ? "none" : "auto",
+        overflow: "hidden",
       }}
     >
+      {/* Obraz: zawsze pelna wysokosc viewportu, szerokosc auto wedlug aspect ratio.
+          Na mobile portrait wypelnia ekran; na desktopie laduje w centrum z ciemnymi marginesami. */}
       <img
         src="/bckg.png"
         alt=""
         style={{
-          width: "100%", height: "100%", objectFit: "cover",
-          objectPosition: "center center",
-          animation: "splash-pulse 4.2s ease-in-out forwards",
+          height: "100vh",
+          width: "auto",
+          maxWidth: "100vw",
+          display: "block",
+          objectFit: "contain",
+          animation: "splash-pulse 4.8s ease-in-out forwards",
         }}
       />
     </div>
