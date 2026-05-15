@@ -14,9 +14,13 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppData } from "../contexts/AppData.jsx";
-import { Avatar, CoinPill } from "./art.jsx";
+import { CoinPill } from "./art.jsx";
+import ProfileAvatar, { PROFILE_INFO } from "./ProfileAvatar.jsx";
 import NarratorVoice from "./NarratorVoice.jsx";
 import { MusicToggleInline } from "./MusicToggle.jsx";
+
+const LEGACY_TO_PROFILE = { tropiciel_tajemnic: "DT", zaklinacz_uczuc: "EM", mistrz_map: "ST", tkacz_snow: "KR", gwardzista_odwagi: "LD", straznik_mostu: "MD" };
+function profileCode(v) { if (!v) return "DT"; return PROFILE_INFO[v] ? v : (LEGACY_TO_PROFILE[v] || "DT"); }
 
 export default function TopBar({
   narratorText = null,
@@ -33,7 +37,7 @@ export default function TopBar({
 
   if (!player) return null;
 
-  const avatarKind = player.avatar_kind || "fox";
+  const profile = profileCode(player.archetype);
   const totalCoins = ((player.lifetime_scores?.DT || 0) + (player.lifetime_scores?.EM || 0)) * 10 + 12;
 
   return (
@@ -63,7 +67,7 @@ export default function TopBar({
       }}
     >
       <div style={{ flexShrink: 0 }}>
-        <Avatar kind={avatarKind} size={48} evolved={1} />
+        <ProfileAvatar profile={profile} size={48} variant="mini" />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div
