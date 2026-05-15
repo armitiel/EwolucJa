@@ -43,7 +43,7 @@ export default function TopBar({
   return (
     <>
       {/* Spacer pod fixed-topbar — zachowuje przestrzen w flow zeby tresc nie zaczynala sie pod paskiem */}
-      <div aria-hidden="true" style={{ height: "calc(28px + 48px + 24px + env(safe-area-inset-top, 0px))", flexShrink: 0 }} />
+      <div aria-hidden="true" style={{ height: "calc(20px + 96px + 16px + env(safe-area-inset-top, 0px))", flexShrink: 0 }} />
 
       <div
       className="safe-top"
@@ -51,7 +51,7 @@ export default function TopBar({
         display: "flex",
         alignItems: "center",
         gap: 10,
-        padding: "28px 16px 24px",
+        padding: "20px 16px 16px",
         position: "fixed",
         top: 0,
         left: 0,
@@ -67,7 +67,7 @@ export default function TopBar({
       }}
     >
       <div style={{ flexShrink: 0 }}>
-        <ProfileAvatar profile={profile} size={48} variant="mini" />
+        <ProfileAvatar profile={profile} size={96} variant="mini" />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div

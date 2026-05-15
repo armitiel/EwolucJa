@@ -11,12 +11,12 @@ import ProfileAvatar, { PROFILE_INFO } from "../components/ProfileAvatar.jsx";
 const LEGACY_TO_PROFILE = { tropiciel_tajemnic: "DT", zaklinacz_uczuc: "EM", mistrz_map: "ST", tkacz_snow: "KR", gwardzista_odwagi: "LD", straznik_mostu: "MD" };
 function profileCode(v) { if (!v) return "DT"; return PROFILE_INFO[v] ? v : (LEGACY_TO_PROFILE[v] || "DT"); }
 
-// Poziomy ewolucji - nazwa stage'a zmienia sie z poziomem, ale jest niezalezna od profilu.
+// Poziomy ewolucji - czysto numeryczne, bez nazw stylizowanych
 const STAGES = [
-  { lvl: 1, name: "Iskra", desc: "pierwszy trop" },
-  { lvl: 2, name: "Wędrowca", desc: "wytrwały szukający" },
-  { lvl: 3, name: "Zwiadowca", desc: "odważny wędrowiec" },
-  { lvl: 4, name: "Mistrz", desc: "władca krainy" },
+  { lvl: 1 },
+  { lvl: 2 },
+  { lvl: 3 },
+  { lvl: 4 },
 ];
 
 function levelFromScores(lifetime) {
@@ -70,7 +70,6 @@ export default function Profile() {
   const profile = profileCode(player.archetype);
   const info = PROFILE_INFO[profile];
   const lvl = levelFromScores(player.lifetime_scores);
-  const stage = STAGES[lvl - 1] || STAGES[0];
   const weekCoins = weeklyCoinSum(player);
   const WEEK_TARGET = 20;
   const weekPct = Math.min(100, Math.round((weekCoins / WEEK_TARGET) * 100));
@@ -82,16 +81,30 @@ export default function Profile() {
       <TopBar showLogout onLogout={handleLogout} />
 
       <div className="screen-scroll" style={{ flex: 1, minHeight: 0, padding: "12px 18px 52px", display: "flex", flexDirection: "column", gap: 14 }}>
-        {/* DUZY AVATAR - pierwsza rzecz na ekranie */}
+        {/* DUZY AVATAR - pierwsza rzecz na ekranie, z kolowym tlem */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "8px 0 6px", opacity: 0, animation: "el-down .7s ease forwards" }}>
-          <div style={{ filter: `drop-shadow(0 18px 36px ${info.glow})`, animation: "float-mid 4s ease-in-out infinite" }}>
-            <ProfileAvatar profile={profile} size={200} />
+          <div style={{ position: "relative", width: 240, height: 240, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            {/* Koliste tlo - radialny gradient w kolorze profilu */}
+            <div aria-hidden="true" style={{
+              position: "absolute", inset: 0, borderRadius: "50%",
+              background: `radial-gradient(circle at 50% 40%, ${info.glow.replace(/[\d.]+\)/, "0.55)")} 0%, ${info.glow} 45%, transparent 75%)`,
+              filter: "blur(2px)",
+            }} />
+            {/* Kolisty pierscien wokol */}
+            <div aria-hidden="true" style={{
+              position: "absolute", inset: 18, borderRadius: "50%",
+              background: "rgba(255,255,255,.40)",
+              boxShadow: `inset 0 0 0 3px ${info.color}33, 0 8px 24px ${info.glow}`,
+            }} />
+            <div style={{ position: "relative", filter: `drop-shadow(0 14px 24px ${info.glow})`, animation: "float-mid 4s ease-in-out infinite" }}>
+              <ProfileAvatar profile={profile} size={200} />
+            </div>
           </div>
-          <div className="t-display" style={{ fontSize: 30, marginTop: 6, color: info.color, letterSpacing: -.3 }}>
+          <div className="t-display" style={{ fontSize: 32, marginTop: 8, color: info.color, letterSpacing: -.3 }}>
             {info.name}
           </div>
           <div className="t-hand" style={{ fontSize: 17, color: "var(--p-ink-soft)", marginTop: 2 }}>
-            {stage.name} · Poziom {lvl}
+            Poziom {lvl}
           </div>
         </div>
 
@@ -112,11 +125,9 @@ export default function Profile() {
             <div style={{ position: "absolute", left: "10%", width: `${Math.max(0, ((lvl - 1) / (STAGES.length - 1)) * 80)}%`, top: "42%", height: 3, background: "linear-gradient(90deg,#C8A0F0,#7A4DC2)", borderRadius: 2, zIndex: 1, transition: "width .8s ease" }} />
             {STAGES.map((s) => (
               <div key={s.lvl} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", position: "relative", zIndex: 2, opacity: s.lvl <= lvl ? 1 : 0.42 }}>
-                <div style={{ width: 48, height: 48, borderRadius: "50%", background: s.lvl === lvl ? "linear-gradient(180deg,#FFD269,#E89A3D)" : "rgba(255,255,255,.85)", boxShadow: s.lvl === lvl ? "0 0 0 6px rgba(255,210,105,.30), 0 4px 14px rgba(232,154,61,.4)" : "var(--shadow-sm)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 18, color: s.lvl === lvl ? "#4A2A0E" : "var(--p-ink-soft)" }}>
+                <div style={{ width: 52, height: 52, borderRadius: "50%", background: s.lvl === lvl ? "linear-gradient(180deg,#FFD269,#E89A3D)" : "rgba(255,255,255,.85)", boxShadow: s.lvl === lvl ? "0 0 0 6px rgba(255,210,105,.30), 0 4px 14px rgba(232,154,61,.4)" : "var(--shadow-sm)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 22, color: s.lvl === lvl ? "#4A2A0E" : "var(--p-ink-soft)" }}>
                   {s.lvl}
                 </div>
-                <div className="t-display" style={{ fontSize: 13, marginTop: 6, textAlign: "center" }}>{s.name}</div>
-                <div style={{ fontSize: 10, color: "var(--p-ink-soft)", textAlign: "center" }}>{s.desc}</div>
               </div>
             ))}
           </div>
