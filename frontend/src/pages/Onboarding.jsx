@@ -30,13 +30,17 @@ function profileCodeFrom(v) {
 }
 
 // Krotkie teksty przejsciowe miedzy odpowiedzia a kolejnym pytaniem.
-// Indeksowane po numerze pytania DO KTOREGO przechodzimy (1 -> 4).
+// Indeksowane po numerze pytania DO KTOREGO przechodzimy (1 -> 7).
+// Quiz v3-final ma 8 pytan, wiec potrzeba 8 wejsc (idx 0 nieuzywany — intro).
 const TRANSITIONS = [
-  "",                                          // przed pyt. 1 (nieuzywane — tam jest intro)
-  "Dobrze… słyszę cię. A teraz powiedz mi…",   // przed pyt. 2
-  "Hmm, to ciekawe. Pomyśl chwilę nad tym…",   // przed pyt. 3
-  "Czuję, że zaczynam cię już rozumieć. Jeszcze jedno…", // przed pyt. 4
-  "Ostatnie pytanie. Skup się jeszcze na chwilę…",       // przed pyt. 5
+  "",                                                          // przed pyt. 1 (nieuzywane — tam jest intro)
+  "Dobrze… słyszę cię. A teraz powiedz mi…",                   // przed pyt. 2
+  "Hmm, to ciekawe. Pomyśl chwilę nad tym…",                   // przed pyt. 3
+  "Czuję, że zaczynam cię już rozumieć. Jeszcze jedno…",       // przed pyt. 4
+  "Świetnie. Twoje odpowiedzi wiele mi mówią. Idziemy dalej…", // przed pyt. 5
+  "Półmetek za nami. Spokojnie, oddychaj…",                    // przed pyt. 6
+  "Widzę, co Cię porusza. Jeszcze chwilkę…",                   // przed pyt. 7
+  "Ostatnie pytanie. Skup się jeszcze na chwilę…",             // przed pyt. 8
 ];
 
 export default function Onboarding() {
@@ -127,7 +131,7 @@ export default function Onboarding() {
     (() => { try { return localStorage.getItem("ewolucja.dev") === "1"; } catch { return false; } })()
   );
 
-  const totalSteps = 1 + (quiz?.questions?.length || 5) + 1;
+  const totalSteps = 1 + (quiz?.questions?.length || 8) + 1;
   const currentStepIdx = step === "name" ? 0 : step === "quiz" ? 1 + questionIdx : totalSteps - 1;
 
   return (
