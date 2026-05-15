@@ -7,6 +7,10 @@ import PageShell from "../components/PageShell.jsx";
 import TabBar from "../components/TabBar.jsx";
 import TopBar from "../components/TopBar.jsx";
 import { Avatar } from "../components/art.jsx";
+import ProfileAvatar, { PROFILE_INFO } from "../components/ProfileAvatar.jsx";
+
+const LEGACY_TO_PROFILE = { tropiciel_tajemnic: "DT", zaklinacz_uczuc: "EM", mistrz_map: "ST", tkacz_snow: "KR", gwardzista_odwagi: "LD", straznik_mostu: "MD" };
+function profileCode(v) { if (!v) return "DT"; return PROFILE_INFO[v] ? v : (LEGACY_TO_PROFILE[v] || "DT"); }
 
 const STAGES = [
   { lvl: 1, name: "Iskra", desc: "pierwszy trop" },
@@ -70,7 +74,9 @@ export default function Profile() {
       <div className="screen-scroll" style={{ flex: 1, minHeight: 0, padding: "12px 18px 52px", display: "flex", flexDirection: "column", gap: 14 }}>
         <div className="card" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, padding: "22px 16px", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 50% 30%, rgba(255,210,105,.40), transparent 60%)" }} />
-          <Avatar kind="fox" size={128} evolved={Math.min(2, lvl - 1)} />
+          <div style={{ filter: `drop-shadow(0 10px 24px ${PROFILE_INFO[profileCode(player.archetype)].glow})` }}>
+            <ProfileAvatar profile={profileCode(player.archetype)} size={140} />
+          </div>
           <div className="t-display" style={{ fontSize: 26, marginTop: 4 }}>{stage.name} · Poziom {lvl}</div>
           <div className="t-hand" style={{ fontSize: 18, color: "var(--p-ink-soft)" }}>
             „{player.player_name}, Twoje pytania zaczynają mieć moc."
