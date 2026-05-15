@@ -8,32 +8,41 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { session } from "../services/api.js";
 import { ttsPlayer } from "../services/ttsPlayer";
+import bgMusic from "../services/bgMusic.js";
 import PageShell from "../components/PageShell.jsx";
 
 function Splash({ onDone }) {
   const [fading, setFading] = useState(false);
+  const [showCta, setShowCta] = useState(false);
+
   useEffect(() => {
-    // Po 3.2s zaczyna fade-out, po kolejnych 1.6s znika z drzewa
-    const t1 = setTimeout(() => setFading(true), 3200);
-    const t2 = setTimeout(() => onDone(), 4800);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, [onDone]);
+    // CTA pojawia sie po 1.2s zeby gracz najpierw zobaczyl ekran z obrazkiem
+    const t = setTimeout(() => setShowCta(true), 1200);
+    return () => clearTimeout(t);
+  }, []);
+
+  function handleEnter() {
+    // KRYTYCZNE: ta funkcja musi byc wywolana z user gesture (autoplay policy)
+    try { ttsPlayer.unlock(); } catch {}
+    try { bgMusic.setEnabled(true); } catch {}
+    setFading(true);
+    setTimeout(() => onDone(), 1400);
+  }
+
   return (
     <div
-      aria-hidden="true"
-      onClick={() => setFading(true)}  // klik moze przyspieszyc fade
+      aria-hidden={fading}
       style={{
         position: "fixed", inset: 0, zIndex: 9999,
         background: "#1B1338",
         display: "flex", alignItems: "center", justifyContent: "center",
         opacity: fading ? 0 : 1,
-        transition: "opacity 1.6s ease",
+        transition: "opacity 1.4s ease",
         pointerEvents: fading ? "none" : "auto",
         overflow: "hidden",
       }}
     >
-      {/* Obraz: zawsze pelna wysokosc viewportu, szerokosc auto wedlug aspect ratio.
-          Na mobile portrait wypelnia ekran; na desktopie laduje w centrum z ciemnymi marginesami. */}
+      {/* Obraz: pelna wysokosc viewportu, szerokosc auto. Mobile portrait wypelnia ekran; desktop centered. */}
       <img
         src="/bckg.png"
         alt=""
@@ -43,9 +52,48 @@ function Splash({ onDone }) {
           maxWidth: "100vw",
           display: "block",
           objectFit: "contain",
-          animation: "splash-pulse 4.8s ease-in-out forwards",
+          animation: "splash-pulse 1.4s ease-out forwards",
         }}
       />
+
+      {/* CTA dzwiek - pojawia sie po 1.2s, czeka az gracz kliknie */}
+      <button
+        onClick={handleEnter}
+        style={{
+          position: "absolute",
+          bottom: "calc(env(safe-area-inset-bottom, 0px) + 8vh)",
+          left: "50%", transform: "translateX(-50%)",
+          opacity: showCta ? 1 : 0,
+          transition: "opacity .8s ease",
+          pointerEvents: showCta ? "auto" : "none",
+          display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
+          background: "none", border: "none", padding: 0, cursor: "pointer",
+        }}
+      >
+        {/* Okrag z ikona dzwieku - pulsuje wabiac uwage */}
+        <div style={{
+          width: 84, height: 84, borderRadius: "50%",
+          background: "linear-gradient(180deg, #FFD269 0%, #E89A3D 100%)",
+          boxShadow: "0 0 0 6px rgba(255,210,105,.25), 0 8px 24px rgba(232,154,61,.55), 0 3px 0 #B47322",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          animation: showCta ? "splash-cta-pulse 1.8s ease-in-out infinite" : "none",
+        }}>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="#4A2A0E" stroke="#4A2A0E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 9v6h4l5 4V5L7 9H3z" fill="#4A2A0E"/>
+            <path d="M16 8a5 5 0 0 1 0 8" fill="none"/>
+            <path d="M19 5a9 9 0 0 1 0 14" fill="none"/>
+          </svg>
+        </div>
+        <div style={{
+          background: "rgba(255,255,255,.95)", color: "#4A2A0E",
+          padding: "10px 22px", borderRadius: 999,
+          fontFamily: "var(--font-display, 'Baloo 2'), sans-serif",
+          fontSize: 17, fontWeight: 800,
+          boxShadow: "0 4px 12px rgba(0,0,0,.25)",
+        }}>
+          Włącz dźwięk i ruszamy ✦
+        </div>
+      </button>
     </div>
   );
 }
