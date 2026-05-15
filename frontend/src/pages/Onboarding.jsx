@@ -6,6 +6,8 @@ import { ttsPlayer } from "../services/ttsPlayer";
 import NarratorVoice from "../components/NarratorVoice.jsx";
 import PageShell from "../components/PageShell.jsx";
 import { Avatar, Sparkle, Coin, CoinPill } from "../components/art.jsx";
+import StarBurst from "../components/StarBurst.jsx";
+import { fx } from "../services/soundFx.js";
 
 // Krotkie teksty przejsciowe miedzy odpowiedzia a kolejnym pytaniem.
 // Indeksowane po numerze pytania DO KTOREGO przechodzimy (1 -> 4).
@@ -61,7 +63,9 @@ export default function Onboarding() {
   function selectAnswer(qid, aid) {
     if (pickedAnswerId) return; // chrona przed double-clickiem
     setPickedAnswerId(aid);
-    // Zostaw chwile na animacje zaznaczenia (pulse + glow), potem przejdz dalej.
+    // Sygnal dzwiekowy + zlote gwiazdki natychmiast po wyborze (user gesture - autoplay OK)
+    fx.gentleMagical(0.6);
+    // Maly delay (1100ms) zeby uzytkownik zauwazyl efekty zanim przejdzie dalej
     setTimeout(() => {
       setAnswers((prev) => ({ ...prev, [qid]: aid }));
       if (quiz && questionIdx < quiz.questions.length - 1) {
@@ -71,7 +75,7 @@ export default function Onboarding() {
       } else {
         submitQuiz({ ...answers, [qid]: aid });
       }
-    }, 700);
+    }, 1100);
   }
 
   async function submitQuiz(finalAnswers) {
@@ -97,19 +101,26 @@ export default function Onboarding() {
       <div className="topbar" style={{ position: "relative", zIndex: 1 }}>
         <button className="btn btn-ghost btn-sm" onClick={() => navigate("/")}>‹ Wróć</button>
         <div style={{ flex: 1 }} />
-        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-          {Array.from({ length: totalSteps }).map((_, i) => (
-            <div
-              key={i}
-              style={{
-                width: i === currentStepIdx ? 28 : 8,
-                height: 8,
-                borderRadius: 4,
-                background: i <= currentStepIdx ? "var(--p-magic-dk)" : "rgba(78,77,118,.20)",
-                transition: "all .25s",
-              }}
-            />
-          ))}
+        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+            {Array.from({ length: totalSteps }).map((_, i) => (
+              <div
+                key={i}
+                style={{
+                  width: i === currentStepIdx ? 28 : 8,
+                  height: 8,
+                  borderRadius: 4,
+                  background: i <= currentStepIdx ? "var(--p-magic-dk)" : "rgba(78,77,118,.20)",
+                  transition: "all .25s",
+                }}
+              />
+            ))}
+          </div>
+          {step === "quiz" && quiz && (
+            <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.2, color: "var(--p-magic-dk)", whiteSpace: "nowrap" }}>
+              {questionIdx + 1} / {quiz.questions.length}
+            </span>
+          )}
         </div>
       </div>
 
@@ -181,10 +192,6 @@ export default function Onboarding() {
 
         {step === "quiz" && quiz && (
           <div className="pop-in" key={questionIdx} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <p style={{ opacity: 0.65, fontSize: 12, fontWeight: 800, letterSpacing: 1.5, margin: 0 }}>
-              PYTANIE {questionIdx + 1} Z {quiz.questions.length}
-            </p>
-
             {/* Czarodziej-narrator (wiz2) — duzy podczas intro 1. pytania, mniejszy przy kolejnych (2x wzgledem poprzedniej wersji) */}
             <div className="pop-in" style={{ display: "flex", justifyContent: "center", padding: "8px 0 4px", position: "relative" }}>
               <div style={{ position: "relative", animation: "float-slow 4s ease-in-out infinite" }}>
@@ -288,10 +295,12 @@ export default function Onboarding() {
                         ? `opacity 0.4s ease ${idx * 0.08}s, transform 0.4s ease ${idx * 0.08}s`
                         : "opacity 0.35s ease, transform 0.35s cubic-bezier(.34,1.56,.64,1), background 0.3s ease, box-shadow 0.3s ease, color 0.3s ease, filter 0.3s ease",
                       position: "relative",
-                      overflow: "hidden",
+                      overflow: isPicked ? "visible" : "hidden",
                     }}
                   >
                     {a.text}
+                    {/* Zlote gwiazdki - eksplozja przy wyborze */}
+                    {isPicked && <StarBurst count={10} duration={950} />}
                     {/* Pulsujace halo wokol zaznaczonej */}
                     {isPicked && (
                       <span

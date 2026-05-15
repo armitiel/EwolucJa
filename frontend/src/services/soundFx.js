@@ -11,6 +11,7 @@ const DEFAULT_VOLUME = 0.6;
 const SOURCES = {
   dopamine: "/Soft_dopamine.mp3",
   magicalAncient: "/A_magical_ancient.mp3",
+  gentleMagical: "/Gentle_magical.mp3",
 };
 
 // Eager-tworzenie i load() przy imporcie modulu
@@ -84,4 +85,5 @@ export function playFx(key, volume = DEFAULT_VOLUME) {
 export const fx = {
   dopamine: (vol) => playFx("dopamine", vol ?? 0.6),
   magicalAncient: (vol) => playFx("magicalAncient", vol ?? 0.6),
+  gentleMagical: (vol) => playFx("gentleMagical", vol ?? 0.6),
 };
