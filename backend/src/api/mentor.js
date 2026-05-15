@@ -9,6 +9,7 @@
  */
 
 import { Router } from "express";
+import { randomUUID } from "node:crypto";
 import { requireMentor } from "../services/authService.js";
 import { initDatabase } from "../database/db.js";
 import {
@@ -115,6 +116,59 @@ export function mentorRoutes() {
       res.status(201).json({ email: normEmail, ok: true });
     } catch (e) {
       res.status(400).json({ error: e.message });
+    }
+  });
+
+  // Demo player - mentor wchodzi jako uczen do testow
+  r.get("/me/demo-player", async (req, res) => {
+    try {
+      const pool = await initDatabase();
+      const { rows } = await pool.query(
+        `SELECT id, name, archetype FROM players
+           WHERE created_by_gm_account_id = $1 AND is_demo = TRUE
+           ORDER BY created_at DESC LIMIT 1`,
+        [req.mentor.gmAccountId]
+      );
+      res.json({ player: rows[0] || null });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  r.post("/me/demo-player", async (req, res) => {
+    try {
+      const pool = await initDatabase();
+      // Reuse istniejacy demo
+      const existing = await pool.query(
+        `SELECT id FROM players WHERE created_by_gm_account_id = $1 AND is_demo = TRUE
+           ORDER BY created_at DESC LIMIT 1`,
+        [req.mentor.gmAccountId]
+      );
+      if (existing.rows.length) return res.json({ player_id: existing.rows[0].id, reused: true });
+
+      // Nowy demo
+      const id = randomUUID();
+      const name = (req.body?.name || "Tester").trim();
+      await pool.query(
+        `INSERT INTO players (id, name, is_demo, created_by_gm_account_id) VALUES ($1, $2, TRUE, $3)`,
+        [id, name, req.mentor.gmAccountId]
+      );
+      res.status(201).json({ player_id: id, reused: false });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  r.delete("/me/demo-player", async (req, res) => {
+    try {
+      const pool = await initDatabase();
+      await pool.query(
+        `DELETE FROM players WHERE created_by_gm_account_id = $1 AND is_demo = TRUE`,
+        [req.mentor.gmAccountId]
+      );
+      res.json({ ok: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
     }
   });
 

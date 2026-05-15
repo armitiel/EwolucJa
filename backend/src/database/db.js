@@ -179,6 +179,11 @@ async function ensureSchema(pool) {
     );
     CREATE INDEX IF NOT EXISTS idx_class_memberships_class ON class_memberships(class_id);
     CREATE INDEX IF NOT EXISTS idx_class_memberships_player ON class_memberships(player_id);
+
+    -- Demo player: mentor moze testowac jako dziecko bez ingerencji w klasy/pary
+    ALTER TABLE players ADD COLUMN IF NOT EXISTS is_demo BOOLEAN DEFAULT FALSE;
+    ALTER TABLE players ADD COLUMN IF NOT EXISTS created_by_gm_account_id TEXT REFERENCES gm_accounts(id) ON DELETE SET NULL;
+    CREATE INDEX IF NOT EXISTS idx_players_demo_owner ON players(created_by_gm_account_id) WHERE is_demo = TRUE;
   `);
 }
 

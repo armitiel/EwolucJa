@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import PageShell from "../components/PageShell.jsx";
 import { Sparkle } from "../components/art.jsx";
 import { mentorApi } from "../services/mentorApi.js";
+import { session } from "../services/api.js";
 
 export default function MentorDashboard() {
   const navigate = useNavigate();
@@ -83,12 +84,70 @@ export default function MentorDashboard() {
           </>
         )}
 
+        <DemoPlayerCard navigate={navigate} />
         <WhitelistPanel />
       </div>
 
       {showCreate && <CreateClassModal onClose={() => setShowCreate(false)} onCreate={handleCreate} />}
       {createdClass && <ClassCreatedModal cls={createdClass} onClose={() => setCreatedClass(null)} onGoToClass={() => navigate(`/mentor/klasa/${createdClass.id}`)} />}
     </PageShell>
+  );
+}
+
+function DemoPlayerCard({ navigate }) {
+  const [demo, setDemo] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    mentorApi.getDemoPlayer().then((d) => setDemo(d.player)).catch(() => {});
+  }, []);
+
+  async function enterDemo() {
+    setLoading(true);
+    try {
+      const res = await mentorApi.startDemoPlayer("Tester");
+      session.setPlayer(res.player_id);
+      try { localStorage.setItem("ewolucja.demoMode", "1"); } catch {}
+      navigate(demo?.archetype ? "/world" : "/onboarding");
+    } catch (e) {
+      alert(e.message);
+      setLoading(false);
+    }
+  }
+
+  async function resetDemo() {
+    if (!confirm("Zresetowac profil testowy? Caly postep zostanie usuniety.")) return;
+    setLoading(true);
+    try {
+      await mentorApi.resetDemoPlayer();
+      setDemo(null);
+    } finally { setLoading(false); }
+  }
+
+  return (
+    <div className="card" style={{ padding: "14px 16px", marginTop: 4 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ fontSize: 28 }}>🎮</div>
+        <div style={{ flex: 1 }}>
+          <div className="t-display" style={{ fontSize: 15, color: "var(--p-ink)" }}>Tryb gracza (testowy)</div>
+          <div style={{ fontSize: 12, color: "var(--p-ink-soft)", lineHeight: 1.35, marginTop: 2 }}>
+            {demo
+              ? <>Twój profil: <strong>{demo.name}</strong>{demo.archetype ? ` · ${demo.archetype}` : " · onboarding"}</>
+              : "Wejdz jako uczeń, by przetestować grę. Profil testowy nie trafia do par ani klas."}
+          </div>
+        </div>
+      </div>
+      <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
+        <button className="btn btn-magic btn-sm" onClick={enterDemo} disabled={loading} style={{ flex: 1 }}>
+          {demo ? "→ Wróć do gry" : "→ Wejdź jako uczeń"}
+        </button>
+        {demo && (
+          <button className="btn btn-ghost btn-sm" onClick={resetDemo} disabled={loading}>
+            ↻ Reset
+          </button>
+        )}
+      </div>
+    </div>
   );
 }
 

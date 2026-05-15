@@ -29,6 +29,11 @@ export const mentorApi = {
   me: () => call("/auth/me"),
   logout: () => call("/auth/logout", { method: "POST" }),
 
+  // Tryb gracza (demo player mentora - bez par, poza klasami)
+  getDemoPlayer: () => call("/mentor/me/demo-player"),
+  startDemoPlayer: (name) => call("/mentor/me/demo-player", { method: "POST", body: { name } }),
+  resetDemoPlayer: () => call("/mentor/me/demo-player", { method: "DELETE" }),
+
   // Whitelist
   listWhitelist: () => call("/mentor/whitelist"),
   addWhitelist: (email, note) => call("/mentor/whitelist", { method: "POST", body: { email, note } }),
