@@ -12,6 +12,7 @@ import { Router } from "express";
 import { randomUUID } from "node:crypto";
 import { requireMentor } from "../services/authService.js";
 import { initDatabase } from "../database/db.js";
+import { getPairDefinition } from "../services/pairsService.js";
 import {
   createClass,
   listMentorClasses,
@@ -51,6 +52,67 @@ export function mentorRoutes() {
       const detail = await getClassDetail(req.mentor.gmAccountId, req.params.id);
       if (!detail) return res.status(404).json({ error: "Klasa nie znaleziona" });
       res.json(detail);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // Aktywne pary w klasie - lista pair_assignments dla uczniow tej klasy
+  r.get("/classes/:id/pairs", async (req, res) => {
+    try {
+      const pool = await initDatabase();
+      // Verify ownership
+      const { rows: cls } = await pool.query(
+        `SELECT id FROM mentor_classes WHERE id = $1 AND gm_account_id = $2`,
+        [req.params.id, req.mentor.gmAccountId]
+      );
+      if (!cls.length) return res.status(404).json({ error: "Klasa nie znaleziona" });
+
+      const { rows } = await pool.query(
+        `SELECT pa.*,
+                p_a.name AS player_a_name, p_a.archetype AS player_a_archetype,
+                p_b.name AS player_b_name, p_b.archetype AS player_b_archetype
+           FROM pair_assignments pa
+           JOIN players p_a ON p_a.id = pa.player_a_id
+           JOIN players p_b ON p_b.id = pa.player_b_id
+           WHERE EXISTS (SELECT 1 FROM class_memberships cm WHERE cm.player_id = pa.player_a_id AND cm.class_id = $1 AND cm.left_at IS NULL)
+             AND EXISTS (SELECT 1 FROM class_memberships cm WHERE cm.player_id = pa.player_b_id AND cm.class_id = $1 AND cm.left_at IS NULL)
+           ORDER BY pa.created_at DESC`,
+        [req.params.id]
+      );
+
+      const enriched = rows.map((r) => ({
+        ...r,
+        definition: getPairDefinition(r.pair_definition_id),
+      }));
+      res.json({ pairs: enriched });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // Mentor oznacza pare jako wykonana
+  r.post("/pairs/:assignmentId/complete", async (req, res) => {
+    try {
+      const pool = await initDatabase();
+      // Weryfikacja ze mentor jest wlasicielem klasy do ktorej naleza obaj uczniowie
+      const { rows } = await pool.query(
+        `SELECT pa.id FROM pair_assignments pa
+           WHERE pa.id = $1
+             AND EXISTS (
+               SELECT 1 FROM class_memberships cm
+                 JOIN mentor_classes mc ON mc.id = cm.class_id
+                 WHERE cm.player_id IN (pa.player_a_id, pa.player_b_id)
+                   AND mc.gm_account_id = $2
+             )`,
+        [req.params.assignmentId, req.mentor.gmAccountId]
+      );
+      if (!rows.length) return res.status(404).json({ error: "Para nie znaleziona w Twoich klasach" });
+      await pool.query(
+        `UPDATE pair_assignments SET status = 'completed', completed_at = NOW() WHERE id = $1`,
+        [req.params.assignmentId]
+      );
+      res.json({ ok: true });
     } catch (e) {
       res.status(500).json({ error: e.message });
     }

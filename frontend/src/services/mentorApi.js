@@ -52,6 +52,8 @@ export const mentorApi = {
   bulkAssignPairs: (assignments, gmAccountId) => call("/pairs/bulk-assign", { method: "POST", body: { assignments, gmAccountId } }),
   assignPair: (data) => call("/pairs/assign", { method: "POST", body: data }),
   listPairsForGm: (gmAccountId) => call(`/pairs/gm/${gmAccountId}/assignments`),
+  listActivePairsForClass: (classId) => call(`/mentor/classes/${classId}/pairs`),
+  completePair: (assignmentId) => call(`/mentor/pairs/${assignmentId}/complete`, { method: "POST" }),
 };
 
 export const joinApi = {

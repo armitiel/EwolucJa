@@ -28,17 +28,18 @@ export default function MentorPairs() {
   const navigate = useNavigate();
   const [me, setMe] = useState(null);
   const [data, setData] = useState(null);
+  const [activePairs, setActivePairs] = useState(null);
   const [selected, setSelected] = useState({}); // pair_def_id -> bool
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(null);
 
-  useEffect(() => {
-    Promise.all([mentorApi.me(), mentorApi.suggestPairs(classId)])
-      .then(([m, d]) => {
+  function loadAll() {
+    Promise.all([mentorApi.me(), mentorApi.suggestPairs(classId), mentorApi.listActivePairsForClass(classId)])
+      .then(([m, d, a]) => {
         setMe(m);
         setData(d);
-        // Domyslnie wszystkie zaznaczone
+        setActivePairs(a.pairs || []);
         const sel = {};
         d.suggestions.forEach((s) => { sel[s.pair_definition_id] = true; });
         setSelected(sel);
@@ -47,7 +48,17 @@ export default function MentorPairs() {
         if (e.status === 401) navigate("/mentor/zaloguj");
         else setError(e.message);
       });
-  }, [classId, navigate]);
+  }
+
+  useEffect(() => { loadAll(); }, [classId, navigate]);
+
+  async function markCompleted(assignmentId) {
+    if (!confirm("Oznaczyć tę parę jako wykonaną?")) return;
+    try {
+      await mentorApi.completePair(assignmentId);
+      setActivePairs(activePairs.map((p) => p.id === assignmentId ? { ...p, status: "completed", completed_at: new Date().toISOString() } : p));
+    } catch (e) { alert(e.message); }
+  }
 
   async function handleSend() {
     if (!data) return;
@@ -83,8 +94,21 @@ export default function MentorPairs() {
       </div>
 
       <div className="screen-scroll" style={{ flex: 1, padding: "0 18px 96px", display: "flex", flexDirection: "column", gap: 14 }}>
+        {/* AKTYWNE PARY - status biezacych zadan */}
+        {activePairs && activePairs.length > 0 && (
+          <>
+            <h2 className="t-display" style={{ fontSize: 17, margin: "8px 0 0", color: "var(--p-ink)" }}>
+              Aktywne zadania ({activePairs.length})
+            </h2>
+            {activePairs.map((pair) => (
+              <ActivePairCard key={pair.id} pair={pair} onMarkCompleted={() => markCompleted(pair.id)} />
+            ))}
+            <div style={{ height: 8 }} />
+          </>
+        )}
+
         <div className="card card-paper pop-in" style={{ padding: "18px 20px" }}>
-          <h1 className="t-display" style={{ fontSize: 22, margin: 0, color: "var(--p-magic-dk)" }}>Kreator par „Rozdarta Mapa"</h1>
+          <h1 className="t-display" style={{ fontSize: 22, margin: 0, color: "var(--p-magic-dk)" }}>{activePairs?.length > 0 ? "Dodaj kolejne pary" : "Kreator par „Rozdarta Mapa"}</h1>
           <p style={{ fontSize: 13, color: "var(--p-ink-soft)", margin: "6px 0 0", lineHeight: 1.4 }}>
             System dobrał {data.suggestions.length} {plPair(data.suggestions.length)} z {data.total_students} uczniów.
             Odznacz te których nie chcesz wysłać.
@@ -145,6 +169,55 @@ export default function MentorPairs() {
         )}
       </div>
     </PageShell>
+  );
+}
+
+function ActivePairCard({ pair, onMarkCompleted }) {
+  const def = pair.definition;
+  const status = pair.status; // pending | matched | completed
+  const statusColor = status === "completed" ? "#3B6D11" : status === "matched" ? "#7A4D10" : "var(--p-magic-dk)";
+  const statusBg = status === "completed" ? "rgba(99,153,34,.18)" : status === "matched" ? "rgba(255,213,105,.30)" : "rgba(122,77,194,.15)";
+  const statusLabel = status === "completed" ? "✓ Wykonane" : status === "matched" ? "⚡ W trakcie zadania" : "⏳ Czeka na połączenie";
+
+  return (
+    <div className="card pop-in" style={{ padding: "14px 16px", opacity: status === "completed" ? .7 : 1 }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 6 }}>
+        <div className="t-display" style={{ fontSize: 16, color: "var(--p-ink)" }}>{def?.task_title || "Zadanie"}</div>
+        <span style={{ fontSize: 11, fontWeight: 800, color: statusColor, background: statusBg, padding: "3px 8px", borderRadius: 999 }}>
+          {statusLabel}
+        </span>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 13 }}>
+        <PlayerLine emoji={ARCHETYPE_EMOJI[pair.player_a_archetype]} name={pair.player_a_name} word={def?.word_a} />
+        <PlayerLine emoji={ARCHETYPE_EMOJI[pair.player_b_archetype]} name={pair.player_b_name} word={def?.word_b} />
+      </div>
+
+      <div style={{ marginTop: 8, padding: "4px 10px", background: "rgba(255,213,105,.20)", borderRadius: 8, display: "inline-block", fontSize: 12, color: "#7A4D10", fontWeight: 700 }}>
+        🔑 {def?.full_keyword}
+      </div>
+
+      {status === "matched" && (
+        <button className="btn btn-leaf btn-sm" style={{ marginTop: 10, width: "100%" }} onClick={onMarkCompleted}>
+          ✓ Oznacz jako wykonane
+        </button>
+      )}
+      {status === "pending" && (
+        <p style={{ fontSize: 11, color: "var(--p-ink-soft)", margin: "8px 0 0", fontStyle: "italic" }}>
+          Uczniowie nie połączyli się jeszcze. Mają osobne słowa-połówki i muszą się znaleźć w sali.
+        </p>
+      )}
+    </div>
+  );
+}
+
+function PlayerLine({ emoji, name, word }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <span style={{ fontSize: 18 }}>{emoji}</span>
+      <strong style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</strong>
+      <span style={{ fontSize: 11, color: "var(--p-ink-soft)" }}>słowo: <strong style={{ color: "var(--p-ink)" }}>{word}</strong></span>
+    </div>
   );
 }
 
