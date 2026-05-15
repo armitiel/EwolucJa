@@ -14,14 +14,11 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import PageShell from "../components/PageShell.jsx";
 import { Sparkle } from "../components/art.jsx";
+import ProfileAvatar, { PROFILE_INFO } from "../components/ProfileAvatar.jsx";
 import { mentorApi } from "../services/mentorApi.js";
 
-const ARCHETYPE_NAMES = {
-  EM: "Empata", ST: "Strateg", KR: "Kreator", LD: "Lider", DT: "Detektyw", MD: "Strażnik",
-};
-const ARCHETYPE_EMOJI = {
-  EM: "💚", ST: "🦉", KR: "✨", LD: "🦁", DT: "🔍", MD: "🛡️",
-};
+const LEGACY = { tropiciel_tajemnic: "DT", zaklinacz_uczuc: "EM", mistrz_map: "ST", tkacz_snow: "KR", gwardzista_odwagi: "LD", straznik_mostu: "MD" };
+function code(v) { return PROFILE_INFO[v] ? v : (LEGACY[v] || v); }
 
 export default function MentorPairs() {
   const { id: classId } = useParams();
@@ -146,7 +143,7 @@ export default function MentorPairs() {
             <h3 className="t-display" style={{ fontSize: 14, margin: "0 0 8px", color: "var(--p-ink-soft)" }}>Bez pary</h3>
             {[...data.unpaired, ...data.noArchetype].map((s) => (
               <div key={s.id} style={{ fontSize: 13, color: "var(--p-ink)", padding: "3px 0" }}>
-                {ARCHETYPE_EMOJI[s.archetype] || "🌱"} {s.name} {s.archetype ? `(${ARCHETYPE_NAMES[s.archetype]})` : "(onboarding)"}
+                {(PROFILE_INFO[code(s.archetype)]?.emoji) || "🌱"} {s.name} {s.archetype ? `(${PROFILE_INFO[code(s.archetype)]?.name})` : "(onboarding)"}
               </div>
             ))}
           </div>
@@ -189,8 +186,8 @@ function ActivePairCard({ pair, onMarkCompleted }) {
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 13 }}>
-        <PlayerLine emoji={ARCHETYPE_EMOJI[pair.player_a_archetype]} name={pair.player_a_name} word={def?.word_a} />
-        <PlayerLine emoji={ARCHETYPE_EMOJI[pair.player_b_archetype]} name={pair.player_b_name} word={def?.word_b} />
+        <PlayerLine profile={code(pair.player_a_archetype)} name={pair.player_a_name} word={def?.word_a} />
+        <PlayerLine profile={code(pair.player_b_archetype)} name={pair.player_b_name} word={def?.word_b} />
       </div>
 
       <div style={{ marginTop: 8, padding: "4px 10px", background: "rgba(255,213,105,.20)", borderRadius: 8, display: "inline-block", fontSize: 12, color: "#7A4D10", fontWeight: 700 }}>
@@ -211,10 +208,12 @@ function ActivePairCard({ pair, onMarkCompleted }) {
   );
 }
 
-function PlayerLine({ emoji, name, word }) {
+function PlayerLine({ profile, name, word }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-      <span style={{ fontSize: 18 }}>{emoji}</span>
+      {profile && PROFILE_INFO[profile]
+        ? <div style={{ width: 28, height: 28, flexShrink: 0 }}><ProfileAvatar profile={profile} size={28} /></div>
+        : <span style={{ fontSize: 18 }}>🌱</span>}
       <strong style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</strong>
       <span style={{ fontSize: 11, color: "var(--p-ink-soft)" }}>słowo: <strong style={{ color: "var(--p-ink)" }}>{word}</strong></span>
     </div>
@@ -250,10 +249,10 @@ function PairCard({ suggestion, selected, onToggle }) {
           <div className="t-display" style={{ fontSize: 16, color: "var(--p-ink)" }}>{def.task_title}</div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
-          <span>{ARCHETYPE_EMOJI[suggestion.player_a.archetype]}</span>
+          {PROFILE_INFO[code(suggestion.player_a.archetype)] && <div style={{ width: 26, height: 26 }}><ProfileAvatar profile={code(suggestion.player_a.archetype)} size={26} /></div>}
           <strong>{suggestion.player_a.name}</strong>
           <span style={{ color: "var(--p-ink-soft)" }}>+</span>
-          <span>{ARCHETYPE_EMOJI[suggestion.player_b.archetype]}</span>
+          {PROFILE_INFO[code(suggestion.player_b.archetype)] && <div style={{ width: 26, height: 26 }}><ProfileAvatar profile={code(suggestion.player_b.archetype)} size={26} /></div>}
           <strong>{suggestion.player_b.name}</strong>
         </div>
         <div style={{ marginTop: 6, padding: "4px 10px", background: "rgba(255,213,105,.20)", borderRadius: 8, display: "inline-block", fontSize: 12, color: "#7A4D10", fontWeight: 700 }}>

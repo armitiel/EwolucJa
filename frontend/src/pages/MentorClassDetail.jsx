@@ -5,14 +5,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import PageShell from "../components/PageShell.jsx";
 import { Sparkle } from "../components/art.jsx";
+import ProfileAvatar, { PROFILE_INFO } from "../components/ProfileAvatar.jsx";
 import { mentorApi } from "../services/mentorApi.js";
-
-const ARCHETYPE_NAMES = {
-  EM: "Empata", ST: "Strateg", KR: "Kreator", LD: "Lider", DT: "Detektyw", MD: "Mediator",
-};
-const ARCHETYPE_EMOJI = {
-  EM: "💚", ST: "🦉", KR: "✨", LD: "🦁", DT: "🔍", MD: "🛡️",
-};
 
 export default function MentorClassDetail() {
   const { id } = useParams();
@@ -116,13 +110,17 @@ export default function MentorClassDetail() {
 
 function StudentRow({ student, onDelete }) {
   const lastActivity = student.last_activity ? new Date(student.last_activity) : null;
+  // Mapuj stary kod archetypu (nazwa) na profil (kod). Profile player.archetype trzyma kod profilu (DT/ST/...) lub stary archetyp string.
+  const profileCode = mapToProfileCode(student.archetype);
   return (
     <div className="card pop-in" style={{ padding: "12px 14px", display: "flex", alignItems: "center", gap: 12 }}>
-      <div style={{ fontSize: 28, lineHeight: 1 }}>{ARCHETYPE_EMOJI[student.archetype] || "🌱"}</div>
+      {profileCode
+        ? <ProfileAvatar profile={profileCode} size={44} />
+        : <div style={{ fontSize: 28 }}>🌱</div>}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div className="t-display" style={{ fontSize: 16, color: "var(--p-ink)" }}>{student.name}</div>
         <div style={{ fontSize: 12, color: "var(--p-ink-soft)" }}>
-          {student.archetype ? ARCHETYPE_NAMES[student.archetype] : "Onboarding..."}
+          {profileCode ? PROFILE_INFO[profileCode].name : "Onboarding..."}
           {student.last_mission_status && ` · ${student.last_mission_status}`}
         </div>
       </div>
@@ -140,6 +138,18 @@ function StudentRow({ student, onDelete }) {
       )}
     </div>
   );
+}
+
+// Stare wartosci 'archetype' w bazie (np. 'tropiciel_tajemnic') -> kod profilu (DT).
+// Nowe wartosci powinny byc bezposrednio kodami (EM/ST/KR/LD/DT/MD).
+const LEGACY_ARCHETYPE_TO_PROFILE = {
+  tropiciel_tajemnic: "DT", zaklinacz_uczuc: "EM", mistrz_map: "ST",
+  tkacz_snow: "KR", gwardzista_odwagi: "LD", straznik_mostu: "MD",
+};
+function mapToProfileCode(value) {
+  if (!value) return null;
+  if (PROFILE_INFO[value]) return value; // juz kod profilu
+  return LEGACY_ARCHETYPE_TO_PROFILE[value] || null;
 }
 
 function timeAgo(date) {
