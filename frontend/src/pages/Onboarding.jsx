@@ -1,13 +1,33 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, session } from "../services/api.js";
-import { ARCHETYPES } from "../config.js";
 import { ttsPlayer } from "../services/ttsPlayer";
 import NarratorVoice from "../components/NarratorVoice.jsx";
 import PageShell from "../components/PageShell.jsx";
 import { Avatar, Sparkle, Coin, CoinPill } from "../components/art.jsx";
+import ProfileAvatar, { PROFILE_INFO } from "../components/ProfileAvatar.jsx";
 import StarBurst from "../components/StarBurst.jsx";
 import { fx } from "../services/soundFx.js";
+
+// Mapowanie starych nazw archetypow z bazy/configu na nowe kody profili
+const LEGACY_TO_PROFILE = {
+  tropiciel_tajemnic: "DT", zaklinacz_uczuc: "EM", mistrz_map: "ST",
+  tkacz_snow: "KR", gwardzista_odwagi: "LD", straznik_mostu: "MD",
+};
+// Opisy + taglines dla 6 profili (zastepuje stara mape ARCHETYPES)
+const PROFILE_LORE = {
+  DT: { tagline: "Nic nie umknie Twojej uwadze.", description: "Cicho stąpasz przez świat i widzisz to, czego inni nie zauważają. Rozwijasz dociekliwość, uważność i sztukę zadawania pytań.", artifact: "Kompas Cieni" },
+  EM: { tagline: "Twoje serce widzi to, czego oczy nie widzą.", description: "Czujesz emocje innych jak ciepło słońca. Rozwijasz empatię, wrażliwość i łagodność.", artifact: "Muszla Echa" },
+  ST: { tagline: "Trzy kroki do przodu, zawsze.", description: "Rozpisujesz świat w mapy i strategie. Rozwijasz logikę, planowanie i samokontrolę.", artifact: "Kompas Strategiczny" },
+  KR: { tagline: "Robisz z kartonu kosmiczny statek.", description: "Z prostych elementów tworzysz nieprawdopodobne historie. Rozwijasz myślenie nieszablonowe i ekspresję.", artifact: "Atrament Kronikarski" },
+  LD: { tagline: "Idziesz pierwszy, nie z pychy — z troski.", description: "Pociągasz innych za sobą, bo widzą w Tobie odwagę i ciepło. Rozwijasz inicjatywę i troskę o innych.", artifact: "Tarcza Słońca" },
+  MD: { tagline: "Łączysz dwie strony, gdy nikt inny nie może.", description: "Słuchasz obu głosów i znajdujesz wspólny punkt. Rozwijasz mediację i empatyczną komunikację.", artifact: "Wstęga Łączeń" },
+};
+function profileCodeFrom(v) {
+  if (!v) return null;
+  if (PROFILE_INFO[v]) return v;
+  return LEGACY_TO_PROFILE[v] || null;
+}
 
 // Krotkie teksty przejsciowe miedzy odpowiedzia a kolejnym pytaniem.
 // Indeksowane po numerze pytania DO KTOREGO przechodzimy (1 -> 4).
@@ -361,16 +381,19 @@ export default function Onboarding() {
 }
 
 function ArchetypeReveal({ result, onEnter }) {
-  const arch = ARCHETYPES[result.archetype] || ARCHETYPES.tropiciel_tajemnic;
-  const revealText = `Kronika rozpoznała Cię jako: ${arch.name}. ${arch.tagline}`;
+  // Backend zwraca teraz 'profile' jako kod (EM/ST/...). Fallback na 'archetype' (stara nazwa, mapujemy).
+  const profileCode = profileCodeFrom(result.profile || result.archetype) || "DT";
+  const info = PROFILE_INFO[profileCode];
+  const lore = PROFILE_LORE[profileCode];
+  const revealText = `Kronika rozpoznała Cię jako: ${info.name}. ${lore.tagline}`;
   return (
     <div className="pop-in" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
       <p style={{ opacity: 0.65, fontSize: 12, fontWeight: 800, letterSpacing: 1.5, margin: 0 }}>
         KRONIKA ROZPOZNAŁA CIĘ JAKO…
       </p>
 
-      <div style={{ position: "relative" }}>
-        <Avatar kind="fox" size={140} evolved={2} />
+      <div style={{ position: "relative", filter: `drop-shadow(0 12px 24px ${info.glow})` }}>
+        <ProfileAvatar profile={profileCode} size={160} />
         <div style={{ position: "absolute", top: -6, right: -10 }}>
           <Sparkle size={22} />
         </div>
@@ -379,22 +402,20 @@ function ArchetypeReveal({ result, onEnter }) {
         </div>
       </div>
 
-      <h2 className="t-display" style={{ fontSize: 32, margin: "4px 0 0", textAlign: "center" }}>
-        {arch.name}
+      <h2 className="t-display" style={{ fontSize: 32, margin: "4px 0 0", textAlign: "center", color: info.color }}>
+        {info.name}
       </h2>
       <p className="t-hand" style={{ fontSize: 20, color: "var(--p-ink-soft)", margin: 0, textAlign: "center", maxWidth: 320 }}>
-        {arch.tagline}
+        {lore.tagline}
       </p>
 
       <div className="card card-paper" style={{ width: "100%", maxWidth: 380 }}>
         <p style={{ fontSize: 14, lineHeight: 1.5, margin: 0, color: "var(--p-ink-soft)" }}>
-          {arch.description}
+          {lore.description}
         </p>
-        {arch.starter_artifact && (
-          <p style={{ marginTop: 10, fontSize: 13 }}>
-            Pierwszy artefakt w plecaku: <strong>{arch.starter_artifact.name}</strong>
-          </p>
-        )}
+        <p style={{ marginTop: 10, fontSize: 13 }}>
+          Pierwszy artefakt w plecaku: <strong>{lore.artifact}</strong>
+        </p>
       </div>
 
       <NarratorVoice text={revealText} land="gora_podsumowania" tone="celebration" pauseBefore={600} inlinePauses autoPlay />

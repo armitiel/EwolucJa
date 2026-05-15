@@ -5,7 +5,11 @@
 import React, { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { session } from "../services/api.js";
-import { ARCHETYPES, timeUntilFriday } from "../config.js";
+import { timeUntilFriday } from "../config.js";
+import { PROFILE_INFO } from "../components/ProfileAvatar.jsx";
+
+const LEGACY_TO_PROFILE = { tropiciel_tajemnic: "DT", zaklinacz_uczuc: "EM", mistrz_map: "ST", tkacz_snow: "KR", gwardzista_odwagi: "LD", straznik_mostu: "MD" };
+function profileCode(v) { if (!v) return "DT"; return PROFILE_INFO[v] ? v : (LEGACY_TO_PROFILE[v] || "DT"); }
 import { useAppData } from "../contexts/AppData.jsx";
 import NarratorVoice from "../components/NarratorVoice.jsx";
 import PageShell from "../components/PageShell.jsx";
@@ -216,9 +220,9 @@ export default function WorldHub() {
   // Skarbiec — liczone z lifetime_scores + backpack (placeholder logika)
   const totalCoins = ((player.lifetime_scores?.DT || 0) + (player.lifetime_scores?.EM || 0)) * 10 + 12;
 
-  // Archetyp + avatar
-  const archetypeKey = player.archetype || "tropiciel_tajemnic";
-  const archetypeLabel = (ARCHETYPES[archetypeKey]?.name || "Tropiciel").toUpperCase();
+  // Profil + avatar
+  const profile = profileCode(player.archetype);
+  const archetypeLabel = (PROFILE_INFO[profile]?.name || "Detektyw").toUpperCase();
   const avatarKind = player.avatar_kind || "fox";
 
   // Postepy do progress barow na kaflach (Mapa: ile krain odblokowano /6, Plecak: artefakty)

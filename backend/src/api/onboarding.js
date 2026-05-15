@@ -122,8 +122,11 @@ export function onboardingRoutes(db) {
         }
         log.push({ question_id: ans.question_id, answer_id: ans.answer_id, points_awarded: a.points });
       }
-      const { archetype, dominant_profile } = pickArchetype(scores);
-      player.archetype = archetype;
+      // dominant_profile to docelowy 6-literowy kod (EM/ST/KR/LD/DT/MD).
+      // 'archetype' jest deprecated (stara nazwa np. 'tropiciel_tajemnic') — zachowujemy w bazie tylko jako alias.
+      // W player.archetype zapisujemy bezposrednio KOD profilu zeby uniknac mapowania w UI.
+      const { dominant_profile } = pickArchetype(scores);
+      player.archetype = dominant_profile;
       player.archetype_assigned_at = new Date().toISOString();
       player.onboarding_answers = log;
       player.lifetime_scores = player.lifetime_scores || { EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 };
@@ -135,8 +138,9 @@ export function onboardingRoutes(db) {
       const cycle = await createCycle(db, player.player_id);
       res.json({
         player_id: player.player_id,
-        archetype,
-        dominant_profile,
+        profile: dominant_profile,         // KOD profilu: EM/ST/KR/LD/DT/MD
+        archetype: dominant_profile,       // alias dla wstecznej kompat (sklejony z profile)
+        dominant_profile,                  // legacy field name
         onboarding_scores: scores,
         first_cycle: cycle,
       });
