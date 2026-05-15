@@ -385,15 +385,14 @@ function ArchetypeReveal({ result, onEnter }) {
   const profileCode = profileCodeFrom(result.profile || result.archetype) || "DT";
   const info = PROFILE_INFO[profileCode];
   const lore = PROFILE_LORE[profileCode];
-  const revealText = `Kronika rozpoznała Cię jako: ${info.name}. ${lore.tagline}`;
   return (
     <div className="pop-in" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
-      <p style={{ opacity: 0.65, fontSize: 12, fontWeight: 800, letterSpacing: 1.5, margin: 0 }}>
-        KRONIKA ROZPOZNAŁA CIĘ JAKO…
+      <p style={{ opacity: 0.75, fontSize: 12, fontWeight: 800, letterSpacing: 1.5, margin: 0, color: "var(--p-magic-dk)" }}>
+        TWOJA POSTAĆ PRZYPISANA DO DALSZEJ GRY TO:
       </p>
 
-      <div style={{ position: "relative", filter: `drop-shadow(0 12px 24px ${info.glow})` }}>
-        <ProfileAvatar profile={profileCode} size={160} />
+      <div style={{ position: "relative", filter: `drop-shadow(0 16px 32px ${info.glow})` }}>
+        <ProfileAvatar profile={profileCode} size={208} />
         <div style={{ position: "absolute", top: -6, right: -10 }}>
           <Sparkle size={22} />
         </div>
@@ -402,23 +401,18 @@ function ArchetypeReveal({ result, onEnter }) {
         </div>
       </div>
 
-      <h2 className="t-display" style={{ fontSize: 32, margin: "4px 0 0", textAlign: "center", color: info.color }}>
+      <h2 className="t-display" style={{ fontSize: 36, margin: "4px 0 0", textAlign: "center", color: info.color, letterSpacing: -.5 }}>
         {info.name}
       </h2>
-      <p className="t-hand" style={{ fontSize: 20, color: "var(--p-ink-soft)", margin: 0, textAlign: "center", maxWidth: 320 }}>
-        {lore.tagline}
+      <p className="t-hand" style={{ fontSize: 20, color: "var(--p-ink-soft)", margin: 0, textAlign: "center", maxWidth: 320, fontStyle: "italic" }}>
+        „{lore.tagline}"
       </p>
 
       <div className="card card-paper" style={{ width: "100%", maxWidth: 380 }}>
         <p style={{ fontSize: 14, lineHeight: 1.5, margin: 0, color: "var(--p-ink-soft)" }}>
           {lore.description}
         </p>
-        <p style={{ marginTop: 10, fontSize: 13 }}>
-          Pierwszy artefakt w plecaku: <strong>{lore.artifact}</strong>
-        </p>
       </div>
-
-      <NarratorVoice text={revealText} land="gora_podsumowania" tone="celebration" pauseBefore={600} inlinePauses autoPlay />
 
       <button className="btn btn-magic btn-block" style={{ maxWidth: 380 }} onClick={onEnter}>
         Wyrusz w drogę ✦
@@ -445,12 +439,8 @@ function CelebrationThenArchetype({ result, onEnter }) {
       setCoinCount(Math.round(REWARD * t));
       if (t >= 1) clearInterval(tick);
     }, 40);
-    // Auto-przejscie do ArchetypeReveal, jesli gracz nie klinkie sam
-    const t1 = setTimeout(() => setPhase("archetype"), DWELL_MS);
-    return () => {
-      clearInterval(tick);
-      clearTimeout(t1);
-    };
+    // NIE robimy auto-przejscia - gracz musi kliknac 'Zobacz, kim jestes ->'
+    return () => clearInterval(tick);
   }, [phase]);
 
   if (phase === "archetype") {
