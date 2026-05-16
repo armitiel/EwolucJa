@@ -38,7 +38,8 @@ export default function TopBar({
   if (!player) return null;
 
   const profile = profileCode(player.archetype);
-  const totalCoins = ((player.lifetime_scores?.DT || 0) + (player.lifetime_scores?.EM || 0)) * 10 + 12;
+  // Coiny = suma WSZYSTKICH punktow lifetime per cecha (DT+EM+ST+KR+LD+MD)
+  const totalCoins = Object.values(player.lifetime_scores || {}).reduce((s, v) => s + (v || 0), 0);
 
   return (
     <>

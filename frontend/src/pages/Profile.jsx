@@ -21,10 +21,12 @@ const STAGES = [
 ];
 
 function levelFromScores(lifetime) {
+  // Quiz onboardingowy daje ~70-100 pkt baseline.
+  // Levelup ma byc stopniowy z misji - prog zaczyna od progu znacznie powyzej baseline'u.
   const total = Object.values(lifetime || {}).reduce((s, v) => s + (v || 0), 0);
-  if (total >= 60) return 4;
-  if (total >= 30) return 3;
-  if (total >= 10) return 2;
+  if (total >= 400) return 4;
+  if (total >= 250) return 3;
+  if (total >= 130) return 2;
   return 1;
 }
 

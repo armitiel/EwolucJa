@@ -24,8 +24,9 @@ const TRAITS = [
 
 export default function CharakterBohatera({ player, profile, onDetails }) {
   const scores = player?.lifetime_scores || {};
-  // Skala — najwyzszy wynik lub min 10 zeby polygon byl widoczny
-  const maxScore = Math.max(10, ...TRAITS.map((t) => scores[t.code] || 0));
+  // Stala skala = 50 punktow per cecha (kwiz daje max 24, misje dodaja powoli).
+  // Quiz baseline wypelnia ~30-50% radara, nie 100%. Dalsze misje rosna polygon.
+  const maxScore = 50;
 
   const archetypName = PROFILE_INFO[profile]?.name || "Detektyw";
 
