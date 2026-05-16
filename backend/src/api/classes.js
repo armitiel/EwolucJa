@@ -29,6 +29,24 @@ export function classRoutes() {
       res.status(500).json({ error: e.message });
     }
   });
+  // DEBUG: members per klasa
+  r.get("/_debug/members", async (req, res) => {
+    try {
+      const pool = await initDatabase();
+      const { rows } = await pool.query(
+        `SELECT cm.class_id, mc.name AS class_name, mc.invite_code,
+                p.id AS player_id, p.name AS player_name, p.archetype,
+                cm.joined_at, cm.left_at
+           FROM class_memberships cm
+           JOIN mentor_classes mc ON mc.id = cm.class_id
+           JOIN players p ON p.id = cm.player_id
+           ORDER BY cm.joined_at DESC LIMIT 40`
+      );
+      res.json({ memberships: rows });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
   // DEBUG: lista graczy w klasie z full danymi
   r.get("/_debug/students", async (req, res) => {
     try {
