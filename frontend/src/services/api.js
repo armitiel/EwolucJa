@@ -26,6 +26,8 @@ export const api = {
   // Players (V1 zachowane)
   createPlayer: (name) => call("/players", { method: "POST", body: { name } }),
   getPlayer: (id) => call(`/players/${id}`),
+  getUnreadHints: (id) => call(`/players/${id}/hints/unread`),
+  markHintViewed: (playerId, hintId) => call(`/players/${playerId}/hints/${hintId}/view`, { method: "POST" }),
 
   // Onboarding (V2)
   getQuiz: () => call("/onboarding/quiz"),

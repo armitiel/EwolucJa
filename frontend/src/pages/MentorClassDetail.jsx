@@ -138,8 +138,8 @@ function StudentRow({ student, onClick, onDelete }) {
       style={{ padding: "12px 14px", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}
     >
       {profileCode
-        ? <ProfileAvatar profile={profileCode} size={44} />
-        : <div style={{ fontSize: 28 }}>🌱</div>}
+        ? <ProfileAvatar profile={profileCode} size={44} variant="mini" />
+        : <PendingAvatar size={44} />}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div className="t-display" style={{ fontSize: 16, color: "var(--p-ink)" }}>{student.name}</div>
         <div style={{ fontSize: 12, color: "var(--p-ink-soft)" }}>
@@ -288,6 +288,24 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// Generic "head silhouette" dla studenta przed wyborem profilu (Onboarding pending)
+function PendingAvatar({ size = 44 }) {
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: "50%",
+      background: "linear-gradient(180deg, #C8A0F0 0%, #7A4DC2 100%)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      flexShrink: 0,
+      boxShadow: "0 2px 6px rgba(122,77,194,.25)",
+    }} title="Onboarding w toku">
+      <svg width={size * 0.65} height={size * 0.65} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="8" r="4"/>
+        <path d="M4 21c0-4 4-7 8-7s8 3 8 7"/>
+      </svg>
     </div>
   );
 }

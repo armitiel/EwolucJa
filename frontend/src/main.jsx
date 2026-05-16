@@ -20,6 +20,7 @@ import MentorClassDetail from "./pages/MentorClassDetail.jsx";
 import MentorPairs from "./pages/MentorPairs.jsx";
 import JoinClass from "./pages/JoinClass.jsx";
 import DevTools from "./components/DevTools.jsx";
+import HintPopup from "./components/HintPopup.jsx";
 import Loading from "./components/Loading.jsx";
 import AppDataProvider, { useAppData } from "./contexts/AppData.jsx";
 import "./services/bgMusic";
@@ -61,6 +62,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AppDataProvider>
         <AppRoutes />
+        <HintPopup />
         <DevTools />
       </AppDataProvider>
     </BrowserRouter>
