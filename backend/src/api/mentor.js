@@ -91,6 +91,58 @@ export function mentorRoutes() {
     }
   });
 
+  // Mentor weryfikuje misje ucznia (approve/reject z komentarzem)
+  r.post("/missions/:missionId/verify", async (req, res) => {
+    try {
+      const { decision, comment } = req.body || {}; // decision: 'approve' | 'reject'
+      if (!["approve", "reject"].includes(decision)) {
+        return res.status(400).json({ error: "decision musi byc 'approve' lub 'reject'" });
+      }
+      const pool = await initDatabase();
+      // Verify ownership - mentor musi byc wlasicielem klasy do ktorej naleza grasz tej misji
+      const { rows: ownCheck } = await pool.query(
+        `SELECT m.id, m.player_id FROM missions m
+           JOIN class_memberships cm ON cm.player_id = m.player_id
+           JOIN mentor_classes mc ON mc.id = cm.class_id
+           WHERE m.id = $1 AND mc.gm_account_id = $2 LIMIT 1`,
+        [req.params.missionId, req.mentor.gmAccountId]
+      );
+      if (!ownCheck.length) return res.status(404).json({ error: "Misja nie znaleziona w Twoich klasach" });
+
+      const newStatus = decision === "approve" ? "verified" : "rejected";
+      const verification = {
+        decision,
+        comment: comment || null,
+        verified_at: new Date().toISOString(),
+        gm_account_id: req.mentor.gmAccountId,
+      };
+      await pool.query(
+        `UPDATE missions SET status = $1, gm_verification = $2 WHERE id = $3`,
+        [newStatus, JSON.stringify(verification), req.params.missionId]
+      );
+
+      // Jezeli approve - dodaj bonus 20 coinow + +5 do glownego profilu gracza
+      if (decision === "approve") {
+        const playerId = ownCheck[0].player_id;
+        const { rows: pRows } = await pool.query(`SELECT archetype, coins, lifetime_scores FROM players WHERE id = $1`, [playerId]);
+        if (pRows.length) {
+          const p = pRows[0];
+          const lifetime = p.lifetime_scores || {};
+          const mainProfile = p.archetype && lifetime[p.archetype] !== undefined ? p.archetype : "DT";
+          lifetime[mainProfile] = (lifetime[mainProfile] || 0) + 5;
+          const newCoins = (p.coins || 0) + 20;
+          await pool.query(
+            `UPDATE players SET coins = $1, lifetime_scores = $2, updated_at = NOW() WHERE id = $3`,
+            [newCoins, JSON.stringify(lifetime), playerId]
+          );
+        }
+      }
+      res.json({ ok: true, status: newStatus });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   // Mentor oznacza pare jako wykonana
   r.post("/pairs/:assignmentId/complete", async (req, res) => {
     try {
@@ -152,10 +204,30 @@ export function mentorRoutes() {
         [req.params.playerId]
       );
 
-      // Calculate coins (lifetime - approximate)
-      const totalCoins = Object.values(player.lifetime_scores || {}).reduce((a, b) => a + (b || 0), 0);
+      // Coins z nowego pola (fallback do sumy lifetime_scores dla starych rekordow)
+      const coins = player.coins != null && player.coins > 0
+        ? player.coins
+        : Object.values(player.lifetime_scores || {}).reduce((a, b) => a + (b || 0), 0);
 
-      res.json({ player, missions, hints, total_coins: totalCoins });
+      // Postep tygodnia: dane z ostatnich 7 dni - przyblizenie z misji submitted_at
+      const weekStart = new Date(); weekStart.setDate(weekStart.getDate() - 7);
+      const { rows: weekMissions } = await pool.query(
+        `SELECT COUNT(*) as week_count FROM missions
+           WHERE player_id = $1
+             AND submitted_proof IS NOT NULL
+             AND (submitted_proof->>'submitted_at')::timestamptz >= $2`,
+        [req.params.playerId, weekStart.toISOString()]
+      );
+      const weekCoinsApprox = (Number(weekMissions[0]?.week_count || 0)) * 10;
+
+      res.json({
+        player,
+        missions,
+        hints,
+        total_coins: coins,
+        week_coins: weekCoinsApprox,
+        week_missions: Number(weekMissions[0]?.week_count || 0),
+      });
     } catch (e) {
       res.status(500).json({ error: e.message });
     }

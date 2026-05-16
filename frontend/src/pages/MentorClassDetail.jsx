@@ -194,12 +194,14 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
   return (
     <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(20,15,40,.65)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 14 }}>
       <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 440, maxHeight: "92vh", overflow: "auto", borderRadius: 16, background: "#fff" }}>
-        <div style={{ position: "sticky", top: 0, background: "linear-gradient(180deg,#FCF5E1,#F4E3B8)", padding: "16px 18px", borderBottom: "1px solid rgba(78,77,118,.10)", display: "flex", alignItems: "center", gap: 10 }}>
-          {profile && <ProfileAvatar profile={profile} size={48} />}
-          <div style={{ flex: 1 }}>
-            <div className="t-display" style={{ fontSize: 18, color: "var(--p-ink)" }}>{studentName}</div>
-            <div style={{ fontSize: 12, color: "var(--p-ink-soft)" }}>
-              {profile ? PROFILE_INFO[profile].name : "Onboarding..."} · {data?.total_coins ?? 0} ✦
+        <div style={{ position: "sticky", top: 0, background: "linear-gradient(180deg,#FCF5E1,#F4E3B8)", padding: "16px 18px", borderBottom: "1px solid rgba(78,77,118,.10)", display: "flex", alignItems: "center", gap: 12 }}>
+          {profile
+            ? <ProfileAvatar profile={profile} size={56} variant="mini" />
+            : <PendingAvatar size={56} />}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="t-display" style={{ fontSize: 20, color: "var(--p-ink)", lineHeight: 1.1 }}>{studentName}</div>
+            <div style={{ fontSize: 13, color: profile ? PROFILE_INFO[profile].color : "var(--p-ink-soft)", fontWeight: 700, marginTop: 2 }}>
+              {profile ? PROFILE_INFO[profile].name : "Onboarding..."}
             </div>
           </div>
           <button onClick={onClose} className="btn btn-ghost btn-sm" style={{ padding: "4px 10px" }}>✕</button>
@@ -210,6 +212,18 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
 
         {data && (
           <div style={{ padding: "14px 18px", display: "flex", flexDirection: "column", gap: 16 }}>
+            {/* POSTEP TYGODNIA + COINY */}
+            <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              <div style={{ background: "linear-gradient(180deg,#FFF1B0,#FFD269)", borderRadius: 14, padding: "12px 14px", textAlign: "center" }}>
+                <div className="t-display" style={{ fontSize: 28, color: "#7A4D10", lineHeight: 1 }}>{data.total_coins} ✦</div>
+                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.2, color: "#7A4D10", marginTop: 4 }}>COINY ŁĄCZNIE</div>
+              </div>
+              <div style={{ background: "rgba(122,77,194,.15)", borderRadius: 14, padding: "12px 14px", textAlign: "center" }}>
+                <div className="t-display" style={{ fontSize: 28, color: "var(--p-magic-dk)", lineHeight: 1 }}>+{data.week_coins ?? 0} ✦</div>
+                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.2, color: "var(--p-magic-dk)", marginTop: 4 }}>POSTĘP TYGODNIA</div>
+              </div>
+            </section>
+
             {/* SCORES */}
             <section>
               <h3 style={{ fontSize: 12, fontWeight: 800, letterSpacing: 1.4, color: "var(--p-ink-soft)", margin: "0 0 8px" }}>PUNKTY CECH</h3>
@@ -232,10 +246,12 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
               {data.missions.length === 0
                 ? <div style={{ fontSize: 13, color: "var(--p-ink-soft)" }}>Brak zadań.</div>
                 : data.missions.slice(0, 5).map((m) => (
-                    <div key={m.id} style={{ background: "rgba(122,77,194,.06)", borderRadius: 10, padding: "8px 10px", marginBottom: 6 }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: "var(--p-ink)" }}>{m.title || "Misja"}</div>
-                      <div style={{ fontSize: 11, color: "var(--p-ink-soft)" }}>{m.status} · {new Date(m.generated_at).toLocaleDateString("pl-PL")}</div>
-                    </div>
+                    <MissionCard key={m.id} mission={m} onVerify={async (decision) => {
+                      try {
+                        await mentorApi.verifyMission(m.id, decision, null);
+                        await load();
+                      } catch (e) { alert(e.message); }
+                    }} />
                   ))
               }
             </section>
@@ -288,6 +304,55 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// Karta misji w modal mentora - pokazuje status, dowod, akcje verify
+function MissionCard({ mission, onVerify }) {
+  const status = mission.status;
+  const proof = mission.submitted_proof;
+  const verification = mission.gm_verification;
+  const statusColor = status === "verified" ? "#3B6D11" : status === "submitted" ? "var(--p-magic-dk)" : status === "rejected" ? "#B85B47" : "var(--p-ink-soft)";
+  const statusBg = status === "verified" ? "rgba(99,153,34,.18)" : status === "submitted" ? "rgba(122,77,194,.15)" : status === "rejected" ? "rgba(184,91,71,.15)" : "rgba(78,77,118,.08)";
+  const statusLabel = status === "verified" ? "✓ zatwierdzono" : status === "submitted" ? "✉ czeka na sprawdzenie" : status === "rejected" ? "↺ do poprawy" : status || "pending";
+
+  return (
+    <div style={{ background: "rgba(122,77,194,.06)", borderRadius: 12, padding: "10px 12px", marginBottom: 8 }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "var(--p-ink)", flex: 1 }}>{mission.title || "Misja"}</div>
+        <span style={{ fontSize: 10, fontWeight: 800, padding: "2px 8px", borderRadius: 999, background: statusBg, color: statusColor, whiteSpace: "nowrap" }}>{statusLabel}</span>
+      </div>
+      <div style={{ fontSize: 11, color: "var(--p-ink-soft)" }}>{new Date(mission.generated_at).toLocaleDateString("pl-PL")}</div>
+
+      {/* Dowod ucznia */}
+      {proof?.proof_text && (
+        <div style={{ marginTop: 8, padding: "8px 10px", background: "rgba(255,255,255,.7)", borderRadius: 8, borderLeft: "3px solid var(--p-magic-dk)" }}>
+          <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.2, color: "var(--p-ink-soft)" }}>DOWÓD UCZNIA</div>
+          <div style={{ fontSize: 13, color: "var(--p-ink)", marginTop: 2, lineHeight: 1.4, fontFamily: "Caveat, cursive" }}>
+            „{proof.proof_text}"
+          </div>
+        </div>
+      )}
+
+      {/* Komentarz mentora po weryfikacji */}
+      {verification?.comment && (
+        <div style={{ marginTop: 6, fontSize: 11, color: statusColor, fontStyle: "italic" }}>
+          „{verification.comment}" — Twoja decyzja
+        </div>
+      )}
+
+      {/* Przyciski akcji - tylko jezeli status submitted */}
+      {status === "submitted" && onVerify && (
+        <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+          <button onClick={() => onVerify("reject")} className="btn btn-ghost btn-sm" style={{ flex: 1, color: "#B85B47" }}>
+            ↺ Do poprawy
+          </button>
+          <button onClick={() => onVerify("approve")} className="btn btn-leaf btn-sm" style={{ flex: 1 }}>
+            ✓ Zatwierdź (+20 ✦)
+          </button>
+        </div>
+      )}
     </div>
   );
 }

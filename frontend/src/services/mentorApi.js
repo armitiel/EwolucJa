@@ -47,6 +47,7 @@ export const mentorApi = {
   deleteStudent: (classId, playerId) => call(`/mentor/classes/${classId}/students/${playerId}`, { method: "DELETE" }),
   getStudent: (classId, playerId) => call(`/mentor/classes/${classId}/students/${playerId}`),
   sendHint: (playerId, data) => call(`/mentor/students/${playerId}/hints`, { method: "POST", body: data }),
+  verifyMission: (missionId, decision, comment) => call(`/mentor/missions/${missionId}/verify`, { method: "POST", body: { decision, comment } }),
 
   // Pary (Rozdarta Mapa) - GM strona
   listPairDefinitions: () => call("/pairs/definitions"),
