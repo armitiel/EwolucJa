@@ -124,7 +124,6 @@ export default function MentorClassDetail() {
           onClose={() => setSelectedStudent(null)}
         />
       )}
-      </div>
     </PageShell>
   );
 }
