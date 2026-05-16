@@ -184,6 +184,20 @@ async function ensureSchema(pool) {
     ALTER TABLE players ADD COLUMN IF NOT EXISTS is_demo BOOLEAN DEFAULT FALSE;
     ALTER TABLE players ADD COLUMN IF NOT EXISTS created_by_gm_account_id TEXT REFERENCES gm_accounts(id) ON DELETE SET NULL;
     CREATE INDEX IF NOT EXISTS idx_players_demo_owner ON players(created_by_gm_account_id) WHERE is_demo = TRUE;
+
+    -- Mentor hints: artefakty/podpowiedzi wyslane przez mentora do ucznia
+    CREATE TABLE IF NOT EXISTS mentor_hints (
+      id TEXT PRIMARY KEY,
+      gm_account_id TEXT NOT NULL REFERENCES gm_accounts(id) ON DELETE CASCADE,
+      player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+      kind TEXT NOT NULL DEFAULT 'hint' CHECK (kind IN ('hint','artifact','message')),
+      title TEXT,
+      body TEXT NOT NULL,
+      sent_at TIMESTAMPTZ DEFAULT NOW(),
+      viewed_at TIMESTAMPTZ
+    );
+    CREATE INDEX IF NOT EXISTS idx_mentor_hints_player ON mentor_hints(player_id);
+    CREATE INDEX IF NOT EXISTS idx_mentor_hints_gm ON mentor_hints(gm_account_id);
   `);
 }
 

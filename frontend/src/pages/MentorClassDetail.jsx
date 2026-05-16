@@ -15,13 +15,20 @@ export default function MentorClassDetail() {
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
   const [regen, setRegen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    mentorApi.getClass(id).then(setData).catch((e) => {
-      if (e.status === 401) navigate("/mentor/zaloguj");
-      else setError(e.message);
-    });
-  }, [id, navigate]);
+  async function loadData() {
+    try { setData(await mentorApi.getClass(id)); }
+    catch (e) { if (e.status === 401) navigate("/mentor/zaloguj"); else setError(e.message); }
+  }
+  useEffect(() => { loadData(); }, [id, navigate]);
+
+  async function handleRefresh() {
+    setRefreshing(true);
+    await loadData();
+    setRefreshing(false);
+  }
 
   async function handleRegenerate() {
     if (!confirm("Wygenerowac nowy kod? Stary przestanie dzialac.")) return;
@@ -49,6 +56,9 @@ export default function MentorClassDetail() {
       <div style={{ display: "flex", alignItems: "center", padding: "16px 18px", gap: 8 }}>
         <button className="btn btn-ghost btn-sm" onClick={() => navigate("/mentor")}>← Wróć</button>
         <div style={{ flex: 1 }} />
+        <button className="btn btn-ghost btn-sm" onClick={handleRefresh} disabled={refreshing}>
+          {refreshing ? "..." : "↻ Odśwież"}
+        </button>
       </div>
 
       <div className="screen-scroll" style={{ flex: 1, padding: "0 18px 52px", display: "flex", flexDirection: "column", gap: 14 }}>
@@ -87,33 +97,47 @@ export default function MentorClassDetail() {
             <StudentRow
               key={s.id}
               student={s}
-              onDelete={async () => {
+              onClick={() => setSelectedStudent(s)}
+              onDelete={async (e) => {
+                e.stopPropagation();
                 if (!confirm(`Usunąć ${s.name} z klasy? Cały postęp ucznia zostanie skasowany.`)) return;
                 try {
                   await mentorApi.deleteStudent(id, s.id);
                   setData({ ...data, students: data.students.filter((st) => st.id !== s.id) });
-                } catch (e) { alert(e.message); }
+                } catch (err) { alert(err.message); }
               }}
             />
           ))
         )}
 
-        {data.students.length >= 2 && (
-          <button className="btn btn-leaf btn-block" style={{ marginTop: 16 }} onClick={() => navigate(`/mentor/klasa/${id}/pary`)}>
-            ✦ Aktywuj Rozdartą Mapę
-          </button>
-        )}
+        {/* Rozdarta Mapa + zadania w realu - aktwowalna nawet bez par */}
+        <button className="btn btn-leaf btn-block" style={{ marginTop: 16 }} onClick={() => navigate(`/mentor/klasa/${id}/pary`)}>
+          ✦ Aktywuj Rozdartą Mapę {data.students.length < 2 && <span style={{ fontSize: 11, opacity: .8 }}>(zadania w realu)</span>}
+        </button>
+      </div>
+
+      {selectedStudent && (
+        <StudentDetailModal
+          classId={id}
+          studentId={selectedStudent.id}
+          studentName={selectedStudent.name}
+          onClose={() => setSelectedStudent(null)}
+        />
+      )}
       </div>
     </PageShell>
   );
 }
 
-function StudentRow({ student, onDelete }) {
+function StudentRow({ student, onClick, onDelete }) {
   const lastActivity = student.last_activity ? new Date(student.last_activity) : null;
-  // Mapuj stary kod archetypu (nazwa) na profil (kod). Profile player.archetype trzyma kod profilu (DT/ST/...) lub stary archetyp string.
   const profileCode = mapToProfileCode(student.archetype);
   return (
-    <div className="card pop-in" style={{ padding: "12px 14px", display: "flex", alignItems: "center", gap: 12 }}>
+    <div
+      className="card pop-in"
+      onClick={onClick}
+      style={{ padding: "12px 14px", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}
+    >
       {profileCode
         ? <ProfileAvatar profile={profileCode} size={44} />
         : <div style={{ fontSize: 28 }}>🌱</div>}
@@ -136,6 +160,135 @@ function StudentRow({ student, onDelete }) {
           ✕
         </button>
       )}
+    </div>
+  );
+}
+
+function StudentDetailModal({ classId, studentId, studentName, onClose }) {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+  const [hintBody, setHintBody] = useState("");
+  const [hintTitle, setHintTitle] = useState("");
+  const [hintKind, setHintKind] = useState("hint");
+  const [sending, setSending] = useState(false);
+
+  async function load() {
+    try { setData(await mentorApi.getStudent(classId, studentId)); }
+    catch (e) { setError(e.message); }
+  }
+  useEffect(() => { load(); }, [classId, studentId]);
+
+  async function sendHint() {
+    if (!hintBody.trim()) return;
+    setSending(true);
+    try {
+      await mentorApi.sendHint(studentId, { kind: hintKind, title: hintTitle.trim() || null, body: hintBody.trim() });
+      setHintBody(""); setHintTitle("");
+      await load();
+    } catch (e) { alert(e.message); }
+    setSending(false);
+  }
+
+  const profile = data?.player ? mapToProfileCode(data.player.archetype) : null;
+  const scores = data?.player?.lifetime_scores || {};
+
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(20,15,40,.65)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 14 }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 440, maxHeight: "92vh", overflow: "auto", borderRadius: 16, background: "#fff" }}>
+        <div style={{ position: "sticky", top: 0, background: "linear-gradient(180deg,#FCF5E1,#F4E3B8)", padding: "16px 18px", borderBottom: "1px solid rgba(78,77,118,.10)", display: "flex", alignItems: "center", gap: 10 }}>
+          {profile && <ProfileAvatar profile={profile} size={48} />}
+          <div style={{ flex: 1 }}>
+            <div className="t-display" style={{ fontSize: 18, color: "var(--p-ink)" }}>{studentName}</div>
+            <div style={{ fontSize: 12, color: "var(--p-ink-soft)" }}>
+              {profile ? PROFILE_INFO[profile].name : "Onboarding..."} · {data?.total_coins ?? 0} ✦
+            </div>
+          </div>
+          <button onClick={onClose} className="btn btn-ghost btn-sm" style={{ padding: "4px 10px" }}>✕</button>
+        </div>
+
+        {error && <div style={{ padding: 16, color: "#B85B47" }}>{error}</div>}
+        {!data && !error && <div style={{ padding: 24, textAlign: "center", color: "var(--p-ink-soft)" }}>Ładuję...</div>}
+
+        {data && (
+          <div style={{ padding: "14px 18px", display: "flex", flexDirection: "column", gap: 16 }}>
+            {/* SCORES */}
+            <section>
+              <h3 style={{ fontSize: 12, fontWeight: 800, letterSpacing: 1.4, color: "var(--p-ink-soft)", margin: "0 0 8px" }}>PUNKTY CECH</h3>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
+                {["DT","EM","ST","KR","LD","MD"].map((p) => {
+                  const info = PROFILE_INFO[p];
+                  return (
+                    <div key={p} style={{ background: `${info.color}1a`, borderRadius: 10, padding: "8px 10px", textAlign: "center" }}>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: info.color, letterSpacing: .5 }}>{info.name.slice(0,3).toUpperCase()}</div>
+                      <div className="t-display" style={{ fontSize: 18, color: info.color, lineHeight: 1 }}>{scores[p] || 0}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* MISJE */}
+            <section>
+              <h3 style={{ fontSize: 12, fontWeight: 800, letterSpacing: 1.4, color: "var(--p-ink-soft)", margin: "0 0 8px" }}>OSTATNIE ZADANIA W REALU ({data.missions.length})</h3>
+              {data.missions.length === 0
+                ? <div style={{ fontSize: 13, color: "var(--p-ink-soft)" }}>Brak zadań.</div>
+                : data.missions.slice(0, 5).map((m) => (
+                    <div key={m.id} style={{ background: "rgba(122,77,194,.06)", borderRadius: 10, padding: "8px 10px", marginBottom: 6 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "var(--p-ink)" }}>{m.title || "Misja"}</div>
+                      <div style={{ fontSize: 11, color: "var(--p-ink-soft)" }}>{m.status} · {new Date(m.generated_at).toLocaleDateString("pl-PL")}</div>
+                    </div>
+                  ))
+              }
+            </section>
+
+            {/* HINTS HISTORY */}
+            <section>
+              <h3 style={{ fontSize: 12, fontWeight: 800, letterSpacing: 1.4, color: "var(--p-ink-soft)", margin: "0 0 8px" }}>WYSŁANE WSKAZÓWKI ({data.hints.length})</h3>
+              {data.hints.length === 0
+                ? <div style={{ fontSize: 13, color: "var(--p-ink-soft)" }}>Nic jeszcze nie wysłano.</div>
+                : data.hints.slice(0, 5).map((h) => (
+                    <div key={h.id} style={{ background: "rgba(255,213,105,.18)", borderRadius: 10, padding: "8px 10px", marginBottom: 6 }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: "#7A4D10" }}>
+                        {h.kind === "artifact" ? "🎁" : h.kind === "message" ? "💬" : "💡"} {h.title || h.kind}
+                      </div>
+                      <div style={{ fontSize: 12, color: "#5C4220", marginTop: 2 }}>{h.body}</div>
+                      <div style={{ fontSize: 10, color: "var(--p-ink-soft)", marginTop: 4 }}>
+                        {new Date(h.sent_at).toLocaleString("pl-PL")} · {h.viewed_at ? "✓ widziane" : "niewidziane"}
+                      </div>
+                    </div>
+                  ))
+              }
+            </section>
+
+            {/* WYSLIJ NOWY HINT */}
+            <section>
+              <h3 style={{ fontSize: 12, fontWeight: 800, letterSpacing: 1.4, color: "var(--p-magic-dk)", margin: "0 0 8px" }}>WYŚLIJ PODPOWIEDŹ / ARTEFAKT</h3>
+              <div style={{ display: "flex", gap: 6, marginBottom: 6 }}>
+                {["hint","artifact","message"].map((k) => (
+                  <button key={k} onClick={() => setHintKind(k)} className="btn btn-ghost btn-sm" style={{ flex: 1, background: hintKind === k ? "rgba(122,77,194,.18)" : undefined, color: hintKind === k ? "var(--p-magic-dk)" : "var(--p-ink-soft)" }}>
+                    {k === "artifact" ? "🎁 Artefakt" : k === "message" ? "💬 Wiadomość" : "💡 Hint"}
+                  </button>
+                ))}
+              </div>
+              <input
+                value={hintTitle}
+                onChange={(e) => setHintTitle(e.target.value)}
+                placeholder="Tytuł (opcjonalnie, np. 'Klucz do drzwi')"
+                style={{ width: "100%", padding: "8px 10px", border: "1.5px solid rgba(78,77,118,.16)", borderRadius: 10, fontSize: 13, marginBottom: 6, boxSizing: "border-box" }}
+              />
+              <textarea
+                value={hintBody}
+                onChange={(e) => setHintBody(e.target.value)}
+                placeholder="Treść (np. 'Spróbuj zacząć od słowa Złota...')"
+                style={{ width: "100%", minHeight: 70, padding: "10px 12px", border: "1.5px solid rgba(78,77,118,.16)", borderRadius: 10, fontSize: 14, resize: "vertical", boxSizing: "border-box", fontFamily: "Nunito,sans-serif" }}
+              />
+              <button className="btn btn-magic btn-block" style={{ marginTop: 8 }} onClick={sendHint} disabled={sending || !hintBody.trim()}>
+                {sending ? "Wysyłam..." : "✦ Wyślij"}
+              </button>
+            </section>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

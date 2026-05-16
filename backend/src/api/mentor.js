@@ -118,6 +118,74 @@ export function mentorRoutes() {
     }
   });
 
+  // Pelne detale ucznia: scores, missions, hints sent
+  r.get("/classes/:id/students/:playerId", async (req, res) => {
+    try {
+      const pool = await initDatabase();
+      // Verify ownership
+      const ownCheck = await pool.query(
+        `SELECT 1 FROM mentor_classes mc
+           JOIN class_memberships cm ON cm.class_id = mc.id
+           WHERE mc.id = $1 AND mc.gm_account_id = $2 AND cm.player_id = $3 LIMIT 1`,
+        [req.params.id, req.mentor.gmAccountId, req.params.playerId]
+      );
+      if (!ownCheck.rows.length) return res.status(404).json({ error: "Uczen nie znaleziony w klasie" });
+
+      const { rows: pRows } = await pool.query(
+        `SELECT id, name, archetype, scores, lifetime_scores, backpack,
+                completed_lands, current_chapter, updated_at, registered_at
+           FROM players WHERE id = $1`,
+        [req.params.playerId]
+      );
+      if (!pRows.length) return res.status(404).json({ error: "Gracz nie znaleziony" });
+      const player = pRows[0];
+
+      const { rows: missions } = await pool.query(
+        `SELECT id, title, body, status, generated_at, submitted_proof, gm_verification
+           FROM missions WHERE player_id = $1 ORDER BY generated_at DESC LIMIT 10`,
+        [req.params.playerId]
+      );
+
+      const { rows: hints } = await pool.query(
+        `SELECT id, kind, title, body, sent_at, viewed_at
+           FROM mentor_hints WHERE player_id = $1 ORDER BY sent_at DESC LIMIT 20`,
+        [req.params.playerId]
+      );
+
+      // Calculate coins (lifetime - approximate)
+      const totalCoins = Object.values(player.lifetime_scores || {}).reduce((a, b) => a + (b || 0), 0);
+
+      res.json({ player, missions, hints, total_coins: totalCoins });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // Wyslij hint/artefakt/wiadomosc do ucznia
+  r.post("/students/:playerId/hints", async (req, res) => {
+    try {
+      const pool = await initDatabase();
+      // Verify mentor owns class containing this player
+      const ownCheck = await pool.query(
+        `SELECT 1 FROM mentor_classes mc
+           JOIN class_memberships cm ON cm.class_id = mc.id
+           WHERE mc.gm_account_id = $1 AND cm.player_id = $2 LIMIT 1`,
+        [req.mentor.gmAccountId, req.params.playerId]
+      );
+      if (!ownCheck.rows.length) return res.status(404).json({ error: "Uczen nie w Twojej klasie" });
+      const { kind = "hint", title, body } = req.body || {};
+      if (!body?.trim()) return res.status(400).json({ error: "body required" });
+      const id = randomUUID();
+      await pool.query(
+        `INSERT INTO mentor_hints (id, gm_account_id, player_id, kind, title, body) VALUES ($1, $2, $3, $4, $5, $6)`,
+        [id, req.mentor.gmAccountId, req.params.playerId, kind, title || null, body.trim()]
+      );
+      res.status(201).json({ id, ok: true });
+    } catch (e) {
+      res.status(400).json({ error: e.message });
+    }
+  });
+
   r.delete("/classes/:id/students/:playerId", async (req, res) => {
     try {
       const pool = await initDatabase();

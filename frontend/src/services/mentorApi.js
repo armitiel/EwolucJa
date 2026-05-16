@@ -45,6 +45,8 @@ export const mentorApi = {
   getClass: (id) => call(`/mentor/classes/${id}`),
   regenerateCode: (id) => call(`/mentor/classes/${id}/regenerate`, { method: "POST" }),
   deleteStudent: (classId, playerId) => call(`/mentor/classes/${classId}/students/${playerId}`, { method: "DELETE" }),
+  getStudent: (classId, playerId) => call(`/mentor/classes/${classId}/students/${playerId}`),
+  sendHint: (playerId, data) => call(`/mentor/students/${playerId}/hints`, { method: "POST", body: data }),
 
   // Pary (Rozdarta Mapa) - GM strona
   listPairDefinitions: () => call("/pairs/definitions"),
