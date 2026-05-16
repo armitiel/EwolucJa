@@ -169,17 +169,60 @@ export default function MissionView() {
                 onClick={() => {
                   if (step === 0) {
                     openScroll();
-                  } else if (step === 2) {
+                  } else if (step === 2 && mission.status === "pending") {
                     setStep(0);
                   }
                 }}
               >
+                {/* Mini status badge na samej gorze pergaminu */}
+                {mission.status && mission.status !== "pending" && (
+                  <div style={{
+                    display: "inline-block", alignSelf: "center", marginBottom: 8,
+                    padding: "3px 10px", borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: 1,
+                    background: mission.status === "submitted" ? "rgba(122,77,194,.18)" : mission.status === "verified" ? "rgba(99,153,34,.20)" : "rgba(184,91,71,.18)",
+                    color: mission.status === "submitted" ? "var(--p-magic-dk)" : mission.status === "verified" ? "#3B6D11" : "#B85B47",
+                  }}>
+                    {mission.status === "submitted" ? "✉ WYSŁANE — CZEKA NA MENTORA" : mission.status === "verified" ? "✓ MENTOR ZATWIERDZIŁ" : "↺ ODESŁANE — POPRAW"}
+                  </div>
+                )}
                 <h2 className="t-display" style={{ fontSize: 18, lineHeight: 1.2, margin: "0 0 8px", color: "#3B2A12", textAlign: "center" }}>
                   {mission.title}
                 </h2>
                 <p className="t-hand" style={{ fontSize: 15, lineHeight: 1.35, margin: 0, color: "#5C4220", textAlign: "center" }}>
                   {mission.body}
                 </p>
+
+                {/* CTA "Daj Odpowiedz" WEWNATRZ pergaminu - widoczne tylko w step 2 i tylko gdy status pending */}
+                {step === 2 && mission.status === "pending" && (
+                  <button
+                    className="btn btn-leaf pop-in"
+                    style={{
+                      marginTop: 14, alignSelf: "center", padding: "8px 22px",
+                      fontSize: 15, fontWeight: 800,
+                    }}
+                    onClick={(e) => { e.stopPropagation(); setStep(3); }}
+                  >
+                    Daj Odpowiedź ✦
+                  </button>
+                )}
+
+                {/* Status banner w stylu papieru gdy juz wyslane */}
+                {step === 2 && mission.status === "submitted" && (
+                  <div style={{ marginTop: 12, padding: "10px 14px", background: "rgba(122,77,194,.10)", borderRadius: 12, alignSelf: "center", maxWidth: 280 }}>
+                    <p style={{ fontSize: 12, color: "#3B2A12", margin: 0, textAlign: "center", lineHeight: 1.35 }}>
+                      Twoja odpowiedź dotarła do mentora.<br />
+                      Zaglądnij wieczorem — może już sprawdził!
+                    </p>
+                  </div>
+                )}
+                {step === 2 && mission.status === "verified" && (
+                  <div style={{ marginTop: 12, padding: "10px 14px", background: "rgba(99,153,34,.18)", borderRadius: 12, alignSelf: "center", maxWidth: 280 }}>
+                    <p style={{ fontSize: 12, color: "#3B6D11", margin: 0, textAlign: "center", lineHeight: 1.35, fontWeight: 700 }}>
+                      ✓ Świetna robota! Zadanie zaliczone.<br />
+                      Nowy trop pojawi się jutro.
+                    </p>
+                  </div>
+                )}
               </MissionScroll>
               {step === 0 && (
                 <>
@@ -194,8 +237,8 @@ export default function MissionView() {
                 Zachowuje pozycje zwoju gdy zmienia sie step, bez "skoku" w layoucie.
                 Lektor mountowany od step 1 (compact, autoplay z 600ms delay = zaraz po dzwiekach),
                 widoczne kontrolki pojawia sie przy step 2 (ten sam instance audio - bez przerwy). */}
-            <div style={{ width: "100%", maxWidth: 360, marginTop: 20, minHeight: 130, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-              {step === 0 && (
+            <div style={{ width: "100%", maxWidth: 360, marginTop: 20, minHeight: 100, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+              {step === 0 && mission.status === "pending" && (
                 <button
                   className="btn btn-magic btn-block pop-in"
                   style={{ width: "100%" }}
@@ -204,9 +247,22 @@ export default function MissionView() {
                   Rozwiń zwój ✦
                 </button>
               )}
-              {step === 2 && (
-                <button className="btn btn-leaf btn-block pop-in" style={{ width: "100%" }} onClick={() => setStep(3)}>
-                  Daj Odpowiedź ✦
+              {step === 0 && mission.status === "submitted" && (
+                <button
+                  className="btn btn-ghost btn-block pop-in"
+                  style={{ width: "100%" }}
+                  onClick={openScroll}
+                >
+                  Sprawdź status ✉
+                </button>
+              )}
+              {step === 0 && mission.status === "verified" && (
+                <button
+                  className="btn btn-leaf btn-block pop-in"
+                  style={{ width: "100%" }}
+                  onClick={openScroll}
+                >
+                  Zobacz nagrodę ✓
                 </button>
               )}
               {(step === 1 || step === 2) && (
