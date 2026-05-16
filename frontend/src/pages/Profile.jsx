@@ -73,9 +73,12 @@ export default function Profile() {
   const profile = profileCode(player.archetype);
   const info = PROFILE_INFO[profile];
   const lvl = levelFromScores(player.lifetime_scores);
-  const weekCoins = weeklyCoinSum(player);
-  const WEEK_TARGET = 20;
-  const weekPct = Math.min(100, Math.round((weekCoins / WEEK_TARGET) * 100));
+  // Coiny - real licznik z pola player.coins (fallback do sumy lifetime_scores)
+  const totalCoins = player.coins != null && player.coins > 0
+    ? player.coins
+    : Object.values(player.lifetime_scores || {}).reduce((s, v) => s + (v || 0), 0);
+  const WEEK_TARGET = 100;
+  const weekPct = Math.min(100, Math.round((totalCoins / WEEK_TARGET) * 100));
   const choicesCount = (player.choices_log || []).length;
   const backpackCount = (player.backpack || []).length;
 
@@ -126,7 +129,7 @@ export default function Profile() {
         <div className="card" style={{ padding: "14px 16px", opacity: 0, animation: "el-up .55s ease .15s forwards" }}>
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, fontWeight: 800, color: "var(--p-ink-soft)", marginBottom: 6 }}>
             <span>POSTĘP TYGODNIA</span>
-            <span>{weekCoins} / {WEEK_TARGET} ✦</span>
+            <span>{totalCoins} / {WEEK_TARGET} ✦</span>
           </div>
           <div className="prog magic"><i style={{ width: `${weekPct}%` }} /></div>
         </div>

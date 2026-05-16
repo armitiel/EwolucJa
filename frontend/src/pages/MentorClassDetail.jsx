@@ -212,16 +212,18 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
 
         {data && (
           <div style={{ padding: "14px 18px", display: "flex", flexDirection: "column", gap: 16 }}>
-            {/* POSTEP TYGODNIA + COINY */}
-            <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-              <div style={{ background: "linear-gradient(180deg,#FFF1B0,#FFD269)", borderRadius: 14, padding: "12px 14px", textAlign: "center" }}>
-                <div className="t-display" style={{ fontSize: 28, color: "#7A4D10", lineHeight: 1 }}>{data.total_coins} ✦</div>
-                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.2, color: "#7A4D10", marginTop: 4 }}>COINY ŁĄCZNIE</div>
+            {/* POSTEP TYGODNIA - progress bar jak u ucznia */}
+            <section style={{ background: "linear-gradient(180deg, #FCF5E1 0%, #F4E3B8 100%)", border: "1.5px solid #E1CB94", borderRadius: 14, padding: "14px 16px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, fontWeight: 800, color: "#7A4D10", marginBottom: 6, letterSpacing: 1.2 }}>
+                <span>POSTĘP TYGODNIA</span>
+                <span>{data.total_coins} / 100 ✦</span>
               </div>
-              <div style={{ background: "rgba(122,77,194,.15)", borderRadius: 14, padding: "12px 14px", textAlign: "center" }}>
-                <div className="t-display" style={{ fontSize: 28, color: "var(--p-magic-dk)", lineHeight: 1 }}>+{data.week_coins ?? 0} ✦</div>
-                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.2, color: "var(--p-magic-dk)", marginTop: 4 }}>POSTĘP TYGODNIA</div>
-              </div>
+              <div className="prog magic"><i style={{ width: `${Math.min(100, Math.round((data.total_coins / 100) * 100))}%` }} /></div>
+              {data.week_coins > 0 && (
+                <div style={{ fontSize: 11, color: "var(--p-magic-dk)", marginTop: 6, fontWeight: 700 }}>
+                  +{data.week_coins} ✦ w ostatnim tygodniu
+                </div>
+              )}
             </section>
 
             {/* SCORES */}

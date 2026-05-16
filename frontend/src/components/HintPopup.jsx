@@ -4,37 +4,49 @@
  * Pokazuje kolejke hintow jeden po drugim, kazdy klik "OK" oznacza widziany.
  */
 import React, { useEffect, useState, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import { api, session } from "../services/api.js";
 import { fx } from "../services/soundFx.js";
 
 const POLL_INTERVAL_MS = 60_000; // co minute sprawdzaj nowe hinty
+const MENTOR_PATHS = ["/mentor", "/gm", "/dev"]; // sciezki na ktorych NIE pollujemy hintow ucznia
 
 export default function HintPopup() {
+  const location = useLocation();
   const [queue, setQueue] = useState([]);
   const [current, setCurrent] = useState(null);
 
+  // Czy jestesmy na sciezce mentora / dev? Jezeli tak - nie pokazujemy hintow ucznia
+  const isMentorRoute = MENTOR_PATHS.some((p) => location.pathname.startsWith(p));
+
   const fetchHints = useCallback(async () => {
+    if (isMentorRoute) return;
     const playerId = session.getPlayer();
     if (!playerId) return;
     try {
       const data = await api.getUnreadHints(playerId);
       if (data.hints && data.hints.length > 0) {
         setQueue((prev) => {
-          // Merge - dodaj nowe, usun juz pokazane
           const existingIds = new Set(prev.map((h) => h.id));
           const fresh = data.hints.filter((h) => !existingIds.has(h.id));
           return [...prev, ...fresh];
         });
       }
     } catch {}
-  }, []);
+  }, [isMentorRoute]);
 
   // Initial fetch + polling
   useEffect(() => {
+    if (isMentorRoute) {
+      // Na trasach mentora ukrywamy aktywne hinty i nie pollujemy
+      setQueue([]);
+      setCurrent(null);
+      return;
+    }
     fetchHints();
     const i = setInterval(fetchHints, POLL_INTERVAL_MS);
     return () => clearInterval(i);
-  }, [fetchHints]);
+  }, [fetchHints, isMentorRoute]);
 
   // Wyciagnij pierwszy z kolejki do "current" jezeli nic juz nie pokazujemy
   useEffect(() => {
