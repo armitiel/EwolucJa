@@ -47,7 +47,7 @@ export default function PageShell({ children, dark = false, showClouds = true, s
   return (
     <div
       style={{
-        minHeight: "100vh",
+        minHeight: "100dvh",  // Android-aware viewport
         position: "relative",
         background: dark ? "#1a1430" : "transparent",
       }}
@@ -58,7 +58,7 @@ export default function PageShell({ children, dark = false, showClouds = true, s
         style={{
           maxWidth: 480,
           margin: "0 auto",
-          minHeight: "100vh",
+          minHeight: "100dvh",
           position: "relative",
           display: "flex",
           flexDirection: "column",

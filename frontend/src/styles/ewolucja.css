@@ -28,6 +28,7 @@ body{
   background: #1a1430;
   color: var(--p-ink);
   min-height:100vh;
+  min-height:100dvh; /* Android Chrome 108+ / iOS 15.4+ - aktualizuje sie z URL bar */
   overflow-x:hidden;
   /* Wewnetrzny scroll (.screen-scroll) nie propaguje do body, ale lekki bounce na granicy jest naturalny */
   overscroll-behavior-y: auto;
@@ -81,10 +82,12 @@ h1, h2, h3, h4, h5, h6,
 .screen-scroll{
   flex:1; overflow-y:auto; overflow-x:hidden;
   -webkit-overflow-scrolling: touch;
-  /* Padding bottom: 28px naturalnego + 24px luzu przy TabBar = 52px (uzytkownik moze "ciagnac" lekko w dol) */
-  padding: 12px 18px 52px;
+  /* Padding bottom: 80px - daje miejsce na Android URL bar i TabBar, zapobiega ucinaniu ostatnich elementow */
+  padding: 12px 18px 80px;
   /* Niech naturalny bounce dziala wewnatrz tego kontenera bez propagacji */
   overscroll-behavior-y: contain;
+  /* Touch action manipulation pozwala na natywny scroll bez interferencji JS gestures */
+  touch-action: pan-y;
 }
 .screen-scroll::-webkit-scrollbar{ display:none; }
 

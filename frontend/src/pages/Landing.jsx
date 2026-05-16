@@ -76,6 +76,16 @@ function Splash({ onDone }) {
             background: "none", border: "none", padding: 0, cursor: "pointer",
           }}
         >
+          {/* Etykieta NAD ikona dzwieku */}
+          <div style={{
+            background: "rgba(255,255,255,.95)", color: "#4A2A0E",
+            padding: "10px 22px", borderRadius: 999,
+            fontFamily: "var(--font-display, 'Baloo 2'), sans-serif",
+            fontSize: 17, fontWeight: 800,
+            boxShadow: "0 4px 12px rgba(0,0,0,.25)",
+          }}>
+            Włącz dźwięk i ruszamy
+          </div>
           {/* Okrag z ikona dzwieku - pulsuje wabiac uwage */}
           <div style={{
             width: 84, height: 84, borderRadius: "50%",
@@ -89,15 +99,6 @@ function Splash({ onDone }) {
               <path d="M16 8a5 5 0 0 1 0 8" fill="none"/>
               <path d="M19 5a9 9 0 0 1 0 14" fill="none"/>
             </svg>
-          </div>
-          <div style={{
-            background: "rgba(255,255,255,.95)", color: "#4A2A0E",
-            padding: "10px 22px", borderRadius: 999,
-            fontFamily: "var(--font-display, 'Baloo 2'), sans-serif",
-            fontSize: 17, fontWeight: 800,
-            boxShadow: "0 4px 12px rgba(0,0,0,.25)",
-          }}>
-            Włącz dźwięk i ruszamy ✦
           </div>
         </button>
       </div>
