@@ -138,8 +138,8 @@ function StudentRow({ student, onClick, onDelete }) {
       style={{ padding: "12px 14px", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}
     >
       {profileCode
-        ? <ProfileAvatar profile={profileCode} size={44} variant="mini" />
-        : <PendingAvatar size={44} />}
+        ? <ProfileAvatar profile={profileCode} size={88} variant="mini" />
+        : <PendingAvatar size={88} />}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div className="t-display" style={{ fontSize: 16, color: "var(--p-ink)" }}>{student.name}</div>
         <div style={{ fontSize: 12, color: "var(--p-ink-soft)" }}>
