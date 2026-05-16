@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { narrativeService } from "../services/narrativeService.js";
 import {
-  getPlayer, createCycle, getCurrentCycle, closeCycle,
+  getPlayer, savePlayer, createCycle, getCurrentCycle, closeCycle,
   createMission, getCurrentMission, getMission, submitMissionProof,
   addArtifactToBackpack, getPool,
 } from "../database/db.js";
@@ -139,13 +139,36 @@ export function missionRoutes(db) {
         proof_text: proof_text || "",
         proof_media_url: proof_media_url || null,
       });
+
+      // NAGRODA: +punkty do lifetime_scores per cecha (mission.competency_focus) + bonus do profilu gracza
+      const player = await getPlayer(db, mission.player_id);
+      if (player) {
+        const lifetime = { ...(player.lifetime_scores || { EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 }) };
+        const cycleScores = { ...(player.scores || { EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 }) };
+        const focus = Array.isArray(mission.competency_focus) ? mission.competency_focus : [];
+        // +8 do glownego profilu gracza (jego cecha rosnie najszybciej)
+        const mainProfile = player.archetype && lifetime[player.archetype] !== undefined ? player.archetype : "DT";
+        lifetime[mainProfile] = (lifetime[mainProfile] || 0) + 8;
+        cycleScores[mainProfile] = (cycleScores[mainProfile] || 0) + 8;
+        // +5 do kazdej cechy z competency_focus
+        for (const code of focus) {
+          if (lifetime[code] !== undefined && code !== mainProfile) {
+            lifetime[code] = (lifetime[code] || 0) + 5;
+            cycleScores[code] = (cycleScores[code] || 0) + 5;
+          }
+        }
+        player.lifetime_scores = lifetime;
+        player.scores = cycleScores;
+        await savePlayer(db, player);
+      }
+
       const dopamineArtifact = {
         artifact_id: `dopamine_${Date.now()}`,
         artifact_name: "Świecące Piórko",
         cycle_id: mission.cycle_id,
       };
       await addArtifactToBackpack(db, mission.player_id, dopamineArtifact);
-      res.json({ ok: true, dopamine_reward: dopamineArtifact });
+      res.json({ ok: true, dopamine_reward: dopamineArtifact, scores: player?.lifetime_scores });
     } catch (e) { console.error("[mission submit]", e); res.status(500).json({ error: e.message }); }
   });
 
