@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, session } from "../services/api.js";
+import { useAppData } from "../contexts/AppData.jsx";
 import { ttsPlayer } from "../services/ttsPlayer";
 import NarratorVoice from "../components/NarratorVoice.jsx";
 import PageShell from "../components/PageShell.jsx";
@@ -45,6 +46,7 @@ const TRANSITIONS = [
 
 export default function Onboarding() {
   const navigate = useNavigate();
+  const { refreshAll } = useAppData();
   // Player_id moze juz istniec (z /dolacz join flow) - wykorzystamy go. Imie zawsze pytamy w name step.
   const initialPlayerId = (() => { try { return session.getPlayer(); } catch { return null; } })();
   const [step, setStep] = useState("name");
@@ -116,6 +118,9 @@ export default function Onboarding() {
     try {
       const payload = Object.entries(finalAnswers).map(([q, a]) => ({ question_id: q, answer_id: a }));
       const res = await api.submitQuiz(playerId, payload, name.trim());
+      // KRYTYCZNE: po submit (nowe imie + archetype + coins) odswiez cala AppData,
+      // inaczej TopBar/Profile/WorldHub pokazuja stale dane z "Uczen 0 coinow"
+      try { await refreshAll(); } catch {}
       setResult(res);
       setStep("result");
       try { await api.generateMission(playerId); } catch {}
