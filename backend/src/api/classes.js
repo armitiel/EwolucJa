@@ -18,12 +18,41 @@ export function classRoutes() {
     try {
       const pool = await initDatabase();
       const { rows } = await pool.query(
-        `SELECT mc.invite_code, mc.name, mc.invite_code_expires_at, mc.archived_at, mc.created_at,
+        `SELECT mc.invite_code, mc.name, mc.invite_code_expires_at, mc.archived_at, mc.created_at, mc.gm_account_id,
+                LENGTH(mc.invite_code) AS code_len, ENCODE(mc.invite_code::bytea, 'hex') AS code_hex,
                 (SELECT COUNT(*) FROM class_memberships cm WHERE cm.class_id = mc.id AND cm.left_at IS NULL) AS students
            FROM mentor_classes mc
            ORDER BY mc.created_at DESC LIMIT 50`
       );
       res.json({ classes: rows });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+  // DEBUG: lista graczy w klasie z full danymi
+  r.get("/_debug/students", async (req, res) => {
+    try {
+      const pool = await initDatabase();
+      const { rows } = await pool.query(
+        `SELECT p.id, p.name, p.archetype, p.lifetime_scores, p.scores,
+                p.archetype_assigned_at, p.current_chapter, p.registered_at, p.updated_at
+           FROM players p
+           ORDER BY p.registered_at DESC LIMIT 30`
+      );
+      res.json({ players: rows });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+  // DEBUG: prosty test ze samym WHERE
+  r.get("/_debug/find", async (req, res) => {
+    try {
+      const code = String(req.query.code || "").trim().toUpperCase();
+      const pool = await initDatabase();
+      const r1 = await pool.query(`SELECT id, invite_code FROM mentor_classes WHERE invite_code = $1`, [code]);
+      const r2 = await pool.query(`SELECT id, invite_code FROM mentor_classes WHERE invite_code ILIKE $1`, [code]);
+      const r3 = await pool.query(`SELECT id, invite_code FROM mentor_classes`);
+      res.json({ exact: r1.rows, ilike: r2.rows, all: r3.rows });
     } catch (e) {
       res.status(500).json({ error: e.message });
     }
