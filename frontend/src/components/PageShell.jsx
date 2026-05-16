@@ -99,7 +99,7 @@ export default function PageShell({ children, dark = false, showClouds = true, s
             flex: 1,
             display: "flex",
             flexDirection: "column",
-            minHeight: "100vh",
+            minHeight: 0,  // KRYTYCZNE - bez tego flex:1 + screen-scroll z overflow:auto nie scrolluje na Androidzie
           }}
         >
           {children}
