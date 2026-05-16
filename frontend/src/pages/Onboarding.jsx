@@ -45,9 +45,11 @@ const TRANSITIONS = [
 
 export default function Onboarding() {
   const navigate = useNavigate();
-  const [step, setStep] = useState("name");
+  // Jezeli wszedl z /dolacz join flow, session ma juz player_id - skip "name" -> od razu quiz
+  const initialPlayerId = (() => { try { return session.getPlayer(); } catch { return null; } })();
+  const [step, setStep] = useState(initialPlayerId ? "quiz" : "name");
   const [name, setName] = useState("");
-  const [playerId, setPlayerId] = useState(null);
+  const [playerId, setPlayerId] = useState(initialPlayerId);
   const [quiz, setQuiz] = useState(null);
   const [answers, setAnswers] = useState({});
   const [questionIdx, setQuestionIdx] = useState(0);
@@ -73,9 +75,16 @@ export default function Onboarding() {
     setLoading(true);
     setError(null);
     try {
-      const player = await api.createPlayer(name.trim());
-      session.setPlayer(player.player_id);
-      setPlayerId(player.player_id);
+      // Jezeli player istnieje juz w sesji (np. z /dolacz join flow) - uzyj go,
+      // nie tworz drugiego. Inaczej tworzymy orphan w klasie bez archetype.
+      const existingId = session.getPlayer();
+      let pid = existingId;
+      if (!pid) {
+        const player = await api.createPlayer(name.trim());
+        pid = player.player_id;
+        session.setPlayer(pid);
+      }
+      setPlayerId(pid);
       setStep("quiz");
     } catch (err) {
       setError(err.message);
