@@ -38,8 +38,10 @@ export default function TopBar({
   if (!player) return null;
 
   const profile = profileCode(player.archetype);
-  // Coiny = suma WSZYSTKICH punktow lifetime per cecha (DT+EM+ST+KR+LD+MD)
-  const totalCoins = Object.values(player.lifetime_scores || {}).reduce((s, v) => s + (v || 0), 0);
+  // Coiny - osobne pole 'coins' w bazie (quiz daje +50, misja +10). Fallback do lifetime_scores sum dla starych graczy.
+  const totalCoins = player.coins != null && player.coins > 0
+    ? player.coins
+    : Object.values(player.lifetime_scores || {}).reduce((s, v) => s + (v || 0), 0);
 
   return (
     <>

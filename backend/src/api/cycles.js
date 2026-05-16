@@ -159,6 +159,8 @@ export function missionRoutes(db) {
         }
         player.lifetime_scores = lifetime;
         player.scores = cycleScores;
+        // +10 coinow za kazda ukonczona misje
+        player.coins = (player.coins || 0) + 10;
         await savePlayer(db, player);
       }
 

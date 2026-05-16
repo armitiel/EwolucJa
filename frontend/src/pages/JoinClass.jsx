@@ -50,10 +50,10 @@ export default function JoinClass() {
 
   async function handleJoin() {
     setError(null);
-    if (!playerName.trim()) { setError("Wpisz imię ucznia"); return; }
     setSubmitting(true);
     try {
-      const res = await joinApi.join({ invite_code: code.trim().toUpperCase(), player_name: playerName.trim() });
+      // Placeholder name - prawdziwe imie podaje uczen w quizie/onboardingu (krok "name")
+      const res = await joinApi.join({ invite_code: code.trim().toUpperCase(), player_name: "Uczeń" });
       session.setPlayer(res.player_id);
       navigate("/onboarding");
     } catch (e) {
@@ -96,35 +96,18 @@ export default function JoinClass() {
 
         {step === "confirm" && codeInfo && (
           <div className="card card-paper pop-in" style={{ width: "100%", maxWidth: 380, padding: "24px 22px", textAlign: "center" }}>
-            <h1 className="t-display" style={{ fontSize: 22, margin: "0 0 4px", color: "var(--p-magic-dk)" }}>Dołączasz do klasy:</h1>
-            <div style={{ background: "rgba(122,77,194,.10)", borderRadius: 14, padding: "12px 14px", margin: "12px 0 18px" }}>
-              <div className="t-display" style={{ fontSize: 20, color: "var(--p-ink)" }}>{codeInfo.class_name}</div>
-              <div style={{ fontSize: 12, color: "var(--p-ink-soft)", marginTop: 4 }}>
+            <h1 className="t-display" style={{ fontSize: 18, margin: "0 0 10px", color: "var(--p-magic-dk)" }}>Dołączasz do klasy:</h1>
+            <div style={{ background: "rgba(122,77,194,.10)", borderRadius: 14, padding: "18px 14px", margin: "10px 0 22px" }}>
+              <div className="t-display" style={{ fontSize: 38, color: "var(--p-ink)", lineHeight: 1, letterSpacing: -.5 }}>{codeInfo.class_name}</div>
+              <div style={{ fontSize: 13, color: "var(--p-ink-soft)", marginTop: 8 }}>
                 Mentor: <strong>{codeInfo.mentor_name}</strong><br />
                 {codeInfo.student_count} z {codeInfo.max_students} miejsc
               </div>
             </div>
 
-            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.4, color: "var(--p-ink-soft)", marginBottom: 4, textAlign: "left" }}>JAK MA NA IMIĘ UCZEŃ?</div>
-            <input
-              autoFocus
-              value={playerName}
-              onChange={(e) => setPlayerName(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && !submitting && handleJoin()}
-              placeholder="Imię"
-              style={{
-                width: "100%", padding: "12px 14px", fontSize: 17, fontFamily: "Baloo 2, sans-serif",
-                border: "2px solid rgba(122,77,194,.30)", borderRadius: 14,
-                background: "rgba(255,255,255,.92)", color: "var(--p-ink)",
-                outline: "none", boxSizing: "border-box",
-              }}
-            />
-            {error && <p style={{ color: "#B85B47", fontSize: 13, margin: "10px 0 0" }}>{error}</p>}
-            <button className="btn btn-magic btn-block" style={{ marginTop: 14 }} disabled={submitting} onClick={handleJoin}>
+            {error && <p style={{ color: "#B85B47", fontSize: 13, margin: "0 0 10px" }}>{error}</p>}
+            <button className="btn btn-magic btn-block" disabled={submitting} onClick={handleJoin}>
               {submitting ? "Dołączam..." : "Dołącz do klasy ✦"}
-            </button>
-            <button className="btn btn-ghost btn-sm" style={{ marginTop: 8 }} onClick={() => { setStep("code"); setCodeInfo(null); setError(null); }}>
-              Zmień kod
             </button>
           </div>
         )}

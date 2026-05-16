@@ -183,7 +183,7 @@ export function onboardingRoutes(db) {
 
   router.post("/submit", async (req, res) => {
     try {
-      const { player_id, answers } = req.body;
+      const { player_id, answers, name } = req.body;
       const player = await getPlayer(db, player_id);
       if (!player) return res.status(404).json({ error: "Gracz nie znaleziony" });
       if (!Array.isArray(answers) || answers.length === 0) {
@@ -209,6 +209,10 @@ export function onboardingRoutes(db) {
       // 'archetype' jest deprecated (stara nazwa np. 'tropiciel_tajemnic') — zachowujemy w bazie tylko jako alias.
       // W player.archetype zapisujemy bezposrednio KOD profilu zeby uniknac mapowania w UI.
       const { dominant_profile } = pickArchetype(scores, { peripheral_sum, firstAnswerPoints });
+      // Aktualizuj imie jezeli przeslane (np. uczen ktory wszedl z /dolacz wpisuje imie dopiero w quizie)
+      if (name && typeof name === "string" && name.trim()) {
+        player.player_name = name.trim();
+      }
       player.archetype = dominant_profile;
       player.archetype_assigned_at = new Date().toISOString();
       player.onboarding_answers = log;
@@ -216,6 +220,8 @@ export function onboardingRoutes(db) {
       for (const [k, v] of Object.entries(scores)) {
         player.lifetime_scores[k] = (player.lifetime_scores[k] || 0) + v;
       }
+      // Bonus po ukonczeniu quiz: +50 coinow startowych (tylko jezeli player nie ma juz coinow z poprzedniej sesji)
+      if (!player.coins || player.coins === 0) player.coins = 50;
       player.current_chapter = "wezwanie_kroniki";
       await savePlayer(db, player);
       const cycle = await createCycle(db, player.player_id);

@@ -29,8 +29,8 @@ export const api = {
 
   // Onboarding (V2)
   getQuiz: () => call("/onboarding/quiz"),
-  submitQuiz: (player_id, answers) =>
-    call("/onboarding/submit", { method: "POST", body: { player_id, answers } }),
+  submitQuiz: (player_id, answers, name) =>
+    call("/onboarding/submit", { method: "POST", body: { player_id, answers, name } }),
 
   // Cycles
   getCurrentCycle: (player_id) => call(`/cycles/current/${player_id}`),

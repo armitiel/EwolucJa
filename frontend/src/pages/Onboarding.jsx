@@ -45,9 +45,9 @@ const TRANSITIONS = [
 
 export default function Onboarding() {
   const navigate = useNavigate();
-  // Jezeli wszedl z /dolacz join flow, session ma juz player_id - skip "name" -> od razu quiz
+  // Player_id moze juz istniec (z /dolacz join flow) - wykorzystamy go. Imie zawsze pytamy w name step.
   const initialPlayerId = (() => { try { return session.getPlayer(); } catch { return null; } })();
-  const [step, setStep] = useState(initialPlayerId ? "quiz" : "name");
+  const [step, setStep] = useState("name");
   const [name, setName] = useState("");
   const [playerId, setPlayerId] = useState(initialPlayerId);
   const [quiz, setQuiz] = useState(null);
@@ -115,7 +115,7 @@ export default function Onboarding() {
     setLoading(true);
     try {
       const payload = Object.entries(finalAnswers).map(([q, a]) => ({ question_id: q, answer_id: a }));
-      const res = await api.submitQuiz(playerId, payload);
+      const res = await api.submitQuiz(playerId, payload, name.trim());
       setResult(res);
       setStep("result");
       try { await api.generateMission(playerId); } catch {}

@@ -183,6 +183,8 @@ async function ensureSchema(pool) {
     -- Demo player: mentor moze testowac jako dziecko bez ingerencji w klasy/pary
     ALTER TABLE players ADD COLUMN IF NOT EXISTS is_demo BOOLEAN DEFAULT FALSE;
     ALTER TABLE players ADD COLUMN IF NOT EXISTS created_by_gm_account_id TEXT REFERENCES gm_accounts(id) ON DELETE SET NULL;
+    -- Coiny: licznik widoczny w TopBar. Quiz daje +50, kazda misja +10. Niezalezne od lifetime_scores (cech).
+    ALTER TABLE players ADD COLUMN IF NOT EXISTS coins INTEGER DEFAULT 0;
     CREATE INDEX IF NOT EXISTS idx_players_demo_owner ON players(created_by_gm_account_id) WHERE is_demo = TRUE;
 
     -- Mentor hints: artefakty/podpowiedzi wyslane przez mentora do ucznia
@@ -226,6 +228,7 @@ function mapPlayerRow(row) {
     archetype_assigned_at: row.archetype_assigned_at,
     onboarding_answers: row.onboarding_answers || [],
     lifetime_scores: row.lifetime_scores || { EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 },
+    coins: row.coins || 0,
     current_cycle_id: row.current_cycle_id || null,
     current_chapter: row.current_chapter || null,
     backpack: row.backpack || [],
@@ -246,8 +249,8 @@ export async function savePlayer(_unused, profile) {
     `INSERT INTO players (
        id, name, avatar, scores, current_land, completed_lands, choices_log,
        final_profile, archetype, archetype_assigned_at, onboarding_answers,
-       lifetime_scores, current_cycle_id, current_chapter, backpack, gm_persona_id, updated_at
-     ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,NOW())
+       lifetime_scores, current_cycle_id, current_chapter, backpack, gm_persona_id, coins, updated_at
+     ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,NOW())
      ON CONFLICT (id) DO UPDATE SET
        name=EXCLUDED.name,
        avatar=EXCLUDED.avatar,
@@ -264,6 +267,7 @@ export async function savePlayer(_unused, profile) {
        current_chapter=EXCLUDED.current_chapter,
        backpack=EXCLUDED.backpack,
        gm_persona_id=EXCLUDED.gm_persona_id,
+       coins=EXCLUDED.coins,
        updated_at=NOW()`,
     [
       profile.player_id,
@@ -282,6 +286,7 @@ export async function savePlayer(_unused, profile) {
       profile.current_chapter || null,
       J(profile.backpack || []),
       profile.gm_persona_id || null,
+      profile.coins || 0,
     ]
   );
 }
