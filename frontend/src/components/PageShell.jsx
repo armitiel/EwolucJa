@@ -58,11 +58,13 @@ export default function PageShell({ children, dark = false, showClouds = true, s
         style={{
           maxWidth: 480,
           margin: "0 auto",
-          minHeight: "100dvh",
+          height: "100dvh",  // FIXED height (nie min-height) - inaczej flex:1 + overflow:auto nie scrolluje na Androidzie
+          maxHeight: "100dvh",
           position: "relative",
           display: "flex",
           flexDirection: "column",
           background: "transparent",
+          overflow: "hidden",  // wymusza zeby tylko screen-scroll mial scroll, nie cala middle
         }}
       >
         <div className={skyClass.join(" ")} />
