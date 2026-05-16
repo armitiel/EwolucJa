@@ -13,6 +13,22 @@ import { initDatabase } from "../database/db.js";
 export function classRoutes() {
   const r = Router();
 
+  // TYMCZASOWY DEBUG endpoint - lista wszystkich klas (do diagnozy zaprosen)
+  r.get("/_debug/list", async (req, res) => {
+    try {
+      const pool = await initDatabase();
+      const { rows } = await pool.query(
+        `SELECT mc.invite_code, mc.name, mc.invite_code_expires_at, mc.archived_at, mc.created_at,
+                (SELECT COUNT(*) FROM class_memberships cm WHERE cm.class_id = mc.id AND cm.left_at IS NULL) AS students
+           FROM mentor_classes mc
+           ORDER BY mc.created_at DESC LIMIT 50`
+      );
+      res.json({ classes: rows });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   r.get("/check", async (req, res) => {
     try {
       const code = String(req.query.code || "").trim().toUpperCase();
