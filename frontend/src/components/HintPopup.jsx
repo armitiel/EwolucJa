@@ -152,11 +152,7 @@ export default function HintPopup() {
           „{current.body}"
         </p>
 
-        {current.mentor_name && (
-          <p style={{ fontSize: 12, color: "var(--p-ink-soft)", margin: "0 0 16px", fontStyle: "italic" }}>
-            — {current.mentor_name}
-          </p>
-        )}
+        {/* mentor_name celowo nie pokazywany w popupie - nie zaglosujemy imienia mentora dziecku */}
 
         <button
           className="btn btn-magic btn-block"
@@ -323,11 +319,7 @@ function RewardPopup({ hint, onClose }) {
             „{subText}"
           </p>
         )}
-        {hint.mentor_name && (
-          <p style={{ fontSize: 11, color: "var(--p-ink-soft)", margin: "6px 0 0", fontStyle: "italic" }}>
-            — {hint.mentor_name}
-          </p>
-        )}
+        {/* mentor_name celowo nie pokazywany - utrzymujemy fantasy-tone (Medrzec/Mentor) bez imienia */}
 
         <button
           className="btn btn-magic btn-block"
