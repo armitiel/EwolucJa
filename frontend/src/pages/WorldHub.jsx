@@ -24,9 +24,8 @@ import TabBar from "../components/TabBar.jsx";
 import TopBar from "../components/TopBar.jsx";
 import { Coin } from "../components/art.jsx";
 
-// ─── WeekProgress — pasek 7-dniowy + odliczanie do piątku ───
-// Wyswietla: orby dni tygodnia + pasek postepu COINÓW/CEL TYGODNIA + pigulka dni do piatku.
-function WeekProgress({ todayIndex = null, daysToFriday = null, coins = 0, weekGoal = 50 }) {
+// ─── WeekProgress — orby tygodnia + jeden zloty pasek z wbudowanym licznikiem coinow ───
+function WeekProgress({ todayIndex = null, coins = 0, weekGoal = 50 }) {
   const days = ["PN", "WT", "ŚR", "CZ", "PT", "SO", "ND"];
   const computedToday = todayIndex != null ? todayIndex : ((new Date().getDay() + 6) % 7);
   const computedDone = computedToday;
@@ -78,38 +77,34 @@ function WeekProgress({ todayIndex = null, daysToFriday = null, coins = 0, weekG
         })}
       </div>
 
-      {/* Etykieta postepu coinow */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 12, marginBottom: 4 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <Coin size={16} />
-          <span style={{ fontSize: 12, fontWeight: 800, color: "var(--p-ink)", letterSpacing: 0.3 }}>
-            {coins} / {weekGoal} coinów
-          </span>
-        </div>
-        <span style={{ fontSize: 11, fontWeight: 700, color: "var(--p-ink-soft)" }}>
-          {coinPct}%
-        </span>
-      </div>
-
-      {/* Pasek postepu COINÓW + pigulka dni do piątku */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, minHeight: 30 }}>
-        <div style={{ flex: 1 }}>
-          <div className="prog magic"><i style={{ width: `${coinPct}%` }} /></div>
-        </div>
-        <div
-          style={{
-            display: "flex", alignItems: "center", gap: 5,
-            background: "linear-gradient(180deg,#FFC178,#E8632D)", color: "#fff",
-            padding: "5px 11px", borderRadius: 999, fontSize: 13, fontWeight: 800,
-            boxShadow: "0 2px 0 #A03A12, 0 3px 8px rgba(232,99,45,.45)",
-            visibility: daysToFriday != null && daysToFriday > 0 ? "visible" : "hidden",
-            minHeight: 28,
-          }}
-          title="dni do piątku"
-          aria-hidden={daysToFriday == null || daysToFriday <= 0}
-        >
-          <span style={{ display: "inline-block", animation: "streak-flame 1.4s ease-in-out infinite", transformOrigin: "50% 80%" }}>⏳</span>
-          <span>{daysToFriday ?? 0} {daysToFriday === 1 ? "dzień" : "dni"}</span>
+      {/* Jeden zloty pasek z wbudowanym licznikiem coinow */}
+      <div style={{
+        position: "relative",
+        marginTop: 14,
+        height: 22,
+        borderRadius: 999,
+        background: "rgba(255,221,154,.35)",
+        boxShadow: "inset 0 1px 3px rgba(120,80,10,.18), inset 0 0 0 1px rgba(225,182,106,.45)",
+        overflow: "hidden",
+      }}>
+        {/* Wypelnienie zlotym gradientem */}
+        <div style={{
+          position: "absolute", left: 0, top: 0, bottom: 0,
+          width: `${coinPct}%`,
+          background: "linear-gradient(180deg, #FFE082 0%, #FFB300 50%, #E89A3D 100%)",
+          boxShadow: "0 1px 0 rgba(180,115,34,.55), inset 0 1px 0 rgba(255,255,255,.4)",
+          transition: "width .5s ease",
+        }} />
+        {/* Tekst nad paskiem — zawsze widoczny i wycentrowany */}
+        <div style={{
+          position: "absolute", inset: 0,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          gap: 6, fontSize: 12, fontWeight: 900, color: "var(--p-ink)",
+          textShadow: "0 1px 0 rgba(255,255,255,.6)",
+          letterSpacing: 0.3, pointerEvents: "none",
+        }}>
+          <Coin size={14} />
+          <span>{coins} / {weekGoal} coinów</span>
         </div>
       </div>
     </div>
@@ -165,11 +160,7 @@ export default function WorldHub() {
 
       <div className="screen-scroll entrance-stagger" style={{ display: "flex", flexDirection: "column", gap: 14, paddingTop: 12, paddingBottom: 52, position: "relative", zIndex: 1, flex: 1 }}>
         {/* Postep tygodnia + pasek COINÓW vs CEL TYGODNIA */}
-        <WeekProgress
-          coins={weekCoins}
-          weekGoal={weekGoal}
-          daysToFriday={friday && !friday.passed ? friday.days : null}
-        />
+        <WeekProgress coins={weekCoins} weekGoal={weekGoal} />
 
         {/* Karta 1: W TYM TYGODNIU / Gry (kolor pomaranczowy) */}
         <button
@@ -213,11 +204,8 @@ export default function WorldHub() {
               </svg>
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.6, color: "#A03A12", textTransform: "uppercase", marginBottom: 2 }}>
-                W tym tygodniu
-              </div>
               <h2 className="t-display" style={{ fontSize: 22, margin: 0, lineHeight: 1.15, color: "var(--p-ink)" }}>
-                Gry
+                Gierki dla Ciebie
               </h2>
               <div style={{ display: "flex", gap: 6, marginTop: 6, alignItems: "center" }}>
                 <span
@@ -251,15 +239,24 @@ export default function WorldHub() {
               alignItems: "center",
               gap: 14,
               minHeight: 120,
-              background: "linear-gradient(135deg, rgba(200,160,240,.55), rgba(184,134,232,.35))",
+              position: "relative",
+              overflow: "hidden",
+              background: "linear-gradient(135deg, rgba(200,160,240,.55), rgba(184,134,232,.35)) url('/Porady.svg') right center / contain no-repeat",
             }}
           >
+            {/* Lekka biala warstwa nad SVG dla czytelnosci tekstu */}
+            <div aria-hidden="true" style={{
+              position: "absolute", inset: 0,
+              background: "linear-gradient(90deg, rgba(255,255,255,.0) 0%, rgba(255,255,255,.55) 55%, rgba(255,255,255,.78) 100%)",
+              pointerEvents: "none",
+            }} />
             <div
               style={{
                 width: 80, height: 80,
                 display: "flex", justifyContent: "center", alignItems: "center",
                 flex: "none",
                 animation: "float-mid 3s ease-in-out infinite",
+                position: "relative", zIndex: 1,
               }}
             >
               {/* zwoj2.png — mały zwoj jako prawdziwa ikona */}
@@ -272,16 +269,13 @@ export default function WorldHub() {
                 }}
               />
             </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.6, color: "var(--p-magic-dk)", textTransform: "uppercase", marginBottom: 2 }}>
-                Ślad w realu
-              </div>
+            <div style={{ flex: 1, minWidth: 0, position: "relative", zIndex: 1 }}>
               <h2 className="t-display" style={{ fontSize: 22, margin: 0, lineHeight: 1.15, color: "var(--p-ink)" }}>
-                {mission ? (mission.title || "Twoja misja") : "Czeka na Ciebie"}
+                Zadania w Realu
               </h2>
               {mission && (
                 <div style={{ fontSize: 12, color: "var(--p-ink-soft)", fontWeight: 600, marginTop: 2, lineHeight: 1.2 }}>
-                  Misja dnia · {kraina}
+                  {mission.title} · {kraina}
                 </div>
               )}
               {mission && (
@@ -350,11 +344,8 @@ export default function WorldHub() {
               />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.6, color: "#A07A1A", textTransform: "uppercase", marginBottom: 2 }}>
-                Głos Mędrca
-              </div>
-              <h2 className="t-display" style={{ fontSize: 21, margin: 0, lineHeight: 1.15, color: "var(--p-ink)" }}>
-                Komnata czeka z myślą
+              <h2 className="t-display" style={{ fontSize: 22, margin: 0, lineHeight: 1.15, color: "var(--p-ink)" }}>
+                Rozkmina Dnia
               </h2>
               <div style={{ marginTop: 6 }}>
                 <span style={{
