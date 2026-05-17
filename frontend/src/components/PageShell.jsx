@@ -38,8 +38,9 @@ function DemoBanner() {
   );
 }
 
-export default function PageShell({ children, dark = false, showClouds = true, sky = "default" }) {
+export default function PageShell({ children, dark = false, showClouds = true, sky = "default", skyVars = null }) {
   // sky: 'default' | 'night' | 'dawn'
+  // skyVars: optional object { '--sky-top': '#...', '--sky-mid': '#...', '--sky-bot': '#...' } - nadpisuje gradient
   const skyClass = ["sky-bg"];
   if (dark || sky === "night") skyClass.push("night");
   if (sky === "dawn") skyClass.push("dawn");
@@ -56,18 +57,19 @@ export default function PageShell({ children, dark = false, showClouds = true, s
       <div className={`page-bg ${dark ? "night" : ""}`} />
       <div
         style={{
+          // Position fixed + inset 0 = viewport zawsze ten sam rozmiar, niezaleznie od URL-bara iOS.
+          // Zapobiega reflow przy scrollu (poprzednio 100dvh sie zmienialo gdy URL-bar slidoval).
+          position: "fixed",
+          top: 0, bottom: 0, left: 0, right: 0,
           maxWidth: 480,
           margin: "0 auto",
-          height: "100dvh",  // FIXED height (nie min-height) - inaczej flex:1 + overflow:auto nie scrolluje na Androidzie
-          maxHeight: "100dvh",
-          position: "relative",
           display: "flex",
           flexDirection: "column",
           background: "transparent",
           overflow: "hidden",  // wymusza zeby tylko screen-scroll mial scroll, nie cala middle
         }}
       >
-        <div className={skyClass.join(" ")} />
+        <div className={skyClass.join(" ")} style={skyVars || undefined} />
         {showClouds && !dark && (
           <>
             <div

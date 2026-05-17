@@ -77,7 +77,7 @@ export default function Profile() {
   const totalCoins = player.coins != null && player.coins > 0
     ? player.coins
     : Object.values(player.lifetime_scores || {}).reduce((s, v) => s + (v || 0), 0);
-  const WEEK_TARGET = 100;
+  const WEEK_TARGET = 80; // game design v2: ~5 dni × (mini-gry 4 + reale 12-25) = 80
   const weekPct = Math.min(100, Math.round((totalCoins / WEEK_TARGET) * 100));
   const choicesCount = (player.choices_log || []).length;
   const backpackCount = (player.backpack || []).length;
@@ -86,7 +86,7 @@ export default function Profile() {
     <PageShell>
       <TopBar showLogout onLogout={handleLogout} />
 
-      <div className="screen-scroll" style={{ flex: 1, minHeight: 0, padding: "12px 18px 52px", display: "flex", flexDirection: "column", gap: 14 }}>
+      <div className="screen-scroll" style={{ flex: 1, minHeight: 0, padding: "12px 18px calc(100px + env(safe-area-inset-bottom, 0px))", display: "flex", flexDirection: "column", gap: 14 }}>
         {/* DUZY AVATAR - pierwsza rzecz na ekranie, z kolowym tlem + LV badge */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "4px 0 0", opacity: 0, animation: "el-down .7s ease forwards" }}>
           <div style={{ position: "relative", width: 300, height: 300, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
