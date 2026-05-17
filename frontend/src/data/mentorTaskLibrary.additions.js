@@ -475,8 +475,8 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-015",
     "profile": "EM",
     "kind": "task",
-    "title": "Świetlna ćma czeka na Twój oddech",
-    "body": "Twoja mała świetlna ćma siedzi na ramieniu. Weź trzy oddechy - przy każdym jej światło robi się jaśniejsze. Gotowa, gotowy na dzień.",
+    "title": "Trzy oddechy na dobry dzień",
+    "body": "Stań spokojnie i weź trzy głębokie oddechy. Przy każdym wyobraź sobie, że w środku zapala się małe, ciepłe światło. Po trzecim — gotów na nowy dzień.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
@@ -637,7 +637,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "EM",
     "kind": "task",
     "title": "Świetlik mruga: 'gotowa, gotowy?'",
-    "body": "Twoja świetlna ćma siadła na palcu. Mrugnij do niej. Powiedz: 'dziś idziemy razem'. Macie się nawzajem przez cały dzień.",
+    "body": "Spójrz na własną dłoń. Mrugnij do siebie i powiedz cicho: „dziś idziemy razem\". To takie małe przypomnienie, że masz siebie przez cały dzień.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
@@ -830,7 +830,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "EM",
     "kind": "task",
     "title": "Świetlik szepcze: 'jesteś bezpieczna, bezpieczny'",
-    "body": "Twoja świetlna ćma siedzi na poduszce. Mruga: 'jesteś bezpieczna. jesteś bezpieczny.' Powtórz to w głowie trzy razy. Dzień się otwiera.",
+    "body": "Połóż dłoń na poduszce i powtórz w głowie trzy razy: „jestem bezpieczna\" / „jestem bezpieczny\". Spokojnie. Dzień się dopiero otwiera.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
@@ -942,7 +942,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "EM",
     "kind": "task",
     "title": "Świetlik leci przodem",
-    "body": "Twoja świetlna ćma już wstała. Leci przed Tobą i pokazuje, gdzie jest jasno. Idź za jej światłem. Dzień będzie spokojny.",
+    "body": "Wyobraź sobie, że przed tobą leci małe, ciepłe światełko, które pokazuje drogę tam, gdzie jest jasno. Idź za nim. Dzień będzie spokojny.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
@@ -2577,8 +2577,8 @@ export const ADDITIONAL_TASKS = [
     "id": "LD-TASK-013",
     "profile": "LD",
     "kind": "task",
-    "title": "Niebo Marzeń słucha cię wieczorem",
-    "body": "Twoja kraina, Niebo Marzeń, otwiera się wieczorem. Spójrz przez okno na niebo. Powiedz cicho jedno marzenie — Mędrzec je zapisze gwiazdami.",
+    "title": "Wieczorne marzenie",
+    "body": "Spójrz wieczorem przez okno na niebo. Powiedz cicho jedno swoje marzenie. Wyobraź sobie, że Mędrzec zapisuje je gwiazdami, żebyś nie zapomniał.",
     "points_reward": 25,
     "competency_focus": [
       "LD"
@@ -2643,7 +2643,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "LD",
     "kind": "task",
     "title": "60 minut ruchu, jak lew",
-    "body": "Misja ciała: dziś ruszaj się 60 minut. Biegaj, skacz, tańcz, kop piłkę. Lwia grzywa lubi wiatr. Tarcza Słońca świeci jaśniej, gdy się ruszasz.",
+    "body": "Misja ciała: dziś ruszaj się przez chwilę — może to być bieganie, skakanie, taniec, kopanie piłki. Najlepiej kilka razy po kilka minut, łącznie tyle, ile dasz radę. Twoje ciało lubi ruch.",
     "points_reward": 30,
     "competency_focus": [
       "LD"
@@ -2916,7 +2916,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "LD",
     "kind": "task",
     "title": "Powiedz „ja tak czuję”",
-    "body": "Misja głosu: zamiast „ty zawsze...” spróbuj dziś powiedzieć „ja tak czuję, gdy...”. To dwa zupełnie inne zdania. Pierwsze obwinia. Drugie otwiera. Tarcza Słońca lubi drugie.",
+    "body": "Misja głosu: zamiast „ty zawsze...” spróbuj dziś powiedzieć „ja tak czuję, gdy...”. To dwa zupełnie inne zdania. Pierwsze obwinia. Drugie otwiera rozmowę.",
     "points_reward": 30,
     "competency_focus": [
       "LD"
@@ -2932,7 +2932,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "LD",
     "kind": "task",
     "title": "Naprawić, nie pokonać",
-    "body": "Misja sporu: jeśli pokłócisz się dziś z kimś, zamiast „wygrać”, spróbuj „naprawić”. Powiedz: „chcę, żebyśmy się dogadali”. Tarcza Słońca nie służy do bicia.",
+    "body": "Misja sporu: jeśli pokłócisz się dziś z kimś, zamiast próbować „wygrać\", spróbuj „naprawić\". Powiedz: „chcę, żebyśmy się dogadali\". Twoja siła nie służy do walki — służy do dogadywania się.",
     "points_reward": 30,
     "competency_focus": [
       "LD"
