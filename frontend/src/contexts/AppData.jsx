@@ -48,8 +48,10 @@ export default function AppDataProvider({ children }) {
   // Sprawdz czy biezacy route potrzebuje danych
   const isProtected = PROTECTED_PATHS.some((p) => location.pathname.startsWith(p));
 
-  // Glowny load — startuje gdy mamy playerId w sesji LUB gdy id sie zmienia
-  const loadAll = useCallback(async (id) => {
+  // Glowny load — startuje gdy mamy playerId w sesji LUB gdy id sie zmienia.
+  // opts.silent = true -> nie pokazuje globalnego <Loading> spinnera (uzywane przy refreshAll w tle).
+  const loadAll = useCallback(async (id, opts = {}) => {
+    const silent = !!opts.silent;
     if (!id) {
       setPlayer(null);
       setCycle(null);
@@ -57,7 +59,7 @@ export default function AppDataProvider({ children }) {
       setLoading(false);
       return;
     }
-    setLoading(true);
+    if (!silent) setLoading(true);
     setError(null);
     try {
       const p = await api.getPlayer(id);
@@ -81,7 +83,7 @@ export default function AppDataProvider({ children }) {
     } catch (e) {
       setError(e.message);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, []);
 
@@ -123,9 +125,11 @@ export default function AppDataProvider({ children }) {
     }
   }, []);
 
+  // Cichy refresh - bez setLoading, zeby nie pokazywac globalnego loadera (ekran nie miga).
+  // Uzywane przez HintPopup gdy task/reward przychodzi, przez handleSubmit po wyslaniu odpowiedzi.
   const refreshAll = useCallback(() => {
     const id = session.getPlayer();
-    if (id) loadAll(id);
+    if (id) loadAll(id, { silent: true });
   }, [loadAll]);
 
   const value = {

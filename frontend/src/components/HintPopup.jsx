@@ -39,10 +39,11 @@ export default function HintPopup() {
           const fresh = data.hints.filter((h) => !existingIds.has(h.id));
           return [...prev, ...fresh];
         });
-        // Auto-refresh AppData dla KAZDEGO nowego hintu — task = nowa misja, reward = coiny,
-        // message/hint/artifact = mogą tez wplywac na state (np. nowy artefakt w plecaku).
-        // Dzieki temu wszystko (misja, coiny, artefakty) odswieza sie razem z powiadomieniem.
-        if (data.hints.length > 0) {
+        // Auto-refresh AppData tylko gdy task (nowa misja) lub reward (coiny) - te wymagaja
+        // odswiezenia. Generic hint/message/artifact same nie zmieniaja player state.
+        // refreshAll jest TERAZ silent (bez globalnego loadera), wiec ekran nie miga.
+        const needsRefresh = data.hints.some((h) => h.kind === "task" || h.kind === "reward");
+        if (needsRefresh) {
           try { refreshAll?.(); } catch {}
         }
       }

@@ -254,7 +254,7 @@ export default function MissionView() {
               )}
               <MissionScroll
                 state={step === 0 ? "closed" : "open"}
-                sealed={step === 0 && mission.status === "submitted"}
+                sealed={mission.status === "submitted"}
                 width={360}
                 onClick={() => {
                   if (step === 0 && mission.status !== "submitted") {
