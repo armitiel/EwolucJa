@@ -1,6 +1,14 @@
 /**
  * WorldHub / ScreenHome — ekran "Dom" w stylu Ghibli/Claymorphism.
  * Wielki wizard u gory + powitanie + zegar cyklu + karta zwoju misji + karta Komnaty.
+ *
+ * Nazwy kart (po konsultacji z agentami game-designer / komunikacja-z-rodzicami):
+ *  1) WYPRAWA TYGODNIA / Trzy Próby Krain  (3 gry digital, link /games)
+ *  2) ŚLAD W REALU / {mission.title}        (1 misja realna, link /mission)
+ *  3) SZEPT MĘDRCZYNI / Komnata czeka z myślą (3 porady dnia, link /porady)
+ *
+ * Tygodniowy cel coinów: 50 (Iskra) → 70 (Wędrowiec) → 90 → 120 (Mędrczyni).
+ * MVP: 50 (do dostosowania gdy backend wystawi cycle.weekly_goal).
  */
 import React, { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -11,24 +19,18 @@ import { PROFILE_INFO } from "../components/ProfileAvatar.jsx";
 const LEGACY_TO_PROFILE = { tropiciel_tajemnic: "DT", zaklinacz_uczuc: "EM", mistrz_map: "ST", tkacz_snow: "KR", gwardzista_odwagi: "LD", straznik_mostu: "MD" };
 function profileCode(v) { if (!v) return "DT"; return PROFILE_INFO[v] ? v : (LEGACY_TO_PROFILE[v] || "DT"); }
 import { useAppData } from "../contexts/AppData.jsx";
-import NarratorVoice from "../components/NarratorVoice.jsx";
 import PageShell from "../components/PageShell.jsx";
 import TabBar from "../components/TabBar.jsx";
 import TopBar from "../components/TopBar.jsx";
-import { Sparkle, Coin, CoinPill, Avatar, ScrollIcon, AdviceIcon } from "../components/art.jsx";
+import { Coin } from "../components/art.jsx";
 
 // ─── WeekProgress — pasek 7-dniowy + odliczanie do piątku ───
-// Rozpoznaje aktualny dzien tygodnia (PN=0..ND=6) i koloruje:
-//   - dni przed dzisiejszym = zlote monety (ukonczone)
-//   - dzien dzisiejszy      = fioletowy ring (todayIndex)
-//   - dni przyszle          = puste kola
-function WeekProgress({ done = null, goal = 7, todayIndex = null, daysToFriday = null }) {
+// Wyswietla: orby dni tygodnia + pasek postepu COINÓW/CEL TYGODNIA + pigulka dni do piatku.
+function WeekProgress({ todayIndex = null, daysToFriday = null, coins = 0, weekGoal = 50 }) {
   const days = ["PN", "WT", "ŚR", "CZ", "PT", "SO", "ND"];
-  // Auto-detekcja PL: getDay() => Sun=0..Sat=6, my chcemy Mon=0..Sun=6.
   const computedToday = todayIndex != null ? todayIndex : ((new Date().getDay() + 6) % 7);
-  // Jesli nie podano "done", domyslnie zalozmy ze gracz ukonczyl wszystkie poprzednie dni (todayIndex)
-  const computedDone = done != null ? done : computedToday;
-  const pct = Math.round((computedDone / goal) * 100);
+  const computedDone = computedToday;
+  const coinPct = Math.min(100, Math.round((coins / Math.max(1, weekGoal)) * 100));
 
   return (
     <div className="card" style={{ padding: "12px 16px" }}>
@@ -76,11 +78,23 @@ function WeekProgress({ done = null, goal = 7, todayIndex = null, daysToFriday =
         })}
       </div>
 
-      {/* Wiersz: pasek postepu + pigulka. minHeight rezerwuje miejsce dla pigulki
-          zeby karta nie podskakiwala gdy 'daysToFriday' doleci z API. */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 12, minHeight: 30 }}>
+      {/* Etykieta postepu coinow */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 12, marginBottom: 4 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <Coin size={16} />
+          <span style={{ fontSize: 12, fontWeight: 800, color: "var(--p-ink)", letterSpacing: 0.3 }}>
+            {coins} / {weekGoal} coinów
+          </span>
+        </div>
+        <span style={{ fontSize: 11, fontWeight: 700, color: "var(--p-ink-soft)" }}>
+          {coinPct}%
+        </span>
+      </div>
+
+      {/* Pasek postepu COINÓW + pigulka dni do piątku */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, minHeight: 30 }}>
         <div style={{ flex: 1 }}>
-          <div className="prog magic"><i style={{ width: `${pct}%` }} /></div>
+          <div className="prog magic"><i style={{ width: `${coinPct}%` }} /></div>
         </div>
         <div
           style={{
@@ -89,8 +103,6 @@ function WeekProgress({ done = null, goal = 7, todayIndex = null, daysToFriday =
             padding: "5px 11px", borderRadius: 999, fontSize: 13, fontWeight: 800,
             boxShadow: "0 2px 0 #A03A12, 0 3px 8px rgba(232,99,45,.45)",
             visibility: daysToFriday != null && daysToFriday > 0 ? "visible" : "hidden",
-            // visibility (zamiast warunkowego renderu) zachowuje rezerwacje miejsca
-            // od pierwszego renderu, ale ukrywa pigulke az API odda 'daysToFriday'.
             minHeight: 28,
           }}
           title="dni do piątku"
@@ -104,98 +116,15 @@ function WeekProgress({ done = null, goal = 7, todayIndex = null, daysToFriday =
   );
 }
 
-// Zegar cyklu — radialny pasek postepu 1..N dni z nazwa i odliczeniem.
-function CycleClock({ days = 5, dayIndex = 1, label = "Wieża Pytań", remainingText = "" }) {
-  const r = 38;
-  const C = 2 * Math.PI * r;
-  const progress = Math.min(dayIndex / days, 1);
-  const dash = `${C * progress} ${C}`;
-  return (
-    <div className="card" style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px" }}>
-      <div style={{ position: "relative", width: 96, height: 96, flex: "none" }}>
-        <svg viewBox="0 0 100 100" width="96" height="96" style={{ transform: "rotate(-90deg)" }}>
-          <circle cx="50" cy="50" r={r} fill="rgba(255,255,255,.65)" stroke="rgba(122,77,194,.18)" strokeWidth="6" />
-          <circle cx="50" cy="50" r={r} fill="none" stroke="url(#cg)" strokeWidth="6" strokeLinecap="round" strokeDasharray={dash} />
-          {Array.from({ length: days }).map((_, i) => {
-            const a = (i / days) * Math.PI * 2;
-            const x = 50 + Math.cos(a) * r;
-            const y = 50 + Math.sin(a) * r;
-            return (
-              <circle
-                key={i}
-                cx={x}
-                cy={y}
-                r={i < dayIndex ? 4 : 3}
-                fill={i < dayIndex ? "#7A4DC2" : "#fff"}
-                stroke="#7A4DC2"
-                strokeWidth="1.5"
-              />
-            );
-          })}
-          <defs>
-            <linearGradient id="cg" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stopColor="#FFD269" />
-              <stop offset="1" stopColor="#B886E8" />
-            </linearGradient>
-          </defs>
-        </svg>
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <div className="t-display" style={{ fontSize: 24, lineHeight: 1 }}>
-            {dayIndex}
-            <span style={{ fontSize: 14, color: "var(--p-ink-soft)" }}>/{days}</span>
-          </div>
-          <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1, color: "var(--p-ink-soft)" }}>DZIEŃ</div>
-        </div>
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-ink-soft)" }}>
-          CYKL · {days === 3 ? "SZYBKI" : days === 7 ? "DŁUGI" : "ŚREDNI"}
-        </div>
-        <div className="t-display" style={{ fontSize: 22, margin: "2px 0 0" }}>
-          {label}
-        </div>
-        {remainingText && (
-          <div style={{ fontSize: 13, color: "var(--p-ink-soft)", marginTop: 4 }}>
-            {remainingText} ✦
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
 export default function WorldHub() {
   const navigate = useNavigate();
-  // Dane z globalnego AppData - bez fetcha lokalnego, dzieki czemu przelaczanie zakladek jest instant.
   const { player, cycle, mission, error } = useAppData();
 
-  // Jesli nie ma gracza w sesji - kieruj do onboardingu
   useEffect(() => {
     if (!session.getPlayer()) navigate("/onboarding");
   }, [navigate]);
 
   const friday = cycle ? timeUntilFriday(cycle.friday_deadline) : null;
-
-  // Cykl 5-dniowy (Pn-Pt). Liczymy dayIndex z postepu pomiedzy started_at a friday_deadline.
-  const { dayIndex, days } = useMemo(() => {
-    const totalDays = 5;
-    if (!cycle) return { dayIndex: 1, days: totalDays };
-    const start = new Date(cycle.started_at).getTime();
-    const end = new Date(cycle.friday_deadline).getTime();
-    const now = Date.now();
-    const total = Math.max(end - start, 1);
-    const ratio = Math.max(0, Math.min(1, (now - start) / total));
-    return { dayIndex: Math.max(1, Math.round(ratio * totalDays)), days: totalDays };
-  }, [cycle]);
 
   const greeting = useMemo(() => {
     if (!player) return "";
@@ -214,34 +143,35 @@ export default function WorldHub() {
       </PageShell>
     );
   }
-  // Global loader pokazuje sie w main.jsx, gdy player jest null po zaladowaniu - kieruj do onboardingu
   if (!player) return null;
 
-  // Skarbiec — liczone z lifetime_scores + backpack (placeholder logika)
-  const totalCoins = ((player.lifetime_scores?.DT || 0) + (player.lifetime_scores?.EM || 0)) * 10 + 12;
-
-  // Profil + avatar
   const profile = profileCode(player.archetype);
-  const archetypeLabel = (PROFILE_INFO[profile]?.name || "Detektyw").toUpperCase();
-  const avatarKind = player.avatar_kind || "fox";
 
-  // Postepy do progress barow na kaflach (Mapa: ile krain odblokowano /6, Plecak: artefakty)
-  const regionsUnlocked = 1; // tylko Las Pytan w MVP
-  const totalRegions = 6;
-  const backpackItems = (player.backpack || []).length;
-  const backpackGoal = 12;
+  // Coiny tygodniowe — MVP: uzywamy player.coins. Cel: 50 (poziom Iskra).
+  // TODO: gdy backend wystawi cycle.weekly_goal / cycle.weekly_coins, podmienic.
+  const weekCoins = player.coins ?? 0;
+  const weekGoal = cycle?.weekly_goal ?? 50;
+
+  // Kraina pochodna profilu — do sublabela karty misji.
+  const KRAINY = {
+    DT: "Las Pytań", EM: "Morze Słów", ST: "Góry Liczb",
+    KR: "Pustynia Pomysłów", LD: "Niebo Marzeń", MD: "Zamek Czasu",
+  };
+  const kraina = KRAINY[profile] || "Las Pytań";
 
   return (
     <PageShell>
       <TopBar narratorText={greeting} playOnceKey="worldhub_greeting" tone="calm" speed={0.86} />
 
       <div className="screen-scroll entrance-stagger" style={{ display: "flex", flexDirection: "column", gap: 14, paddingTop: 12, paddingBottom: 52, position: "relative", zIndex: 1, flex: 1 }}>
-        {/* Postep tygodnia + dni — auto-detekcja dnia tygodnia */}
+        {/* Postep tygodnia + pasek COINÓW vs CEL TYGODNIA */}
         <WeekProgress
+          coins={weekCoins}
+          weekGoal={weekGoal}
           daysToFriday={friday && !friday.passed ? friday.days : null}
         />
 
-        {/* Karta 2: GRY na ten tydzien */}
+        {/* Karta 1: WYPRAWA TYGODNIA / Trzy Próby Krain (gry digital) */}
         <button
           onClick={() => navigate("/games")}
           style={{ border: "none", background: "transparent", padding: 0, cursor: "pointer", textAlign: "left", position: "relative" }}
@@ -254,39 +184,48 @@ export default function WorldHub() {
               alignItems: "center",
               gap: 14,
               minHeight: 120,
-              background: "linear-gradient(135deg, rgba(123,192,232,.30), rgba(184,134,232,.30))",
+              background: "linear-gradient(135deg, rgba(200,160,240,.55), rgba(184,134,232,.35))",
             }}
           >
-            <div style={{ width: 70, height: 80, display: "flex", justifyContent: "center", alignItems: "center", flex: "none" }}>
-              <span
-                style={{
-                  fontSize: 52,
-                  lineHeight: 1,
-                  filter: "drop-shadow(0 6px 12px rgba(80,50,10,.35))",
-                  animation: "float-mid 3.5s ease-in-out infinite",
-                  display: "inline-block",
-                }}
-              >
-                🎮
-              </span>
+            {/* Fioletowa zaokraglona tabletka z nowym gamepadem (czysta, Pixar) */}
+            <div style={{
+              width: 80, height: 80, flex: "none",
+              borderRadius: 22,
+              background: "linear-gradient(180deg, #B886E8 0%, #7A4DC2 100%)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: "0 4px 0 #4A2D80, 0 8px 18px rgba(74,45,128,.35), inset 0 2px 0 rgba(255,255,255,.25)",
+              animation: "float-mid 3.5s ease-in-out infinite",
+            }}>
+              {/* Nowy gamepad — czysta linia, oblo, dziecko-przyjazny */}
+              <svg viewBox="0 0 48 48" width="46" height="46" fill="none">
+                <path
+                  d="M14 17h20a9 9 0 0 1 9 9v2.5a5.5 5.5 0 0 1-10.2 2.9l-1.4-1.4h-14.8l-1.4 1.4A5.5 5.5 0 0 1 5 28.5V26a9 9 0 0 1 9-9z"
+                  fill="#fff"
+                />
+                {/* D-pad (lewa strona) */}
+                <rect x="11" y="24.5" width="9" height="2.6" rx="1.3" fill="#7A4DC2" />
+                <rect x="14.2" y="21.3" width="2.6" height="9" rx="1.3" fill="#7A4DC2" />
+                {/* Buttons cluster (prawa strona, romb 4 kropek) */}
+                <circle cx="33" cy="22.5" r="1.8" fill="#7A4DC2" />
+                <circle cx="36.5" cy="26" r="1.8" fill="#FFD269" />
+                <circle cx="33" cy="29.5" r="1.8" fill="#7A4DC2" />
+                <circle cx="29.5" cy="26" r="1.8" fill="#7A4DC2" />
+              </svg>
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <h2 className="t-display" style={{ fontSize: 22, margin: 0, lineHeight: 1.15 }}>
-                Gry tygodnia
+              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.6, color: "var(--p-magic-dk)", textTransform: "uppercase", marginBottom: 2 }}>
+                Wyprawa tygodnia
+              </div>
+              <h2 className="t-display" style={{ fontSize: 22, margin: 0, lineHeight: 1.15, color: "var(--p-ink)" }}>
+                Trzy Próby Krain
               </h2>
               <div style={{ display: "flex", gap: 6, marginTop: 6, alignItems: "center" }}>
                 <span
                   style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 5,
-                    background: "rgba(255,255,255,.92)",
-                    color: "#7A4D10",
-                    fontWeight: 800,
-                    fontSize: 14,
-                    padding: "4px 12px 4px 8px",
-                    borderRadius: 999,
-                    boxShadow: "inset 0 0 0 1.5px #E1B66A, 0 1px 3px rgba(120,80,10,.15)",
+                    display: "inline-flex", alignItems: "center", gap: 5,
+                    background: "rgba(255,255,255,.92)", color: "#7A4D10",
+                    fontWeight: 800, fontSize: 14, padding: "4px 12px 4px 8px",
+                    borderRadius: 999, boxShadow: "inset 0 0 0 1.5px #E1B66A, 0 1px 3px rgba(120,80,10,.15)",
                   }}
                 >
                   <Coin size={16} /> +30
@@ -298,7 +237,7 @@ export default function WorldHub() {
           </div>
         </button>
 
-        {/* Karta 3: Aktualna misja (zwoj z zadaniami z reala) */}
+        {/* Karta 2: ŚLAD W REALU / {mission.title} (misja realna) */}
         <button
           onClick={() => mission && navigate("/mission")}
           disabled={!mission}
@@ -317,44 +256,58 @@ export default function WorldHub() {
           >
             <div
               style={{
-                width: 70,
-                height: 80,
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
+                width: 80, height: 80,
+                display: "flex", justifyContent: "center", alignItems: "center",
                 flex: "none",
                 animation: "float-mid 3s ease-in-out infinite",
               }}
             >
-              <ScrollIcon size={40} />
+              {/* zwoj2.png — mały zwoj jako prawdziwa ikona */}
+              <img
+                src="/zwoj2.png"
+                alt=""
+                style={{
+                  width: 78, height: 78, objectFit: "contain",
+                  filter: "drop-shadow(0 4px 8px rgba(120,80,30,.35))",
+                }}
+              />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <h2 className="t-display" style={{ fontSize: 22, margin: 0, lineHeight: 1.15 }}>
-                Zadania w realu
+              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.6, color: "#7A4D10", textTransform: "uppercase", marginBottom: 2 }}>
+                Ślad w realu
+              </div>
+              <h2 className="t-display" style={{ fontSize: 22, margin: 0, lineHeight: 1.15, color: "var(--p-ink)" }}>
+                {mission ? (mission.title || "Twoja misja") : "Czeka na Ciebie"}
               </h2>
               {mission && (
-                <div style={{ fontSize: 13, color: "var(--p-ink-soft)", fontWeight: 600, marginTop: 2, lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical" }}>
-                  {mission.title}
+                <div style={{ fontSize: 12, color: "var(--p-ink-soft)", fontWeight: 600, marginTop: 2, lineHeight: 1.2 }}>
+                  Misja dnia · {kraina}
                 </div>
               )}
               {mission && (
-                <div style={{ display: "flex", gap: 6, marginTop: 6, alignItems: "center" }}>
-                  <span
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 5,
-                      background: "rgba(255,255,255,.92)",
-                      color: "#7A4D10",
-                      fontWeight: 800,
-                      fontSize: 14,
-                      padding: "4px 12px 4px 8px",
-                      borderRadius: 999,
-                      boxShadow: "inset 0 0 0 1.5px #E1B66A, 0 1px 3px rgba(120,80,10,.15)",
-                    }}
-                  >
-                    <Coin size={16} /> +12
-                  </span>
+                <div style={{ display: "flex", gap: 6, marginTop: 6, alignItems: "center", flexWrap: "wrap" }}>
+                  {mission.status === "submitted" && (
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "rgba(122,77,194,.18)", color: "var(--p-magic-dk)", fontWeight: 800, fontSize: 12, padding: "4px 10px", borderRadius: 999, boxShadow: "inset 0 0 0 1.2px rgba(122,77,194,.30)" }}>
+                      💌 Czeka na Mędrca
+                    </span>
+                  )}
+                  {mission.status === "rejected" && (
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "rgba(232,154,61,.22)", color: "#7A4D10", fontWeight: 800, fontSize: 12, padding: "4px 10px", borderRadius: 999, boxShadow: "inset 0 0 0 1.2px rgba(232,154,61,.4)", animation: "pulse-dot 2.4s ease-in-out infinite" }}>
+                      🔄 Doprawka
+                    </span>
+                  )}
+                  {(!mission.status || mission.status === "pending") && (
+                    <span
+                      style={{
+                        display: "inline-flex", alignItems: "center", gap: 5,
+                        background: "rgba(255,255,255,.92)", color: "#7A4D10",
+                        fontWeight: 800, fontSize: 14, padding: "4px 12px 4px 8px",
+                        borderRadius: 999, boxShadow: "inset 0 0 0 1.5px #E1B66A, 0 1px 3px rgba(120,80,10,.15)",
+                      }}
+                    >
+                      <Coin size={16} /> +12
+                    </span>
+                  )}
                 </div>
               )}
             </div>
@@ -362,15 +315,15 @@ export default function WorldHub() {
           </div>
         </button>
 
-        {/* Karta 4: Porada dnia */}
+        {/* Karta 3: SZEPT MĘDRCZYNI / Komnata czeka z myślą (3 porady dnia) */}
         <button
-          onClick={() => navigate("/invite-gm")}
+          onClick={() => navigate("/porady")}
           style={{ border: "none", padding: 0, background: "transparent", cursor: "pointer", textAlign: "left" }}
         >
           <div
             className="card"
             style={{
-              background: "linear-gradient(135deg, rgba(184,134,232,.22), rgba(255,210,105,.20))",
+              background: "linear-gradient(135deg, rgba(255,224,150,.65), rgba(255,194,90,.40))",
               position: "relative",
               display: "flex",
               alignItems: "center",
@@ -381,64 +334,45 @@ export default function WorldHub() {
           >
             <div
               style={{
-                width: 70,
-                height: 80,
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
+                width: 90, height: 90,
+                display: "flex", justifyContent: "center", alignItems: "center",
                 flex: "none",
                 animation: "float-mid 3.5s ease-in-out infinite",
               }}
             >
-              <AdviceIcon size={64} />
+              <img
+                src="/wizard.png"
+                alt=""
+                style={{
+                  width: 90, height: 90, objectFit: "contain",
+                  filter: "drop-shadow(0 6px 12px rgba(120,80,30,.45))",
+                }}
+              />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <h2 className="t-display" style={{ fontSize: 22, margin: 0, lineHeight: 1.15 }}>
-                Porada dnia
+              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.6, color: "#7A4D10", textTransform: "uppercase", marginBottom: 2 }}>
+                Szept Mędrczyni
+              </div>
+              <h2 className="t-display" style={{ fontSize: 21, margin: 0, lineHeight: 1.15, color: "var(--p-ink)" }}>
+                Komnata czeka z myślą
               </h2>
-              <div style={{ fontSize: 13, color: "var(--p-ink-soft)", fontWeight: 600, marginTop: 2 }}>
-                ✦ Mędrzec ma dla Ciebie myśl
+              <div style={{ marginTop: 6 }}>
+                <span style={{
+                  display: "inline-block",
+                  padding: "3px 10px", borderRadius: 999,
+                  background: "var(--p-magic-dk)", color: "#fff",
+                  fontSize: 10, fontWeight: 900, letterSpacing: 1.2,
+                  boxShadow: "0 2px 4px rgba(74,45,128,.3)",
+                }}>
+                  NOWE
+                </span>
               </div>
             </div>
             <span style={{ fontSize: 32, color: "var(--p-magic-dk)", fontWeight: 700 }}>›</span>
           </div>
         </button>
 
-        {/* Mniejsze kafelki: Mapa + Plecak (z paskami postepu na gorze) */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          {/* Mapa */}
-          <button
-            onClick={() => navigate("/map")}
-            style={{ border: "none", background: "transparent", padding: 0, cursor: "pointer", textAlign: "left" }}
-          >
-            <div className="card card-tight" style={{ padding: "10px 12px 12px" }}>
-              <div className="prog" style={{ height: 5, marginBottom: 8 }}>
-                <i style={{ width: `${Math.round((regionsUnlocked / totalRegions) * 100)}%`, background: "linear-gradient(90deg,#5FA76F,#FFD269)" }} />
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                <span style={{ fontSize: 22 }}>🌲</span>
-                <span style={{ fontSize: 11, color: "var(--p-ink-soft)", fontWeight: 800 }}>{regionsUnlocked}/{totalRegions}</span>
-              </div>
-              <div className="t-display" style={{ fontSize: 16, lineHeight: 1.1 }}>Mapa Świata</div>
-            </div>
-          </button>
-          {/* Plecak */}
-          <button
-            onClick={() => navigate("/backpack")}
-            style={{ border: "none", background: "transparent", padding: 0, cursor: "pointer", textAlign: "left" }}
-          >
-            <div className="card card-tight" style={{ padding: "10px 12px 12px" }}>
-              <div className="prog" style={{ height: 5, marginBottom: 8 }}>
-                <i style={{ width: `${Math.round((backpackItems / backpackGoal) * 100)}%`, background: "linear-gradient(90deg,#B886E8,#FFD269)" }} />
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                <span style={{ fontSize: 22 }}>💜</span>
-                <span style={{ fontSize: 11, color: "var(--p-ink-soft)", fontWeight: 800 }}>{backpackItems}/{backpackGoal}</span>
-              </div>
-              <div className="t-display" style={{ fontSize: 16, lineHeight: 1.1 }}>Plecak</div>
-            </div>
-          </button>
-        </div>
+        {/* Mapa Świata + Plecak — USUNIĘTE (dostępne z TabBar na dole) */}
       </div>
 
       <TabBar current="home" />
