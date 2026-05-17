@@ -1,4 +1,4 @@
-/**
+﻿/**
  * WorldHub / ScreenHome — ekran "Dom" w stylu Ghibli/Claymorphism.
  * Wielki wizard u gory + powitanie + zegar cyklu + karta zwoju misji + karta Komnaty.
  *
@@ -377,8 +377,5 @@ export default function WorldHub() {
 
       <TabBar current="home" />
     </PageShell>
-  );
-}
-ell>
   );
 }
