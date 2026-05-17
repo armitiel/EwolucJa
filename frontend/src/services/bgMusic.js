@@ -12,11 +12,14 @@ class BgMusic {
     this._audio = null;
     this._enabled = this._readEnabled();
     this._volume = 0.25;        // 25% domyślnie
-    this._duckedVolume = 0.05;  // gdy TTS mówi
+    this._duckedVolume = 0.05;  // 5% — gdy TTS mówi LUB strona prosi (np. /mission)
     this._target = this._volume;
     this._fadeTimer = null;
     this._unlocked = false;
     this._track = DEFAULT_TRACK;
+    // Reference counting — wiele "graczy" moze prosic o ducking jednoczesnie.
+    // Music wraca do full volume dopiero gdy WSZYSCY puszcza (count === 0).
+    this._duckRequests = 0;
     this._installAutoUnlock();
   }
 
@@ -81,8 +84,11 @@ class BgMusic {
 
   _start() {
     const a = this._ensureAudio();
+    // Jesli ktos juz prosil o ducking PRZED unlockiem (np. user wszedl na /mission
+    // przed pierwszym kliknieciem), zacznij od duckedVolume.
+    const target = this._duckRequests > 0 ? this._duckedVolume : this._target;
     a.play()
-      .then(() => this._fade(this._target, 1500))
+      .then(() => this._fade(target, 1500))
       .catch((e) => console.warn("[bgMusic] play blocked:", e.message));
   }
 
@@ -108,16 +114,21 @@ class BgMusic {
     if (this._audio && this._enabled) this._fade(this._volume, 400);
   }
 
-  /** Ducking: ścisz, gdy lektor mówi. Wywołuje TTS player. */
+  /** Ducking: ścisz, gdy lektor mówi LUB strona prosi (np. /mission). Ref-counted. */
   duck() {
+    this._duckRequests++;
     if (!this._enabled || !this._audio) return;
     this._fade(this._duckedVolume, 250);
   }
 
-  /** Przywrócenie głośności po końcu lektora. */
+  /** Zwolnienie zadania na ducking. Music wraca dopiero gdy nikt juz nie prosi. */
   unduck() {
+    this._duckRequests = Math.max(0, this._duckRequests - 1);
     if (!this._enabled || !this._audio) return;
-    this._fade(this._volume, 700);
+    if (this._duckRequests === 0) {
+      this._fade(this._volume, 700);
+    }
+    // jezeli jeszcze ktos prosi (np. /mission), zostaw ducked
   }
 
   /** Zmiana utworu (opcjonalnie). */
