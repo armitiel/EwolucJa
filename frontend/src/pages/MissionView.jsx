@@ -212,42 +212,6 @@ export default function MissionView() {
             Rezerwujemy stale miejsce dla CTA pod zwojem zeby pozycja zwoju nie skakala miedzy stanami. */}
         {mission && step !== 3 && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: 0, width: "100%" }}>
-            {/* Wizard avatar na okregu z obrysem i cieniem — gdy zwoj zapieczetowany.
-                Glowa wystaje delikatnie ponad okrag (overflow: visible + scale > 1). */}
-            {step === 0 && mission.status === "submitted" && (
-              <div
-                aria-hidden="true"
-                style={{
-                  position: "relative",
-                  width: 112, height: 112,
-                  marginBottom: -28, // overlapuje na zwoj ponizej
-                  zIndex: 4,
-                  animation: "float-mid 3.2s ease-in-out infinite",
-                }}
-              >
-                <div style={{
-                  position: "absolute", inset: 0,
-                  borderRadius: "50%",
-                  background: "#fff",
-                  boxShadow: "0 0 0 4px var(--p-magic-dk), 0 8px 22px rgba(74,45,128,.45), inset 0 0 0 1.5px rgba(255,255,255,.6)",
-                  overflow: "visible",
-                }} />
-                <img
-                  src="/wizard.png"
-                  alt=""
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    width: "100%", height: "auto",
-                    transform: "scale(1.18) translateY(-6%)", // glowa lekko wieksza + wystaje gora
-                    transformOrigin: "center 60%",
-                    objectFit: "contain",
-                    filter: "drop-shadow(0 4px 8px rgba(80,40,140,.35))",
-                    pointerEvents: "none",
-                  }}
-                />
-              </div>
-            )}
             <div
               style={{
                 animation: step === 0 ? "float-mid 3s ease-in-out infinite" : "none",
