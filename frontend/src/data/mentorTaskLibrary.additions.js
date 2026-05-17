@@ -588,8 +588,8 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-022",
     "profile": "EM",
     "kind": "task",
-    "title": "Przytul kogos dluzej niz zwykle",
-    "body": "Zwyczajne przytulenie trwa 2 sekundy. Sprobuj przytulic mame, tate albo dziadka przez 5 sekund. Policz w glowie. Poczujesz roznice.",
+    "title": "Dłuższe przytulenie z kimś bliskim",
+    "body": "Zapytaj kogoś bliskiego: „mogę cię mocno przytulić?\". Jeśli się zgodzi, przytulcie się i policz spokojnie do pięciu w głowie. Jeśli nie chce — to też w porządku, każdy ma prawo do swojej przestrzeni. Spróbuj wtedy z maskotką.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
@@ -1602,8 +1602,8 @@ export const ADDITIONAL_TASKS = [
     "id": "ST-TASK-049",
     "profile": "ST",
     "kind": "task",
-    "title": "Pokrój owoc w równe kawałki",
-    "body": "Misja: poproś dorosłego o owoc i pokrój go z pomocą na cztery równe kawałki. Mędrzec mówi: równy podział to mała sztuka.",
+    "title": "Równy podział owocu (z dorosłym)",
+    "body": "Razem z dorosłym wybierzcie owoc. Nóż trzyma osoba dorosła — ty pokazujesz, gdzie ciąć, żeby wyszły cztery równe kawałki. Równy podział to mała sztuka.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -2690,8 +2690,8 @@ export const ADDITIONAL_TASKS = [
     "id": "LD-TASK-020",
     "profile": "LD",
     "kind": "task",
-    "title": "Wstaw się za kimś",
-    "body": "Misja tarczy: jeśli dziś usłyszysz, że ktoś mówi o kimś brzydko, powiedz spokojnie: „nie mówmy tak”. Krótko, bez krzyku. Tarcza Słońca chroni innych.",
+    "title": "Stań po dobrej stronie",
+    "body": "Jeśli dziś usłyszysz, że ktoś mówi o kimś brzydko, możesz spokojnie powiedzieć „mnie się to nie podoba\" i odejść. Jeśli to powtarza się często albo komuś naprawdę dzieje się krzywda — koniecznie powiedz dorosłemu, któremu ufasz (rodzic, nauczyciel). Twoja tarcza działa razem z dorosłym.",
     "points_reward": 30,
     "competency_focus": [
       "LD"
@@ -2738,8 +2738,8 @@ export const ADDITIONAL_TASKS = [
     "id": "LD-TASK-023",
     "profile": "LD",
     "kind": "task",
-    "title": "Powiedz, czego się boisz",
-    "body": "Odważna misja: powiedz dziś komuś bliskiemu „boję się tego”. Bez wstydu. Lider, który mówi o strachu, daje innym pozwolenie, żeby też się przyznali.",
+    "title": "Powiedz o strachu zaufanej osobie",
+    "body": "Wybierz kogoś, komu naprawdę ufasz — mamę, tatę, babcię, nauczyciela. Powiedz tej osobie: „boję się trochę tego...\" i opowiedz o czymś małym, co cię niepokoi. Strach, który wypowiemy, zwykle robi się mniejszy.",
     "points_reward": 30,
     "competency_focus": [
       "LD"
@@ -2850,8 +2850,8 @@ export const ADDITIONAL_TASKS = [
     "id": "LD-TASK-030",
     "profile": "LD",
     "kind": "task",
-    "title": "Stań po swojej stronie",
-    "body": "Misja granicy: jeśli ktoś dziś zacznie cię popychać do czegoś, co czujesz, że nie jest twoje — stań spokojnie i powiedz „nie, dziękuję”. To twoja tarcza.",
+    "title": "Twoje „nie” jest ważne",
+    "body": "Jeśli dziś ktoś (rówieśnik albo starsze dziecko) namawia cię na coś, co ci się nie podoba — wolno ci spokojnie powiedzieć „nie, dziękuję\" i odejść. Jeśli ktoś nie chce słuchać twojego „nie\" — natychmiast powiedz to dorosłemu, któremu ufasz. Zawsze.",
     "points_reward": 30,
     "competency_focus": [
       "LD"
@@ -2947,8 +2947,8 @@ export const ADDITIONAL_TASKS = [
     "id": "LD-TASK-036",
     "profile": "LD",
     "kind": "task",
-    "title": "Zacznij rozmowę z dorosłym",
-    "body": "Odważna misja: zagadaj dziś dorosłego, którego trochę się boisz albo z którym mało rozmawiasz. Babcię, sąsiadkę, nauczyciela. Krótko. „Jak się ma pani dzisiaj?”.",
+    "title": "Krótka rozmowa z kimś bliskim",
+    "body": "Wybierz dorosłego, którego znasz — babcię, dziadka, ciocię, nauczyciela. Zagadaj krótko: „jak ci dziś minął dzień?\". Słuchaj uważnie i zadaj jedno pytanie więcej. (Nie rozmawiaj samodzielnie z osobami, których nie znasz.)",
     "points_reward": 30,
     "competency_focus": [
       "LD"
