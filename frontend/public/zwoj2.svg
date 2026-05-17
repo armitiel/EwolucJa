@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Warstwa_1" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 217.1 467.1">
+  <!-- Generator: Adobe Illustrator 29.1.0, SVG Export Plug-In . SVG Version: 2.1.0 Build 142)  -->
+  <defs>
+    <style>
+      .st0 {
+        opacity: .2;
+      }
+
+      .st0, .st1 {
+        fill: #c59cff;
+      }
+
+      .st2, .st3 {
+        fill: #683f8c;
+      }
+
+      .st4 {
+        fill: url(#Gradient_bez_nazwy_72);
+      }
+
+      .st1 {
+        opacity: .7;
+      }
+
+      .st3 {
+        opacity: .5;
+      }
+    </style>
+    <linearGradient id="Gradient_bez_nazwy_72" data-name="Gradient bez nazwy 72" x1="107.9" y1="12.9" x2="107.9" y2="448.6" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8947d6"/>
+      <stop offset="0" stop-color="#8b48d9"/>
+      <stop offset="0" stop-color="#924be4"/>
+      <stop offset="0" stop-color="#9e52f6"/>
+      <stop offset="0" stop-color="#a455ff"/>
+      <stop offset=".1" stop-color="#a558ff"/>
+      <stop offset=".2" stop-color="#aa63ff"/>
+      <stop offset=".2" stop-color="#b375ff"/>
+      <stop offset=".3" stop-color="#bf8fff"/>
+      <stop offset=".3" stop-color="#c59cff"/>
+      <stop offset=".5" stop-color="#bb8cfa"/>
+      <stop offset=".7" stop-color="#a365ef"/>
+      <stop offset=".8" stop-color="#954de8"/>
+      <stop offset="1" stop-color="#6e39ab"/>
+    </linearGradient>
+  </defs>
+  <g>
+    <polygon class="st4" points="198 464.6 108.6 458.5 19.2 464.6 5.1 453 18.8 448.5 13.6 233.6 18.9 14.9 8.7 14.8 19.2 2.6 108.6 8.6 198 2.6 208.5 15 198.3 15.6 203.6 233.6 198.3 452.9 210.7 453.6 198 464.6"/>
+    <path class="st2" d="M198.8,467.2l-90.2-6.1-90.2,6.1L0,452l16.3-5.3-5.2-213.1h0c0,0,5.2-216.2,5.2-216.2H3.2S18.1,0,18.1,0l90.5,6.1L199.1,0l14.6,17.2-12.8.8,5.2,215.6h0c0,0-5.3,217-5.3,217l16.2.9-18.2,15.6ZM10.2,453.9l9.8,8.1,88.6-6h.2s88.4,6,88.4,6l7.3-6.2-8.7-.5,5.4-221.7-5.3-220.3,7.6-.5-6.5-7.7-88.3,6h-.2S20.3,5.2,20.3,5.2l-6.2,7.2h7.4s-5.4,221.2-5.4,221.2l5.3,216.7-11.2,3.6Z"/>
+  </g>
+  <polygon class="st3" points="96.2 7.8 107.9 191.1 121 7.8 96.2 7.8"/>
+  <polygon class="st3" points="121 459.4 109.3 354.9 96.2 459.4 121 459.4"/>
+  <polygon class="st1" points="96.2 7.8 107.9 191.1 79.9 6.7 96.2 7.8"/>
+  <polygon class="st0" points="109.3 354.9 121 459.4 136.2 460.4 109.3 354.9"/>
+  <metadata>
+    <sfw xmlns="http://ns.adobe.com/SaveForWeb/1.0/">
+      <slices/>
+      <sliceSourceBounds x="1654.94" y="722.78" width="217.06" height="467.15" bottomLeftOrigin="true"/>
+      <optimizationSettings>
+        <targetSettings fileFormat="PNG24Format" targetSettingsID="0">
+          <PNG24Format filtered="false" interlaced="false" matteColor="#FFFFFF" noMatteColor="false" transparency="false"/>
+        </targetSettings>
+      </optimizationSettings>
+    </sfw>
+  </metadata>
+</svg>

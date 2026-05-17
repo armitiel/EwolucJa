@@ -624,8 +624,50 @@ export const ScrollIcon = ({ size = 60 }) => (
 // Aspect ratio belki: 1053.9 / 192.9 ≈ 5.46:1
 // Aspect ratio papieru: 814.5 / 295.9 ≈ 2.75:1 (ale stretchujemy w pionie)
 
-export const MissionScroll = ({ state = "closed", width = 280, children, onClick }) => {
+export const MissionScroll = ({ state = "closed", width = 280, children, onClick, sealed = false }) => {
   const isOpen = state === "open";
+  // SEALED MODE: zwoj2.svg jako jeden zapieczętowany zwoj (np. czeka na akceptacje mentora).
+  // Aspect ratio zwoj2.svg ~ 740/350 ≈ 2.11:1 (poziomy ksztalt 2 zwiniete zwoje z fioletowa wstega).
+  if (sealed) {
+    const sealedH = Math.round(width / 2.11);
+    return (
+      <div
+        className="mission-scroll mission-scroll--sealed"
+        style={{
+          position: "relative",
+          width,
+          height: sealedH,
+          margin: "0 auto",
+          cursor: onClick ? "pointer" : "default",
+          userSelect: "none",
+          WebkitTapHighlightColor: "transparent",
+        }}
+        onClick={onClick}
+        role={onClick ? "button" : undefined}
+        aria-label="Zwoj zapieczetowany - czeka na akceptacje Medrca"
+        title="Zwoj zapieczetowany — czeka na akceptacje Medrca"
+      >
+        <img
+          src="/zwoj2.svg"
+          alt=""
+          aria-hidden="true"
+          style={{
+            width: "100%", height: "100%",
+            objectFit: "contain",
+            filter: "drop-shadow(0 8px 18px rgba(80,50,10,.28))",
+            pointerEvents: "none",
+          }}
+        />
+        {/* Children nad zapieczetowanym zwojem — np. dodatkowe info */}
+        {children && (
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            {children}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   // Belka: szerokosc = width, wysokosc = width / 5.46
   const rodAspect = 1053.9 / 192.9;
   const rodH = Math.round(width / rodAspect);

@@ -10,6 +10,7 @@ import TopBar from "../components/TopBar.jsx";
 import TabBar from "../components/TabBar.jsx";
 import Celebration from "../components/Celebration.jsx";
 import { Sparkle, ScrollIcon, MissionScroll, Coin } from "../components/art.jsx";
+import MentorBubble from "../components/MentorBubble.jsx";
 import { fx } from "../services/soundFx.js";
 import { ttsPlayer } from "../services/ttsPlayer.js";
 import bgMusic from "../services/bgMusic.js";
@@ -17,7 +18,7 @@ import bgMusic from "../services/bgMusic.js";
 export default function MissionView() {
   const navigate = useNavigate();
   // Misja z globalnego kontekstu - byla zaladowana razem z domem, brak czekania
-  const { mission, error: ctxError } = useAppData();
+  const { mission, error: ctxError, refreshAll } = useAppData();
   const [step, setStep] = useState(0);
   const [answer, setAnswer] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -50,6 +51,12 @@ export default function MissionView() {
 
   // Wywolywane bezposrednio z onClick (user gesture) - bypass autoplay policy
   function openScroll() {
+    // BLOKADA: gdy status = submitted, nie pozwalamy otworzyc zwoju (czeka na weryfikacje mentora).
+    // Dziecko widzi tylko bubble z informacja, ze odpowiedz jest sprawdzana.
+    if (mission?.status === "submitted") {
+      try { fx.gentleMagical(0.3); } catch {}
+      return;
+    }
     // SFX otwarcia zwoju - dyskretne, zeby nie zaglusyc lektora ani muzyki
     fx.magicalAncient(0.18); // ambientowy szum tla - 18% (jeszcze cisszej, glos lektora ma byc dominujacy)
     fx.dopamine(0.3);        // delikatny puff zamiast peniego dopaminowego dzwieku
@@ -88,10 +95,13 @@ export default function MissionView() {
         proof_text: answer,
         proof_media_url: mediaUrl || null,
       });
-      // Dzwiek nagrody + konfetti
+      // Dzwiek nagrody + Celebration overlay (Lottie) + reward toast.
       fx.dopamine(0.6);
       setCelebrating(true);
-      setTimeout(() => navigate("/reward"), 1800);
+      try { await refreshAll(); } catch {}
+      // Reward screen widoczny ~2.8s (czas na obejrzenie Lottie + nagrody za samo wyslanie).
+      // Duza nagroda za misje przychodzi gdy Mentor zatwierdzi (RewardPopup w HintPopup).
+      setTimeout(() => navigate("/world", { replace: true }), 2800);
     } catch (err) {
       setError(err.message);
       setSubmitting(false);
@@ -239,32 +249,30 @@ export default function MissionView() {
               )}
               <MissionScroll
                 state={step === 0 ? "closed" : "open"}
+                sealed={step === 0 && mission.status === "submitted"}
                 width={360}
                 onClick={() => {
-                  if (step === 0) {
+                  if (step === 0 && mission.status !== "submitted") {
                     openScroll();
                   } else if (step === 2 && mission.status === "pending") {
                     setStep(0);
                   }
                 }}
               >
-                {/* Ikonka pieczeci/klodki w prawym gornym rogu pergaminu - tylko gdy wyslane lub do poprawki.
-                    Brak duplikowanych tekstow - sama ikona komunikuje stan. */}
-                {(mission.status === "submitted" || mission.status === "rejected") && (
+                {/* Ikonka pieczeci dla REJECTED (do doprawki). Submitted juz ma fioletowa wstege na zwoj2.svg. */}
+                {mission.status === "rejected" && (
                   <div style={{
                     position: "absolute", top: 6, right: 10,
                     width: 38, height: 38, borderRadius: "50%",
-                    background: mission.status === "submitted"
-                      ? "linear-gradient(180deg,#C8A0F0,#7A4DC2)"
-                      : "linear-gradient(180deg,#FFD269,#E89A3D)",
+                    background: "linear-gradient(180deg,#FFD269,#E89A3D)",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontSize: 18, color: "#fff",
                     boxShadow: "0 2px 6px rgba(80,40,140,.45), inset 0 1.5px 0 rgba(255,255,255,.4)",
                     zIndex: 2,
                   }}
-                    title={mission.status === "submitted" ? "Zwój zapieczętowany" : "Do doprawki"}
+                    title="Do doprawki"
                   >
-                    {mission.status === "submitted" ? "🔒" : "🔄"}
+                    🔄
                   </div>
                 )}
 
@@ -321,10 +329,15 @@ export default function MissionView() {
                         (twoja odpowiedź dotarła do Mędrca ✦)
                       </p>
                     )}
-                    {/* Sub-text: Medrzec czyta - mniejszy, ostatni w stosie */}
-                    <p className="t-hand" style={{ fontSize: 14, color: "var(--p-magic-dk)", margin: "10px 0 0", textAlign: "center", opacity: .8 }}>
-                      Mędrzec czyta… niedługo Ci odpisze ✦
-                    </p>
+                    {/* MentorBubble z glowa maga - reuzywalny komponent dla wszystkich powiadomien od mentora */}
+                    <div style={{ marginTop: 12, alignSelf: "stretch", padding: "0 4px", maxWidth: 320 }} onClick={(e) => e.stopPropagation()}>
+                      <MentorBubble
+                        title="Mentor"
+                        text="Twoja odpowiedź jest sprawdzana przez Mentora."
+                        tone="magic"
+                        size="sm"
+                      />
+                    </div>
                   </>
                 )}
 
@@ -399,16 +412,28 @@ export default function MissionView() {
               )}
               {step === 0 && mission.status === "submitted" && (
                 <>
-                  <button
+                  {/* Status: submitted - zwoj zablokowany do czasu weryfikacji.
+                      Brak CTA do otwarcia, tylko MentorBubble z komunikatem. */}
+                  <div
+                    aria-disabled="true"
                     className="btn btn-ghost btn-block pop-in"
-                    style={{ width: "100%", opacity: 0.85 }}
-                    onClick={openScroll}
+                    style={{
+                      width: "100%", opacity: 0.55,
+                      cursor: "not-allowed",
+                      pointerEvents: "none",
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                    }}
                   >
-                    🔒 Już wysłane — zobacz
-                  </button>
-                  <p className="t-hand" style={{ fontSize: 15, color: "var(--p-ink-soft)", margin: "4px 0 0", textAlign: "center", lineHeight: 1.3 }}>
-                    Mędrzec czyta… <br />Wróć tu wkrótce ✦
-                  </p>
+                    🔒 Zwój zapieczętowany
+                  </div>
+                  <div style={{ width: "100%", maxWidth: 360, marginTop: 8 }}>
+                    <MentorBubble
+                      title="Mentor"
+                      text="Twoja odpowiedź jest sprawdzana przez Mentora. Wróć tu wkrótce."
+                      tone="magic"
+                      size="md"
+                    />
+                  </div>
                 </>
               )}
               {step === 0 && mission.status === "verified" && (
@@ -451,20 +476,43 @@ export default function MissionView() {
           </div>
         )}
 
-        {/* Etap 3: formularz dowodu */}
+        {/* Etap 3: formularz dowodu - paper/piaskowy styl, cienkie obramowania, zielone CTA */}
         {mission && step === 3 && (
-          <div className="pop-in" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <div className="card">
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-ink-soft)" }}>TWOJE PYTANIE / DOWÓD</div>
+          <div className="pop-in" style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%", maxWidth: 420 }}>
+            <div style={{
+              background: "linear-gradient(180deg, #FCF5E1 0%, #F4E3B8 100%)",
+              border: "1px solid #E1CB94",
+              borderRadius: 16,
+              padding: "12px 14px",
+              boxShadow: "0 2px 6px rgba(120,90,30,.10)",
+            }}>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.2, color: "#7A4D10" }}>
+                Twoja odpowiedź / Dowód
+              </div>
               <textarea
                 value={answer}
                 onChange={(e) => setAnswer(e.target.value)}
-                placeholder="Wpisz pytanie, które zadałeś — albo opowiedz, jak Ci poszło…"
-                style={{ width: "100%", minHeight: 90, marginTop: 6, padding: 12, border: "2px solid rgba(122,77,194,.30)", borderRadius: 14, background: "rgba(255,255,255,.85)", fontFamily: "Caveat, cursive", fontSize: 20, color: "var(--p-ink)", resize: "none", outline: "none", boxSizing: "border-box" }}
+                placeholder="Napisz odpowiedź albo opowiedz, jak Ci poszło…"
+                style={{
+                  width: "100%", minHeight: 90, marginTop: 6, padding: 12,
+                  border: "1px solid rgba(168,122,42,.30)",
+                  borderRadius: 12,
+                  background: "rgba(255,250,235,.7)",
+                  fontFamily: "Caveat, cursive", fontSize: 20, color: "var(--p-ink)",
+                  resize: "none", outline: "none", boxSizing: "border-box",
+                }}
               />
             </div>
-            <div className="card">
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: "var(--p-ink-soft)" }}>DODAJ ZDJĘCIE (OPCJONALNIE)</div>
+            <div style={{
+              background: "linear-gradient(180deg, #FCF5E1 0%, #F4E3B8 100%)",
+              border: "1px solid #E1CB94",
+              borderRadius: 16,
+              padding: "12px 14px",
+              boxShadow: "0 2px 6px rgba(120,90,30,.10)",
+            }}>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.2, color: "#7A4D10" }}>
+                Dodaj zdjęcie (opcjonalnie)
+              </div>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -476,7 +524,7 @@ export default function MissionView() {
               {!mediaPreview && !uploading && (
                 <button
                   className="btn btn-ghost btn-block"
-                  style={{ marginTop: 8 }}
+                  style={{ marginTop: 8, border: "1px solid rgba(168,122,42,.30)" }}
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploading}
                 >
@@ -484,9 +532,9 @@ export default function MissionView() {
                 </button>
               )}
               {uploading && (
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8, padding: "10px 12px", background: "rgba(122,77,194,.08)", borderRadius: 10 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8, padding: "10px 12px", background: "rgba(168,122,42,.10)", borderRadius: 10 }}>
                   <span style={{ animation: "sparkle 1.4s ease-in-out infinite" }}>✦</span>
-                  <span style={{ fontSize: 13, color: "var(--p-magic-dk)", fontWeight: 700 }}>Wysyłam zdjęcie do Mędrca…</span>
+                  <span style={{ fontSize: 13, color: "#7A4D10", fontWeight: 700 }}>Wysyłam zdjęcie…</span>
                 </div>
               )}
               {mediaPreview && (
@@ -494,10 +542,15 @@ export default function MissionView() {
                   <img
                     src={mediaPreview}
                     alt="dowód"
-                    style={{ width: "100%", maxHeight: 220, objectFit: "contain", borderRadius: 12, border: "2px solid rgba(122,77,194,.30)", background: "#fff" }}
+                    style={{
+                      width: "100%", maxHeight: 220, objectFit: "contain",
+                      borderRadius: 12,
+                      border: "1px solid rgba(168,122,42,.30)",
+                      background: "#fff",
+                    }}
                   />
                   {mediaUrl && (
-                    <span style={{ position: "absolute", top: 8, left: 8, fontSize: 11, fontWeight: 800, color: "#fff", background: "rgba(46,143,46,.92)", padding: "3px 8px", borderRadius: 999 }}>
+                    <span style={{ position: "absolute", top: 8, left: 8, fontSize: 11, fontWeight: 800, color: "#fff", background: "rgba(95,167,111,.95)", padding: "3px 8px", borderRadius: 999 }}>
                       ✓ wysłane
                     </span>
                   )}
@@ -513,13 +566,65 @@ export default function MissionView() {
                 </div>
               )}
             </div>
-            <button className="btn btn-magic btn-block" disabled={(!answer.trim() && !mediaUrl) || submitting || uploading || mission.status === "submitted"} onClick={handleSubmit}>
-              {submitting ? "Wysyłam echo…" : uploading ? "Czekaj — zdjęcie się wysyła…" : mission.status === "submitted" ? "🔒 Już wysłane" : mission.status === "rejected" ? "✦ Wyślij poprawioną odpowiedź" : "Złóż tropienie ✦"}
+            {/* CTA - zielony (btn-leaf), text "Wyslij" */}
+            <button
+              className="btn btn-leaf btn-block"
+              style={{ fontSize: 16, padding: "14px 18px" }}
+              disabled={(!answer.trim() && !mediaUrl) || submitting || uploading || mission.status === "submitted"}
+              onClick={handleSubmit}
+            >
+              {submitting ? "Wysyłam…" : uploading ? "Czekaj — zdjęcie się wysyła…" : mission.status === "submitted" ? "🔒 Już wysłane" : mission.status === "rejected" ? "✦ Wyślij poprawioną odpowiedź" : "✓ Wyślij"}
             </button>
           </div>
         )}
       </div>
       <Celebration active={celebrating || openBurst} />
+
+      {/* Reward overlay — pokazuje sie po wyslaniu odpowiedzi (~2.8s przed navigate /world) */}
+      {celebrating && (
+        <div
+          aria-live="polite"
+          style={{
+            position: "fixed", inset: 0, zIndex: 60,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            padding: 20, pointerEvents: "none",
+            animation: "fadeIn .35s ease forwards",
+          }}
+        >
+          <div style={{
+            background: "linear-gradient(180deg, #FFF8E0 0%, #FCE9B3 100%)",
+            borderRadius: 26,
+            padding: "26px 28px",
+            maxWidth: 360, width: "100%",
+            textAlign: "center",
+            boxShadow: "0 4px 0 rgba(180,115,34,.35), 0 18px 44px rgba(120,80,10,.45), inset 0 0 0 1.5px rgba(255,255,255,.65)",
+            transform: "scale(1)",
+            animation: "pop-in .55s cubic-bezier(.34,1.56,.64,1) forwards",
+          }}>
+            <div style={{ fontSize: 56, lineHeight: 1, marginBottom: 6 }}>✨</div>
+            <h3 className="t-display" style={{ fontSize: 26, margin: "4px 0 8px", color: "#3B2A12" }}>
+              Wysłane do Mędrca!
+            </h3>
+            <p style={{ fontSize: 14, color: "#7A4D10", margin: "0 0 14px", lineHeight: 1.4 }}>
+              Twój zwój już płynie do Mędrca. Sprawdzi i wyśle nagrodę.
+            </p>
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: 8,
+              background: "rgba(255,255,255,.92)",
+              padding: "8px 18px 8px 12px", borderRadius: 999,
+              boxShadow: "inset 0 0 0 1.5px #E1B66A, 0 2px 6px rgba(120,80,10,.18)",
+              fontSize: 18, fontWeight: 900, color: "#7A4D10",
+              letterSpacing: 0.4,
+            }}>
+              <Coin size={24} anim /> +5
+            </div>
+            <div style={{ fontSize: 11, color: "var(--p-ink-soft)", marginTop: 10, fontWeight: 700, letterSpacing: 0.5 }}>
+              ZA SAMO WYSŁANIE · DUŻA NAGRODA PO AKCEPTACJI
+            </div>
+          </div>
+        </div>
+      )}
+
       <TabBar current="mission" />
     </PageShell>
   );
