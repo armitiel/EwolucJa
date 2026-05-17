@@ -28,6 +28,7 @@ if (typeof window !== "undefined") {
 
 // Warmup - przy pierwszym kliknieciu robimy play/pause z volume=0 na kazdym audio.
 // To "odblokowuje" je w przegladarce - kolejne play() beda natychmiastowe.
+// muted=true blokuje wyjscie na hardware (volume=0 NIE blokuje pierwszej probki na iOS).
 let warmed = false;
 function warmupOnFirstGesture() {
   if (warmed || typeof window === "undefined") return;
@@ -37,16 +38,23 @@ function warmupOnFirstGesture() {
     for (const a of Object.values(AUDIO_POOL)) {
       try {
         const prevVol = a.volume;
+        a.muted = true;          // KLUCZOWE — zaden sample nie wychodzi do glosnika
         a.volume = 0;
         const p = a.play();
         if (p && typeof p.then === "function") {
           p.then(() => {
-            a.pause();
-            a.currentTime = 0;
+            try { a.pause(); } catch {}
+            try { a.currentTime = 0; } catch {}
+            a.muted = false;     // unmute dopiero po pause, gdy element zatrzymany
             a.volume = prevVol;
           }).catch(() => {
+            a.muted = false;
             a.volume = prevVol;
           });
+        } else {
+          try { a.pause(); } catch {}
+          a.muted = false;
+          a.volume = prevVol;
         }
       } catch {}
     }

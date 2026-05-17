@@ -20,6 +20,7 @@ import TabBar from "../components/TabBar.jsx";
 import TopBar from "../components/TopBar.jsx";
 import { PROFILE_INFO } from "../components/ProfileAvatar.jsx";
 import { DAILY_TIPS, tipsForDay } from "../dailyTipsData.js";
+import bgMusic from "../services/bgMusic.js";
 
 const LEGACY_TO_PROFILE = {
   tropiciel_tajemnic: "DT", zaklinacz_uczuc: "EM", mistrz_map: "ST",
@@ -262,6 +263,13 @@ export default function PoradyPage() {
   const [readTips, setReadTips] = useState(() => getReadTipsSet());
 
   useEffect(() => { if (!session.getPlayer()) navigate("/onboarding"); }, [navigate]);
+
+  // Plynne sciszenie muzyki na czas wizyty w Komnacie (Rozkmina Dnia).
+  // Ref-counted w bgMusic — TTS moze tez prosic o duck bez konfliktu.
+  useEffect(() => {
+    try { bgMusic.duck(); } catch {}
+    return () => { try { bgMusic.unduck(); } catch {} };
+  }, []);
 
   const loadMessages = async () => {
     const pid = session.getPlayer();
