@@ -26,8 +26,11 @@ export const api = {
   // Players (V1 zachowane)
   createPlayer: (name) => call("/players", { method: "POST", body: { name } }),
   getPlayer: (id) => call(`/players/${id}`),
+  getPlayerByLoginCode: (code) => call(`/players/by-code/${encodeURIComponent(code)}`),
   getUnreadHints: (id) => call(`/players/${id}/hints/unread`),
+  getAllHints: (id) => call(`/players/${id}/hints/all`),
   markHintViewed: (playerId, hintId) => call(`/players/${playerId}/hints/${hintId}/view`, { method: "POST" }),
+  deleteHint: (playerId, hintId) => call(`/players/${playerId}/hints/${hintId}`, { method: "DELETE" }),
 
   // Onboarding (V2)
   getQuiz: () => call("/onboarding/quiz"),
