@@ -142,10 +142,36 @@ export default function WorldHub() {
 
   const profile = profileCode(player.archetype);
 
-  // Coiny tygodniowe — MVP: uzywamy player.coins. Cel: 50 (poziom Iskra).
-  // TODO: gdy backend wystawi cycle.weekly_goal / cycle.weekly_coins, podmienic.
-  const weekCoins = player.coins ?? 0;
-  const weekGoal = cycle?.weekly_goal ?? 50;
+  // Cel tygodniowy: 1000 coinów (do dostosowania per poziom cyklu w przyszlosci).
+  // Frontend-only mechanizm reset: localStorage zapamietuje "snapshot coinow"
+  // na poczatku biezacego tygodnia (poniedzialek 00:00). Co tydzien w niedziele po polnocy
+  // licznik startuje od 0 — fizyczne player.coins NIE jest dotykane (sluzy jako lifetime total).
+  const weekGoal = cycle?.weekly_goal ?? 1000;
+  const totalCoins = player.coins ?? 0;
+  const weekCoins = useMemo(() => {
+    try {
+      // Wylicz poczatek biezacego tygodnia (poniedzialek 00:00 lokalnej strefy)
+      const now = new Date();
+      const day = now.getDay(); // 0=ND, 1=PN .. 6=SO
+      const daysSinceMon = (day + 6) % 7; // 0 dla PN, 6 dla ND
+      const monday = new Date(now);
+      monday.setDate(now.getDate() - daysSinceMon);
+      monday.setHours(0, 0, 0, 0);
+      const weekStartISO = monday.toISOString();
+
+      const KEY = "ewolucja.weeklyBase";
+      const raw = localStorage.getItem(KEY);
+      let snap = raw ? JSON.parse(raw) : null;
+      if (!snap || snap.weekStart !== weekStartISO) {
+        // Nowy tydzien — resetujemy bazowy stan na obecny totalCoins.
+        snap = { weekStart: weekStartISO, baseCoins: totalCoins };
+        localStorage.setItem(KEY, JSON.stringify(snap));
+      }
+      return Math.max(0, totalCoins - (snap.baseCoins || 0));
+    } catch {
+      return totalCoins;
+    }
+  }, [totalCoins]);
 
   // Kraina pochodna profilu — do sublabela karty misji.
   const KRAINY = {
