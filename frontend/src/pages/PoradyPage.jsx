@@ -65,7 +65,10 @@ function daysSinceRegistration(player) {
   return Math.max(1, Math.min(30, diffDays));
 }
 
-// LocalStorage tracking przeczytanych porad - prosty Set ID
+// Tracking przeczytanych porad:
+//  - localStorage (instant, offline fallback, działa zanim backend odpowie)
+//  - backend (viewed_tips table) - persist między urządzeniami, ładowany przy mount
+// Po loadzie z backendu mergujemy oba zbiory.
 const READ_TIPS_KEY = "ewolucja.readTips";
 function getReadTipsSet() {
   try {
@@ -287,6 +290,26 @@ export default function PoradyPage() {
 
   useEffect(() => { loadMessages(); }, []);
 
+  // Po zalogowaniu - pociagnij z backendu liste przeczytanych porad i zmerguj z localStorage.
+  // Backend = master (między urządzeniami), localStorage = warm cache.
+  useEffect(() => {
+    const pid = session.getPlayer();
+    if (!pid) return;
+    api.getViewedTips(pid)
+      .then((data) => {
+        const remoteIds = (data?.viewed || []).map((v) => v.tip_id);
+        if (remoteIds.length === 0) return;
+        setReadTips((prev) => {
+          const merged = new Set(prev);
+          remoteIds.forEach((id) => merged.add(id));
+          // synchronizuj localStorage z mergiem (zeby kolejne wizyty miały complete cache)
+          try { localStorage.setItem(READ_TIPS_KEY, JSON.stringify([...merged])); } catch {}
+          return merged;
+        });
+      })
+      .catch((e) => console.warn("[PoradyPage] getViewedTips failed:", e));
+  }, []);
+
   async function handleMarkRead(hintId) {
     const pid = session.getPlayer();
     if (!pid) return;
@@ -301,12 +324,17 @@ export default function PoradyPage() {
   const today = useMemo(() => daysSinceRegistration(player), [player]);
   const { slot: nowSlot, order: nowOrder } = useMemo(() => currentSlotInfo(), []);
 
-  // Otwarcie porady - zapamietaj jako przeczytana
+  // Otwarcie porady - zapamietaj jako przeczytana (lokalnie + backend)
   function handleOpenTip(t) {
     setOpenTip(t);
     if (t?.id && !readTips.has(t.id)) {
       markTipRead(t.id);
       setReadTips(new Set([...readTips, t.id]));
+      // Backend persist (fire-and-forget; ON CONFLICT DO NOTHING)
+      const pid = session.getPlayer();
+      if (pid) {
+        api.markTipViewed(pid, t.id).catch((e) => console.warn("[PoradyPage] markTipViewed failed:", e));
+      }
     }
   }
 

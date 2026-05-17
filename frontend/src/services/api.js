@@ -31,6 +31,9 @@ export const api = {
   getAllHints: (id) => call(`/players/${id}/hints/all`),
   markHintViewed: (playerId, hintId) => call(`/players/${playerId}/hints/${hintId}/view`, { method: "POST" }),
   deleteHint: (playerId, hintId) => call(`/players/${playerId}/hints/${hintId}`, { method: "DELETE" }),
+  // Porady dnia - persist tracking per gracz (zamiast localStorage)
+  getViewedTips: (playerId) => call(`/players/${playerId}/viewed-tips`),
+  markTipViewed: (playerId, tipId) => call(`/players/${playerId}/viewed-tips`, { method: "POST", body: JSON.stringify({ tip_id: tipId }) }),
 
   // Onboarding (V2)
   getQuiz: () => call("/onboarding/quiz"),

@@ -185,7 +185,11 @@ async function ensureSchema(pool) {
     ALTER TABLE players ADD COLUMN IF NOT EXISTS created_by_gm_account_id TEXT REFERENCES gm_accounts(id) ON DELETE SET NULL;
     -- Coiny: licznik widoczny w TopBar. Quiz daje +50, kazda misja +10. Niezalezne od lifetime_scores (cech).
     ALTER TABLE players ADD COLUMN IF NOT EXISTS coins INTEGER DEFAULT 0;
+    -- Login code: krotki kod do recznego wpisania w celu odzyskania konta (gdy localStorage znika).
+    -- Format: 6 znakow z alfabetu bez 0/O/1/I (np. HQ7K2P). Unikalny.
+    ALTER TABLE players ADD COLUMN IF NOT EXISTS login_code TEXT UNIQUE;
     CREATE INDEX IF NOT EXISTS idx_players_demo_owner ON players(created_by_gm_account_id) WHERE is_demo = TRUE;
+    CREATE INDEX IF NOT EXISTS idx_players_login_code ON players(login_code) WHERE login_code IS NOT NULL;
 
     -- Mentor hints: artefakty/podpowiedzi wyslane przez mentora do ucznia
     CREATE TABLE IF NOT EXISTS mentor_hints (
@@ -200,6 +204,28 @@ async function ensureSchema(pool) {
     );
     CREATE INDEX IF NOT EXISTS idx_mentor_hints_player ON mentor_hints(player_id);
     CREATE INDEX IF NOT EXISTS idx_mentor_hints_gm ON mentor_hints(gm_account_id);
+
+    -- Migracja: rozszerz CHECK constraint o nowe kinds 'task' (mentor stworzyl misje)
+    -- i 'reward' (mentor zatwierdzil misje, uczen dostaje powiadomienie o coinach).
+    DO $$
+    BEGIN
+      ALTER TABLE mentor_hints DROP CONSTRAINT IF EXISTS mentor_hints_kind_check;
+      ALTER TABLE mentor_hints ADD CONSTRAINT mentor_hints_kind_check
+        CHECK (kind IN ('hint','artifact','message','task','reward'));
+    EXCEPTION WHEN OTHERS THEN
+      -- constraint juz w docelowym stanie albo brak uprawnien - ignoruj
+      NULL;
+    END $$;
+
+    -- Porady dnia (z dailyTipsData.js) - tracking ktore widzial gracz, persist miedzy urzadzeniami.
+    -- Klucz zlozony (player_id, tip_id) - jeden wpis per porada per gracz.
+    CREATE TABLE IF NOT EXISTS viewed_tips (
+      player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+      tip_id TEXT NOT NULL,
+      viewed_at TIMESTAMPTZ DEFAULT NOW(),
+      PRIMARY KEY (player_id, tip_id)
+    );
+    CREATE INDEX IF NOT EXISTS idx_viewed_tips_player ON viewed_tips(player_id);
   `);
 }
 
@@ -229,6 +255,7 @@ function mapPlayerRow(row) {
     onboarding_answers: row.onboarding_answers || [],
     lifetime_scores: row.lifetime_scores || { EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 },
     coins: row.coins || 0,
+    login_code: row.login_code || null,
     current_cycle_id: row.current_cycle_id || null,
     current_chapter: row.current_chapter || null,
     backpack: row.backpack || [],
@@ -240,17 +267,55 @@ function mapPlayerRow(row) {
 export async function getPlayer(_unused, playerId) {
   const pool = await initDatabase();
   const { rows } = await pool.query("SELECT * FROM players WHERE id=$1", [playerId]);
+  const player = mapPlayerRow(rows[0]);
+  // Lazy backfill: jezeli istniejacy gracz nie ma jeszcze login_code, wygeneruj i zapisz.
+  if (player && !player.login_code) {
+    const code = await generateUniqueLoginCode(pool);
+    await pool.query("UPDATE players SET login_code=$1 WHERE id=$2", [code, playerId]);
+    player.login_code = code;
+  }
+  return player;
+}
+
+// Krotki kod logowania ucznia: 6 znakow z alfabetu bez 0/O/1/I (latwy do dyktowania dziecku).
+const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+function randomLoginCode(len = 6) {
+  let s = "";
+  for (let i = 0; i < len; i++) s += CODE_ALPHABET[Math.floor(Math.random() * CODE_ALPHABET.length)];
+  return s;
+}
+
+export async function generateUniqueLoginCode(poolArg, maxAttempts = 8) {
+  const pool = poolArg || (await initDatabase());
+  for (let i = 0; i < maxAttempts; i++) {
+    const code = randomLoginCode(6);
+    const { rows } = await pool.query("SELECT 1 FROM players WHERE login_code=$1 LIMIT 1", [code]);
+    if (!rows.length) return code;
+  }
+  // Fallback: 8-znakowy, prawie na pewno unikalny
+  return randomLoginCode(8);
+}
+
+export async function findPlayerByLoginCode(code) {
+  if (!code) return null;
+  const pool = await initDatabase();
+  const normalized = String(code).toUpperCase().replace(/[^A-Z0-9]/g, "");
+  if (normalized.length < 4) return null;
+  const { rows } = await pool.query("SELECT * FROM players WHERE login_code=$1 LIMIT 1", [normalized]);
   return mapPlayerRow(rows[0]);
 }
 
 export async function savePlayer(_unused, profile) {
   const pool = await initDatabase();
+  // Wygeneruj login_code dla nowych graczy (lub uzyj istniejacego z profile).
+  // ON CONFLICT (id) DO UPDATE nie nadpisuje login_code zeby istniejacy zostal.
+  const loginCode = profile.login_code || await generateUniqueLoginCode(pool);
   await pool.query(
     `INSERT INTO players (
        id, name, avatar, scores, current_land, completed_lands, choices_log,
        final_profile, archetype, archetype_assigned_at, onboarding_answers,
-       lifetime_scores, current_cycle_id, current_chapter, backpack, gm_persona_id, coins, updated_at
-     ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,NOW())
+       lifetime_scores, current_cycle_id, current_chapter, backpack, gm_persona_id, coins, login_code, updated_at
+     ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,NOW())
      ON CONFLICT (id) DO UPDATE SET
        name=EXCLUDED.name,
        avatar=EXCLUDED.avatar,
@@ -268,6 +333,7 @@ export async function savePlayer(_unused, profile) {
        backpack=EXCLUDED.backpack,
        gm_persona_id=EXCLUDED.gm_persona_id,
        coins=EXCLUDED.coins,
+       login_code=COALESCE(players.login_code, EXCLUDED.login_code),
        updated_at=NOW()`,
     [
       profile.player_id,
@@ -287,6 +353,7 @@ export async function savePlayer(_unused, profile) {
       J(profile.backpack || []),
       profile.gm_persona_id || null,
       profile.coins || 0,
+      loginCode,
     ]
   );
 }
@@ -385,8 +452,10 @@ export async function getMission(_unused, missionId) {
 
 export async function getCurrentMission(_unused, playerId) {
   const pool = await initDatabase();
+  // Wlaczamy 'rejected' - uczen widzi misje "do doprawki" zeby moc poprawic.
+  // 'verified' nie pokazujemy - to konczy cykl (lub generuje nowa misje).
   const { rows } = await pool.query(
-    "SELECT * FROM missions WHERE player_id=$1 AND status IN ('pending','submitted') ORDER BY generated_at DESC LIMIT 1",
+    "SELECT * FROM missions WHERE player_id=$1 AND status IN ('pending','submitted','rejected') ORDER BY generated_at DESC LIMIT 1",
     [playerId]
   );
   return mapMissionRow(rows[0]);
