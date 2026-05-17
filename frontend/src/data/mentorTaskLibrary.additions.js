@@ -19,7 +19,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "DT"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "misja",
       "kolory",
@@ -37,7 +37,7 @@ export const ADDITIONAL_TASKS = [
       "DT",
       "KR"
     ],
-    "proof_hint": "Wpisz pytania i krotkie odpowiedzi.",
+    "proof_hint": "Wpisz pytania i krótkie odpowiedzi.",
     "tags": [
       "pytania",
       "misja",
@@ -54,7 +54,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "DT"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "eksperyment",
       "dotyk",
@@ -71,7 +71,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "DT"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "cien",
       "misja",
@@ -88,7 +88,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "DT"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "eksperyment",
       "woda",
@@ -106,7 +106,7 @@ export const ADDITIONAL_TASKS = [
       "DT",
       "KR"
     ],
-    "proof_hint": "Zdjecie albo lista zebranych rzeczy.",
+    "proof_hint": "Zdjęcie albo lista zebranych rzeczy.",
     "tags": [
       "natura",
       "misja",
@@ -123,7 +123,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "DT"
     ],
-    "proof_hint": "Wpisz pytania i krotkie odpowiedzi.",
+    "proof_hint": "Wpisz pytania i krótkie odpowiedzi.",
     "tags": [
       "pytania",
       "relacje",
@@ -140,7 +140,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "DT"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "eksperyment",
       "woda",
@@ -157,7 +157,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "DT"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "obserwacja",
       "ludzie",
@@ -174,7 +174,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "DT"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "pamiec",
       "misja",
@@ -191,7 +191,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "DT"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "eksperyment",
       "zapach",
@@ -208,7 +208,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "DT"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "slady",
       "obserwacja",
@@ -226,7 +226,7 @@ export const ADDITIONAL_TASKS = [
       "DT",
       "KR"
     ],
-    "proof_hint": "Zdjecie albo lista zebranych rzeczy.",
+    "proof_hint": "Zdjęcie albo lista zebranych rzeczy.",
     "tags": [
       "natura",
       "ptaki",
@@ -243,7 +243,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "DT"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "eksperyment",
       "cialo",
@@ -260,7 +260,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "DT"
     ],
-    "proof_hint": "Wpisz pytania i krotkie odpowiedzi.",
+    "proof_hint": "Wpisz pytania i krótkie odpowiedzi.",
     "tags": [
       "pytania",
       "relacje",
@@ -277,7 +277,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "DT"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "obserwacja",
       "misja",
@@ -294,7 +294,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "DT"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "eksperyment",
       "dotyk",
@@ -313,7 +313,7 @@ export const ADDITIONAL_TASKS = [
       "KR",
       "ST"
     ],
-    "proof_hint": "Zdjecie albo lista zebranych rzeczy.",
+    "proof_hint": "Zdjęcie albo lista zebranych rzeczy.",
     "tags": [
       "natura",
       "wzory",
@@ -330,7 +330,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "DT"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "obserwacja",
       "misja",
@@ -347,7 +347,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "DT"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "eksperyment",
       "lustro",
@@ -365,7 +365,7 @@ export const ADDITIONAL_TASKS = [
       "DT",
       "KR"
     ],
-    "proof_hint": "Zdjecie albo lista zebranych rzeczy.",
+    "proof_hint": "Zdjęcie albo lista zebranych rzeczy.",
     "tags": [
       "natura",
       "cialo",
@@ -382,7 +382,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "DT"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "pamiec",
       "misja",
@@ -400,7 +400,7 @@ export const ADDITIONAL_TASKS = [
       "DT",
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "misja",
       "dzielenie",
@@ -411,13 +411,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-011",
     "profile": "EM",
     "kind": "task",
-    "title": "Jedno mile slowo do kogos bliskiego",
-    "body": "Wybierz jedna osobe i powiedz jej cos cieplego - co lubisz w niej, albo ze cieszysz sie, ze ja widzisz. Krotko, prosto, od serca.",
+    "title": "Jedno miłe słowo do kogoś bliskiego",
+    "body": "Wybierz jedną osobę i powiedz jej coś ciepłego - co lubisz w niej, albo że cieszysz się, że ją widzisz. Krótko, prosto, od serca.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Napisz z kim rozmawiales i co uslyszales.",
+    "proof_hint": "Napisz z kim rozmawiałeś i co usłyszałeś.",
     "tags": [
       "zyczliwosc",
       "rozmowa"
@@ -427,13 +427,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-012",
     "profile": "EM",
     "kind": "task",
-    "title": "Zauwaz, kto dzis potrzebuje usmiechu",
-    "body": "Rozejrzyj sie: ktos w klasie, w domu, na podworku wyglada dzis inaczej? Podejdz i usmiechnij sie. Czasem to wystarczy.",
+    "title": "Zauważ, kto dziś potrzebuje uśmiechu",
+    "body": "Rozejrzyj się: ktoś w klasie, w domu, na podwórku wygląda dziś inaczej? Podejdź i uśmiechnij się. Czasem to wystarczy.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "zyczliwosc",
       "uwaznosc"
@@ -443,13 +443,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-013",
     "profile": "EM",
     "kind": "task",
-    "title": "Wysluchaj kogos przez minute",
-    "body": "Znajdz kogos, kto chce cos opowiedziec. Sluchaj bez przerywania, bez rad. Tylko badz. Twoje serce slyszy wiecej niz uszy.",
+    "title": "Wysłuchaj kogoś przez minutę",
+    "body": "Znajdź kogoś, kto chce coś opowiedzieć. Słuchaj bez przerywania, bez rad. Tylko bądź. Twoje serce słyszy więcej niż uszy.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Napisz z kim rozmawiales i co uslyszales.",
+    "proof_hint": "Napisz z kim rozmawiałeś i co usłyszałeś.",
     "tags": [
       "sluchanie",
       "rozmowa"
@@ -459,13 +459,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-014",
     "profile": "EM",
     "kind": "task",
-    "title": "Maly liscik dla kogos z rodziny",
-    "body": "Napisz na karteczce jedno zdanie dla kogos z domu: 'jestem szczesliwa, ze jestes'. Zostaw tam, gdzie znajdzie. Male - a porusza fale.",
+    "title": "Mały liścik dla kogoś z rodziny",
+    "body": "Napisz na karteczce jedno zdanie dla kogoś z domu: 'jestem szczęśliwa, że jesteś'. Zostaw tam, gdzie znajdzie. Małe - a porusza fale.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "rodzina",
       "list"
@@ -475,13 +475,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-015",
     "profile": "EM",
     "kind": "task",
-    "title": "Swietlna cma czeka na Twoj oddech",
-    "body": "Twoja mala swietlna cma siedzi na ramieniu. Wez trzy oddechy - przy kazdym jej swiatlo robi sie jasniejsze. Gotowa, gotowy na dzien.",
+    "title": "Świetlna ćma czeka na Twój oddech",
+    "body": "Twoja mała świetlna ćma siedzi na ramieniu. Weź trzy oddechy - przy każdym jej światło robi się jaśniejsze. Gotowa, gotowy na dzień.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "oddech",
       "kraina"
@@ -491,13 +491,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-016",
     "profile": "EM",
     "kind": "task",
-    "title": "Zapytaj: co Cie dzis ucieszylo?",
-    "body": "Wybierz jedna osobe - siostre, brata, kolezanke, dziadka. Zapytaj: 'co Cie dzis ucieszylo?'. Sluchaj odpowiedzi z prawdziwa ciekawoscia.",
+    "title": "Zapytaj: co Cię dziś ucieszyło?",
+    "body": "Wybierz jedną osobę - siostrę, brata, koleżankę, dziadka. Zapytaj: 'co Cię dziś ucieszyło?'. Słuchaj odpowiedzi z prawdziwą ciekawością.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Napisz z kim rozmawiales i co uslyszales.",
+    "proof_hint": "Napisz z kim rozmawiałeś i co usłyszałeś.",
     "tags": [
       "rozmowa",
       "radosc"
@@ -507,13 +507,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-017",
     "profile": "EM",
     "kind": "task",
-    "title": "Podziel sie jedna rzecza z kims",
-    "body": "Kanapka, kredka, miejsce na lawce - cokolwiek. Dziel sie dzis bez powodu. Zyczliwosc nie potrzebuje okazji.",
+    "title": "Podziel się jedną rzeczą z kimś",
+    "body": "Kanapka, kredka, miejsce na ławce - cokolwiek. Dziel się dziś bez powodu. Życzliwość nie potrzebuje okazji.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "zyczliwosc",
       "dzielenie"
@@ -523,13 +523,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-018",
     "profile": "EM",
     "kind": "task",
-    "title": "Rytual kubka herbaty dla kogos",
-    "body": "Zaproponuj mamie, tacie, babci albo bratu - 'zrobie ci herbate' albo 'usiadzmy razem'. Maly gest, duza fala ciepla.",
+    "title": "Rytuał kubka herbaty dla kogoś",
+    "body": "Zaproponuj mamie, tacie, babci albo bratu - 'zrobię ci herbatę' albo 'usiądźmy razem'. Mały gest, duża fala ciepła.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "rodzina",
       "rytual"
@@ -539,14 +539,14 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-019",
     "profile": "EM",
     "kind": "task",
-    "title": "Narysuj, jak wyglada Twoja dzisiejsza emocja",
-    "body": "Wez kartke i kredki. Narysuj, co teraz czujesz - bez nazywania. Niech kolor i ksztalt mowia same. Nikomu nie musisz pokazywac.",
+    "title": "Narysuj, jak wygląda Twoja dzisiejsza emocja",
+    "body": "Weź kartkę i kredki. Narysuj, co teraz czujesz - bez nazywania. Niech kolor i kształt mówią same. Nikomu nie musisz pokazywać.",
     "points_reward": 25,
     "competency_focus": [
       "EM",
       "KR"
     ],
-    "proof_hint": "Zdjecie rysunku lub opis 1 zdaniem.",
+    "proof_hint": "Zdjęcie rysunku lub opis 1 zdaniem.",
     "tags": [
       "emocje",
       "rysunek"
@@ -556,13 +556,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-020",
     "profile": "EM",
     "kind": "task",
-    "title": "Powiedz komus 'dziekuje, ze jestes'",
-    "body": "Wybierz jedna osobe - moze mame, moze kolezanke. Powiedz tylko te trzy slowa: 'dziekuje, ze jestes'. Zobacz, co sie dzieje z jej oczami.",
+    "title": "Powiedz komuś 'dziękuję, że jesteś'",
+    "body": "Wybierz jedną osobę - może mamę, może koleżankę. Powiedz tylko te trzy słowa: 'dziękuję, że jesteś'. Zobacz, co się dzieje z jej oczami.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Napisz z kim rozmawiales i co uslyszales.",
+    "proof_hint": "Napisz z kim rozmawiałeś i co usłyszałeś.",
     "tags": [
       "wdziecznosc",
       "rozmowa"
@@ -572,13 +572,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-021",
     "profile": "EM",
     "kind": "task",
-    "title": "Zapytaj kogos, jak sie naprawde czuje",
-    "body": "Wiele osob mowi 'dobrze', kiedy wcale tak nie jest. Zapytaj jeszcze raz, ciszej: 'a tak naprawde?'. Sluchaj sercem.",
+    "title": "Zapytaj kogoś, jak się naprawdę czuje",
+    "body": "Wiele osób mówi 'dobrze', kiedy wcale tak nie jest. Zapytaj jeszcze raz, ciszej: 'a tak naprawdę?'. Słuchaj sercem.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Napisz z kim rozmawiales i co uslyszales.",
+    "proof_hint": "Napisz z kim rozmawiałeś i co usłyszałeś.",
     "tags": [
       "rozmowa",
       "empatia"
@@ -594,7 +594,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "przytulenie",
       "rodzina"
@@ -605,12 +605,12 @@ export const ADDITIONAL_TASKS = [
     "profile": "EM",
     "kind": "task",
     "title": "Powiedz jedno dobre o sobie",
-    "body": "Empata mowi dobrze o innych. Dzis powiedz jedna dobra rzecz o sobie - w glowie albo na glos. 'Jestem dobra/dobry, bo...'. Tyle wystarczy.",
+    "body": "Empata mówi dobrze o innych. Dziś powiedz jedną dobrą rzecz o sobie - w głowie albo na głos. 'Jestem dobra/dobry, bo...'. Tyle wystarczy.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "samoakceptacja",
       "uwaznosc"
@@ -620,13 +620,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-024",
     "profile": "EM",
     "kind": "task",
-    "title": "Mala pomoc bez proszenia",
-    "body": "Zrob dzis jedna drobna rzecz, o ktora nikt nie prosil - odloz buty kogos, podaj wode, pozbieraj zabawki rodzenstwa. Cicha zyczliwosc smakuje najlepiej.",
+    "title": "Mała pomoc bez proszenia",
+    "body": "Zrób dziś jedną drobną rzecz, o którą nikt nie prosił - odłóż buty kogoś, podaj wodę, pozbieraj zabawki rodzeństwa. Cicha życzliwość smakuje najlepiej.",
     "points_reward": 30,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "zyczliwosc",
       "rodzina"
@@ -636,13 +636,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-025",
     "profile": "EM",
     "kind": "task",
-    "title": "Swietlik mruga: 'gotowa, gotowy?'",
-    "body": "Twoja swietlna cma siadla na palcu. Mrugnij do niej. Powiedz: 'dzis idziemy razem'. Macie sie nawzajem przez caly dzien.",
+    "title": "Świetlik mruga: 'gotowa, gotowy?'",
+    "body": "Twoja świetlna ćma siadła na palcu. Mrugnij do niej. Powiedz: 'dziś idziemy razem'. Macie się nawzajem przez cały dzień.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "rytual_poranny",
       "kraina"
@@ -652,13 +652,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-026",
     "profile": "EM",
     "kind": "task",
-    "title": "Uwazne 'dzien dobry' do kogos",
-    "body": "Powiedz dzis 'dzien dobry' patrzac komus w oczy - pani w sklepie, sasiadowi, nauczycielce. Trzy sekundy uwagi. Dla niego to duzo.",
+    "title": "Uważne 'dzień dobry' do kogoś",
+    "body": "Powiedz dziś 'dzień dobry' patrząc komuś w oczy - pani w sklepie, sąsiadowi, nauczycielce. Trzy sekundy uwagi. Dla niego to dużo.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "zyczliwosc",
       "uwaznosc"
@@ -668,13 +668,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-027",
     "profile": "EM",
     "kind": "task",
-    "title": "Spacer i jedna rzecz, ktorej sluchasz",
-    "body": "Idz dzis chwile pieszo. Sluchaj jednej rzeczy - wiatru, krokow, ptakow. Swiat ma duzo do powiedzenia, gdy mu pozwolisz.",
+    "title": "Spacer i jedna rzecz, której słuchasz",
+    "body": "Idź dziś chwilę pieszo. Słuchaj jednej rzeczy - wiatru, kroków, ptaków. Świat ma dużo do powiedzenia, gdy mu pozwolisz.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "spacer",
       "uwaznosc"
@@ -684,13 +684,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-028",
     "profile": "EM",
     "kind": "task",
-    "title": "Zauwaz rodzenstwo / kolege dzis inaczej",
-    "body": "Jesli masz rodzenstwo albo dobrego kolege, powiedz dzis jedna rzecz, ktora w nim lubisz. Bez okazji. Niespodziewanie. To zostaje w pamieci.",
+    "title": "Zauważ rodzeństwo / kolegę dziś inaczej",
+    "body": "Jeśli masz rodzeństwo albo dobrego kolegę, powiedz dziś jedną rzecz, którą w nim lubisz. Bez okazji. Niespodziewanie. To zostaje w pamięci.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "rodzenstwo",
       "zyczliwosc"
@@ -700,13 +700,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-029",
     "profile": "EM",
     "kind": "task",
-    "title": "Badz obok kogos smutnego - bez slow",
-    "body": "Jesli ktos w klasie albo w domu jest dzis smutny, nie musisz nic mowic. Po prostu usiadz obok. Czasem obecnosc leczy wiecej niz slowa.",
+    "title": "Bądź obok kogoś smutnego - bez słów",
+    "body": "Jeśli ktoś w klasie albo w domu jest dziś smutny, nie musisz nic mówić. Po prostu usiądź obok. Czasem obecność leczy więcej niż słowa.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "empatia",
       "obecnosc"
@@ -716,13 +716,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-030",
     "profile": "EM",
     "kind": "task",
-    "title": "Komplement od serca, nie z grzecznosci",
-    "body": "Powiedz komus cos milego, co naprawde myslisz - nie z grzecznosci. Nie 'ladna bluzka', a 'lubie, jak sie smiejesz'. Prawda grzeje mocniej.",
+    "title": "Komplement od serca, nie z grzeczności",
+    "body": "Powiedz komuś coś miłego, co naprawdę myślisz - nie z grzeczności. Nie 'ładna bluzka', a 'lubię, jak się śmiejesz'. Prawda grzeje mocniej.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Napisz z kim rozmawiales i co uslyszales.",
+    "proof_hint": "Napisz z kim rozmawiałeś i co usłyszałeś.",
     "tags": [
       "rozmowa",
       "zyczliwosc"
@@ -732,13 +732,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-031",
     "profile": "EM",
     "kind": "task",
-    "title": "Swietlik zbiera dzis dobre chwile",
-    "body": "Twoja cma swietlna lata przez caly dzien i zbiera cieple momenty. Wieczorem przynosi je do Ciebie. Wymien w glowie trzy. To wystarczy.",
+    "title": "Świetlik zbiera dziś dobre chwile",
+    "body": "Twoja ćma świetlna lata przez cały dzień i zbiera ciepłe momenty. Wieczorem przynosi je do Ciebie. Wymień w głowie trzy. To wystarczy.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "wieczor",
       "wdziecznosc"
@@ -748,13 +748,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-032",
     "profile": "EM",
     "kind": "task",
-    "title": "Twoja wrazliwosc to nie slabosc",
-    "body": "Czasem ktos powie 'jestes za czula, czuly'. To nieprawda. Twoja czulosc to sila. Bez ludzi takich jak Ty swiat bylby zimniejszy.",
+    "title": "Twoja wrażliwość to nie słabość",
+    "body": "Czasem ktoś powie 'jesteś za czuła, czuły'. To nieprawda. Twoja czułość to siła. Bez ludzi takich jak Ty świat byłby zimniejszy.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "empatia",
       "sila"
@@ -764,13 +764,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-033",
     "profile": "EM",
     "kind": "task",
-    "title": "Zaproponuj wspolny spacer",
-    "body": "Zaproponuj komus bliskiemu: 'pojdziemy razem na krotki spacer?'. Ruch + obecnosc + powietrze. Empata kwitnie w takich momentach.",
+    "title": "Zaproponuj wspólny spacer",
+    "body": "Zaproponuj komuś bliskiemu: 'pójdziemy razem na krótki spacer?'. Ruch + obecność + powietrze. Empata kwitnie w takich momentach.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "spacer",
       "ruch"
@@ -780,14 +780,14 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-034",
     "profile": "EM",
     "kind": "task",
-    "title": "Narysuj komus jego dobre serce",
-    "body": "Narysuj na karteczce serce i daj komus z rodziny ze slowem 'twoje serce jest dobre'. Tyle. Prosty rysunek, ogromna fala.",
+    "title": "Narysuj komuś jego dobre serce",
+    "body": "Narysuj na karteczce serce i daj komuś z rodziny ze słowem 'twoje serce jest dobre'. Tyle. Prosty rysunek, ogromna fala.",
     "points_reward": 25,
     "competency_focus": [
       "EM",
       "KR"
     ],
-    "proof_hint": "Zdjecie rysunku lub opis 1 zdaniem.",
+    "proof_hint": "Zdjęcie rysunku lub opis 1 zdaniem.",
     "tags": [
       "rysunek",
       "rodzina"
@@ -797,13 +797,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-035",
     "profile": "EM",
     "kind": "task",
-    "title": "Twoje cicho miejsce na chwile",
-    "body": "Znajdz dzis swoje cicho miejsce - pod kocem, na parapecie, w lazience. Posiedz tam 2 minuty. Twoje serce sie resetuje.",
+    "title": "Twoje ciche miejsce na chwilę",
+    "body": "Znajdź dziś swoje ciche miejsce - pod kocem, na parapecie, w łazience. Posiedź tam 2 minuty. Twoje serce się resetuje.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "cisza",
       "regeneracja"
@@ -813,13 +813,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-036",
     "profile": "EM",
     "kind": "task",
-    "title": "Pomoz komus dzisiaj sie usmiechnac",
-    "body": "Opowiedz dowcip, smieszna historie, zrob mine. Dzisiaj jestes osoba, ktora przynosi usmiech. Tylko jeden - to duzo.",
+    "title": "Pomóż komuś dzisiaj się uśmiechnąć",
+    "body": "Opowiedz dowcip, śmieszną historię, zrób minę. Dzisiaj jesteś osobą, która przynosi uśmiech. Tylko jeden - to dużo.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "radosc",
       "zyczliwosc"
@@ -829,13 +829,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-037",
     "profile": "EM",
     "kind": "task",
-    "title": "Swietlik szepcze: 'jestes bezpieczna, bezpieczny'",
-    "body": "Twoja swietlna cma siedzi na poduszce. Mruga: 'jestes bezpieczna. jestes bezpieczny.' Powtorz to w glowie trzy razy. Dzien sie otwiera.",
+    "title": "Świetlik szepcze: 'jesteś bezpieczna, bezpieczny'",
+    "body": "Twoja świetlna ćma siedzi na poduszce. Mruga: 'jesteś bezpieczna. jesteś bezpieczny.' Powtórz to w głowie trzy razy. Dzień się otwiera.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "bezpieczenstwo",
       "rytual_poranny"
@@ -846,12 +846,12 @@ export const ADDITIONAL_TASKS = [
     "profile": "EM",
     "kind": "task",
     "title": "List bez okazji",
-    "body": "Napisz dzis krotki liscik do kogos z rodziny - tylko trzy zdania. Bez urodzin, bez swieta. Po prostu - bo myslisz o tej osobie.",
+    "body": "Napisz dziś krótki liścik do kogoś z rodziny - tylko trzy zdania. Bez urodzin, bez święta. Po prostu - bo myślisz o tej osobie.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "list",
       "rodzina"
@@ -861,13 +861,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-039",
     "profile": "EM",
     "kind": "task",
-    "title": "Pochwala dla samej, samego siebie",
-    "body": "Powiedz sobie dzis jedna pochwale za cos malego - 'fajnie, ze pomoglam', 'dobrze, ze sprobowalem'. Mowisz innym cieplo. Sobie tez wolno.",
+    "title": "Pochwała dla samej, samego siebie",
+    "body": "Powiedz sobie dziś jedną pochwałę za coś małego - 'fajnie, że pomogłam', 'dobrze, że spróbowałem'. Mówisz innym ciepło. Sobie też wolno.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "samoakceptacja",
       "uwaznosc"
@@ -877,13 +877,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-040",
     "profile": "EM",
     "kind": "task",
-    "title": "Zauwaz jeden szczegol w drugiej osobie",
-    "body": "Popatrz dzis uwaznie na kogos bliskiego. Co w niej, w nim widzisz nowego? Moze zmarszczki smiechu, nowa bluzke, zmeczenie. Powiedz to.",
+    "title": "Zauważ jeden szczegół w drugiej osobie",
+    "body": "Popatrz dziś uważnie na kogoś bliskiego. Co w niej, w nim widzisz nowego? Może zmarszczki śmiechu, nową bluzkę, zmęczenie. Powiedz to.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Napisz z kim rozmawiales i co uslyszales.",
+    "proof_hint": "Napisz z kim rozmawiałeś i co usłyszałeś.",
     "tags": [
       "uwaznosc",
       "rozmowa"
@@ -893,13 +893,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-041",
     "profile": "EM",
     "kind": "task",
-    "title": "Zrob kogos czescia swojej zabawy",
-    "body": "Jesli widzisz kogos, kto stoi sam - zapros go do swojej zabawy. Wystarczy: 'chcesz z nami?'. Trzy slowa, ktore zmieniaja dzien.",
+    "title": "Zrób kogoś częścią swojej zabawy",
+    "body": "Jeśli widzisz kogoś, kto stoi sam - zaproś go do swojej zabawy. Wystarczy: 'chcesz z nami?'. Trzy słowa, które zmieniają dzień.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "rowiesnicy",
       "wlaczenie"
@@ -909,13 +909,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-042",
     "profile": "EM",
     "kind": "task",
-    "title": "Tancz z radoscia przez minute",
-    "body": "Wlacz ulubiona piosenke. Tancz bez patrzenia, czy ktos widzi. Radosc to tez emocja - Empata tez ma do niej prawo, mocno i glosno.",
+    "title": "Tańcz z radością przez minutę",
+    "body": "Włącz ulubioną piosenkę. Tańcz bez patrzenia, czy ktoś widzi. Radość to też emocja - Empata też ma do niej prawo, mocno i głośno.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "radosc",
       "ruch"
@@ -925,13 +925,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-043",
     "profile": "EM",
     "kind": "task",
-    "title": "Powiedz doroslemu 'dziekuje'",
-    "body": "Wybierz doroslego - mame, tate, pania, dziadka - i powiedz: 'dziekuje, ze jestes dla mnie'. Patrz w oczy. Krotko. Prawdziwie.",
+    "title": "Powiedz dorosłemu 'dziękuję'",
+    "body": "Wybierz dorosłego - mamę, tatę, panią, dziadka - i powiedz: 'dziękuję, że jesteś dla mnie'. Patrz w oczy. Krótko. Prawdziwie.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "wdziecznosc",
       "rodzina"
@@ -941,13 +941,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-044",
     "profile": "EM",
     "kind": "task",
-    "title": "Swietlik leci przodem",
-    "body": "Twoja swietlna cma juz wstala. Leci przed Toba i pokazuje, gdzie jest jasno. Idz za jej swiatlem. Dzien bedzie spokojny.",
+    "title": "Świetlik leci przodem",
+    "body": "Twoja świetlna ćma już wstała. Leci przed Tobą i pokazuje, gdzie jest jasno. Idź za jej światłem. Dzień będzie spokojny.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "rytual_poranny",
       "kraina"
@@ -957,13 +957,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-045",
     "profile": "EM",
     "kind": "task",
-    "title": "Mala rzecz, ktora Cie cieszy",
-    "body": "Zauwaz dzis jedna drobna rzecz, ktora Cie ucieszyla - listek, zapach, czyjes slowo. Powiedz cicho 'dziekuje'. To cwiczenie szczescia.",
+    "title": "Mała rzecz, która Cię cieszy",
+    "body": "Zauważ dziś jedną drobną rzecz, która Cię ucieszyła - listek, zapach, czyjeś słowo. Powiedz cicho 'dziękuję'. To ćwiczenie szczęścia.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "wdziecznosc",
       "radosc"
@@ -973,13 +973,13 @@ export const ADDITIONAL_TASKS = [
     "id": "EM-TASK-046",
     "profile": "EM",
     "kind": "task",
-    "title": "Zrob cos milego dla trzech osob",
-    "body": "Wybierz dzis trzy osoby - z domu, z klasy, z podworka. Dla kazdej zrob cos malutkiego: usmiech, slowo, gest. Mala fala, trzy razy.",
+    "title": "Zrób coś miłego dla trzech osób",
+    "body": "Wybierz dziś trzy osoby - z domu, z klasy, z podwórka. Dla każdej zrób coś malutkiego: uśmiech, słowo, gest. Mała fala, trzy razy.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "zyczliwosc",
       "swieto"
@@ -995,7 +995,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "planowanie",
       "poranek",
@@ -1012,7 +1012,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "sekwencja",
       "krok_po_kroku"
@@ -1028,7 +1028,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "uwaznosc",
       "liczby"
@@ -1044,7 +1044,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "przeglad",
       "wieczor"
@@ -1060,7 +1060,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "odraczanie",
       "cierpliwosc"
@@ -1076,7 +1076,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "mapy",
       "porzadek"
@@ -1092,7 +1092,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "sekwencja",
       "planowanie"
@@ -1108,7 +1108,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "jutro",
       "wieczor"
@@ -1124,7 +1124,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "liczby",
       "eksperyment"
@@ -1140,7 +1140,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "planowanie",
       "poranek"
@@ -1156,7 +1156,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "cierpliwosc",
       "cisza"
@@ -1172,7 +1172,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "refleksja",
       "plan_b"
@@ -1188,7 +1188,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "odraczanie",
       "cierpliwosc"
@@ -1204,7 +1204,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "plan_b",
       "elastycznosc"
@@ -1220,7 +1220,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "liczby",
       "sekwencja"
@@ -1236,7 +1236,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "woda",
       "sekwencja"
@@ -1252,7 +1252,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "duma",
       "wieczor"
@@ -1268,7 +1268,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "sekwencja",
       "jedzenie"
@@ -1285,7 +1285,7 @@ export const ADDITIONAL_TASKS = [
       "ST",
       "DT"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "mapy",
       "obserwacja"
@@ -1301,7 +1301,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "cierpliwosc",
       "oddech"
@@ -1317,7 +1317,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "refleksja",
       "wieczor"
@@ -1333,7 +1333,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "ruch",
       "sekwencja"
@@ -1349,7 +1349,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "poranek",
       "planowanie"
@@ -1366,7 +1366,7 @@ export const ADDITIONAL_TASKS = [
       "ST",
       "DT"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "wzory",
       "obserwacja"
@@ -1382,7 +1382,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "refleksja",
       "metafora"
@@ -1398,7 +1398,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "porzadek",
       "klasyfikacja"
@@ -1414,7 +1414,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "polmetek",
       "refleksja"
@@ -1430,7 +1430,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "woda",
       "sekwencja"
@@ -1446,7 +1446,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "lista",
       "wieczor"
@@ -1462,7 +1462,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "sekwencja",
       "klasyfikacja"
@@ -1478,7 +1478,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "priorytety",
       "poranek"
@@ -1494,7 +1494,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "czas",
       "eksperyment"
@@ -1510,7 +1510,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "planowanie",
       "konstrukcja"
@@ -1526,7 +1526,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "refleksja",
       "wieczor"
@@ -1542,7 +1542,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "ruch",
       "planowanie"
@@ -1559,7 +1559,7 @@ export const ADDITIONAL_TASKS = [
       "ST",
       "DT"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "liczby",
       "obserwacja"
@@ -1576,7 +1576,7 @@ export const ADDITIONAL_TASKS = [
       "ST",
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "oddech",
       "spokoj"
@@ -1592,7 +1592,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "jutro",
       "wieczor"
@@ -1608,7 +1608,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "liczby",
       "praktyka"
@@ -1624,7 +1624,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "cisza",
       "poranek"
@@ -1640,7 +1640,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "odraczanie",
       "decyzje"
@@ -1656,7 +1656,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "artifact",
       "samoswiadomosc"
@@ -1672,7 +1672,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "planowanie",
       "wieczor"
@@ -1688,7 +1688,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "rytm",
       "poranek"
@@ -1704,7 +1704,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Napisz z kim rozmawiales i co uslyszales.",
+    "proof_hint": "Napisz z kim rozmawiałeś i co usłyszałeś.",
     "tags": [
       "rozmowa",
       "sekwencja"
@@ -1720,7 +1720,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "uwaznosc",
       "ruch"
@@ -1736,7 +1736,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "jutro",
       "wieczor"
@@ -1752,7 +1752,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "emocje",
       "poranek"
@@ -1768,7 +1768,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "nauka",
       "powtorzenie"
@@ -1784,7 +1784,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "liczby",
       "zagadka"
@@ -1800,7 +1800,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "plan_b",
       "wieczor"
@@ -1816,7 +1816,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "porzadek",
       "krok_po_kroku"
@@ -1832,7 +1832,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "refleksja",
       "podsumowanie"
@@ -1848,7 +1848,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "relacje",
       "liczby"
@@ -1864,7 +1864,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "postep",
       "podsumowanie"
@@ -1880,7 +1880,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Zdjecie tego, co powstalo.",
+    "proof_hint": "Zdjęcie tego, co powstało.",
     "tags": [
       "karton",
       "material_z_domu",
@@ -1898,7 +1898,7 @@ export const ADDITIONAL_TASKS = [
       "KR",
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "slowa",
       "jezyk",
@@ -1915,7 +1915,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Zdjecie rysunku lub opis 1 zdaniem.",
+    "proof_hint": "Zdjęcie rysunku lub opis 1 zdaniem.",
     "tags": [
       "rysunek",
       "eksperyment",
@@ -1932,7 +1932,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "dokonczenie",
       "finisz",
@@ -1949,7 +1949,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "co_by_bylo",
       "wyobraznia",
@@ -1966,7 +1966,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Zdjecie tego, co powstalo.",
+    "proof_hint": "Zdjęcie tego, co powstało.",
     "tags": [
       "material_z_domu",
       "postac",
@@ -1983,7 +1983,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "piosenka",
       "spiew",
@@ -2001,7 +2001,7 @@ export const ADDITIONAL_TASKS = [
       "KR",
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "rym",
       "imie",
@@ -2018,7 +2018,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "wynalazek",
       "smok",
@@ -2035,7 +2035,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "szkic",
       "proces",
@@ -2053,7 +2053,7 @@ export const ADDITIONAL_TASKS = [
       "KR",
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "haslo",
       "sekret",
@@ -2070,7 +2070,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "papier",
       "rzezba",
@@ -2087,7 +2087,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "kolaz",
       "skrawki",
@@ -2104,7 +2104,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "opowiesc",
       "dokonczenie",
@@ -2121,7 +2121,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "jezyk",
       "wymyslony",
@@ -2138,7 +2138,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "uzycia",
       "lyzka",
@@ -2155,7 +2155,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "patyk",
       "sznurek",
@@ -2172,7 +2172,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "plama",
       "akwarela",
@@ -2191,7 +2191,7 @@ export const ADDITIONAL_TASKS = [
       "EM",
       "MD"
     ],
-    "proof_hint": "Napisz z kim rozmawiales i co uslyszales.",
+    "proof_hint": "Napisz z kim rozmawiałeś i co usłyszałeś.",
     "tags": [
       "uczucia",
       "slowa",
@@ -2208,7 +2208,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "dokonczenie",
       "kolor",
@@ -2226,7 +2226,7 @@ export const ADDITIONAL_TASKS = [
       "KR",
       "DT"
     ],
-    "proof_hint": "Zdjecie albo lista zebranych rzeczy.",
+    "proof_hint": "Zdjęcie albo lista zebranych rzeczy.",
     "tags": [
       "kamyk",
       "historia",
@@ -2243,7 +2243,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "palec",
       "sok",
@@ -2260,7 +2260,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "imie",
       "skarpetka",
@@ -2277,7 +2277,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Zdjecie tego, co powstalo.",
+    "proof_hint": "Zdjęcie tego, co powstało.",
     "tags": [
       "most",
       "mrowka",
@@ -2294,7 +2294,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "bajka",
       "koniec",
@@ -2311,7 +2311,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Zdjecie rysunku lub opis 1 zdaniem.",
+    "proof_hint": "Zdjęcie rysunku lub opis 1 zdaniem.",
     "tags": [
       "oczy",
       "rysunek",
@@ -2328,7 +2328,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "lody",
       "smak",
@@ -2346,7 +2346,7 @@ export const ADDITIONAL_TASKS = [
       "KR",
       "DT"
     ],
-    "proof_hint": "Zdjecie albo lista zebranych rzeczy.",
+    "proof_hint": "Zdjęcie albo lista zebranych rzeczy.",
     "tags": [
       "domek",
       "owad",
@@ -2363,7 +2363,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "supermoc",
       "szczoteczka",
@@ -2380,7 +2380,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "ksztalt",
       "spirala",
@@ -2397,7 +2397,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "piosenka",
       "refren",
@@ -2414,7 +2414,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "chmura",
       "imie",
@@ -2431,7 +2431,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "polaczenia",
       "rzeczy",
@@ -2448,7 +2448,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "sloik",
       "lampa",
@@ -2466,7 +2466,7 @@ export const ADDITIONAL_TASKS = [
       "KR",
       "ST"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "stempel",
       "warzywa",
@@ -2483,7 +2483,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "skarbnica",
       "dokonczenie",
@@ -2500,7 +2500,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "ksiazka",
       "tytul",
@@ -2517,7 +2517,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "pokoj",
       "gwiazdy",
@@ -2534,7 +2534,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "pokaz",
       "dzielo",
@@ -2551,7 +2551,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "inicjatywa",
       "odwaga"
@@ -2567,7 +2567,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "inicjatywa",
       "grupa"
@@ -2583,7 +2583,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "kraina",
       "marzenia"
@@ -2600,7 +2600,7 @@ export const ADDITIONAL_TASKS = [
       "LD",
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "pomoc",
       "troska"
@@ -2616,7 +2616,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "granice",
       "asertywność"
@@ -2632,7 +2632,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "słuchanie",
       "grupa"
@@ -2648,7 +2648,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "ruch",
       "ciało"
@@ -2664,7 +2664,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "słuchanie",
       "asertywność"
@@ -2680,7 +2680,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "głos",
       "szkoła"
@@ -2696,7 +2696,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "obrona",
       "grupa"
@@ -2712,7 +2712,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "przeprosiny",
       "odpowiedzialność"
@@ -2728,7 +2728,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "tempo",
       "spokój"
@@ -2744,7 +2744,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "strach",
       "głos"
@@ -2760,7 +2760,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "grupa",
       "włączanie"
@@ -2776,7 +2776,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "troska",
       "rodzina"
@@ -2792,7 +2792,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "kreatywność",
       "głos"
@@ -2808,7 +2808,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "nie-prowadzenie",
       "pokora"
@@ -2824,7 +2824,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "docenianie",
       "ciepło"
@@ -2840,7 +2840,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "pokora",
       "uczciwość"
@@ -2856,7 +2856,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "granice",
       "presja"
@@ -2873,7 +2873,7 @@ export const ADDITIONAL_TASKS = [
       "LD",
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "pomoc",
       "troska"
@@ -2889,7 +2889,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "próba",
       "porażka"
@@ -2905,7 +2905,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "zaufanie",
       "prośba"
@@ -2921,7 +2921,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "komunikacja",
       "asertywność"
@@ -2937,7 +2937,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "konflikt",
       "pojednanie"
@@ -2953,7 +2953,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Napisz z kim rozmawiales i co uslyszales.",
+    "proof_hint": "Napisz z kim rozmawiałeś i co usłyszałeś.",
     "tags": [
       "odwaga",
       "rozmowa"
@@ -2969,7 +2969,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "inicjatywa",
       "ciche_dobro"
@@ -2985,7 +2985,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "nie-prowadzenie",
       "perspektywa"
@@ -3001,7 +3001,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "wdzięczność",
       "ciche_dobro"
@@ -3017,7 +3017,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "odwaga",
       "różne_oblicza"
@@ -3034,7 +3034,7 @@ export const ADDITIONAL_TASKS = [
       "LD",
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "ciche_dobro",
       "pomoc"
@@ -3050,7 +3050,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "samoakceptacja",
       "tarcza"
@@ -3066,7 +3066,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "LD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "tożsamość",
       "głos"
@@ -3082,7 +3082,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "sluchanie",
       "most"
@@ -3098,7 +3098,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "slowa",
       "lacznik"
@@ -3114,7 +3114,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "konflikt",
       "pytanie"
@@ -3130,7 +3130,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "kompromis",
       "polowa"
@@ -3146,7 +3146,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "perspektywa",
       "powtorzenie"
@@ -3163,7 +3163,7 @@ export const ADDITIONAL_TASKS = [
       "MD",
       "EM"
     ],
-    "proof_hint": "Napisz z kim rozmawiales i co uslyszales.",
+    "proof_hint": "Napisz z kim rozmawiałeś i co usłyszałeś.",
     "tags": [
       "pytanie",
       "uczucia"
@@ -3179,7 +3179,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "granica",
       "odpoczynek"
@@ -3195,7 +3195,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "konflikt",
       "kroki"
@@ -3211,7 +3211,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "kompromis",
       "kreatywnosc"
@@ -3227,7 +3227,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "oddech",
       "pauza"
@@ -3243,7 +3243,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "sluchanie",
       "cisza"
@@ -3259,7 +3259,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "konflikt",
       "neutralnosc"
@@ -3275,7 +3275,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "zasada",
       "kompromis"
@@ -3292,7 +3292,7 @@ export const ADDITIONAL_TASKS = [
       "MD",
       "KR"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "perspektywa",
       "wyobraznia"
@@ -3308,7 +3308,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "wdziecznosc",
       "zaufanie"
@@ -3324,7 +3324,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "dystans",
       "spokoj"
@@ -3340,7 +3340,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "zamiana",
       "kompromis"
@@ -3356,7 +3356,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "sluchanie",
       "przestrzen"
@@ -3373,7 +3373,7 @@ export const ADDITIONAL_TASKS = [
       "MD",
       "EM"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "pomoc",
       "doroslego"
@@ -3389,7 +3389,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "pytanie",
       "ciekawosc"
@@ -3405,7 +3405,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "lista",
       "kompromis"
@@ -3421,7 +3421,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "sluchanie",
       "zasada"
@@ -3437,7 +3437,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "pauza",
       "konflikt"
@@ -3453,7 +3453,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "wdziecznosc",
       "konkret"
@@ -3469,7 +3469,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "sprawiedliwosc",
       "podzial"
@@ -3485,7 +3485,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "spokoj",
       "swiatlo"
@@ -3501,7 +3501,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "spokoj",
       "powtorzenie"
@@ -3517,7 +3517,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "pytanie",
       "zaufanie"
@@ -3533,7 +3533,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Krotko opisz albo wyslij zdjecie tego, co zrobiles.",
+    "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "ustepstwo",
       "moc"
@@ -3549,7 +3549,7 @@ export const ADDITIONAL_TASKS = [
     "competency_focus": [
       "MD"
     ],
-    "proof_hint": "Napisz z kim rozmawiales i co uslyszales.",
+    "proof_hint": "Napisz z kim rozmawiałeś i co usłyszałeś.",
     "tags": [
       "podsumowanie",
       "rozmowa"
