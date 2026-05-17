@@ -71,7 +71,15 @@ export default function AppDataProvider({ children }) {
           .getCurrentMission(id)
           .then((m) => setMission(m))
           .catch(async () => {
-            // Brak misji -> sprobuj wygenerowac
+            // Brak misji. UWAGA: NIE auto-generujemy gdy to silent refresh (np. po
+            // zatwierdzeniu przez mentora — refreshAll z HintPopup). To by "rzucalo"
+            // ucznia na ekran Zadan z nowym scrollem zaraz po dismiss reward popup.
+            // Nowa misja powstanie dopiero gdy uczen sam wejdzie na /mission (autoreflesh tam)
+            // lub przy pelnym przeladowaniu strony (silent=false).
+            if (silent) {
+              setMission(null);
+              return;
+            }
             try {
               const m = await api.generateMission(id);
               setMission(m);

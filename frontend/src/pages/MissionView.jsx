@@ -430,7 +430,7 @@ export default function MissionView() {
                   <p style={{
                     margin: 0, fontSize: 15, lineHeight: 1.45, color: "var(--p-magic-dk)", fontWeight: 700,
                   }}>
-                    Mędrzec właśnie sprawdza Twoją odpowiedź…
+                    Mentor właśnie sprawdza Twoją odpowiedź…
                   </p>
                 </div>
               )}
