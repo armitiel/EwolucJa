@@ -626,47 +626,9 @@ export const ScrollIcon = ({ size = 60 }) => (
 
 export const MissionScroll = ({ state = "closed", width = 280, children, onClick, sealed = false }) => {
   const isOpen = state === "open";
-  // SEALED MODE: zwoj2.svg jako jeden zapieczętowany zwoj (np. czeka na akceptacje mentora).
-  // Aspect ratio zwoj2.svg ~ 740/350 ≈ 2.11:1 (poziomy ksztalt 2 zwiniete zwoje z fioletowa wstega).
-  if (sealed) {
-    const sealedH = Math.round(width / 2.11);
-    return (
-      <div
-        className="mission-scroll mission-scroll--sealed"
-        style={{
-          position: "relative",
-          width,
-          height: sealedH,
-          margin: "0 auto",
-          cursor: onClick ? "pointer" : "default",
-          userSelect: "none",
-          WebkitTapHighlightColor: "transparent",
-        }}
-        onClick={onClick}
-        role={onClick ? "button" : undefined}
-        aria-label="Zwoj zapieczetowany - czeka na akceptacje Medrca"
-        title="Zwoj zapieczetowany — czeka na akceptacje Medrca"
-      >
-        <img
-          src="/zwoj2.svg"
-          alt=""
-          aria-hidden="true"
-          style={{
-            width: "100%", height: "100%",
-            objectFit: "contain",
-            filter: "drop-shadow(0 8px 18px rgba(80,50,10,.28))",
-            pointerEvents: "none",
-          }}
-        />
-        {/* Children nad zapieczetowanym zwojem — np. dodatkowe info */}
-        {children && (
-          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            {children}
-          </div>
-        )}
-      </div>
-    );
-  }
+  // sealed = renderuje normalny zwoj (rod+paper+rod) + dodaje overlay zwoj2.svg
+  // (portretowa fioletowa wstega) na srodku jako "wrap" trzymajacy zwoj w roli.
+  // Overlay zachowany ponizej, po normalnym renderze.
 
   // Belka: szerokosc = width, wysokosc = width / 5.46
   const rodAspect = 1053.9 / 192.9;
@@ -772,6 +734,35 @@ export const MissionScroll = ({ state = "closed", width = 280, children, onClick
           filter: "drop-shadow(0 6px 8px rgba(80,50,10,.28))",
         }}
       />
+
+      {/* SEALED OVERLAY - fioletowa wstega zwoj2.svg owijajaca zwoj w srodku.
+          Skalowanie po WYSOKOSCI containera (a nie szerokosci) - dzieki temu ribbon zawsze
+          dopasowuje sie do wysokosci zwoju, niezaleznie od proporcji.
+          1.04x containerH = lekkie wystawanie nad i pod belki (efekt "wrap"). */}
+      {sealed && (() => {
+        const ASPECT = 217.1 / 467.1; // W/H zwoj2.svg ≈ 0.465 (portrait)
+        const overlayH = Math.round(containerH * 1.04);
+        const overlayW = Math.round(overlayH * ASPECT);
+        return (
+          <img
+            src="/zwoj2.svg"
+            alt=""
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              left: "47%",
+              top: "46%",
+              width: overlayW,
+              height: overlayH,
+              transform: "translate(-50%, -50%)",
+              zIndex: 4,
+              filter: "drop-shadow(0 4px 10px rgba(80,40,140,.40))",
+              pointerEvents: "none",
+              animation: "float-mid 3s ease-in-out infinite",
+            }}
+          />
+        );
+      })()}
     </div>
   );
 };
