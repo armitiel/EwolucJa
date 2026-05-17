@@ -12,8 +12,8 @@ import { Coin, Sparkle } from "../components/art.jsx";
 const GAMES = [
   {
     id: "memory",
-    title: "Pamięć Detektywa",
-    desc: "Znajdź pary symboli ukrytych w mgle Lasu Pytań.",
+    title: "Pamięć Mędrca",
+    desc: "Znajdź pary magicznych symboli — im mniej ruchów, tym więcej ech.",
     emoji: "🧠",
     bg: "linear-gradient(135deg,#FFE0B5,#FFD269)",
     accent: "#E89A3D",
@@ -21,6 +21,7 @@ const GAMES = [
     coins: 10,
     xp: 1,
     state: "available",
+    route: "/games/memory",
   },
   {
     id: "echo-puzzle",
@@ -93,7 +94,11 @@ export default function Games() {
           return (
             <button
               key={g.id}
-              onClick={() => !locked && alert(`Gra "${g.title}" — wkrótce!`)}
+              onClick={() => {
+                if (locked) return;
+                if (g.route) navigate(g.route);
+                else alert(`Gra "${g.title}" — wkrótce!`);
+              }}
               disabled={locked}
               style={{
                 border: "none",
