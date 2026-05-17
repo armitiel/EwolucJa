@@ -627,10 +627,12 @@ export const ScrollIcon = ({ size = 60 }) => (
 export const MissionScroll = ({ state = "closed", width = 280, children, onClick, sealed = false }) => {
   const isOpen = state === "open";
 
-  // SEALED = jeden gotowy aset zwoj2.png (zwiniety zwoj ze wstega, czekamy na mentora).
-  // Calkowicie zastepuje konstrukcje rod+paper+rod. Naturalny aspect 610x522.
+  // SEALED = jeden gotowy aset zwoj2.svg (zwiniety zwoj ze wstega, czekamy na mentora).
+  // Calkowicie zastepuje konstrukcje rod+paper+rod. NIE pokazujemy tresci misji w tym stanie —
+  // sam ksztalt zapieczetowanego zwoju komunikuje: "tu nic juz nie zmienisz".
+  // Aspect z viewBox zwoj2.svg = 1076.4 / 517 ≈ 2.08 (szeroki poziomy ksztalt).
   if (sealed) {
-    const sealedAspect = 610 / 522; // ≈ 1.169 (poziomy)
+    const sealedAspect = 1076.4 / 517; // ≈ 2.08
     const sealedH = Math.round(width / sealedAspect);
     return (
       <div
@@ -650,7 +652,7 @@ export const MissionScroll = ({ state = "closed", width = 280, children, onClick
         aria-label="Zwoj zaplombowany - oczekuje na weryfikacje mentora"
       >
         <img
-          src="/zwoj2.png"
+          src="/zwoj2.svg"
           alt=""
           aria-hidden="true"
           style={{
@@ -661,20 +663,7 @@ export const MissionScroll = ({ state = "closed", width = 280, children, onClick
             pointerEvents: "none",
           }}
         />
-        {children && (
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              pointerEvents: "none",
-            }}
-          >
-            {children}
-          </div>
-        )}
+        {/* CELOWO BRAK children w sealed mode — sama grafika mowi wszystko. */}
       </div>
     );
   }
