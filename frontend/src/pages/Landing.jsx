@@ -204,6 +204,11 @@ export default function Landing() {
               <span style={{ fontSize: 20, marginRight: 6 }}>✦</span>
               {playerId ? "Wróć do świata" : "Rozpocznij przygodę"}
             </button>
+            {/* Zawsze widoczne - mozna sie zalogowac kodem nawet jak istnieje juz sesja innego ucznia */}
+            <button className="btn btn-ghost btn-block" onClick={() => navigate("/odzyskaj")}>
+              <span style={{ marginRight: 6 }}>🗝️</span>
+              {playerId ? "Zaloguj innym kodem" : "Mam już kod"}
+            </button>
           </div>
 
           <p style={{ marginTop: 20, fontSize: 13, color: "var(--p-ink-soft)", textAlign: "center" }}>
