@@ -212,6 +212,42 @@ export default function MissionView() {
             Rezerwujemy stale miejsce dla CTA pod zwojem zeby pozycja zwoju nie skakala miedzy stanami. */}
         {mission && step !== 3 && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: 0, width: "100%" }}>
+            {/* Wizard avatar na okregu z obrysem i cieniem — gdy zwoj zapieczetowany.
+                Glowa wystaje delikatnie ponad okrag (overflow: visible + scale > 1). */}
+            {step === 0 && mission.status === "submitted" && (
+              <div
+                aria-hidden="true"
+                style={{
+                  position: "relative",
+                  width: 112, height: 112,
+                  marginBottom: -28, // overlapuje na zwoj ponizej
+                  zIndex: 4,
+                  animation: "float-mid 3.2s ease-in-out infinite",
+                }}
+              >
+                <div style={{
+                  position: "absolute", inset: 0,
+                  borderRadius: "50%",
+                  background: "#fff",
+                  boxShadow: "0 0 0 4px var(--p-magic-dk), 0 8px 22px rgba(74,45,128,.45), inset 0 0 0 1.5px rgba(255,255,255,.6)",
+                  overflow: "visible",
+                }} />
+                <img
+                  src="/wizard.png"
+                  alt=""
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%", height: "auto",
+                    transform: "scale(1.18) translateY(-6%)", // glowa lekko wieksza + wystaje gora
+                    transformOrigin: "center 60%",
+                    objectFit: "contain",
+                    filter: "drop-shadow(0 4px 8px rgba(80,40,140,.35))",
+                    pointerEvents: "none",
+                  }}
+                />
+              </div>
+            )}
             <div
               style={{
                 animation: step === 0 ? "float-mid 3s ease-in-out infinite" : "none",
@@ -416,30 +452,23 @@ export default function MissionView() {
                 </button>
               )}
               {step === 0 && mission.status === "submitted" && (
-                <>
-                  {/* Status: submitted - zwoj zablokowany do czasu weryfikacji.
-                      Brak CTA do otwarcia, tylko MentorBubble z komunikatem. */}
-                  <div
-                    aria-disabled="true"
-                    className="btn btn-ghost btn-block pop-in"
-                    style={{
-                      width: "100%", opacity: 0.55,
-                      cursor: "not-allowed",
-                      pointerEvents: "none",
-                      display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                    }}
-                  >
-                    🔒 Zwój zapieczętowany
-                  </div>
-                  <div style={{ width: "100%", maxWidth: 360, marginTop: 8 }}>
-                    <MentorBubble
-                      title="Mentor"
-                      text="Twoja odpowiedź jest sprawdzana przez Mentora. Wróć tu wkrótce."
-                      tone="magic"
-                      size="md"
-                    />
-                  </div>
-                </>
+                <div
+                  className="pop-in"
+                  style={{
+                    width: "100%", maxWidth: 360,
+                    padding: "14px 18px",
+                    borderRadius: 16,
+                    background: "linear-gradient(180deg, rgba(232,219,255,.85) 0%, rgba(200,160,240,.55) 100%)",
+                    boxShadow: "0 3px 0 rgba(74,45,128,.20), 0 8px 22px rgba(122,77,194,.22), inset 0 0 0 1.5px rgba(255,255,255,.55)",
+                    textAlign: "center",
+                  }}
+                >
+                  <p style={{
+                    margin: 0, fontSize: 15, lineHeight: 1.45, color: "var(--p-magic-dk)", fontWeight: 700,
+                  }}>
+                    Mędrzec właśnie sprawdza Twoją odpowiedź…
+                  </p>
+                </div>
               )}
               {step === 0 && mission.status === "verified" && (
                 <button
