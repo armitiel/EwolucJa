@@ -192,7 +192,7 @@ export default function Games() {
         </p>
       </div>
 
-      <TabBar current="home" />
+      <TabBar current="games" />
     </PageShell>
   );
 }

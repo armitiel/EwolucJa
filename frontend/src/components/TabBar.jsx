@@ -8,8 +8,8 @@ import { TabIcons } from "./art.jsx";
 
 const TABS = [
   { id: "home", label: "Dom", path: "/world", icon: TabIcons.home },
-  { id: "map", label: "Mapa", path: "/map", icon: TabIcons.map },
-  { id: "backpack", label: "Plecak", path: "/backpack", icon: TabIcons.bag },
+  { id: "games", label: "Gry", path: "/games", icon: TabIcons.games },
+  { id: "mission", label: "Zadania", path: "/mission", icon: TabIcons.mission },
   { id: "profile", label: "Profil", path: "/profile", icon: TabIcons.hero },
 ];
 

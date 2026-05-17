@@ -418,6 +418,25 @@ export const TabIcons = {
       <path d="M3 11l9-8 9 8v10a2 2 0 01-2 2h-4v-7h-6v7H5a2 2 0 01-2-2z" />
     </svg>
   ),
+  // Gamepad — link do /games (Gry)
+  games: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.0" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M7 9h10a4 4 0 0 1 4 4v1a2.5 2.5 0 0 1-4.7 1.3l-.7-.7h-7.2l-.7.7A2.5 2.5 0 0 1 3 14v-1a4 4 0 0 1 4-4z" />
+      <path d="M8 12.5h2M9 11.5v2" />
+      <circle cx="15.5" cy="11.8" r=".7" fill="currentColor" stroke="none" />
+      <circle cx="17" cy="13" r=".7" fill="currentColor" stroke="none" />
+    </svg>
+  ),
+  // Kula / sfera — link do /mission (Zadania w Realu)
+  mission: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.0" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="8" />
+      <path d="M4 12c2.5-1.5 5-2 8-2s5.5.5 8 2" />
+      <path d="M12 4c2 2.5 3 5 3 8s-1 5.5-3 8" />
+      <path d="M12 4c-2 2.5-3 5-3 8s1 5.5 3 8" />
+    </svg>
+  ),
+  // Stare ikony zostawiamy dla backward compat (jezeli ktos jeszcze importuje):
   map: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round">
       <path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z" />
@@ -651,20 +670,24 @@ export const MissionScroll = ({ state = "closed", width = 280, children, onClick
           backgroundPosition: "center",
         }}
       >
-        {/* Tresc - widoczna tylko gdy otwarty, z fade-in */}
+        {/* Tresc - widoczna tylko gdy otwarty, z fade-in.
+            Wieksze pole gora/dol (13%) zeby tresc miala oddech od ozdobnych krawedzi pergaminu. */}
         {isOpen && children && (
           <div
             style={{
               position: "absolute",
-              inset: "9% 8% 9% 8%",
+              inset: "13% 8% 13% 8%",
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
-              overflow: "hidden",
+              overflowY: "auto",
+              overflowX: "hidden",
               opacity: 0,
               animation: "fadeIn .55s ease .8s forwards",
               color: "#3B2A12",
               pointerEvents: "auto",
+              scrollbarWidth: "thin",
+              scrollbarColor: "#A87A2A66 transparent",
             }}
           >
             {children}
