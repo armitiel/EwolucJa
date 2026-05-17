@@ -158,7 +158,7 @@ export default function WorldHub() {
     <PageShell>
       <TopBar narratorText={greeting} playOnceKey="worldhub_greeting" tone="calm" speed={0.86} />
 
-      <div className="screen-scroll entrance-stagger" style={{ display: "flex", flexDirection: "column", gap: 14, paddingTop: 12, paddingBottom: "calc(100px + env(safe-area-inset-bottom, 0px))", position: "relative", zIndex: 1, flex: 1 }}>
+      <div className="screen-scroll entrance-stagger" style={{ display: "flex", flexDirection: "column", gap: 14, padding: "20px 18px calc(120px + env(safe-area-inset-bottom, 0px))", position: "relative", zIndex: 1, flex: 1 }}>
         {/* Postep tygodnia + pasek COINÓW vs CEL TYGODNIA */}
         <WeekProgress coins={weekCoins} weekGoal={weekGoal} />
 
