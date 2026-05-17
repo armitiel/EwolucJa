@@ -171,7 +171,7 @@ export default function WorldHub() {
           daysToFriday={friday && !friday.passed ? friday.days : null}
         />
 
-        {/* Karta 1: WYPRAWA TYGODNIA / Trzy Próby Krain (gry digital) */}
+        {/* Karta 1: W TYM TYGODNIU / Gry (kolor pomaranczowy) */}
         <button
           onClick={() => navigate("/games")}
           style={{ border: "none", background: "transparent", padding: 0, cursor: "pointer", textAlign: "left", position: "relative" }}
@@ -184,16 +184,16 @@ export default function WorldHub() {
               alignItems: "center",
               gap: 14,
               minHeight: 120,
-              background: "linear-gradient(135deg, rgba(200,160,240,.55), rgba(184,134,232,.35))",
+              background: "linear-gradient(135deg, rgba(255,193,120,.55), rgba(232,99,45,.30))",
             }}
           >
-            {/* Fioletowa zaokraglona tabletka z nowym gamepadem (czysta, Pixar) */}
+            {/* Pomaranczowa zaokraglona tabletka z nowym gamepadem (czysta, Pixar) */}
             <div style={{
               width: 80, height: 80, flex: "none",
               borderRadius: 22,
-              background: "linear-gradient(180deg, #B886E8 0%, #7A4DC2 100%)",
+              background: "linear-gradient(180deg, #FFC178 0%, #E8632D 100%)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              boxShadow: "0 4px 0 #4A2D80, 0 8px 18px rgba(74,45,128,.35), inset 0 2px 0 rgba(255,255,255,.25)",
+              boxShadow: "0 4px 0 #A03A12, 0 8px 18px rgba(232,99,45,.45), inset 0 2px 0 rgba(255,255,255,.25)",
               animation: "float-mid 3.5s ease-in-out infinite",
             }}>
               {/* Nowy gamepad — czysta linia, oblo, dziecko-przyjazny */}
@@ -203,21 +203,21 @@ export default function WorldHub() {
                   fill="#fff"
                 />
                 {/* D-pad (lewa strona) */}
-                <rect x="11" y="24.5" width="9" height="2.6" rx="1.3" fill="#7A4DC2" />
-                <rect x="14.2" y="21.3" width="2.6" height="9" rx="1.3" fill="#7A4DC2" />
+                <rect x="11" y="24.5" width="9" height="2.6" rx="1.3" fill="#E8632D" />
+                <rect x="14.2" y="21.3" width="2.6" height="9" rx="1.3" fill="#E8632D" />
                 {/* Buttons cluster (prawa strona, romb 4 kropek) */}
-                <circle cx="33" cy="22.5" r="1.8" fill="#7A4DC2" />
+                <circle cx="33" cy="22.5" r="1.8" fill="#E8632D" />
                 <circle cx="36.5" cy="26" r="1.8" fill="#FFD269" />
-                <circle cx="33" cy="29.5" r="1.8" fill="#7A4DC2" />
-                <circle cx="29.5" cy="26" r="1.8" fill="#7A4DC2" />
+                <circle cx="33" cy="29.5" r="1.8" fill="#E8632D" />
+                <circle cx="29.5" cy="26" r="1.8" fill="#E8632D" />
               </svg>
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.6, color: "var(--p-magic-dk)", textTransform: "uppercase", marginBottom: 2 }}>
-                Wyprawa tygodnia
+              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.6, color: "#A03A12", textTransform: "uppercase", marginBottom: 2 }}>
+                W tym tygodniu
               </div>
               <h2 className="t-display" style={{ fontSize: 22, margin: 0, lineHeight: 1.15, color: "var(--p-ink)" }}>
-                Trzy Próby Krain
+                Gry
               </h2>
               <div style={{ display: "flex", gap: 6, marginTop: 6, alignItems: "center" }}>
                 <span
@@ -237,7 +237,7 @@ export default function WorldHub() {
           </div>
         </button>
 
-        {/* Karta 2: ŚLAD W REALU / {mission.title} (misja realna) */}
+        {/* Karta 2: ŚLAD W REALU / {mission.title} (misja realna — kolor fioletowy) */}
         <button
           onClick={() => mission && navigate("/mission")}
           disabled={!mission}
@@ -251,7 +251,7 @@ export default function WorldHub() {
               alignItems: "center",
               gap: 14,
               minHeight: 120,
-              background: "linear-gradient(135deg, rgba(255,224,181,.55), rgba(255,210,105,.40))",
+              background: "linear-gradient(135deg, rgba(200,160,240,.55), rgba(184,134,232,.35))",
             }}
           >
             <div
@@ -273,7 +273,7 @@ export default function WorldHub() {
               />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.6, color: "#7A4D10", textTransform: "uppercase", marginBottom: 2 }}>
+              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.6, color: "var(--p-magic-dk)", textTransform: "uppercase", marginBottom: 2 }}>
                 Ślad w realu
               </div>
               <h2 className="t-display" style={{ fontSize: 22, margin: 0, lineHeight: 1.15, color: "var(--p-ink)" }}>
@@ -315,7 +315,7 @@ export default function WorldHub() {
           </div>
         </button>
 
-        {/* Karta 3: SZEPT MĘDRCZYNI / Komnata czeka z myślą (3 porady dnia) */}
+        {/* Karta 3: GŁOS MĘDRCA / Komnata czeka z myślą (3 porady dnia — kolor żółtawy) */}
         <button
           onClick={() => navigate("/porady")}
           style={{ border: "none", padding: 0, background: "transparent", cursor: "pointer", textAlign: "left" }}
@@ -323,7 +323,7 @@ export default function WorldHub() {
           <div
             className="card"
             style={{
-              background: "linear-gradient(135deg, rgba(255,224,150,.65), rgba(255,194,90,.40))",
+              background: "linear-gradient(135deg, rgba(255,240,180,.75), rgba(255,224,120,.45))",
               position: "relative",
               display: "flex",
               alignItems: "center",
@@ -350,8 +350,8 @@ export default function WorldHub() {
               />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.6, color: "#7A4D10", textTransform: "uppercase", marginBottom: 2 }}>
-                Szept Mędrczyni
+              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.6, color: "#A07A1A", textTransform: "uppercase", marginBottom: 2 }}>
+                Głos Mędrca
               </div>
               <h2 className="t-display" style={{ fontSize: 21, margin: 0, lineHeight: 1.15, color: "var(--p-ink)" }}>
                 Komnata czeka z myślą
@@ -377,5 +377,8 @@ export default function WorldHub() {
 
       <TabBar current="home" />
     </PageShell>
+  );
+}
+ell>
   );
 }
