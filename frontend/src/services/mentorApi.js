@@ -47,7 +47,10 @@ export const mentorApi = {
   deleteStudent: (classId, playerId) => call(`/mentor/classes/${classId}/students/${playerId}`, { method: "DELETE" }),
   getStudent: (classId, playerId) => call(`/mentor/classes/${classId}/students/${playerId}`),
   sendHint: (playerId, data) => call(`/mentor/students/${playerId}/hints`, { method: "POST", body: data }),
-  verifyMission: (missionId, decision, comment) => call(`/mentor/missions/${missionId}/verify`, { method: "POST", body: { decision, comment } }),
+  deleteHint: (playerId, hintId) => call(`/mentor/students/${playerId}/hints/${hintId}`, { method: "DELETE" }),
+  createMission: (playerId, data) => call(`/mentor/students/${playerId}/missions`, { method: "POST", body: data }),
+  verifyMission: (missionId, decision, comment, points) => call(`/mentor/missions/${missionId}/verify`, { method: "POST", body: { decision, comment, points } }),
+  deleteMission: (missionId) => call(`/mentor/missions/${missionId}`, { method: "DELETE" }),
 
   // Pary (Rozdarta Mapa) - GM strona
   listPairDefinitions: () => call("/pairs/definitions"),
@@ -56,7 +59,7 @@ export const mentorApi = {
   assignPair: (data) => call("/pairs/assign", { method: "POST", body: data }),
   listPairsForGm: (gmAccountId) => call(`/pairs/gm/${gmAccountId}/assignments`),
   listActivePairsForClass: (classId) => call(`/mentor/classes/${classId}/pairs`),
-  completePair: (assignmentId) => call(`/mentor/pairs/${assignmentId}/complete`, { method: "POST" }),
+  completePair: (assignmentId, data) => call(`/mentor/pairs/${assignmentId}/complete`, { method: "POST", body: data || {} }),
 };
 
 export const joinApi = {

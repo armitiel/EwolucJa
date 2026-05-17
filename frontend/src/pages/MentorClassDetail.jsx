@@ -703,10 +703,17 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
                 </div>
               ) : (
                 data.missions.slice(0, 10).map((m) => (
-                  <MissionCard key={m.id} mission={m} onVerify={async (decision, points) => {
-                    try { await mentorApi.verifyMission(m.id, decision, null, points); await load(); }
-                    catch (e) { alert(e.message); }
-                  }} />
+                  <MissionCard key={m.id} mission={m}
+                    onVerify={async (decision, points) => {
+                      try { await mentorApi.verifyMission(m.id, decision, null, points); await load(); }
+                      catch (e) { alert(e.message); }
+                    }}
+                    onDelete={async () => {
+                      if (!window.confirm("Usunąć to zadanie z historii ucznia?")) return;
+                      try { await mentorApi.deleteMission(m.id); await load(); }
+                      catch (e) { alert(e.message); }
+                    }}
+                  />
                 ))
               )}
 
@@ -755,7 +762,7 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
 }
 
 // Karta misji w modal mentora - pokazuje status, dowod, akcje verify (z customowa liczba punktow)
-function MissionCard({ mission, onVerify }) {
+function MissionCard({ mission, onVerify, onDelete }) {
   const status = mission.status;
   const proof = mission.submitted_proof;
   const verification = mission.gm_verification;
@@ -778,9 +785,25 @@ function MissionCard({ mission, onVerify }) {
             {new Date(mission.generated_at).toLocaleDateString("pl-PL")}
           </div>
         </div>
-        <span style={{ fontSize: 10, fontWeight: 900, padding: "3px 9px", borderRadius: 999, background: statusBg, color: statusColor, whiteSpace: "nowrap", flex: "none" }}>
-          {statusLabel}
-        </span>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, flex: "none" }}>
+          <span style={{ fontSize: 10, fontWeight: 900, padding: "3px 9px", borderRadius: 999, background: statusBg, color: statusColor, whiteSpace: "nowrap" }}>
+            {statusLabel}
+          </span>
+          {onDelete && (
+            <button
+              onClick={onDelete}
+              title="Usuń zadanie"
+              aria-label="Usuń zadanie"
+              style={{
+                background: "rgba(232,75,160,.12)", border: "none",
+                color: "#B82F7C", cursor: "pointer",
+                width: 26, height: 26, borderRadius: "50%",
+                padding: 0, display: "inline-flex", alignItems: "center", justifyContent: "center",
+                fontSize: 13, fontWeight: 700,
+              }}
+            >🗑</button>
+          )}
+        </div>
       </div>
 
       {/* Tresc misji (kliknij zeby rozwinac) */}
@@ -817,7 +840,7 @@ function MissionCard({ mission, onVerify }) {
           <div style={{ fontSize: 9, fontWeight: 900, letterSpacing: 1.2, color: "#A66A1A", textTransform: "uppercase" }}>
             ODPOWIEDŹ UCZNIA
           </div>
-          <div style={{ fontSize: 14, color: "var(--p-ink)", marginTop: 2, lineHeight: 1.4, fontFamily: "Caveat, cursive", fontStyle: "italic" }}>
+          <div style={{ fontSize: 17, color: "var(--p-ink)", marginTop: 4, lineHeight: 1.45, fontFamily: "inherit", fontWeight: 500 }}>
             „{proof.proof_text}"
           </div>
         </div>
