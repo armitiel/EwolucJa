@@ -35,8 +35,13 @@ export default function MissionView() {
     if (!session.getPlayer()) navigate("/onboarding");
   }, [navigate]);
 
+  // KRITYCZNE: za kazdym wejsciem na strone Zadania odswiez cache w AppData.
+  // Bez tego — gdy mentor wyslal nowa misje, uczen widzi cache'owana starsza (lub "Misja nie znaleziona").
+  useEffect(() => {
+    try { refreshAll?.(); } catch {}
+  }, [refreshAll]);
+
   // Plynne sciszenie muzyki na czas wizyty na MissionView (duck on mount, unduck on leave).
-  // Mount = wejscie na strone, unmount = navigate gdziekolwiek indziej → muzyka wraca do 25% z 700ms fade.
   useEffect(() => {
     try { bgMusic.duck(); } catch {}
     return () => { try { bgMusic.unduck(); } catch {} };
