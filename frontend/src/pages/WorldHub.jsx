@@ -180,19 +180,19 @@ export default function WorldHub() {
               background: "linear-gradient(135deg, rgba(255,193,120,.55), rgba(232,99,45,.30))",
             }}
           >
-            {/* Tlo SVG — Gry.svg, prawa strona, polprzezroczyste */}
+            {/* Tlo SVG — Gry.svg, wypelnia cala karte (cover) */}
             <div aria-hidden="true" style={{
               position: "absolute", inset: 0,
               backgroundImage: "url('/Gry.svg')",
-              backgroundSize: "contain",
-              backgroundPosition: "right center",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
-              opacity: 0.5, pointerEvents: "none",
+              opacity: 0.55, pointerEvents: "none",
             }} />
-            {/* Lekka biala warstwa nad SVG po lewej dla czytelnosci tekstu */}
+            {/* Biala warstwa po lewej dla czytelnosci tekstu */}
             <div aria-hidden="true" style={{
               position: "absolute", inset: 0,
-              background: "linear-gradient(90deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.30) 55%, rgba(255,255,255,0) 100%)",
+              background: "linear-gradient(90deg, rgba(255,255,255,.65) 0%, rgba(255,255,255,.30) 45%, rgba(255,255,255,0) 75%)",
               pointerEvents: "none",
             }} />
             {/* Pomaranczowa zaokraglona tabletka z nowym gamepadem (czysta, Pixar) */}
@@ -233,7 +233,6 @@ export default function WorldHub() {
                 <span style={{ fontSize: 13, color: "var(--p-ink-soft)", fontWeight: 700 }}>0/3</span>
               </div>
             </div>
-            <span style={{ fontSize: 32, color: "var(--p-magic-dk)", fontWeight: 700, position: "relative", zIndex: 1 }}>›</span>
           </div>
         </button>
 
@@ -256,19 +255,19 @@ export default function WorldHub() {
               background: "linear-gradient(135deg, rgba(200,160,240,.55), rgba(184,134,232,.35))",
             }}
           >
-            {/* Tlo SVG — Porady.svg, prawa strona, polprzezroczyste */}
+            {/* Tlo SVG — Porady.svg, wypelnia cala karte (cover) */}
             <div aria-hidden="true" style={{
               position: "absolute", inset: 0,
               backgroundImage: "url('/Porady.svg')",
-              backgroundSize: "contain",
-              backgroundPosition: "right center",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
-              opacity: 0.5, pointerEvents: "none",
+              opacity: 0.55, pointerEvents: "none",
             }} />
-            {/* Lekka biala warstwa po lewej dla czytelnosci tekstu */}
+            {/* Biala warstwa po lewej dla czytelnosci tekstu */}
             <div aria-hidden="true" style={{
               position: "absolute", inset: 0,
-              background: "linear-gradient(90deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.30) 55%, rgba(255,255,255,0) 100%)",
+              background: "linear-gradient(90deg, rgba(255,255,255,.65) 0%, rgba(255,255,255,.30) 45%, rgba(255,255,255,0) 75%)",
               pointerEvents: "none",
             }} />
             <div
@@ -321,7 +320,6 @@ export default function WorldHub() {
                 </div>
               )}
             </div>
-            <span style={{ fontSize: 32, color: "var(--p-magic-dk)", fontWeight: 700 }}>›</span>
           </div>
         </button>
 
@@ -335,6 +333,7 @@ export default function WorldHub() {
             style={{
               background: "linear-gradient(135deg, rgba(255,240,180,.75), rgba(255,224,120,.45))",
               position: "relative",
+              overflow: "hidden",
               display: "flex",
               alignItems: "center",
               gap: 14,
@@ -342,12 +341,28 @@ export default function WorldHub() {
               minHeight: 120,
             }}
           >
+            {/* Tlo SVG — rozkmina.svg, wypelnia cala karte (cover) */}
+            <div aria-hidden="true" style={{
+              position: "absolute", inset: 0,
+              backgroundImage: "url('/rozkmina.svg')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+              opacity: 0.55, pointerEvents: "none",
+            }} />
+            {/* Biala warstwa po lewej dla czytelnosci tekstu */}
+            <div aria-hidden="true" style={{
+              position: "absolute", inset: 0,
+              background: "linear-gradient(90deg, rgba(255,255,255,.65) 0%, rgba(255,255,255,.30) 45%, rgba(255,255,255,0) 75%)",
+              pointerEvents: "none",
+            }} />
             <div
               style={{
                 width: 90, height: 90,
                 display: "flex", justifyContent: "center", alignItems: "center",
                 flex: "none",
                 animation: "float-mid 3.5s ease-in-out infinite",
+                position: "relative", zIndex: 1,
               }}
             >
               <img
@@ -359,7 +374,7 @@ export default function WorldHub() {
                 }}
               />
             </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ flex: 1, minWidth: 0, position: "relative", zIndex: 1 }}>
               <h2 className="t-display" style={{ fontSize: 22, margin: 0, lineHeight: 1.15, color: "var(--p-ink)" }}>
                 Rozkmina Dnia
               </h2>
@@ -375,7 +390,6 @@ export default function WorldHub() {
                 </span>
               </div>
             </div>
-            <span style={{ fontSize: 32, color: "var(--p-magic-dk)", fontWeight: 700 }}>›</span>
           </div>
         </button>
 
