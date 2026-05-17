@@ -175,9 +175,26 @@ export default function WorldHub() {
               alignItems: "center",
               gap: 14,
               minHeight: 120,
+              position: "relative",
+              overflow: "hidden",
               background: "linear-gradient(135deg, rgba(255,193,120,.55), rgba(232,99,45,.30))",
             }}
           >
+            {/* Tlo SVG — Gry.svg, prawa strona, polprzezroczyste */}
+            <div aria-hidden="true" style={{
+              position: "absolute", inset: 0,
+              backgroundImage: "url('/Gry.svg')",
+              backgroundSize: "contain",
+              backgroundPosition: "right center",
+              backgroundRepeat: "no-repeat",
+              opacity: 0.5, pointerEvents: "none",
+            }} />
+            {/* Lekka biala warstwa nad SVG po lewej dla czytelnosci tekstu */}
+            <div aria-hidden="true" style={{
+              position: "absolute", inset: 0,
+              background: "linear-gradient(90deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.30) 55%, rgba(255,255,255,0) 100%)",
+              pointerEvents: "none",
+            }} />
             {/* Pomaranczowa zaokraglona tabletka z nowym gamepadem (czysta, Pixar) */}
             <div style={{
               width: 80, height: 80, flex: "none",
@@ -186,24 +203,19 @@ export default function WorldHub() {
               display: "flex", alignItems: "center", justifyContent: "center",
               boxShadow: "0 4px 0 #A03A12, 0 8px 18px rgba(232,99,45,.45), inset 0 2px 0 rgba(255,255,255,.25)",
               animation: "float-mid 3.5s ease-in-out infinite",
+              position: "relative", zIndex: 1,
             }}>
-              {/* Nowy gamepad — czysta linia, oblo, dziecko-przyjazny */}
               <svg viewBox="0 0 48 48" width="46" height="46" fill="none">
-                <path
-                  d="M14 17h20a9 9 0 0 1 9 9v2.5a5.5 5.5 0 0 1-10.2 2.9l-1.4-1.4h-14.8l-1.4 1.4A5.5 5.5 0 0 1 5 28.5V26a9 9 0 0 1 9-9z"
-                  fill="#fff"
-                />
-                {/* D-pad (lewa strona) */}
+                <path d="M14 17h20a9 9 0 0 1 9 9v2.5a5.5 5.5 0 0 1-10.2 2.9l-1.4-1.4h-14.8l-1.4 1.4A5.5 5.5 0 0 1 5 28.5V26a9 9 0 0 1 9-9z" fill="#fff" />
                 <rect x="11" y="24.5" width="9" height="2.6" rx="1.3" fill="#E8632D" />
                 <rect x="14.2" y="21.3" width="2.6" height="9" rx="1.3" fill="#E8632D" />
-                {/* Buttons cluster (prawa strona, romb 4 kropek) */}
                 <circle cx="33" cy="22.5" r="1.8" fill="#E8632D" />
                 <circle cx="36.5" cy="26" r="1.8" fill="#FFD269" />
                 <circle cx="33" cy="29.5" r="1.8" fill="#E8632D" />
                 <circle cx="29.5" cy="26" r="1.8" fill="#E8632D" />
               </svg>
             </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ flex: 1, minWidth: 0, position: "relative", zIndex: 1 }}>
               <h2 className="t-display" style={{ fontSize: 22, margin: 0, lineHeight: 1.15, color: "var(--p-ink)" }}>
                 Gierki dla Ciebie
               </h2>
@@ -221,7 +233,7 @@ export default function WorldHub() {
                 <span style={{ fontSize: 13, color: "var(--p-ink-soft)", fontWeight: 700 }}>0/3</span>
               </div>
             </div>
-            <span style={{ fontSize: 32, color: "var(--p-magic-dk)", fontWeight: 700 }}>›</span>
+            <span style={{ fontSize: 32, color: "var(--p-magic-dk)", fontWeight: 700, position: "relative", zIndex: 1 }}>›</span>
           </div>
         </button>
 
@@ -241,13 +253,22 @@ export default function WorldHub() {
               minHeight: 120,
               position: "relative",
               overflow: "hidden",
-              background: "linear-gradient(135deg, rgba(200,160,240,.55), rgba(184,134,232,.35)) url('/Porady.svg') right center / contain no-repeat",
+              background: "linear-gradient(135deg, rgba(200,160,240,.55), rgba(184,134,232,.35))",
             }}
           >
-            {/* Lekka biala warstwa nad SVG dla czytelnosci tekstu */}
+            {/* Tlo SVG — Porady.svg, prawa strona, polprzezroczyste */}
             <div aria-hidden="true" style={{
               position: "absolute", inset: 0,
-              background: "linear-gradient(90deg, rgba(255,255,255,.0) 0%, rgba(255,255,255,.55) 55%, rgba(255,255,255,.78) 100%)",
+              backgroundImage: "url('/Porady.svg')",
+              backgroundSize: "contain",
+              backgroundPosition: "right center",
+              backgroundRepeat: "no-repeat",
+              opacity: 0.5, pointerEvents: "none",
+            }} />
+            {/* Lekka biala warstwa po lewej dla czytelnosci tekstu */}
+            <div aria-hidden="true" style={{
+              position: "absolute", inset: 0,
+              background: "linear-gradient(90deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.30) 55%, rgba(255,255,255,0) 100%)",
               pointerEvents: "none",
             }} />
             <div
@@ -273,11 +294,6 @@ export default function WorldHub() {
               <h2 className="t-display" style={{ fontSize: 22, margin: 0, lineHeight: 1.15, color: "var(--p-ink)" }}>
                 Zadania w Realu
               </h2>
-              {mission && (
-                <div style={{ fontSize: 12, color: "var(--p-ink-soft)", fontWeight: 600, marginTop: 2, lineHeight: 1.2 }}>
-                  {mission.title} · {kraina}
-                </div>
-              )}
               {mission && (
                 <div style={{ display: "flex", gap: 6, marginTop: 6, alignItems: "center", flexWrap: "wrap" }}>
                   {mission.status === "submitted" && (
