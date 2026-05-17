@@ -1,6 +1,28 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+
+/**
+ * ScrollToTop — przy kazdej zmianie route (np. zakladki w TabBar) scrolluje:
+ *  1) wszystkie wewnetrzne kontenery .screen-scroll (PageShell-based pages),
+ *  2) okno (fallback dla stron bez .screen-scroll).
+ * Zapewnia ze nowa strona zawsze otwiera sie od gory zawartosci.
+ */
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    // Wewnetrzne scroll-containery
+    try {
+      document.querySelectorAll(".screen-scroll").forEach((el) => {
+        el.scrollTop = 0;
+      });
+    } catch {}
+    // Window fallback
+    try { window.scrollTo({ top: 0, left: 0, behavior: "instant" }); }
+    catch { window.scrollTo(0, 0); }
+  }, [pathname]);
+  return null;
+}
 import App from "./App.jsx";
 import Landing from "./pages/Landing.jsx";
 import Onboarding from "./pages/Onboarding.jsx";
@@ -19,6 +41,9 @@ import MentorDashboard from "./pages/MentorDashboard.jsx";
 import MentorClassDetail from "./pages/MentorClassDetail.jsx";
 import MentorPairs from "./pages/MentorPairs.jsx";
 import JoinClass from "./pages/JoinClass.jsx";
+import PoradyPage from "./pages/PoradyPage.jsx";
+import LoginAsStudent from "./pages/LoginAsStudent.jsx";
+import LoginByCode from "./pages/LoginByCode.jsx";
 import DevTools from "./components/DevTools.jsx";
 import HintPopup from "./components/HintPopup.jsx";
 import Loading from "./components/Loading.jsx";
@@ -53,6 +78,10 @@ function AppRoutes() {
       <Route path="/mentor/klasa/:id" element={<MentorClassDetail />} />
       <Route path="/mentor/klasa/:id/pary" element={<MentorPairs />} />
       <Route path="/dolacz" element={<JoinClass />} />
+      <Route path="/porady" element={<PoradyPage />} />
+      <Route path="/uczen" element={<LoginAsStudent />} />
+      <Route path="/odzyskaj" element={<LoginByCode />} />
+      <Route path="/witaj" element={<LoginByCode />} />
     </Routes>
   );
 }
@@ -60,6 +89,7 @@ function AppRoutes() {
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <ScrollToTop />
       <AppDataProvider>
         <AppRoutes />
         <HintPopup />
