@@ -5,19 +5,89 @@ import {
   createMission, getCurrentMission, getMission, submitMissionProof,
   addArtifactToBackpack, getPool,
 } from "../database/db.js";
+// SINGLE SOURCE OF TRUTH: ta sama biblioteka co panel mentora.
+// frontend/src/data/mentorTaskLibrary.js zawiera BASE_LIBRARY (120 zredagowanych przez agentow)
+// + ADDITIONAL_TASKS (216 swiezych zadan). Wczesniej backend mial 5 hardcoded staruszkow z DT,
+// ktore nie byly redagowane razem z baza mentora — dawalo to wrazenie ze fallback zwraca rzeczy
+// "z innego swiata" niz to, co dziala u mentora. Teraz oba korzystaja z tego samego pliku.
+import { MENTOR_TASK_LIBRARY } from "../../../frontend/src/data/mentorTaskLibrary.js";
 
-const SEED_MISSIONS_DT = [
-  { title: "Trzy Sekrety Domu", body: "Znajdź w domu trzy rzeczy, których historii nikt Ci jeszcze nie opowiedział. Spytaj kogoś dorosłego, skąd się tam wzięły.", narrative_intro: "Tropicielu, Twój Kompas Cieni drży. W Twoim domu są ślady, które tylko Ty możesz odczytać.", competency_focus: ["DT", "EM"], proof_type: "conversation", estimated_minutes: 20, artifact_reward: { artifact_id: "kompas_cieni", artifact_name: "Kompas Cieni" } },
-  { title: "Cisza Detektywa", body: "Znajdź w domu lub na podwórku miejsce, gdzie możesz posiedzieć 5 minut w ciszy. Co usłyszysz, czego nigdy wcześniej nie zauważyłeś?", narrative_intro: "Najlepsi tropiciele słyszą to, co inni przegapiają. Czas wytężyć słuch.", competency_focus: ["DT", "ST"], proof_type: "voice_note", estimated_minutes: 10, artifact_reward: { artifact_id: "ucho_lasu", artifact_name: "Ucho Lasu" } },
-  { title: "Mapa Skarbów Pokoju", body: "Narysuj mapę swojego pokoju, ale zaznacz na niej trzy 'ukryte skarby' — rzeczy ważne, których nikt poza Tobą nie zna.", narrative_intro: "Każda kraina potrzebuje mapy. Twoja zaczyna się tu, gdzie śpisz.", competency_focus: ["DT", "KR"], proof_type: "drawing", estimated_minutes: 25, artifact_reward: { artifact_id: "atrament_kronikarski", artifact_name: "Atrament Kronikarski" } },
-  { title: "Tropienie Pytań", body: "Zadaj komuś dorosłemu jedno pytanie, którego nigdy mu nie zadałeś. Może to być dziwne pytanie albo bardzo proste.", narrative_intro: "Tropiciel zna tajemnicę: pytania są mocniejsze od odpowiedzi.", competency_focus: ["DT", "EM", "MD"], proof_type: "conversation", estimated_minutes: 15, artifact_reward: { artifact_id: "klucz_pytan", artifact_name: "Klucz Pytań" } },
-  { title: "Trop, Którego Nikt Nie Zauważył", body: "Wyjdź z domu (z dorosłym) i znajdź jedną rzecz na Twojej ulicy, której nigdy wcześniej nie zauważyłeś. Zrób zdjęcie albo opowiedz o niej.", narrative_intro: "Twój trop dziś jest w miejscu, które przechodziłeś już sto razy.", competency_focus: ["DT"], proof_type: "photo", estimated_minutes: 30, safety_notes: "Zawsze z dorosłym. Nie oddalaj się.", artifact_reward: { artifact_id: "ziarno_uwagi", artifact_name: "Ziarno Uwagi" } },
-];
+// Stare wartosci 'archetype' w bazie (np. 'tropiciel_tajemnic') -> kod profilu (DT).
+// Nowe wartosci powinny byc bezposrednio kodami (EM/ST/KR/LD/DT/MD).
+const LEGACY_ARCHETYPE_TO_PROFILE = {
+  tropiciel_tajemnic: "DT",
+  zaklinacz_uczuc: "EM",
+  mistrz_map: "ST",
+  tkacz_snow: "KR",
+  gwardzista_odwagi: "LD",
+  straznik_mostu: "MD",
+};
+const PROFILE_CODES = new Set(["DT", "EM", "ST", "KR", "LD", "MD"]);
+function mapToProfileCode(value) {
+  if (!value) return null;
+  if (PROFILE_CODES.has(value)) return value;
+  return LEGACY_ARCHETYPE_TO_PROFILE[value] || null;
+}
 
-function pickSeedMission(usedTitles) {
-  const unused = SEED_MISSIONS_DT.filter((m) => !usedTitles.includes(m.title));
-  const pool = unused.length > 0 ? unused : SEED_MISSIONS_DT;
-  return pool[Math.floor(Math.random() * pool.length)];
+// narrative_intro nie jest w bibliotece — generujemy lekkie wprowadzenie zaleznie od profilu.
+// Krotkie, w trzeciej osobie z perspektywy Medrca, bez animizmu krain.
+const PROFILE_INTROS = {
+  DT: "Mędrzec szepcze: nowa zagadka czeka na tropiciela. Otwórz oczy uważniej niż zwykle.",
+  EM: "Mędrzec uśmiecha się: dziś masz szansę zauważyć kogoś sercem. To też supermoc.",
+  ST: "Mędrzec spogląda na mapę: dobry plan robi z małych rzeczy wielkie. Czas na ruch stratega.",
+  KR: "Mędrzec mruga: Twoja wyobraźnia ma dziś robotę. Coś nowego chce się narodzić.",
+  LD: "Mędrzec kiwa głową: odwaga zaczyna się od jednego małego kroku. Gwardzista próbuje.",
+  MD: "Mędrzec mówi spokojnie: czasem największa siła to umieć kogoś wysłuchać. Spróbuj dziś.",
+};
+
+// Heurystyka: z tags + slow kluczowych w body wywnioskuj proof_type (kompatybilne z mission schema).
+function inferProofType(item) {
+  const tags = (item.tags || []).join(" ").toLowerCase();
+  const body = (item.body || "").toLowerCase();
+  const hint = (item.proof_hint || "").toLowerCase();
+  const all = `${tags} ${body} ${hint}`;
+  if (all.includes("zdjęcie") || all.includes("zdjecie") || all.includes("photo")) return "photo";
+  if (all.includes("rysunek") || all.includes("narysuj") || all.includes("drawing")) return "drawing";
+  if (all.includes("nagra") || all.includes("voice")) return "voice_note";
+  if (all.includes("rozmowa") || all.includes("zapytaj")) return "conversation";
+  return "text";
+}
+
+// Konwertuj item z mentorTaskLibrary na format misji backendu.
+function mapLibraryItemToMission(item) {
+  const profile = item.profile;
+  return {
+    title: item.title,
+    body: item.body,
+    narrative_intro: PROFILE_INTROS[profile] || "Mędrzec szepcze: nowe zadanie czeka.",
+    competency_focus: Array.isArray(item.competency_focus) && item.competency_focus.length > 0
+      ? item.competency_focus
+      : (profile ? [profile] : ["DT"]),
+    proof_type: inferProofType(item),
+    estimated_minutes: Math.max(10, Math.min(40, Math.round((item.points_reward || 25) * 0.9))),
+    safety_notes: (item.tags || []).includes("z dorosłym") ? "Wymaga obecności dorosłego." : null,
+    artifact_reward: null,
+  };
+}
+
+// Wybierz misje z bazy mentora pasujaca do profilu gracza, nieprzerobiona wczesniej.
+// Fallback: jesli profil nie znany albo brak zadan — losuj z calej bazy task-ow.
+function pickSeedMission(usedTitles, archetypeOrProfile) {
+  const profile = mapToProfileCode(archetypeOrProfile);
+  const taskItems = MENTOR_TASK_LIBRARY.filter((it) => it.kind === "task");
+  // 1. Preferuj zadania pasujace do profilu gracza
+  const profileItems = profile
+    ? taskItems.filter((it) => it.profile === profile)
+    : taskItems;
+  // 2. Wyklucz uzyte wczesniej (po tytule)
+  const unused = (profileItems.length > 0 ? profileItems : taskItems)
+    .filter((it) => !usedTitles.includes(it.title));
+  // 3. Jesli wszystko uzyte — pozwol na powtorke z puli profilu
+  const pool = unused.length > 0
+    ? unused
+    : (profileItems.length > 0 ? profileItems : taskItems);
+  const picked = pool[Math.floor(Math.random() * pool.length)];
+  return mapLibraryItemToMission(picked);
 }
 
 export function cycleRoutes(db) {
@@ -89,10 +159,10 @@ export function missionRoutes(db) {
           source = "claude";
         } catch (claudeErr) {
           console.warn("[mission generate] Claude fallback:", claudeErr.message);
-          payload = pickSeedMission(used);
+          payload = pickSeedMission(used, player.archetype);
         }
       } else {
-        payload = pickSeedMission(used);
+        payload = pickSeedMission(used, player.archetype);
       }
 
       const mission = await createMission(db, {
@@ -146,21 +216,24 @@ export function missionRoutes(db) {
         const lifetime = { ...(player.lifetime_scores || { EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 }) };
         const cycleScores = { ...(player.scores || { EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 }) };
         const focus = Array.isArray(mission.competency_focus) ? mission.competency_focus : [];
-        // +8 do glownego profilu gracza (jego cecha rosnie najszybciej)
+        // GAME DESIGN v2: zadanie w realu = wartosciowy wysilek, ale glowna nagroda przychodzi
+        // od mentora po verify. Tu tylko zalazek - efekt zaczet, czeka na potwierdzenie.
+        // +4 do glownego profilu (bylo 8). Reszta przyjdzie z verify (+5 main + custom coins).
         const mainProfile = player.archetype && lifetime[player.archetype] !== undefined ? player.archetype : "DT";
-        lifetime[mainProfile] = (lifetime[mainProfile] || 0) + 8;
-        cycleScores[mainProfile] = (cycleScores[mainProfile] || 0) + 8;
-        // +5 do kazdej cechy z competency_focus
+        lifetime[mainProfile] = (lifetime[mainProfile] || 0) + 4;
+        cycleScores[mainProfile] = (cycleScores[mainProfile] || 0) + 4;
+        // +2 do kazdej cechy z competency_focus (bylo 5)
         for (const code of focus) {
           if (lifetime[code] !== undefined && code !== mainProfile) {
-            lifetime[code] = (lifetime[code] || 0) + 5;
-            cycleScores[code] = (cycleScores[code] || 0) + 5;
+            lifetime[code] = (lifetime[code] || 0) + 2;
+            cycleScores[code] = (cycleScores[code] || 0) + 2;
           }
         }
         player.lifetime_scores = lifetime;
         player.scores = cycleScores;
-        // +10 coinow za kazda ukonczona misje
-        player.coins = (player.coins || 0) + 10;
+        // +5 coinow za wyslanie odpowiedzi (bylo 10) - "iskra odwagi" za sam fakt zrobienia.
+        // Glowna nagroda 15-40 ✦ przyjdzie po verify mentora.
+        player.coins = (player.coins || 0) + 5;
         await savePlayer(db, player);
       }
 
