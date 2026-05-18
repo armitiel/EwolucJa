@@ -123,77 +123,69 @@ function PoradaGlyph({ kind = "medrzec", size = 56, tone = "magic" }) {
 // FreshTipCard wg mockupu Ekran Porad: duza fioletowa karta z Medrcem PNG po lewej,
 // sparkles + ksiezyc/slonce po prawej, tytul w cieplym kolorze i krotki opis.
 // Klikalna - otwiera modal z pelna trescia (zachowuje onOpen).
+// FreshTipCard - duza purple-card karta porady aktualnego slotu.
+// Cala karta jest klikalna (otwiera modal). Brak CTA i bookmarka - sama karta to call-to-tap.
 function FreshTipCard({ tip, onOpen, read = false }) {
   return (
     <button onClick={() => onOpen?.(tip)} style={{
-      position: "relative", borderRadius: 24, overflow: "hidden",
-      padding: "20px 18px 18px",
+      position: "relative", borderRadius: 28, overflow: "hidden",
+      padding: "26px 22px 24px",
       background: "linear-gradient(160deg,#7A4DC2 0%,#4A2D80 70%,#2C1755 100%)",
       color: "#fff",
-      boxShadow: "0 4px 0 rgba(43,30,90,.5), 0 16px 36px rgba(43,30,90,.45)",
+      boxShadow: "0 5px 0 rgba(43,30,90,.55), 0 22px 48px rgba(43,30,90,.5)",
       border: "none", cursor: "pointer", textAlign: "left", width: "100%",
       fontFamily: "inherit",
-      opacity: read ? 0.8 : 1,
+      opacity: read ? 0.85 : 1,
       transition: "transform .2s ease, opacity .3s ease",
+      minHeight: 240,
     }}
-    onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; }}
+    onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-3px)"; }}
     onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; }}
     >
       {/* Slonce/ksiezyc kompozytowy w prawym gornym rogu */}
-      <div aria-hidden="true" style={{ position: "absolute", top: 14, right: 18 }}>
-        <svg width="40" height="40" viewBox="0 0 40 40">
+      <div aria-hidden="true" style={{ position: "absolute", top: 18, right: 22 }}>
+        <svg width="48" height="48" viewBox="0 0 40 40">
           <circle cx="22" cy="18" r="13" fill="#FFD269" />
           <circle cx="27" cy="14" r="11" fill="#7A4DC2" />
         </svg>
       </div>
       {/* Trzy sparkles - delikatne, animowane */}
-      <div aria-hidden="true" style={{ position: "absolute", top: 60, right: 60, opacity: 0.85 }}>
-        <svg width="12" height="12" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill="#FFD269" /></svg>
+      <div aria-hidden="true" style={{ position: "absolute", top: 72, right: 72, opacity: 0.85 }}>
+        <svg width="14" height="14" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill="#FFD269" /></svg>
       </div>
-      <div aria-hidden="true" style={{ position: "absolute", top: 30, right: 120, opacity: 0.85 }}>
-        <svg width="9" height="9" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill="#FFE7B0" /></svg>
+      <div aria-hidden="true" style={{ position: "absolute", top: 36, right: 140, opacity: 0.85 }}>
+        <svg width="10" height="10" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill="#FFE7B0" /></svg>
       </div>
-      <div aria-hidden="true" style={{ position: "absolute", bottom: 18, right: 24, opacity: 0.7 }}>
-        <svg width="14" height="14" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill="#C8A0F0" /></svg>
+      <div aria-hidden="true" style={{ position: "absolute", bottom: 24, right: 28, opacity: 0.7 }}>
+        <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill="#C8A0F0" /></svg>
       </div>
 
-      {/* Label gora: PORADA DNIA - OD MEDRCA + chip PRZECZYTANE jesli juz */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 10, letterSpacing: 2, opacity: 0.85, textTransform: "uppercase", fontWeight: 700 }}>
-        <span>Porada dnia · Od Mędrca</span>
+      {/* Label gora: PORADA DNIA (bez 'OD MEDRCA' - redundantne) + chip PRZECZYTANE */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, letterSpacing: 2.2, opacity: 0.9, textTransform: "uppercase", fontWeight: 800 }}>
+        <span>Porada dnia</span>
         {read && (
           <span style={{ fontSize: 9, letterSpacing: 1, background: "rgba(255,255,255,.18)", padding: "2px 8px", borderRadius: 999, fontWeight: 800 }}>✓ Przeczytane</span>
         )}
       </div>
 
-      {/* Wizard PNG + tytul + opis */}
-      <div style={{ display: "flex", gap: 12, alignItems: "flex-end", marginTop: 10 }}>
+      {/* Wizard PNG + tytul + opis - wieksze, dla "wow" efektu na fresh tip */}
+      <div style={{ display: "flex", gap: 14, alignItems: "flex-end", marginTop: 14 }}>
         <img src="/wizhead.svg" alt="" style={{
-          width: 84, height: "auto", flex: "none",
-          filter: "drop-shadow(0 4px 8px rgba(0,0,0,.4))",
-          marginBottom: -8,
+          width: 100, height: "auto", flex: "none",
+          filter: "drop-shadow(0 4px 10px rgba(0,0,0,.45))",
+          marginBottom: -10,
         }} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <h3 className="t-display" style={{
-            margin: 0, fontSize: 22, lineHeight: 1.15, fontWeight: 700, color: "rgb(252, 244, 221)",
+            margin: 0, fontSize: 24, lineHeight: 1.15, fontWeight: 700, color: "rgb(252, 244, 221)",
           }}>
             „{tip.title}"
           </h3>
-          <div style={{ marginTop: 6, fontSize: 12.5, lineHeight: 1.4, opacity: 0.88,
-            display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+          <div style={{ marginTop: 8, fontSize: 13.5, lineHeight: 1.45, opacity: 0.9,
+            display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
             {tip.body}
           </div>
         </div>
-      </div>
-
-      {/* Dolny CTA: Przeczytaj calosc (klik karty otwiera tez modal) */}
-      <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
-        <span style={{
-          flex: 1, textAlign: "center",
-          padding: "9px 12px", borderRadius: 12,
-          background: "linear-gradient(180deg,#FFD269,#E89A3D)", color: "#4A2A0E",
-          boxShadow: "0 2px 0 #B47322",
-          fontSize: 13, fontWeight: 800, letterSpacing: 0.3,
-        }}>Przeczytaj całość →</span>
       </div>
     </button>
   );
@@ -228,61 +220,44 @@ function HistoryTipCard({ tip, dayLabel, onOpen, read = false }) {
 function TipModal({ tip, onClose }) {
   if (!tip) return null;
   const slot = SLOT_META[tip.slot] || SLOT_META.poludnie;
-  const cat = PORADY_CATEGORIES.find((c) => c.id === tip.category) || {};
   return (
-    <div role="dialog" aria-modal="true" onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(43,30,90,.45)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 18 }}>
-      <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 480, background: `linear-gradient(180deg,${slot.color} 0%, #fff 50%)`, borderRadius: 24, padding: "22px 20px 18px", boxShadow: "0 12px 36px rgba(43,30,90,.4)", color: "var(--p-ink)", position: "relative" }}>
+    <div role="dialog" aria-modal="true" onClick={onClose} style={{
+      position: "fixed", inset: 0, zIndex: 1000,
+      background: "rgba(43,30,90,.45)", backdropFilter: "blur(4px)",
+      display: "flex", alignItems: "center", justifyContent: "center", padding: 18,
+      animation: "tip-backdrop-in .25s ease-out both",
+    }}>
+      {/* Keyframes inline - skala 0.86 + opacity dla popup wjazdu, oraz delikatny bounce */}
+      <style>{`
+        @keyframes tip-backdrop-in { 0% { opacity: 0 } 100% { opacity: 1 } }
+        @keyframes tip-pop-in {
+          0%   { opacity: 0; transform: scale(.85) translateY(8px); }
+          70%  { opacity: 1; transform: scale(1.02) translateY(0); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+      `}</style>
+      <div onClick={(e) => e.stopPropagation()} style={{
+        width: "100%", maxWidth: 480,
+        background: `linear-gradient(180deg,${slot.color} 0%, #fff 50%)`,
+        borderRadius: 24, padding: "22px 20px 18px",
+        boxShadow: "0 12px 36px rgba(43,30,90,.4)",
+        color: "var(--p-ink)", position: "relative",
+        animation: "tip-pop-in .42s cubic-bezier(.34,1.56,.64,1) both",
+      }}>
         <button onClick={onClose} aria-label="Zamknij" style={{ position: "absolute", top: 12, right: 14, width: 32, height: 32, borderRadius: 999, border: "none", cursor: "pointer", background: "rgba(255,255,255,.75)", color: "var(--p-ink)", fontSize: 18, fontWeight: 800, boxShadow: "0 2px 6px rgba(43,30,90,.2)" }}>×</button>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
           <PoradaGlyph kind={tip.icon || "medrzec"} tone={tip.tone || slot.tone} size={56} />
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
-              <span style={{ fontSize: 10, fontWeight: 900, letterSpacing: 1.2, color: slot.ring, background: "rgba(255,255,255,.7)", padding: "3px 9px", borderRadius: 999 }}>{slot.emoji} {slot.label.toUpperCase()} · DZIEŃ {tip.day}</span>
-              <span style={{ fontSize: 10, color: "var(--p-ink-soft)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>{cat.label}</span>
-            </div>
+            {/* Tylko chip slot+day, bez "OD MEDRCA" (label kategorii usuniety - dla dziecka jest redundantny) */}
+            <span style={{ fontSize: 10, fontWeight: 900, letterSpacing: 1.2, color: slot.ring, background: "rgba(255,255,255,.7)", padding: "3px 9px", borderRadius: 999 }}>
+              {slot.emoji} {slot.label.toUpperCase()} · DZIEŃ {tip.day}
+            </span>
           </div>
         </div>
         <h3 className="t-display" style={{ margin: "4px 0 10px", fontSize: 22, lineHeight: 1.18, fontWeight: 700 }}>{tip.title}</h3>
         <div style={{ fontSize: 15, lineHeight: 1.5, color: "var(--p-ink)" }}>{tip.body}</div>
-        {tip.tags && tip.tags.length > 0 && (
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 14 }}>
-            {tip.tags.map((t) => (<span key={t} style={{ fontSize: 10, fontWeight: 700, color: "var(--p-ink-soft)", background: "rgba(43,42,74,.07)", padding: "3px 8px", borderRadius: 999 }}>#{t}</span>))}
-          </div>
-        )}
+        {/* Hashtagi tags usuniete - by treac byla czysta i nie zaszumiala dziecka */}
       </div>
-    </div>
-  );
-}
-
-// PoradyStatStrip - 3 male statystyki wg mockupu Ekran Porad:
-// przeczytanych | nowych dzis | dni w grze. Pulse-ring na "nowe dzis" gdy > 0.
-function PoradyStatStrip({ readCount = 0, newToday = 0, daysInGame = 1 }) {
-  return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, margin: "4px 0 4px" }}>
-      <StatPill n={readCount} label="przeczytanych" />
-      <StatPill n={newToday} label="nowych dziś" pulse={newToday > 0} accent />
-      <StatPill n={daysInGame} label={daysInGame === 1 ? "dzień w grze" : "dni w grze"} />
-    </div>
-  );
-}
-function StatPill({ n, label, pulse = false, accent = false }) {
-  return (
-    <div style={{
-      padding: "10px 10px", borderRadius: 14,
-      background: accent ? "rgba(255,210,105,.30)" : "rgba(255,255,255,.78)",
-      boxShadow: "inset 0 0 0 1.2px rgba(43,42,74,.08)",
-      display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
-      position: "relative",
-    }}>
-      {pulse && (
-        <span aria-hidden="true" style={{
-          position: "absolute", top: 8, right: 10, width: 8, height: 8, borderRadius: "50%",
-          background: "#E89A3D", boxShadow: "0 0 0 0 rgba(232,154,61,.6)",
-          animation: "pulse-ring 1.6s ease-out infinite",
-        }} />
-      )}
-      <div className="t-display" style={{ fontSize: 22, lineHeight: 1, color: accent ? "#7A4D10" : "var(--p-ink)" }}>{n}</div>
-      <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: 0.5, color: "var(--p-ink-soft)", textTransform: "uppercase" }}>{label}</div>
     </div>
   );
 }
@@ -467,14 +442,20 @@ export default function PoradyPage() {
       <TopBar />
       <div className="screen-scroll" style={{ flex: 1, minHeight: 0, padding: "12px 18px calc(100px + env(safe-area-inset-bottom, 0px))", display: "flex", flexDirection: "column", gap: 14 }}>
 
-        {/* Header wg mockupu Ekran Porad: maly label KOMNATA MEDRCA + duzy h1 "Porady".
-            Subtelnie wprowadza w nastroj sekcji - "tu mieszka Medrzec, tu sa porady na dzis". */}
-        <div style={{ opacity: 0, animation: "el-up .55s ease 0s forwards", padding: "2px 2px 0" }}>
-          <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.8, color: "var(--p-magic-dk)", textTransform: "uppercase" }}>
-            Komnata Mędrca
+        {/* Header dynamiczny - zmienia sie miedzy zakladkami:
+              porady   -> KOMNATA MEDRCA / Porady (caps label fioletowy)
+              mentor   -> SKRZYNKA MENTORA / Wiadomosci (caps label miodowy)
+            Key forsuje re-render i fade na zmiane tabu. */}
+        <div key={`hdr-${tab}`} style={{ opacity: 0, animation: "el-up .45s ease 0s forwards", padding: "2px 2px 0" }}>
+          <div style={{
+            fontSize: 10, fontWeight: 800, letterSpacing: 1.8,
+            color: tab === "porady" ? "var(--p-magic-dk)" : "#A66A1A",
+            textTransform: "uppercase",
+          }}>
+            {tab === "porady" ? "Komnata Mędrca" : "Skrzynka Mentora"}
           </div>
           <h1 className="t-display" style={{ fontSize: 28, margin: "2px 0 0", lineHeight: 1, color: "var(--p-ink)" }}>
-            Porady
+            {tab === "porady" ? "Porady" : "Wiadomości"}
           </h1>
         </div>
 
@@ -491,27 +472,27 @@ export default function PoradyPage() {
             aria-label="Porady dnia"
             style={{
               padding: "12px 10px", borderRadius: 14, border: "none", cursor: "pointer",
-              background: tab === "porady" ? "linear-gradient(180deg,#7A4DC2,#4A2D80)" : "transparent",
-              color: tab === "porady" ? "#fff" : "var(--p-ink-soft)",
-              boxShadow: tab === "porady" ? "0 2px 6px rgba(74,45,128,.35)" : "none",
+              background: tab === "porady" ? "linear-gradient(180deg,#FFD269,#E89A3D)" : "transparent",
+              color: tab === "porady" ? "#4A2A0E" : "var(--p-ink-soft)",
+              boxShadow: tab === "porady" ? "0 2px 6px rgba(232,154,61,.4)" : "none",
               transition: "all .2s ease",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
               fontSize: 26,
             }}
           >
-            {/* Magiczna kula (krysztal) */}
+            {/* Magiczna kula (krysztal) - na zoltym tle inverted kolory dla kontrastu */}
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
               <defs>
                 <radialGradient id={`ball-${tab}`} cx=".5" cy=".4">
-                  <stop offset="0%" stopColor={tab === "porady" ? "#FFD269" : "#C8A0F0"} stopOpacity=".9" />
+                  <stop offset="0%" stopColor={tab === "porady" ? "#FFF6D6" : "#C8A0F0"} stopOpacity=".95" />
                   <stop offset="60%" stopColor={tab === "porady" ? "#C8A0F0" : "#9B7BC4"} stopOpacity=".7" />
                   <stop offset="100%" stopColor={tab === "porady" ? "#7A4DC2" : "#6B4AA0"} stopOpacity=".95" />
                 </radialGradient>
               </defs>
               <ellipse cx="16" cy="28" rx="9" ry="2" fill="rgba(43,42,74,.18)" />
-              <circle cx="16" cy="14" r="10" fill={`url(#ball-${tab})`} stroke={tab === "porady" ? "#FFD269" : "#7A4DC2"} strokeWidth="1.5" />
+              <circle cx="16" cy="14" r="10" fill={`url(#ball-${tab})`} stroke={tab === "porady" ? "#A66A1A" : "#7A4DC2"} strokeWidth="1.5" />
               <circle cx="13" cy="11" r="2.4" fill="#fff" opacity=".55" />
-              <path d="M6 25 L26 25" stroke={tab === "porady" ? "#FFD269" : "#7A4DC2"} strokeWidth="1.8" strokeLinecap="round" opacity=".7" />
+              <path d="M6 25 L26 25" stroke={tab === "porady" ? "#A66A1A" : "#7A4DC2"} strokeWidth="1.8" strokeLinecap="round" opacity=".7" />
             </svg>
           </button>
           <button
@@ -565,14 +546,6 @@ export default function PoradyPage() {
             {freshTip && (
               <FreshTipCard tip={freshTip} onOpen={handleOpenTip} read={readTips.has(freshTip.id)} />
             )}
-
-            {/* Quick stat strip 3-kolumnowy: przeczytanych + nowych dziś + dni w grze.
-                Daje uczniowi poczucie progresu - "widze juz X przeczytanych porad". */}
-            <PoradyStatStrip
-              readCount={readTips.size}
-              newToday={todayTips.filter((t) => !readTips.has(t.id)).length}
-              daysInGame={today}
-            />
 
             {/* JUŻ DZIŚ (porady wcześniejszych slotów dnia) - przeczytane wyszarzone */}
             {todayPastTips.length > 0 && (
