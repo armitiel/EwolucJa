@@ -123,11 +123,10 @@ export default function WorldHub() {
 
   const greeting = useMemo(() => {
     if (!player) return "";
-    const parts = [`Witaj z powrotem… ${player.player_name}.`];
-    if (mission) parts.push(`Twoja misja na ten tydzień — ${mission.title}.`);
-    if (friday && !friday.passed) parts.push(`Mamy czas… zostało jeszcze ${friday.label}.`);
-    return parts.join(" ");
-  }, [player, mission, friday]);
+    // Powitanie ogolne — bez konkretow misji/deadline'u (te widac na kartach nizej).
+    // Ton: cieply, zachecajacy, magiczny — narrator-Medrzec mowi do dziecka.
+    return `Witaj z powrotem… ${player.player_name}. Świat już się rozjaśnił. Czekają na ciebie zadania, gry i parę tajemnic — wybierz, od czego zaczniesz. Każdy mały krok ma znaczenie.`;
+  }, [player]);
 
   if (error) {
     return (
