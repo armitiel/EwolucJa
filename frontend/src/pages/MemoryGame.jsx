@@ -15,6 +15,7 @@ import TabBar from "../components/TabBar.jsx";
 import TopBar from "../components/TopBar.jsx";
 import { Sparkle, Cloud, Coin } from "../components/art.jsx";
 import { fx } from "../services/soundFx.js";
+import RewardScreen from "../components/RewardScreen.jsx";
 
 // ─── Game symbols (8 unique) ────────────────────────────────────
 const GAME_SYMS = [
@@ -234,6 +235,7 @@ function RewardItem({ icon, v, label }) {
 export default function MemoryGame() {
   const navigate = useNavigate();
   const [phase, setPhase] = useState("intro"); // intro | playing | done
+  const [rewardShown, setRewardShown] = useState(false); // gdy true -> ukryty RewardScreen, pokazany summary
   const [diff, setDiff] = useState("easy");
   const pairs = diff === "easy" ? 6 : 8;
   const cols = 3;
@@ -288,6 +290,7 @@ export default function MemoryGame() {
     if (newDiff) setDiff(newDiff);
     else setDeck(makeDeck(pairs));
     setFlipped([]); setMatched(new Set()); setMoves(0); setSeconds(0);
+    setRewardShown(false);
     setPhase("playing");
   };
 
@@ -520,6 +523,25 @@ export default function MemoryGame() {
       </div>
 
       <TabBar current="games" />
+
+      {/* Celebration overlay - pokazuje sie PIERWSZY po wygranej, z huczna animacja.
+          Po dismiss user widzi pelen summary screen z gwiazdkami i nagrodami. */}
+      {phase === "done" && !rewardShown && (
+        <RewardScreen
+          eyebrow="✨ PAMIĘĆ MĘDRCA · UKOŃCZONA"
+          title={stars === 3 ? "Wspaniale!" : stars === 2 ? "Super!" : "Brawo!"}
+          subtitle={
+            stars === 3 ? "Twoja pamięć jest jak zwój Mędrca." :
+            stars === 2 ? "Niezła robota — spróbuj jeszcze raz!" :
+                         "Każdy ruch to krok do wprawy."
+          }
+          coins={5 + stars * 3}
+          note={`${stars} ${stars === 1 ? "echo" : "echa"} · +1 Skupienie`}
+          noteStyle="caption"
+          ctaLabel="Zobacz wynik ✦"
+          onDismiss={() => setRewardShown(true)}
+        />
+      )}
     </PageShell>
   );
 }

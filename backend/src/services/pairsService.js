@@ -151,15 +151,29 @@ export async function verifyKeyword(_db, playerId, text) {
   };
 }
 
-/** Oznacz zadanie jako wykonane (np. po przyznaniu nagrody przez mentora). */
-export async function markCompleted(_db, assignmentId, proof = null) {
+/** Oznacz zadanie jako wykonane + nagrodz obu graczy w parze. */
+export async function markCompleted(_db, assignmentId, proof = null, points = 20) {
   const p = await pool();
-  await p.query(
+  // 1) Update status + proof
+  const { rows: assignRows } = await p.query(
     `UPDATE pair_assignments
        SET status = 'completed', completed_at = NOW(), proof = $2
-       WHERE id = $1`,
+       WHERE id = $1
+       RETURNING player_a_id, player_b_id`,
     [assignmentId, proof ? JSON.stringify(proof) : null]
   );
+  if (!assignRows.length) return { ok: false, reason: "assignment_not_found" };
+
+  // 2) Nagroda dla obu graczy (custom points, clamp 15-35). Domyslnie 20.
+  const award = Math.max(15, Math.min(35, Number(points) || 20));
+  const playerIds = [assignRows[0].player_a_id, assignRows[0].player_b_id].filter(Boolean);
+  for (const pid of playerIds) {
+    await p.query(
+      `UPDATE players SET coins = COALESCE(coins, 0) + $1, updated_at = NOW() WHERE id = $2`,
+      [award, pid]
+    );
+  }
+  return { ok: true, awarded: award, players: playerIds };
 }
 
 /**

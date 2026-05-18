@@ -103,10 +103,11 @@ export async function getClassDetail(gmAccountId, classId) {
   const cls = rowToClass(classRows[0]);
 
   const { rows: students } = await pool.query(
-    `SELECT p.id, p.name, p.archetype, p.scores, p.lifetime_scores,
+    `SELECT p.id, p.name, p.archetype, p.scores, p.lifetime_scores, p.coins,
             p.updated_at AS last_activity, cm.joined_at,
             (SELECT m.status FROM missions m WHERE m.player_id = p.id ORDER BY m.generated_at DESC LIMIT 1) AS last_mission_status,
-            (SELECT m.title FROM missions m WHERE m.player_id = p.id ORDER BY m.generated_at DESC LIMIT 1) AS last_mission_title
+            (SELECT m.title FROM missions m WHERE m.player_id = p.id ORDER BY m.generated_at DESC LIMIT 1) AS last_mission_title,
+            (SELECT COUNT(*) FROM missions m WHERE m.player_id = p.id AND m.status = 'submitted')::int AS pending_review_count
        FROM class_memberships cm
        JOIN players p ON p.id = cm.player_id
        WHERE cm.class_id = $1 AND cm.left_at IS NULL

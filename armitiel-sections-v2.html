@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Armitiel — Jak działam & Zastosowania (v2)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue:#1F3CE5;
+    --blue-deep:#182FB5;
+    --blue-ink:#0E1F8F;
+    --paper:#F4F4F2;
+    --paper-2:#EAEAE6;
+    --paper-3:#DDDDD7;
+    --ink:#0F1320;
+    --ink-70:rgba(15,19,32,.70);
+    --ink-50:rgba(15,19,32,.50);
+    --ink-25:rgba(15,19,32,.20);
+    --ink-10:rgba(15,19,32,.10);
+    --ink-06:rgba(15,19,32,.06);
+    --warm:#C97B4B;     /* prywatne — ciepły terakota */
+    --med:#5B8C8C;      /* medyczne — stonowany teal */
+    --retail:var(--blue); /* ekspozycje — sygnaturowy niebieski */
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:'Manrope',system-ui,sans-serif;font-feature-settings:"ss01","cv11";-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .mono{font-family:'JetBrains Mono',monospace;font-weight:500;letter-spacing:.18em;text-transform:uppercase;font-size:11px}
+
+  /* ====== SECTION FRAMING ====== */
+  .section{position:relative;padding:140px 80px 160px;overflow:hidden}
+  .section--paper{background:var(--paper)}
+  .section--alt{background:#fff}
+
+  .head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:32px;align-items:end;max-width:1380px;margin:0 0 96px}
+  .tag{display:inline-flex;align-items:center;gap:10px;color:var(--ink-50);margin:0 0 28px}
+  .tag .dot{width:6px;height:6px;border-radius:50%;background:var(--blue)}
+  .display{font-size:78px;line-height:1.02;font-weight:800;letter-spacing:-.025em;margin:0;text-wrap:balance;max-width:1240px}
+  .lede{font-size:18px;line-height:1.55;color:var(--ink-70);max-width:480px;margin:0;font-weight:500;text-wrap:pretty}
+
+  /* ====== PROCESS / JAK DZIAŁAM ====== */
+  .process__rail{
+    position:relative;
+    border-top:1px solid var(--ink);
+    padding-top:56px;
+  }
+  .process__milestones{
+    position:absolute;top:-9px;left:0;right:0;
+    display:grid;grid-template-columns:repeat(3,1fr);
+    pointer-events:none;
+  }
+  .process__milestones span{
+    width:18px;height:18px;border-radius:50%;background:var(--paper);
+    border:2px solid var(--ink);justify-self:start;
+  }
+  .process__milestones span.is-blue{background:var(--blue);border-color:var(--blue)}
+
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:56px}
+  .step{position:relative;padding-right:32px}
+  .step__meta{display:flex;align-items:baseline;gap:18px;margin:0 0 36px;color:var(--ink-50)}
+  .step__meta b{color:var(--ink);font-family:'JetBrains Mono',monospace;font-weight:600;font-size:11px;letter-spacing:.22em}
+  .step__num{
+    font-size:172px;line-height:.85;font-weight:800;letter-spacing:-.05em;
+    margin:0 0 28px;color:var(--ink);
+    font-variant-numeric:tabular-nums;
+  }
+  .step__num em{font-style:normal;color:var(--blue)}
+  .step__title{font-size:30px;font-weight:700;letter-spacing:-.012em;margin:0 0 12px}
+  .step__sub{font-style:italic;color:var(--ink-50);font-size:15px;margin:0 0 22px;font-weight:500}
+  .step__body{font-size:16px;line-height:1.65;color:var(--ink-70);margin:0 0 28px;max-width:380px;font-weight:500}
+
+  .step__rule{height:1px;background:var(--ink-10);margin:32px 0 18px}
+  .step__deliverables{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px}
+  .step__deliverables li{
+    font-size:14px;color:var(--ink);font-weight:600;display:flex;gap:12px;align-items:baseline;
+  }
+  .step__deliverables li::before{
+    content:"→";color:var(--blue);font-weight:700;flex:none;
+  }
+
+  .step__chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:22px}
+  .chip{
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+    padding:6px 10px;border:1px solid var(--ink-25);border-radius:999px;color:var(--ink);font-weight:500;
+  }
+
+  .process__foot{
+    margin-top:96px;padding-top:28px;border-top:1px solid var(--ink-10);
+    display:grid;grid-template-columns:repeat(4,1fr);gap:32px;
+  }
+  .foot__cell .mono{color:var(--ink-50);display:block;margin:0 0 6px}
+  .foot__cell strong{font-size:22px;font-weight:700;letter-spacing:-.01em;display:block;color:var(--ink)}
+  .foot__cell p{margin:6px 0 0;font-size:13.5px;color:var(--ink-70);line-height:1.5}
+
+  /* ====== APPLICATIONS / ZASTOSOWANIA ====== */
+  .apps__grid{
+    display:grid;
+    grid-template-columns:1.4fr 1fr 1fr;
+    grid-template-rows:auto auto;
+    gap:20px;
+  }
+  .acard{
+    position:relative;display:flex;flex-direction:column;
+    background:#fff;border:1px solid var(--ink-10);border-radius:24px;
+    padding:36px 36px 32px;overflow:hidden;
+    transition:transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s, border-color .25s;
+  }
+  .acard:hover{transform:translateY(-3px);box-shadow:0 28px 56px -32px rgba(15,19,32,.22);border-color:transparent}
+
+  /* large featured card spans both rows */
+  .acard--feature{grid-row:span 2;padding:44px 44px 40px;min-height:640px}
+
+  /* accent strip */
+  .acard__band{
+    position:absolute;top:0;left:0;right:0;height:6px;background:var(--accent,var(--blue));
+  }
+  .acard__head{display:flex;align-items:center;justify-content:space-between;margin:14px 0 32px}
+  .acard__sector{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--ink-50);font-weight:500;
+  }
+  .acard__index{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;
+    color:var(--ink-25);font-weight:500;
+  }
+  .acard__icon{
+    width:64px;height:64px;border-radius:18px;background:var(--paper);
+    display:flex;align-items:center;justify-content:center;margin:0 0 28px;
+    border:1px solid var(--ink-10);
+  }
+  .acard__icon svg{width:32px;height:32px;stroke:var(--accent,var(--ink));fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .acard__title{
+    font-size:30px;font-weight:700;letter-spacing:-.012em;margin:0 0 10px;line-height:1.12;
+  }
+  .acard--feature .acard__title{font-size:38px}
+  .acard__sub{font-size:14.5px;font-style:italic;color:var(--ink-50);margin:0 0 22px;font-weight:500}
+  .acard__body{font-size:15px;line-height:1.6;color:var(--ink-70);margin:0;font-weight:500}
+
+  .acard__metric{
+    margin:28px 0 0;padding:18px 0 0;border-top:1px solid var(--ink-10);
+    display:flex;align-items:baseline;gap:14px;
+  }
+  .acard__metric b{
+    font-size:46px;font-weight:800;letter-spacing:-.02em;color:var(--accent,var(--ink));
+    font-variant-numeric:tabular-nums;line-height:1;
+  }
+  .acard__metric span{font-size:13px;color:var(--ink-70);line-height:1.4;font-weight:500;max-width:200px}
+
+  .acard__list{list-style:none;padding:0;margin:24px 0 0;display:flex;flex-direction:column;gap:8px}
+  .acard__list li{
+    font-size:14px;color:var(--ink);font-weight:500;display:flex;gap:10px;align-items:baseline;line-height:1.45;
+  }
+  .acard__list li::before{
+    content:"";flex:none;width:6px;height:6px;border-radius:50%;background:var(--accent,var(--ink));margin-top:6px;
+  }
+
+  .acard__case{
+    margin-top:auto;padding-top:24px;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    border-top:1px dashed var(--ink-25);
+  }
+  .acard__case .label{display:block;color:var(--ink-50);margin-bottom:4px}
+  .acard__case strong{font-size:14.5px;font-weight:600;color:var(--ink);letter-spacing:-.005em}
+  .acard__cta{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:13px;font-weight:600;color:var(--accent,var(--ink));
+    border:1px solid currentColor;border-radius:999px;padding:9px 14px;
+    transition:background .2s,color .2s;white-space:nowrap;
+  }
+  .acard__cta:hover{background:var(--accent,var(--ink));color:#fff}
+  .acard__cta svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+
+  /* legend strip below grid */
+  .apps__legend{
+    margin-top:48px;padding:24px 28px;border:1px solid var(--ink-10);border-radius:16px;
+    background:#fff;display:flex;align-items:center;gap:32px;flex-wrap:wrap;
+  }
+  .apps__legend .label{color:var(--ink-50);margin-right:8px}
+  .apps__legend .item{display:inline-flex;align-items:center;gap:10px;font-size:14px;font-weight:500;color:var(--ink)}
+  .apps__legend .swatch{width:14px;height:14px;border-radius:4px}
+
+  /* ===== Mobile ===== */
+  @media (max-width:1100px){
+    .section{padding:80px 28px 100px}
+    .display{font-size:48px}
+    .head{grid-template-columns:1fr;margin-bottom:64px}
+    .steps{grid-template-columns:1fr;gap:64px}
+    .step__num{font-size:120px}
+    .process__milestones{display:none}
+    .process__foot{grid-template-columns:repeat(2,1fr);gap:24px}
+    .apps__grid{grid-template-columns:1fr}
+    .acard--feature{grid-row:auto;min-height:auto}
+    .acard__metric b{font-size:38px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- ===============  JAK DZIAŁAM  /  PROCESS  =================== -->
+<!-- ============================================================ -->
+<section class="section section--paper" aria-label="Jak działam">
+  <header class="head">
+    <div>
+      <span class="tag mono"><span class="dot"></span>Jak działam · Trakt projektowy</span>
+      <h2 class="display">Od pierwszej rozmowy<br>do gotowej ściany —<br>jeden trakt, trzy etapy.</h2>
+    </div>
+    <p class="lede">
+      Każda realizacja przebiega tym samym, sprawdzonym torem. Nie improwizuję
+      na budowie. Każdy etap kończy się konkretnym dokumentem albo decyzją,
+      którą podejmujesz Ty.
+    </p>
+  </header>
+
+  <div class="process__rail">
+    <div class="process__milestones" aria-hidden="true">
+      <span class="is-blue"></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <div class="steps">
+      <!-- 01 -->
+      <article class="step">
+        <p class="step__meta"><b>Etap 01</b> · ok. 7–14 dni</p>
+        <div class="step__num">01<em>.</em></div>
+        <h3 class="step__title">Koncepcja</h3>
+        <p class="step__sub">Diagnoza przestrzeni i&nbsp;intencji.</p>
+        <p class="step__body">
+          Zaczynam od przestrzeni, jej funkcji i&nbsp;Twoich oczekiwań. Czytam światło,
+          architekturę, kontekst marki. Powstaje moodboard, kierunek graficzny
+          i&nbsp;mapa decyzji materiałowych.
+        </p>
+        <div class="step__chips">
+          <span class="chip">site visit</span>
+          <span class="chip">moodboard</span>
+          <span class="chip">brief</span>
+        </div>
+        <div class="step__rule"></div>
+        <p class="mono" style="color:var(--ink-50);margin:0 0 12px">Co dostajesz</p>
+        <ul class="step__deliverables">
+          <li>Brief kreatywny (PDF)</li>
+          <li>Moodboard&nbsp;+ paleta</li>
+          <li>Wycena ramowa</li>
+        </ul>
+      </article>
+
+      <!-- 02 -->
+      <article class="step">
+        <p class="step__meta"><b>Etap 02</b> · ok. 14–21 dni</p>
+        <div class="step__num">02<em>.</em></div>
+        <h3 class="step__title">Projekt</h3>
+        <p class="step__sub">Wizualizacja i&nbsp;technologia.</p>
+        <p class="step__body">
+          Opracowuję autorską wizualizację 1:1&nbsp;i&nbsp;dobieram rozwiązania:
+          od systemów izolacyjnych po dekoracyjne powłoki korkowe i&nbsp;murale.
+          Każdy element ma uzasadnienie estetyczne i&nbsp;funkcjonalne.
+        </p>
+        <div class="step__chips">
+          <span class="chip">render 1:1</span>
+          <span class="chip">karta tech</span>
+          <span class="chip">próbka</span>
+        </div>
+        <div class="step__rule"></div>
+        <p class="mono" style="color:var(--ink-50);margin:0 0 12px">Co dostajesz</p>
+        <ul class="step__deliverables">
+          <li>Wizualizacje&nbsp;3D</li>
+          <li>Specyfikacja materiałów</li>
+          <li>Harmonogram&nbsp;+ wycena</li>
+        </ul>
+      </article>
+
+      <!-- 03 -->
+      <article class="step">
+        <p class="step__meta"><b>Etap 03</b> · zależnie od skali</p>
+        <div class="step__num">03<em>.</em></div>
+        <h3 class="step__title">Realizacja</h3>
+        <p class="step__sub">Wykonanie i&nbsp;nadzór autorski.</p>
+        <p class="step__body">
+          Wykonuję prace osobiście lub koordynuję sprawdzony zespół, dbając
+          o&nbsp;precyzję, terminowość i&nbsp;zgodność z&nbsp;projektem. Efekt:
+          przestrzeń, która wygląda, działa i&nbsp;trwa.
+        </p>
+        <div class="step__chips">
+          <span class="chip">malarstwo</span>
+          <span class="chip">korek</span>
+          <span class="chip">termoizolacja</span>
+        </div>
+        <div class="step__rule"></div>
+        <p class="mono" style="color:var(--ink-50);margin:0 0 12px">Co dostajesz</p>
+        <ul class="step__deliverables">
+          <li>Realizacja w&nbsp;przestrzeni</li>
+          <li>Dokumentacja foto&nbsp;+ video</li>
+          <li>Gwarancja&nbsp;5&nbsp;lat</li>
+        </ul>
+      </article>
+    </div>
+  </div>
+
+  <div class="process__foot">
+    <div class="foot__cell">
+      <span class="mono">Punkt wejścia</span>
+      <strong>30&nbsp;min konsultacji</strong>
+      <p>Bezpłatna rozmowa online lub na obiekcie. Bez zobowiązań.</p>
+    </div>
+    <div class="foot__cell">
+      <span class="mono">Forma współpracy</span>
+      <strong>Etapowa, ze stop-pointami</strong>
+      <p>Po każdym etapie podejmujesz decyzję czy idziemy dalej.</p>
+    </div>
+    <div class="foot__cell">
+      <span class="mono">Zespół</span>
+      <strong>Autorka&nbsp;+ stała ekipa</strong>
+      <p>Te same osoby od próbki materiału po szpachlowanie końcowe.</p>
+    </div>
+    <div class="foot__cell">
+      <span class="mono">Po realizacji</span>
+      <strong>2&nbsp;wizyty kontrolne</strong>
+      <p>Przegląd po 30 i 180 dniach. Drobne korekty bez kosztu.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- ===============  ZASTOSOWANIA / APPLICATIONS  =============== -->
+<!-- ============================================================ -->
+<section class="section section--alt" aria-label="Zastosowania">
+  <header class="head">
+    <div>
+      <span class="tag mono"><span class="dot"></span>Zastosowania · Trzy konteksty</span>
+      <h2 class="display">Trzy konteksty, jedna<br>dyscyplina projektowa.</h2>
+    </div>
+    <p class="lede">
+      Pracuję tam, gdzie ściana ma znaczyć więcej niż "wykończenie".
+      Dom, klinika, showroom — różne języki, ten sam standard wykonania
+      i&nbsp;ta sama uważność na detal.
+    </p>
+  </header>
+
+  <div class="apps__grid">
+
+    <!-- FEATURED: Przestrzenie prywatne -->
+    <article class="acard acard--feature" style="--accent: var(--warm)">
+      <div class="acard__band"></div>
+      <div class="acard__head">
+        <span class="acard__sector">A · Przestrzenie prywatne</span>
+        <span class="acard__index">01 / 03</span>
+      </div>
+
+      <div class="acard__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>
+      </div>
+
+      <h3 class="acard__title">Domy i&nbsp;mieszkania<br>z&nbsp;indywidualnym charakterem</h3>
+      <p class="acard__sub">Kameralna estetyka, ciepła technologia.</p>
+      <p class="acard__body">
+        Tworzę wnętrza, w&nbsp;których estetyka spotyka się z&nbsp;codziennym
+        komfortem. Dla domów i&nbsp;mieszkań proponuję murale, ściany dekoracyjne
+        z&nbsp;powłokami korkowymi oraz systemy termoizolacyjne — rozwiązania,
+        które podnoszą jakość życia i&nbsp;wartość nieruchomości.
+      </p>
+
+      <div class="acard__metric">
+        <b>+12%</b>
+        <span>średni wzrost wartości nieruchomości po realizacji termo-akustycznej (2024)</span>
+      </div>
+
+      <ul class="acard__list">
+        <li>Unikalny wystrój niedostępny w&nbsp;standardowej ofercie</li>
+        <li>Poprawa izolacji termicznej i&nbsp;akustycznej</li>
+        <li>Zdrowy mikroklimat, brak pleśni i&nbsp;kondensacji</li>
+        <li>Wzrost wartości nieruchomości</li>
+      </ul>
+
+      <div class="acard__case">
+        <div>
+          <span class="label mono">Realizacja sygnaturowa</span>
+          <strong>Apartament „Bursztyn", Sopot</strong>
+        </div>
+        <a href="#" class="acard__cta">
+          Zobacz projekt
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </article>
+
+    <!-- Placówki medyczne -->
+    <article class="acard" style="--accent: var(--med)">
+      <div class="acard__band"></div>
+      <div class="acard__head">
+        <span class="acard__sector">B · Placówki medyczne</span>
+        <span class="acard__index">02 / 03</span>
+      </div>
+
+      <div class="acard__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M3 12h4l2-6 4 12 2-6h6"/></svg>
+      </div>
+
+      <h3 class="acard__title">Komfort pacjenta,<br>wizerunek placówki</h3>
+      <p class="acard__sub">Wnętrza klinik i&nbsp;gabinetów.</p>
+      <p class="acard__body">
+        Łączę funkcjonalne wykończenia z&nbsp;elementami wizualnymi, które
+        uspokajają i&nbsp;profesjonalizują przestrzeń. Powłoki korkowe zapewniają
+        łatwość utrzymania higieny i&nbsp;naturalną regulację mikroklimatu.
+      </p>
+
+      <div class="acard__metric">
+        <b>−38%</b>
+        <span>redukcja echa w&nbsp;poczekalni po aplikacji powłoki korkowej</span>
+      </div>
+
+      <ul class="acard__list">
+        <li>Łatwość utrzymania higieny</li>
+        <li>Komfort akustyczny, redukcja echa</li>
+        <li>Profesjonalny wygląd budujący zaufanie</li>
+      </ul>
+
+      <div class="acard__case">
+        <div>
+          <span class="label mono">Realizacja sygnaturowa</span>
+          <strong>Klinika Estetyki Morena, Gdańsk</strong>
+        </div>
+        <a href="#" class="acard__cta">Projekt
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </article>
+
+    <!-- Salony / showroomy -->
+    <article class="acard" style="--accent: var(--retail)">
+      <div class="acard__band"></div>
+      <div class="acard__head">
+        <span class="acard__sector">C · Showroomy i&nbsp;ekspozycje</span>
+        <span class="acard__index">03 / 03</span>
+      </div>
+
+      <div class="acard__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><path d="M3 13h18"/></svg>
+      </div>
+
+      <h3 class="acard__title">Branding wpisany<br>w&nbsp;architekturę</h3>
+      <p class="acard__sub">Salony, showroomy, hospitality.</p>
+      <p class="acard__body">
+        Salon samochodowy, showroom czy strefa premium hotelu to pierwsze
+        wrażenie marki. Projektuję ściany reprezentacyjne i&nbsp;systemy
+        wykończeniowe, które budują prestiż i&nbsp;wzmacniają identyfikację wizualną obiektu.
+      </p>
+
+      <div class="acard__metric">
+        <b>3.4×</b>
+        <span>dłuższy czas przebywania klienta przy ścianie sygnaturowej (audyt 2025)</span>
+      </div>
+
+      <ul class="acard__list">
+        <li>Szybsza decyzja zakupowa klienta</li>
+        <li>Wyróżnienie na&nbsp;rynku premium</li>
+        <li>Spójność wizerunkowa z&nbsp;marką</li>
+      </ul>
+
+      <div class="acard__case">
+        <div>
+          <span class="label mono">Realizacja sygnaturowa</span>
+          <strong>Showroom marki premium, Warszawa</strong>
+        </div>
+        <a href="#" class="acard__cta">Projekt
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </article>
+
+  </div>
+
+  <div class="apps__legend">
+    <span class="mono label">Paleta sektorów</span>
+    <span class="item"><span class="swatch" style="background:var(--warm)"></span>Prywatne · ciepło, kameralność</span>
+    <span class="item"><span class="swatch" style="background:var(--med)"></span>Medyczne · stonowanie, czystość</span>
+    <span class="item"><span class="swatch" style="background:var(--retail)"></span>Retail&nbsp;/ hospitality · sygnaturowy niebieski</span>
+    <span class="item" style="margin-left:auto"><a href="#" class="acard__cta" style="--accent:var(--ink);color:var(--ink)">Pełne portfolio
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a></span>
+  </div>
+</section>
+
+</body>
+</html>

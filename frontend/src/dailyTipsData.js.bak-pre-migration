@@ -1,9 +1,32 @@
 /**
- * dailyTipsData.js — porady-CIEKAWOSTKI dla 6 archetypow EwolucJA.
- * Po migracji 2026-05-17: TASK-i przeniesione do data/mentorTaskLibrary.js.
- * Wygenerowano przez scripts/migrate-tips-to-tasks.mjs.
+ * dailyTipsData.js — baza 540 porad dnia dla 6 archetypów EwolucJA.
+ * 
+ * Struktura: 6 profili (DT/EM/ST/KR/LD/MD) × 30 dni × 3 sloty (poranek/poludnie/wieczor)
+ * 
+ * Każda porada zawiera:
+ *  - id: unikalny identyfikator "PROFILE-Dxx-Sx"
+ *  - profile: kod profilu (DT/EM/ST/KR/LD/MD)
+ *  - profileName: pełna nazwa archetypu
+ *  - cecha: cecha główna (Ciekawość/Życzliwość/...)
+ *  - kraina: kraina domowa archetypu
+ *  - day: 1-30
+ *  - slot: "poranek" | "poludnie" | "wieczor"
+ *  - category: "medrzec" | "misje" | "kraina" | "mentor" (zgodne z PoradyPage.jsx)
+ *  - subcategory: subkategoria tematyczna (do dwupoziomowego filtra UI)
+ *  - audience: "dziecko" | "rodzic"
+ *  - title: krótki tytuł (5-9 słów)
+ *  - body: treść porady (1-3 zdania)
+ *  - icon: medrzec|zwoj|krysztal|pulse|rodzic|map|mentor|artifact
+ *  - tone: magic|leaf|amber|paper|rose
+ *  - time: czas czytania "1 min" | "2 min"
+ *  - tags: tablica tagów (ASCII, podkreślniki)
+ * 
+ * Wygenerowano: 2026-05-16
+ * Konsultanci: psycholog-dzieciecy-hd, wellbeing-dziecko-hd, pedagog, komunikacja-z-rodzicami, redaktor-jezykowy
+ * Wiek docelowy: 6-12 lat. Porady dla dziecka (Mędrzec mówi) lub dla rodzica (wskazówki).
  */
 
+// ─── Meta archetypów ────────────────────────────────────────────────
 export const PROFILES_META = {
   "DT": {
     "name": "Tropiciel Tajemnic",
@@ -49,6 +72,7 @@ export const PROFILES_META = {
   }
 };
 
+// ─── Wszystkie porady (540) ─────────────────────────────────────────
 export const DAILY_TIPS = [
   {
     "id": "DT-D01-S1",
@@ -139,6 +163,28 @@ export const DAILY_TIPS = [
     "kraina": "Las Pytań"
   },
   {
+    "id": "DT-D02-S2",
+    "profile": "DT",
+    "day": 2,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "obserwacja",
+    "audience": "dziecko",
+    "title": "Misja: pięć kolorów",
+    "body": "Rozejrzyj się dookoła. Znajdź pięć rzeczy w tym samym kolorze. Lupa Tropiciela widzi to, co inni przegapiają.",
+    "icon": "map",
+    "tone": "leaf",
+    "time": "2 min",
+    "tags": [
+      "misja",
+      "kolory",
+      "obserwacja"
+    ],
+    "profileName": "Tropiciel Tajemnic",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
     "id": "DT-D02-S3",
     "profile": "DT",
     "day": 2,
@@ -183,6 +229,28 @@ export const DAILY_TIPS = [
     "kraina": "Las Pytań"
   },
   {
+    "id": "DT-D03-S2",
+    "profile": "DT",
+    "day": 3,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "pytania",
+    "audience": "dziecko",
+    "title": "Trzy pytania w głowie",
+    "body": "Wymyśl trzy pytania, na które nikt jeszcze nie zna odpowiedzi. Nie musisz ich nikomu mówić. Niech mieszkają w twojej głowie.",
+    "icon": "map",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "pytania",
+      "misja",
+      "wyobraznia"
+    ],
+    "profileName": "Tropiciel Tajemnic",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
     "id": "DT-D03-S3",
     "profile": "DT",
     "day": 3,
@@ -221,6 +289,28 @@ export const DAILY_TIPS = [
       "sen",
       "rytmy",
       "wellbeing"
+    ],
+    "profileName": "Tropiciel Tajemnic",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
+    "id": "DT-D04-S2",
+    "profile": "DT",
+    "day": 4,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "eksperyment",
+    "audience": "dziecko",
+    "title": "Eksperyment: zimne i ciepłe",
+    "body": "Połóż jedną rękę na metalowym przedmiocie, drugą na drewnianym. Co czujesz? Dlaczego metal wydaje się zimniejszy, choć ma tę samą temperaturę?",
+    "icon": "map",
+    "tone": "leaf",
+    "time": "2 min",
+    "tags": [
+      "eksperyment",
+      "dotyk",
+      "nauka"
     ],
     "profileName": "Tropiciel Tajemnic",
     "cecha": "Ciekawość",
@@ -337,6 +427,28 @@ export const DAILY_TIPS = [
     "kraina": "Las Pytań"
   },
   {
+    "id": "DT-D06-S2",
+    "profile": "DT",
+    "day": 6,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "obserwacja",
+    "audience": "dziecko",
+    "title": "Misja: cień",
+    "body": "Znajdź swój cień na podłodze albo na ścianie. Jakiego ma kształtu? Czy jest większy czy mniejszy od ciebie? Cień zdradza wiele tajemnic.",
+    "icon": "map",
+    "tone": "leaf",
+    "time": "2 min",
+    "tags": [
+      "cien",
+      "misja",
+      "obserwacja"
+    ],
+    "profileName": "Tropiciel Tajemnic",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
     "id": "DT-D06-S3",
     "profile": "DT",
     "day": 6,
@@ -375,6 +487,28 @@ export const DAILY_TIPS = [
       "jedzenie",
       "cialo",
       "rytual_poranny"
+    ],
+    "profileName": "Tropiciel Tajemnic",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
+    "id": "DT-D07-S2",
+    "profile": "DT",
+    "day": 7,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "eksperyment",
+    "audience": "dziecko",
+    "title": "Eksperyment: kropla wody",
+    "body": "Kapnij jedną kroplę wody na talerz. Obserwuj przez minutę. Co się dzieje na brzegach? Świat jest pełen mikro-zagadek.",
+    "icon": "map",
+    "tone": "leaf",
+    "time": "2 min",
+    "tags": [
+      "eksperyment",
+      "woda",
+      "nauka"
     ],
     "profileName": "Tropiciel Tajemnic",
     "cecha": "Ciekawość",
@@ -425,6 +559,28 @@ export const DAILY_TIPS = [
     "kraina": "Las Pytań"
   },
   {
+    "id": "DT-D08-S2",
+    "profile": "DT",
+    "day": 8,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "natura",
+    "audience": "dziecko",
+    "title": "Misja: liść albo kamień",
+    "body": "Jeśli wyjdziesz dziś na dwór, podnieś jeden liść lub jeden kamień. Obejrzyj z bliska. Co go odróżnia od innych?",
+    "icon": "map",
+    "tone": "leaf",
+    "time": "2 min",
+    "tags": [
+      "natura",
+      "misja",
+      "obserwacja"
+    ],
+    "profileName": "Tropiciel Tajemnic",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
     "id": "DT-D08-S3",
     "profile": "DT",
     "day": 8,
@@ -463,6 +619,28 @@ export const DAILY_TIPS = [
       "granice",
       "cisza",
       "poranek"
+    ],
+    "profileName": "Tropiciel Tajemnic",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
+    "id": "DT-D09-S2",
+    "profile": "DT",
+    "day": 9,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "pytania",
+    "audience": "dziecko",
+    "title": "Pytanie do dorosłego",
+    "body": "Wybierz jednego dorosłego i zadaj mu pytanie: co cię dziś zaskoczyło? Posłuchaj uważnie. Dorośli też mają swoje tropy.",
+    "icon": "map",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "pytania",
+      "relacje",
+      "misja"
     ],
     "profileName": "Tropiciel Tajemnic",
     "cecha": "Ciekawość",
@@ -579,6 +757,28 @@ export const DAILY_TIPS = [
     "kraina": "Las Pytań"
   },
   {
+    "id": "DT-D11-S2",
+    "profile": "DT",
+    "day": 11,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "eksperyment",
+    "audience": "dziecko",
+    "title": "Eksperyment: dwa naczynia",
+    "body": "Nalej tyle samo wody do dwóch różnych szklanek — wąskiej i szerokiej. Wygląda inaczej, prawda? A jest tyle samo. Oko czasem nas oszukuje.",
+    "icon": "map",
+    "tone": "leaf",
+    "time": "2 min",
+    "tags": [
+      "eksperyment",
+      "woda",
+      "nauka"
+    ],
+    "profileName": "Tropiciel Tajemnic",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
     "id": "DT-D11-S3",
     "profile": "DT",
     "day": 11,
@@ -689,6 +889,28 @@ export const DAILY_TIPS = [
     "kraina": "Las Pytań"
   },
   {
+    "id": "DT-D13-S2",
+    "profile": "DT",
+    "day": 13,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "obserwacja",
+    "audience": "dziecko",
+    "title": "Misja: twarze ludzi",
+    "body": "Jeśli wyjdziesz dziś z domu, zobacz trzy twarze przechodniów. Jakie miały miny? Twarze to mapy uczuć, które zmieniają się co chwilę.",
+    "icon": "map",
+    "tone": "rose",
+    "time": "2 min",
+    "tags": [
+      "obserwacja",
+      "ludzie",
+      "misja"
+    ],
+    "profileName": "Tropiciel Tajemnic",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
     "id": "DT-D13-S3",
     "profile": "DT",
     "day": 13,
@@ -727,6 +949,28 @@ export const DAILY_TIPS = [
       "natura",
       "roslina",
       "rytual_poranny"
+    ],
+    "profileName": "Tropiciel Tajemnic",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
+    "id": "DT-D14-S2",
+    "profile": "DT",
+    "day": 14,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "pamiec_szczegoly",
+    "audience": "dziecko",
+    "title": "Trening pamięci: pięć rzeczy",
+    "body": "Wybierz dowolne pięć przedmiotów ze swojego pokoju. Patrz na nie 20 sekund. Odwróć się. Czy pamiętasz wszystkie? Lupa Tropiciela ma dobry trening.",
+    "icon": "map",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "pamiec",
+      "misja",
+      "trening"
     ],
     "profileName": "Tropiciel Tajemnic",
     "cecha": "Ciekawość",
@@ -777,6 +1021,28 @@ export const DAILY_TIPS = [
     "kraina": "Las Pytań"
   },
   {
+    "id": "DT-D15-S2",
+    "profile": "DT",
+    "day": 15,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "eksperyment",
+    "audience": "dziecko",
+    "title": "Eksperyment: zapach",
+    "body": "Zamknij oczy. Niech ktoś dorosły przyłoży ci do nosa coś z kuchni. Po zapachu zgadnij, co to jest. Nos też ma swoją lupę.",
+    "icon": "map",
+    "tone": "leaf",
+    "time": "2 min",
+    "tags": [
+      "eksperyment",
+      "zapach",
+      "zmysly"
+    ],
+    "profileName": "Tropiciel Tajemnic",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
     "id": "DT-D15-S3",
     "profile": "DT",
     "day": 15,
@@ -815,6 +1081,28 @@ export const DAILY_TIPS = [
       "granice",
       "pytania",
       "uwaga"
+    ],
+    "profileName": "Tropiciel Tajemnic",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
+    "id": "DT-D16-S2",
+    "profile": "DT",
+    "day": 16,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "obserwacja",
+    "audience": "dziecko",
+    "title": "Misja: ślady stóp",
+    "body": "Spójrz na swoje buty. Czy mają ślady? Z czego są? Po butach poznasz, gdzie dziś byłeś. Stopy zostawiają historię.",
+    "icon": "map",
+    "tone": "leaf",
+    "time": "2 min",
+    "tags": [
+      "slady",
+      "obserwacja",
+      "misja"
     ],
     "profileName": "Tropiciel Tajemnic",
     "cecha": "Ciekawość",
@@ -931,6 +1219,28 @@ export const DAILY_TIPS = [
     "kraina": "Las Pytań"
   },
   {
+    "id": "DT-D18-S2",
+    "profile": "DT",
+    "day": 18,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "natura",
+    "audience": "dziecko",
+    "title": "Misja: ptak za oknem",
+    "body": "Spójrz za okno przez minutę. Czy widzisz jakiegoś ptaka? Jaki ma kolor? Jeśli nie ma — zauważ, że dziś ich nie ma. To też trop.",
+    "icon": "map",
+    "tone": "leaf",
+    "time": "2 min",
+    "tags": [
+      "natura",
+      "ptaki",
+      "misja"
+    ],
+    "profileName": "Tropiciel Tajemnic",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
     "id": "DT-D18-S3",
     "profile": "DT",
     "day": 18,
@@ -969,6 +1279,28 @@ export const DAILY_TIPS = [
       "cialo",
       "obserwacja",
       "rytual_poranny"
+    ],
+    "profileName": "Tropiciel Tajemnic",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
+    "id": "DT-D19-S2",
+    "profile": "DT",
+    "day": 19,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "eksperyment",
+    "audience": "dziecko",
+    "title": "Eksperyment: dwa palce",
+    "body": "Przyłóż palec wskazujący do nosa z zamkniętymi oczami. Trafiłeś? A teraz drugą ręką. Ciało wie, gdzie jest, nawet po ciemku.",
+    "icon": "map",
+    "tone": "leaf",
+    "time": "1 min",
+    "tags": [
+      "eksperyment",
+      "cialo",
+      "zmysly"
     ],
     "profileName": "Tropiciel Tajemnic",
     "cecha": "Ciekawość",
@@ -1019,6 +1351,28 @@ export const DAILY_TIPS = [
     "kraina": "Las Pytań"
   },
   {
+    "id": "DT-D20-S2",
+    "profile": "DT",
+    "day": 20,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "pytania",
+    "audience": "dziecko",
+    "title": "Pytanie do rodzica",
+    "body": "Zadaj dziś rodzicowi pytanie, którego nigdy nie zadałeś. Może o jego dzieciństwo. Posłuchaj odpowiedzi do końca.",
+    "icon": "map",
+    "tone": "rose",
+    "time": "2 min",
+    "tags": [
+      "pytania",
+      "relacje",
+      "misja"
+    ],
+    "profileName": "Tropiciel Tajemnic",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
     "id": "DT-D20-S3",
     "profile": "DT",
     "day": 20,
@@ -1057,6 +1411,28 @@ export const DAILY_TIPS = [
       "cialo",
       "rytual_poranny",
       "sen"
+    ],
+    "profileName": "Tropiciel Tajemnic",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
+    "id": "DT-D21-S2",
+    "profile": "DT",
+    "day": 21,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "obserwacja",
+    "audience": "dziecko",
+    "title": "Misja: jeden kąt",
+    "body": "Wybierz jeden kąt mieszkania. Przyjrzyj się mu uważnie przez minutę. Ile rzeczy zauważasz? Ten kąt zna twoje sekrety.",
+    "icon": "map",
+    "tone": "leaf",
+    "time": "2 min",
+    "tags": [
+      "obserwacja",
+      "misja",
+      "dom"
     ],
     "profileName": "Tropiciel Tajemnic",
     "cecha": "Ciekawość",
@@ -1107,6 +1483,28 @@ export const DAILY_TIPS = [
     "kraina": "Las Pytań"
   },
   {
+    "id": "DT-D22-S2",
+    "profile": "DT",
+    "day": 22,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "eksperyment",
+    "audience": "dziecko",
+    "title": "Eksperyment: monety",
+    "body": "Weź trzy monety. Połóż na stole. Z zamkniętymi oczami dotknij każdej i zgadnij, która jest największa. Palce też widzą.",
+    "icon": "map",
+    "tone": "leaf",
+    "time": "2 min",
+    "tags": [
+      "eksperyment",
+      "dotyk",
+      "zmysly"
+    ],
+    "profileName": "Tropiciel Tajemnic",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
     "id": "DT-D22-S3",
     "profile": "DT",
     "day": 22,
@@ -1145,6 +1543,28 @@ export const DAILY_TIPS = [
       "powietrze",
       "rytmy",
       "wellbeing"
+    ],
+    "profileName": "Tropiciel Tajemnic",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
+    "id": "DT-D23-S2",
+    "profile": "DT",
+    "day": 23,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "natura",
+    "audience": "dziecko",
+    "title": "Misja: szukaj wzoru",
+    "body": "W naturze szukaj dziś wzoru: linii na korze, żyłek na liściu, spirali muszli. Natura rysuje wzory bez linijki.",
+    "icon": "map",
+    "tone": "leaf",
+    "time": "2 min",
+    "tags": [
+      "natura",
+      "wzory",
+      "misja"
     ],
     "profileName": "Tropiciel Tajemnic",
     "cecha": "Ciekawość",
@@ -1261,6 +1681,28 @@ export const DAILY_TIPS = [
     "kraina": "Las Pytań"
   },
   {
+    "id": "DT-D25-S2",
+    "profile": "DT",
+    "day": 25,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "obserwacja",
+    "audience": "dziecko",
+    "title": "Misja: obrazek na ścianie",
+    "body": "Wybierz jeden obrazek lub zdjęcie w domu. Patrz minutę. Co widzisz, czego dotąd nie zauważyłeś? Obrazek się nie zmienił. Ty tak.",
+    "icon": "map",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "obserwacja",
+      "misja",
+      "dom"
+    ],
+    "profileName": "Tropiciel Tajemnic",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
     "id": "DT-D25-S3",
     "profile": "DT",
     "day": 25,
@@ -1305,6 +1747,28 @@ export const DAILY_TIPS = [
     "kraina": "Las Pytań"
   },
   {
+    "id": "DT-D26-S2",
+    "profile": "DT",
+    "day": 26,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "eksperyment",
+    "audience": "dziecko",
+    "title": "Eksperyment: lustro w łyżce",
+    "body": "Weź czystą łyżkę. Spójrz w jej wypukłą stronę. Teraz w wklęsłą. Dlaczego twoja twarz wygląda inaczej? Lustro też potrafi żartować.",
+    "icon": "map",
+    "tone": "leaf",
+    "time": "2 min",
+    "tags": [
+      "eksperyment",
+      "lustro",
+      "nauka"
+    ],
+    "profileName": "Tropiciel Tajemnic",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
     "id": "DT-D26-S3",
     "profile": "DT",
     "day": 26,
@@ -1343,6 +1807,28 @@ export const DAILY_TIPS = [
       "poranek",
       "rytmy",
       "spokoj"
+    ],
+    "profileName": "Tropiciel Tajemnic",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
+    "id": "DT-D27-S2",
+    "profile": "DT",
+    "day": 27,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "natura",
+    "audience": "dziecko",
+    "title": "Misja: pogoda nóg",
+    "body": "Jeśli możesz, zdejmij na chwilę buty na dworze. Jak czują się stopy: zimno, ciepło, miękko, twardo? Stopy to też zwiadowcy.",
+    "icon": "map",
+    "tone": "leaf",
+    "time": "2 min",
+    "tags": [
+      "natura",
+      "cialo",
+      "misja"
     ],
     "profileName": "Tropiciel Tajemnic",
     "cecha": "Ciekawość",
@@ -1459,6 +1945,28 @@ export const DAILY_TIPS = [
     "kraina": "Las Pytań"
   },
   {
+    "id": "DT-D29-S2",
+    "profile": "DT",
+    "day": 29,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "pamiec_szczegoly",
+    "audience": "dziecko",
+    "title": "Misja: zapamiętaj trasę",
+    "body": "Idąc dziś jakąkolwiek znaną trasą, zapamiętaj trzy nowe szczegóły: znak, drzewo, plama na chodniku. Jutro sprawdź, czy są.",
+    "icon": "map",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "pamiec",
+      "misja",
+      "spacer"
+    ],
+    "profileName": "Tropiciel Tajemnic",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
     "id": "DT-D29-S3",
     "profile": "DT",
     "day": 29,
@@ -1497,6 +2005,28 @@ export const DAILY_TIPS = [
       "pamiec",
       "podsumowanie",
       "rytual_poranny"
+    ],
+    "profileName": "Tropiciel Tajemnic",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
+    "id": "DT-D30-S2",
+    "profile": "DT",
+    "day": 30,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "eksperyment",
+    "audience": "dziecko",
+    "title": "Misja: pokaż komuś trop",
+    "body": "Naucz dziś kogoś bliskiego jednej rzeczy, której nauczyłeś się w tym miesiącu. Może obserwacji, może pytania. Wiedza rośnie, gdy ją dzielisz.",
+    "icon": "map",
+    "tone": "rose",
+    "time": "2 min",
+    "tags": [
+      "misja",
+      "dzielenie",
+      "relacje"
     ],
     "profileName": "Tropiciel Tajemnic",
     "cecha": "Ciekawość",
@@ -1546,6 +2076,27 @@ export const DAILY_TIPS = [
     "kraina": "Morze Słów"
   },
   {
+    "id": "EM-D01-S2",
+    "profile": "EM",
+    "day": 1,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Jedno mile slowo do kogos bliskiego",
+    "body": "Wybierz jedna osobe i powiedz jej cos cieplego - co lubisz w niej, albo ze cieszysz sie, ze ja widzisz. Krotko, prosto, od serca.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "zyczliwosc",
+      "rozmowa"
+    ],
+    "audience": "dziecko",
+    "subcategory": "rozmowa_sluchanie",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
     "id": "EM-D01-S3",
     "profile": "EM",
     "day": 1,
@@ -1583,6 +2134,27 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "rytual_kojacy",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
+    "id": "EM-D02-S2",
+    "profile": "EM",
+    "day": 2,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Zauwaz, kto dzis potrzebuje usmiechu",
+    "body": "Rozejrzyj sie: ktos w klasie, w domu, na podworku wyglada dzis inaczej? Podejdz i usmiechnij sie. Czasem to wystarczy.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "zyczliwosc",
+      "uwaznosc"
+    ],
+    "audience": "dziecko",
+    "subcategory": "emocje_rozpoznanie",
     "profileName": "Zaklinacz Uczuć",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
@@ -1630,6 +2202,27 @@ export const DAILY_TIPS = [
     "kraina": "Morze Słów"
   },
   {
+    "id": "EM-D03-S2",
+    "profile": "EM",
+    "day": 3,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Wysluchaj kogos przez minute",
+    "body": "Znajdz kogos, kto chce cos opowiedziec. Sluchaj bez przerywania, bez rad. Tylko badz. Twoje serce slyszy wiecej niz uszy.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "2 min",
+    "tags": [
+      "sluchanie",
+      "rozmowa"
+    ],
+    "audience": "dziecko",
+    "subcategory": "rozmowa_sluchanie",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
     "id": "EM-D03-S3",
     "profile": "EM",
     "day": 3,
@@ -1672,6 +2265,27 @@ export const DAILY_TIPS = [
     "kraina": "Morze Słów"
   },
   {
+    "id": "EM-D04-S2",
+    "profile": "EM",
+    "day": 4,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Maly liscik dla kogos z rodziny",
+    "body": "Napisz na karteczce jedno zdanie dla kogos z domu: 'jestem szczesliwa, ze jestes'. Zostaw tam, gdzie znajdzie. Male - a porusza fale.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "2 min",
+    "tags": [
+      "rodzina",
+      "list"
+    ],
+    "audience": "dziecko",
+    "subcategory": "list_komplement",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
     "id": "EM-D04-S3",
     "profile": "EM",
     "day": 4,
@@ -1688,6 +2302,48 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "granica_empaty",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
+    "id": "EM-D05-S1",
+    "profile": "EM",
+    "day": 5,
+    "slot": "poranek",
+    "category": "kraina",
+    "title": "Swietlna cma czeka na Twoj oddech",
+    "body": "Twoja mala swietlna cma siedzi na ramieniu. Wez trzy oddechy - przy kazdym jej swiatlo robi sie jasniejsze. Gotowa, gotowy na dzien.",
+    "icon": "artifact",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "oddech",
+      "kraina"
+    ],
+    "audience": "dziecko",
+    "subcategory": "rytual_kojacy",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
+    "id": "EM-D05-S2",
+    "profile": "EM",
+    "day": 5,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Zapytaj: co Cie dzis ucieszylo?",
+    "body": "Wybierz jedna osobe - siostre, brata, kolezanke, dziadka. Zapytaj: 'co Cie dzis ucieszylo?'. Sluchaj odpowiedzi z prawdziwa ciekawoscia.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "rozmowa",
+      "radosc"
+    ],
+    "audience": "dziecko",
+    "subcategory": "rozmowa_sluchanie",
     "profileName": "Zaklinacz Uczuć",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
@@ -1735,6 +2391,27 @@ export const DAILY_TIPS = [
     "kraina": "Morze Słów"
   },
   {
+    "id": "EM-D06-S2",
+    "profile": "EM",
+    "day": 6,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Podziel sie jedna rzecza z kims",
+    "body": "Kanapka, kredka, miejsce na lawce - cokolwiek. Dziel sie dzis bez powodu. Zyczliwosc nie potrzebuje okazji.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "zyczliwosc",
+      "dzielenie"
+    ],
+    "audience": "dziecko",
+    "subcategory": "emocje_rozpoznanie",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
     "id": "EM-D06-S3",
     "profile": "EM",
     "day": 6,
@@ -1769,6 +2446,27 @@ export const DAILY_TIPS = [
     "tags": [
       "emocje",
       "akceptacja"
+    ],
+    "audience": "dziecko",
+    "subcategory": "emocje_rozpoznanie",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
+    "id": "EM-D07-S2",
+    "profile": "EM",
+    "day": 7,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Rytual kubka herbaty dla kogos",
+    "body": "Zaproponuj mamie, tacie, babci albo bratu - 'zrobie ci herbate' albo 'usiadzmy razem'. Maly gest, duza fala ciepla.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "2 min",
+    "tags": [
+      "rodzina",
+      "rytual"
     ],
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
@@ -1819,6 +2517,27 @@ export const DAILY_TIPS = [
     "kraina": "Morze Słów"
   },
   {
+    "id": "EM-D08-S2",
+    "profile": "EM",
+    "day": 8,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Narysuj, jak wyglada Twoja dzisiejsza emocja",
+    "body": "Wez kartke i kredki. Narysuj, co teraz czujesz - bez nazywania. Niech kolor i ksztalt mowia same. Nikomu nie musisz pokazywac.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "2 min",
+    "tags": [
+      "emocje",
+      "rysunek"
+    ],
+    "audience": "dziecko",
+    "subcategory": "emocje_rozpoznanie",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
     "id": "EM-D08-S3",
     "profile": "EM",
     "day": 8,
@@ -1856,6 +2575,27 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "rytmy_dnia",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
+    "id": "EM-D09-S2",
+    "profile": "EM",
+    "day": 9,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Powiedz komus 'dziekuje, ze jestes'",
+    "body": "Wybierz jedna osobe - moze mame, moze kolezanke. Powiedz tylko te trzy slowa: 'dziekuje, ze jestes'. Zobacz, co sie dzieje z jej oczami.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "wdziecznosc",
+      "rozmowa"
+    ],
+    "audience": "dziecko",
+    "subcategory": "rozmowa_sluchanie",
     "profileName": "Zaklinacz Uczuć",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
@@ -1903,6 +2643,27 @@ export const DAILY_TIPS = [
     "kraina": "Morze Słów"
   },
   {
+    "id": "EM-D10-S2",
+    "profile": "EM",
+    "day": 10,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Zapytaj kogos, jak sie naprawde czuje",
+    "body": "Wiele osob mowi 'dobrze', kiedy wcale tak nie jest. Zapytaj jeszcze raz, ciszej: 'a tak naprawde?'. Sluchaj sercem.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "2 min",
+    "tags": [
+      "rozmowa",
+      "empatia"
+    ],
+    "audience": "dziecko",
+    "subcategory": "rozmowa_sluchanie",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
     "id": "EM-D10-S3",
     "profile": "EM",
     "day": 10,
@@ -1940,6 +2701,27 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
+    "id": "EM-D11-S2",
+    "profile": "EM",
+    "day": 11,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Przytul kogos dluzej niz zwykle",
+    "body": "Zwyczajne przytulenie trwa 2 sekundy. Sprobuj przytulic mame, tate albo dziadka przez 5 sekund. Policz w glowie. Poczujesz roznice.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "przytulenie",
+      "rodzina"
+    ],
+    "audience": "dziecko",
+    "subcategory": "przytulenie_dotyk",
     "profileName": "Zaklinacz Uczuć",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
@@ -1987,6 +2769,27 @@ export const DAILY_TIPS = [
     "kraina": "Morze Słów"
   },
   {
+    "id": "EM-D12-S2",
+    "profile": "EM",
+    "day": 12,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Powiedz jedno dobre o sobie",
+    "body": "Empata mowi dobrze o innych. Dzis powiedz jedna dobra rzecz o sobie - w glowie albo na glos. 'Jestem dobra/dobry, bo...'. Tyle wystarczy.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "samoakceptacja",
+      "uwaznosc"
+    ],
+    "audience": "dziecko",
+    "subcategory": "emocje_rozpoznanie",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
     "id": "EM-D12-S3",
     "profile": "EM",
     "day": 12,
@@ -2029,6 +2832,27 @@ export const DAILY_TIPS = [
     "kraina": "Morze Słów"
   },
   {
+    "id": "EM-D13-S2",
+    "profile": "EM",
+    "day": 13,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Mala pomoc bez proszenia",
+    "body": "Zrob dzis jedna drobna rzecz, o ktora nikt nie prosil - odloz buty kogos, podaj wode, pozbieraj zabawki rodzenstwa. Cicha zyczliwosc smakuje najlepiej.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "2 min",
+    "tags": [
+      "zyczliwosc",
+      "rodzina"
+    ],
+    "audience": "dziecko",
+    "subcategory": "emocje_rozpoznanie",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
     "id": "EM-D13-S3",
     "profile": "EM",
     "day": 13,
@@ -2045,6 +2869,48 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "rozmowa_sluchanie",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
+    "id": "EM-D14-S1",
+    "profile": "EM",
+    "day": 14,
+    "slot": "poranek",
+    "category": "kraina",
+    "title": "Swietlik mruga: 'gotowa, gotowy?'",
+    "body": "Twoja swietlna cma siadla na palcu. Mrugnij do niej. Powiedz: 'dzis idziemy razem'. Macie sie nawzajem przez caly dzien.",
+    "icon": "artifact",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "rytual_poranny",
+      "kraina"
+    ],
+    "audience": "dziecko",
+    "subcategory": "rytual_kojacy",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
+    "id": "EM-D14-S2",
+    "profile": "EM",
+    "day": 14,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Uwazne 'dzien dobry' do kogos",
+    "body": "Powiedz dzis 'dzien dobry' patrzac komus w oczy - pani w sklepie, sasiadowi, nauczycielce. Trzy sekundy uwagi. Dla niego to duzo.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "zyczliwosc",
+      "uwaznosc"
+    ],
+    "audience": "dziecko",
+    "subcategory": "emocje_rozpoznanie",
     "profileName": "Zaklinacz Uczuć",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
@@ -2092,6 +2958,27 @@ export const DAILY_TIPS = [
     "kraina": "Morze Słów"
   },
   {
+    "id": "EM-D15-S2",
+    "profile": "EM",
+    "day": 15,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Spacer i jedna rzecz, ktorej sluchasz",
+    "body": "Idz dzis chwile pieszo. Sluchaj jednej rzeczy - wiatru, krokow, ptakow. Swiat ma duzo do powiedzenia, gdy mu pozwolisz.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "2 min",
+    "tags": [
+      "spacer",
+      "uwaznosc"
+    ],
+    "audience": "dziecko",
+    "subcategory": "emocje_rozpoznanie",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
     "id": "EM-D15-S3",
     "profile": "EM",
     "day": 15,
@@ -2129,6 +3016,27 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "empatia_komus",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
+    "id": "EM-D16-S2",
+    "profile": "EM",
+    "day": 16,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Zauwaz rodzenstwo / kolege dzis inaczej",
+    "body": "Jesli masz rodzenstwo albo dobrego kolege, powiedz dzis jedna rzecz, ktora w nim lubisz. Bez okazji. Niespodziewanie. To zostaje w pamieci.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "rodzenstwo",
+      "zyczliwosc"
+    ],
+    "audience": "dziecko",
+    "subcategory": "rodzenstwo_konflikt",
     "profileName": "Zaklinacz Uczuć",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
@@ -2176,6 +3084,27 @@ export const DAILY_TIPS = [
     "kraina": "Morze Słów"
   },
   {
+    "id": "EM-D17-S2",
+    "profile": "EM",
+    "day": 17,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Badz obok kogos smutnego - bez slow",
+    "body": "Jesli ktos w klasie albo w domu jest dzis smutny, nie musisz nic mowic. Po prostu usiadz obok. Czasem obecnosc leczy wiecej niz slowa.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "2 min",
+    "tags": [
+      "empatia",
+      "obecnosc"
+    ],
+    "audience": "dziecko",
+    "subcategory": "empatia_komus",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
     "id": "EM-D17-S3",
     "profile": "EM",
     "day": 17,
@@ -2218,6 +3147,90 @@ export const DAILY_TIPS = [
     "kraina": "Morze Słów"
   },
   {
+    "id": "EM-D18-S2",
+    "profile": "EM",
+    "day": 18,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Komplement od serca, nie z grzecznosci",
+    "body": "Powiedz komus cos milego, co naprawde myslisz - nie z grzecznosci. Nie 'ladna bluzka', a 'lubie, jak sie smiejesz'. Prawda grzeje mocniej.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "rozmowa",
+      "zyczliwosc"
+    ],
+    "audience": "dziecko",
+    "subcategory": "rozmowa_sluchanie",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
+    "id": "EM-D18-S3",
+    "profile": "EM",
+    "day": 18,
+    "slot": "wieczor",
+    "category": "kraina",
+    "title": "Swietlik zbiera dzis dobre chwile",
+    "body": "Twoja cma swietlna lata przez caly dzien i zbiera cieple momenty. Wieczorem przynosi je do Ciebie. Wymien w glowie trzy. To wystarczy.",
+    "icon": "artifact",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "wieczor",
+      "wdziecznosc"
+    ],
+    "audience": "dziecko",
+    "subcategory": "emocje_rozpoznanie",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
+    "id": "EM-D19-S1",
+    "profile": "EM",
+    "day": 19,
+    "slot": "poranek",
+    "category": "medrzec",
+    "title": "Twoja wrazliwosc to nie slabosc",
+    "body": "Czasem ktos powie 'jestes za czula, czuly'. To nieprawda. Twoja czulosc to sila. Bez ludzi takich jak Ty swiat bylby zimniejszy.",
+    "icon": "medrzec",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "empatia",
+      "sila"
+    ],
+    "audience": "dziecko",
+    "subcategory": "empatia_komus",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
+    "id": "EM-D19-S2",
+    "profile": "EM",
+    "day": 19,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Zaproponuj wspolny spacer",
+    "body": "Zaproponuj komus bliskiemu: 'pojdziemy razem na krotki spacer?'. Ruch + obecnosc + powietrze. Empata kwitnie w takich momentach.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "2 min",
+    "tags": [
+      "spacer",
+      "ruch"
+    ],
+    "audience": "dziecko",
+    "subcategory": "rytmy_dnia",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
     "id": "EM-D19-S3",
     "profile": "EM",
     "day": 19,
@@ -2252,6 +3265,27 @@ export const DAILY_TIPS = [
     "tags": [
       "slowo_dnia",
       "kraina"
+    ],
+    "audience": "dziecko",
+    "subcategory": "emocje_rozpoznanie",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
+    "id": "EM-D20-S2",
+    "profile": "EM",
+    "day": 20,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Narysuj komus jego dobre serce",
+    "body": "Narysuj na karteczce serce i daj komus z rodziny ze slowem 'twoje serce jest dobre'. Tyle. Prosty rysunek, ogromna fala.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "2 min",
+    "tags": [
+      "rysunek",
+      "rodzina"
     ],
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
@@ -2302,6 +3336,27 @@ export const DAILY_TIPS = [
     "kraina": "Morze Słów"
   },
   {
+    "id": "EM-D21-S2",
+    "profile": "EM",
+    "day": 21,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Twoje cicho miejsce na chwile",
+    "body": "Znajdz dzis swoje cicho miejsce - pod kocem, na parapecie, w lazience. Posiedz tam 2 minuty. Twoje serce sie resetuje.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "2 min",
+    "tags": [
+      "cisza",
+      "regeneracja"
+    ],
+    "audience": "dziecko",
+    "subcategory": "emocje_rozpoznanie",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
     "id": "EM-D21-S3",
     "profile": "EM",
     "day": 21,
@@ -2344,6 +3399,27 @@ export const DAILY_TIPS = [
     "kraina": "Morze Słów"
   },
   {
+    "id": "EM-D22-S2",
+    "profile": "EM",
+    "day": 22,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Pomoz komus dzisiaj sie usmiechnac",
+    "body": "Opowiedz dowcip, smieszna historie, zrob mine. Dzisiaj jestes osoba, ktora przynosi usmiech. Tylko jeden - to duzo.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "radosc",
+      "zyczliwosc"
+    ],
+    "audience": "dziecko",
+    "subcategory": "emocje_rozpoznanie",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
     "id": "EM-D22-S3",
     "profile": "EM",
     "day": 22,
@@ -2360,6 +3436,48 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "rytual_kojacy",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
+    "id": "EM-D23-S1",
+    "profile": "EM",
+    "day": 23,
+    "slot": "poranek",
+    "category": "kraina",
+    "title": "Swietlik szepcze: 'jestes bezpieczna, bezpieczny'",
+    "body": "Twoja swietlna cma siedzi na poduszce. Mruga: 'jestes bezpieczna. jestes bezpieczny.' Powtorz to w glowie trzy razy. Dzien sie otwiera.",
+    "icon": "artifact",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "bezpieczenstwo",
+      "rytual_poranny"
+    ],
+    "audience": "dziecko",
+    "subcategory": "rytual_kojacy",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
+    "id": "EM-D23-S2",
+    "profile": "EM",
+    "day": 23,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "List bez okazji",
+    "body": "Napisz dzis krotki liscik do kogos z rodziny - tylko trzy zdania. Bez urodzin, bez swieta. Po prostu - bo myslisz o tej osobie.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "2 min",
+    "tags": [
+      "list",
+      "rodzina"
+    ],
+    "audience": "dziecko",
+    "subcategory": "list_komplement",
     "profileName": "Zaklinacz Uczuć",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
@@ -2407,6 +3525,27 @@ export const DAILY_TIPS = [
     "kraina": "Morze Słów"
   },
   {
+    "id": "EM-D24-S2",
+    "profile": "EM",
+    "day": 24,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Pochwala dla samej, samego siebie",
+    "body": "Powiedz sobie dzis jedna pochwale za cos malego - 'fajnie, ze pomoglam', 'dobrze, ze sprobowalem'. Mowisz innym cieplo. Sobie tez wolno.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "samoakceptacja",
+      "uwaznosc"
+    ],
+    "audience": "dziecko",
+    "subcategory": "emocje_rozpoznanie",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
     "id": "EM-D24-S3",
     "profile": "EM",
     "day": 24,
@@ -2444,6 +3583,27 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "empatia_komus",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
+    "id": "EM-D25-S2",
+    "profile": "EM",
+    "day": 25,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Zauwaz jeden szczegol w drugiej osobie",
+    "body": "Popatrz dzis uwaznie na kogos bliskiego. Co w niej, w nim widzisz nowego? Moze zmarszczki smiechu, nowa bluzke, zmeczenie. Powiedz to.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "uwaznosc",
+      "rozmowa"
+    ],
+    "audience": "dziecko",
+    "subcategory": "rozmowa_sluchanie",
     "profileName": "Zaklinacz Uczuć",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
@@ -2491,6 +3651,27 @@ export const DAILY_TIPS = [
     "kraina": "Morze Słów"
   },
   {
+    "id": "EM-D26-S2",
+    "profile": "EM",
+    "day": 26,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Zrob kogos czescia swojej zabawy",
+    "body": "Jesli widzisz kogos, kto stoi sam - zapros go do swojej zabawy. Wystarczy: 'chcesz z nami?'. Trzy slowa, ktore zmieniaja dzien.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "rowiesnicy",
+      "wlaczenie"
+    ],
+    "audience": "dziecko",
+    "subcategory": "emocje_rozpoznanie",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
     "id": "EM-D26-S3",
     "profile": "EM",
     "day": 26,
@@ -2528,6 +3709,27 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "rytual_kojacy",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
+    "id": "EM-D27-S2",
+    "profile": "EM",
+    "day": 27,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Tancz z radoscia przez minute",
+    "body": "Wlacz ulubiona piosenke. Tancz bez patrzenia, czy ktos widzi. Radosc to tez emocja - Empata tez ma do niej prawo, mocno i glosno.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "2 min",
+    "tags": [
+      "radosc",
+      "ruch"
+    ],
+    "audience": "dziecko",
+    "subcategory": "rytmy_dnia",
     "profileName": "Zaklinacz Uczuć",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
@@ -2575,6 +3777,27 @@ export const DAILY_TIPS = [
     "kraina": "Morze Słów"
   },
   {
+    "id": "EM-D28-S2",
+    "profile": "EM",
+    "day": 28,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Powiedz doroslemu 'dziekuje'",
+    "body": "Wybierz doroslego - mame, tate, pania, dziadka - i powiedz: 'dziekuje, ze jestes dla mnie'. Patrz w oczy. Krotko. Prawdziwie.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "wdziecznosc",
+      "rodzina"
+    ],
+    "audience": "dziecko",
+    "subcategory": "emocje_rozpoznanie",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
     "id": "EM-D28-S3",
     "profile": "EM",
     "day": 28,
@@ -2591,6 +3814,48 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "emocje_rozpoznanie",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
+    "id": "EM-D29-S1",
+    "profile": "EM",
+    "day": 29,
+    "slot": "poranek",
+    "category": "kraina",
+    "title": "Swietlik leci przodem",
+    "body": "Twoja swietlna cma juz wstala. Leci przed Toba i pokazuje, gdzie jest jasno. Idz za jej swiatlem. Dzien bedzie spokojny.",
+    "icon": "artifact",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "rytual_poranny",
+      "kraina"
+    ],
+    "audience": "dziecko",
+    "subcategory": "rytual_kojacy",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
+    "id": "EM-D29-S2",
+    "profile": "EM",
+    "day": 29,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Mala rzecz, ktora Cie cieszy",
+    "body": "Zauwaz dzis jedna drobna rzecz, ktora Cie ucieszyla - listek, zapach, czyjes slowo. Powiedz cicho 'dziekuje'. To cwiczenie szczescia.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "wdziecznosc",
+      "radosc"
+    ],
+    "audience": "dziecko",
+    "subcategory": "list_komplement",
     "profileName": "Zaklinacz Uczuć",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
@@ -2638,6 +3903,27 @@ export const DAILY_TIPS = [
     "kraina": "Morze Słów"
   },
   {
+    "id": "EM-D30-S2",
+    "profile": "EM",
+    "day": 30,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Zrob cos milego dla trzech osob",
+    "body": "Wybierz dzis trzy osoby - z domu, z klasy, z podworka. Dla kazdej zrob cos malutkiego: usmiech, slowo, gest. Mala fala, trzy razy.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "2 min",
+    "tags": [
+      "zyczliwosc",
+      "swieto"
+    ],
+    "audience": "dziecko",
+    "subcategory": "emocje_rozpoznanie",
+    "profileName": "Zaklinacz Uczuć",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
     "id": "EM-D30-S3",
     "profile": "EM",
     "day": 30,
@@ -2657,6 +3943,49 @@ export const DAILY_TIPS = [
     "profileName": "Zaklinacz Uczuć",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
+  },
+  {
+    "id": "ST-D01-S1",
+    "profile": "ST",
+    "day": 1,
+    "slot": "poranek",
+    "category": "misje",
+    "title": "Mapa dnia na trzech krokach",
+    "body": "Mędrzec mówi: poproś dziecko, by narysowało dziś trzy małe kółka i wpisało w nie trzy rzeczy do zrobienia. Mapa dnia gotowa.",
+    "icon": "map",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "planowanie",
+      "poranek",
+      "mapy"
+    ],
+    "audience": "dziecko",
+    "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D01-S2",
+    "profile": "ST",
+    "day": 1,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Krok pierwszy, krok drugi",
+    "body": "Misja: weź jedną zwykłą czynność, na przykład mycie rąk, i powiedz na głos trzy kroki po kolei. Strateg wie, że nawet proste rzeczy mają mapę.",
+    "icon": "zwoj",
+    "tone": "paper",
+    "time": "1 min",
+    "tags": [
+      "sekwencja",
+      "krok_po_kroku"
+    ],
+    "audience": "dziecko",
+    "subcategory": "liczby_logika",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
   },
   {
     "id": "ST-D01-S3",
@@ -2702,6 +4031,48 @@ export const DAILY_TIPS = [
     "kraina": "Góry Liczb"
   },
   {
+    "id": "ST-D02-S2",
+    "profile": "ST",
+    "day": 2,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Policz drobne dobre rzeczy",
+    "body": "Mędrzec prosi: policz w głowie pięć drobnych dobrych rzeczy z dzisiaj. Mały promień słońca też się liczy.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "uwaznosc",
+      "liczby"
+    ],
+    "audience": "dziecko",
+    "subcategory": "liczby_logika",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D02-S3",
+    "profile": "ST",
+    "day": 2,
+    "slot": "wieczor",
+    "category": "misje",
+    "title": "Trzy zdania o dzisiaj",
+    "body": "Powiedz wieczorem trzy zdania: co było łatwe, co trudne, co ciekawe. Strateg porządkuje dzień jak zwoje w kieszeniach płaszcza.",
+    "icon": "zwoj",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "przeglad",
+      "wieczor"
+    ],
+    "audience": "dziecko",
+    "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
     "id": "ST-D03-S1",
     "profile": "ST",
     "day": 3,
@@ -2719,6 +4090,27 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "liczby_logika",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D03-S2",
+    "profile": "ST",
+    "day": 3,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Cukierek teraz czy potem",
+    "body": "Misja odraczania: jeśli masz dziś coś smacznego, spróbuj zjeść połowę teraz, a połowę po obiedzie. Sprawdź, czy druga połowa smakuje inaczej.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "odraczanie",
+      "cierpliwosc"
+    ],
+    "audience": "dziecko",
+    "subcategory": "odraczanie_gratyfikacji",
     "profileName": "Mistrz Map",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
@@ -2745,6 +4137,69 @@ export const DAILY_TIPS = [
     "kraina": "Góry Liczb"
   },
   {
+    "id": "ST-D04-S1",
+    "profile": "ST",
+    "day": 4,
+    "slot": "poranek",
+    "category": "misje",
+    "title": "Mapa pokoju z czterech stref",
+    "body": "Narysuj swój pokój i podziel go na cztery strefy: spanie, nauka, zabawa, spokój. Mędrzec mówi: każda kraina ma swoje miejsce.",
+    "icon": "map",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "mapy",
+      "porzadek"
+    ],
+    "audience": "dziecko",
+    "subcategory": "mapy_kolejnosc",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D04-S2",
+    "profile": "ST",
+    "day": 4,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Sekwencja trzech małych zadań",
+    "body": "Wybierz trzy małe zadania i zrób je dokładnie w takiej kolejności, w jakiej je wymyślisz. Strateg czuje, jak kroki układają się w drogę.",
+    "icon": "zwoj",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "sekwencja",
+      "planowanie"
+    ],
+    "audience": "dziecko",
+    "subcategory": "liczby_logika",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D04-S3",
+    "profile": "ST",
+    "day": 4,
+    "slot": "wieczor",
+    "category": "misje",
+    "title": "Jutro zaczynamy od jednego",
+    "body": "Wieczorem wybierz jedną rzecz, od której chcesz zacząć jutro. Tylko jedną. Mędrzec mówi: pierwszy kamień milowy waży najmniej.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "jutro",
+      "wieczor"
+    ],
+    "audience": "dziecko",
+    "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
     "id": "ST-D05-S1",
     "profile": "ST",
     "day": 5,
@@ -2761,6 +4216,27 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D05-S2",
+    "profile": "ST",
+    "day": 5,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Zegnij papier trzy razy",
+    "body": "Misja: weź kartkę i zegnij ją na pół trzy razy z rzędu. Policz, ile masz teraz warstw. Strateg lubi, gdy liczby się układają.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "liczby",
+      "eksperyment"
+    ],
+    "audience": "dziecko",
+    "subcategory": "liczby_logika",
     "profileName": "Mistrz Map",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
@@ -2787,6 +4263,69 @@ export const DAILY_TIPS = [
     "kraina": "Góry Liczb"
   },
   {
+    "id": "ST-D06-S1",
+    "profile": "ST",
+    "day": 6,
+    "slot": "poranek",
+    "category": "misje",
+    "title": "Plan poranka na trzy kółka",
+    "body": "Narysuj trzy kółka i wpisz: umyć się, ubrać, zjeść. Odhacz, gdy zrobione. Mędrzec mówi: zwykłe rzeczy też zasługują na mapę.",
+    "icon": "map",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "planowanie",
+      "poranek"
+    ],
+    "audience": "dziecko",
+    "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D06-S2",
+    "profile": "ST",
+    "day": 6,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Wytrzymaj minutę ciszy",
+    "body": "Misja cierpliwości: spróbuj wytrzymać jedną minutę zupełnej ciszy. Strateg wie, że cisza to też strategia.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "cierpliwosc",
+      "cisza"
+    ],
+    "audience": "dziecko",
+    "subcategory": "odraczanie_gratyfikacji",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D06-S3",
+    "profile": "ST",
+    "day": 6,
+    "slot": "wieczor",
+    "category": "misje",
+    "title": "Co zrobiłbym inaczej",
+    "body": "Powiedz wieczorem jedną rzecz, którą jutro zrobisz inaczej. Bez wyrzutów. Mędrzec nazywa to przepisaniem mapy.",
+    "icon": "zwoj",
+    "tone": "paper",
+    "time": "1 min",
+    "tags": [
+      "refleksja",
+      "plan_b"
+    ],
+    "audience": "dziecko",
+    "subcategory": "elastycznosc_plan_b",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
     "id": "ST-D07-S1",
     "profile": "ST",
     "day": 7,
@@ -2808,6 +4347,27 @@ export const DAILY_TIPS = [
     "kraina": "Góry Liczb"
   },
   {
+    "id": "ST-D07-S2",
+    "profile": "ST",
+    "day": 7,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Odrocz przyjemność na pół godziny",
+    "body": "Misja: jeśli chcesz coś zrobić teraz dla zabawy, spróbuj odłożyć to o trzydzieści minut. Sprawdź, czy nadal masz na to ochotę.",
+    "icon": "pulse",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "odraczanie",
+      "cierpliwosc"
+    ],
+    "audience": "dziecko",
+    "subcategory": "odraczanie_gratyfikacji",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
     "id": "ST-D07-S3",
     "profile": "ST",
     "day": 7,
@@ -2824,6 +4384,48 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D08-S1",
+    "profile": "ST",
+    "day": 8,
+    "slot": "poranek",
+    "category": "misje",
+    "title": "Plan B na wszelki wypadek",
+    "body": "Zaplanuj dziś coś prostego, a obok napisz plan B. Mędrzec mówi: dobry strateg ma zawsze drugą ścieżkę w kieszeni.",
+    "icon": "map",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "plan_b",
+      "elastycznosc"
+    ],
+    "audience": "dziecko",
+    "subcategory": "elastycznosc_plan_b",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D08-S2",
+    "profile": "ST",
+    "day": 8,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Ułóż klocki w trzech rzędach",
+    "body": "Misja: weź dowolne klocki lub patyczki i ułóż je w trzech równych rzędach. Sprawdź, czy zostanie ci coś z boku.",
+    "icon": "zwoj",
+    "tone": "paper",
+    "time": "1 min",
+    "tags": [
+      "liczby",
+      "sekwencja"
+    ],
+    "audience": "dziecko",
+    "subcategory": "liczby_logika",
     "profileName": "Mistrz Map",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
@@ -2871,6 +4473,48 @@ export const DAILY_TIPS = [
     "kraina": "Góry Liczb"
   },
   {
+    "id": "ST-D09-S2",
+    "profile": "ST",
+    "day": 9,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Sekwencja pięciu kroków do wody",
+    "body": "Idź po szklankę wody i policz w głowie kroki: jeden, dwa, trzy. Wypij powoli. Mędrzec mówi: woda też podróżuje w sekwencji.",
+    "icon": "pulse",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "woda",
+      "sekwencja"
+    ],
+    "audience": "dziecko",
+    "subcategory": "zdrowie_strateg",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D09-S3",
+    "profile": "ST",
+    "day": 9,
+    "slot": "wieczor",
+    "category": "misje",
+    "title": "Jedna rzecz, z której jestem dumny",
+    "body": "Wieczorem powiedz jedną rzecz, z której jesteś dziś dumny. Może być malutka. Strateg liczy każdy krok, nie tylko ostatni.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "duma",
+      "wieczor"
+    ],
+    "audience": "dziecko",
+    "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
     "id": "ST-D10-S1",
     "profile": "ST",
     "day": 10,
@@ -2887,6 +4531,27 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D10-S2",
+    "profile": "ST",
+    "day": 10,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Trzy etapy obiadu",
+    "body": "Misja: jedząc obiad, podziel go na trzy etapy. Najpierw zupa lub pierwsze, potem główne, na końcu coś słodkiego lub owoc. Czuj sekwencję.",
+    "icon": "zwoj",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "sekwencja",
+      "jedzenie"
+    ],
+    "audience": "dziecko",
+    "subcategory": "liczby_logika",
     "profileName": "Mistrz Map",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
@@ -2913,6 +4578,69 @@ export const DAILY_TIPS = [
     "kraina": "Góry Liczb"
   },
   {
+    "id": "ST-D11-S1",
+    "profile": "ST",
+    "day": 11,
+    "slot": "poranek",
+    "category": "misje",
+    "title": "Mapa drogi do szkoły",
+    "body": "Narysuj prostą mapę drogi z domu do szkoły lub przedszkola. Zaznacz trzy ciekawe punkty po drodze. Mędrzec mówi: każda droga jest opowieścią.",
+    "icon": "map",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "mapy",
+      "obserwacja"
+    ],
+    "audience": "dziecko",
+    "subcategory": "mapy_kolejnosc",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D11-S2",
+    "profile": "ST",
+    "day": 11,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Czekaj dziesięć oddechów",
+    "body": "Misja cierpliwości: gdy chcesz coś natychmiast powiedzieć lub zrobić, policz dziesięć powolnych oddechów. Sprawdź, jak zmienia się chęć.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "cierpliwosc",
+      "oddech"
+    ],
+    "audience": "dziecko",
+    "subcategory": "odraczanie_gratyfikacji",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D11-S3",
+    "profile": "ST",
+    "day": 11,
+    "slot": "wieczor",
+    "category": "misje",
+    "title": "Trzy kamienie milowe dnia",
+    "body": "Wieczorem nazwij trzy kamienie milowe z dziś. Cokolwiek, co czuło się jak krok do przodu. Strateg buduje drogę z takich kamieni.",
+    "icon": "zwoj",
+    "tone": "paper",
+    "time": "1 min",
+    "tags": [
+      "refleksja",
+      "wieczor"
+    ],
+    "audience": "dziecko",
+    "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
     "id": "ST-D12-S1",
     "profile": "ST",
     "day": 12,
@@ -2929,6 +4657,27 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "perfekcjonizm_antidote",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D12-S2",
+    "profile": "ST",
+    "day": 12,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Trzy razy podskocz, raz przykucnij",
+    "body": "Misja sekwencji ruchu: trzy podskoki, jeden przykuck, powtórz cztery razy. Strateg porządkuje też ciało, nie tylko myśli.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "ruch",
+      "sekwencja"
+    ],
+    "audience": "dziecko",
+    "subcategory": "zdrowie_strateg",
     "profileName": "Mistrz Map",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
@@ -2955,6 +4704,69 @@ export const DAILY_TIPS = [
     "kraina": "Góry Liczb"
   },
   {
+    "id": "ST-D13-S1",
+    "profile": "ST",
+    "day": 13,
+    "slot": "poranek",
+    "category": "misje",
+    "title": "Zaplanuj poranek w trzech zdaniach",
+    "body": "Wymyśl trzy zdania o tym, co dziś rano się wydarzy. Powiedz je na głos. Mędrzec mówi: słowo wypowiedziane jest pierwszym krokiem mapy.",
+    "icon": "zwoj",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "poranek",
+      "planowanie"
+    ],
+    "audience": "dziecko",
+    "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D13-S2",
+    "profile": "ST",
+    "day": 13,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Znajdź wzór wokół siebie",
+    "body": "Rozejrzyj się i znajdź jeden powtarzający się wzór: w płytkach, na firanie, na talerzu. Strateg widzi powtórzenia tam, gdzie inni widzą chaos.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "wzory",
+      "obserwacja"
+    ],
+    "audience": "dziecko",
+    "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D13-S3",
+    "profile": "ST",
+    "day": 13,
+    "slot": "wieczor",
+    "category": "misje",
+    "title": "Schody dnia",
+    "body": "Wyobraź sobie dzisiejszy dzień jako schody. Ile masz stopni? Który był najwyższy? Mędrzec mówi: schody widać dopiero z dołu.",
+    "icon": "zwoj",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "refleksja",
+      "metafora"
+    ],
+    "audience": "dziecko",
+    "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
     "id": "ST-D14-S1",
     "profile": "ST",
     "day": 14,
@@ -2970,6 +4782,27 @@ export const DAILY_TIPS = [
       "autonomia"
     ],
     "audience": "rodzic",
+    "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D14-S2",
+    "profile": "ST",
+    "day": 14,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Posegreguj coś na trzy kupki",
+    "body": "Misja porządku: weź kredki, klocki albo skarpetki i posegreguj na trzy kupki według własnego pomysłu. Strateg lubi swoje systemy.",
+    "icon": "zwoj",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "porzadek",
+      "klasyfikacja"
+    ],
+    "audience": "dziecko",
     "subcategory": "planowanie",
     "profileName": "Mistrz Map",
     "cecha": "Mądrość",
@@ -2997,6 +4830,69 @@ export const DAILY_TIPS = [
     "kraina": "Góry Liczb"
   },
   {
+    "id": "ST-D15-S1",
+    "profile": "ST",
+    "day": 15,
+    "slot": "poranek",
+    "category": "misje",
+    "title": "Połowa miesiąca w drodze",
+    "body": "Mędrzec mówi: jesteś w połowie miesiącznej wędrówki. Narysuj kreskę pośrodku kartki i napisz po lewej, co już umiesz, po prawej, czego chcesz spróbować.",
+    "icon": "map",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "polmetek",
+      "refleksja"
+    ],
+    "audience": "dziecko",
+    "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D15-S2",
+    "profile": "ST",
+    "day": 15,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Wypij wodę trzema łykami",
+    "body": "Wypij szklankę wody dokładnie trzema łykami. Policz na głos. Strateg lubi, gdy zwykłe czynności mają strukturę.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "woda",
+      "sekwencja"
+    ],
+    "audience": "dziecko",
+    "subcategory": "zdrowie_strateg",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D15-S3",
+    "profile": "ST",
+    "day": 15,
+    "slot": "wieczor",
+    "category": "misje",
+    "title": "Lista TODO i trzy odhaczenia",
+    "body": "Spójrz, co dziś zrobiłeś. Napisz krótką listę i odhacz trzy rzeczy. Mędrzec mówi: odhaczanie to dźwięk kończonego kroku.",
+    "icon": "zwoj",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "lista",
+      "wieczor"
+    ],
+    "audience": "dziecko",
+    "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
     "id": "ST-D16-S1",
     "profile": "ST",
     "day": 16,
@@ -3018,6 +4914,27 @@ export const DAILY_TIPS = [
     "kraina": "Góry Liczb"
   },
   {
+    "id": "ST-D16-S2",
+    "profile": "ST",
+    "day": 16,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Sekwencja zwierząt",
+    "body": "Misja: wymień pięć zwierząt od najmniejszego do największego. Mędrzec mówi: porządkowanie też jest formą myślenia.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "sekwencja",
+      "klasyfikacja"
+    ],
+    "audience": "dziecko",
+    "subcategory": "liczby_logika",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
     "id": "ST-D16-S3",
     "profile": "ST",
     "day": 16,
@@ -3034,6 +4951,48 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "odraczanie_gratyfikacji",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D17-S1",
+    "profile": "ST",
+    "day": 17,
+    "slot": "poranek",
+    "category": "misje",
+    "title": "Trzy najważniejsze dziś",
+    "body": "Wybierz trzy rzeczy najważniejsze na dziś. Tylko trzy. Mędrzec mówi: kto wybiera mniej, ten dochodzi dalej.",
+    "icon": "map",
+    "tone": "paper",
+    "time": "1 min",
+    "tags": [
+      "priorytety",
+      "poranek"
+    ],
+    "audience": "dziecko",
+    "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D17-S2",
+    "profile": "ST",
+    "day": 17,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Eksperyment z czasem",
+    "body": "Misja: zgadnij, ile to jest minuta. Zamknij oczy i otwórz, gdy myślisz, że minęła. Sprawdź na zegarze. Strateg ćwiczy poczucie czasu.",
+    "icon": "pulse",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "czas",
+      "eksperyment"
+    ],
+    "audience": "dziecko",
+    "subcategory": "planowanie",
     "profileName": "Mistrz Map",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
@@ -3081,6 +5040,90 @@ export const DAILY_TIPS = [
     "kraina": "Góry Liczb"
   },
   {
+    "id": "ST-D18-S2",
+    "profile": "ST",
+    "day": 18,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Zbuduj wieżę z pięciu rzeczy",
+    "body": "Misja: zbuduj wieżę z pięciu różnych przedmiotów. Najpierw zaplanuj kolejność. Mędrzec mówi: dobra wieża zaczyna się od dobrego dołu.",
+    "icon": "zwoj",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "planowanie",
+      "konstrukcja"
+    ],
+    "audience": "dziecko",
+    "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D18-S3",
+    "profile": "ST",
+    "day": 18,
+    "slot": "wieczor",
+    "category": "misje",
+    "title": "Dwie rzeczy łatwe, jedna trudna",
+    "body": "Wieczorem nazwij dwie rzeczy, które dziś były łatwe, i jedną, która była trudna. Mędrzec mówi: trudne też ma swoje miejsce na mapie.",
+    "icon": "zwoj",
+    "tone": "paper",
+    "time": "1 min",
+    "tags": [
+      "refleksja",
+      "wieczor"
+    ],
+    "audience": "dziecko",
+    "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D19-S1",
+    "profile": "ST",
+    "day": 19,
+    "slot": "poranek",
+    "category": "misje",
+    "title": "Plan na sześćdziesiąt minut ruchu",
+    "body": "Mędrzec mówi: zaplanuj, jak dziś uzbierasz godzinę ruchu. Może spacer, podskoki, taniec. Mapa ciała też istnieje.",
+    "icon": "map",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "ruch",
+      "planowanie"
+    ],
+    "audience": "dziecko",
+    "subcategory": "zdrowie_strateg",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D19-S2",
+    "profile": "ST",
+    "day": 19,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Liczby wokół ciebie",
+    "body": "Misja obserwacji: rozejrzyj się i znajdź pięć różnych liczb wokół siebie. Na zegarze, książce, koszulce. Strateg czyta świat przez liczby.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "liczby",
+      "obserwacja"
+    ],
+    "audience": "dziecko",
+    "subcategory": "liczby_logika",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
     "id": "ST-D19-S3",
     "profile": "ST",
     "day": 19,
@@ -3123,6 +5166,48 @@ export const DAILY_TIPS = [
     "kraina": "Góry Liczb"
   },
   {
+    "id": "ST-D20-S2",
+    "profile": "ST",
+    "day": 20,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Trzy razy głęboki oddech",
+    "body": "Misja: zrób trzy razy z rzędu wdech na cztery, wydech na sześć. Strateg uczy się, że oddech to też sekwencja.",
+    "icon": "pulse",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "oddech",
+      "spokoj"
+    ],
+    "audience": "dziecko",
+    "subcategory": "liczby_logika",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D20-S3",
+    "profile": "ST",
+    "day": 20,
+    "slot": "wieczor",
+    "category": "misje",
+    "title": "Mapa jutra w trzech słowach",
+    "body": "Zanim zaśniesz, wymyśl trzy słowa opisujące jutro: na przykład spokojnie, ciekawie, wspólnie. Mędrzec mówi: słowa wyciągają mapę z ciemności.",
+    "icon": "zwoj",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "jutro",
+      "wieczor"
+    ],
+    "audience": "dziecko",
+    "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
     "id": "ST-D21-S1",
     "profile": "ST",
     "day": 21,
@@ -3144,6 +5229,27 @@ export const DAILY_TIPS = [
     "kraina": "Góry Liczb"
   },
   {
+    "id": "ST-D21-S2",
+    "profile": "ST",
+    "day": 21,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Pokrój owoc w równe kawałki",
+    "body": "Misja: poproś dorosłego o owoc i pokrój go z pomocą na cztery równe kawałki. Mędrzec mówi: równy podział to mała sztuka.",
+    "icon": "zwoj",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "liczby",
+      "praktyka"
+    ],
+    "audience": "dziecko",
+    "subcategory": "liczby_logika",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
     "id": "ST-D21-S3",
     "profile": "ST",
     "day": 21,
@@ -3159,6 +5265,48 @@ export const DAILY_TIPS = [
       "wsparcie"
     ],
     "audience": "rodzic",
+    "subcategory": "odraczanie_gratyfikacji",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D22-S1",
+    "profile": "ST",
+    "day": 22,
+    "slot": "poranek",
+    "category": "misje",
+    "title": "Sześć minut ciszy o poranku",
+    "body": "Mędrzec mówi: zanim zaczniesz dzień, posiedź sześć minut bez rozmowy i ekranu. Może być z herbatą, może z oknem. Sprawdź, co usłyszysz.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "cisza",
+      "poranek"
+    ],
+    "audience": "dziecko",
+    "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D22-S2",
+    "profile": "ST",
+    "day": 22,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Odrocz na 24 godziny",
+    "body": "Misja odraczania: jeśli czegoś bardzo chcesz dziś, zapisz to i wróć do tego jutro o tej samej porze. Sprawdź, czy nadal chcesz tak samo.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "odraczanie",
+      "decyzje"
+    ],
+    "audience": "dziecko",
     "subcategory": "odraczanie_gratyfikacji",
     "profileName": "Mistrz Map",
     "cecha": "Mądrość",
@@ -3207,6 +5355,90 @@ export const DAILY_TIPS = [
     "kraina": "Góry Liczb"
   },
   {
+    "id": "ST-D23-S2",
+    "profile": "ST",
+    "day": 23,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Kompas Strategiczny w głowie",
+    "body": "Misja: wyobraź sobie mały kompas w klatce piersiowej. Wskazuje cztery kierunki: spokój, ruch, śmiech, sen. Który kierunek dziś najpotrzebniejszy?",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "artifact",
+      "samoswiadomosc"
+    ],
+    "audience": "dziecko",
+    "subcategory": "zdrowie_strateg",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D23-S3",
+    "profile": "ST",
+    "day": 23,
+    "slot": "wieczor",
+    "category": "misje",
+    "title": "Jutrzejszy poranek na kartce",
+    "body": "Narysuj jutrzejszy poranek w trzech obrazkach: obudzenie, śniadanie, wyjście. Mędrzec mówi: poranek narysowany dziś łatwiej idzie jutro.",
+    "icon": "map",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "planowanie",
+      "wieczor"
+    ],
+    "audience": "dziecko",
+    "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D24-S1",
+    "profile": "ST",
+    "day": 24,
+    "slot": "poranek",
+    "category": "misje",
+    "title": "Wybierz tempo poranka",
+    "body": "Wybierz dziś tempo poranka: żółw, koń czy ptak. Spróbuj się tego trzymać. Strateg lubi wiedzieć, w jakim rytmie idzie.",
+    "icon": "zwoj",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "rytm",
+      "poranek"
+    ],
+    "audience": "dziecko",
+    "subcategory": "rytm_rytual_dnia",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D24-S2",
+    "profile": "ST",
+    "day": 24,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Powiedz najpierw co, potem dlaczego",
+    "body": "Misja: gdy dziś o coś prosisz, najpierw powiedz co chcesz, potem dlaczego. Strateg uczy się układać myśli w prostą sekwencję.",
+    "icon": "pulse",
+    "tone": "paper",
+    "time": "1 min",
+    "tags": [
+      "rozmowa",
+      "sekwencja"
+    ],
+    "audience": "dziecko",
+    "subcategory": "liczby_logika",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
     "id": "ST-D24-S3",
     "profile": "ST",
     "day": 24,
@@ -3243,6 +5475,90 @@ export const DAILY_TIPS = [
       "planowanie"
     ],
     "audience": "rodzic",
+    "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D25-S2",
+    "profile": "ST",
+    "day": 25,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Pięć kroków powolnego marszu",
+    "body": "Misja: zrób pięć bardzo powolnych kroków, licząc je na głos. Czuj, co się dzieje w stopach. Strateg czasem zwalnia, by zobaczyć więcej.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "uwaznosc",
+      "ruch"
+    ],
+    "audience": "dziecko",
+    "subcategory": "zdrowie_strateg",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D25-S3",
+    "profile": "ST",
+    "day": 25,
+    "slot": "wieczor",
+    "category": "misje",
+    "title": "Co jutro przeniosę z dzisiaj",
+    "body": "Mędrzec mówi: wybierz jedną rzecz z dziś, którą warto wziąć ze sobą do jutra. Pomysł, słowo albo uśmiech.",
+    "icon": "zwoj",
+    "tone": "paper",
+    "time": "1 min",
+    "tags": [
+      "jutro",
+      "wieczor"
+    ],
+    "audience": "dziecko",
+    "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D26-S1",
+    "profile": "ST",
+    "day": 26,
+    "slot": "poranek",
+    "category": "misje",
+    "title": "Mapa uczuć na trzy pola",
+    "body": "Narysuj kartkę z trzema polami: spokój, ciekawość, niepokój. Postaw kropkę tam, gdzie jesteś dziś rano. Mędrzec mówi: mapy uczuć też się rysuje.",
+    "icon": "map",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "emocje",
+      "poranek"
+    ],
+    "audience": "dziecko",
+    "subcategory": "mapy_kolejnosc",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D26-S2",
+    "profile": "ST",
+    "day": 26,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Powtórz to, czego się uczysz",
+    "body": "Misja: weź coś, czego się dziś uczysz, i powtórz to trzy razy w innych słowach. Strateg utrwala wiedzę przez powtórzenie z różnych stron.",
+    "icon": "zwoj",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "nauka",
+      "powtorzenie"
+    ],
+    "audience": "dziecko",
     "subcategory": "planowanie",
     "profileName": "Mistrz Map",
     "cecha": "Mądrość",
@@ -3291,6 +5607,48 @@ export const DAILY_TIPS = [
     "kraina": "Góry Liczb"
   },
   {
+    "id": "ST-D27-S2",
+    "profile": "ST",
+    "day": 27,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Zagadka licz po dwa",
+    "body": "Misja: licz od dwa do dwudziestu, dodając po dwa: dwa, cztery, sześć. Sprawdź, jak szybko ci idzie. Strateg lubi rytm liczb.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "liczby",
+      "zagadka"
+    ],
+    "audience": "dziecko",
+    "subcategory": "liczby_logika",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D27-S3",
+    "profile": "ST",
+    "day": 27,
+    "slot": "wieczor",
+    "category": "misje",
+    "title": "Co poszło inaczej niż w planie",
+    "body": "Wieczorem nazwij jedną rzecz, która poszła inaczej niż w planie, i jedną dobrą rzecz, która z tego wyszła. Mędrzec mówi: zakręty bywają skrótami.",
+    "icon": "zwoj",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "plan_b",
+      "wieczor"
+    ],
+    "audience": "dziecko",
+    "subcategory": "elastycznosc_plan_b",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
     "id": "ST-D28-S1",
     "profile": "ST",
     "day": 28,
@@ -3304,6 +5662,27 @@ export const DAILY_TIPS = [
     "tags": [
       "intencja",
       "poranek"
+    ],
+    "audience": "dziecko",
+    "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D28-S2",
+    "profile": "ST",
+    "day": 28,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Posprzątaj jedno miejsce",
+    "body": "Misja: wybierz jedno małe miejsce, na przykład biurko, i posprzątaj je w czterech krokach. Mędrzec mówi: porządek na zewnątrz pomaga porządkowi w środku.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "porzadek",
+      "krok_po_kroku"
     ],
     "audience": "dziecko",
     "subcategory": "planowanie",
@@ -3328,6 +5707,48 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "elastycznosc_plan_b",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D29-S1",
+    "profile": "ST",
+    "day": 29,
+    "slot": "poranek",
+    "category": "misje",
+    "title": "Co chcę zapamiętać z tego miesiąca",
+    "body": "Mędrzec mówi: zostały dwa dni wędrówki. Pomyśl rano o jednej rzeczy, którą chcesz zapamiętać z tego miesiąca.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "refleksja",
+      "podsumowanie"
+    ],
+    "audience": "dziecko",
+    "subcategory": "planowanie",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D29-S2",
+    "profile": "ST",
+    "day": 29,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Trzy razy się uśmiechnij",
+    "body": "Misja: uśmiechnij się dziś świadomie trzy razy do innej osoby. Policz w głowie. Strateg liczy też ciepło.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "relacje",
+      "liczby"
+    ],
+    "audience": "dziecko",
+    "subcategory": "liczby_logika",
     "profileName": "Mistrz Map",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
@@ -3370,6 +5791,27 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "mapy_kolejnosc",
+    "profileName": "Mistrz Map",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D30-S2",
+    "profile": "ST",
+    "day": 30,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Trzy nowe rzeczy, które umiem",
+    "body": "Misja: wymień trzy rzeczy, które dziś umiesz lepiej niż miesiąc temu. Małe też się liczą. Strateg zbiera dowody postępu.",
+    "icon": "zwoj",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "postep",
+      "podsumowanie"
+    ],
+    "audience": "dziecko",
+    "subcategory": "planowanie",
     "profileName": "Mistrz Map",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
@@ -3418,6 +5860,28 @@ export const DAILY_TIPS = [
     "kraina": "Pustynia Pomysłów"
   },
   {
+    "id": "KR-D01-S2",
+    "profile": "KR",
+    "day": 1,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "materialy_proste",
+    "audience": "dziecko",
+    "title": "Zamień karton w coś kosmicznego",
+    "body": "Znajdź kawałek kartonu i zrób z niego jedną rzecz: hełm, statek, maskę. Nie musi być ładne. Wystarczy, że powstanie.",
+    "icon": "artifact",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "karton",
+      "material_z_domu",
+      "tworzenie"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
     "id": "KR-D01-S3",
     "profile": "KR",
     "day": 1,
@@ -3434,6 +5898,50 @@ export const DAILY_TIPS = [
       "notes",
       "skarbnica",
       "rytual"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D02-S1",
+    "profile": "KR",
+    "day": 2,
+    "slot": "poranek",
+    "category": "medrzec",
+    "subcategory": "slowa_jezyk",
+    "audience": "dziecko",
+    "title": "Wymyśl słowo, którego nie ma",
+    "body": "Powiedz na głos jedno słowo, którego nikt nigdy nie słyszał. Co ono może znaczyć? Może to nazwa nowego koloru?",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "slowa",
+      "jezyk",
+      "wymyslanie"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D02-S2",
+    "profile": "KR",
+    "day": 2,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "eksperyment_artystyczny",
+    "audience": "dziecko",
+    "title": "Narysuj coś lewą ręką",
+    "body": "Weź kartkę i spróbuj narysować kota ręką, której zwykle nie używasz. Będzie krzywy. Właśnie o to chodzi.",
+    "icon": "artifact",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "rysunek",
+      "eksperyment",
+      "proces"
     ],
     "profileName": "Tkacz Snów",
     "cecha": "Kreatywność",
@@ -3484,6 +5992,28 @@ export const DAILY_TIPS = [
     "kraina": "Pustynia Pomysłów"
   },
   {
+    "id": "KR-D03-S2",
+    "profile": "KR",
+    "day": 3,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "dokonczenie",
+    "audience": "dziecko",
+    "title": "Wybierz jeden stary pomysł i skończ go",
+    "body": "Zajrzyj do swoich rysunków albo budowli z klocków. Wybierz jeden niedokończony i zrób mu finisz. Choć mały.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "dokonczenie",
+      "finisz",
+      "rytm"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
     "id": "KR-D03-S3",
     "profile": "KR",
     "day": 3,
@@ -3500,6 +6030,50 @@ export const DAILY_TIPS = [
       "jedzenie",
       "woda",
       "rytm_dnia"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D04-S1",
+    "profile": "KR",
+    "day": 4,
+    "slot": "poranek",
+    "category": "medrzec",
+    "subcategory": "iskra_pomyslu",
+    "audience": "dziecko",
+    "title": "Co by było, gdyby chmury były z waty cukrowej?",
+    "body": "Pomyśl chwilę. Jakim smakiem byłyby chmury? Czy ptaki jadałyby je na śniadanie? Wymyśl trzy rzeczy.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "co_by_bylo",
+      "wyobraznia",
+      "swiat"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D04-S2",
+    "profile": "KR",
+    "day": 4,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "materialy_proste",
+    "audience": "dziecko",
+    "title": "Zrób postać z trzech rzeczy z kuchni",
+    "body": "Weź łyżkę, korek i serwetkę. Połącz je w postać. Ma imię? Ma supermoc? Tylko ty wiesz.",
+    "icon": "artifact",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "material_z_domu",
+      "postac",
+      "budowanie"
     ],
     "profileName": "Tkacz Snów",
     "cecha": "Kreatywność",
@@ -3550,6 +6124,28 @@ export const DAILY_TIPS = [
     "kraina": "Pustynia Pomysłów"
   },
   {
+    "id": "KR-D05-S2",
+    "profile": "KR",
+    "day": 5,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "eksperyment_artystyczny",
+    "audience": "dziecko",
+    "title": "Zaśpiewaj piosenkę o swoim kubku",
+    "body": "Weź swój kubek. Wymyśl mu piosenkę na trzy linijki. Może być o jego uchu, o tym co lubi pić, o jego nastroju.",
+    "icon": "pulse",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "piosenka",
+      "spiew",
+      "przedmiot"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
     "id": "KR-D05-S3",
     "profile": "KR",
     "day": 5,
@@ -3566,6 +6162,50 @@ export const DAILY_TIPS = [
       "rozmowa",
       "dzielo",
       "uwaga"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D06-S1",
+    "profile": "KR",
+    "day": 6,
+    "slot": "poranek",
+    "category": "medrzec",
+    "subcategory": "slowa_jezyk",
+    "audience": "dziecko",
+    "title": "Znajdź rym do swojego imienia",
+    "body": "Powtórz swoje imię kilka razy i znajdź słowo, które brzmi podobnie. Śmieszne też mogą być. Tym lepiej.",
+    "icon": "krysztal",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "rym",
+      "imie",
+      "slowa"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D06-S2",
+    "profile": "KR",
+    "day": 6,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "iskra_pomyslu",
+    "audience": "dziecko",
+    "title": "Wymyśl wynalazek dla leniwego smoka",
+    "body": "Smok jest leniwy i nie chce latać. Co mu zaprojektujesz? Rysuj albo opowiedz na głos. Trzy minuty wystarczą.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "wynalazek",
+      "smok",
+      "projekt"
     ],
     "profileName": "Tkacz Snów",
     "cecha": "Kreatywność",
@@ -3616,6 +6256,28 @@ export const DAILY_TIPS = [
     "kraina": "Pustynia Pomysłów"
   },
   {
+    "id": "KR-D07-S2",
+    "profile": "KR",
+    "day": 7,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "proces_nie_wynik",
+    "audience": "dziecko",
+    "title": "Zrób brzydki szkic z dumą",
+    "body": "Narysuj coś celowo brzydko. Krzywe oczy, dziwne kolory, niech nic nie pasuje. To też jest dzieło. Pierwszy szkic zawsze taki jest.",
+    "icon": "pulse",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "szkic",
+      "proces",
+      "brzydkie"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
     "id": "KR-D07-S3",
     "profile": "KR",
     "day": 7,
@@ -3632,6 +6294,50 @@ export const DAILY_TIPS = [
       "sen",
       "wellbeing",
       "regeneracja"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D08-S1",
+    "profile": "KR",
+    "day": 8,
+    "slot": "poranek",
+    "category": "medrzec",
+    "subcategory": "slowa_jezyk",
+    "audience": "dziecko",
+    "title": "Wymyśl tajne hasło na dziś",
+    "body": "Słowo, które znasz tylko ty. Możesz je powtarzać w głowie. Jak ono brzmi? Jakie ma znaczenie tylko dla ciebie?",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "haslo",
+      "sekret",
+      "slowa"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D08-S2",
+    "profile": "KR",
+    "day": 8,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "materialy_proste",
+    "audience": "dziecko",
+    "title": "Zrób rzeźbę z papierowej kuli",
+    "body": "Weź kartkę, zgniec ją w kulę, a potem powoli rozprostowuj tak, by została postać. Co widzisz? Gościa? Zwierzaka? Statek?",
+    "icon": "artifact",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "papier",
+      "rzezba",
+      "material_z_domu"
     ],
     "profileName": "Tkacz Snów",
     "cecha": "Kreatywność",
@@ -3682,6 +6388,28 @@ export const DAILY_TIPS = [
     "kraina": "Pustynia Pomysłów"
   },
   {
+    "id": "KR-D09-S2",
+    "profile": "KR",
+    "day": 9,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "eksperyment_artystyczny",
+    "audience": "dziecko",
+    "title": "Zrób kolaż z trzech śmiesznych skrawków",
+    "body": "Znajdź trzy małe skrawki: gazety, opakowania, naklejki. Połącz je na kartce. Zobaczysz coś zupełnie nowego.",
+    "icon": "artifact",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "kolaz",
+      "skrawki",
+      "laczenie"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
     "id": "KR-D09-S3",
     "profile": "KR",
     "day": 9,
@@ -3726,6 +6454,28 @@ export const DAILY_TIPS = [
     "kraina": "Pustynia Pomysłów"
   },
   {
+    "id": "KR-D10-S2",
+    "profile": "KR",
+    "day": 10,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "dokonczenie",
+    "audience": "dziecko",
+    "title": "Skończ jedno zdanie z opowieści",
+    "body": "Zacznij od: 'Pewnego dnia kot założył czapkę i...'. Skończ jednym zdaniem. Tylko jednym. To wystarczy, by miało finisz.",
+    "icon": "pulse",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "opowiesc",
+      "dokonczenie",
+      "zdanie"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
     "id": "KR-D10-S3",
     "profile": "KR",
     "day": 10,
@@ -3742,6 +6492,50 @@ export const DAILY_TIPS = [
       "szkic",
       "proces",
       "akceptacja"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D11-S1",
+    "profile": "KR",
+    "day": 11,
+    "slot": "poranek",
+    "category": "medrzec",
+    "subcategory": "slowa_jezyk",
+    "audience": "dziecko",
+    "title": "Powiedz dzień dobry w wymyślonym języku",
+    "body": "Wymyśl trzy słowa, które znaczą 'dzień dobry'. Powiedz je do lustra. Jak brzmi twój język?",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "jezyk",
+      "wymyslony",
+      "powitanie"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D11-S2",
+    "profile": "KR",
+    "day": 11,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "iskra_pomyslu",
+    "audience": "dziecko",
+    "title": "Wymyśl trzy użycia dla łyżki",
+    "body": "Co jeszcze można zrobić łyżką? Lustro? Mikrofon? Wahadło? Wymień trzy rzeczy, choć dziwne.",
+    "icon": "krysztal",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "uzycia",
+      "lyzka",
+      "myslenie"
     ],
     "profileName": "Tkacz Snów",
     "cecha": "Kreatywność",
@@ -3792,6 +6586,28 @@ export const DAILY_TIPS = [
     "kraina": "Pustynia Pomysłów"
   },
   {
+    "id": "KR-D12-S2",
+    "profile": "KR",
+    "day": 12,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "materialy_proste",
+    "audience": "dziecko",
+    "title": "Zrób koronę z patyka i sznurka",
+    "body": "Znajdź patyk i kawałek sznurka albo nitki. Owiń go w dowolny sposób. To korona, miecz, talizman. Decydujesz ty.",
+    "icon": "artifact",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "patyk",
+      "sznurek",
+      "material_z_domu"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
     "id": "KR-D12-S3",
     "profile": "KR",
     "day": 12,
@@ -3836,6 +6652,28 @@ export const DAILY_TIPS = [
     "kraina": "Pustynia Pomysłów"
   },
   {
+    "id": "KR-D13-S2",
+    "profile": "KR",
+    "day": 13,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "eksperyment_artystyczny",
+    "audience": "dziecko",
+    "title": "Plama z wody i kolorów",
+    "body": "Weź akwarele albo bibułki. Zostaw na kartce jedną dużą plamę. Co widzisz w jej kształcie? Smoka? Mapę? Dom?",
+    "icon": "artifact",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "plama",
+      "akwarela",
+      "ksztalt"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
     "id": "KR-D13-S3",
     "profile": "KR",
     "day": 13,
@@ -3852,6 +6690,50 @@ export const DAILY_TIPS = [
       "krytyka",
       "rodzenstwo",
       "walidacja"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D14-S1",
+    "profile": "KR",
+    "day": 14,
+    "slot": "poranek",
+    "category": "medrzec",
+    "subcategory": "slowa_jezyk",
+    "audience": "dziecko",
+    "title": "Wymyśl trzy słowa na to, co czujesz",
+    "body": "Czasem 'wesoły' albo 'smutny' to za mało. Wymyśl własne słowo na to, co czujesz dziś. Może 'kremowosłonecznie'?",
+    "icon": "krysztal",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "uczucia",
+      "slowa",
+      "wlasne"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D14-S2",
+    "profile": "KR",
+    "day": 14,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "dokonczenie",
+    "audience": "dziecko",
+    "title": "Wybierz jeden szkic i pokoloruj go",
+    "body": "Weź stary rysunek bez koloru. Wybierz trzy kredki i skończ go. Niech będzie gotowy do skarbnicy.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "dokonczenie",
+      "kolor",
+      "szkic"
     ],
     "profileName": "Tkacz Snów",
     "cecha": "Kreatywność",
@@ -3902,6 +6784,28 @@ export const DAILY_TIPS = [
     "kraina": "Pustynia Pomysłów"
   },
   {
+    "id": "KR-D15-S2",
+    "profile": "KR",
+    "day": 15,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "iskra_pomyslu",
+    "audience": "dziecko",
+    "title": "Wymyśl historyjkę o znalezionym kamyku",
+    "body": "Wyjdź na chwilę, znajdź kamyk. Skąd on jest? Czego słuchał? Wymyśl jedno zdanie o jego życiu.",
+    "icon": "krysztal",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "kamyk",
+      "historia",
+      "natura"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
     "id": "KR-D15-S3",
     "profile": "KR",
     "day": 15,
@@ -3946,6 +6850,28 @@ export const DAILY_TIPS = [
     "kraina": "Pustynia Pomysłów"
   },
   {
+    "id": "KR-D16-S2",
+    "profile": "KR",
+    "day": 16,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "eksperyment_artystyczny",
+    "audience": "dziecko",
+    "title": "Maluj palcem zamoczonym w soku",
+    "body": "Kropla soku, palec, kartka. Bez pędzla, bez planu. Co powstaje? Plamy mają swój urok. Zostaw je takimi, jakie są.",
+    "icon": "artifact",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "palec",
+      "sok",
+      "malowanie"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
     "id": "KR-D16-S3",
     "profile": "KR",
     "day": 16,
@@ -3962,6 +6888,50 @@ export const DAILY_TIPS = [
       "dziwne",
       "polaczenia",
       "myslenie"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D17-S1",
+    "profile": "KR",
+    "day": 17,
+    "slot": "poranek",
+    "category": "medrzec",
+    "subcategory": "slowa_jezyk",
+    "audience": "dziecko",
+    "title": "Wymyśl śmieszne imię dla swojej skarpetki",
+    "body": "Skarpetki na nogach mają imiona. Lewa nazywa się..., prawa nazywa się.... Powiedz na głos.",
+    "icon": "krysztal",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "imie",
+      "skarpetka",
+      "humor"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D17-S2",
+    "profile": "KR",
+    "day": 17,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "materialy_proste",
+    "audience": "dziecko",
+    "title": "Zbuduj most dla mrówki",
+    "body": "Weź patyk, kawałek folii, słomkę. Zbuduj coś, po czym może przejść mała mrówka. Nie musi być trwałe.",
+    "icon": "artifact",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "most",
+      "mrowka",
+      "budowanie"
     ],
     "profileName": "Tkacz Snów",
     "cecha": "Kreatywność",
@@ -4012,6 +6982,28 @@ export const DAILY_TIPS = [
     "kraina": "Pustynia Pomysłów"
   },
   {
+    "id": "KR-D18-S2",
+    "profile": "KR",
+    "day": 18,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "dokonczenie",
+    "audience": "dziecko",
+    "title": "Wymyśl koniec ulubionej bajki",
+    "body": "Pomyśl o bajce, którą znasz. A teraz wymyśl inny koniec. Co by było, gdyby Czerwony Kapturek poleciał w kosmos?",
+    "icon": "pulse",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "bajka",
+      "koniec",
+      "wersja"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
     "id": "KR-D18-S3",
     "profile": "KR",
     "day": 18,
@@ -4050,6 +7042,28 @@ export const DAILY_TIPS = [
       "buty",
       "glos",
       "co_by_bylo"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D19-S2",
+    "profile": "KR",
+    "day": 19,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "eksperyment_artystyczny",
+    "audience": "dziecko",
+    "title": "Rysuj z zamkniętymi oczami",
+    "body": "Weź kartkę i kredkę. Zamknij oczy na 30 sekund i rysuj. Otwórz i zobacz, co powstało. Można się zaśmiać.",
+    "icon": "artifact",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "oczy",
+      "rysunek",
+      "eksperyment"
     ],
     "profileName": "Tkacz Snów",
     "cecha": "Kreatywność",
@@ -4100,6 +7114,28 @@ export const DAILY_TIPS = [
     "kraina": "Pustynia Pomysłów"
   },
   {
+    "id": "KR-D20-S2",
+    "profile": "KR",
+    "day": 20,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "iskra_pomyslu",
+    "audience": "dziecko",
+    "title": "Wymyśl nowy smak lodów",
+    "body": "Smak, którego nie ma w lodziarni. Lody o smaku deszczu? Lody o smaku poniedziałku? Powiedz na głos albo narysuj.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "lody",
+      "smak",
+      "wymyslanie"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
     "id": "KR-D20-S3",
     "profile": "KR",
     "day": 20,
@@ -4144,6 +7180,28 @@ export const DAILY_TIPS = [
     "kraina": "Pustynia Pomysłów"
   },
   {
+    "id": "KR-D21-S2",
+    "profile": "KR",
+    "day": 21,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "materialy_proste",
+    "audience": "dziecko",
+    "title": "Domek dla owada z liści",
+    "body": "Idź na dwór albo na balkon. Z liścia, patyka, kamyka zrób mikro-domek. Dla biedronki? Ślimaka? Mrówki?",
+    "icon": "artifact",
+    "tone": "leaf",
+    "time": "2 min",
+    "tags": [
+      "domek",
+      "owad",
+      "natura"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
     "id": "KR-D21-S3",
     "profile": "KR",
     "day": 21,
@@ -4160,6 +7218,50 @@ export const DAILY_TIPS = [
       "woda",
       "wellbeing",
       "drobne"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D22-S1",
+    "profile": "KR",
+    "day": 22,
+    "slot": "poranek",
+    "category": "medrzec",
+    "subcategory": "iskra_pomyslu",
+    "audience": "dziecko",
+    "title": "Wymyśl supermoc dla swojej szczoteczki",
+    "body": "Co potrafi twoja szczoteczka, oprócz mycia zębów? Lata? Śpiewa? Zna język delfinów? Jedna supermoc.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "supermoc",
+      "szczoteczka",
+      "humor"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D22-S2",
+    "profile": "KR",
+    "day": 22,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "eksperyment_artystyczny",
+    "audience": "dziecko",
+    "title": "Naucz się rysować jeden kształt",
+    "body": "Wybierz jeden kształt, np. spiralę. Narysuj go pięć razy w różnych rozmiarach. Pierwszy będzie krzywy, piąty będzie twój.",
+    "icon": "artifact",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "ksztalt",
+      "spirala",
+      "praktyka"
     ],
     "profileName": "Tkacz Snów",
     "cecha": "Kreatywność",
@@ -4210,6 +7312,28 @@ export const DAILY_TIPS = [
     "kraina": "Pustynia Pomysłów"
   },
   {
+    "id": "KR-D23-S2",
+    "profile": "KR",
+    "day": 23,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "dokonczenie",
+    "audience": "dziecko",
+    "title": "Skończ piosenkę jednym refrenem",
+    "body": "Wymyśl jedną linijkę, która będzie refrenem twojej piosenki o dzisiejszym dniu. Powtórz ją trzy razy. To gotowe dzieło.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "piosenka",
+      "refren",
+      "dokonczenie"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
     "id": "KR-D23-S3",
     "profile": "KR",
     "day": 23,
@@ -4226,6 +7350,50 @@ export const DAILY_TIPS = [
       "pytania",
       "ocena",
       "proces"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D24-S1",
+    "profile": "KR",
+    "day": 24,
+    "slot": "poranek",
+    "category": "medrzec",
+    "subcategory": "slowa_jezyk",
+    "audience": "dziecko",
+    "title": "Wymyśl nazwę dla dzisiejszej chmury",
+    "body": "Spójrz przez okno. Widzisz chmurę? Daj jej imię. Jeśli nie ma chmur, nazwij niebo. Niebo też może mieć imię.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "chmura",
+      "imie",
+      "niebo"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D24-S2",
+    "profile": "KR",
+    "day": 24,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "iskra_pomyslu",
+    "audience": "dziecko",
+    "title": "Połącz dwie rzeczy w jedną",
+    "body": "Weź dwie rzeczy z domu i wymyśl, czym mogłyby być razem. Łyżka + grzebień = grzebkołyżka? Co by robiła?",
+    "icon": "krysztal",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "polaczenia",
+      "rzeczy",
+      "wymyslanie"
     ],
     "profileName": "Tkacz Snów",
     "cecha": "Kreatywność",
@@ -4276,6 +7444,28 @@ export const DAILY_TIPS = [
     "kraina": "Pustynia Pomysłów"
   },
   {
+    "id": "KR-D25-S2",
+    "profile": "KR",
+    "day": 25,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "materialy_proste",
+    "audience": "dziecko",
+    "title": "Lampa ze słoika i papieru",
+    "body": "Weź słoik i kawałek bibułki albo papieru. Owiń słoik kolorowym papierem. Postaw obok lampy. Będzie jak latarnia.",
+    "icon": "artifact",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "sloik",
+      "lampa",
+      "material_z_domu"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
     "id": "KR-D25-S3",
     "profile": "KR",
     "day": 25,
@@ -4314,6 +7504,28 @@ export const DAILY_TIPS = [
       "pluszak",
       "sniadanie",
       "humor"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D26-S2",
+    "profile": "KR",
+    "day": 26,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "eksperyment_artystyczny",
+    "audience": "dziecko",
+    "title": "Stempelki z warzyw",
+    "body": "Poproś dorosłego o pomoc. Pół marchewki, pół jabłka, kropla farby. Odbij na kartce. Zobaczysz wzory, których nie wymyślisz.",
+    "icon": "artifact",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "stempel",
+      "warzywa",
+      "wzory"
     ],
     "profileName": "Tkacz Snów",
     "cecha": "Kreatywność",
@@ -4364,6 +7576,28 @@ export const DAILY_TIPS = [
     "kraina": "Pustynia Pomysłów"
   },
   {
+    "id": "KR-D27-S2",
+    "profile": "KR",
+    "day": 27,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "dokonczenie",
+    "audience": "dziecko",
+    "title": "Wybierz jeden pomysł ze skarbnicy",
+    "body": "Otwórz skarbnicę. Pokaż palcem na pierwszy pomysł, jaki widzisz. Zrób z nim jedno małe coś. Zamknij projekt.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "skarbnica",
+      "dokonczenie",
+      "wybor"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
     "id": "KR-D27-S3",
     "profile": "KR",
     "day": 27,
@@ -4402,6 +7636,28 @@ export const DAILY_TIPS = [
       "sen",
       "ksztalt",
       "wyobraznia"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D28-S2",
+    "profile": "KR",
+    "day": 28,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "iskra_pomyslu",
+    "audience": "dziecko",
+    "title": "Wymyśl tytuł książki, której nie ma",
+    "body": "Tytuł ma być śmieszny, dziwny albo tajemniczy. 'Kot, który zjadł kalendarz'? 'Spirala bez końca'? Powiedz na głos.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "ksiazka",
+      "tytul",
+      "wymyslanie"
     ],
     "profileName": "Tkacz Snów",
     "cecha": "Kreatywność",
@@ -4452,6 +7708,28 @@ export const DAILY_TIPS = [
     "kraina": "Pustynia Pomysłów"
   },
   {
+    "id": "KR-D29-S2",
+    "profile": "KR",
+    "day": 29,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "eksperyment_artystyczny",
+    "audience": "dziecko",
+    "title": "Mapa twojego pokoju z gwiazd",
+    "body": "Narysuj swój pokój tak, jakby składał się z gwiazd. Łóżko to konstelacja, biurko to kometa. Wystarczy szkic.",
+    "icon": "artifact",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "pokoj",
+      "gwiazdy",
+      "mapa"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
     "id": "KR-D29-S3",
     "profile": "KR",
     "day": 29,
@@ -4490,6 +7768,28 @@ export const DAILY_TIPS = [
       "atrament",
       "artefakt",
       "kronika"
+    ],
+    "profileName": "Tkacz Snów",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D30-S2",
+    "profile": "KR",
+    "day": 30,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "dokonczenie",
+    "audience": "dziecko",
+    "title": "Pokaż jedno dzieło komuś bliskiemu",
+    "body": "Wybierz jedną rzecz, którą zrobiłeś w tym miesiącu. Pokaż mamie, tacie, siostrze, koledze. Powiedz: 'to zrobiłem'. Zamykasz krąg.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "pokaz",
+      "dzielo",
+      "zamkniecie"
     ],
     "profileName": "Tkacz Snów",
     "cecha": "Kreatywność",
@@ -4539,6 +7839,27 @@ export const DAILY_TIPS = [
     "kraina": "Niebo Marzeń"
   },
   {
+    "id": "LD-D01-S2",
+    "profile": "LD",
+    "day": 1,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Powiedz cześć pierwszy",
+    "body": "Dzisiejsza mała misja: powiedz dziś komuś cześć jako pierwsza/pierwszy. Może to być koleżanka, sąsiad, pani w sklepie. Jeden mały krok odwagi.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "inicjatywa",
+      "odwaga"
+    ],
+    "audience": "dziecko",
+    "subcategory": "inicjatywa_grupa",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
     "id": "LD-D01-S3",
     "profile": "LD",
     "day": 1,
@@ -4581,6 +7902,48 @@ export const DAILY_TIPS = [
     "kraina": "Niebo Marzeń"
   },
   {
+    "id": "LD-D02-S2",
+    "profile": "LD",
+    "day": 2,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Zaproponuj jedną zabawę",
+    "body": "Misja: dzisiaj zaproponuj rodzeństwu, koledze albo klasie jedną nową zabawę albo pomysł. Powiedz spokojnie: „mam pomysł, posłuchajcie”. I poczekaj, co odpowiedzą.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "inicjatywa",
+      "grupa"
+    ],
+    "audience": "dziecko",
+    "subcategory": "inicjatywa_grupa",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
+    "id": "LD-D02-S3",
+    "profile": "LD",
+    "day": 2,
+    "slot": "wieczor",
+    "category": "kraina",
+    "title": "Niebo Marzeń słucha cię wieczorem",
+    "body": "Twoja kraina, Niebo Marzeń, otwiera się wieczorem. Spójrz przez okno na niebo. Powiedz cicho jedno marzenie — Mędrzec je zapisze gwiazdami.",
+    "icon": "artifact",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "kraina",
+      "marzenia"
+    ],
+    "audience": "dziecko",
+    "subcategory": "asertywnosc",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
     "id": "LD-D03-S1",
     "profile": "LD",
     "day": 3,
@@ -4597,6 +7960,27 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "asertywnosc",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
+    "id": "LD-D03-S2",
+    "profile": "LD",
+    "day": 3,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Pomóż, zanim poprosi",
+    "body": "Misja odwagi: znajdź dziś kogoś, kto sam by nie poprosił o pomoc. Może koleżanka, która siedzi sama. Podejdź. Powiedz: „chcesz, posiedzę z tobą?”.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "2 min",
+    "tags": [
+      "pomoc",
+      "troska"
+    ],
+    "audience": "dziecko",
+    "subcategory": "pomoc_proaktywna",
     "profileName": "Gwardzista Odwagi",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
@@ -4638,6 +8022,27 @@ export const DAILY_TIPS = [
       "decyzje"
     ],
     "audience": "rodzic",
+    "subcategory": "asertywnosc",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
+    "id": "LD-D04-S2",
+    "profile": "LD",
+    "day": 4,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Powiedz „nie” spokojnie",
+    "body": "Mała wielka misja: jeśli ktoś dziś poprosi cię o coś, na co nie masz ochoty, powiedz spokojnie „dziękuję, nie”. Bez krzyku, bez tłumaczenia długo. „Nie” też jest odwagą.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "granice",
+      "asertywność"
+    ],
+    "audience": "dziecko",
     "subcategory": "asertywnosc",
     "profileName": "Gwardzista Odwagi",
     "cecha": "Odwaga",
@@ -4686,6 +8091,27 @@ export const DAILY_TIPS = [
     "kraina": "Niebo Marzeń"
   },
   {
+    "id": "LD-D05-S2",
+    "profile": "LD",
+    "day": 5,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Zapytaj cichego kolegę",
+    "body": "Misja: znajdź dziś osobę, która mało mówi w grupie. Zapytaj: „co o tym myślisz?”. Posłuchaj. Liderzy nie tylko mówią — pomagają mówić innym.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "2 min",
+    "tags": [
+      "słuchanie",
+      "grupa"
+    ],
+    "audience": "dziecko",
+    "subcategory": "inicjatywa_grupa",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
     "id": "LD-D05-S3",
     "profile": "LD",
     "day": 5,
@@ -4719,6 +8145,27 @@ export const DAILY_TIPS = [
     "time": "1 min",
     "tags": [
       "postawa",
+      "ciało"
+    ],
+    "audience": "dziecko",
+    "subcategory": "asertywnosc",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
+    "id": "LD-D06-S2",
+    "profile": "LD",
+    "day": 6,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "60 minut ruchu, jak lew",
+    "body": "Misja ciała: dziś ruszaj się 60 minut. Biegaj, skacz, tańcz, kop piłkę. Lwia grzywa lubi wiatr. Tarcza Słońca świeci jaśniej, gdy się ruszasz.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "ruch",
       "ciało"
     ],
     "audience": "dziecko",
@@ -4770,6 +8217,27 @@ export const DAILY_TIPS = [
     "kraina": "Niebo Marzeń"
   },
   {
+    "id": "LD-D07-S2",
+    "profile": "LD",
+    "day": 7,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Posłuchaj, zanim odpowiesz",
+    "body": "Misja słuchania: gdy ktoś dziś mówi, policz w głowie do trzech, zanim odpowiesz. Może usłyszysz coś, czego nie usłyszysz, kiedy spieszysz się ze zdaniem.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "słuchanie",
+      "asertywność"
+    ],
+    "audience": "dziecko",
+    "subcategory": "asertywnosc",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
     "id": "LD-D07-S3",
     "profile": "LD",
     "day": 7,
@@ -4807,6 +8275,27 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "odwaga_mala",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
+    "id": "LD-D08-S2",
+    "profile": "LD",
+    "day": 8,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Zadaj pytanie na lekcji",
+    "body": "Misja głosu: dziś na lekcji zadaj jedno pytanie. Nawet jeśli wydaje ci się głupie. Pewnie inni też się zastanawiają. Twój głos pomaga im się odezwać.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "głos",
+      "szkoła"
+    ],
+    "audience": "dziecko",
+    "subcategory": "mowie_co_inni_boja",
     "profileName": "Gwardzista Odwagi",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
@@ -4854,6 +8343,27 @@ export const DAILY_TIPS = [
     "kraina": "Niebo Marzeń"
   },
   {
+    "id": "LD-D09-S2",
+    "profile": "LD",
+    "day": 9,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Wstaw się za kimś",
+    "body": "Misja tarczy: jeśli dziś usłyszysz, że ktoś mówi o kimś brzydko, powiedz spokojnie: „nie mówmy tak”. Krótko, bez krzyku. Tarcza Słońca chroni innych.",
+    "icon": "artifact",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "obrona",
+      "grupa"
+    ],
+    "audience": "dziecko",
+    "subcategory": "inicjatywa_grupa",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
     "id": "LD-D09-S3",
     "profile": "LD",
     "day": 9,
@@ -4896,6 +8406,27 @@ export const DAILY_TIPS = [
     "kraina": "Niebo Marzeń"
   },
   {
+    "id": "LD-D10-S2",
+    "profile": "LD",
+    "day": 10,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Przyznaj się do błędu",
+    "body": "Najtrudniejsza misja Lidera: powiedz „pomyliłem się” albo „przepraszam”. Z głową w górze, nie w dół. Liderzy, którzy potrafią przeprosić, są najsilniejsi.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "2 min",
+    "tags": [
+      "przeprosiny",
+      "odpowiedzialność"
+    ],
+    "audience": "dziecko",
+    "subcategory": "przeprosiny",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
     "id": "LD-D10-S3",
     "profile": "LD",
     "day": 10,
@@ -4912,6 +8443,48 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "pomoc_proaktywna",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
+    "id": "LD-D11-S1",
+    "profile": "LD",
+    "day": 11,
+    "slot": "poranek",
+    "category": "medrzec",
+    "title": "Twoja grzywa, twoje tempo",
+    "body": "Mały Gwardzisto, nie musisz prowadzić od rana. Czasem grzywa potrzebuje rozkręcić się powoli. Zacznij dziś od jednej cichej rzeczy, którą lubisz.",
+    "icon": "medrzec",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "tempo",
+      "spokój"
+    ],
+    "audience": "dziecko",
+    "subcategory": "asertywnosc",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
+    "id": "LD-D11-S2",
+    "profile": "LD",
+    "day": 11,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Powiedz, czego się boisz",
+    "body": "Odważna misja: powiedz dziś komuś bliskiemu „boję się tego”. Bez wstydu. Lider, który mówi o strachu, daje innym pozwolenie, żeby też się przyznali.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "strach",
+      "głos"
+    ],
+    "audience": "dziecko",
+    "subcategory": "mowie_co_inni_boja",
     "profileName": "Gwardzista Odwagi",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
@@ -4959,6 +8532,27 @@ export const DAILY_TIPS = [
     "kraina": "Niebo Marzeń"
   },
   {
+    "id": "LD-D12-S2",
+    "profile": "LD",
+    "day": 12,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Zaproś kogoś do drużyny",
+    "body": "Misja drużyny: znajdź dziś osobę, która stoi z boku. Powiedz: „chodź z nami”. Bez wielkiego przedstawiania. Lider robi miejsce, a nie chowa miejsce.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "grupa",
+      "włączanie"
+    ],
+    "audience": "dziecko",
+    "subcategory": "inicjatywa_grupa",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
     "id": "LD-D12-S3",
     "profile": "LD",
     "day": 12,
@@ -4993,6 +8587,27 @@ export const DAILY_TIPS = [
     "tags": [
       "fokus",
       "drobne_kroki"
+    ],
+    "audience": "dziecko",
+    "subcategory": "asertywnosc",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
+    "id": "LD-D13-S2",
+    "profile": "LD",
+    "day": 13,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Zapytaj rodzica o jego dzień",
+    "body": "Odwrócona misja: zapytaj dziś rodzica: „jak ci było dzisiaj?”. I posłuchaj. Lider też dba o dorosłych. To dziwnie piękne, gdy dziecko pyta jako pierwsze.",
+    "icon": "rodzic",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "troska",
+      "rodzina"
     ],
     "audience": "dziecko",
     "subcategory": "asertywnosc",
@@ -5043,6 +8658,27 @@ export const DAILY_TIPS = [
     "kraina": "Niebo Marzeń"
   },
   {
+    "id": "LD-D14-S2",
+    "profile": "LD",
+    "day": 14,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Pomysł, którego się boisz",
+    "body": "Misja głosu: powiedz dziś na głos pomysł, którego trochę się wstydzisz. Może wymyśliłaś/wymyśliłeś coś dziwnego. Powiedz go jednej osobie. Pomysły rosną, gdy się je wypuszcza.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "kreatywność",
+      "głos"
+    ],
+    "audience": "dziecko",
+    "subcategory": "mowie_co_inni_boja",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
     "id": "LD-D14-S3",
     "profile": "LD",
     "day": 14,
@@ -5077,6 +8713,27 @@ export const DAILY_TIPS = [
     "tags": [
       "odpoczynek_lidera",
       "pauza"
+    ],
+    "audience": "dziecko",
+    "subcategory": "granica_lidera",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
+    "id": "LD-D15-S2",
+    "profile": "LD",
+    "day": 15,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Dziś prowadzi ktoś inny",
+    "body": "Misja pokory: niech dziś ktoś inny wybierze grę, film albo trasę spaceru. Powiedz: „wybierz ty”. I idź. Lider, który umie iść za kimś, jest bardzo silny.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "nie-prowadzenie",
+      "pokora"
     ],
     "audience": "dziecko",
     "subcategory": "granica_lidera",
@@ -5127,6 +8784,27 @@ export const DAILY_TIPS = [
     "kraina": "Niebo Marzeń"
   },
   {
+    "id": "LD-D16-S2",
+    "profile": "LD",
+    "day": 16,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Komplement w twarz",
+    "body": "Misja ciepła: powiedz dziś komuś prosto w twarz coś dobrego. Konkretnie. „Podoba mi się, jak rysujesz”. „Pomogłaś mi wczoraj, pamiętam”. Lider rozdaje światło.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "docenianie",
+      "ciepło"
+    ],
+    "audience": "dziecko",
+    "subcategory": "asertywnosc",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
     "id": "LD-D16-S3",
     "profile": "LD",
     "day": 16,
@@ -5161,6 +8839,27 @@ export const DAILY_TIPS = [
     "tags": [
       "kraina",
       "ciepło"
+    ],
+    "audience": "dziecko",
+    "subcategory": "asertywnosc",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
+    "id": "LD-D17-S2",
+    "profile": "LD",
+    "day": 17,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Powiedz „nie wiem”",
+    "body": "Trudna misja Lidera: kiedy ktoś dziś zapyta cię o coś, czego nie wiesz, powiedz: „nie wiem, ale sprawdzę”. Liderzy, którzy mówią „nie wiem”, są wiarygodni.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "pokora",
+      "uczciwość"
     ],
     "audience": "dziecko",
     "subcategory": "asertywnosc",
@@ -5211,6 +8910,27 @@ export const DAILY_TIPS = [
     "kraina": "Niebo Marzeń"
   },
   {
+    "id": "LD-D18-S2",
+    "profile": "LD",
+    "day": 18,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Stań po swojej stronie",
+    "body": "Misja granicy: jeśli ktoś dziś zacznie cię popychać do czegoś, co czujesz, że nie jest twoje — stań spokojnie i powiedz „nie, dziękuję”. To twoja tarcza.",
+    "icon": "artifact",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "granice",
+      "presja"
+    ],
+    "audience": "dziecko",
+    "subcategory": "asertywnosc",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
     "id": "LD-D18-S3",
     "profile": "LD",
     "day": 18,
@@ -5248,6 +8968,27 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
+    "id": "LD-D19-S2",
+    "profile": "LD",
+    "day": 19,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Pierwsza pomoc na podwórku",
+    "body": "Misja Gwardzisty: jeśli ktoś dziś się przewróci, zapłacze, zgubi coś — bądź pierwszą/pierwszym, która/który podejdzie. Nie z fanfarami. Po cichu. „Pomóc ci?”.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "pomoc",
+      "troska"
+    ],
+    "audience": "dziecko",
+    "subcategory": "pomoc_proaktywna",
     "profileName": "Gwardzista Odwagi",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
@@ -5295,6 +9036,27 @@ export const DAILY_TIPS = [
     "kraina": "Niebo Marzeń"
   },
   {
+    "id": "LD-D20-S2",
+    "profile": "LD",
+    "day": 20,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Spróbuj czegoś, w czym jesteś słaby",
+    "body": "Misja odwagi: dziś zrób krótko coś, w czym ci nie wychodzi. Rysuj, śpiewaj, biegaj, licz. Krzywo? Świetnie. Lider, który próbuje, uczy innych próbować.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "próba",
+      "porażka"
+    ],
+    "audience": "dziecko",
+    "subcategory": "asertywnosc",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
     "id": "LD-D20-S3",
     "profile": "LD",
     "day": 20,
@@ -5329,6 +9091,27 @@ export const DAILY_TIPS = [
     "tags": [
       "refleksja",
       "wzrost"
+    ],
+    "audience": "dziecko",
+    "subcategory": "asertywnosc",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
+    "id": "LD-D21-S2",
+    "profile": "LD",
+    "day": 21,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Zaufaj komuś dziś",
+    "body": "Misja zaufania: dziś poproś kogoś o pomoc w czymś, co normalnie chciałabyś/chciałbyś zrobić sama/sam. Lider, który prosi o pomoc, daje innym poczuć, że są ważni.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "2 min",
+    "tags": [
+      "zaufanie",
+      "prośba"
     ],
     "audience": "dziecko",
     "subcategory": "asertywnosc",
@@ -5379,6 +9162,27 @@ export const DAILY_TIPS = [
     "kraina": "Niebo Marzeń"
   },
   {
+    "id": "LD-D22-S2",
+    "profile": "LD",
+    "day": 22,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Powiedz „ja tak czuję”",
+    "body": "Misja głosu: zamiast „ty zawsze...” spróbuj dziś powiedzieć „ja tak czuję, gdy...”. To dwa zupełnie inne zdania. Pierwsze obwinia. Drugie otwiera. Tarcza Słońca lubi drugie.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "komunikacja",
+      "asertywność"
+    ],
+    "audience": "dziecko",
+    "subcategory": "asertywnosc",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
     "id": "LD-D22-S3",
     "profile": "LD",
     "day": 22,
@@ -5415,6 +9219,27 @@ export const DAILY_TIPS = [
       "język"
     ],
     "audience": "rodzic",
+    "subcategory": "asertywnosc",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
+    "id": "LD-D23-S2",
+    "profile": "LD",
+    "day": 23,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Naprawić, nie pokonać",
+    "body": "Misja sporu: jeśli pokłócisz się dziś z kimś, zamiast „wygrać”, spróbuj „naprawić”. Powiedz: „chcę, żebyśmy się dogadali”. Tarcza Słońca nie służy do bicia.",
+    "icon": "artifact",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "konflikt",
+      "pojednanie"
+    ],
+    "audience": "dziecko",
     "subcategory": "asertywnosc",
     "profileName": "Gwardzista Odwagi",
     "cecha": "Odwaga",
@@ -5463,6 +9288,27 @@ export const DAILY_TIPS = [
     "kraina": "Niebo Marzeń"
   },
   {
+    "id": "LD-D24-S2",
+    "profile": "LD",
+    "day": 24,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Zacznij rozmowę z dorosłym",
+    "body": "Odważna misja: zagadaj dziś dorosłego, którego trochę się boisz albo z którym mało rozmawiasz. Babcię, sąsiadkę, nauczyciela. Krótko. „Jak się ma pani dzisiaj?”.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "odwaga",
+      "rozmowa"
+    ],
+    "audience": "dziecko",
+    "subcategory": "odwaga_mala",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
     "id": "LD-D24-S3",
     "profile": "LD",
     "day": 24,
@@ -5500,6 +9346,27 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "asertywnosc",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
+    "id": "LD-D25-S2",
+    "profile": "LD",
+    "day": 25,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Bądź pierwszy w dobrej sprawie",
+    "body": "Misja dnia: zrób dziś jedną rzecz pierwsza/pierwszy, której nikt nie zauważy. Pozbierać śmieć, wytrzeć stół, ustąpić miejsca. Cicho. Lider, którego nie widać, też świeci.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "inicjatywa",
+      "ciche_dobro"
+    ],
+    "audience": "dziecko",
+    "subcategory": "inicjatywa_grupa",
     "profileName": "Gwardzista Odwagi",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
@@ -5547,6 +9414,27 @@ export const DAILY_TIPS = [
     "kraina": "Niebo Marzeń"
   },
   {
+    "id": "LD-D26-S2",
+    "profile": "LD",
+    "day": 26,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Stań w drugim rzędzie",
+    "body": "Misja pokory: dziś w grze, w klasie, w grupie — stań specjalnie w drugim rzędzie. Pozwól komuś być z przodu. Patrz, jak to jest. Co czujesz? Lider widzi też z tyłu.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "nie-prowadzenie",
+      "perspektywa"
+    ],
+    "audience": "dziecko",
+    "subcategory": "granica_lidera",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
     "id": "LD-D26-S3",
     "profile": "LD",
     "day": 26,
@@ -5589,6 +9477,27 @@ export const DAILY_TIPS = [
     "kraina": "Niebo Marzeń"
   },
   {
+    "id": "LD-D27-S2",
+    "profile": "LD",
+    "day": 27,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Dziękuję komuś, kto pomaga niewidocznie",
+    "body": "Misja wdzięczności: znajdź dziś kogoś, kto codziennie robi coś dla ciebie, a nigdy mu nie podziękowałaś/podziękowałeś. Pani sprzątająca, kierowca, babcia. Powiedz krótkie „dziękuję”.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "2 min",
+    "tags": [
+      "wdzięczność",
+      "ciche_dobro"
+    ],
+    "audience": "dziecko",
+    "subcategory": "asertywnosc",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
     "id": "LD-D27-S3",
     "profile": "LD",
     "day": 27,
@@ -5605,6 +9514,48 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
+    "id": "LD-D28-S1",
+    "profile": "LD",
+    "day": 28,
+    "slot": "poranek",
+    "category": "medrzec",
+    "title": "Twoja odwaga nie musi krzyczeć",
+    "body": "Posłuchaj, mały Gwardzisto: czasem najodważniejszą rzeczą jest milczeć, gdy inni krzyczą. Czasem powiedzieć „nie wiem”. Czasem wrócić do kogoś i przeprosić. Odwaga ma wiele twarzy.",
+    "icon": "medrzec",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "odwaga",
+      "różne_oblicza"
+    ],
+    "audience": "dziecko",
+    "subcategory": "odwaga_mala",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
+    "id": "LD-D28-S2",
+    "profile": "LD",
+    "day": 28,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Pomóż komuś bez pochwały",
+    "body": "Sekretna misja: zrób dziś coś dobrego dla kogoś tak, żeby się nie dowiedział, że to ty. Zostaw, schowaj, naprawi, niech samo wyjdzie na dobre. To liderstwo bez aplauzu.",
+    "icon": "pulse",
+    "tone": "rose",
+    "time": "2 min",
+    "tags": [
+      "ciche_dobro",
+      "pomoc"
+    ],
+    "audience": "dziecko",
+    "subcategory": "pomoc_proaktywna",
     "profileName": "Gwardzista Odwagi",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
@@ -5646,6 +9597,27 @@ export const DAILY_TIPS = [
       "współpraca"
     ],
     "audience": "rodzic",
+    "subcategory": "asertywnosc",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
+    "id": "LD-D29-S2",
+    "profile": "LD",
+    "day": 29,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Spójrz na siebie z czułością",
+    "body": "Niezwykła misja: stań dziś przed lustrem i powiedz do siebie: „dasz radę”. Bez śmiechu. Bez wstydu. Twój głos do siebie — tarcza najmocniejsza, jaka istnieje.",
+    "icon": "artifact",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "samoakceptacja",
+      "tarcza"
+    ],
+    "audience": "dziecko",
     "subcategory": "asertywnosc",
     "profileName": "Gwardzista Odwagi",
     "cecha": "Odwaga",
@@ -5694,6 +9666,27 @@ export const DAILY_TIPS = [
     "kraina": "Niebo Marzeń"
   },
   {
+    "id": "LD-D30-S2",
+    "profile": "LD",
+    "day": 30,
+    "slot": "poludnie",
+    "category": "misje",
+    "title": "Powiedz komuś, kim się stałaś/stałeś",
+    "body": "Ostatnia wielka misja: powiedz komu bliskiemu jedno zdanie: „uczę się być odważna/odważny z troski, nie z pychy”. Może nie zrozumieją od razu. Ale ty będziesz wiedzieć.",
+    "icon": "pulse",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "tożsamość",
+      "głos"
+    ],
+    "audience": "dziecko",
+    "subcategory": "mowie_co_inni_boja",
+    "profileName": "Gwardzista Odwagi",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
     "id": "LD-D30-S3",
     "profile": "LD",
     "day": 30,
@@ -5731,6 +9724,27 @@ export const DAILY_TIPS = [
       "oddech",
       "spokoj",
       "ja"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
+    "id": "MD-D01-S2",
+    "profile": "MD",
+    "day": 1,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "sluchanie_obu_stron",
+    "audience": "dziecko",
+    "title": "Misja: posłuchaj kogoś do końca",
+    "body": "Wybierz jedną osobę i posłuchaj jej, nie przerywając, aż skończy mówić. Mędrzec mówi: czasem ucho jest mostem.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "sluchanie",
+      "most"
     ],
     "profileName": "Strażnik Mostu",
     "cecha": "Skupienie",
@@ -5779,6 +9793,27 @@ export const DAILY_TIPS = [
     "kraina": "Zamek Czasu"
   },
   {
+    "id": "MD-D02-S2",
+    "profile": "MD",
+    "day": 2,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "slowa_lacznikow",
+    "audience": "dziecko",
+    "title": "Misja: powiedz „rozumiem”",
+    "body": "Gdy ktoś dziś coś Ci opowie, spróbuj zacząć odpowiedź od słowa „rozumiem”. To krótkie słowo jest jak mała kładka.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "1 min",
+    "tags": [
+      "slowa",
+      "lacznik"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
     "id": "MD-D02-S3",
     "profile": "MD",
     "day": 2,
@@ -5815,6 +9850,27 @@ export const DAILY_TIPS = [
     "tags": [
       "granica",
       "odpoczynek"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
+    "id": "MD-D03-S2",
+    "profile": "MD",
+    "day": 3,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "konflikt_rowiesniczy",
+    "audience": "dziecko",
+    "title": "Misja: jedno pytanie zamiast oceny",
+    "body": "Gdy kolega lub koleżanka się pokłócą, zamiast mówić „kto ma rację”, zapytaj: „Co się stało?”. Pytanie otwiera, ocena zamyka.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "konflikt",
+      "pytanie"
     ],
     "profileName": "Strażnik Mostu",
     "cecha": "Skupienie",
@@ -5863,6 +9919,27 @@ export const DAILY_TIPS = [
     "kraina": "Zamek Czasu"
   },
   {
+    "id": "MD-D04-S2",
+    "profile": "MD",
+    "day": 4,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "kompromis_negocjacja",
+    "audience": "dziecko",
+    "title": "Misja: spotkanie w połowie drogi",
+    "body": "Gdy nie zgadzacie się o coś małego (zabawkę, miejsce, kolejność), zaproponuj: „A może po połowie?”. Mały kompromis to początek dużego mostu.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "kompromis",
+      "polowa"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
     "id": "MD-D04-S3",
     "profile": "MD",
     "day": 4,
@@ -5899,6 +9976,27 @@ export const DAILY_TIPS = [
     "tags": [
       "sluchanie",
       "uwaga"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
+    "id": "MD-D05-S2",
+    "profile": "MD",
+    "day": 5,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "perspektywa",
+    "audience": "dziecko",
+    "title": "Misja: opowiedz cudzą wersję",
+    "body": "Po małej kłótni spróbuj powiedzieć: „Czyli Ty myślałeś, że…”. To pokazuje, że naprawdę słuchałeś. Często to wystarczy, by się rozluźnić.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "perspektywa",
+      "powtorzenie"
     ],
     "profileName": "Strażnik Mostu",
     "cecha": "Skupienie",
@@ -5948,6 +10046,27 @@ export const DAILY_TIPS = [
     "kraina": "Zamek Czasu"
   },
   {
+    "id": "MD-D06-S2",
+    "profile": "MD",
+    "day": 6,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "slowa_lacznikow",
+    "audience": "dziecko",
+    "title": "Misja: pytanie „a Ty co czujesz?”",
+    "body": "Wybierz jedną osobę i zadaj jej dziś to pytanie. Nie poprawiaj jej odpowiedzi, po prostu posłuchaj. To otwiera serce po drugiej stronie.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "1 min",
+    "tags": [
+      "pytanie",
+      "uczucia"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
     "id": "MD-D06-S3",
     "profile": "MD",
     "day": 6,
@@ -5984,6 +10103,27 @@ export const DAILY_TIPS = [
     "tags": [
       "zamek",
       "cisza"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
+    "id": "MD-D07-S2",
+    "profile": "MD",
+    "day": 7,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "nie-mediowanie",
+    "audience": "dziecko",
+    "title": "Misja: dziś nic nie godzę",
+    "body": "Jeśli wokół Ciebie zaiskrzy, możesz odejść kawałek dalej. Mędrzec mówi: czasem największą mądrością jest „dziś nie moja sprawa”.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "granica",
+      "odpoczynek"
     ],
     "profileName": "Strażnik Mostu",
     "cecha": "Skupienie",
@@ -6032,6 +10172,27 @@ export const DAILY_TIPS = [
     "kraina": "Zamek Czasu"
   },
   {
+    "id": "MD-D08-S2",
+    "profile": "MD",
+    "day": 8,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "konflikt_rowiesniczy",
+    "audience": "dziecko",
+    "title": "Misja: trzy kroki w sporze",
+    "body": "Gdy dwoje się kłóci: 1) niech każdy powie jedno zdanie, 2) powtórz, co usłyszałeś, 3) zapytaj, co dalej. Krótko, spokojnie.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "konflikt",
+      "kroki"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
     "id": "MD-D08-S3",
     "profile": "MD",
     "day": 8,
@@ -6068,6 +10229,27 @@ export const DAILY_TIPS = [
     "tags": [
       "racja",
       "perspektywa"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
+    "id": "MD-D09-S2",
+    "profile": "MD",
+    "day": 9,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "kompromis_negocjacja",
+    "audience": "dziecko",
+    "title": "Misja: trzecia propozycja",
+    "body": "Gdy Wy chcecie różnych rzeczy, wymyśl trzecią — taką, której nikt jeszcze nie powiedział. Często ta trzecia jest najlepsza.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "kompromis",
+      "kreatywnosc"
     ],
     "profileName": "Strażnik Mostu",
     "cecha": "Skupienie",
@@ -6116,6 +10298,27 @@ export const DAILY_TIPS = [
     "kraina": "Zamek Czasu"
   },
   {
+    "id": "MD-D10-S2",
+    "profile": "MD",
+    "day": 10,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "spokoj_dystans",
+    "audience": "dziecko",
+    "title": "Misja: trzy oddechy przed odpowiedzią",
+    "body": "Gdy ktoś dziś powie coś, co Cię ruszy, najpierw weź trzy spokojne oddechy. Potem odpowiedz. Te trzy sekundy często zmieniają wszystko.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "1 min",
+    "tags": [
+      "oddech",
+      "pauza"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
     "id": "MD-D10-S3",
     "profile": "MD",
     "day": 10,
@@ -6152,6 +10355,27 @@ export const DAILY_TIPS = [
     "tags": [
       "dystans",
       "perspektywa"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
+    "id": "MD-D11-S2",
+    "profile": "MD",
+    "day": 11,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "sluchanie_obu_stron",
+    "audience": "dziecko",
+    "title": "Misja: nie przerywaj przez minutę",
+    "body": "Gdy ktoś będzie mówił, daj mu skończyć — nawet jeśli już wiesz, co chciał powiedzieć. Cisza to też jest część rozmowy.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "1 min",
+    "tags": [
+      "sluchanie",
+      "cisza"
     ],
     "profileName": "Strażnik Mostu",
     "cecha": "Skupienie",
@@ -6200,6 +10424,27 @@ export const DAILY_TIPS = [
     "kraina": "Zamek Czasu"
   },
   {
+    "id": "MD-D12-S2",
+    "profile": "MD",
+    "day": 12,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "konflikt_rowiesniczy",
+    "audience": "dziecko",
+    "title": "Misja: pomóż, ale nie wybieraj stron",
+    "body": "Gdy ktoś prosi: „powiedz, kto ma rację”, możesz odpowiedzieć: „Słyszę was oboje”. Mędrzec mówi: most nie wybiera brzegu.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "konflikt",
+      "neutralnosc"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
     "id": "MD-D12-S3",
     "profile": "MD",
     "day": 12,
@@ -6236,6 +10481,27 @@ export const DAILY_TIPS = [
     "tags": [
       "waga",
       "spokoj"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
+    "id": "MD-D13-S2",
+    "profile": "MD",
+    "day": 13,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "kompromis_negocjacja",
+    "audience": "dziecko",
+    "title": "Misja: ustal małą zasadę",
+    "body": "Z bratem, siostrą lub kolegą ustal jedną prostą zasadę na dzień (np. „kto pierwszy skończy, ten wybiera”). Wspólna zasada to wspólny most.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "zasada",
+      "kompromis"
     ],
     "profileName": "Strażnik Mostu",
     "cecha": "Skupienie",
@@ -6284,6 +10550,27 @@ export const DAILY_TIPS = [
     "kraina": "Zamek Czasu"
   },
   {
+    "id": "MD-D14-S2",
+    "profile": "MD",
+    "day": 14,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "perspektywa",
+    "audience": "dziecko",
+    "title": "Misja: zamień miejsce w wyobraźni",
+    "body": "Gdy z kimś się nie zgadzasz, zamknij na chwilę oczy i wyobraź sobie, że stoisz po jego stronie. Co teraz widzisz inaczej?",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "perspektywa",
+      "wyobraznia"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
     "id": "MD-D14-S3",
     "profile": "MD",
     "day": 14,
@@ -6320,6 +10607,27 @@ export const DAILY_TIPS = [
     "tags": [
       "zamek",
       "lustro"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
+    "id": "MD-D15-S2",
+    "profile": "MD",
+    "day": 15,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "slowa_lacznikow",
+    "audience": "dziecko",
+    "title": "Misja: powiedz „dziękuję, że mi powiedziałeś”",
+    "body": "Gdy ktoś podzieli się dziś z Tobą czymś trudnym, podziękuj mu za zaufanie. To krótkie zdanie zostaje w sercu na długo.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "1 min",
+    "tags": [
+      "wdziecznosc",
+      "zaufanie"
     ],
     "profileName": "Strażnik Mostu",
     "cecha": "Skupienie",
@@ -6368,6 +10676,27 @@ export const DAILY_TIPS = [
     "kraina": "Zamek Czasu"
   },
   {
+    "id": "MD-D16-S2",
+    "profile": "MD",
+    "day": 16,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "spokoj_dystans",
+    "audience": "dziecko",
+    "title": "Misja: krok w tył",
+    "body": "Gdy zrobi się głośno albo nerwowo, zrób mały krok w tył — fizycznie albo w wyobraźni. Z dalszej odległości łatwiej zobaczyć most.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "1 min",
+    "tags": [
+      "dystans",
+      "spokoj"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
     "id": "MD-D16-S3",
     "profile": "MD",
     "day": 16,
@@ -6404,6 +10733,27 @@ export const DAILY_TIPS = [
     "tags": [
       "bycie",
       "odpoczynek"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
+    "id": "MD-D17-S2",
+    "profile": "MD",
+    "day": 17,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "kompromis_negocjacja",
+    "audience": "dziecko",
+    "title": "Misja: zamiana na dziś",
+    "body": "Spróbuj zamienić się z kimś czymś małym — miejscem przy stole, kolejnością, kredką. Drobna zamiana uczy dużej sztuki kompromisu.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "zamiana",
+      "kompromis"
     ],
     "profileName": "Strażnik Mostu",
     "cecha": "Skupienie",
@@ -6452,6 +10802,27 @@ export const DAILY_TIPS = [
     "kraina": "Zamek Czasu"
   },
   {
+    "id": "MD-D18-S2",
+    "profile": "MD",
+    "day": 18,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "sluchanie_obu_stron",
+    "audience": "dziecko",
+    "title": "Misja: pozwól drugiej osobie zacząć",
+    "body": "W rozmowie dzisiaj nie zaczynaj pierwsza/pierwszy. Daj komuś innemu otworzyć temat. Czasem dar mediatora to przestrzeń na cudze słowa.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "1 min",
+    "tags": [
+      "sluchanie",
+      "przestrzen"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
     "id": "MD-D18-S3",
     "profile": "MD",
     "day": 18,
@@ -6488,6 +10859,27 @@ export const DAILY_TIPS = [
     "tags": [
       "granica",
       "samowiedza"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
+    "id": "MD-D19-S2",
+    "profile": "MD",
+    "day": 19,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "konflikt_rowiesniczy",
+    "audience": "dziecko",
+    "title": "Misja: zaproś dorosłego, gdy trzeba",
+    "body": "Jeśli kłótnia robi się za duża (krzyki, popychanie), nie musisz tego dźwigać sama/sam. Zawołaj dorosłego. To też jest mądry ruch.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "1 min",
+    "tags": [
+      "pomoc",
+      "doroslego"
     ],
     "profileName": "Strażnik Mostu",
     "cecha": "Skupienie",
@@ -6536,6 +10928,27 @@ export const DAILY_TIPS = [
     "kraina": "Zamek Czasu"
   },
   {
+    "id": "MD-D20-S2",
+    "profile": "MD",
+    "day": 20,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "perspektywa",
+    "audience": "dziecko",
+    "title": "Misja: zapytaj „dlaczego tak myślisz?”",
+    "body": "Gdy ktoś powie coś, z czym się nie zgadzasz, zamiast się kłócić — zapytaj „dlaczego tak myślisz?”. Mędrzec mówi: pytanie jest mądrzejsze od sporu.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "pytanie",
+      "ciekawosc"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
     "id": "MD-D20-S3",
     "profile": "MD",
     "day": 20,
@@ -6572,6 +10985,27 @@ export const DAILY_TIPS = [
     "tags": [
       "zamek",
       "klepsydra"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
+    "id": "MD-D21-S2",
+    "profile": "MD",
+    "day": 21,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "kompromis_negocjacja",
+    "audience": "dziecko",
+    "title": "Misja: lista „co dla nas obojga”",
+    "body": "Gdy z kimś coś planujecie, wymyślcie razem listę 3 rzeczy, które obojgu się podobają. Łatwiej wybrać z tego, co łączy.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "lista",
+      "kompromis"
     ],
     "profileName": "Strażnik Mostu",
     "cecha": "Skupienie",
@@ -6620,6 +11054,27 @@ export const DAILY_TIPS = [
     "kraina": "Zamek Czasu"
   },
   {
+    "id": "MD-D22-S2",
+    "profile": "MD",
+    "day": 22,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "sluchanie_obu_stron",
+    "audience": "dziecko",
+    "title": "Misja: dwa zdania od każdej strony",
+    "body": "Jeśli ktoś chce, żebyś pomógł rozsądzić spór — poproś, by każda osoba powiedziała tylko dwa zdania. Krótko = uczciwiej dla obu.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "sluchanie",
+      "zasada"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
     "id": "MD-D22-S3",
     "profile": "MD",
     "day": 22,
@@ -6656,6 +11111,27 @@ export const DAILY_TIPS = [
     "tags": [
       "wstega",
       "spokoj"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
+    "id": "MD-D23-S2",
+    "profile": "MD",
+    "day": 23,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "konflikt_rowiesniczy",
+    "audience": "dziecko",
+    "title": "Misja: powiedz „chwila, oddychamy”",
+    "body": "Gdy spór się rozgrzewa, zaproponuj krótką przerwę: „chwila, oddychamy”. Mędrzec mówi: pauza to też część rozmowy.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "1 min",
+    "tags": [
+      "pauza",
+      "konflikt"
     ],
     "profileName": "Strażnik Mostu",
     "cecha": "Skupienie",
@@ -6704,6 +11180,27 @@ export const DAILY_TIPS = [
     "kraina": "Zamek Czasu"
   },
   {
+    "id": "MD-D24-S2",
+    "profile": "MD",
+    "day": 24,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "slowa_lacznikow",
+    "audience": "dziecko",
+    "title": "Misja: jedno szczere „dziękuję”",
+    "body": "Powiedz dzisiaj komuś szczere „dziękuję” — nie z grzeczności, ale z serca. Wybierz konkret: „dziękuję, że…”. Mosty wdzięczności są mocne.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "1 min",
+    "tags": [
+      "wdziecznosc",
+      "konkret"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
     "id": "MD-D24-S3",
     "profile": "MD",
     "day": 24,
@@ -6740,6 +11237,27 @@ export const DAILY_TIPS = [
     "tags": [
       "most",
       "granica"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
+    "id": "MD-D25-S2",
+    "profile": "MD",
+    "day": 25,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "kompromis_negocjacja",
+    "audience": "dziecko",
+    "title": "Misja: po trochu dla każdego",
+    "body": "Gdy dzielisz coś z kimś (czas, miejsce, zabawkę), spróbuj: „trochę Ty, trochę ja”. Sprawiedliwie nie zawsze znaczy „po równo”, ale „uczciwie”.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "sprawiedliwosc",
+      "podzial"
     ],
     "profileName": "Strażnik Mostu",
     "cecha": "Skupienie",
@@ -6788,6 +11306,27 @@ export const DAILY_TIPS = [
     "kraina": "Zamek Czasu"
   },
   {
+    "id": "MD-D26-S2",
+    "profile": "MD",
+    "day": 26,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "spokoj_dystans",
+    "audience": "dziecko",
+    "title": "Misja: trzymaj swój spokój",
+    "body": "Gdy ktoś koło Ciebie się zdenerwuje, spróbuj zostać spokojna/spokojny. Twój spokój może być jak światło w pokoju — nie krzyczy, ale jest widać.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "1 min",
+    "tags": [
+      "spokoj",
+      "swiatlo"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
     "id": "MD-D26-S3",
     "profile": "MD",
     "day": 26,
@@ -6824,6 +11363,27 @@ export const DAILY_TIPS = [
     "tags": [
       "razem",
       "wstega"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
+    "id": "MD-D27-S2",
+    "profile": "MD",
+    "day": 27,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "konflikt_rowiesniczy",
+    "audience": "dziecko",
+    "title": "Misja: powtórz spokojnie, co usłyszysz",
+    "body": "Jeśli ktoś przy Tobie krzyczy, powtórz to spokojnym głosem, ale bez przedrzeźniania: „mówisz, że to było niesprawiedliwe?”. Spokój wygładza fale.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "spokoj",
+      "powtorzenie"
     ],
     "profileName": "Strażnik Mostu",
     "cecha": "Skupienie",
@@ -6872,6 +11432,27 @@ export const DAILY_TIPS = [
     "kraina": "Zamek Czasu"
   },
   {
+    "id": "MD-D28-S2",
+    "profile": "MD",
+    "day": 28,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "perspektywa",
+    "audience": "dziecko",
+    "title": "Misja: zapytaj „jak Ty to widzisz?”",
+    "body": "Wybierz jedną osobę i zapytaj ją o jej zdanie w czymś małym (np. co zjeść, gdzie usiąść). Pytanie o perspektywę buduje zaufanie.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "1 min",
+    "tags": [
+      "pytanie",
+      "zaufanie"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
     "id": "MD-D28-S3",
     "profile": "MD",
     "day": 28,
@@ -6908,6 +11489,27 @@ export const DAILY_TIPS = [
     "tags": [
       "oddech",
       "spokoj"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
+    "id": "MD-D29-S2",
+    "profile": "MD",
+    "day": 29,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "kompromis_negocjacja",
+    "audience": "dziecko",
+    "title": "Misja: ustąp w czymś małym",
+    "body": "Dzisiaj świadomie ustąp komuś w jednej małej rzeczy. Nie dlatego, że musisz, ale dlatego, że możesz. To moc, nie słabość.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "ustepstwo",
+      "moc"
     ],
     "profileName": "Strażnik Mostu",
     "cecha": "Skupienie",
@@ -6956,6 +11558,27 @@ export const DAILY_TIPS = [
     "kraina": "Zamek Czasu"
   },
   {
+    "id": "MD-D30-S2",
+    "profile": "MD",
+    "day": 30,
+    "slot": "poludnie",
+    "category": "misje",
+    "subcategory": "slowa_lacznikow",
+    "audience": "dziecko",
+    "title": "Misja: powiedz, co się nauczyłaś/nauczyłeś",
+    "body": "Komuś bliskiemu opowiedz jedną rzecz, którą zrozumiałaś/zrozumiałeś przez te 30 dni o sobie albo o ludziach. Dzielenie się to też most.",
+    "icon": "mentor",
+    "tone": "paper",
+    "time": "2 min",
+    "tags": [
+      "podsumowanie",
+      "rozmowa"
+    ],
+    "profileName": "Strażnik Mostu",
+    "cecha": "Skupienie",
+    "kraina": "Zamek Czasu"
+  },
+  {
     "id": "MD-D30-S3",
     "profile": "MD",
     "day": 30,
@@ -6978,10 +11601,14 @@ export const DAILY_TIPS = [
   }
 ];
 
+// ─── Helpers do filtrowania ─────────────────────────────────────────
+
+/** Wszystkie porady dla danego profilu. */
 export function tipsForProfile(profile) {
   return DAILY_TIPS.filter(t => t.profile === profile);
 }
 
+/** 3 porady dnia (poranek/poludnie/wieczor) dla profilu i dnia 1-30. */
 export function tipsForDay(profile, day) {
   return DAILY_TIPS.filter(t => t.profile === profile && t.day === day)
     .sort((a, b) => {
@@ -6990,28 +11617,22 @@ export function tipsForDay(profile, day) {
     });
 }
 
+/** Pojedyncza porada profilu/dnia/slotu. */
 export function tip(profile, day, slot) {
   return DAILY_TIPS.find(t => t.profile === profile && t.day === day && t.slot === slot) || null;
 }
 
+/** Porada "dzisiejsza" wyliczona z daty — używaj jako fallback Porady Dnia. */
 export function todaysTip(profile, date = new Date(), slot = null) {
-  const day = ((date.getDate() - 1) % 30) + 1;
-  if (slot) {
-    const t = tip(profile, day, slot);
-    if (t) return t;
-  }
+  const day = ((date.getDate() - 1) % 30) + 1; // 1-30 cykl miesieczny
+  if (slot) return tip(profile, day, slot);
+  // domyslnie: wybierz wg pory dnia
   const h = date.getHours();
-  const preferred = h < 12 ? 'poranek' : h < 18 ? 'poludnie' : 'wieczor';
-  const order = preferred === 'poranek' ? ['poranek','poludnie','wieczor']
-              : preferred === 'poludnie' ? ['poludnie','poranek','wieczor']
-              : ['wieczor','poludnie','poranek'];
-  for (const s of order) {
-    const t = tip(profile, day, s);
-    if (t) return t;
-  }
-  return tipsForProfile(profile)[0] || null;
+  const s = h < 12 ? 'poranek' : h < 18 ? 'poludnie' : 'wieczor';
+  return tip(profile, day, s);
 }
 
+/** Filtr per kategoria (medrzec/misje/kraina/mentor) lub subcategory. */
 export function tipsByCategory(profile, category) {
   return DAILY_TIPS.filter(t => t.profile === profile && t.category === category);
 }
@@ -7019,10 +11640,12 @@ export function tipsBySubcategory(profile, subcategory) {
   return DAILY_TIPS.filter(t => t.profile === profile && t.subcategory === subcategory);
 }
 
+/** Filtr per audience (dziecko/rodzic). */
 export function tipsForAudience(profile, audience) {
   return DAILY_TIPS.filter(t => t.profile === profile && t.audience === audience);
 }
 
+/** Lista subkategorii dostępnych dla profilu — do budowy chipów w UI. */
 export function subcategoriesForProfile(profile) {
   const set = new Set();
   DAILY_TIPS.filter(t => t.profile === profile).forEach(t => set.add(t.subcategory));

@@ -323,7 +323,7 @@ export default function WorldHub() {
                 <div style={{ display: "flex", gap: 6, marginTop: 6, alignItems: "center", flexWrap: "wrap" }}>
                   {mission.status === "submitted" && (
                     <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "rgba(122,77,194,.18)", color: "var(--p-magic-dk)", fontWeight: 800, fontSize: 12, padding: "4px 10px", borderRadius: 999, boxShadow: "inset 0 0 0 1.2px rgba(122,77,194,.30)" }}>
-                      💌 Czeka na Mędrca
+                      💌 Czeka na Mentora
                     </span>
                   )}
                   {mission.status === "rejected" && (

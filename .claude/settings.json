@@ -56,7 +56,23 @@
       "PowerShell(git add backend/src/api/onboarding.js frontend/src/config.js)",
       "PowerShell($src = \"frontend\\\\public\\\\Loading 40 _ Paperplane.lottie\"; $dst = \"$env:TEMP\\\\lottie_extract\"; if \\(Test-Path $dst\\) { Remove-Item $dst -Recurse -Force }; Expand-Archive -LiteralPath $src -DestinationPath $dst; Get-ChildItem -Recurse $dst | Select-Object FullName, Length)",
       "PowerShell(git add frontend/package.json frontend/package-lock.json frontend/src/pages/Backpack.jsx frontend/src/pages/MissionView.jsx frontend/src/pages/Profile.jsx frontend/src/components/Celebration.jsx \"frontend/public/Loading animation blue.lottie\" \"frontend/public/Celebrations Begin.lottie\")",
-      "PowerShell(git push)"
+      "PowerShell(git push)",
+      "Bash(node scripts/test-quiz-balance.mjs)",
+      "PowerShell(node c:\\\\Users\\\\DELL\\\\EwolucJA\\\\backend\\\\scripts\\\\test-quiz-balance.mjs)",
+      "PowerShell(git -C c:\\\\Users\\\\DELL\\\\EwolucJA status --short)",
+      "PowerShell(git -C c:\\\\Users\\\\DELL\\\\EwolucJA branch --show-current)",
+      "PowerShell(git -C c:\\\\Users\\\\DELL\\\\EwolucJA diff --stat backend/src/api/onboarding.js frontend/src/pages/Onboarding.jsx)",
+      "PowerShell(git -C c:\\\\Users\\\\DELL\\\\EwolucJA push origin v2-postgres-vercel)",
+      "Bash(npx plugins *)",
+      "PowerShell(npx plugins add vercel/vercel-plugin)",
+      "PowerShell(npx plugins add vercel/vercel-plugin --target claude)",
+      "PowerShell(npx plugins add vercel/vercel-plugin --target claude-code)",
+      "PowerShell(npx plugins add vercel/vercel-plugin --help)",
+      "PowerShell(npx plugins add vercel/vercel-plugin --target claude-code --yes)",
+      "PowerShell(Get-ChildItem \"$env:USERPROFILE\\\\.claude\\\\plugins\" -Recurse -Depth 3 -ErrorAction SilentlyContinue | Select-Object FullName | Format-Table -AutoSize -Wrap)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\DELL\\Armitiel\\css"
     ]
   }
 }

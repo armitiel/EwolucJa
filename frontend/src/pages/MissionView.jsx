@@ -9,8 +9,9 @@ import PageShell from "../components/PageShell.jsx";
 import TopBar from "../components/TopBar.jsx";
 import TabBar from "../components/TabBar.jsx";
 import Celebration from "../components/Celebration.jsx";
-import { Sparkle, ScrollIcon, MissionScroll, Coin } from "../components/art.jsx";
+import { Sparkle, ScrollIcon, MissionScroll } from "../components/art.jsx";
 import MentorBubble from "../components/MentorBubble.jsx";
+import RewardScreen from "../components/RewardScreen.jsx";
 import { fx } from "../services/soundFx.js";
 import { ttsPlayer } from "../services/ttsPlayer.js";
 import bgMusic from "../services/bgMusic.js";
@@ -331,7 +332,7 @@ export default function MissionView() {
                     )}
                     {!mission.submitted_proof?.proof_text && !mission.submitted_proof?.proof_media_url && (
                       <p style={{ fontSize: 12, color: "var(--p-ink-soft)", textAlign: "center", margin: "0", fontStyle: "italic" }}>
-                        (twoja odpowiedź dotarła do Mędrca ✦)
+                        (twoja odpowiedź dotarła do Mentora ✦)
                       </p>
                     )}
                     {/* MentorBubble z glowa maga - reuzywalny komponent dla wszystkich powiadomien od mentora */}
@@ -349,7 +350,7 @@ export default function MissionView() {
                 {step === 2 && mission.status === "verified" && (
                   <div style={{ marginTop: 12, padding: "12px 14px", background: "rgba(99,153,34,.18)", borderRadius: 12, alignSelf: "center", maxWidth: 300, border: "1.5px solid rgba(99,153,34,.30)" }}>
                     <p className="t-display" style={{ fontSize: 14, color: "#3B6D11", margin: "0 0 4px", textAlign: "center" }}>
-                      ✨ Mędrzec przeczytał!
+                      ✨ Mentor przeczytał!
                     </p>
                     <p style={{ fontSize: 12, color: "#3B6D11", margin: 0, textAlign: "center", lineHeight: 1.4, fontWeight: 600 }}>
                       Twój wysiłek poznał świat.<br />
@@ -370,7 +371,7 @@ export default function MissionView() {
                     )}
                     <div style={{ marginTop: 8, padding: "10px 14px", background: "rgba(232,154,61,.18)", borderRadius: 12, alignSelf: "center", maxWidth: 300, border: "1.5px solid rgba(232,154,61,.35)" }}>
                       <p className="t-display" style={{ fontSize: 14, color: "#7A4D10", margin: "0 0 4px", textAlign: "center" }}>
-                        Mędrzec prosi o doprawkę
+                        Mentor prosi o doprawkę
                       </p>
                       {mission.gm_verification?.comment && (
                         <p className="t-hand" style={{ fontSize: 14, color: "#5C4220", margin: "4px 0 0", textAlign: "center", lineHeight: 1.3, fontStyle: "italic" }}>
@@ -453,7 +454,7 @@ export default function MissionView() {
                     🔄 Spróbuj jeszcze raz
                   </button>
                   <p className="t-hand" style={{ fontSize: 15, color: "var(--p-ink-soft)", margin: "4px 0 0", textAlign: "center", lineHeight: 1.3 }}>
-                    Mędrzec prosi o doprawkę
+                    Mentor prosi o doprawkę
                   </p>
                 </>
               )}
@@ -578,49 +579,18 @@ export default function MissionView() {
       </div>
       <Celebration active={celebrating || openBurst} />
 
-      {/* Reward overlay — pokazuje sie po wyslaniu odpowiedzi (~2.8s przed navigate /world) */}
+      {/* Reward overlay — wspólny RewardScreen (taki sam wygląd jak po weryfikacji mentora).
+          Auto-zamyka się po 2.8s — handleSubmit i tak nawiguje na /world po tym czasie. */}
       {celebrating && (
-        <div
-          aria-live="polite"
-          style={{
-            position: "fixed", inset: 0, zIndex: 60,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            padding: 20, pointerEvents: "none",
-            animation: "fadeIn .35s ease forwards",
-          }}
-        >
-          <div style={{
-            background: "linear-gradient(180deg, #FFF8E0 0%, #FCE9B3 100%)",
-            borderRadius: 26,
-            padding: "26px 28px",
-            maxWidth: 360, width: "100%",
-            textAlign: "center",
-            boxShadow: "0 4px 0 rgba(180,115,34,.35), 0 18px 44px rgba(120,80,10,.45), inset 0 0 0 1.5px rgba(255,255,255,.65)",
-            transform: "scale(1)",
-            animation: "pop-in .55s cubic-bezier(.34,1.56,.64,1) forwards",
-          }}>
-            <div style={{ fontSize: 56, lineHeight: 1, marginBottom: 6 }}>✨</div>
-            <h3 className="t-display" style={{ fontSize: 26, margin: "4px 0 8px", color: "#3B2A12" }}>
-              Wysłane do Mędrca!
-            </h3>
-            <p style={{ fontSize: 14, color: "#7A4D10", margin: "0 0 14px", lineHeight: 1.4 }}>
-              Twój zwój już płynie do Mędrca. Sprawdzi i wyśle nagrodę.
-            </p>
-            <div style={{
-              display: "inline-flex", alignItems: "center", gap: 8,
-              background: "rgba(255,255,255,.92)",
-              padding: "8px 18px 8px 12px", borderRadius: 999,
-              boxShadow: "inset 0 0 0 1.5px #E1B66A, 0 2px 6px rgba(120,80,10,.18)",
-              fontSize: 18, fontWeight: 900, color: "#7A4D10",
-              letterSpacing: 0.4,
-            }}>
-              <Coin size={24} anim /> +5
-            </div>
-            <div style={{ fontSize: 11, color: "var(--p-ink-soft)", marginTop: 10, fontWeight: 700, letterSpacing: 0.5 }}>
-              ZA SAMO WYSŁANIE · DUŻA NAGRODA PO AKCEPTACJI
-            </div>
-          </div>
-        </div>
+        <RewardScreen
+          eyebrow="✨ ZWÓJ WYSŁANY"
+          title="Wysłane do Mentora!"
+          subtitle="Twój zwój już płynie do Mentora ✦"
+          coins={5}
+          note="ZA SAMO WYSŁANIE · DUŻA NAGRODA PO AKCEPTACJI"
+          noteStyle="caption"
+          autoDismissMs={2800}
+        />
       )}
 
       <TabBar current="mission" />

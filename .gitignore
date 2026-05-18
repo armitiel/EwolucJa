@@ -10,3 +10,5 @@ devteam/.env
 backend/.env
 
 .vercel
+
+.env.production

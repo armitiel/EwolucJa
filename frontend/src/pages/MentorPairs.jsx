@@ -49,11 +49,10 @@ export default function MentorPairs() {
 
   useEffect(() => { loadAll(); }, [classId, navigate]);
 
-  async function markCompleted(assignmentId) {
-    if (!confirm("Oznaczyć tę parę jako wykonaną?")) return;
+  async function markCompleted(assignmentId, data) {
     try {
-      await mentorApi.completePair(assignmentId);
-      setActivePairs(activePairs.map((p) => p.id === assignmentId ? { ...p, status: "completed", completed_at: new Date().toISOString() } : p));
+      await mentorApi.completePair(assignmentId, data);
+      setActivePairs(activePairs.map((p) => p.id === assignmentId ? { ...p, status: "completed", completed_at: new Date().toISOString(), proof: data } : p));
     } catch (e) { alert(e.message); }
   }
 
@@ -81,11 +80,11 @@ export default function MentorPairs() {
     }
   }
 
-  if (error) return <PageShell><div style={{ padding: 40 }}><p style={{ color: "#B85B47" }}>{error}</p></div></PageShell>;
-  if (!data) return <PageShell><div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}><Sparkle /></div></PageShell>;
+  if (error) return <PageShell skyVars={{ "--sky-top": "#E8D5FF", "--sky-mid": "#FFE0B5", "--sky-bot": "#FFD0B0" }}><div style={{ padding: 40 }}><p style={{ color: "#B85B47" }}>{error}</p></div></PageShell>;
+  if (!data) return <PageShell skyVars={{ "--sky-top": "#E8D5FF", "--sky-mid": "#FFE0B5", "--sky-bot": "#FFD0B0" }}><div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}><Sparkle /></div></PageShell>;
 
   return (
-    <PageShell>
+    <PageShell skyVars={{ "--sky-top": "#E8D5FF", "--sky-mid": "#FFE0B5", "--sky-bot": "#FFD0B0" }}>
       <div style={{ display: "flex", alignItems: "center", padding: "16px 18px", gap: 8 }}>
         <button className="btn btn-ghost btn-sm" onClick={() => navigate(`/mentor/klasa/${classId}`)}>← Wróć</button>
       </div>
@@ -98,7 +97,7 @@ export default function MentorPairs() {
               Aktywne zadania ({activePairs.length})
             </h2>
             {activePairs.map((pair) => (
-              <ActivePairCard key={pair.id} pair={pair} onMarkCompleted={() => markCompleted(pair.id)} />
+              <ActivePairCard key={pair.id} pair={pair} onMarkCompleted={(data) => markCompleted(pair.id, data)} />
             ))}
             <div style={{ height: 8 }} />
           </>
@@ -169,12 +168,43 @@ export default function MentorPairs() {
   );
 }
 
+// Checklist pol wyboru - mentor zaznacza co uczniowie zrobili przed akceptacja pary
+const PAIR_CHECKS = [
+  { id: "met", label: "Spotkali się i wymienili słowa-klucze" },
+  { id: "did_task", label: "Wykonali zadanie razem (instrukcja A + B)" },
+  { id: "shared", label: "Każde z dzieci podzieliło się odczuciem" },
+  { id: "respectful", label: "Współpracowali z szacunkiem" },
+];
+
 function ActivePairCard({ pair, onMarkCompleted }) {
   const def = pair.definition;
   const status = pair.status; // pending | matched | completed
   const statusColor = status === "completed" ? "#3B6D11" : status === "matched" ? "#7A4D10" : "var(--p-magic-dk)";
   const statusBg = status === "completed" ? "rgba(99,153,34,.18)" : status === "matched" ? "rgba(255,213,105,.30)" : "rgba(122,77,194,.15)";
   const statusLabel = status === "completed" ? "✓ Wykonane" : status === "matched" ? "⚡ W trakcie zadania" : "⏳ Czeka na połączenie";
+
+  const [showChecklist, setShowChecklist] = React.useState(false);
+  const [checks, setChecks] = React.useState(() => PAIR_CHECKS.reduce((acc, c) => ({ ...acc, [c.id]: false }), {}));
+  const [points, setPoints] = React.useState(20); // default 20 per gracza (pair tasks - shared effort)
+  const [submitting, setSubmitting] = React.useState(false);
+
+  function toggle(id) {
+    setChecks((prev) => ({ ...prev, [id]: !prev[id] }));
+  }
+
+  async function handleApprove() {
+    const checkedCount = Object.values(checks).filter(Boolean).length;
+    if (checkedCount === 0) {
+      if (!confirm("Nic nie zaznaczyłeś. Zatwierdzić mimo to?")) return;
+    }
+    setSubmitting(true);
+    try {
+      await onMarkCompleted({ checks, points });
+      setShowChecklist(false);
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <div className="card pop-in" style={{ padding: "14px 16px", opacity: status === "completed" ? .7 : 1 }}>
@@ -194,11 +224,60 @@ function ActivePairCard({ pair, onMarkCompleted }) {
         🔑 {def?.full_keyword}
       </div>
 
-      {status === "matched" && (
-        <button className="btn btn-leaf btn-sm" style={{ marginTop: 10, width: "100%" }} onClick={onMarkCompleted}>
-          ✓ Oznacz jako wykonane
+      {/* Akcje zaleznie od statusu */}
+      {status === "matched" && !showChecklist && (
+        <button className="btn btn-leaf btn-sm" style={{ marginTop: 10, width: "100%" }} onClick={() => setShowChecklist(true)}>
+          ✓ Zatwierdź wykonanie
         </button>
       )}
+
+      {status === "matched" && showChecklist && (
+        <div style={{ marginTop: 10, padding: "10px 12px", background: "rgba(122,77,194,.06)", borderRadius: 10 }}>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.2, color: "var(--p-ink-soft)", marginBottom: 8 }}>
+            CO ZROBILI? (zaznacz)
+          </div>
+          {PAIR_CHECKS.map((c) => (
+            <label key={c.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 0", cursor: "pointer", fontSize: 13 }}>
+              <input
+                type="checkbox"
+                checked={checks[c.id]}
+                onChange={() => toggle(c.id)}
+                style={{ width: 18, height: 18, accentColor: "var(--p-magic-dk)" }}
+              />
+              <span style={{ color: checks[c.id] ? "var(--p-ink)" : "var(--p-ink-soft)" }}>{c.label}</span>
+            </label>
+          ))}
+
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, fontWeight: 800, marginTop: 10, color: "#7A4D10" }}>
+            <span>NAGRODA DLA KAŻDEGO</span><span>+{points} ✦</span>
+          </div>
+          <input
+            type="range" min={15} max={35} step={5}
+            value={points}
+            onChange={(e) => setPoints(Number(e.target.value))}
+            style={{ width: "100%", accentColor: "#E89A3D" }}
+          />
+
+          <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+            <button className="btn btn-ghost btn-sm" style={{ flex: 1 }} onClick={() => setShowChecklist(false)} disabled={submitting}>
+              Anuluj
+            </button>
+            <button className="btn btn-leaf btn-sm" style={{ flex: 2 }} onClick={handleApprove} disabled={submitting}>
+              {submitting ? "Wysyłam…" : `✓ Zatwierdź (+${points} ✦ x2)`}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {status === "completed" && pair.proof?.checks && (
+        <div style={{ marginTop: 8, padding: "8px 10px", background: "rgba(99,153,34,.10)", borderRadius: 8 }}>
+          <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.2, color: "#3B6D11", marginBottom: 4 }}>POTWIERDZONE:</div>
+          {PAIR_CHECKS.filter((c) => pair.proof.checks[c.id]).map((c) => (
+            <div key={c.id} style={{ fontSize: 11, color: "var(--p-ink)", lineHeight: 1.3 }}>✓ {c.label}</div>
+          ))}
+        </div>
+      )}
+
       {status === "pending" && (
         <p style={{ fontSize: 11, color: "var(--p-ink-soft)", margin: "8px 0 0", fontStyle: "italic" }}>
           Uczniowie nie połączyli się jeszcze. Mają osobne słowa-połówki i muszą się znaleźć w sali.

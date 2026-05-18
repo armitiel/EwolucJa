@@ -62,9 +62,10 @@ export default function TopBar({
         maxWidth: 480,
         margin: "0 auto",
         zIndex: 50,
-        background: "linear-gradient(180deg, rgba(255,255,255,.92) 0%, rgba(255,255,255,.85) 70%, rgba(255,255,255,0) 100%)",
-        backdropFilter: "blur(10px)",
-        WebkitBackdropFilter: "blur(10px)",
+        /* 100% solidne tlo - tresc scrollowana NIE przeswiec uje, paski zachowuja sie jak osobna warstwa */
+        background: "#ffffff",
+        borderBottom: "1px solid rgba(43,42,74,.08)",
+        boxShadow: "0 6px 20px rgba(43,42,74,.10)",
         transform: "translateZ(0)",
         willChange: "transform",
       }}

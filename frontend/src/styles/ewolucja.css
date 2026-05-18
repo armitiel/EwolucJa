@@ -18,20 +18,24 @@
 
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;}
-/* TopBar i TabBar maja position:fixed, wiec rubber-band ich nie ruszy. Pozwalamy na delikatny bounce. */
+/* iOS Safari overscroll v2: zostawiamy NATYWNY rubber-band w .screen-scroll (czuly, gestowy)
+   ale tlo (html) jest jednolicie bursztynowo-niebiansie, BEZ zielonych wzgorz - dzieki temu
+   nawet jak iOS odslania html podczas bounce, widac plynne nieskonczone tlo zamiast paskow. */
 html{
-  overscroll-behavior-y: auto;
-  -webkit-overflow-scrolling: touch;
+  /* Bounce dopuszczony, ale .screen-scroll uzywa "contain" zeby nie propagowac do body */
+  background: linear-gradient(180deg, #C9E9FF 0%, #FFE0B5 55%, #FFC9A0 100%);
+  background-attachment: fixed;
 }
 body{
   font-family: var(--font-body), system-ui, sans-serif;
-  background: #1a1430;
+  background: transparent; /* html-owe niebo widac wszedzie, bez ucinania */
   color: var(--p-ink);
   min-height:100vh;
-  min-height:100dvh; /* Android Chrome 108+ / iOS 15.4+ - aktualizuje sie z URL bar */
+  min-height:100dvh; /* Android Chrome 108+ / iOS 15.4+ */
   overflow-x:hidden;
-  /* Wewnetrzny scroll (.screen-scroll) nie propaguje do body, ale lekki bounce na granicy jest naturalny */
-  overscroll-behavior-y: auto;
+  /* contain = bounce dziala wewnatrz .screen-scroll, ale nie odsklepia rubber-band na body
+     (chroni fixed TabBar przed przesunieciem na iOS) */
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   /* Lepsza ostrosc PL znakow (ą, ę, ł, ż, ź, ć, ś) */
   text-rendering: optimizeLegibility;
@@ -39,13 +43,14 @@ body{
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: "kern" 1, "liga" 1;
 }
-/* Glowny scroll dzieje sie w .screen-scroll, z naturalnym bounce na granicach */
+/* Glowny scroll dzieje sie w .screen-scroll, z gestowym bounce ktory NIE propaguje do body */
 .screen-scroll{
   overscroll-behavior-y: contain;
-  -webkit-overflow-scrolling: touch;
-  /* Mala dodatkowa przestrzen scrollu pod tresci, by mozna bylo "ciagnac" lekko w gore/dol na granicach */
+  -webkit-overflow-scrolling: touch; /* iOS momentum + rubber-band */
+  /* Wieksza przestrzen na dole zeby ostatnie elementy nie chowaly sie pod fixed TabBar i zeby
+     bounce mial duzo miejsca na "rozciagniecie" tla bez ucinania */
   scroll-padding-top: 12px;
-  scroll-padding-bottom: 12px;
+  scroll-padding-bottom: 24px;
 }
 
 /* Naglowki/dyspley uzywaja Baloo 2 globalnie */
@@ -54,19 +59,14 @@ h1, h2, h3, h4, h5, h6,
   font-family: var(--font-display), system-ui, sans-serif;
 }
 
-/* page background — sky over hills */
+/* page background — czyste niebo bez wzgorz, zeby przy overscrollu na dole nie pokazywal sie zielony pasek.
+   Tlo rozciaga sie poza viewport (background-attachment: fixed) zeby gestowy bounce nigdy nie odslonil pustki. */
 .page-bg{
-  position:fixed; inset:0; z-index:-1;
-  background:
-    radial-gradient(1200px 600px at 18% 110%, #6BB07A 0%, transparent 55%),
-    radial-gradient(1000px 500px at 82% 110%, #4A8F66 0%, transparent 55%),
-    linear-gradient(180deg, #C9E9FF 0%, #FFE0B5 70%, #FFC9A0 100%);
+  position:fixed; inset:-100px 0; z-index:-1;
+  background: linear-gradient(180deg, #C9E9FF 0%, #FFE0B5 55%, #FFC9A0 100%);
 }
 .page-bg.night{
-  background:
-    radial-gradient(1200px 600px at 18% 110%, #2C2050 0%, transparent 55%),
-    radial-gradient(1000px 500px at 82% 110%, #1F1740 0%, transparent 55%),
-    linear-gradient(180deg, #1B1338 0%, #382066 60%, #5B3A8A 100%);
+  background: linear-gradient(180deg, #1B1338 0%, #382066 60%, #5B3A8A 100%);
 }
 
 /* drifting clouds layer */
@@ -82,19 +82,24 @@ h1, h2, h3, h4, h5, h6,
 .screen-scroll{
   flex:1; overflow-y:auto; overflow-x:hidden;
   -webkit-overflow-scrolling: touch;
-  /* Padding bottom: 80px - daje miejsce na Android URL bar i TabBar, zapobiega ucinaniu ostatnich elementow */
-  padding: 12px 18px 80px;
-  /* Niech naturalny bounce dziala wewnatrz tego kontenera bez propagacji */
+  /* Padding bottom: 110px - duzy buffor pod TabBar + safe-area iPhone + miejsce na gestowy rubber-band */
+  padding: 12px 18px calc(110px + env(safe-area-inset-bottom, 0px));
+  /* Bounce wewnatrz tego kontenera, NIE propaguje do body (chroni TopBar/TabBar na iOS) */
   overscroll-behavior-y: contain;
-  /* Touch action manipulation pozwala na natywny scroll bez interferencji JS gestures */
   touch-action: pan-y;
+  /* Maska delikatnego fade na krawedziach scrolla - tresc plynnie znika przed wejsciem za paski.
+     Gora: 8px fade (przy TopBar). Dol: 14px fade (przy TabBar). Srodek 100% widoczny. */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 8px, #000 calc(100% - 14px), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 8px, #000 calc(100% - 14px), transparent 100%);
 }
 .screen-scroll::-webkit-scrollbar{ display:none; }
 
-/* sky gradient inside the phone */
+/* sky gradient inside the phone — rozciagniete o 150px w gore/dol, zeby gestowy bounce w .screen-scroll
+   nigdy nie odslonil twardej krawedzi tla. iOS rubber-band moze ciagnac do ~120px - mamy zapas. */
 .sky-bg{
-  position:absolute; inset:0; z-index:0;
+  position:absolute; left:0; right:0; top:-150px; bottom:-150px; z-index:0;
   background: linear-gradient(180deg, var(--sky-top,#C9E9FF) 0%, var(--sky-mid,#FFE0B5) 60%, var(--sky-bot,#FFC9A0) 100%);
+  background-size: 100% 100%;
 }
 .sky-bg.night{
   background: linear-gradient(180deg, #1B1338 0%, #382066 60%, #5B3A8A 100%);
@@ -189,7 +194,7 @@ h3.title{ font-size: 22px; margin:0; }
   box-shadow: var(--shadow-sm);
 }
 
-/* ─── Bottom tab bar (sticky) ─── */
+/* ─── Bottom tab bar (sticky, 100% solid - tresc scrollowana nie przeswieca) ─── */
 .tabbar{
   position: fixed;
   left: 50%;
@@ -199,11 +204,9 @@ h3.title{ font-size: 22px; margin:0; }
   max-width: 480px;
   display:flex; gap:6px;
   padding: 10px 12px calc(14px + env(safe-area-inset-bottom, 0px));
-  background: linear-gradient(180deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.96) 45%);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(78,77,118,.06);
-  box-shadow: 0 -8px 24px rgba(78,77,118,.08);
+  background: #ffffff;
+  border-top: 1px solid rgba(43,42,74,.08);
+  box-shadow: 0 -6px 20px rgba(43,42,74,.10);
   z-index: 50;
 }
 .tabbar-spacer{

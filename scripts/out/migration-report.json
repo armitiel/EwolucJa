@@ -1,0 +1,1146 @@
+{
+  "generated_at": "2026-05-17T11:37:24.389Z",
+  "stats": {
+    "total": 540,
+    "task": 216,
+    "curiosity": 324,
+    "per_profile": {
+      "DT": {
+        "task": 23,
+        "curiosity": 67
+      },
+      "EM": {
+        "task": 36,
+        "curiosity": 54
+      },
+      "ST": {
+        "task": 55,
+        "curiosity": 35
+      },
+      "KR": {
+        "task": 39,
+        "curiosity": 51
+      },
+      "LD": {
+        "task": 33,
+        "curiosity": 57
+      },
+      "MD": {
+        "task": 30,
+        "curiosity": 60
+      }
+    },
+    "per_category": {
+      "medrzec": {
+        "task": 12,
+        "curiosity": 126
+      },
+      "mentor": {
+        "task": 0,
+        "curiosity": 150
+      },
+      "misje": {
+        "task": 198,
+        "curiosity": 0
+      },
+      "kraina": {
+        "task": 6,
+        "curiosity": 48
+      }
+    }
+  },
+  "new_task_ids_by_profile": {
+    "DT": [
+      {
+        "newId": "DT-TASK-011",
+        "legacyId": "DT-D02-S2",
+        "title": "Misja: pięć kolorów"
+      },
+      {
+        "newId": "DT-TASK-012",
+        "legacyId": "DT-D03-S2",
+        "title": "Trzy pytania w głowie"
+      },
+      {
+        "newId": "DT-TASK-013",
+        "legacyId": "DT-D04-S2",
+        "title": "Eksperyment: zimne i ciepłe"
+      },
+      {
+        "newId": "DT-TASK-014",
+        "legacyId": "DT-D06-S2",
+        "title": "Misja: cień"
+      },
+      {
+        "newId": "DT-TASK-015",
+        "legacyId": "DT-D07-S2",
+        "title": "Eksperyment: kropla wody"
+      },
+      {
+        "newId": "DT-TASK-016",
+        "legacyId": "DT-D08-S2",
+        "title": "Misja: liść albo kamień"
+      },
+      {
+        "newId": "DT-TASK-017",
+        "legacyId": "DT-D09-S2",
+        "title": "Pytanie do dorosłego"
+      },
+      {
+        "newId": "DT-TASK-018",
+        "legacyId": "DT-D11-S2",
+        "title": "Eksperyment: dwa naczynia"
+      },
+      {
+        "newId": "DT-TASK-019",
+        "legacyId": "DT-D13-S2",
+        "title": "Misja: twarze ludzi"
+      },
+      {
+        "newId": "DT-TASK-020",
+        "legacyId": "DT-D14-S2",
+        "title": "Trening pamięci: pięć rzeczy"
+      },
+      {
+        "newId": "DT-TASK-021",
+        "legacyId": "DT-D15-S2",
+        "title": "Eksperyment: zapach"
+      },
+      {
+        "newId": "DT-TASK-022",
+        "legacyId": "DT-D16-S2",
+        "title": "Misja: ślady stóp"
+      },
+      {
+        "newId": "DT-TASK-023",
+        "legacyId": "DT-D18-S2",
+        "title": "Misja: ptak za oknem"
+      },
+      {
+        "newId": "DT-TASK-024",
+        "legacyId": "DT-D19-S2",
+        "title": "Eksperyment: dwa palce"
+      },
+      {
+        "newId": "DT-TASK-025",
+        "legacyId": "DT-D20-S2",
+        "title": "Pytanie do rodzica"
+      },
+      {
+        "newId": "DT-TASK-026",
+        "legacyId": "DT-D21-S2",
+        "title": "Misja: jeden kąt"
+      },
+      {
+        "newId": "DT-TASK-027",
+        "legacyId": "DT-D22-S2",
+        "title": "Eksperyment: monety"
+      },
+      {
+        "newId": "DT-TASK-028",
+        "legacyId": "DT-D23-S2",
+        "title": "Misja: szukaj wzoru"
+      },
+      {
+        "newId": "DT-TASK-029",
+        "legacyId": "DT-D25-S2",
+        "title": "Misja: obrazek na ścianie"
+      },
+      {
+        "newId": "DT-TASK-030",
+        "legacyId": "DT-D26-S2",
+        "title": "Eksperyment: lustro w łyżce"
+      },
+      {
+        "newId": "DT-TASK-031",
+        "legacyId": "DT-D27-S2",
+        "title": "Misja: pogoda nóg"
+      },
+      {
+        "newId": "DT-TASK-032",
+        "legacyId": "DT-D29-S2",
+        "title": "Misja: zapamiętaj trasę"
+      },
+      {
+        "newId": "DT-TASK-033",
+        "legacyId": "DT-D30-S2",
+        "title": "Misja: pokaż komuś trop"
+      }
+    ],
+    "EM": [
+      {
+        "newId": "EM-TASK-011",
+        "legacyId": "EM-D01-S2",
+        "title": "Jedno mile slowo do kogos bliskiego"
+      },
+      {
+        "newId": "EM-TASK-012",
+        "legacyId": "EM-D02-S2",
+        "title": "Zauwaz, kto dzis potrzebuje usmiechu"
+      },
+      {
+        "newId": "EM-TASK-013",
+        "legacyId": "EM-D03-S2",
+        "title": "Wysluchaj kogos przez minute"
+      },
+      {
+        "newId": "EM-TASK-014",
+        "legacyId": "EM-D04-S2",
+        "title": "Maly liscik dla kogos z rodziny"
+      },
+      {
+        "newId": "EM-TASK-015",
+        "legacyId": "EM-D05-S1",
+        "title": "Swietlna cma czeka na Twoj oddech"
+      },
+      {
+        "newId": "EM-TASK-016",
+        "legacyId": "EM-D05-S2",
+        "title": "Zapytaj: co Cie dzis ucieszylo?"
+      },
+      {
+        "newId": "EM-TASK-017",
+        "legacyId": "EM-D06-S2",
+        "title": "Podziel sie jedna rzecza z kims"
+      },
+      {
+        "newId": "EM-TASK-018",
+        "legacyId": "EM-D07-S2",
+        "title": "Rytual kubka herbaty dla kogos"
+      },
+      {
+        "newId": "EM-TASK-019",
+        "legacyId": "EM-D08-S2",
+        "title": "Narysuj, jak wyglada Twoja dzisiejsza emocja"
+      },
+      {
+        "newId": "EM-TASK-020",
+        "legacyId": "EM-D09-S2",
+        "title": "Powiedz komus 'dziekuje, ze jestes'"
+      },
+      {
+        "newId": "EM-TASK-021",
+        "legacyId": "EM-D10-S2",
+        "title": "Zapytaj kogos, jak sie naprawde czuje"
+      },
+      {
+        "newId": "EM-TASK-022",
+        "legacyId": "EM-D11-S2",
+        "title": "Przytul kogos dluzej niz zwykle"
+      },
+      {
+        "newId": "EM-TASK-023",
+        "legacyId": "EM-D12-S2",
+        "title": "Powiedz jedno dobre o sobie"
+      },
+      {
+        "newId": "EM-TASK-024",
+        "legacyId": "EM-D13-S2",
+        "title": "Mala pomoc bez proszenia"
+      },
+      {
+        "newId": "EM-TASK-025",
+        "legacyId": "EM-D14-S1",
+        "title": "Swietlik mruga: 'gotowa, gotowy?'"
+      },
+      {
+        "newId": "EM-TASK-026",
+        "legacyId": "EM-D14-S2",
+        "title": "Uwazne 'dzien dobry' do kogos"
+      },
+      {
+        "newId": "EM-TASK-027",
+        "legacyId": "EM-D15-S2",
+        "title": "Spacer i jedna rzecz, ktorej sluchasz"
+      },
+      {
+        "newId": "EM-TASK-028",
+        "legacyId": "EM-D16-S2",
+        "title": "Zauwaz rodzenstwo / kolege dzis inaczej"
+      },
+      {
+        "newId": "EM-TASK-029",
+        "legacyId": "EM-D17-S2",
+        "title": "Badz obok kogos smutnego - bez slow"
+      },
+      {
+        "newId": "EM-TASK-030",
+        "legacyId": "EM-D18-S2",
+        "title": "Komplement od serca, nie z grzecznosci"
+      },
+      {
+        "newId": "EM-TASK-031",
+        "legacyId": "EM-D18-S3",
+        "title": "Swietlik zbiera dzis dobre chwile"
+      },
+      {
+        "newId": "EM-TASK-032",
+        "legacyId": "EM-D19-S1",
+        "title": "Twoja wrazliwosc to nie slabosc"
+      },
+      {
+        "newId": "EM-TASK-033",
+        "legacyId": "EM-D19-S2",
+        "title": "Zaproponuj wspolny spacer"
+      },
+      {
+        "newId": "EM-TASK-034",
+        "legacyId": "EM-D20-S2",
+        "title": "Narysuj komus jego dobre serce"
+      },
+      {
+        "newId": "EM-TASK-035",
+        "legacyId": "EM-D21-S2",
+        "title": "Twoje cicho miejsce na chwile"
+      },
+      {
+        "newId": "EM-TASK-036",
+        "legacyId": "EM-D22-S2",
+        "title": "Pomoz komus dzisiaj sie usmiechnac"
+      },
+      {
+        "newId": "EM-TASK-037",
+        "legacyId": "EM-D23-S1",
+        "title": "Swietlik szepcze: 'jestes bezpieczna, bezpieczny'"
+      },
+      {
+        "newId": "EM-TASK-038",
+        "legacyId": "EM-D23-S2",
+        "title": "List bez okazji"
+      },
+      {
+        "newId": "EM-TASK-039",
+        "legacyId": "EM-D24-S2",
+        "title": "Pochwala dla samej, samego siebie"
+      },
+      {
+        "newId": "EM-TASK-040",
+        "legacyId": "EM-D25-S2",
+        "title": "Zauwaz jeden szczegol w drugiej osobie"
+      },
+      {
+        "newId": "EM-TASK-041",
+        "legacyId": "EM-D26-S2",
+        "title": "Zrob kogos czescia swojej zabawy"
+      },
+      {
+        "newId": "EM-TASK-042",
+        "legacyId": "EM-D27-S2",
+        "title": "Tancz z radoscia przez minute"
+      },
+      {
+        "newId": "EM-TASK-043",
+        "legacyId": "EM-D28-S2",
+        "title": "Powiedz doroslemu 'dziekuje'"
+      },
+      {
+        "newId": "EM-TASK-044",
+        "legacyId": "EM-D29-S1",
+        "title": "Swietlik leci przodem"
+      },
+      {
+        "newId": "EM-TASK-045",
+        "legacyId": "EM-D29-S2",
+        "title": "Mala rzecz, ktora Cie cieszy"
+      },
+      {
+        "newId": "EM-TASK-046",
+        "legacyId": "EM-D30-S2",
+        "title": "Zrob cos milego dla trzech osob"
+      }
+    ],
+    "ST": [
+      {
+        "newId": "ST-TASK-011",
+        "legacyId": "ST-D01-S1",
+        "title": "Mapa dnia na trzech krokach"
+      },
+      {
+        "newId": "ST-TASK-012",
+        "legacyId": "ST-D01-S2",
+        "title": "Krok pierwszy, krok drugi"
+      },
+      {
+        "newId": "ST-TASK-013",
+        "legacyId": "ST-D02-S2",
+        "title": "Policz drobne dobre rzeczy"
+      },
+      {
+        "newId": "ST-TASK-014",
+        "legacyId": "ST-D02-S3",
+        "title": "Trzy zdania o dzisiaj"
+      },
+      {
+        "newId": "ST-TASK-015",
+        "legacyId": "ST-D03-S2",
+        "title": "Cukierek teraz czy potem"
+      },
+      {
+        "newId": "ST-TASK-016",
+        "legacyId": "ST-D04-S1",
+        "title": "Mapa pokoju z czterech stref"
+      },
+      {
+        "newId": "ST-TASK-017",
+        "legacyId": "ST-D04-S2",
+        "title": "Sekwencja trzech małych zadań"
+      },
+      {
+        "newId": "ST-TASK-018",
+        "legacyId": "ST-D04-S3",
+        "title": "Jutro zaczynamy od jednego"
+      },
+      {
+        "newId": "ST-TASK-019",
+        "legacyId": "ST-D05-S2",
+        "title": "Zegnij papier trzy razy"
+      },
+      {
+        "newId": "ST-TASK-020",
+        "legacyId": "ST-D06-S1",
+        "title": "Plan poranka na trzy kółka"
+      },
+      {
+        "newId": "ST-TASK-021",
+        "legacyId": "ST-D06-S2",
+        "title": "Wytrzymaj minutę ciszy"
+      },
+      {
+        "newId": "ST-TASK-022",
+        "legacyId": "ST-D06-S3",
+        "title": "Co zrobiłbym inaczej"
+      },
+      {
+        "newId": "ST-TASK-023",
+        "legacyId": "ST-D07-S2",
+        "title": "Odrocz przyjemność na pół godziny"
+      },
+      {
+        "newId": "ST-TASK-024",
+        "legacyId": "ST-D08-S1",
+        "title": "Plan B na wszelki wypadek"
+      },
+      {
+        "newId": "ST-TASK-025",
+        "legacyId": "ST-D08-S2",
+        "title": "Ułóż klocki w trzech rzędach"
+      },
+      {
+        "newId": "ST-TASK-026",
+        "legacyId": "ST-D09-S2",
+        "title": "Sekwencja pięciu kroków do wody"
+      },
+      {
+        "newId": "ST-TASK-027",
+        "legacyId": "ST-D09-S3",
+        "title": "Jedna rzecz, z której jestem dumny"
+      },
+      {
+        "newId": "ST-TASK-028",
+        "legacyId": "ST-D10-S2",
+        "title": "Trzy etapy obiadu"
+      },
+      {
+        "newId": "ST-TASK-029",
+        "legacyId": "ST-D11-S1",
+        "title": "Mapa drogi do szkoły"
+      },
+      {
+        "newId": "ST-TASK-030",
+        "legacyId": "ST-D11-S2",
+        "title": "Czekaj dziesięć oddechów"
+      },
+      {
+        "newId": "ST-TASK-031",
+        "legacyId": "ST-D11-S3",
+        "title": "Trzy kamienie milowe dnia"
+      },
+      {
+        "newId": "ST-TASK-032",
+        "legacyId": "ST-D12-S2",
+        "title": "Trzy razy podskocz, raz przykucnij"
+      },
+      {
+        "newId": "ST-TASK-033",
+        "legacyId": "ST-D13-S1",
+        "title": "Zaplanuj poranek w trzech zdaniach"
+      },
+      {
+        "newId": "ST-TASK-034",
+        "legacyId": "ST-D13-S2",
+        "title": "Znajdź wzór wokół siebie"
+      },
+      {
+        "newId": "ST-TASK-035",
+        "legacyId": "ST-D13-S3",
+        "title": "Schody dnia"
+      },
+      {
+        "newId": "ST-TASK-036",
+        "legacyId": "ST-D14-S2",
+        "title": "Posegreguj coś na trzy kupki"
+      },
+      {
+        "newId": "ST-TASK-037",
+        "legacyId": "ST-D15-S1",
+        "title": "Połowa miesiąca w drodze"
+      },
+      {
+        "newId": "ST-TASK-038",
+        "legacyId": "ST-D15-S2",
+        "title": "Wypij wodę trzema łykami"
+      },
+      {
+        "newId": "ST-TASK-039",
+        "legacyId": "ST-D15-S3",
+        "title": "Lista TODO i trzy odhaczenia"
+      },
+      {
+        "newId": "ST-TASK-040",
+        "legacyId": "ST-D16-S2",
+        "title": "Sekwencja zwierząt"
+      },
+      {
+        "newId": "ST-TASK-041",
+        "legacyId": "ST-D17-S1",
+        "title": "Trzy najważniejsze dziś"
+      },
+      {
+        "newId": "ST-TASK-042",
+        "legacyId": "ST-D17-S2",
+        "title": "Eksperyment z czasem"
+      },
+      {
+        "newId": "ST-TASK-043",
+        "legacyId": "ST-D18-S2",
+        "title": "Zbuduj wieżę z pięciu rzeczy"
+      },
+      {
+        "newId": "ST-TASK-044",
+        "legacyId": "ST-D18-S3",
+        "title": "Dwie rzeczy łatwe, jedna trudna"
+      },
+      {
+        "newId": "ST-TASK-045",
+        "legacyId": "ST-D19-S1",
+        "title": "Plan na sześćdziesiąt minut ruchu"
+      },
+      {
+        "newId": "ST-TASK-046",
+        "legacyId": "ST-D19-S2",
+        "title": "Liczby wokół ciebie"
+      },
+      {
+        "newId": "ST-TASK-047",
+        "legacyId": "ST-D20-S2",
+        "title": "Trzy razy głęboki oddech"
+      },
+      {
+        "newId": "ST-TASK-048",
+        "legacyId": "ST-D20-S3",
+        "title": "Mapa jutra w trzech słowach"
+      },
+      {
+        "newId": "ST-TASK-049",
+        "legacyId": "ST-D21-S2",
+        "title": "Pokrój owoc w równe kawałki"
+      },
+      {
+        "newId": "ST-TASK-050",
+        "legacyId": "ST-D22-S1",
+        "title": "Sześć minut ciszy o poranku"
+      },
+      {
+        "newId": "ST-TASK-051",
+        "legacyId": "ST-D22-S2",
+        "title": "Odrocz na 24 godziny"
+      },
+      {
+        "newId": "ST-TASK-052",
+        "legacyId": "ST-D23-S2",
+        "title": "Kompas Strategiczny w głowie"
+      },
+      {
+        "newId": "ST-TASK-053",
+        "legacyId": "ST-D23-S3",
+        "title": "Jutrzejszy poranek na kartce"
+      },
+      {
+        "newId": "ST-TASK-054",
+        "legacyId": "ST-D24-S1",
+        "title": "Wybierz tempo poranka"
+      },
+      {
+        "newId": "ST-TASK-055",
+        "legacyId": "ST-D24-S2",
+        "title": "Powiedz najpierw co, potem dlaczego"
+      },
+      {
+        "newId": "ST-TASK-056",
+        "legacyId": "ST-D25-S2",
+        "title": "Pięć kroków powolnego marszu"
+      },
+      {
+        "newId": "ST-TASK-057",
+        "legacyId": "ST-D25-S3",
+        "title": "Co jutro przeniosę z dzisiaj"
+      },
+      {
+        "newId": "ST-TASK-058",
+        "legacyId": "ST-D26-S1",
+        "title": "Mapa uczuć na trzy pola"
+      },
+      {
+        "newId": "ST-TASK-059",
+        "legacyId": "ST-D26-S2",
+        "title": "Powtórz to, czego się uczysz"
+      },
+      {
+        "newId": "ST-TASK-060",
+        "legacyId": "ST-D27-S2",
+        "title": "Zagadka licz po dwa"
+      },
+      {
+        "newId": "ST-TASK-061",
+        "legacyId": "ST-D27-S3",
+        "title": "Co poszło inaczej niż w planie"
+      },
+      {
+        "newId": "ST-TASK-062",
+        "legacyId": "ST-D28-S2",
+        "title": "Posprzątaj jedno miejsce"
+      },
+      {
+        "newId": "ST-TASK-063",
+        "legacyId": "ST-D29-S1",
+        "title": "Co chcę zapamiętać z tego miesiąca"
+      },
+      {
+        "newId": "ST-TASK-064",
+        "legacyId": "ST-D29-S2",
+        "title": "Trzy razy się uśmiechnij"
+      },
+      {
+        "newId": "ST-TASK-065",
+        "legacyId": "ST-D30-S2",
+        "title": "Trzy nowe rzeczy, które umiem"
+      }
+    ],
+    "KR": [
+      {
+        "newId": "KR-TASK-011",
+        "legacyId": "KR-D01-S2",
+        "title": "Zamień karton w coś kosmicznego"
+      },
+      {
+        "newId": "KR-TASK-012",
+        "legacyId": "KR-D02-S1",
+        "title": "Wymyśl słowo, którego nie ma"
+      },
+      {
+        "newId": "KR-TASK-013",
+        "legacyId": "KR-D02-S2",
+        "title": "Narysuj coś lewą ręką"
+      },
+      {
+        "newId": "KR-TASK-014",
+        "legacyId": "KR-D03-S2",
+        "title": "Wybierz jeden stary pomysł i skończ go"
+      },
+      {
+        "newId": "KR-TASK-015",
+        "legacyId": "KR-D04-S1",
+        "title": "Co by było, gdyby chmury były z waty cukrowej?"
+      },
+      {
+        "newId": "KR-TASK-016",
+        "legacyId": "KR-D04-S2",
+        "title": "Zrób postać z trzech rzeczy z kuchni"
+      },
+      {
+        "newId": "KR-TASK-017",
+        "legacyId": "KR-D05-S2",
+        "title": "Zaśpiewaj piosenkę o swoim kubku"
+      },
+      {
+        "newId": "KR-TASK-018",
+        "legacyId": "KR-D06-S1",
+        "title": "Znajdź rym do swojego imienia"
+      },
+      {
+        "newId": "KR-TASK-019",
+        "legacyId": "KR-D06-S2",
+        "title": "Wymyśl wynalazek dla leniwego smoka"
+      },
+      {
+        "newId": "KR-TASK-020",
+        "legacyId": "KR-D07-S2",
+        "title": "Zrób brzydki szkic z dumą"
+      },
+      {
+        "newId": "KR-TASK-021",
+        "legacyId": "KR-D08-S1",
+        "title": "Wymyśl tajne hasło na dziś"
+      },
+      {
+        "newId": "KR-TASK-022",
+        "legacyId": "KR-D08-S2",
+        "title": "Zrób rzeźbę z papierowej kuli"
+      },
+      {
+        "newId": "KR-TASK-023",
+        "legacyId": "KR-D09-S2",
+        "title": "Zrób kolaż z trzech śmiesznych skrawków"
+      },
+      {
+        "newId": "KR-TASK-024",
+        "legacyId": "KR-D10-S2",
+        "title": "Skończ jedno zdanie z opowieści"
+      },
+      {
+        "newId": "KR-TASK-025",
+        "legacyId": "KR-D11-S1",
+        "title": "Powiedz dzień dobry w wymyślonym języku"
+      },
+      {
+        "newId": "KR-TASK-026",
+        "legacyId": "KR-D11-S2",
+        "title": "Wymyśl trzy użycia dla łyżki"
+      },
+      {
+        "newId": "KR-TASK-027",
+        "legacyId": "KR-D12-S2",
+        "title": "Zrób koronę z patyka i sznurka"
+      },
+      {
+        "newId": "KR-TASK-028",
+        "legacyId": "KR-D13-S2",
+        "title": "Plama z wody i kolorów"
+      },
+      {
+        "newId": "KR-TASK-029",
+        "legacyId": "KR-D14-S1",
+        "title": "Wymyśl trzy słowa na to, co czujesz"
+      },
+      {
+        "newId": "KR-TASK-030",
+        "legacyId": "KR-D14-S2",
+        "title": "Wybierz jeden szkic i pokoloruj go"
+      },
+      {
+        "newId": "KR-TASK-031",
+        "legacyId": "KR-D15-S2",
+        "title": "Wymyśl historyjkę o znalezionym kamyku"
+      },
+      {
+        "newId": "KR-TASK-032",
+        "legacyId": "KR-D16-S2",
+        "title": "Maluj palcem zamoczonym w soku"
+      },
+      {
+        "newId": "KR-TASK-033",
+        "legacyId": "KR-D17-S1",
+        "title": "Wymyśl śmieszne imię dla swojej skarpetki"
+      },
+      {
+        "newId": "KR-TASK-034",
+        "legacyId": "KR-D17-S2",
+        "title": "Zbuduj most dla mrówki"
+      },
+      {
+        "newId": "KR-TASK-035",
+        "legacyId": "KR-D18-S2",
+        "title": "Wymyśl koniec ulubionej bajki"
+      },
+      {
+        "newId": "KR-TASK-036",
+        "legacyId": "KR-D19-S2",
+        "title": "Rysuj z zamkniętymi oczami"
+      },
+      {
+        "newId": "KR-TASK-037",
+        "legacyId": "KR-D20-S2",
+        "title": "Wymyśl nowy smak lodów"
+      },
+      {
+        "newId": "KR-TASK-038",
+        "legacyId": "KR-D21-S2",
+        "title": "Domek dla owada z liści"
+      },
+      {
+        "newId": "KR-TASK-039",
+        "legacyId": "KR-D22-S1",
+        "title": "Wymyśl supermoc dla swojej szczoteczki"
+      },
+      {
+        "newId": "KR-TASK-040",
+        "legacyId": "KR-D22-S2",
+        "title": "Naucz się rysować jeden kształt"
+      },
+      {
+        "newId": "KR-TASK-041",
+        "legacyId": "KR-D23-S2",
+        "title": "Skończ piosenkę jednym refrenem"
+      },
+      {
+        "newId": "KR-TASK-042",
+        "legacyId": "KR-D24-S1",
+        "title": "Wymyśl nazwę dla dzisiejszej chmury"
+      },
+      {
+        "newId": "KR-TASK-043",
+        "legacyId": "KR-D24-S2",
+        "title": "Połącz dwie rzeczy w jedną"
+      },
+      {
+        "newId": "KR-TASK-044",
+        "legacyId": "KR-D25-S2",
+        "title": "Lampa ze słoika i papieru"
+      },
+      {
+        "newId": "KR-TASK-045",
+        "legacyId": "KR-D26-S2",
+        "title": "Stempelki z warzyw"
+      },
+      {
+        "newId": "KR-TASK-046",
+        "legacyId": "KR-D27-S2",
+        "title": "Wybierz jeden pomysł ze skarbnicy"
+      },
+      {
+        "newId": "KR-TASK-047",
+        "legacyId": "KR-D28-S2",
+        "title": "Wymyśl tytuł książki, której nie ma"
+      },
+      {
+        "newId": "KR-TASK-048",
+        "legacyId": "KR-D29-S2",
+        "title": "Mapa twojego pokoju z gwiazd"
+      },
+      {
+        "newId": "KR-TASK-049",
+        "legacyId": "KR-D30-S2",
+        "title": "Pokaż jedno dzieło komuś bliskiemu"
+      }
+    ],
+    "LD": [
+      {
+        "newId": "LD-TASK-011",
+        "legacyId": "LD-D01-S2",
+        "title": "Powiedz cześć pierwszy"
+      },
+      {
+        "newId": "LD-TASK-012",
+        "legacyId": "LD-D02-S2",
+        "title": "Zaproponuj jedną zabawę"
+      },
+      {
+        "newId": "LD-TASK-013",
+        "legacyId": "LD-D02-S3",
+        "title": "Niebo Marzeń słucha cię wieczorem"
+      },
+      {
+        "newId": "LD-TASK-014",
+        "legacyId": "LD-D03-S2",
+        "title": "Pomóż, zanim poprosi"
+      },
+      {
+        "newId": "LD-TASK-015",
+        "legacyId": "LD-D04-S2",
+        "title": "Powiedz „nie” spokojnie"
+      },
+      {
+        "newId": "LD-TASK-016",
+        "legacyId": "LD-D05-S2",
+        "title": "Zapytaj cichego kolegę"
+      },
+      {
+        "newId": "LD-TASK-017",
+        "legacyId": "LD-D06-S2",
+        "title": "60 minut ruchu, jak lew"
+      },
+      {
+        "newId": "LD-TASK-018",
+        "legacyId": "LD-D07-S2",
+        "title": "Posłuchaj, zanim odpowiesz"
+      },
+      {
+        "newId": "LD-TASK-019",
+        "legacyId": "LD-D08-S2",
+        "title": "Zadaj pytanie na lekcji"
+      },
+      {
+        "newId": "LD-TASK-020",
+        "legacyId": "LD-D09-S2",
+        "title": "Wstaw się za kimś"
+      },
+      {
+        "newId": "LD-TASK-021",
+        "legacyId": "LD-D10-S2",
+        "title": "Przyznaj się do błędu"
+      },
+      {
+        "newId": "LD-TASK-022",
+        "legacyId": "LD-D11-S1",
+        "title": "Twoja grzywa, twoje tempo"
+      },
+      {
+        "newId": "LD-TASK-023",
+        "legacyId": "LD-D11-S2",
+        "title": "Powiedz, czego się boisz"
+      },
+      {
+        "newId": "LD-TASK-024",
+        "legacyId": "LD-D12-S2",
+        "title": "Zaproś kogoś do drużyny"
+      },
+      {
+        "newId": "LD-TASK-025",
+        "legacyId": "LD-D13-S2",
+        "title": "Zapytaj rodzica o jego dzień"
+      },
+      {
+        "newId": "LD-TASK-026",
+        "legacyId": "LD-D14-S2",
+        "title": "Pomysł, którego się boisz"
+      },
+      {
+        "newId": "LD-TASK-027",
+        "legacyId": "LD-D15-S2",
+        "title": "Dziś prowadzi ktoś inny"
+      },
+      {
+        "newId": "LD-TASK-028",
+        "legacyId": "LD-D16-S2",
+        "title": "Komplement w twarz"
+      },
+      {
+        "newId": "LD-TASK-029",
+        "legacyId": "LD-D17-S2",
+        "title": "Powiedz „nie wiem”"
+      },
+      {
+        "newId": "LD-TASK-030",
+        "legacyId": "LD-D18-S2",
+        "title": "Stań po swojej stronie"
+      },
+      {
+        "newId": "LD-TASK-031",
+        "legacyId": "LD-D19-S2",
+        "title": "Pierwsza pomoc na podwórku"
+      },
+      {
+        "newId": "LD-TASK-032",
+        "legacyId": "LD-D20-S2",
+        "title": "Spróbuj czegoś, w czym jesteś słaby"
+      },
+      {
+        "newId": "LD-TASK-033",
+        "legacyId": "LD-D21-S2",
+        "title": "Zaufaj komuś dziś"
+      },
+      {
+        "newId": "LD-TASK-034",
+        "legacyId": "LD-D22-S2",
+        "title": "Powiedz „ja tak czuję”"
+      },
+      {
+        "newId": "LD-TASK-035",
+        "legacyId": "LD-D23-S2",
+        "title": "Naprawić, nie pokonać"
+      },
+      {
+        "newId": "LD-TASK-036",
+        "legacyId": "LD-D24-S2",
+        "title": "Zacznij rozmowę z dorosłym"
+      },
+      {
+        "newId": "LD-TASK-037",
+        "legacyId": "LD-D25-S2",
+        "title": "Bądź pierwszy w dobrej sprawie"
+      },
+      {
+        "newId": "LD-TASK-038",
+        "legacyId": "LD-D26-S2",
+        "title": "Stań w drugim rzędzie"
+      },
+      {
+        "newId": "LD-TASK-039",
+        "legacyId": "LD-D27-S2",
+        "title": "Dziękuję komuś, kto pomaga niewidocznie"
+      },
+      {
+        "newId": "LD-TASK-040",
+        "legacyId": "LD-D28-S1",
+        "title": "Twoja odwaga nie musi krzyczeć"
+      },
+      {
+        "newId": "LD-TASK-041",
+        "legacyId": "LD-D28-S2",
+        "title": "Pomóż komuś bez pochwały"
+      },
+      {
+        "newId": "LD-TASK-042",
+        "legacyId": "LD-D29-S2",
+        "title": "Spójrz na siebie z czułością"
+      },
+      {
+        "newId": "LD-TASK-043",
+        "legacyId": "LD-D30-S2",
+        "title": "Powiedz komuś, kim się stałaś/stałeś"
+      }
+    ],
+    "MD": [
+      {
+        "newId": "MD-TASK-011",
+        "legacyId": "MD-D01-S2",
+        "title": "Misja: posłuchaj kogoś do końca"
+      },
+      {
+        "newId": "MD-TASK-012",
+        "legacyId": "MD-D02-S2",
+        "title": "Misja: powiedz „rozumiem”"
+      },
+      {
+        "newId": "MD-TASK-013",
+        "legacyId": "MD-D03-S2",
+        "title": "Misja: jedno pytanie zamiast oceny"
+      },
+      {
+        "newId": "MD-TASK-014",
+        "legacyId": "MD-D04-S2",
+        "title": "Misja: spotkanie w połowie drogi"
+      },
+      {
+        "newId": "MD-TASK-015",
+        "legacyId": "MD-D05-S2",
+        "title": "Misja: opowiedz cudzą wersję"
+      },
+      {
+        "newId": "MD-TASK-016",
+        "legacyId": "MD-D06-S2",
+        "title": "Misja: pytanie „a Ty co czujesz?”"
+      },
+      {
+        "newId": "MD-TASK-017",
+        "legacyId": "MD-D07-S2",
+        "title": "Misja: dziś nic nie godzę"
+      },
+      {
+        "newId": "MD-TASK-018",
+        "legacyId": "MD-D08-S2",
+        "title": "Misja: trzy kroki w sporze"
+      },
+      {
+        "newId": "MD-TASK-019",
+        "legacyId": "MD-D09-S2",
+        "title": "Misja: trzecia propozycja"
+      },
+      {
+        "newId": "MD-TASK-020",
+        "legacyId": "MD-D10-S2",
+        "title": "Misja: trzy oddechy przed odpowiedzią"
+      },
+      {
+        "newId": "MD-TASK-021",
+        "legacyId": "MD-D11-S2",
+        "title": "Misja: nie przerywaj przez minutę"
+      },
+      {
+        "newId": "MD-TASK-022",
+        "legacyId": "MD-D12-S2",
+        "title": "Misja: pomóż, ale nie wybieraj stron"
+      },
+      {
+        "newId": "MD-TASK-023",
+        "legacyId": "MD-D13-S2",
+        "title": "Misja: ustal małą zasadę"
+      },
+      {
+        "newId": "MD-TASK-024",
+        "legacyId": "MD-D14-S2",
+        "title": "Misja: zamień miejsce w wyobraźni"
+      },
+      {
+        "newId": "MD-TASK-025",
+        "legacyId": "MD-D15-S2",
+        "title": "Misja: powiedz „dziękuję, że mi powiedziałeś”"
+      },
+      {
+        "newId": "MD-TASK-026",
+        "legacyId": "MD-D16-S2",
+        "title": "Misja: krok w tył"
+      },
+      {
+        "newId": "MD-TASK-027",
+        "legacyId": "MD-D17-S2",
+        "title": "Misja: zamiana na dziś"
+      },
+      {
+        "newId": "MD-TASK-028",
+        "legacyId": "MD-D18-S2",
+        "title": "Misja: pozwól drugiej osobie zacząć"
+      },
+      {
+        "newId": "MD-TASK-029",
+        "legacyId": "MD-D19-S2",
+        "title": "Misja: zaproś dorosłego, gdy trzeba"
+      },
+      {
+        "newId": "MD-TASK-030",
+        "legacyId": "MD-D20-S2",
+        "title": "Misja: zapytaj „dlaczego tak myślisz?”"
+      },
+      {
+        "newId": "MD-TASK-031",
+        "legacyId": "MD-D21-S2",
+        "title": "Misja: lista „co dla nas obojga”"
+      },
+      {
+        "newId": "MD-TASK-032",
+        "legacyId": "MD-D22-S2",
+        "title": "Misja: dwa zdania od każdej strony"
+      },
+      {
+        "newId": "MD-TASK-033",
+        "legacyId": "MD-D23-S2",
+        "title": "Misja: powiedz „chwila, oddychamy”"
+      },
+      {
+        "newId": "MD-TASK-034",
+        "legacyId": "MD-D24-S2",
+        "title": "Misja: jedno szczere „dziękuję”"
+      },
+      {
+        "newId": "MD-TASK-035",
+        "legacyId": "MD-D25-S2",
+        "title": "Misja: po trochu dla każdego"
+      },
+      {
+        "newId": "MD-TASK-036",
+        "legacyId": "MD-D26-S2",
+        "title": "Misja: trzymaj swój spokój"
+      },
+      {
+        "newId": "MD-TASK-037",
+        "legacyId": "MD-D27-S2",
+        "title": "Misja: powtórz spokojnie, co usłyszysz"
+      },
+      {
+        "newId": "MD-TASK-038",
+        "legacyId": "MD-D28-S2",
+        "title": "Misja: zapytaj „jak Ty to widzisz?”"
+      },
+      {
+        "newId": "MD-TASK-039",
+        "legacyId": "MD-D29-S2",
+        "title": "Misja: ustąp w czymś małym"
+      },
+      {
+        "newId": "MD-TASK-040",
+        "legacyId": "MD-D30-S2",
+        "title": "Misja: powiedz, co się nauczyłaś/nauczyłeś"
+      }
+    ]
+  }
+}
