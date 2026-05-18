@@ -55,8 +55,10 @@ export default function MentorDashboard() {
     );
   }
 
+  // Sunset BG dla wszystkich ekranow mentora - purple lavender -> peach -> salmon (z mockupu Magical workshop B)
+  const MENTOR_SKY = { "--sky-top": "#E8D5FF", "--sky-mid": "#FFE0B5", "--sky-bot": "#FFD0B0" };
   return (
-    <PageShell>
+    <PageShell skyVars={MENTOR_SKY}>
       {/* TopBar mentora */}
       <div style={{ display: "flex", alignItems: "center", padding: "16px 18px", gap: 12 }}>
         <div style={{ width: 40, height: 40, borderRadius: 999, background: "var(--p-magic-dk)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, overflow: "hidden" }}>
@@ -69,23 +71,41 @@ export default function MentorDashboard() {
         <button className="btn btn-ghost btn-sm" onClick={handleLogout}>Wyloguj</button>
       </div>
 
-      <div className="screen-scroll" style={{ flex: 1, padding: "12px 18px 52px", display: "flex", flexDirection: "column", gap: 14 }}>
+      <div className="screen-scroll" style={{ flex: 1, padding: "8px 18px 52px", display: "flex", flexDirection: "column", gap: 14 }}>
         {classes.length === 0 ? (
           <EmptyState onCreate={() => setShowCreate(true)} />
         ) : (
           <>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 8 }}>
-              <h2 className="t-display" style={{ fontSize: 22, margin: 0, color: "var(--p-ink)" }}>Twoje klasy</h2>
-              <button className="btn btn-magic btn-sm" onClick={() => setShowCreate(true)}>+ Nowa klasa</button>
+            {/* Hero strip - Magical workshop B */}
+            <div style={{ padding: "6px 4px 6px" }}>
+              <div style={{ fontSize: 11, fontWeight: 900, letterSpacing: 1.6, color: "var(--p-magic-dk)", textTransform: "uppercase" }}>
+                Dzień dobry, mentorze
+              </div>
+              <h1 className="t-display" style={{ fontSize: 30, lineHeight: 1, margin: "4px 0 6px" }}>
+                Twoje klasy
+              </h1>
+              <p style={{ margin: 0, fontSize: 13, color: "var(--p-ink-soft)", fontWeight: 700, lineHeight: 1.3 }}>
+                <b style={{ color: "var(--p-magic-dk)" }}>{classes.reduce((s, c) => s + (c.student_count || 0), 0)}</b> aktywnych bohaterów ·{" "}
+                <span>{classes.length} {classes.length === 1 ? "klasa" : classes.length < 5 ? "klasy" : "klas"}</span>
+              </p>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12, marginTop: 6 }}>
+
+            {/* Jedna magical karta na klasę - bez opisu, bez kodu */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12 }}>
               {classes.map((c) => <ClassCard key={c.id} cls={c} onClick={() => navigate(`/mentor/klasa/${c.id}`)} />)}
             </div>
+
+            {/* Nowa klasa - line action */}
+            <button className="btn btn-ghost btn-block" onClick={() => setShowCreate(true)} style={{ fontSize: 14 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ marginRight: 4, verticalAlign: "-3px" }}>
+                <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
+              </svg>
+              Nowa klasa
+            </button>
           </>
         )}
 
         <DemoPlayerCard navigate={navigate} />
-        <WhitelistPanel />
       </div>
 
       {showCreate && <CreateClassModal onClose={() => setShowCreate(false)} onCreate={handleCreate} />}
@@ -241,28 +261,152 @@ function EmptyState({ onCreate }) {
   );
 }
 
+// Animacje portowane 1:1 z handoff B Magical workshop (aurora blobs + starfield + shimmer)
+const MAGICAL_KEYFRAMES = `
+  @keyframes aurora1 {
+    0%,100% { transform: translate(0,0) scale(1); opacity: .85; }
+    50%     { transform: translate(40px,30px) scale(1.15); opacity: 1; }
+  }
+  @keyframes aurora2 {
+    0%,100% { transform: translate(0,0) scale(1); opacity: .7; }
+    50%     { transform: translate(-30px,-40px) scale(1.2); opacity: 1; }
+  }
+  @keyframes aurora3 {
+    0%,100% { transform: translate(0,0) scale(.9); opacity: .6; }
+    50%     { transform: translate(-20px,30px) scale(1.1); opacity: .9; }
+  }
+  @keyframes mw-twinkle {
+    0%,100% { opacity: .3; transform: scale(.7); }
+    50%     { opacity: 1;  transform: scale(1.1); }
+  }
+  @keyframes mw-shimmer {
+    0%   { background-position: -180% 0; }
+    100% { background-position:  180% 0; }
+  }
+`;
+
+const STARFIELD = [
+  { x: "12%", y: "18%", s: 10, c: "#F4B7E0", d: 0 },
+  { x: "76%", y: "12%", s: 14, c: "#fff",    d: 0.8 },
+  { x: "88%", y: "40%", s: 8,  c: "#C8A0F0", d: 1.4 },
+  { x: "18%", y: "62%", s: 12, c: "#E89AC7", d: 0.4 },
+  { x: "48%", y: "82%", s: 9,  c: "#fff",    d: 2.0 },
+  { x: "62%", y: "58%", s: 11, c: "#C8A0F0", d: 1.6 },
+  { x: "30%", y: "42%", s: 7,  c: "#F4B7E0", d: 2.4 },
+];
+
 function ClassCard({ cls, onClick }) {
-  const expiresInDays = cls.invite_code_expires_at
-    ? Math.max(0, Math.ceil((new Date(cls.invite_code_expires_at) - Date.now()) / 86400000))
-    : null;
+  // Magical workshop B - 1:1 z handoff3/mentor.jsx MentorHomeB.
+  // Aurora blobs (3) + drifting starfield (7) + shimmer sweep + duza nazwa + 3-col count strip.
+  const studentCount = cls.student_count || 0;
+  const maxStudents = cls.max_students || 20;
+  // Aktywni dziś: aproksymacja - student_count (gdy backend dostarczy active_today_count, podmienic).
+  const activeToday = cls.active_today_count ?? studentCount;
+  // Postęp tygodniowy klasy - placeholder do czasu agregacji backend.
+  const weekPct = cls.week_progress_pct ?? Math.round((activeToday / Math.max(1, maxStudents)) * 100);
+
   return (
-    <button onClick={onClick} className="pop-in" style={{ background: "none", border: "none", padding: 0, textAlign: "left", cursor: "pointer" }}>
-      <div className="card" style={{ padding: "16px 18px" }}>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 6 }}>
-          <h3 className="t-display" style={{ fontSize: 18, margin: 0, color: "var(--p-ink)" }}>{cls.name}</h3>
-          <span style={{ fontSize: 12, color: "var(--p-ink-soft)" }}>{cls.student_count} / {cls.max_students}</span>
-        </div>
-        {cls.description && <p style={{ fontSize: 13, color: "var(--p-ink-soft)", margin: "0 0 10px" }}>{cls.description}</p>}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginTop: 8, padding: "8px 12px", background: "rgba(122,77,194,.08)", borderRadius: 12 }}>
-          <div>
-            <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.3, color: "var(--p-magic-dk)" }}>KOD</div>
-            <div className="t-display" style={{ fontSize: 14, color: "var(--p-ink)", marginTop: 1 }}>{cls.invite_code}</div>
-          </div>
-          {expiresInDays !== null && (
-            <div style={{ fontSize: 11, color: "var(--p-ink-soft)", textAlign: "right" }}>
-              wygasa za<br />{expiresInDays}d
+    <button onClick={onClick} className="pop-in" style={{ all: "unset", cursor: "pointer", display: "block", width: "100%" }}>
+      <style>{MAGICAL_KEYFRAMES}</style>
+      <div style={{
+        position: "relative", borderRadius: 26, overflow: "hidden",
+        background: "linear-gradient(160deg, #7A4DC2 0%, #4A2D80 70%, #2A1556 100%)",
+        color: "#fff",
+        boxShadow: "0 5px 0 rgba(28,16,60,.55), 0 22px 44px rgba(43,30,90,.45)",
+        minHeight: 200,
+      }}>
+        {/* Aurora blob 1 - lewy gora rozowy */}
+        <div aria-hidden="true" style={{
+          position: "absolute", top: -30, left: -30, width: 180, height: 180,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(232,154,199,.55), transparent 65%)",
+          filter: "blur(20px)",
+          animation: "aurora1 9s ease-in-out infinite",
+        }} />
+        {/* Aurora blob 2 - dolny prawy */}
+        <div aria-hidden="true" style={{
+          position: "absolute", bottom: -40, right: -20, width: 200, height: 200,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(244,140,180,.45), transparent 65%)",
+          filter: "blur(22px)",
+          animation: "aurora2 11s ease-in-out infinite",
+        }} />
+        {/* Aurora blob 3 - srodkowy fioletowy */}
+        <div aria-hidden="true" style={{
+          position: "absolute", top: "30%", right: "25%", width: 100, height: 100,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(184,134,232,.5), transparent 65%)",
+          filter: "blur(18px)",
+          animation: "aurora3 13s ease-in-out infinite",
+        }} />
+
+        {/* Drifting starfield */}
+        <div aria-hidden="true" style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
+          {STARFIELD.map((p, i) => (
+            <div key={i} style={{
+              position: "absolute", left: p.x, top: p.y,
+              animation: "mw-twinkle 2.4s ease-in-out infinite",
+              animationDelay: `${p.d}s`,
+            }}>
+              <svg width={p.s} height={p.s} viewBox="0 0 16 16">
+                <path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill={p.c} />
+              </svg>
             </div>
-          )}
+          ))}
+        </div>
+
+        {/* Shimmer sweep - diagonalny pasek przesuwajacy sie po karcie */}
+        <div aria-hidden="true" style={{
+          position: "absolute", inset: 0,
+          background: "linear-gradient(110deg, transparent 38%, rgba(255,255,255,.18) 50%, transparent 62%)",
+          backgroundSize: "200% 100%",
+          animation: "mw-shimmer 6s linear infinite",
+          pointerEvents: "none",
+        }} />
+
+        {/* Content na wierzchu */}
+        <div style={{ position: "relative", padding: "22px 22px 18px", zIndex: 2 }}>
+          {/* Wielka nazwa klasy - 80px, soft pink z gleboka tekstowa cieniem */}
+          <h3 className="t-display" style={{
+            fontSize: 80, lineHeight: 0.85, margin: "4px 0 12px",
+            textShadow: "0 4px 0 rgba(28,16,60,.4), 0 10px 26px rgba(232,154,199,.65)",
+            letterSpacing: -1,
+            color: "rgb(251, 233, 249)",
+          }}>
+            {cls.name}
+          </h3>
+
+          {/* 3-kolumnowy strip: Bohaterowie / Aktywni / Tydzien */}
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 4 }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: 1.4, opacity: 0.65, textTransform: "uppercase" }}>
+                Bohaterowie
+              </div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginTop: 2 }}>
+                <span className="t-display" style={{ fontSize: 24, lineHeight: 1, color: "rgb(231, 240, 160)" }}>{studentCount}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, opacity: 0.55 }}>/ {maxStudents}</span>
+              </div>
+            </div>
+            <div style={{ width: 1, height: 32, background: "rgba(255,255,255,.18)" }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: 1.4, opacity: 0.65, textTransform: "uppercase" }}>
+                Aktywni
+              </div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginTop: 2 }}>
+                <span className="t-display" style={{ fontSize: 24, lineHeight: 1, color: "rgb(231, 240, 160)" }}>{activeToday}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, opacity: 0.55 }}>dziś</span>
+              </div>
+            </div>
+            <div style={{ width: 1, height: 32, background: "rgba(255,255,255,.18)" }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: 1.4, opacity: 0.65, textTransform: "uppercase" }}>
+                Tydzień
+              </div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginTop: 2 }}>
+                <span className="t-display" style={{ fontSize: 24, lineHeight: 1, color: "#fff" }}>{weekPct}%</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </button>
