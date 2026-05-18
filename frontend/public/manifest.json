@@ -1,12 +1,12 @@
 {
-  "name": "Ewolucja — Gra Rozwojowa",
-  "short_name": "Ewolucja",
-  "description": "Gra fabularna wspierająca rozwój kompetencji miękkich u dzieci 6-12 lat",
+  "name": "EwolucJA — baw się i ucz",
+  "short_name": "EwolucJA",
+  "description": "Magiczna gra dla dzieci 6-12 lat. Codziennie nowa porada od Mędrca i mała przygoda, w której odkrywasz swoje supermoce: ciekawość, empatię, odwagę.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#1a1a2e",
-  "theme_color": "#e94560",
+  "background_color": "#FFE0B5",
+  "theme_color": "#7A4DC2",
   "lang": "pl",
   "icons": [
     {
