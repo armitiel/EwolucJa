@@ -256,7 +256,6 @@ export default function WorldHub() {
                 >
                   <Coin size={16} /> +30
                 </span>
-                <span style={{ fontSize: 13, color: "var(--p-ink-soft)", fontWeight: 700 }}>0/3</span>
               </div>
             </div>
           </div>
