@@ -134,12 +134,17 @@ function StudentRow({ student, onClick, onDelete }) {
   const coins = student.coins || 0;
   const pct = Math.min(100, Math.round((coins / 80) * 100));
 
+  // Czy zatwierdzenie jest "swieze" (< 24h) — wtedy karta dostaje delikatny zielony sygnal,
+  // zeby mentor wiedzial, ze ostatnio cos zatwierdzil i moze juz wyslac nowe zadanie.
+  const verifiedFresh = status === "verified" && lastActivity
+    && (Date.now() - lastActivity.getTime()) < 24 * 3600 * 1000;
+
   // Mapa statusu misji na etykiete + kolor
   const STATUS_MAP = {
     submitted: { label: "Do sprawdzenia", color: "#7A4DC2", bg: "rgba(122,77,194,.18)", dot: "#7A4DC2", emoji: "✉" },
     pending:   { label: "W trakcie",      color: "#A66A1A", bg: "rgba(255,210,105,.30)", dot: "#E89A3D", emoji: "●" },
     rejected:  { label: "Do poprawy",     color: "#B85B47", bg: "rgba(184,91,71,.18)",   dot: "#B85B47", emoji: "↺" },
-    verified:  { label: "Zatwierdzone",   color: "#3B6D11", bg: "rgba(99,153,34,.18)",   dot: "#5FA76F", emoji: "✓" },
+    verified:  { label: "Zatwierdzone ✓", color: "#2E5A0E", bg: "linear-gradient(135deg, rgba(168,224,143,.55), rgba(99,167,111,.35))", dot: "#5FA76F", emoji: "✓" },
   };
   const st = status && STATUS_MAP[status] ? STATUS_MAP[status] : null;
 
@@ -157,12 +162,14 @@ function StudentRow({ student, onClick, onDelete }) {
         // Czerwona pulsujaca kropka w prawym gornym rogu gdy cos do zatwierdzenia
       }}
     >
-      {/* Avatar - 91px + pulsujaca rozowa kropka w LEWYM GORNYM rogu avatara */}
+      {/* Avatar - 91px + pulsujaca kropka w LEWYM GORNYM rogu:
+            rozowa #E84BA0 -> uczen wyslal dowod, czeka na sprawdzenie (priorytet 1)
+            zielona #5FA76F -> swieze zatwierdzenie (<24h), sygnal "wyslij nowe zadanie" (priorytet 2) */}
       <div style={{ flex: "none", position: "relative" }}>
         {profileCode
           ? <ProfileAvatar profile={profileCode} size={91} variant="mini" />
           : <PendingAvatar size={91} />}
-        {pendingReview && (
+        {pendingReview ? (
           <span aria-hidden="true" title="Czeka na sprawdzenie" style={{
             position: "absolute", top: -2, left: -2,
             width: 14, height: 14, borderRadius: "50%",
@@ -171,7 +178,16 @@ function StudentRow({ student, onClick, onDelete }) {
             animation: "pulse-dot 1.6s ease-in-out infinite",
             zIndex: 2,
           }} />
-        )}
+        ) : verifiedFresh ? (
+          <span aria-hidden="true" title="Świeże zatwierdzenie — wyślij nowe zadanie!" style={{
+            position: "absolute", top: -2, left: -2,
+            width: 14, height: 14, borderRadius: "50%",
+            background: "#5FA76F",
+            boxShadow: "0 0 0 3px rgba(95,167,111,.25), 0 0 12px rgba(95,167,111,.55), inset 0 1px 0 rgba(255,255,255,.4)",
+            animation: "pulse-dot 2.2s ease-in-out infinite",
+            zIndex: 2,
+          }} />
+        ) : null}
       </div>
 
       {/* Srodek - nazwa, profil chip, status, progress */}
@@ -199,10 +215,14 @@ function StudentRow({ student, onClick, onDelete }) {
               fontSize: 10.5, fontWeight: 900,
               padding: "3px 9px", borderRadius: 999,
               background: st.bg, color: st.color,
+              boxShadow: status === "verified"
+                ? "inset 0 0 0 1.2px rgba(95,167,111,.45), 0 1px 3px rgba(60,110,30,.18)"
+                : "none",
             }}>
               <span style={{
                 width: 6, height: 6, borderRadius: "50%", background: st.dot,
                 ...(status === "submitted" ? { animation: "pulse-dot 1.6s ease-in-out infinite" } : {}),
+                ...(status === "verified" && verifiedFresh ? { animation: "pulse-dot 2.2s ease-in-out infinite" } : {}),
               }} />
               {st.label}
             </span>
@@ -214,6 +234,18 @@ function StudentRow({ student, onClick, onDelete }) {
           {lastActivity && (
             <span style={{ fontSize: 10.5, fontWeight: 700, color: "var(--p-ink-soft)" }}>
               · {timeAgo(lastActivity)}
+            </span>
+          )}
+          {/* Po swiezym zatwierdzeniu pokazujemy hint dla mentora: "wyslij nowe zadanie" */}
+          {verifiedFresh && (
+            <span style={{
+              fontSize: 9.5, fontWeight: 900, letterSpacing: 0.4,
+              padding: "2px 8px", borderRadius: 999,
+              background: "rgba(255,210,105,.35)", color: "#A66A1A",
+              boxShadow: "inset 0 0 0 1.1px rgba(232,154,61,.45)",
+              textTransform: "uppercase",
+            }}>
+              ✦ Wyślij nowe
             </span>
           )}
         </div>
