@@ -502,9 +502,11 @@ export const Coin = ({ size = 22, anim = false, delay = 0 }) => {
 };
 
 // Pigułka z licznikiem monet
-export const CoinPill = ({ value = 0, size = 22, recent = null, onClick }) => (
+// pulse=true -> animacja scale+glow (np. po wyladowaniu coinow z RewardScreen)
+export const CoinPill = ({ value = 0, size = 22, recent = null, onClick, pulse = false }) => (
   <button
     onClick={onClick}
+    className={pulse ? "coin-pill-pulse" : ""}
     style={{
       display: "inline-flex",
       alignItems: "center",

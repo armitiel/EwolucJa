@@ -11,7 +11,7 @@
  *  - showLektor (default true) - czy w ogole pokazac kontrolki lektora
  *  - showMusic (default true) - czy pokazac toggle muzyki
  */
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppData } from "../contexts/AppData.jsx";
 import { CoinPill } from "./art.jsx";
@@ -33,7 +33,21 @@ export default function TopBar({
   speed = 0.86,
 }) {
   const navigate = useNavigate();
-  const { player } = useAppData();
+  const { player, refreshAll } = useAppData();
+  const [coinPulse, setCoinPulse] = useState(false);
+
+  // Globalny listener "ewolucja:coinsLanded" - emitowane przez RewardScreen po animacji
+  // flying-coins. Wymusza odswiezenie player.coins z bazy + krotki pulse CoinPill.
+  useEffect(() => {
+    function handleCoinsLanded() {
+      try { refreshAll?.(); } catch {}
+      setCoinPulse(true);
+      const t = setTimeout(() => setCoinPulse(false), 1200);
+      return () => clearTimeout(t);
+    }
+    window.addEventListener("ewolucja:coinsLanded", handleCoinsLanded);
+    return () => window.removeEventListener("ewolucja:coinsLanded", handleCoinsLanded);
+  }, [refreshAll]);
 
   if (!player) return null;
 
@@ -122,7 +136,7 @@ export default function TopBar({
         </div>
       )}
       <div style={{ flexShrink: 0 }}>
-        <CoinPill value={totalCoins} onClick={() => navigate("/backpack")} />
+        <CoinPill value={totalCoins} onClick={() => navigate("/backpack")} pulse={coinPulse} />
       </div>
       {showLogout && (
         <button

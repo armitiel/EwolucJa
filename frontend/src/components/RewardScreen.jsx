@@ -31,6 +31,9 @@ const CONFETTI_COLORS = ["#FFD269", "#B886E8", "#7BC0E8", "#F08C8C", "#5FA76F", 
 const CONFETTI_PIECES = 32;
 const SPARKLE_PIECES = 12;
 const COIN_TALLY_MS = 1800;
+const FLY_COINS_COUNT = 8;        // Ile monet leci do TopBar
+const FLY_COIN_DURATION_MS = 900; // Czas pojedynczego lotu
+const FLY_COIN_STAGGER_MS = 80;   // Odstep miedzy startami
 
 export default function RewardScreen({
   eyebrow,
@@ -44,6 +47,7 @@ export default function RewardScreen({
   autoDismissMs,
 }) {
   const [coinCount, setCoinCount] = useState(0);
+  const [flyCoins, setFlyCoins] = useState(false);
 
   useEffect(() => {
     try { fx.gentleMagical(0.7); } catch {}
@@ -56,6 +60,21 @@ export default function RewardScreen({
       if (t >= 1) clearInterval(tick);
     }, 40);
     return () => clearInterval(tick);
+  }, [coins]);
+
+  // Po zakonczeniu animacji licznika -> wyslij monety do TopBar.
+  // Sekwencja: licznik (1.8s) -> flying coins (0.9s + stagger) -> event "coinsLanded".
+  useEffect(() => {
+    if (!coins || coins <= 0) return;
+    const startFly = setTimeout(() => setFlyCoins(true), COIN_TALLY_MS);
+    // Event emitowany gdy ostatni coin "wlatuje" - TopBar zlapie i odswiezy + pulsuje
+    const lastCoinArrival = COIN_TALLY_MS + FLY_COIN_DURATION_MS + (FLY_COINS_COUNT - 1) * FLY_COIN_STAGGER_MS;
+    const emitLanded = setTimeout(() => {
+      try {
+        window.dispatchEvent(new CustomEvent("ewolucja:coinsLanded", { detail: { amount: coins } }));
+      } catch {}
+    }, lastCoinArrival);
+    return () => { clearTimeout(startFly); clearTimeout(emitLanded); };
   }, [coins]);
 
   // Auto-dismiss (opcjonalne)
@@ -205,6 +224,44 @@ export default function RewardScreen({
           </button>
         )}
       </div>
+
+      {/* Flying coins - lecą z miejsca licznika do prawego górnego rogu (TopBar CoinPill).
+          Trajektoria: krzywa Beziera, scale 1 → 0.5, rotate, fade out na koniec.
+          CSS variables --tx, --ty obliczane runtime z window dimensions. */}
+      {flyCoins && Array.from({ length: FLY_COINS_COUNT }).map((_, i) => {
+        // Cel: TopBar CoinPill - prawy gorny rog (top ~36px, right ~30px)
+        const targetX = window.innerWidth - 60;
+        const targetY = 36;
+        // Start: srodek modalu, mniej-wiecej tam gdzie pigulka licznika
+        const startX = window.innerWidth / 2;
+        const startY = window.innerHeight * 0.42;
+        const tx = targetX - startX;
+        const ty = targetY - startY;
+        return (
+          <div
+            key={`fly${i}`}
+            aria-hidden="true"
+            style={{
+              position: "fixed",
+              left: startX,
+              top: startY,
+              width: 24,
+              height: 24,
+              marginLeft: -12,
+              marginTop: -12,
+              borderRadius: "50%",
+              background: "radial-gradient(circle at 35% 30%, #FFE7B0 0%, #FFD269 50%, #E89A3D 100%)",
+              boxShadow: "0 0 18px rgba(255,210,105,.9), inset 0 0 0 1.5px #B47322",
+              animation: `coin-fly ${FLY_COIN_DURATION_MS}ms cubic-bezier(.45,.05,.55,.95) ${i * FLY_COIN_STAGGER_MS}ms forwards`,
+              ["--tx"]: `${tx}px`,
+              ["--ty"]: `${ty}px`,
+              pointerEvents: "none",
+              zIndex: 10001,
+              opacity: 0,
+            }}
+          />
+        );
+      })}
     </div>
   );
 }

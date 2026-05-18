@@ -344,7 +344,20 @@ h3.title{ font-size: 22px; margin:0; }
   100% { opacity: 0; transform: translate(calc(-50% + var(--burst-x, 0)), calc(-50% + var(--burst-y, 0))) scale(.6) rotate(180deg); }
 }
 @keyframes coin-bump { 0%{ transform: scale(.4); opacity:0 } 60%{ transform: scale(1.2); opacity:1 } 100%{ transform: scale(1); opacity:1 } }
-@keyframes coin-fly  { 0%{ transform: translate(0,0) scale(1); opacity:1 } 100%{ transform: translate(var(--tx,0px), var(--ty,-60px)) scale(.4); opacity:0 } }
+@keyframes coin-fly {
+  0%   { transform: translate(0,0) scale(.6) rotate(0deg); opacity: 0; }
+  10%  { transform: translate(calc(var(--tx,0px) * .02), calc(var(--ty,0px) * .02 - 30px)) scale(1.15) rotate(40deg); opacity: 1; }
+  60%  { transform: translate(calc(var(--tx,0px) * .65), calc(var(--ty,0px) * .65 - 50px)) scale(1) rotate(240deg); opacity: 1; }
+  90%  { transform: translate(calc(var(--tx,0px) * .96), calc(var(--ty,0px) * .96)) scale(.8) rotate(420deg); opacity: 1; }
+  100% { transform: translate(var(--tx,0px), var(--ty,0px)) scale(.4) rotate(540deg); opacity: 0; }
+}
+@keyframes coin-pill-pulse {
+  0%   { transform: scale(1); box-shadow: inset 0 0 0 1.8px #E1B66A, 0 3px 0 #B47322, 0 4px 10px rgba(160,110,30,.30); }
+  25%  { transform: scale(1.22); box-shadow: inset 0 0 0 2px #E1B66A, 0 3px 0 #B47322, 0 6px 28px rgba(255,210,105,.95), 0 0 40px rgba(255,210,105,.7); }
+  60%  { transform: scale(1.08); box-shadow: inset 0 0 0 1.8px #E1B66A, 0 3px 0 #B47322, 0 4px 18px rgba(255,210,105,.55), 0 0 20px rgba(255,210,105,.35); }
+  100% { transform: scale(1); box-shadow: inset 0 0 0 1.8px #E1B66A, 0 3px 0 #B47322, 0 4px 10px rgba(160,110,30,.30); }
+}
+.coin-pill-pulse { animation: coin-pill-pulse 1.2s ease-out; }
 @keyframes coin-tally{ 0%,100%{ transform: scale(1) } 50%{ transform: scale(1.18) } }
 @keyframes wk-bump   { 0%{ transform: scale(0); opacity:0 } 70%{ transform: scale(1.2); opacity:1 } 100%{ transform: scale(1) } }
 @keyframes streak-flame{ 0%,100%{ transform: rotate(-4deg) scale(1) } 50%{ transform: rotate(4deg) scale(1.08) } }
