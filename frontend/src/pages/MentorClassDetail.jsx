@@ -548,17 +548,19 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
               return (
                 <button key={t.k} onClick={() => setTab(t.k)} style={{
                   all: "unset", cursor: "pointer", flex: 1, textAlign: "center",
-                  padding: "8px 6px", borderRadius: 12,
-                  background: active ? "var(--p-magic-dk)" : "rgba(255,255,255,.55)",
-                  color: active ? "#fff" : "var(--p-ink-soft)",
-                  fontFamily: "Nunito,sans-serif", fontWeight: 800, fontSize: 12,
-                  boxShadow: active ? "0 2px 0 rgba(43,30,90,.5)" : "inset 0 0 0 1.2px rgba(43,42,74,.08)",
+                  padding: "11px 8px", borderRadius: 14,
+                  background: active ? "var(--p-magic-dk)" : "rgba(255,255,255,.75)",
+                  color: active ? "#fff" : "var(--p-ink)",
+                  fontFamily: "Nunito,sans-serif", fontWeight: 900, fontSize: 14,
+                  letterSpacing: 0.3,
+                  boxShadow: active ? "0 3px 0 rgba(43,30,90,.55), 0 6px 14px rgba(74,45,128,.3)" : "inset 0 0 0 1.4px rgba(43,42,74,.12)",
+                  transition: "all .15s ease",
                 }}>
                   {t.l}
                   {typeof t.n !== "undefined" && t.n > 0 && (
                     <span style={{
-                      fontSize: 9.5, marginLeft: 4, padding: "1px 6px",
-                      background: active ? "rgba(255,210,105,.3)" : "rgba(43,42,74,.08)",
+                      fontSize: 11, marginLeft: 6, padding: "2px 8px",
+                      background: active ? "rgba(255,210,105,.4)" : "rgba(43,42,74,.10)",
                       borderRadius: 999, fontWeight: 900,
                       color: active ? "#FFD269" : "var(--p-ink-soft)",
                     }}>{t.n}{t.badge ? ` · ${t.badge}✉` : ""}</span>
@@ -572,28 +574,29 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
           {tab === "wyslij" && (
             <>
               <div className="card card-paper" style={{ padding: 12 }}>
-                {/* Chips wyboru typu */}
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 5, marginBottom: 10 }}>
+                {/* Chips wyboru typu - bigger, more contrast */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6, marginBottom: 12 }}>
                   {Object.entries(KINDS).map(([key, k]) => {
                     const active = composerKind === key;
                     return (
                       <button key={key} onClick={() => setComposerKind(key)} style={{
                         all: "unset", cursor: "pointer",
-                        padding: "7px 4px", borderRadius: 10,
-                        background: active ? k.bg : "rgba(255,255,255,.65)",
-                        boxShadow: active ? `inset 0 0 0 1.6px ${k.c}` : "inset 0 0 0 1.2px rgba(43,42,74,.08)",
-                        display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
-                        fontSize: 11, fontWeight: 800, color: active ? k.dk : "var(--p-ink)",
+                        padding: "10px 6px", borderRadius: 12,
+                        background: active ? k.bg : "rgba(255,255,255,.78)",
+                        boxShadow: active ? `inset 0 0 0 2px ${k.c}, 0 2px 6px ${k.c}33` : "inset 0 0 0 1.4px rgba(43,42,74,.12)",
+                        display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                        fontSize: 13, fontWeight: 900, color: active ? k.dk : "var(--p-ink)",
                         textAlign: "center",
+                        transition: "all .15s ease",
                       }}>
-                        <span>{k.icon}</span> {k.label}
+                        <span style={{ fontSize: 15 }}>{k.icon}</span> {k.label}
                       </button>
                     );
                   })}
                 </div>
 
-                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, padding: "0 2px" }}>
-                  <div className="t-display" style={{ fontSize: 13.5, color: sel.dk }}>Wyślij {sel.label.toLowerCase()}</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10, padding: "0 2px" }}>
+                  <div className="t-display" style={{ fontSize: 16, color: sel.dk, fontWeight: 800 }}>Wyślij {sel.label.toLowerCase()}</div>
                   <span style={{ flex: 1 }} />
                   {/* Generator: szuka gotowego szablonu dopasowanego do profilu ucznia */}
                   <button
@@ -601,19 +604,19 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
                     title={`Wygeneruj losowy ${sel.label.toLowerCase()} z biblioteki — dopasowany do profilu`}
                     style={{
                       border: "none", cursor: "pointer",
-                      padding: "5px 11px", borderRadius: 999,
+                      padding: "7px 14px", borderRadius: 999,
                       background: "linear-gradient(180deg,#C8A0F0,#7A4DC2)",
-                      color: "#fff", fontFamily: "Nunito,sans-serif", fontWeight: 800, fontSize: 11,
+                      color: "#fff", fontFamily: "Nunito,sans-serif", fontWeight: 800, fontSize: 12.5,
                       letterSpacing: 0.4,
-                      boxShadow: "0 2px 0 #4A2D80, 0 3px 8px rgba(74,45,128,.35)",
-                      display: "inline-flex", alignItems: "center", gap: 4,
+                      boxShadow: "0 2px 0 #4A2D80, 0 4px 10px rgba(74,45,128,.4)",
+                      display: "inline-flex", alignItems: "center", gap: 5,
                     }}
                   >
                     ✦ Wygeneruj
                   </button>
                 </div>
-                <div style={{ display: "flex", padding: "0 2px 4px" }}>
-                  <span style={{ fontSize: 10, fontWeight: 800, color: "var(--p-ink-soft)" }}>{sel.hint}</span>
+                <div style={{ display: "flex", padding: "0 2px 6px" }}>
+                  <span style={{ fontSize: 11.5, fontWeight: 800, color: "var(--p-ink)", opacity: 0.8 }}>{sel.hint}</span>
                 </div>
 
                 <input
@@ -622,10 +625,10 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
                   placeholder={isTask ? "Tytuł (np. Pomóż w kuchni 10 minut)" : composerKind === "hint" ? "Tytuł hinta (opcjonalnie)" : "Nazwa artefaktu (np. Klucz do drzwi)"}
                   style={{
                     width: "100%", border: "none", boxSizing: "border-box",
-                    background: "rgba(255,255,255,.85)",
-                    padding: "9px 12px", borderRadius: 11,
-                    fontFamily: "Nunito,sans-serif", fontSize: 12.5, fontWeight: 700, color: "var(--p-ink)",
-                    boxShadow: `inset 0 0 0 1.4px ${sel.c}40`,
+                    background: "rgba(255,255,255,.95)",
+                    padding: "12px 14px", borderRadius: 12,
+                    fontFamily: "Nunito,sans-serif", fontSize: 14, fontWeight: 700, color: "var(--p-ink)",
+                    boxShadow: `inset 0 0 0 1.6px ${sel.c}55`,
                   }}
                 />
                 <textarea
@@ -633,35 +636,35 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
                   onChange={(e) => setCBody(e.target.value)}
                   placeholder={isTask ? "Co dokładnie ma zrobić? Co będzie dowodem?" : composerKind === "hint" ? "Twoja podpowiedź…" : "Co ten artefakt potrafi w grze?"}
                   style={{
-                    width: "100%", marginTop: 7, border: "none", boxSizing: "border-box",
-                    background: "rgba(255,255,255,.85)",
-                    padding: "9px 12px", borderRadius: 11,
-                    fontFamily: "Nunito,sans-serif", fontSize: 12.5, fontWeight: 600, color: "var(--p-ink)",
-                    minHeight: 60, resize: "vertical",
-                    boxShadow: `inset 0 0 0 1.4px ${sel.c}40`,
+                    width: "100%", marginTop: 8, border: "none", boxSizing: "border-box",
+                    background: "rgba(255,255,255,.95)",
+                    padding: "12px 14px", borderRadius: 12,
+                    fontFamily: "Nunito,sans-serif", fontSize: 14, fontWeight: 600, color: "var(--p-ink)",
+                    minHeight: 72, resize: "vertical",
+                    boxShadow: `inset 0 0 0 1.6px ${sel.c}55`,
                   }}
                 />
 
                 {/* Reward slider - tylko dla taska */}
                 {isTask && (
-                  <div style={{ marginTop: 10 }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-                      <span style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: 1.2, color: "#A66A1A", textTransform: "uppercase" }}>Nagroda · monety</span>
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 10px", borderRadius: 999, background: "linear-gradient(180deg,#FFD269,#E89A3D)", color: "#4A2A0E", fontWeight: 900, fontSize: 13, boxShadow: "0 2px 0 #B47322" }}>
-                        <span style={{ width: 12, height: 12, borderRadius: "50%", background: "radial-gradient(circle at 35% 30%, #FFE7B0, #E89A3D)" }} />
+                  <div style={{ marginTop: 12 }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                      <span style={{ fontSize: 11, fontWeight: 900, letterSpacing: 1.4, color: "#A66A1A", textTransform: "uppercase" }}>Nagroda · monety</span>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 12px", borderRadius: 999, background: "linear-gradient(180deg,#FFD269,#E89A3D)", color: "#4A2A0E", fontWeight: 900, fontSize: 15, boxShadow: "0 2px 0 #B47322" }}>
+                        <span style={{ width: 14, height: 14, borderRadius: "50%", background: "radial-gradient(circle at 35% 30%, #FFE7B0, #E89A3D)" }} />
                         +{cReward}
                       </span>
                     </div>
                     <input type="range" min={15} max={40} step={5}
                       value={cReward}
                       onChange={(e) => setCReward(Number(e.target.value))}
-                      style={{ width: "100%", accentColor: "#E89A3D" }} />
+                      style={{ width: "100%", accentColor: "#E89A3D", height: 24 }} />
                   </div>
                 )}
 
                 <button
                   className={isTask ? "btn btn-primary btn-block" : "btn btn-magic btn-block"}
-                  style={{ marginTop: 10, fontSize: 13, padding: "12px 16px" }}
+                  style={{ marginTop: 14, fontSize: 15, padding: "14px 18px", fontWeight: 900, letterSpacing: 0.3 }}
                   onClick={handleComposerSend}
                   disabled={sending || !cBody.trim() || (isTask && !cTitle.trim())}
                 >
