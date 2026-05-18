@@ -120,35 +120,80 @@ function PoradaGlyph({ kind = "medrzec", size = 56, tone = "magic" }) {
   );
 }
 
+// FreshTipCard wg mockupu Ekran Porad: duza fioletowa karta z Medrcem PNG po lewej,
+// sparkles + ksiezyc/slonce po prawej, tytul w cieplym kolorze i krotki opis.
+// Klikalna - otwiera modal z pelna trescia (zachowuje onOpen).
 function FreshTipCard({ tip, onOpen, read = false }) {
-  const slot = SLOT_META[tip.slot] || SLOT_META.poludnie;
-  const cat = PORADY_CATEGORIES.find((c) => c.id === tip.category) || {};
-  // Przeczytane = mniej "krzykliwe": nizsze nasycenie + opacity
   return (
     <button onClick={() => onOpen?.(tip)} style={{
-      display: "flex", alignItems: "stretch", gap: 16, padding: "16px 16px",
-      borderRadius: 22, border: "none", cursor: "pointer", textAlign: "left", width: "100%",
-      background: `linear-gradient(180deg,${slot.color} 0%,#fff 100%)`,
-      boxShadow: `0 3px 0 ${slot.ring}33, 0 12px 28px rgba(43,42,74,.18), inset 0 0 0 1.5px rgba(255,255,255,.85)`,
-      fontFamily: "inherit", color: "var(--p-ink)",
-      position: "relative",
-      transition: "transform .2s ease, box-shadow .2s ease, opacity .3s ease, filter .3s ease",
-      opacity: read ? 0.7 : 1,
-      filter: read ? "saturate(.55)" : "none",
-    }} onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; }} onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; }}>
-      <PoradaGlyph kind={tip.icon || "medrzec"} tone={tip.tone || slot.tone} size={64} />
-      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "center", gap: 6 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 11, fontWeight: 900, letterSpacing: 1.2, color: slot.ring, background: "rgba(255,255,255,.6)", padding: "3px 9px", borderRadius: 999 }}>{slot.emoji} {slot.label.toUpperCase()}</span>
-          {read && (
-            <span style={{ fontSize: 9, fontWeight: 900, letterSpacing: 1, color: "var(--p-ink-soft)", background: "rgba(43,42,74,.10)", padding: "2px 7px", borderRadius: 999 }}>
-              ✓ PRZECZYTANE
-            </span>
-          )}
-          <span style={{ fontSize: 10, color: "var(--p-ink-soft)", fontWeight: 700 }}>· {tip.time || "1 min"}</span>
+      position: "relative", borderRadius: 24, overflow: "hidden",
+      padding: "20px 18px 18px",
+      background: "linear-gradient(160deg,#7A4DC2 0%,#4A2D80 70%,#2C1755 100%)",
+      color: "#fff",
+      boxShadow: "0 4px 0 rgba(43,30,90,.5), 0 16px 36px rgba(43,30,90,.45)",
+      border: "none", cursor: "pointer", textAlign: "left", width: "100%",
+      fontFamily: "inherit",
+      opacity: read ? 0.8 : 1,
+      transition: "transform .2s ease, opacity .3s ease",
+    }}
+    onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; }}
+    onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; }}
+    >
+      {/* Slonce/ksiezyc kompozytowy w prawym gornym rogu */}
+      <div aria-hidden="true" style={{ position: "absolute", top: 14, right: 18 }}>
+        <svg width="40" height="40" viewBox="0 0 40 40">
+          <circle cx="22" cy="18" r="13" fill="#FFD269" />
+          <circle cx="27" cy="14" r="11" fill="#7A4DC2" />
+        </svg>
+      </div>
+      {/* Trzy sparkles - delikatne, animowane */}
+      <div aria-hidden="true" style={{ position: "absolute", top: 60, right: 60, opacity: 0.85 }}>
+        <svg width="12" height="12" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill="#FFD269" /></svg>
+      </div>
+      <div aria-hidden="true" style={{ position: "absolute", top: 30, right: 120, opacity: 0.85 }}>
+        <svg width="9" height="9" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill="#FFE7B0" /></svg>
+      </div>
+      <div aria-hidden="true" style={{ position: "absolute", bottom: 18, right: 24, opacity: 0.7 }}>
+        <svg width="14" height="14" viewBox="0 0 16 16"><path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5Z" fill="#C8A0F0" /></svg>
+      </div>
+
+      {/* Label gora: PORADA DNIA - OD MEDRCA + chip PRZECZYTANE jesli juz */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 10, letterSpacing: 2, opacity: 0.85, textTransform: "uppercase", fontWeight: 700 }}>
+        <span>Porada dnia · Od Mędrca</span>
+        {read && (
+          <span style={{ fontSize: 9, letterSpacing: 1, background: "rgba(255,255,255,.18)", padding: "2px 8px", borderRadius: 999, fontWeight: 800 }}>✓ Przeczytane</span>
+        )}
+      </div>
+
+      {/* Wizard PNG + tytul + opis */}
+      <div style={{ display: "flex", gap: 12, alignItems: "flex-end", marginTop: 10 }}>
+        <img src="/wizhead.svg" alt="" style={{
+          width: 84, height: "auto", flex: "none",
+          filter: "drop-shadow(0 4px 8px rgba(0,0,0,.4))",
+          marginBottom: -8,
+        }} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h3 className="t-display" style={{
+            margin: 0, fontSize: 22, lineHeight: 1.15, fontWeight: 700, color: "rgb(252, 244, 221)",
+          }}>
+            „{tip.title}"
+          </h3>
+          <div style={{ marginTop: 6, fontSize: 12.5, lineHeight: 1.4, opacity: 0.88,
+            display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+            {tip.body}
+          </div>
         </div>
-        <div className="t-display" style={{ fontSize: 17, lineHeight: 1.2, fontWeight: 700, paddingRight: 8 }}>{tip.title}</div>
-        <div style={{ fontSize: 13.5, color: "var(--p-ink)", lineHeight: 1.42 }}>{tip.body}</div>
+      </div>
+
+      {/* Dolny CTA: Przeczytaj calosc (klik karty otwiera tez modal) */}
+      <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+        <span style={{
+          flex: 1, textAlign: "center",
+          padding: "9px 12px", borderRadius: 12,
+          background: "linear-gradient(180deg,#FFD269,#E89A3D)", color: "#4A2A0E",
+          boxShadow: "0 2px 0 #B47322",
+          fontSize: 13, fontWeight: 800, letterSpacing: 0.3,
+        }}>Przeczytaj całość →</span>
       </div>
     </button>
   );
@@ -205,6 +250,39 @@ function TipModal({ tip, onClose }) {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// PoradyStatStrip - 3 male statystyki wg mockupu Ekran Porad:
+// przeczytanych | nowych dzis | dni w grze. Pulse-ring na "nowe dzis" gdy > 0.
+function PoradyStatStrip({ readCount = 0, newToday = 0, daysInGame = 1 }) {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, margin: "4px 0 4px" }}>
+      <StatPill n={readCount} label="przeczytanych" />
+      <StatPill n={newToday} label="nowych dziś" pulse={newToday > 0} accent />
+      <StatPill n={daysInGame} label={daysInGame === 1 ? "dzień w grze" : "dni w grze"} />
+    </div>
+  );
+}
+function StatPill({ n, label, pulse = false, accent = false }) {
+  return (
+    <div style={{
+      padding: "10px 10px", borderRadius: 14,
+      background: accent ? "rgba(255,210,105,.30)" : "rgba(255,255,255,.78)",
+      boxShadow: "inset 0 0 0 1.2px rgba(43,42,74,.08)",
+      display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
+      position: "relative",
+    }}>
+      {pulse && (
+        <span aria-hidden="true" style={{
+          position: "absolute", top: 8, right: 10, width: 8, height: 8, borderRadius: "50%",
+          background: "#E89A3D", boxShadow: "0 0 0 0 rgba(232,154,61,.6)",
+          animation: "pulse-ring 1.6s ease-out infinite",
+        }} />
+      )}
+      <div className="t-display" style={{ fontSize: 22, lineHeight: 1, color: accent ? "#7A4D10" : "var(--p-ink)" }}>{n}</div>
+      <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: 0.5, color: "var(--p-ink-soft)", textTransform: "uppercase" }}>{label}</div>
     </div>
   );
 }
@@ -389,6 +467,17 @@ export default function PoradyPage() {
       <TopBar />
       <div className="screen-scroll" style={{ flex: 1, minHeight: 0, padding: "12px 18px calc(100px + env(safe-area-inset-bottom, 0px))", display: "flex", flexDirection: "column", gap: 14 }}>
 
+        {/* Header wg mockupu Ekran Porad: maly label KOMNATA MEDRCA + duzy h1 "Porady".
+            Subtelnie wprowadza w nastroj sekcji - "tu mieszka Medrzec, tu sa porady na dzis". */}
+        <div style={{ opacity: 0, animation: "el-up .55s ease 0s forwards", padding: "2px 2px 0" }}>
+          <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.8, color: "var(--p-magic-dk)", textTransform: "uppercase" }}>
+            Komnata Mędrca
+          </div>
+          <h1 className="t-display" style={{ fontSize: 28, margin: "2px 0 0", lineHeight: 1, color: "var(--p-ink)" }}>
+            Porady
+          </h1>
+        </div>
+
         {/* Tab switcher: ikonki (magiczna kula vs koperta) - dla dziecka czytelniejsze niz tekst */}
         <div style={{
           display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8,
@@ -472,17 +561,18 @@ export default function PoradyPage() {
         `}</style>
         {tab === "porady" && (
           <div className="porady-tab-content" key="tab-porady" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            {/* ŚWIEŻA porada — duża karta dla aktualnego slotu */}
+            {/* ŚWIEŻA porada — duża fioletowa karta dla aktualnego slotu (wg mockupu Ekran Porad) */}
             {freshTip && (
-              <>
-                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", margin: "4px 4px 0" }}>
-                  <div className="t-display" style={{ fontSize: 19, color: "var(--p-ink)" }}>
-                    ✦ Świeża porada {SLOT_META[nowSlot].label.toLowerCase()}
-                  </div>
-                </div>
-                <FreshTipCard tip={freshTip} onOpen={handleOpenTip} read={readTips.has(freshTip.id)} />
-              </>
+              <FreshTipCard tip={freshTip} onOpen={handleOpenTip} read={readTips.has(freshTip.id)} />
             )}
+
+            {/* Quick stat strip 3-kolumnowy: przeczytanych + nowych dziś + dni w grze.
+                Daje uczniowi poczucie progresu - "widze juz X przeczytanych porad". */}
+            <PoradyStatStrip
+              readCount={readTips.size}
+              newToday={todayTips.filter((t) => !readTips.has(t.id)).length}
+              daysInGame={today}
+            />
 
             {/* JUŻ DZIŚ (porady wcześniejszych slotów dnia) - przeczytane wyszarzone */}
             {todayPastTips.length > 0 && (
