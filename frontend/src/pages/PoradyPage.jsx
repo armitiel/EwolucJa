@@ -391,36 +391,23 @@ export default function PoradyPage() {
     }
   }
 
-  // Wszystkie porady dnia DZIŚ dla profilu (3 sloty)
-  const todayTips = useMemo(() => {
-    if (!profile) return [];
-    return tipsForDay(profile, today).filter((t) => t.audience === "dziecko");
-  }, [profile, today]);
-
-  // ŚWIEŻA: porada aktualnego slotu (1 sztuka)
-  const freshTip = useMemo(() => {
-    return todayTips.find((t) => t.slot === nowSlot) || null;
-  }, [todayTips, nowSlot]);
-
-  // SLOTY DZIŚ JUŻ ZA NAMI (poranne porady po południu wpadają tu)
-  const todayPastTips = useMemo(() => {
-    return todayTips
-      .filter((t) => SLOT_ORDER[t.slot] < nowOrder)
-      .sort((a, b) => SLOT_ORDER[a.slot] - SLOT_ORDER[b.slot]);
-  }, [todayTips, nowOrder]);
-
-  // SLOTY DZIŚ PRZYSZŁE (np. wieczór gdy jest poranek) — pokażemy "Wróć później"
-  const todayFutureSlots = useMemo(() => {
-    return ["poranek", "poludnie", "wieczor"].filter((s) => SLOT_ORDER[s] > nowOrder);
-  }, [nowOrder]);
-
-  // HISTORIA: wcześniejsze dni cyklu (1..today-1), wszystkie sloty
-  const historyTips = useMemo(() => {
+  // WSZYSTKIE dostepne porady profilu dla dziecka, posortowane od najnowszych
+  // (day desc, w obrebie dnia: wieczor > poludnie > poranek).
+  // Baza ma luki (niektore profile maja 9-30 porad lacznie zamiast 90), wiec zamiast
+  // sztywno trzymac sie day-based gating, pokazujemy CALOSC co jest dostepne -
+  // dziecko zawsze ma cos do czytania.
+  const availableTips = useMemo(() => {
     if (!profile) return [];
     return DAILY_TIPS
-      .filter((t) => t.profile === profile && t.audience === "dziecko" && t.day < today)
-      .sort((a, b) => (b.day - a.day) || (SLOT_ORDER[a.slot] - SLOT_ORDER[b.slot]));
-  }, [profile, today]);
+      .filter((t) => t.profile === profile && t.audience === "dziecko")
+      .sort((a, b) => (b.day - a.day) || (SLOT_ORDER[b.slot] - SLOT_ORDER[a.slot]));
+  }, [profile]);
+
+  // ŚWIEŻA: zawsze najnowsza dostepna porada (purple card na gorze) - niezaleznie od slotu.
+  const freshTip = useMemo(() => availableTips[0] || null, [availableTips]);
+
+  // HISTORIA: pozostale porady (bez freshTip), zachowuje sortowanie od najnowszych
+  const historyTips = useMemo(() => availableTips.slice(1), [availableTips]);
 
   const unreadCount = mentorMsgs.filter((m) => !m.viewed_at).length;
   const totalMsgCount = mentorMsgs.length;
@@ -542,38 +529,17 @@ export default function PoradyPage() {
         `}</style>
         {tab === "porady" && (
           <div className="porady-tab-content" key="tab-porady" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            {/* ŚWIEŻA porada — duża fioletowa karta dla aktualnego slotu (wg mockupu Ekran Porad) */}
+            {/* Najnowsza porada — duza purple card na gorze, zawsze dostepna */}
             {freshTip && (
               <FreshTipCard tip={freshTip} onOpen={handleOpenTip} read={readTips.has(freshTip.id)} />
             )}
 
-            {/* JUŻ DZIŚ (porady wcześniejszych slotów dnia) - przeczytane wyszarzone */}
-            {todayPastTips.length > 0 && (
+            {/* HISTORIA — wszystkie pozostale porady profilu, posortowane od najnowszych.
+                Pogrupowane po dniach z labelka DZIEN N - daje uczniowi poczucie kroniki rozwoju. */}
+            {historyTips.length > 0 && (
               <>
-                <div className="t-display" style={{ fontSize: 14, color: "var(--p-ink-soft)", margin: "8px 4px 0" }}>Już dziś</div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  {todayPastTips.map((t) => (
-                    <HistoryTipCard key={t.id} tip={t} dayLabel="Dziś" onOpen={handleOpenTip} read={readTips.has(t.id)} />
-                  ))}
-                </div>
-              </>
-            )}
-
-            {/* PRZYSZŁE sloty dnia — locked */}
-            {todayFutureSlots.length > 0 && (
-              <>
-                <div className="t-display" style={{ fontSize: 14, color: "var(--p-ink-soft)", margin: "4px 4px 0" }}>Jeszcze przed Tobą</div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {todayFutureSlots.map((s) => <LockedSlotCard key={s} slotKey={s} />)}
-                </div>
-              </>
-            )}
-
-            {/* HISTORIA — poprzednie dni */}
-            {historyByDay.length > 0 && (
-              <>
-                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", margin: "16px 4px 0" }}>
-                  <div className="t-display" style={{ fontSize: 16, color: "var(--p-ink-soft)" }}>Poprzednie dni</div>
+                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", margin: "10px 4px 0" }}>
+                  <div className="t-display" style={{ fontSize: 16, color: "var(--p-ink-soft)" }}>Wcześniejsze porady</div>
                   <span style={{ fontSize: 11, fontWeight: 700, color: "var(--p-ink-soft)", letterSpacing: 0.5 }}>{historyTips.length}</span>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -589,8 +555,8 @@ export default function PoradyPage() {
               </>
             )}
 
-            {/* Empty state - praktycznie niemozliwy bo zawsze dziecko ma >= 1 porade */}
-            {!freshTip && todayPastTips.length === 0 && historyByDay.length === 0 && (
+            {/* Empty state - tylko gdy profile nie ma zadnych porad w bazie */}
+            {!freshTip && (
               <div className="card" style={{ textAlign: "center", padding: "22px 16px", marginTop: 8 }}>
                 <div className="t-display" style={{ fontSize: 17 }}>Mędrzec zbiera myśli…</div>
                 <div style={{ fontSize: 13, color: "var(--p-ink-soft)", marginTop: 4 }}>Wróć tu za chwilę — pierwsza porada już w drodze.</div>
