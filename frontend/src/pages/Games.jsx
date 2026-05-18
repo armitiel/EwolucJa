@@ -24,18 +24,6 @@ const GAMES = [
     route: "/games/memory",
   },
   {
-    id: "echo-puzzle",
-    title: "Echo Słów",
-    desc: "Ułóż słowa z liter, które niesie wiatr znad Morza Słów.",
-    emoji: "🔤",
-    bg: "linear-gradient(135deg,#C9E9FF,#7BC0E8)",
-    accent: "#3F8BC2",
-    duration: "5 min",
-    coins: 12,
-    xp: 1,
-    state: "available",
-  },
-  {
     id: "trap-tropiciela",
     title: "Trop Tropiciela",
     desc: "Idź ścieżką dedukcji — wybierz właściwy znak na rozdrożu.",
@@ -55,6 +43,14 @@ export default function Games() {
   return (
     <PageShell>
       <TopBar />
+
+      {/* Delikatne pulsowanie samego emoji (tlo ikonki stoi w miejscu) */}
+      <style>{`
+        @keyframes gIconPulse {
+          0%, 100% { transform: scale(1); }
+          50%      { transform: scale(1.08); }
+        }
+      `}</style>
 
       <div
         className="screen-scroll"
@@ -120,7 +116,7 @@ export default function Games() {
                     minHeight: 150,
                   }}
                 >
-                  {/* Jedna duza ikona w kolowym tle - centralny element kafla */}
+                  {/* Tlo ikonki stoi nieruchomo - pulsuje tylko samo emoji w srodku */}
                   <div
                     style={{
                       width: 72,
@@ -131,12 +127,16 @@ export default function Games() {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: 38,
                       boxShadow: `inset 0 0 0 2px ${g.accent}33`,
-                      animation: locked ? "none" : `float-mid ${3 + idx * 0.4}s ease-in-out infinite`,
                     }}
                   >
-                    {locked ? "🔒" : g.emoji}
+                    <span style={{
+                      fontSize: 38, display: "inline-block",
+                      animation: locked ? "none" : `gIconPulse ${2.4 + idx * 0.3}s ease-in-out infinite`,
+                      animationDelay: `${idx * 0.4}s`,
+                    }}>
+                      {locked ? "🔒" : g.emoji}
+                    </span>
                   </div>
 
                   {/* Nazwa gry */}
