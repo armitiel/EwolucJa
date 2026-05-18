@@ -239,24 +239,21 @@ function TipModal({ tip, onClose }) {
       <div onClick={(e) => e.stopPropagation()} style={{
         width: "100%", maxWidth: 480,
         background: `linear-gradient(180deg,${slot.color} 0%, #fff 50%)`,
-        borderRadius: 24, padding: "22px 20px 18px",
+        borderRadius: 24, padding: "16px 18px 32px",
         boxShadow: "0 12px 36px rgba(43,30,90,.4)",
         color: "var(--p-ink)", position: "relative",
         animation: "tip-pop-in .42s cubic-bezier(.34,1.56,.64,1) both",
       }}>
         <button onClick={onClose} aria-label="Zamknij" style={{ position: "absolute", top: 12, right: 14, width: 32, height: 32, borderRadius: 999, border: "none", cursor: "pointer", background: "rgba(255,255,255,.75)", color: "var(--p-ink)", fontSize: 18, fontWeight: 800, boxShadow: "0 2px 6px rgba(43,30,90,.2)" }}>×</button>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-          <PoradaGlyph kind={tip.icon || "medrzec"} tone={tip.tone || slot.tone} size={56} />
-          <div style={{ flex: 1, minWidth: 0 }}>
-            {/* Tylko chip slot+day, bez "OD MEDRCA" (label kategorii usuniety - dla dziecka jest redundantny) */}
-            <span style={{ fontSize: 10, fontWeight: 900, letterSpacing: 1.2, color: slot.ring, background: "rgba(255,255,255,.7)", padding: "3px 9px", borderRadius: 999 }}>
-              {slot.emoji} {slot.label.toUpperCase()} · DZIEŃ {tip.day}
-            </span>
-          </div>
+        {/* Mala ikonka + chip slot+day w jednym pasku - oszczedza miejsce na gore */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, paddingRight: 36 }}>
+          <PoradaGlyph kind={tip.icon || "medrzec"} tone={tip.tone || slot.tone} size={36} />
+          <span style={{ fontSize: 10, fontWeight: 900, letterSpacing: 1.2, color: slot.ring, background: "rgba(255,255,255,.7)", padding: "3px 9px", borderRadius: 999, whiteSpace: "nowrap" }}>
+            {slot.emoji} {slot.label.toUpperCase()} · DZIEŃ {tip.day}
+          </span>
         </div>
-        <h3 className="t-display" style={{ margin: "4px 0 10px", fontSize: 22, lineHeight: 1.18, fontWeight: 700 }}>{tip.title}</h3>
+        <h3 className="t-display" style={{ margin: "4px 0 12px", fontSize: 22, lineHeight: 1.18, fontWeight: 700 }}>{tip.title}</h3>
         <div style={{ fontSize: 15, lineHeight: 1.5, color: "var(--p-ink)" }}>{tip.body}</div>
-        {/* Hashtagi tags usuniete - by treac byla czysta i nie zaszumiala dziecka */}
       </div>
     </div>
   );
