@@ -259,18 +259,38 @@ function TipModal({ tip, onClose }) {
   );
 }
 
-function LockedSlotCard({ slotKey }) {
+// Karta porady oczekujacej - dla slotow dnia ktorych jeszcze nie ma.
+// Ikona zegarka (⏰) zamiast klodki - lepiej komunikuje "trzeba poczekac", nie "zablokowane".
+function PendingSlotCard({ slotKey }) {
   const slot = SLOT_META[slotKey];
   if (!slot) return null;
-  const labelMap = { poranek: "Wróć rano", poludnie: "Wróć w południe", wieczor: "Wróć wieczorem" };
+  const labelMap = { poranek: "Czeka na poranek", poludnie: "Czeka na południe", wieczor: "Czeka na wieczór" };
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", borderRadius: 16, background: "rgba(255,255,255,.45)", boxShadow: "inset 0 0 0 1.5px rgba(43,42,74,.10)", fontFamily: "inherit", color: "var(--p-ink-soft)", border: "1.5px dashed rgba(122,77,194,.25)" }}>
-      <div style={{ fontSize: 26, opacity: 0.6 }}>{slot.emoji}</div>
-      <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.2, color: slot.ring, textTransform: "uppercase" }}>{slot.label}</div>
-        <div className="t-display" style={{ fontSize: 14, fontWeight: 700, color: "var(--p-ink-soft)", marginTop: 1 }}>{labelMap[slotKey]}</div>
+    <div style={{
+      display: "flex", alignItems: "center", gap: 12,
+      padding: "12px 14px", borderRadius: 16,
+      background: "rgba(255,255,255,.5)",
+      boxShadow: "inset 0 0 0 1.4px rgba(43,42,74,.08)",
+      border: "1.5px dashed rgba(122,77,194,.3)",
+      fontFamily: "inherit", color: "var(--p-ink-soft)",
+    }}>
+      <div style={{
+        width: 36, height: 36, flex: "none", borderRadius: 12,
+        background: "rgba(255,255,255,.7)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: 20,
+        boxShadow: `inset 0 0 0 1.2px ${slot.ring}33`,
+      }}>
+        ⏰
       </div>
-      <div style={{ fontSize: 18, opacity: 0.4 }}>🔒</div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.2, color: slot.ring, textTransform: "uppercase" }}>
+          {slot.emoji} {slot.label}
+        </div>
+        <div className="t-display" style={{ fontSize: 14, fontWeight: 700, color: "var(--p-ink)", marginTop: 1, opacity: 0.7 }}>
+          {labelMap[slotKey]}
+        </div>
+      </div>
     </div>
   );
 }
@@ -406,6 +426,13 @@ export default function PoradyPage() {
   // HISTORIA: pozostale porady (bez freshTip), zachowuje sortowanie od najnowszych
   const historyTips = useMemo(() => availableTips.slice(1), [availableTips]);
 
+  // OCZEKUJACE: sloty bieżącego dnia, które jeszcze nie nadeszły (np. wieczór gdy jest południe).
+  // Pokazane z ikoną zegarka jako "Czeka na poranek/południe/wieczór" - daje dziecku poczucie,
+  // że Mędrzec ma jeszcze coś w zanadrzu na ten dzień.
+  const todayFutureSlots = useMemo(() => {
+    return ["poranek", "poludnie", "wieczor"].filter((s) => SLOT_ORDER[s] > nowOrder);
+  }, [nowOrder]);
+
   const unreadCount = mentorMsgs.filter((m) => !m.viewed_at).length;
   const totalMsgCount = mentorMsgs.length;
 
@@ -529,6 +556,19 @@ export default function PoradyPage() {
             {/* Najnowsza porada — duza purple card na gorze, zawsze dostepna */}
             {freshTip && (
               <FreshTipCard tip={freshTip} onOpen={handleOpenTip} read={readTips.has(freshTip.id)} />
+            )}
+
+            {/* OCZEKUJACE - sloty dnia jeszcze przed nami, z ikona zegarka */}
+            {todayFutureSlots.length > 0 && (
+              <>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "10px 4px 0" }}>
+                  <span style={{ fontSize: 16 }}>⏰</span>
+                  <div className="t-display" style={{ fontSize: 16, color: "var(--p-ink-soft)" }}>Wkrótce</div>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {todayFutureSlots.map((s) => <PendingSlotCard key={s} slotKey={s} />)}
+                </div>
+              </>
             )}
 
             {/* HISTORIA — wszystkie pozostale porady profilu, posortowane od najnowszych.
