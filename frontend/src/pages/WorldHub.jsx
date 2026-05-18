@@ -281,19 +281,16 @@ export default function WorldHub() {
               background: "linear-gradient(135deg, rgba(200,160,240,.55), rgba(184,134,232,.35))",
             }}
           >
-            {/* Tlo SVG — Porady.svg, wypelnia cala karte (cover) */}
+            {/* Subtelny vignette w odcieniach fioletu — pasuje do "zadan w realu" (zwoj+wstega) */}
             <div aria-hidden="true" style={{
               position: "absolute", inset: 0,
-              backgroundImage: "url('/Porady.svg')",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-              opacity: 0.55, pointerEvents: "none",
+              background: "radial-gradient(ellipse at 80% 50%, rgba(184,134,232,.35) 0%, rgba(120,80,200,.10) 50%, transparent 80%)",
+              pointerEvents: "none",
             }} />
             {/* Biala warstwa po lewej dla czytelnosci tekstu */}
             <div aria-hidden="true" style={{
               position: "absolute", inset: 0,
-              background: "linear-gradient(90deg, rgba(255,255,255,.65) 0%, rgba(255,255,255,.30) 45%, rgba(255,255,255,0) 75%)",
+              background: "linear-gradient(90deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.20) 50%, rgba(255,255,255,0) 80%)",
               pointerEvents: "none",
             }} />
             <div
@@ -305,13 +302,13 @@ export default function WorldHub() {
                 position: "relative", zIndex: 1,
               }}
             >
-              {/* zwoj2.png — mały zwoj jako prawdziwa ikona */}
+              {/* zwoj2.svg — pelen zwoj z wstega + Medrzec (single source asset z trybu sealed) */}
               <img
-                src="/zwoj2.png"
+                src="/zwoj2.svg"
                 alt=""
                 style={{
-                  width: 78, height: 78, objectFit: "contain",
-                  filter: "drop-shadow(0 4px 8px rgba(120,80,30,.35))",
+                  width: 80, height: "auto", objectFit: "contain",
+                  filter: "drop-shadow(0 4px 8px rgba(80,40,140,.35))",
                 }}
               />
             </div>
