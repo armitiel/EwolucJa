@@ -298,7 +298,6 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
   const [cBody, setCBody] = useState("");
   const [cReward, setCReward] = useState(25);
   const [sending, setSending] = useState(false);
-  const [linkCopied, setLinkCopied] = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
 
   async function load() {
@@ -404,18 +403,12 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
       background: "linear-gradient(180deg, #FFE5C8 0%, #FFCFAB 60%, #F9BAA0 100%)",
       animation: "fadeIn .25s ease-out both",
     }}>
-      {/* BackBar - Wroc + Skopiuj link ucznia + odswiez */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "16px 16px 8px", flex: "none" }}>
-        <button onClick={onClose} style={{
-          border: "none", cursor: "pointer",
-          background: "rgba(255,255,255,.7)",
-          padding: "8px 14px", borderRadius: 999,
-          fontFamily: "Nunito,sans-serif", fontWeight: 800, fontSize: 12,
-          color: "var(--p-ink)",
-          boxShadow: "inset 0 0 0 1.2px rgba(43,42,74,.08)",
-        }}>← Wróć</button>
+      {/* BackBar - spójny z TopBar w widoku klasy: btn-ghost btn-sm dla Wróć/Odśwież.
+          Dodatkowo: kod ucznia jako kolorowy chip (do skopiowania dla rodzica). Link usunięty —
+          rodzic dostaje sam kod, który wpisuje na /odzyskaj (link był duplikatem funkcji). */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "16px 18px 8px", flex: "none" }}>
+        <button className="btn btn-ghost btn-sm" onClick={onClose}>← Wróć</button>
         <div style={{ flex: 1 }} />
-        {/* Kod ucznia - widoczny od razu, klikalny zeby skopiowac. Daje rodzicowi krotki kod do wpisania. */}
         {data?.player?.login_code && (
           <button
             onClick={() => {
@@ -439,39 +432,7 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
             {codeCopied ? "✓" : "🗝️"} {data.player.login_code}
           </button>
         )}
-        <button
-          onClick={() => {
-            const link = `${window.location.origin}/uczen?id=${studentId}`;
-            navigator.clipboard.writeText(link).then(() => {
-              setLinkCopied(true);
-              setTimeout(() => setLinkCopied(false), 1800);
-            }).catch(() => alert("Nie udało się skopiować. Skopiuj ręcznie: " + link));
-          }}
-          title="Skopiuj długi link (do SMS/maila — od razu otwiera grę)"
-          style={{
-            border: "none", cursor: "pointer",
-            background: linkCopied ? "linear-gradient(180deg,#A8E08F,#5FA76F)" : "rgba(255,255,255,.7)",
-            color: linkCopied ? "#fff" : "var(--p-ink)",
-            width: 34, height: 34, borderRadius: "50%",
-            boxShadow: "inset 0 0 0 1.2px rgba(43,42,74,.08)",
-            transition: "all .2s ease",
-            display: "inline-flex", alignItems: "center", justifyContent: "center",
-            fontSize: 14,
-          }}
-        >
-          {linkCopied ? "✓" : "🔗"}
-        </button>
-        <button onClick={() => load()} title="Odśwież" style={{
-          border: "none", cursor: "pointer",
-          background: "rgba(255,255,255,.7)",
-          width: 34, height: 34, borderRadius: "50%",
-          boxShadow: "inset 0 0 0 1.2px rgba(43,42,74,.08)",
-          display: "inline-flex", alignItems: "center", justifyContent: "center",
-        }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-            <path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5" stroke="var(--p-ink)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
+        <button className="btn btn-ghost btn-sm" onClick={() => load()}>↻ Odśwież</button>
       </div>
 
       {error && <div style={{ padding: 16, color: "#B85B47" }}>{error}</div>}

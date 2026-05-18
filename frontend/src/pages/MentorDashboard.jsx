@@ -145,7 +145,7 @@ function DemoPlayerCard({ navigate }) {
   }
 
   return (
-    <div className="card" style={{ padding: "14px 16px", marginTop: 4 }}>
+    <div className="card pop-in" style={{ padding: "14px 16px", marginTop: 4, animationDelay: "80ms" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <div style={{ fontSize: 28 }}>🎮</div>
         <div style={{ flex: 1 }}>
@@ -202,7 +202,7 @@ function WhitelistPanel() {
   }
 
   return (
-    <div className="card" style={{ padding: "14px 16px", marginTop: 18 }}>
+    <div className="card pop-in" style={{ padding: "14px 16px", marginTop: 18, animationDelay: "160ms" }}>
       <button onClick={() => setOpen(!open)} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "left" }}>
         <span style={{ fontSize: 18 }}>{open ? "▾" : "▸"}</span>
         <div className="t-display" style={{ fontSize: 15, color: "var(--p-ink)", flex: 1 }}>Zaproś innych mentorów</div>
