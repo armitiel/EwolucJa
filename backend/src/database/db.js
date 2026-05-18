@@ -226,6 +226,18 @@ async function ensureSchema(pool) {
       PRIMARY KEY (player_id, tip_id)
     );
     CREATE INDEX IF NOT EXISTS idx_viewed_tips_player ON viewed_tips(player_id);
+
+    -- Web Push subscriptions - tokeny do wysylania notyfikacji per device.
+    -- endpoint = unikalny URL push service (FCM dla Chrome, Mozilla dla Firefox, Apple dla iOS).
+    -- p256dh + auth = szyfrowanie payloadu wg standardu Web Push (RFC 8291).
+    CREATE TABLE IF NOT EXISTS push_subscriptions (
+      endpoint TEXT PRIMARY KEY,
+      player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+      p256dh TEXT NOT NULL,
+      auth TEXT NOT NULL,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS idx_push_subs_player ON push_subscriptions(player_id);
   `);
 }
 

@@ -156,6 +156,32 @@ export function playerRoutes(db) {
     }
   });
 
+  // POST /:id/push-subscribe - zapisz token push notification dla tego urzadzenia.
+  // Lazy-import zeby nie ladowac web-push gdy nie potrzebne.
+  router.post("/:id/push-subscribe", async (req, res) => {
+    try {
+      const { subscribePush } = await import("./push.js");
+      const pool = await initDatabase();
+      await subscribePush(pool, req.params.id, req.body || {});
+      res.json({ ok: true });
+    } catch (e) {
+      console.error("[push subscribe]", e);
+      res.status(400).json({ error: e.message });
+    }
+  });
+
+  router.delete("/:id/push-unsubscribe", async (req, res) => {
+    try {
+      const { unsubscribePush } = await import("./push.js");
+      const pool = await initDatabase();
+      await unsubscribePush(pool, req.params.id, req.body || {});
+      res.json({ ok: true });
+    } catch (e) {
+      console.error("[push unsubscribe]", e);
+      res.status(400).json({ error: e.message });
+    }
+  });
+
   // POST /:id/viewed-tips body: { tip_id } -> INSERT ON CONFLICT DO NOTHING
   router.post("/:id/viewed-tips", async (req, res) => {
     try {

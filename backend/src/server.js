@@ -18,6 +18,7 @@ import { authRoutes } from "./api/auth.js";
 import { mentorRoutes } from "./api/mentor.js";
 import { classRoutes } from "./api/classes.js";
 import { uploadRoutes } from "./api/uploads.js";
+import { pushRoutes } from "./api/push.js";
 
 export function createApp() {
   const app = express();
@@ -41,6 +42,7 @@ export function createApp() {
   app.use("/api/mentor", mentorRoutes());
   app.use("/api/classes", classRoutes());
   app.use("/api/uploads", uploadRoutes());
+  app.use("/api/push", pushRoutes());
 
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() });

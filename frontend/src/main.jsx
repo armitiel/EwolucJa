@@ -88,6 +88,14 @@ function AppRoutes() {
   );
 }
 
+// Rejestracja Service Worker dla push notifications (i offline fallback w przyszłosci).
+// Wymagane do `pushManager.subscribe` w pushNotifications.js.
+if ("serviceWorker" in navigator && location.hostname !== "localhost") {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch((e) => console.warn("[SW] register failed:", e));
+  });
+}
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>

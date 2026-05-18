@@ -21,6 +21,7 @@ import TopBar from "../components/TopBar.jsx";
 import { PROFILE_INFO } from "../components/ProfileAvatar.jsx";
 import { DAILY_TIPS, tipsForDay } from "../dailyTipsData.js";
 import bgMusic from "../services/bgMusic.js";
+import * as pushSvc from "../services/pushNotifications.js";
 
 const LEGACY_TO_PROFILE = {
   tropiciel_tajemnic: "DT", zaklinacz_uczuc: "EM", mistrz_map: "ST",
@@ -259,6 +260,56 @@ function TipModal({ tip, onClose }) {
   );
 }
 
+// PushPrompt - soft popup zachecajacy do wlaczenia powiadomien.
+// Pokazany RAZ, po 3 otwartych poradach. Klik "Wlaczyc" odpala native permission dialog.
+function PushPrompt({ onEnable, onSkip }) {
+  return (
+    <div role="dialog" aria-modal="true" onClick={onSkip} style={{
+      position: "fixed", inset: 0, zIndex: 1100,
+      background: "rgba(43,30,90,.45)", backdropFilter: "blur(4px)",
+      display: "flex", alignItems: "flex-end", justifyContent: "center", padding: "0 14px 22px",
+      animation: "tip-backdrop-in .25s ease-out both",
+    }}>
+      <div onClick={(e) => e.stopPropagation()} style={{
+        width: "100%", maxWidth: 460,
+        background: "linear-gradient(160deg,#7A4DC2 0%,#4A2D80 70%,#2C1755 100%)",
+        color: "#fff",
+        borderRadius: 22, padding: "20px 20px 18px",
+        boxShadow: "0 12px 36px rgba(43,30,90,.45)",
+        animation: "tip-pop-in .42s cubic-bezier(.34,1.56,.64,1) both",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <img src="/wizhead.svg" alt="" style={{ width: 56, height: "auto", flex: "none", filter: "drop-shadow(0 4px 8px rgba(0,0,0,.4))" }} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h3 className="t-display" style={{ margin: 0, fontSize: 18, lineHeight: 1.2, color: "rgb(252, 244, 221)" }}>
+              Mędrzec może Ci codziennie szeptać
+            </h3>
+            <div style={{ marginTop: 6, fontSize: 13, lineHeight: 1.4, opacity: 0.9 }}>
+              Trzy małe wiadomości dziennie — gdy masz nową poradę. Bez spamu.
+            </div>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+          <button onClick={onSkip} style={{
+            flex: "none", padding: "11px 16px", borderRadius: 12,
+            border: "none", cursor: "pointer",
+            background: "rgba(255,255,255,.14)", color: "#fff",
+            fontFamily: "inherit", fontWeight: 800, fontSize: 13,
+          }}>Może później</button>
+          <button onClick={onEnable} style={{
+            flex: 1, padding: "11px 16px", borderRadius: 12,
+            border: "none", cursor: "pointer",
+            background: "linear-gradient(180deg,#FFD269,#E89A3D)",
+            color: "#4A2A0E", fontFamily: "inherit", fontWeight: 900, fontSize: 14,
+            letterSpacing: 0.3,
+            boxShadow: "0 2px 0 #B47322",
+          }}>✦ Włącz powiadomienia</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Karta porady oczekujacej - dla slotow dnia ktorych jeszcze nie ma.
 // Ikona zegarka (⏰) zamiast klodki - lepiej komunikuje "trzeba poczekac", nie "zablokowane".
 function PendingSlotCard({ slotKey }) {
@@ -394,18 +445,55 @@ export default function PoradyPage() {
   const today = useMemo(() => daysSinceRegistration(player), [player]);
   const { slot: nowSlot, order: nowOrder } = useMemo(() => currentSlotInfo(), []);
 
-  // Otwarcie porady - zapamietaj jako przeczytana (lokalnie + backend)
+  // Soft prompt push: pokazany RAZ, po 3+ otwartych poradach.
+  // Reguly: tylko gdy isSupported(); tylko gdy status != denied i != subscribed;
+  // localStorage flag "push.softPromptShown" - nie pokazuj wiecej razy.
+  const [showPushPrompt, setShowPushPrompt] = useState(false);
+
+  // Otwarcie porady - zapamietaj jako przeczytana (lokalnie + backend) + ew. soft prompt push
   function handleOpenTip(t) {
     setOpenTip(t);
     if (t?.id && !readTips.has(t.id)) {
+      const newSet = new Set([...readTips, t.id]);
       markTipRead(t.id);
-      setReadTips(new Set([...readTips, t.id]));
-      // Backend persist (fire-and-forget; ON CONFLICT DO NOTHING)
+      setReadTips(newSet);
       const pid = session.getPlayer();
       if (pid) {
         api.markTipViewed(pid, t.id).catch((e) => console.warn("[PoradyPage] markTipViewed failed:", e));
       }
+      // Po 3. NOWO otwartej poradzie - rozwaz soft prompt push
+      maybeShowPushPrompt(newSet.size);
     }
+  }
+
+  async function maybeShowPushPrompt(readCount) {
+    if (readCount < 3) return;
+    if (!pushSvc.isSupported()) return;
+    try {
+      if (localStorage.getItem("push.softPromptShown") === "1") return;
+    } catch {}
+    try {
+      const status = await pushSvc.getStatus();
+      if (status === "denied" || status === "subscribed") return;
+    } catch {}
+    setShowPushPrompt(true);
+  }
+
+  async function handleEnablePush() {
+    try {
+      await pushSvc.enable();
+      try { localStorage.setItem("push.softPromptShown", "1"); } catch {}
+      setShowPushPrompt(false);
+    } catch (e) {
+      console.warn("[push enable]", e);
+      try { localStorage.setItem("push.softPromptShown", "1"); } catch {}
+      setShowPushPrompt(false);
+      alert(`Nie udało się włączyć: ${e.message}`);
+    }
+  }
+  function handleSkipPush() {
+    try { localStorage.setItem("push.softPromptShown", "1"); } catch {}
+    setShowPushPrompt(false);
   }
 
   // WSZYSTKIE dostepne porady profilu dla dziecka, posortowane od najnowszych
@@ -625,6 +713,7 @@ export default function PoradyPage() {
         )}
       </div>
       {openTip && <TipModal tip={openTip} onClose={() => setOpenTip(null)} />}
+      {showPushPrompt && <PushPrompt onEnable={handleEnablePush} onSkip={handleSkipPush} />}
       <TabBar current="home" />
     </PageShell>
   );

@@ -5,5 +5,10 @@
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "crons": [
+    { "path": "/api/push/send-daily?slot=poranek",  "schedule": "0 6 * * *" },
+    { "path": "/api/push/send-daily?slot=poludnie", "schedule": "0 11 * * *" },
+    { "path": "/api/push/send-daily?slot=wieczor",  "schedule": "0 17 * * *" }
   ]
 }

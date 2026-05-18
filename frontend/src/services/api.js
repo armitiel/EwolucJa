@@ -34,6 +34,10 @@ export const api = {
   // Porady dnia - persist tracking per gracz (zamiast localStorage)
   getViewedTips: (playerId) => call(`/players/${playerId}/viewed-tips`),
   markTipViewed: (playerId, tipId) => call(`/players/${playerId}/viewed-tips`, { method: "POST", body: JSON.stringify({ tip_id: tipId }) }),
+  // Push notifications
+  getPushVapidKey: () => call(`/push/vapid-public-key`),
+  pushSubscribe: (playerId, sub) => call(`/players/${playerId}/push-subscribe`, { method: "POST", body: JSON.stringify(sub) }),
+  pushUnsubscribe: (playerId, sub) => call(`/players/${playerId}/push-unsubscribe`, { method: "DELETE", body: JSON.stringify(sub) }),
 
   // Onboarding (V2)
   getQuiz: () => call("/onboarding/quiz"),
