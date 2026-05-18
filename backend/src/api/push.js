@@ -14,7 +14,6 @@
  *  07:00 poranek, 13:00 południe, 19:00 wieczór (CET; Vercel cron UTC, sprawdz vercel.json)
  */
 import { Router } from "express";
-import webpush from "web-push";
 import { initDatabase } from "../database/db.js";
 
 const VAPID_PUBLIC = process.env.VAPID_PUBLIC_KEY || "";
@@ -22,8 +21,17 @@ const VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY || "";
 const VAPID_SUBJECT = process.env.VAPID_SUBJECT || "mailto:armitiel@gmail.com";
 const CRON_SECRET = process.env.CRON_SECRET || "";
 
-if (VAPID_PUBLIC && VAPID_PRIVATE) {
-  webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC, VAPID_PRIVATE);
+// Lazy load - web-push jest pakietem CommonJS, jego top-level import potrafi wywrocic
+// cold-start Vercel Lambda (czasem brak natywnych binarek). Ladujemy dopiero gdy potrzebny.
+let _webpush = null;
+async function getWebpush() {
+  if (_webpush) return _webpush;
+  const mod = await import("web-push");
+  _webpush = mod.default || mod;
+  if (VAPID_PUBLIC && VAPID_PRIVATE) {
+    _webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC, VAPID_PRIVATE);
+  }
+  return _webpush;
 }
 
 const SLOT_COPY = {
@@ -53,6 +61,7 @@ export function pushRoutes() {
     if (!VAPID_PUBLIC) return res.status(503).json({ error: "VAPID not configured" });
 
     try {
+      const webpush = await getWebpush();
       const pool = await initDatabase();
       const { rows } = await pool.query(`SELECT endpoint, p256dh, auth FROM push_subscriptions`);
       let ok = 0, gone = 0, fail = 0;
