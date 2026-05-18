@@ -125,7 +125,7 @@ export default function WorldHub() {
     if (!player) return "";
     // Powitanie ogolne — bez konkretow misji/deadline'u (te widac na kartach nizej).
     // Ton: cieply, zachecajacy, magiczny — narrator-Medrzec mowi do dziecka.
-    return `Witaj z powrotem… ${player.player_name}. Świat już się rozjaśnił. Czekają na ciebie zadania, gry i parę tajemnic — wybierz, od czego zaczniesz. Każdy mały krok ma znaczenie.`;
+    return `Witaj z powrotem… ${player.player_name}. Świat już się rozjaśnił. Czekają na ciebie zadania, gry i parę niespodzianek — wybierz, od czego zaczniesz. Każdy mały krok ma znaczenie.`;
   }, [player]);
 
   if (error) {
