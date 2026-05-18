@@ -289,7 +289,7 @@ export default function Onboarding() {
             <div style={{ display: "flex", justifyContent: "center", margin: "4px 0 8px" }}>
               {questionIdx === 0 ? (
                 <NarratorVoice
-                  text={`Cześć. Bardzo się cieszę, że tu jesteś. Zakątek Gamma właśnie otwiera przed tobą swoje bramy… Czeka cię tu mnóstwo radości, gier i zupełnie nowych, tajemniczych miejsc do zbadania. Żeby ta podróż była dla ciebie jak najciekawsza — warto na samym początku sprawdzić, jaka niezwykła siła w tobie drzemie. Dlatego przygotowałam dla ciebie kilka prostych pytań. Dzięki twoim szczerym odpowiedziom dowiesz się, z jakim magicznym opiekunem wyruszycie w drogę. Może to będzie wspierający Empata… a może bystra Strateżka? Twój nowy przyjaciel poprowadzi cię przez wszystkie wyzwania i pokaże ci świat, w którym nauka jest najfajniejszą zabawą. Zaufaj sobie… i zobaczmy, od czego zacznie się twoja historia. A teraz… ${quiz.questions[0].question}`}
+                  text={`Witaj. Cieszę się, że tu jesteś. Świat Ewolucji właśnie otwiera przed tobą swoje bramy. Zanim ruszymy w drogę — chcę cię lepiej poznać. Przygotowałem dla ciebie kilka prostych pytań. Odpowiadaj szczerze, a dowiesz się, jaka siła w tobie drzemie. A teraz… ${quiz.questions[0].question}`}
                   land="las_decyzji"
                   tone="warm"
                   speed={0.92}
