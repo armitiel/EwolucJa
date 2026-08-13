@@ -4,6 +4,8 @@
   "framework": "vite",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api" },
+    { "source": "/scena-3d", "destination": "/scena-3d/index.html" },
+    { "source": "/scena-3d/", "destination": "/scena-3d/index.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "crons": [

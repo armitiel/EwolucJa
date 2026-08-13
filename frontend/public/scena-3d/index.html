@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#243147">
+<meta name="robots" content="noindex">
+<title>EwolucJA — mapka 3D</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #243147; }
+  #scena-3d { position: fixed; inset: 0; }
+  #scena3d-info { position: fixed; inset: 0; display: none; place-items: center; padding: 28px;
+    color: #fff2cf; font: 600 15px/1.5 "Nunito", system-ui, sans-serif; text-align: center; }
+</style>
+</head>
+<body>
+<div id="scena-3d"></div>
+<div id="scena3d-info">Otwierasz z dysku — przechodzę do wersji jednoplikowej
+<code>podglad-offline.html</code>.<br><br>
+Jeśli to nie zadziała: uruchom <code>npm run dev</code> i wejdź na
+<code>localhost:3000/scena-3d/</code>, albo użyj adresu <code>/scena-3d/</code> po wdrożeniu.</div>
+<script>
+(function () {
+  // katalog tej strony — bez wyrażeń regularnych, żeby nie walczyć z ucieczkami:
+  //   /scena-3d/index.html → /scena-3d/ ;  /scena-3d → /scena-3d/ ;  /scena-3d/ → /scena-3d/
+  var p = location.pathname;
+  var ciecie = p.lastIndexOf('/');
+  var ostatni = p.substring(ciecie + 1);
+  var kat = ostatni === '' ? p
+    : (ostatni.indexOf('.') > -1 ? p.substring(0, ciecie + 1) : p + '/');
+  if (location.protocol === 'file:') {
+    // Z dysku (podwójny klik) moduły ES są blokowane przez przeglądarkę, więc
+    // przeskakujemy do wersji jednoplikowej leżącej obok.
+    location.replace(kat + 'podglad-offline.html');
+    document.getElementById('scena3d-info').style.display = 'grid';
+    return;
+  }
+  globalThis.__SCENA3D_ZASOBY = kat + 'assets/';
+  var s = document.createElement('script');
+  s.type = 'module';
+  s.src = kat + 'scena3d.js';
+  s.onerror = function () { document.getElementById('scena3d-info').style.display = 'grid'; };
+  document.head.appendChild(s);
+})();
+</script>
+</body>
+</html>
