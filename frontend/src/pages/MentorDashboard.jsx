@@ -128,7 +128,7 @@ function DemoPlayerCard({ navigate }) {
       const res = await mentorApi.startDemoPlayer("Tester");
       session.setPlayer(res.player_id);
       try { localStorage.setItem("ewolucja.demoMode", "1"); } catch {}
-      navigate(demo?.archetype ? "/swiat" : "/onboarding");
+      navigate("/swiat");
     } catch (e) {
       alert(e.message);
       setLoading(false);

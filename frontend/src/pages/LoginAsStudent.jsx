@@ -45,7 +45,8 @@ export default function LoginAsStudent() {
         session.setPlayer(player.player_id);
         try { await refreshAll(); } catch {}
         setStage("found");
-        const target = player.archetype ? "/swiat" : "/onboarding";
+        // Brak archetypu nie zawraca juz do onboardingu — patrz LoginByCode.
+        const target = "/swiat";
         // Krotka chwila pokazania imienia (UX), potem redirect
         setTimeout(() => navigate(target, { replace: true }), 800);
       } catch (e) {

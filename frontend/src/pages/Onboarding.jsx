@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, session } from "../services/api.js";
 import { useAppData } from "../contexts/AppData.jsx";
@@ -8,6 +8,7 @@ import PageShell from "../components/PageShell.jsx";
 import { Avatar, Sparkle, Coin, CoinPill } from "../components/art.jsx";
 import ProfileAvatar, { PROFILE_INFO } from "../components/ProfileAvatar.jsx";
 import StarBurst from "../components/StarBurst.jsx";
+import Loading from "../components/Loading.jsx";
 import { fx } from "../services/soundFx.js";
 
 // Mapowanie starych nazw archetypow z bazy/configu na nowe kody profili
@@ -44,9 +45,30 @@ const TRANSITIONS = [
   "Ostatnie pytanie. Skup się jeszcze na chwilę…",             // przed pyt. 8
 ];
 
+/**
+ * Onboarding jest w nowym doświadczeniu WYŁĄCZONY W CAŁOŚCI — łącznie z pytaniem
+ * o imię. Wejście na `/onboarding` zakłada konto po cichu i przepuszcza dziecko
+ * prosto do świata 3D; ekran przewija się tak szybko, że nikt go nie zobaczy.
+ *
+ * Dlaczego nie usunięty: koncept onboardingu jest wstrzymany, nie porzucony.
+ * Cały przepływ (imię → osiem pytań z narracją i lektorem → objawienie profilu)
+ * jest kompletny i działa pod `/onboarding?quiz=1`. Odtwarzanie go z historii
+ * razem z TTS i animacjami kosztowałoby więcej niż ta jedna flaga.
+ *
+ * Konto MUSI powstać, choć nic nie pytamy: HUD, Mentor i misje wiszą na
+ * `player_id`. Imię jest tymczasowe — do zmiany, gdy wróci ekran powitalny
+ * albo gdy profil zacznie się budować z decyzji w fabule.
+ */
+const POMIN_ONBOARDING = true;
+const IMIE_TYMCZASOWE = "Wędrowiec";
+
 export default function Onboarding() {
   const navigate = useNavigate();
   const { refreshAll } = useAppData();
+  const chceQuiz = (() => {
+    try { return new URLSearchParams(window.location.search).get("quiz") === "1"; }
+    catch { return false; }
+  })();
   // Player_id moze juz istniec (z /dolacz join flow) - wykorzystamy go. Imie zawsze pytamy w name step.
   const initialPlayerId = (() => { try { return session.getPlayer(); } catch { return null; } })();
   const [step, setStep] = useState("name");
@@ -64,11 +86,41 @@ export default function Onboarding() {
   // Animowane potwierdzenie wyboru — id zaznaczonej odpowiedzi, delay przed przejsciem.
   const [pickedAnswerId, setPickedAnswerId] = useState(null);
 
+  /* ── Cichy przelot do świata ──────────────────────────────────────────
+     Zakładamy konto (jeśli trzeba) i od razu przechodzimy dalej. Ekran
+     onboardingu nie ma się pokazać ani na moment — stąd `Loading` zamiast
+     formularza, dopóki przelot trwa.
+
+     Gdy backend nie odpowie, i tak idziemy do świata: pierwsza przygoda żyje
+     w localStorage, więc dziecko nie utknie na komunikacie o błędzie z powodu
+     konta, o które samo nie prosiło. Konto dopisze się przy następnym wejściu. */
+  const przelotRef = useRef(false);
+  const [przelot] = useState(() => POMIN_ONBOARDING && !chceQuiz);
+
   useEffect(() => {
+    if (!przelot || przelotRef.current) return;
+    przelotRef.current = true;
+    (async () => {
+      try {
+        if (!session.getPlayer()) {
+          const player = await api.createPlayer(IMIE_TYMCZASOWE);
+          session.setPlayer(player.player_id);
+        }
+        await refreshAll();
+      } catch (err) {
+        console.warn("[Onboarding] cichy start bez konta:", err);
+      } finally {
+        navigate("/swiat", { replace: true });
+      }
+    })();
+  }, [przelot, navigate, refreshAll]);
+
+  useEffect(() => {
+    if (przelot) return;
     if (step === "quiz" && !quiz) {
       api.getQuiz().then(setQuiz).catch((e) => setError(e.message));
     }
-  }, [step, quiz]);
+  }, [przelot, step, quiz]);
 
   async function handleStart(e) {
     e.preventDefault();
@@ -147,6 +199,10 @@ export default function Onboarding() {
 
   const totalSteps = 1 + (quiz?.questions?.length || 8) + 1;
   const currentStepIdx = step === "name" ? 0 : step === "quiz" ? 1 + questionIdx : totalSteps - 1;
+
+  // Podczas cichego przelotu nie rysujemy onboardingu w ogóle — inaczej mignąłby
+  // formularz z imieniem, czyli dokładnie to, co mamy schować.
+  if (przelot) return <Loading text="Otwieram świat…" />;
 
   return (
     <PageShell>

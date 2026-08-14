@@ -60,8 +60,256 @@
   <meta name="twitter:title" content="EwolucJA — Twoja Przygoda Rozwoju" />
   <meta name="twitter:description" content="Innowacyjna gra rozwojowa dla dzieci i dorosłych. Codziennie nowa porada od Mędrca i mała przygoda — odkrywaj swoje supermoce: ciekawość, empatię, odwagę." />
   <meta name="twitter:image" content="https://ewolucja-azure.vercel.app/wizard.png" />
+
+  <!-- ── Kurtyna z chmur ─────────────────────────────────────────────────
+       Zasłania start swiata 3D. Siedzi w index.html, a NIE w komponencie
+       Reacta, bo ma zakryc ROWNIEZ czas, zanim bundle sie sciagnie - gdyby
+       byla w JS, dziecko zobaczylo by najpierw pusty ekran, a chmury
+       pojawilyby sie dopiero po zaladowaniu tego, co maja zaslonic.
+       Kolejnosc: chmury zsuniete -> scena gotowa -> chmury sie rozsuwaja
+       -> dopiero potem wchodzi HUD.
+       ──────────────────────────────────────────────────────────────────── -->
+  <style>
+    /* Kompozycja z 28 osobnych chmurek, bez zadnej planszy pod spodem.
+       Wczesniejsze podejscia (dwie biale polowki ekranu) zawsze zdradzaly sie
+       prosta krawedzia - albo tam, gdzie polowki sie stykaly, albo tam, gdzie
+       SVG o stalych proporcjach zostal przyciety na waskim ekranie. Zbior
+       nachodzacych na siebie ksztaltow nie ma czego przyciac, wiec nie ma
+       gdzie powstac twarda linia. Rozmiary, warstwy i tempo losuje skrypt. */
+    #chmury {
+      position: fixed; inset: 0; z-index: 60; pointer-events: none;
+      overflow: hidden;
+    }
+    /* Tlo pod chmurami zakrywa puste plotno WebGL, ale MUSI zejsc w momencie
+       rozsuwania - inaczej miedzy rozjezdzajacymi sie chmurami widac je
+       zamiast swiata i cala sztuczka nie ma sensu.
+       Kolor jest z palety chmur, nie granatowy: gdyby gdziekolwiek zostala
+       szpara miedzy ksztaltami, ma byc niewidoczna, a nie ciemna. */
+    #chmury::before {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(180deg, #eaf4ff, #cfe2f7);
+      transition: opacity .45s ease;
+    }
+    #chmury.rozsuwa::before { opacity: 0; }
+    #chmury.znikly { display: none; }
+    /* Kompozycja jest zbudowana WYLACZNIE z chmurek - zadnych bialych plansz.
+       Plansza zawsze zdradza sie prosta krawedzia i czyta sie jak kurtyna;
+       zbior nachodzacych na siebie ksztaltow nie ma jak. Prosciej: nie ma
+       czego przyciac, wiec nie ma gdzie powstac twardej linii. */
+    #chmury .chmurka {
+      position: absolute; aspect-ratio: 438.1 / 263.5;   /* proporcje z public/cloud.svg */
+      transition: transform 1.5s cubic-bezier(.45, .04, .2, 1);
+      will-change: transform;
+    }
+    /* Osobna warstwa na dryf: gdyby animacja i przejscie ruszaly ta sama
+       wlasciwoscia, zdjecie animacji kasowaloby odjazd w polowie drogi. */
+    /* Ksztalt jest wstrzykiwany jako PRAWDZIWY <svg>, a nie tlo z data-URI.
+       Powod: `vector-effect: non-scaling-stroke` na sciezce trzyma obrys
+       w stalej grubosci niezaleznie od wielkosci chmurki. Przy tle-obrazku
+       obrys skalowal sie razem z chmurka i olbrzym mial kreske pieciokrotnie
+       grubsza niz maluch.
+       Z tego samego powodu roznice wielkosci robimy SZEROKOSCIA elementu,
+       a nie `transform: scale()` - transformacja CSS przeskalowalaby obrys
+       mimo non-scaling-stroke. */
+    #chmury .chmurka i { display: block; width: 100%; height: 100%; }
+    #chmury .chmurka svg {
+      display: block; width: 100%; height: 100%; overflow: visible;
+      filter: drop-shadow(0 10px 18px rgba(70, 96, 140, .3));
+    }
+
+    /* Dryf to samo przesuniecie - zadnego scale. Skalowanie tutaj wrocilo by
+       tylnymi drzwiami do problemu z gruboscia obrysu. */
+    @keyframes chmurka-dryf {
+      0%, 100% { transform: translate(0, 0); }
+      50%      { transform: translate(2.5%, -2.5%); }
+    }
+    #chmury:not(.rozsuwa) .chmurka i {
+      animation: chmurka-dryf var(--dryf, 10s) ease-in-out infinite;
+      animation-delay: var(--dryf-start, 0s);
+    }
+
+    /* Grupy odjezdzaja w swoje strony. Kazda chmurka ma wlasne opoznienie
+       i wlasny czas (nadawane w skrypcie), wiec nie leca jak jedna plyta.
+       Dystans TEZ jest wlasny (--odlot-x): staly nie moze byc, bo olbrzym
+       rozciagniety do ~240vw po przesunieciu o 145vw wciaz stal polowa
+       ksztaltu na ekranie. Skrypt liczy go z faktycznej szerokosci. */
+    #chmury.rozsuwa .grupa-l { transform: translate(calc(-1 * var(--odlot-x, 160vw)), var(--odlot-y, 0px)); }
+    #chmury.rozsuwa .grupa-p { transform: translate(var(--odlot-x, 160vw), var(--odlot-y, 0px)); }
+
+    @media (prefers-reduced-motion: reduce) {
+      #chmury .chmurka { transition: opacity .4s ease; }
+      #chmury .chmurka i { animation: none !important; }
+      #chmury.rozsuwa .chmurka { transform: none; opacity: 0; }
+    }
+  </style>
 </head>
 <body>
+  <!-- Pozycje i rozmiary siedza w atrybucie `style` przy kazdej chmurce, bo to
+       kompozycja, a nie regula - klasa na kazda z 28 byla by 28 razy tym samym
+       z inna liczba. Warstwy, skale i tempo dosypuje skrypt nizej.
+       Rzedy co 8,5% wysokosci przy chmurce wysokiej na ~43vw daja tak duzy
+       zakladek, ze granatowe tlo nie ma sie gdzie pokazac - a lewa i prawa
+       grupa zachodza na siebie w srodku ekranu, wiec nie ma tez pionowej szpary. -->
+  <div id="chmury" aria-hidden="true">
+    <div class="chmurka grupa-l" style="top:-12%; left:-18vw; width:78vw"><i></i></div>
+    <div class="chmurka grupa-p wariant-b" style="top:-12%; right:-16vw; width:84vw"><i></i></div>
+    <div class="chmurka grupa-l wariant-b" style="top:-3.5%; left:-12vw; width:86vw"><i></i></div>
+    <div class="chmurka grupa-p" style="top:-3.5%; right:-11vw; width:76vw"><i></i></div>
+    <div class="chmurka grupa-l" style="top:5%;  left:-6vw;  width:78vw"><i></i></div>
+    <div class="chmurka grupa-p wariant-b" style="top:5%;  right:-6vw;  width:84vw"><i></i></div>
+    <div class="chmurka grupa-l wariant-b" style="top:13.5%; left:-18vw; width:86vw"><i></i></div>
+    <div class="chmurka grupa-p" style="top:13.5%; right:-16vw; width:76vw"><i></i></div>
+    <div class="chmurka grupa-l" style="top:22%; left:-12vw; width:78vw"><i></i></div>
+    <div class="chmurka grupa-p wariant-b" style="top:22%; right:-11vw; width:84vw"><i></i></div>
+    <div class="chmurka grupa-l wariant-b" style="top:30.5%; left:-6vw;  width:86vw"><i></i></div>
+    <div class="chmurka grupa-p" style="top:30.5%; right:-6vw;  width:76vw"><i></i></div>
+    <div class="chmurka grupa-l" style="top:39%; left:-18vw; width:78vw"><i></i></div>
+    <div class="chmurka grupa-p wariant-b" style="top:39%; right:-16vw; width:84vw"><i></i></div>
+    <div class="chmurka grupa-l wariant-b" style="top:47.5%; left:-12vw; width:86vw"><i></i></div>
+    <div class="chmurka grupa-p" style="top:47.5%; right:-11vw; width:76vw"><i></i></div>
+    <div class="chmurka grupa-l" style="top:56%; left:-6vw;  width:78vw"><i></i></div>
+    <div class="chmurka grupa-p wariant-b" style="top:56%; right:-6vw;  width:84vw"><i></i></div>
+    <div class="chmurka grupa-l wariant-b" style="top:64.5%; left:-18vw; width:86vw"><i></i></div>
+    <div class="chmurka grupa-p" style="top:64.5%; right:-16vw; width:76vw"><i></i></div>
+    <div class="chmurka grupa-l" style="top:73%; left:-12vw; width:78vw"><i></i></div>
+    <div class="chmurka grupa-p wariant-b" style="top:73%; right:-11vw; width:84vw"><i></i></div>
+    <div class="chmurka grupa-l wariant-b" style="top:81.5%; left:-6vw;  width:86vw"><i></i></div>
+    <div class="chmurka grupa-p" style="top:81.5%; right:-6vw;  width:76vw"><i></i></div>
+    <div class="chmurka grupa-l" style="top:90%; left:-18vw; width:78vw"><i></i></div>
+    <div class="chmurka grupa-p wariant-b" style="top:90%; right:-16vw; width:84vw"><i></i></div>
+    <div class="chmurka grupa-l wariant-b" style="top:98.5%; left:-12vw; width:86vw"><i></i></div>
+    <div class="chmurka grupa-p" style="top:98.5%; right:-11vw; width:76vw"><i></i></div>
+  </div>
+
+  <script>
+    // Kurtyna dotyczy tylko swiata 3D. Na pozostalych ekranach znika, zanim
+    // ktokolwiek ja zobaczy - inaczej zaslanialaby logowanie i onboarding.
+    (function () {
+      var chmury = document.getElementById('chmury');
+      if (!chmury) return;
+      if (location.pathname.indexOf('/swiat') !== 0) { chmury.remove(); return; }
+
+      function los(min, max) { return min + Math.random() * (max - min); }
+      function tasuj(t) {
+        for (var i = t.length - 1; i > 0; i--) {              // Fisher-Yates
+          var j = Math.floor(Math.random() * (i + 1));
+          var x = t[i]; t[i] = t[j]; t[j] = x;
+        }
+        return t;
+      }
+
+      var lista = Array.prototype.slice.call(chmury.querySelectorAll('.chmurka'));
+      var najdluzej = 0;   // najdluzszy czas odlotu - z niego liczymy moment sprzatania
+
+      // 28 chmurek z HTML to WARSTWA KRYJACA - jej jedynym zadaniem jest to,
+      // zeby tla nie bylo widac. Dlatego zadna z nich nie schodzi ponizej
+      // skali 1,25: kazda mniejsza robi dziure, przez ktora widac tlo,
+      // bo ksztalt z cloud.svg wypelnia tylko srodkowe ~66% wysokosci ramki.
+      //
+      // Maluchy dosypujemy osobno, NAD ta warstwa (ponizej) - tam moga byc
+      // dowolnie male, bo pod nimi i tak jest pelne krycie.
+      //
+      // Olbrzymy ida najglebiej: to one buduja sylwetke nieba. Gdyby trafily
+      // na wierzch, przykrylyby cala kompozycje jedna plama.
+      var kolejnosc = tasuj(lista.map(function (_, i) { return i; }));
+      var role = [];
+      kolejnosc.forEach(function (idx, miejsce) {
+        role[idx] = miejsce < 8 ? 'olbrzym' : 'sredni';       // 8 olbrzymow z 28
+      });
+
+      // Ksztalt 1:1 z `public/cloud.svg`. Sciezka jest tu wklejona, a nie
+      // ladowana jako <img>, bo tylko wtedy dziala non-scaling-stroke -
+      // przy obrazku obrys skalowalby sie razem z chmurka.
+      // Kolory rozjasnione wzgledem pliku (#e8f8ff/#9fd8ff/#5b92e8, obrys
+      // #3f73c9): oryginal byl za ciemny nad granatowym ekranem ladowania.
+      var SCIEZKA = 'M95.1,201.9c-30,0-52-22-52-50s19-47,44-50c6-34,35-59,71-59s43,10,56,27c12-26,39-44,70-44s74,32,74,72,0,10-1,15c31,4,55,30,55,61s-5.6,30.5-26,40c-43,19.9-94.1.8-94.1.8,0,0-50.5,42.2-132.9,1.2-25.4,9.8-57.5,2.2-64-14Z';
+      function svgChmurki(lustro, id) {
+        return '<svg viewBox="0 0 438.1 263.5" xmlns="http://www.w3.org/2000/svg"' +
+          (lustro ? ' style="transform:scaleX(-1)"' : '') + '>' +
+          '<linearGradient id="' + id + '" x1="0" y1="0" x2=".62" y2="1">' +
+            '<stop offset="0" stop-color="#f4fcff"/>' +
+            '<stop offset=".5" stop-color="#c3e7ff"/>' +
+            '<stop offset="1" stop-color="#8fb8f2"/>' +
+          '</linearGradient>' +
+          '<path d="' + SCIEZKA + '" fill="url(#' + id + ')" stroke="#6f9bdd"' +
+            ' stroke-width="3.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>' +
+        '</svg>';
+      }
+
+      // Maluchy: osobna warstwa NAD kryjaca. Dokladane w skrypcie, bo to czysty
+      // detal - w HTML byloby dziesiec linijek bez zadnej informacji.
+      for (var m = 0; m < 12; m++) {
+        var maly = document.createElement('div');
+        var lewa = Math.random() < 0.5;
+        maly.className = 'chmurka ' + (lewa ? 'grupa-l' : 'grupa-p') + (Math.random() < 0.5 ? ' wariant-b' : '');
+        maly.style.top = los(-8, 96).toFixed(1) + '%';
+        maly.style[lewa ? 'left' : 'right'] = los(-8, 46).toFixed(1) + 'vw';
+        maly.style.width = los(22, 42).toFixed(1) + 'vw';
+        maly.dataset.rola = 'maluch';
+        maly.appendChild(document.createElement('i'));
+        chmury.appendChild(maly);
+        lista.push(maly);
+        role.push('maluch');
+      }
+
+      lista.forEach(function (chmurka, i) {
+        var rola = role[i];
+        var skala, warstwa;
+        if (rola === 'olbrzym')      { skala = los(1.9, 2.8);   warstwa = Math.round(los(1, 20)); }
+        else if (rola === 'maluch')  { skala = 1;               warstwa = Math.round(los(61, 90)); }
+        else                         { skala = los(1.25, 1.65); warstwa = Math.round(los(25, 55)); }
+
+        // Skala wchodzi w SZEROKOSC, nie w transform - patrz komentarz przy
+        // non-scaling-stroke w stylach. Baza siedzi w atrybucie style w HTML.
+        var baza = parseFloat(chmurka.style.width) || 78;
+        var szerokosc = baza * skala;
+        chmurka.style.width = szerokosc.toFixed(1) + 'vw';
+        chmurka.querySelector('i').innerHTML =
+          svgChmurki(chmurka.classList.contains('wariant-b') ? 1 : 0, 'chm' + i);
+
+        // Dystans odlotu liczony z FAKTYCZNEJ szerokosci chmurki plus jej
+        // wysuniecie poza ekran. Inaczej olbrzym o szerokosci 240vw zostawal
+        // polowa w kadrze - i to on byl tym "kawalkiem, ktory nie wyjechal".
+        var wysuniecie = Math.abs(parseFloat(chmurka.style.left || chmurka.style.right) || 0);
+        chmurka.style.setProperty('--odlot-x', Math.ceil(szerokosc + wysuniecie + 30) + 'vw');
+
+        chmurka.style.zIndex = String(warstwa);
+        chmurka.style.setProperty('--dryf', los(8, 16).toFixed(1) + 's');
+        // Ujemne opoznienie startu = kazda chmurka zaczyna dryf w innym miejscu
+        // cyklu. Bez tego wszystkie oddychaja rownoczesnie i wyglada to jak puls.
+        chmurka.style.setProperty('--dryf-start', (-los(0, 9)).toFixed(1) + 's');
+        chmurka.style.setProperty('--odlot-y', Math.round(los(-45, 45)) + 'px');
+
+        // Wielkie plyna wolniej - i maja dluzsza droge, wiec i tak potrzebuja
+        // wiecej czasu. Male odlatuja szybciej, co samo z siebie robi glebie.
+        var czas = rola === 'olbrzym' ? los(1.7, 2.1) : rola === 'maluch' ? los(1.05, 1.35) : los(1.3, 1.7);
+        var zwloka = los(0, 0.28);
+        chmurka.style.transitionDuration = czas.toFixed(2) + 's';
+        chmurka.style.transitionDelay = zwloka.toFixed(2) + 's';
+        najdluzej = Math.max(najdluzej, czas + zwloka);
+      });
+
+      var rozsuniete = false;
+      window.__rozsunChmury = function (poZakonczeniu) {
+        if (rozsuniete) { if (poZakonczeniu) poZakonczeniu(); return; }
+        rozsuniete = true;
+        chmury.classList.add('rozsuwa');
+        // Czas sprzatania liczony z FAKTYCZNIE wylosowanych wartosci, a nie
+        // wpisany na sztywno. Stala zawsze predzej czy pozniej rozjedzie sie
+        // z losowaniem i ucina najwolniejsza chmurke w locie - a wtedy kawalek
+        // ksztaltu po prostu znika w kadrze, zamiast z niego wyjechac.
+        window.setTimeout(function () {
+          chmury.classList.add('znikly');
+          if (poZakonczeniu) poZakonczeniu();
+        }, Math.ceil(najdluzej * 1000) + 120);
+      };
+
+      // Bezpiecznik na wypadek, gdyby aplikacja nigdy nie zawolala (blad bundla,
+      // wylaczony JS modulu): po 9 s kurtyna rozsuwa sie sama.
+      window.setTimeout(function () { window.__rozsunChmury(); }, 9000);
+    })();
+  </script>
+
   <div id="root"></div>
   <script type="module" src="/src/main.jsx"></script>
 </body>

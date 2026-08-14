@@ -36,7 +36,9 @@ export default function LoginByCode() {
       const player = await api.getPlayerByLoginCode(c);
       session.setPlayer(player.player_id);
       try { await refreshAll(); } catch {}
-      const target = player.archetype ? "/swiat" : "/onboarding";
+      // Brak archetypu nie zawraca juz do onboardingu: w nowym doswiadczeniu
+      // profil buduje sie z decyzji w fabule, a nie z quizu na wejsciu.
+      const target = "/swiat";
       navigate(target, { replace: true });
     } catch (err) {
       setError(err.message || "Nie udało się zalogować");

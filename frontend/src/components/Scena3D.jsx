@@ -49,7 +49,7 @@ export function webglDostepny() {
  * każdym `resize()`, dlatego da się ją stroić na żywo: ustaw `SCENA3D_ZOOM`
  * w konsoli i zmień rozmiar okna, albo wejdź z `?zoom=1.4` w adresie.
  */
-export const ZOOM_DOMYSLNY = 1.25;
+export const ZOOM_DOMYSLNY = 1.56;   // 1,25 podbite o 25% — bohater blizej kamery
 
 /**
  * Cień bohatera — poprawka przeniesiona z podglądu `/scena-3d/index.html`.

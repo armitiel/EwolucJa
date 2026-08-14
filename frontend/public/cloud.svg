@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Warstwa_1" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 438.1 263.5">
+  <!-- Generator: Adobe Illustrator 29.1.0, SVG Export Plug-In . SVG Version: 2.1.0 Build 142)  -->
+  <defs>
+    <style>
+      .st0 {
+        filter: url(#softShadow);
+      }
+
+      .st1 {
+        fill: url(#Gradient_bez_nazwy_2);
+        stroke: #3f73c9;
+        stroke-linejoin: round;
+        stroke-width: 5px;
+      }
+    </style>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="14" flood-color="#1E4F9B" flood-opacity="0.24" stdDeviation="14"/>
+    </filter>
+    <linearGradient id="Gradient_bez_nazwy_2" data-name="Gradient bez nazwy 2" x1="-548.1" y1="872.2" x2="-547.2" y2="871.2" gradientTransform="translate(202301.2 172738.2) scale(369 -198)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#e8f8ff"/>
+      <stop offset=".5" stop-color="#9fd8ff"/>
+      <stop offset="1" stop-color="#5b92e8"/>
+    </linearGradient>
+  </defs>
+  <g id="cloud-right-top" class="st0">
+    <path class="st1" d="M95.1,201.9c-30,0-52-22-52-50s19-47,44-50c6-34,35-59,71-59s43,10,56,27c12-26,39-44,70-44s74,32,74,72,0,10-1,15c31,4,55,30,55,61s-5.6,30.5-26,40c-43,19.9-94.1.8-94.1.8,0,0-50.5,42.2-132.9,1.2-25.4,9.8-57.5,2.2-64-14Z"/>
+  </g>
+  <metadata>
+    <sfw xmlns="http://ns.adobe.com/SaveForWeb/1.0/">
+      <slices/>
+      <sliceSourceBounds x="945.3" y="663.37" width="598" height="341" bottomLeftOrigin="true"/>
+    </sfw>
+  </metadata>
+</svg>
