@@ -1,192 +1,100 @@
-/**
- * Backpack / ScreenBackpack — plecak z artefaktami zdobytymi w cyklach.
- * Pierwsza karta: szczegóły wybranego artefaktu. Niżej: siatka zdobytych + nieodkryte slots.
- */
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { session } from "../services/api.js";
-import { useAppData } from "../contexts/AppData.jsx";
-import PageShell from "../components/PageShell.jsx";
-import TabBar from "../components/TabBar.jsx";
-import TopBar from "../components/TopBar.jsx";
-import { Artifact } from "../components/art.jsx";
+import { useAdventure } from "../adventure/engine/useAdventure.js";
+import { ActionButton, GameIcon, IconButton } from "../adventure/components/icons.jsx";
+import "../adventure/styles/adventure.css";
 
-// Stałe sloty "do odkrycia" — wizualizacja przyszłych krain
-const PLACEHOLDER_SLOTS = [
-  { kind: "book", name: "Księga Czasu" },
-  { kind: "key", name: "Klucz do Wieży" },
-  { kind: "shell", name: "Muszla Morza" },
-];
+const ITEM_ICON = {
+  slad: "compass",
+  wiatr: "spark",
+  ucho: "sound",
+  krok: "arrow",
+  latarnia: "light",
+  pioro: "pen",
+  kamyk: "spark",
+  wstega: "gift",
+  plaszcz: "profile",
+  szal: "spark",
+  kaptur: "profile",
+  naramiennik: "gift",
+};
 
-// Mapowanie nazw artefaktów (z backendu) na typy wizualne (z biblioteki art)
-function artifactKind(name = "") {
-  const n = name.toLowerCase();
-  if (n.includes("kompas") || n.includes("kryształ") || n.includes("krysztal")) return "crystal";
-  if (n.includes("piór") || n.includes("pior")) return "feather";
-  if (n.includes("liść") || n.includes("liscia")) return "leaf";
-  if (n.includes("klucz")) return "key";
-  if (n.includes("muszla")) return "shell";
-  if (n.includes("księg") || n.includes("ksieg") || n.includes("atrament")) return "book";
-  return "crystal";
-}
+const STATUS = {
+  offered: { label: "Gotowa do wykonania", icon: "compass" },
+  changes: { label: "Mentor prosi o poprawkę", icon: "pen" },
+  sent: { label: "Czeka na Mentora", icon: "hourglass" },
+  accepted: { label: "Nagroda jest gotowa", icon: "gift" },
+};
 
 export default function Backpack() {
   const navigate = useNavigate();
-  const { player, error } = useAppData();
-  const [open, setOpen] = useState(0);
+  const { adventure, state, nextStep } = useAdventure();
+  const active = state.activeMission;
+  const mission = active ? adventure.missions[active.ref] : null;
+  const status = STATUS[active?.status] || STATUS.offered;
+  const collected = state.grants.map((id) => ({ id, ...adventure.grants[id] })).filter((item) => item.label);
 
-  useEffect(() => {
-    if (!session.getPlayer()) navigate("/onboarding");
-  }, [navigate]);
-
-  if (error)
-    return (
-      <PageShell>
-        <div style={{ padding: 40 }}>
-          <p style={{ color: "#B85B47" }}>{error}</p>
-        </div>
-      </PageShell>
-    );
-  if (!player) return null;
-
-  const items = (player.backpack || []).slice().reverse(); // newest first
-  const totalSlots = items.length + PLACEHOLDER_SLOTS.length;
-  const cur = items[open];
+  function openMission() {
+    if (nextStep.to?.startsWith("/przygoda")) navigate(nextStep.to);
+    else navigate("/swiat");
+  }
 
   return (
-    <PageShell>
-      <TopBar />
+    <main className="adv-root adv-side-page" data-testid="adv-backpack">
+      <img className="adv-side-backdrop" src="/assets/adventure-v2/forest-leaf-scene.png" alt="" aria-hidden="true" />
+      <div className="adv-side-shade" />
+      <header className="adv-side-top">
+        <IconButton icon="arrow" label="Wróć do świata" onClick={() => navigate("/swiat")} />
+        <div>
+          <span>Plecak wędrowca</span>
+          <h1>Misje i znaleziska</h1>
+        </div>
+        <div className="adv-side-counter" aria-label={`Iskry: ${state.iskry.length}`}><GameIcon name="spark" size={21} /><strong>{state.iskry.length}</strong></div>
+      </header>
 
-      <div
-        className="screen-scroll"
-        style={{
-          flex: 1,
-          minHeight: 0,
-          padding: "12px 18px 52px",
-          display: "flex",
-          flexDirection: "column",
-          gap: 14,
-        }}
-      >
-        {/* Szczegóły wybranego */}
-        {cur ? (
-          <div
-            className="card card-paper"
-            style={{ display: "flex", alignItems: "center", gap: 14 }}
-          >
-            <Artifact kind={artifactKind(cur.artifact_name)} size={72} />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div className="t-display" style={{ fontSize: 22 }}>
-                {cur.artifact_name}
-              </div>
-              <div style={{ fontSize: 12, color: "var(--p-ink-soft)" }}>
-                z krainy: <b>Las Pytań</b>
-              </div>
-              <div style={{ fontSize: 11, color: "var(--p-ink-soft)", marginTop: 2 }}>
-                {new Date(cur.awarded_at).toLocaleDateString("pl-PL", {
-                  weekday: "short",
-                  day: "numeric",
-                  month: "long",
-                })}
-              </div>
-              <div style={{ display: "flex", gap: 4, marginTop: 6 }}>
-                <span className="chip leaf">zdobyty</span>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="card card-paper" style={{ textAlign: "center" }}>
-            <div className="t-display" style={{ fontSize: 18 }}>
-              Plecak jest jeszcze pusty
-            </div>
-            <p style={{ fontSize: 13, color: "var(--p-ink-soft)" }}>
-              Wykonaj pierwszą misję, aby zdobyć artefakt.
-            </p>
-            <button className="btn btn-magic btn-sm" onClick={() => navigate("/mission")}>
-              Otwórz misję
-            </button>
-          </div>
-        )}
+      <div className="adv-side-scroll">
+        <section className="adv-parchment-card adv-mission-pocket">
+          <div className="adv-card-emblem"><GameIcon name={mission ? "scroll" : "map"} size={31} /></div>
+          <span className="adv-card-kicker">Aktywna misja</span>
+          {mission ? (
+            <>
+              <h2>{mission.title}</h2>
+              <p>{mission.goal}</p>
+              <div className="adv-status-ribbon"><GameIcon name={status.icon} size={18} />{status.label}</div>
+              {active.note ? <p className="adv-mentor-note">„{active.note}”</p> : null}
+              <ActionButton className="adv-cta" icon={active.status === "sent" ? "hourglass" : active.status === "accepted" ? "gift" : "arrow"} onClick={openMission}>
+                {active.status === "sent" ? "Sprawdź wiadomość" : active.status === "accepted" ? "Odbierz nagrodę" : "Otwórz misję"}
+              </ActionButton>
+            </>
+          ) : (
+            <>
+              <h2>Plecak jest gotowy</h2>
+              <p>Nowa misja pojawi się po spotkaniu na aktywnej ścieżce.</p>
+              <ActionButton className="adv-cta" icon="map" onClick={() => navigate("/swiat")}>Wróć do świata</ActionButton>
+            </>
+          )}
+        </section>
 
-        {/* Zdobyte */}
-        {items.length > 0 && (
-          <div>
-            <div
-              style={{
-                fontSize: 11,
-                fontWeight: 800,
-                letterSpacing: 1.5,
-                color: "var(--p-ink-soft)",
-                margin: "6px 0 8px",
-              }}
-            >
-              ZDOBYTE
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
-              {items.map((it, i) => (
-                <button
-                  key={it.artifact_id + i}
-                  className="card card-tight shimmer"
-                  onClick={() => setOpen(i)}
-                  style={{
-                    border: "none",
-                    cursor: "pointer",
-                    background:
-                      open === i ? "rgba(184,134,232,.20)" : "rgba(255,255,255,.78)",
-                    boxShadow:
-                      open === i
-                        ? "inset 0 0 0 2.5px var(--p-magic-dk)"
-                        : "var(--shadow-sm)",
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "center" }}>
-                    <Artifact kind={artifactKind(it.artifact_name)} size={50} />
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 11,
-                      textAlign: "center",
-                      fontWeight: 800,
-                      marginTop: 4,
-                    }}
-                  >
-                    {it.artifact_name.split(" ")[0]}
-                  </div>
-                </button>
+        <section className="adv-side-section">
+          <div className="adv-section-heading">
+            <div><span>Twoja historia</span><h2>Znalezione przedmioty</h2></div>
+            <strong>{collected.length}</strong>
+          </div>
+          {collected.length ? (
+            <div className="adv-artifact-grid">
+              {collected.map((item) => (
+                <article className="adv-artifact-tile" key={item.id}>
+                  <span className="adv-artifact-icon"><GameIcon name={ITEM_ICON[item.icon] || "spark"} size={26} /></span>
+                  <h3>{item.label}</h3>
+                  <p>{item.note}</p>
+                </article>
               ))}
             </div>
-          </div>
-        )}
-
-        {/* Nieodkryte */}
-        <div>
-          <div
-            style={{
-              fontSize: 11,
-              fontWeight: 800,
-              letterSpacing: 1.5,
-              color: "var(--p-ink-soft)",
-              margin: "6px 0 8px",
-            }}
-          >
-            JESZCZE NIEODKRYTE
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
-            {PLACEHOLDER_SLOTS.map((it, i) => (
-              <div
-                key={i}
-                className="card card-tight"
-                style={{ filter: "grayscale(.8) opacity(.45)", textAlign: "center" }}
-              >
-                <Artifact kind={it.kind} size={50} />
-                <div style={{ fontSize: 11, fontWeight: 800, marginTop: 4 }}>?</div>
-              </div>
-            ))}
-          </div>
-        </div>
+          ) : (
+            <div className="adv-empty-card"><GameIcon name="spark" size={25} /><p>Pierwsze znalezisko czeka na początku opowieści.</p></div>
+          )}
+        </section>
       </div>
-
-      <TabBar current="backpack" />
-    </PageShell>
+    </main>
   );
 }

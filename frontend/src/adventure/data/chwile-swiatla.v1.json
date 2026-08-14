@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "note": "Chwile Światła są dobrowolne. Nie oceniają dziecka, nie stawiają diagnoz, nie mają konsekwencji za pominięcie. Pochodzą zawsze od postaci, artefaktu albo lokacji.",
+  "moments": [
+    {
+      "id": "cs-iskra-cicha",
+      "from": "opiekun",
+      "art": "iskra",
+      "text": "Twoja iskra nie musi świecić głośno, żeby wskazywać drogę.",
+      "kind": "spokoj"
+    },
+    {
+      "id": "cs-kompas-zwolnil",
+      "from": "opiekun",
+      "art": "iskra",
+      "text": "Kompas przy tobie zwolnił. Nawet mały krok zostawia ślad na mapie.",
+      "kind": "ruch"
+    },
+    {
+      "id": "cs-dolina-nasluchuje",
+      "from": "dolina-dzwiekow",
+      "art": "iskra",
+      "text": "Dolina Dźwięków nasłuchuje dziś spokojnych melodii. Jakie trzy dźwięki słyszysz najbliżej siebie?",
+      "kind": "zauwazanie"
+    },
+    {
+      "id": "cs-swiatlo-odpocznie",
+      "from": "opiekun",
+      "art": "iskra",
+      "text": "Twoje światło może odpocząć. Jutro nadal będzie czekała kolejna ścieżka.",
+      "kind": "odpoczynek"
+    },
+    {
+      "id": "cs-las-oddech",
+      "from": "las-szeptow",
+      "art": "iskra",
+      "text": "Las Szeptów oddycha wolniej niż ty. Spróbuj przez chwilę tak samo.",
+      "kind": "spokoj"
+    },
+    {
+      "id": "cs-woda-przystani",
+      "from": "przystan",
+      "art": "iskra",
+      "text": "Woda w Przystani jest dziś spokojna. Napij się i ty.",
+      "kind": "woda"
+    },
+    {
+      "id": "cs-szeptun-pyta",
+      "from": "szeptun",
+      "art": "iskra",
+      "text": "Szeptun pyta, czy powiedziałeś dziś komuś coś dobrego. Jeszcze jest czas.",
+      "kind": "rozmowa"
+    },
+    {
+      "id": "cs-latarnia-czeka",
+      "from": "przystan",
+      "art": "iskra",
+      "text": "Latarnia w Przystani pali się cały czas, także wtedy, gdy cię nie ma.",
+      "kind": "spokoj"
+    }
+  ]
+}

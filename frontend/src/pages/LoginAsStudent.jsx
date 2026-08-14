@@ -6,7 +6,7 @@
  *  1. Wyciagamy ?id= z URL
  *  2. Weryfikujemy ze gracz istnieje (api.getPlayer)
  *  3. Zapisujemy do session (localStorage.ewolucja.playerId)
- *  4. Przekierowujemy: jezeli ma archetype -> /world, jezeli nie -> /onboarding
+ *  4. Przekierowujemy: jezeli ma archetype -> /mapa, jezeli nie -> /onboarding
  *
  * Bezpieczenstwo MVP: UUID jest nieprzewidywalny (v4). Kazdy z linkiem moze
  * zalogowac sie jako dziecko - to celowe, zeby rodzic mogl latwo wrocic.
@@ -45,7 +45,7 @@ export default function LoginAsStudent() {
         session.setPlayer(player.player_id);
         try { await refreshAll(); } catch {}
         setStage("found");
-        const target = player.archetype ? "/world" : "/onboarding";
+        const target = player.archetype ? "/swiat" : "/onboarding";
         // Krotka chwila pokazania imienia (UX), potem redirect
         setTimeout(() => navigate(target, { replace: true }), 800);
       } catch (e) {

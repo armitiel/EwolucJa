@@ -419,7 +419,7 @@ export default function Onboarding() {
         )}
 
         {step === "result" && result && (
-          <CelebrationThenArchetype result={result} onEnter={() => navigate("/world")} />
+          <CelebrationThenArchetype result={result} onEnter={() => navigate("/swiat")} />
         )}
       </div>
     </PageShell>

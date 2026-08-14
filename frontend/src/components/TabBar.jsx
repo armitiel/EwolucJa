@@ -1,15 +1,18 @@
 /**
  * TabBar — dolny pasek nawigacji widoczny na ekranach dziecka:
- * /world, /map, /backpack, /profile.
+ * /swiat, /games, /backpack, /profile.
+ *
+ * Uwaga: hub 3D (/swiat) ma wlasny dok (HubDock) i TabBara NIE renderuje.
+ * Zakladka "Swiat" jest tu droga POWROTU do bazy z ekranow bocznych.
  */
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { TabIcons } from "./art.jsx";
 
 const TABS = [
-  { id: "home", label: "Dom", path: "/world", icon: TabIcons.home },
+  { id: "home", label: "Świat", path: "/swiat", icon: TabIcons.home },
   { id: "games", label: "Gry", path: "/games", icon: TabIcons.games },
-  { id: "mission", label: "Zadania", path: "/mission", icon: TabIcons.mission },
+  { id: "mission", label: "Plecak", path: "/backpack", icon: TabIcons.mission },
   { id: "profile", label: "Profil", path: "/profile", icon: TabIcons.hero },
 ];
 

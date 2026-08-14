@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "note": "ATRAPA. Treść na czas decyzji: czat z postacią (dialogi z danych / AI) czy dwustronny czat dziecko ↔ Mentor (tabela, moderacja, zgoda rodzica). Nic tu nie idzie do sieci.",
+  "watki": [
+    {
+      "id": "opiekun",
+      "kto": "Opiekun Mapy",
+      "emoji": "🧭",
+      "zablokowany": false,
+      "wiadomosci": [
+        { "od": "on", "tekst": "Wróciłeś. Las Szeptów świeci od wczoraj — czujesz to?" },
+        { "od": "ja", "tekst": "Tak! Szeptun mnie usłyszał." },
+        { "od": "on", "tekst": "Iskra wróciła, bo zrobiłeś coś w prawdziwym świecie. Mapa to pamięta." },
+        { "od": "on", "tekst": "Dolina Dźwięków jest już otwarta. Nie musisz iść dziś." }
+      ],
+      "odpowiedzi": ["Co jest w Dolinie?", "Opowiedz o Iskrach", "Idę tam teraz"]
+    },
+    {
+      "id": "szeptun",
+      "kto": "Szeptun",
+      "emoji": "🌲",
+      "zablokowany": false,
+      "wiadomosci": [
+        { "od": "on", "tekst": "Słyszę cię lepiej, odkąd Iskra wróciła." },
+        { "od": "on", "tekst": "W Dolinie gubi się melodia. Nie spiesz się — mgła nie ucieknie." },
+        { "od": "ja", "tekst": "Poszukam jej." }
+      ],
+      "odpowiedzi": ["Jaka to melodia?", "Kto ją zgubił?", "Wrócę później"]
+    },
+    {
+      "id": "mentor",
+      "kto": "Mentor",
+      "emoji": "🧑‍🏫",
+      "zablokowany": true,
+      "wiadomosci": [],
+      "odpowiedzi": []
+    }
+  ]
+}

@@ -31,7 +31,7 @@ export default function InviteGM() {
 
   return (
     <div style={styles.wrap}>
-      <button style={styles.back} onClick={() => navigate("/world")}>← Wróć</button>
+      <button style={styles.back} onClick={() => navigate("/swiat")}>← Wróć do świata</button>
       <div style={styles.card}>
         <h1 style={styles.title}>Zaproś Mentora</h1>
         <p style={styles.lead}>

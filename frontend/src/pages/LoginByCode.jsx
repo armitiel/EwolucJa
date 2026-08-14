@@ -36,7 +36,7 @@ export default function LoginByCode() {
       const player = await api.getPlayerByLoginCode(c);
       session.setPlayer(player.player_id);
       try { await refreshAll(); } catch {}
-      const target = player.archetype ? "/world" : "/onboarding";
+      const target = player.archetype ? "/swiat" : "/onboarding";
       navigate(target, { replace: true });
     } catch (err) {
       setError(err.message || "Nie udało się zalogować");

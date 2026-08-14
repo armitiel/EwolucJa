@@ -1,0 +1,1022 @@
+:root {
+  --hud-cream-top: #fff9d9;
+  --hud-cream-bottom: #f1d997;
+  --hud-gold-light: #fff19a;
+  --hud-gold: #efb937;
+  --hud-gold-deep: #b86a1c;
+  --hud-shadow: #8d4818;
+  --hud-ink: #473653;
+}
+
+.scena3d-hint,
+.scena3d-runmode,
+.scena3d-stickhint,
+.scena3d-controls { display: none !important; }
+
+.game-hud {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 10px calc(12px + env(safe-area-inset-bottom, 0px));
+  font-family: "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif;
+  color: var(--hud-ink);
+}
+
+.game-hud a,
+.game-hud button { pointer-events: auto; -webkit-tap-highlight-color: transparent; }
+
+.game-hud-top { display: flex; align-items: flex-start; gap: 7px; }
+
+.game-hud-profile,
+.game-hud-counter {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 43px;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(255, 251, 224, .97), rgba(242, 220, 158, .97)) padding-box,
+    linear-gradient(180deg, var(--hud-gold-light), var(--hud-gold) 58%, var(--hud-gold-deep)) border-box;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .82), 0 3px 0 var(--hud-shadow), 0 7px 13px rgba(62, 38, 16, .24);
+  color: var(--hud-ink);
+  text-decoration: none;
+}
+
+.game-hud-profile {
+  min-height: 50px;
+  max-width: 45vw;
+  padding: 2px 15px 2px 2px;
+  gap: 7px;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: .1px;
+  white-space: nowrap;
+}
+
+.game-hud-profile img {
+  width: 58px;
+  height: 58px;
+  flex: none;
+  object-fit: contain;
+  margin: -6px 0 -6px -3px;
+  filter: drop-shadow(0 2px 1px rgba(73, 39, 12, .27));
+}
+
+.game-hud-profile span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .9);
+}
+
+.game-hud-resources { margin-left: auto; display: flex; align-items: center; gap: 7px; }
+
+.game-hud-counter {
+  min-width: 56px;
+  padding: 2px 9px 2px 2px;
+  gap: 2px;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.game-hud-counter img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  margin: -1px 0 -1px -2px;
+  filter: drop-shadow(0 2px 1px rgba(83, 44, 9, .3));
+}
+
+.game-hud-counter--spark {
+  min-height: 43px;
+  padding-left: 0;
+}
+
+.game-hud-counter--spark img {
+  width: 43px;
+  height: 43px;
+  margin: -5px 0 -5px -4px;
+}
+
+.game-hud-counter strong { min-width: 13px; text-align: center; text-shadow: 0 1px 0 rgba(255, 255, 255, .92); }
+
+.game-hud-map {
+  width: 48px;
+  height: 48px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  padding: 7px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 42% 30%, #3e6b89 0%, #244d70 52%, #183653 100%) padding-box,
+    linear-gradient(180deg, #fff3a1, #e2a32e 58%, #8f5017) border-box;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .16), 0 4px 0 #784116, 0 8px 15px rgba(35, 38, 24, .3);
+  color: #fff0a3;
+}
+
+.game-hud-map svg {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 2px 0 rgba(12, 27, 45, .58));
+}
+
+.game-hud-bottom { display: grid; justify-items: center; gap: 8px; }
+
+.game-hud-place {
+  padding: 4px 14px;
+  border: 1.5px solid transparent;
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(64, 119, 111, .95), rgba(35, 76, 75, .96)) padding-box,
+    linear-gradient(180deg, #ffe980, #d88d29) border-box;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18), 0 2px 0 #774416, 0 5px 10px rgba(31, 42, 27, .2);
+  color: #fff3bd;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  text-shadow: 0 1.5px 0 #253f3d;
+}
+
+.game-hud-dock {
+  width: min(100%, 430px);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: end;
+  gap: 2px;
+}
+
+.game-hud-dock button {
+  position: relative;
+  min-width: 0;
+  height: 73px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  transition: transform .16s ease;
+}
+
+.game-hud-dock button::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 1px;
+  width: 68px;
+  height: 68px;
+  transform: translateX(-50%);
+  box-sizing: border-box;
+  border: 3px solid transparent;
+  border-radius: 50%;
+  background:
+    linear-gradient(180deg, var(--hud-cream-top), var(--hud-cream-bottom)) padding-box,
+    linear-gradient(180deg, var(--hud-gold-light), var(--hud-gold) 56%, var(--hud-gold-deep)) border-box;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .92), inset 0 -3px 0 rgba(177, 112, 28, .17), 0 5px 0 var(--hud-shadow), 0 9px 14px rgba(63, 39, 14, .26);
+}
+
+.game-hud-dock img {
+  position: relative;
+  z-index: 1;
+  width: 60px;
+  height: 60px;
+  display: block;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 3px 1px rgba(79, 43, 12, .26));
+  transition: transform .16s ease, filter .16s ease;
+}
+
+.game-hud-badge {
+  position: absolute;
+  z-index: 3;
+  top: 1px;
+  right: 9px;
+  min-width: 20px;
+  height: 20px;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  padding: 0 5px;
+  border: 2px solid #fff0c4;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ff665e, #d92e34);
+  box-shadow: 0 2px 0 #8e2528, 0 4px 7px rgba(72, 25, 21, .25);
+  color: #fff7d0;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  text-shadow: 0 1px 0 #8e2528;
+}
+
+.game-hud-dock button:hover,
+.game-hud-dock button.is-active { transform: translateY(-5px); }
+
+.game-hud-dock button:hover::before,
+.game-hud-dock button.is-active::before {
+  background:
+    linear-gradient(180deg, #fffde9, #f6df91) padding-box,
+    linear-gradient(180deg, #fff8b0, #f4bf3f 56%, #bd6d1d) border-box;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .96), 0 5px 0 #8b4717, 0 0 18px rgba(255, 221, 85, .58), 0 10px 15px rgba(63, 39, 14, .28);
+}
+
+.game-hud-dock button:active { transform: translateY(-1px) scale(.96); }
+
+.game-hud-dock button:focus-visible,
+.game-hud-profile:focus-visible,
+.game-hud-map:focus-visible { outline: 3px solid #fff3a1; outline-offset: 3px; }
+
+.game-hud-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(104px + env(safe-area-inset-bottom, 0px));
+  z-index: 25;
+  transform: translate(-50%, 8px);
+  opacity: 0;
+  pointer-events: none;
+  padding: 7px 15px;
+  border: 2px solid #e6a832;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #466f68, #294d4b);
+  box-shadow: 0 3px 0 #744117, 0 7px 13px rgba(38, 31, 18, .28);
+  color: #fff3bd;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  text-shadow: 0 1px 0 #203d3a;
+  transition: opacity .18s ease, transform .18s ease;
+}
+
+.game-hud-toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+
+/* Wariant A: niska wspólna półka. Ikony pozostają duże i wystają ponad jej
+   górną krawędź, więc belka nie zabiera tak dużo mapy jak klasyczny dock. */
+.game-hud.is-shelf .game-hud-bottom {
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.game-hud.is-shelf .game-hud-dock {
+  position: relative;
+  width: min(100%, 458px);
+  height: 72px;
+  box-sizing: border-box;
+  padding: 4px 9px 6px;
+  border: 2.5px solid transparent;
+  border-radius: 26px;
+  background:
+    linear-gradient(180deg, rgba(255, 249, 216, .9) 0%, rgba(240, 213, 141, .86) 100%) padding-box,
+    linear-gradient(180deg, #fff39b 0%, #edb334 56%, #b8681b 100%) border-box;
+  backdrop-filter: blur(5px) saturate(1.06);
+  -webkit-backdrop-filter: blur(5px) saturate(1.06);
+  box-shadow:
+    inset 0 -2px 0 rgba(167, 101, 24, .12),
+    0 3px 0 rgba(139, 70, 24, .88),
+    0 7px 12px rgba(58, 37, 14, .2);
+}
+
+.game-hud.is-shelf .game-hud-dock button {
+  height: 60px;
+  align-self: center;
+  transform: none;
+}
+
+.game-hud.is-shelf .game-hud-dock button::before { display: none; }
+
+.game-hud.is-shelf .game-hud-dock img {
+  width: 62px;
+  height: 62px;
+  filter:
+    drop-shadow(0 3px 1px rgba(79, 43, 12, .3))
+    drop-shadow(0 0 1px rgba(255, 244, 171, .7));
+}
+
+.game-hud.is-shelf .game-hud-dock button:hover,
+.game-hud.is-shelf .game-hud-dock button.is-active {
+  transform: translateY(-4px);
+}
+
+.game-hud.is-shelf .game-hud-dock button:hover img,
+.game-hud.is-shelf .game-hud-dock button.is-active img {
+  transform: scale(1.05);
+  filter:
+    drop-shadow(0 4px 1px rgba(79, 43, 12, .3))
+    drop-shadow(0 0 9px rgba(255, 228, 88, .9));
+}
+
+.game-hud.is-shelf .game-hud-dock button:active {
+  transform: translateY(-1px) scale(.97);
+}
+
+.game-hud.is-shelf + .game-hud-toast {
+  bottom: calc(142px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Rozwijany zwój wiadomości. */
+.message-scroll {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  padding: 18px 14px calc(96px + env(safe-area-inset-bottom, 0px));
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease, visibility 0s linear .3s;
+  font-family: "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif;
+  color: #50351f;
+}
+
+.message-scroll.is-open {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity .2s ease;
+}
+
+.message-scroll-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(24, 38, 30, .38);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  cursor: pointer;
+}
+
+.message-scroll-parchment {
+  --message-scroll-height: 390px;
+  position: relative;
+  width: min(100%, 430px);
+  height: 78px;
+  transform: translateY(28px) scale(.96);
+  transform-origin: center bottom;
+  opacity: 0;
+  transition:
+    height 1.05s cubic-bezier(.33,0,.30,1),
+    transform .34s cubic-bezier(.2,.84,.32,1.08),
+    opacity .16s ease;
+}
+
+.message-scroll.is-open .message-scroll-parchment {
+  height: min(var(--message-scroll-height), 64dvh, 530px);
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.message-scroll-parchment.is-resizing {
+  transition:
+    height .34s cubic-bezier(.22,.74,.24,1),
+    transform .34s cubic-bezier(.2,.84,.32,1.08),
+    opacity .16s ease;
+}
+
+.message-scroll-parchment::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 8% -12%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(255,225,113,.36), rgba(255,211,90,.12) 48%, transparent 72%);
+  filter: blur(14px);
+  opacity: 0;
+  transform: scale(.7);
+  transition: opacity .7s ease .35s, transform .9s ease .25s;
+}
+
+.message-scroll.is-open .message-scroll-parchment::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.message-scroll-paper {
+  position: absolute;
+  z-index: 1;
+  left: 7.5%;
+  right: 7.5%;
+  top: clamp(29px, 8.4vw, 39px);
+  bottom: clamp(29px, 8.4vw, 39px);
+  overflow: hidden;
+  background: url('/zwoj-papier.svg') center / 100% 100% no-repeat;
+}
+
+.message-scroll-content {
+  position: absolute;
+  inset: 8% 6% 7%;
+  display: flex;
+  flex-direction: column;
+  justify-content: safe center;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  opacity: 0;
+  transform: translateY(-5px);
+  pointer-events: none;
+  transition: opacity .36s ease .68s, transform .36s ease .68s;
+}
+
+.message-scroll.is-open .message-scroll-content {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.message-scroll-content::-webkit-scrollbar { display: none; }
+
+.message-scroll-rod {
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  width: 100%;
+  height: auto;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 5px 6px rgba(80,50,10,.27));
+}
+
+.message-scroll-rod--top { top: 0; }
+.message-scroll-rod--bottom { bottom: 0; }
+
+.message-scroll-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 8px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(176,112,35,.2);
+}
+
+.message-scroll-kicker {
+  display: block;
+  margin-bottom: 2px;
+  color: #a7651d;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+.message-scroll-header h2 {
+  margin: 0;
+  color: #fff0b5;
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: .3px;
+  -webkit-text-stroke: 4px #4f3020;
+  paint-order: stroke fill;
+  text-shadow: 0 3px 0 #a66022, 0 5px 8px rgba(73,42,20,.22);
+}
+
+.message-scroll-close {
+  position: absolute;
+  z-index: 5;
+  top: -6px;
+  right: -3px;
+  width: 46px;
+  height: 46px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  padding: 0 0 4px;
+  border: 2px solid #8f2d27;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ff6a5e, #d53537);
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.35), 0 3px 0 #8d2a27, 0 6px 9px rgba(77,35,22,.2);
+  color: #fff4c9;
+  font: 900 32px/1 system-ui, sans-serif;
+  text-shadow: 0 2px 0 #8d2a27;
+  cursor: pointer;
+  transform-origin: center;
+  transition: transform .14s ease, box-shadow .14s ease, filter .14s ease;
+}
+
+.message-scroll-close:hover { filter: brightness(1.08); }
+
+.message-scroll-close.is-pressed {
+  animation: message-scroll-close-press .18s cubic-bezier(.2,.82,.3,1) both;
+}
+
+.message-scroll-note {
+  margin: 13px 0;
+  padding: 10px 12px;
+  border: 1.5px solid rgba(190,126,39,.34);
+  border-radius: 14px;
+  background: rgba(255,250,225,.68);
+  color: #79553a;
+  font-family: "Trebuchet MS", system-ui, sans-serif;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.message-scroll-list {
+  display: grid;
+  gap: 9px;
+}
+
+.scroll-message {
+  overflow: hidden;
+  border: 1.5px solid rgba(177,113,35,.28);
+  border-radius: 17px;
+  background: rgba(255,251,231,.68);
+  box-shadow: 0 3px 8px rgba(83,51,20,.1);
+}
+
+.scroll-message.is-unread {
+  border-color: rgba(220,139,38,.72);
+  background: rgba(255,252,235,.94);
+}
+
+.scroll-message-head {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 43px minmax(0,1fr) auto;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 10px;
+  border: 0;
+  background: transparent;
+  color: #563a26;
+  text-align: left;
+  cursor: pointer;
+}
+
+.scroll-message-head:focus-visible {
+  outline: 3px solid #e1a239;
+  outline-offset: -3px;
+  border-radius: 15px;
+}
+
+.scroll-message-avatar {
+  width: 43px;
+  height: 43px;
+  display: grid;
+  place-items: center;
+}
+
+.scroll-message-avatar img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 1px rgba(90,51,17,.24));
+}
+
+.scroll-message-copy { min-width: 0; }
+.scroll-message-copy strong { display: block; font-size: 13px; line-height: 1.25; }
+.scroll-message-copy small {
+  display: -webkit-box;
+  overflow: hidden;
+  margin-top: 2px;
+  color: #82644e;
+  font-family: "Trebuchet MS", system-ui, sans-serif;
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.32;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.scroll-message-meta {
+  align-self: start;
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+  color: #9a765b;
+  font-size: 9px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.scroll-message-meta i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #e74343;
+  box-shadow: 0 1px 0 #9c2929;
+}
+
+.scroll-message-body {
+  padding: 0 14px 13px 62px;
+  color: #694b35;
+  font-family: "Trebuchet MS", system-ui, sans-serif;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.48;
+  animation: scroll-message-open .22s ease both;
+}
+
+.scroll-message-body span {
+  display: block;
+  margin-bottom: 4px;
+  color: #a7651d;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .7px;
+  text-transform: uppercase;
+}
+
+.scroll-message-body p { margin: 0; }
+
+@keyframes scroll-message-open {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes message-scroll-close-press {
+  0% { transform: translateY(0) scale(1); }
+  48% {
+    transform: translateY(4px) scale(.86);
+    box-shadow: inset 0 3px 4px rgba(111,24,24,.3), 0 1px 0 #8d2a27, 0 2px 4px rgba(77,35,22,.18);
+  }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 390px) {
+  .game-hud { padding-left: 7px; padding-right: 7px; }
+  .game-hud-top, .game-hud-resources { gap: 4px; }
+  .game-hud-profile { max-width: 40vw; padding-right: 9px; font-size: 13px; }
+  .game-hud-profile img { width: 53px; height: 53px; }
+  .game-hud-counter { min-width: 51px; padding-right: 7px; }
+  .game-hud-counter img { width: 31px; height: 31px; }
+  .game-hud-counter--spark img { width: 39px; height: 39px; }
+  .game-hud-map { width: 45px; height: 45px; }
+  .game-hud-dock { gap: 0; }
+  .game-hud-dock button::before { width: 64px; height: 64px; }
+  .game-hud-dock img { width: 56px; height: 56px; }
+  .game-hud.is-shelf .game-hud-bottom { margin-bottom: 0; }
+  .game-hud.is-shelf .game-hud-dock {
+    height: 69px;
+    padding: 4px 4px 6px;
+  }
+  .game-hud.is-shelf .game-hud-dock img { width: 58px; height: 58px; }
+  .game-hud-badge { right: 4px; }
+  .message-scroll { padding: 14px 8px calc(91px + env(safe-area-inset-bottom, 0px)); }
+  .message-scroll-parchment { width: min(100%, 390px); }
+  .message-scroll.is-open .message-scroll-parchment { height: min(var(--message-scroll-height), 70dvh, 530px); }
+  .message-scroll-content { inset: 8% 5% 7%; }
+  .message-scroll-header h2 { font-size: 27px; }
+  .scroll-message-head { grid-template-columns: 40px minmax(0,1fr) auto; gap: 7px; padding: 8px; }
+  .scroll-message-avatar { width: 40px; height: 40px; }
+  .scroll-message-avatar img { width: 45px; height: 45px; }
+  .scroll-message-body { padding-left: 55px; }
+}
+
+@media (max-width: 340px) {
+  .game-hud-profile span { display: none; }
+  .game-hud-profile { width: 47px; padding-right: 1px; }
+  .game-hud-dock button::before { width: 58px; height: 58px; }
+  .game-hud-dock img { width: 51px; height: 51px; }
+}
+
+
+/* --- Oddech wokol ikon HUD (profil, iskry, monety) --- */
+/* Dopisane na koncu pliku celowo: te same selektory sa wczesniej ustawiane
+   kilkukrotnie, takze w @media, a przy rownej specyficznosci decyduje kolejnosc. */
+.game-hud-profile {
+  padding-left: 4px;
+  padding-right: 16px;
+  gap: 10px;
+}
+
+.game-hud-counter {
+  min-width: 0;
+  padding-left: 8px;
+  padding-right: 13px;
+  gap: 7px;
+}
+
+.game-hud-counter--spark {
+  padding-left: 8px;
+}
+
+@media (max-width: 340px) {
+  .game-hud-profile { padding-right: 10px; }
+  .game-hud-counter { padding-left: 6px; padding-right: 10px; }
+  .game-hud-counter--spark { padding-left: 6px; }
+}
+
+
+/* --- Iskra wieksza od monety --- */
+/* Iskra to zasob fabularny (zdobywa sie ja rzadko), moneta - bilansowy.
+   Roznica rozmiaru robi te hierarchie szybciej niz jakikolwiek podpis.
+   Dopisane na koncu, bo wczesniej te same selektory ustawiane sa kilkukrotnie. */
+.game-hud-counter--spark {
+  min-width: 64px;
+  padding-left: 0;
+  padding-right: 15px;
+}
+
+.game-hud-counter--spark img {
+  width: 52px;
+  height: 52px;
+  margin: -8px 0 -8px -5px;
+}
+
+@media (max-width: 340px) {
+  .game-hud-counter--spark { min-width: 58px; padding-right: 11px; }
+  .game-hud-counter--spark img { width: 46px; height: 46px; margin: -6px 0 -6px -4px; }
+}
+
+
+/* --- Oddech w gornym HUD: kafelki nie moga sciskac ikon --- */
+/* Ikony maja ujemne marginesy (wystaja poza kafelek), wiec padding musi byc
+   liczony od krawedzi kafelka, nie od obrazka. Stad asymetria: z lewej malo,
+   z prawej duzo - po prawej stoi liczba i to ona potrzebuje powietrza. */
+.game-hud-resources { gap: 10px; }
+
+.game-hud-profile {
+  padding: 2px 20px 2px 4px;
+  gap: 12px;
+}
+
+.game-hud-counter {
+  min-width: 70px;
+  padding: 3px 18px 3px 4px;
+  gap: 9px;
+}
+
+.game-hud-counter--spark {
+  min-width: 80px;
+  padding-left: 2px;
+  padding-right: 20px;
+}
+
+@media (max-width: 340px) {
+  .game-hud-resources { gap: 7px; }
+  .game-hud-profile { padding: 2px 13px 2px 3px; gap: 8px; }
+  .game-hud-counter { min-width: 62px; padding: 3px 13px 3px 3px; gap: 7px; }
+  .game-hud-counter--spark { min-width: 70px; padding-left: 1px; padding-right: 14px; }
+}
+
+/* --- Przycisk muzyki --- */
+/* Siedzi w gornym pasku, nie w dolnej belce: dolna belka to MIEJSCA (dokad ide),
+   a muzyka to USTAWIENIE (jak ma brzmiec) - mieszanie ich uczy dziecko, ze
+   ikonki na dole robia rozne rodzaje rzeczy. Ksztaltem trzyma sie rodziny
+   .game-hud-map, zeby oba okragle przyciski czytaly sie jako jedna grupa. */
+.game-hud-music {
+  width: 52px;
+  height: 52px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 42% 30%, #fffbe0 0%, #f2dc9e 58%, #e3c274 100%) padding-box,
+    linear-gradient(180deg, var(--hud-gold-light), var(--hud-gold) 58%, var(--hud-gold-deep)) border-box;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .82), 0 3px 0 var(--hud-shadow), 0 7px 13px rgba(62, 38, 16, .24);
+  cursor: pointer;
+  transition: transform .16s ease, filter .16s ease;
+}
+
+.game-hud-music img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 2px 1px rgba(73, 39, 12, .27));
+  transition: filter .16s ease, opacity .16s ease;
+}
+
+.game-hud-music:active { transform: translateY(2px); }
+.game-hud-music:focus-visible { outline: 3px solid #fff3a1; outline-offset: 3px; }
+
+/* Wyciszone: ikona traci kolor i sile, ale przycisk zostaje tak samo duzy -
+   dziecko ma trafic w to samo miejsce, zeby wlaczyc muzyke z powrotem. */
+.game-hud-music.is-off img { filter: grayscale(1) opacity(.55); }
+
+.game-hud-music.is-off::after {
+  content: "";
+  position: absolute;
+  width: 40px;
+  height: 3px;
+  border-radius: 2px;
+  background: #8f5017;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .6);
+  transform: rotate(-38deg);
+}
+
+.game-hud-music { position: relative; }
+
+@media (max-width: 340px) {
+  .game-hud-music { width: 46px; height: 46px; }
+  .game-hud-music img { width: 39px; height: 39px; }
+  .game-hud-music.is-off::after { width: 35px; }
+}
+
+
+/* --- Awatar gracza bez kafelka --- */
+/* Imie znika, zostaje sama postac. Powod: imie dziecko zna, a zloty kafelek
+   robil z awatara kolejny "przycisk zasobu" - tego samego rodzaju co monety
+   i iskry. Bez tla awatar czyta sie jako TY, a nie jako licznik.
+   Nadpisujemy wspolna regule .game-hud-profile, .game-hud-counter z gory pliku. */
+.game-hud-profile {
+  min-height: 0;
+  max-width: none;
+  padding: 0;
+  gap: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.game-hud-profile span { display: none; }
+
+.game-hud-profile img {
+  width: 66px;
+  height: 66px;
+  margin: -4px 0 -4px -2px;
+  /* Mocniejszy cien niz w kafelku - bez zlotej obwodki awatar musi sam
+     odkleic sie od sceny, ktora bywa jasna. */
+  filter: drop-shadow(0 3px 2px rgba(38, 26, 12, .42)) drop-shadow(0 1px 0 rgba(255, 255, 255, .35));
+}
+
+@media (max-width: 340px) {
+  .game-hud-profile { padding: 0; gap: 0; }
+  .game-hud-profile img { width: 58px; height: 58px; }
+}
+
+
+/* --- Muzyka: ten sam format co ikony obok --- */
+/* Nutka wypelniala kolko po brzegi, wiec przy monecie (34 px w kafelku 43 px)
+   czytala sie jako inny, wiekszy element. Zrownujemy: sama ikona ma rozmiar
+   monety, a kolko dostaje taki sam pierscien powietrza jak kafelki. */
+.game-hud-music {
+  width: 48px;
+  height: 48px;
+}
+
+.game-hud-music img {
+  width: 32px;
+  height: 32px;
+}
+
+.game-hud-music.is-off::after { width: 27px; }
+
+@media (max-width: 340px) {
+  .game-hud-music { width: 43px; height: 43px; }
+  .game-hud-music img { width: 29px; height: 29px; }
+  .game-hud-music.is-off::after { width: 24px; }
+}
+
+
+/* --- Monety: pasek postepu do celu --- */
+/* Cel (100 monet) jest widoczny bez podpisu "z 100" - dziecko w wieku 6-12 lat
+   czyta zapelniajacy sie pasek szybciej niz ulamek. Pasek siedzi WEWNATRZ
+   kafelka, nie pod nim: inaczej wygladalby jak osobny element interfejsu,
+   a nie jak wlasciwosc tego jednego licznika.
+   Iskra dostaje te sama wysokosc, zeby oba kafelki staly rowno. */
+.game-hud-counter--coins {
+  position: relative;
+  min-height: 54px;
+  padding-bottom: 12px;
+}
+
+.game-hud-counter--spark { min-height: 54px; }
+
+.game-hud-progress {
+  position: absolute;
+  left: 11px;
+  right: 13px;
+  bottom: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(122, 68, 22, .2);
+  box-shadow: inset 0 1px 1px rgba(88, 48, 14, .28);
+  overflow: hidden;
+}
+
+.game-hud-progress i {
+  display: block;
+  height: 100%;
+  min-width: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffef9c, #f2b93f 58%, #cf861c);
+  box-shadow: 0 0 6px rgba(255, 206, 90, .55), inset 0 1px 0 rgba(255, 255, 255, .7);
+  transition: width .45s cubic-bezier(.22, .74, .24, 1);
+}
+
+/* Cel osiagniety - pasek przestaje byc "brakiem" i zaczyna byc nagroda. */
+.game-hud-progress.is-full i {
+  background: linear-gradient(180deg, #fffbd4, #ffd964 58%, #eda42a);
+  box-shadow: 0 0 10px rgba(255, 222, 120, .85), inset 0 1px 0 rgba(255, 255, 255, .85);
+}
+
+@media (max-width: 340px) {
+  .game-hud-counter--coins { min-height: 48px; padding-bottom: 10px; }
+  .game-hud-counter--spark { min-height: 48px; }
+  .game-hud-progress { left: 8px; right: 9px; bottom: 5px; height: 5px; }
+}
+
+
+/* --- Monety: moneta obok, pasek obok --- */
+/* Poprzednia wersja wsuwala pasek POD liczbe, przez co kafelek rosl w dol
+   i przestawal pasowac do reszty gornego paska. Teraz wszystko stoi w jednej
+   linii: moneta, liczba, pasek - kafelek zostaje tej samej wysokosci co
+   przycisk muzyki, a pasek czyta sie jako ciag dalszy licznika. */
+.game-hud-counter--coins {
+  min-height: 48px;
+  padding: 3px 15px 3px 4px;
+  gap: 9px;
+}
+
+.game-hud-progress {
+  position: static;
+  flex: none;
+  width: 86px;
+  height: 12px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(108, 58, 18, .26), rgba(140, 82, 28, .16));
+  box-shadow:
+    inset 0 1.5px 2px rgba(78, 41, 11, .38),
+    0 1px 0 rgba(255, 255, 255, .55);
+  overflow: hidden;
+}
+
+.game-hud-progress i {
+  display: block;
+  height: 100%;
+  /* Kikut minimalnej szerokosci: przy 1-2 monetach pasek ma pokazac, ze cos
+     juz jest, a nie wygladac na pusty. Bez tego pierwsze monety sa niewidoczne. */
+  min-width: 12px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fff6bd 0%, #ffd062 46%, #f0a92c 74%, #d4841c 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .9),
+    inset 0 -1px 0 rgba(160, 92, 18, .45),
+    0 0 8px rgba(255, 205, 92, .5);
+  transition: width .45s cubic-bezier(.22, .74, .24, 1);
+}
+
+/* Pusty licznik: zaden kikut, bo nie ma czego pokazac. */
+.game-hud-progress.is-empty i { min-width: 0; }
+
+.game-hud-progress.is-full i {
+  background: linear-gradient(180deg, #fffce3 0%, #ffe89b 47%, #ffd257 74%, #f5b330 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .95),
+    0 0 12px rgba(255, 224, 124, .9);
+}
+
+@media (max-width: 340px) {
+  .game-hud-counter--coins { min-height: 43px; padding: 3px 11px 3px 3px; gap: 7px; }
+  .game-hud-progress { width: 64px; height: 10px; }
+}
+
+
+/* --- Zadanie w realu: przypiete na gorze zwoju --- */
+/* Wyroznione, bo to jedyny wpis, ktory NIE jest wiescia: reszta przyszla
+   i sie skonczyla, a zadanie trwa. Zlota lewa krawedz zamiast kropki
+   nieprzeczytanego - kropka znika po otwarciu, a to ma zostac. */
+.scroll-message.is-quest {
+  border-left: 4px solid #e6a832;
+  background: linear-gradient(180deg, rgba(255, 246, 208, .95), rgba(252, 235, 183, .9));
+}
+
+.scroll-message.is-quest .scroll-message-meta {
+  color: #8a5a15;
+  font-weight: 900;
+  text-align: right;
+}
+
+.scroll-message-how {
+  margin: 6px 0 0;
+  color: #6f5540;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.scroll-message-note {
+  margin: 6px 0 0;
+  padding-left: 9px;
+  border-left: 2px solid rgba(180, 128, 44, .5);
+  color: #7a5c3e;
+  font-size: 12px;
+  font-style: italic;
+  line-height: 1.45;
+}

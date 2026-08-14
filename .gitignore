@@ -12,3 +12,12 @@ backend/.env
 .vercel
 
 .env.production
+
+# Zrodla graficzne (PSD/AI/PSB) i katalog roboczy grafiki.
+# Leza w public/, wiec bez tego Vite kopiuje je do dist i Vercel serwuje
+# publicznie 148 MB plikow, ktorych aplikacja nigdy nie uzywa.
+# postacie.psd (103 MB) przekracza tez limit pliku na GitHubie.
+frontend/public/assets/EwolucJa/
+*.psd
+*.psb
+*.ai

@@ -107,7 +107,7 @@ export default function MissionView() {
       try { await refreshAll(); } catch {}
       // Reward screen widoczny ~2.8s (czas na obejrzenie Lottie + nagrody za samo wyslanie).
       // Duza nagroda za misje przychodzi gdy Mentor zatwierdzi (RewardPopup w HintPopup).
-      setTimeout(() => navigate("/world", { replace: true }), 2800);
+      setTimeout(() => navigate("/swiat", { replace: true }), 2800);
     } catch (err) {
       setError(err.message);
       setSubmitting(false);
@@ -580,7 +580,7 @@ export default function MissionView() {
       <Celebration active={celebrating || openBurst} />
 
       {/* Reward overlay — wspólny RewardScreen (taki sam wygląd jak po weryfikacji mentora).
-          Auto-zamyka się po 2.8s — handleSubmit i tak nawiguje na /world po tym czasie. */}
+          Auto-zamyka się po 2.8s — handleSubmit i tak nawiguje na /mapa po tym czasie. */}
       {celebrating && (
         <RewardScreen
           eyebrow="✨ ZWÓJ WYSŁANY"

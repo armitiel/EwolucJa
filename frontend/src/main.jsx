@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 /**
  * ScrollToTop — przy kazdej zmianie route (np. zakladki w TabBar) scrolluje:
@@ -26,9 +26,10 @@ function ScrollToTop() {
 import App from "./App.jsx";
 import Landing from "./pages/Landing.jsx";
 import Onboarding from "./pages/Onboarding.jsx";
-import WorldHub from "./pages/WorldHub.jsx";
+import Przygoda from "./pages/Przygoda.jsx";
+import MapaSwiata from "./pages/MapaSwiata.jsx";
+import Swiat from "./pages/Swiat.jsx";
 import MissionView from "./pages/MissionView.jsx";
-import MapView from "./pages/MapView.jsx";
 import Games from "./pages/Games.jsx";
 import Backpack from "./pages/Backpack.jsx";
 import Profile from "./pages/Profile.jsx";
@@ -62,8 +63,18 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/onboarding" element={<Onboarding />} />
-      <Route path="/world" element={<WorldHub />} />
-      <Route path="/map" element={<MapView />} />
+      {/* Nowe doswiadczenie dziecka: przygoda + mapa. Fabula dziala takze bez sieci
+          (localStorage jest zrodlem prawdy), ale dane gracza dociagamy — HUD ich potrzebuje. */}
+      <Route path="/przygoda" element={<Przygoda />} />
+      <Route path="/przygoda/:view" element={<Przygoda />} />
+      <Route path="/mapa" element={<MapaSwiata />} />
+      {/* Hub 3D: scena z public/scena-3d jako tlo, sekcje UI jako panele nad nia.
+          To jest BAZA gry — tu ladujemy po logowaniu i tu wracaja stare adresy.
+          Mapa Iskier zostaje osobnym ekranem fabuly, dostepnym z HUD-u huba. */}
+      <Route path="/swiat" element={<Swiat />} />
+      {/* Stare adresy pozostają kompatybilne, ale wracają do huba 3D — to jest baza. */}
+      <Route path="/world" element={<Navigate to="/swiat" replace />} />
+      <Route path="/map" element={<Navigate to="/swiat" replace />} />
       <Route path="/games" element={<Games />} />
       <Route path="/games/memory" element={<MemoryGame />} />
       <Route path="/backpack" element={<Backpack />} />

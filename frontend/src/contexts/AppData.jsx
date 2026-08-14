@@ -33,8 +33,13 @@ export function useAppData() {
   return ctx;
 }
 
-// Sciezki na ktorych potrzebujemy danych gracza (Dom / Mapa / Plecak / Profil / Mission / Gry / Reward)
-const PROTECTED_PATHS = ["/world", "/map", "/backpack", "/profile", "/mission", "/games", "/reward"];
+// Sciezki na ktorych potrzebujemy danych gracza (Swiat 3D / Mapa / Przygoda / Plecak / Profil / Mission / Gry / Reward).
+// UWAGA: hub 3D (/swiat) jest baza gry i czyta z gracza imie oraz monety do HUD-u —
+// bez niego na liscie HUD pokazywal "Wedrowiec" i 0 monet.
+const PROTECTED_PATHS = ["/swiat", "/mapa", "/przygoda", "/backpack", "/profile", "/mission", "/games", "/reward"];
+// Trasy przygody maja wlasny cykl misji (misje fabularne z danych przygody).
+// Automatyczne losowanie misji z biblioteki podstawialoby Mentorowi obca misje.
+const ADVENTURE_PATHS = ["/przygoda", "/mapa", "/swiat", "/backpack", "/profile"];
 
 export default function AppDataProvider({ children }) {
   const location = useLocation();
@@ -52,6 +57,7 @@ export default function AppDataProvider({ children }) {
   // opts.silent = true -> nie pokazuje globalnego <Loading> spinnera (uzywane przy refreshAll w tle).
   const loadAll = useCallback(async (id, opts = {}) => {
     const silent = !!opts.silent;
+    const inAdventure = ADVENTURE_PATHS.some((p) => window.location.pathname.startsWith(p));
     if (!id) {
       setPlayer(null);
       setCycle(null);
@@ -76,7 +82,7 @@ export default function AppDataProvider({ children }) {
             // ucznia na ekran Zadan z nowym scrollem zaraz po dismiss reward popup.
             // Nowa misja powstanie dopiero gdy uczen sam wejdzie na /mission (autoreflesh tam)
             // lub przy pelnym przeladowaniu strony (silent=false).
-            if (silent) {
+            if (silent || inAdventure) {
               setMission(null);
               return;
             }

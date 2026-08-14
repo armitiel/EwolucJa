@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "note": "Katalog minigier huba. `wymaga` to id krainy z mapa-iskier.v1.json — odblokowanie czytamy ze stanu przygody (state.unlocked), żeby biblioteka i mapa nigdy się nie rozjechały. `trasa` = istniejący ekran gry; brak trasy oznacza grę jeszcze niezbudowaną.",
+  "gry": [
+    {
+      "id": "pamiec-medrca",
+      "tytul": "Pamięć Mędrca",
+      "opis": "Pary symboli ze zwoju",
+      "emoji": "🧠",
+      "monety": 10,
+      "trasa": "/games/memory",
+      "wejscieFabularne": "medal w Przystani",
+      "wymaga": null,
+      "tlo": "linear-gradient(135deg,#FFE0B5,#FFD269)"
+    },
+    {
+      "id": "echo-melodii",
+      "tytul": "Echo Melodii",
+      "opis": "Powtórz dźwięk Szeptuna",
+      "emoji": "🎵",
+      "monety": 14,
+      "trasa": null,
+      "wejscieFabularne": "misja Szeptuna w Dolinie Dźwięków",
+      "wymaga": "dolina-dzwiekow",
+      "tlo": "linear-gradient(135deg,#CDEBFF,#9BC9F0)"
+    },
+    {
+      "id": "trop-tropiciela",
+      "tytul": "Trop Tropiciela",
+      "opis": "Znak na rozdrożu",
+      "emoji": "🔍",
+      "monety": 12,
+      "trasa": null,
+      "wejscieFabularne": "rozdroże w Lesie Szeptów",
+      "wymaga": "las-szeptow",
+      "tlo": "linear-gradient(135deg,#E6D6FA,#C8A0F0)"
+    },
+    {
+      "id": "zwoj-znakow",
+      "tytul": "Zwój Znaków",
+      "opis": "Odczytaj, co mówi zwój",
+      "emoji": "📜",
+      "monety": 16,
+      "trasa": null,
+      "wejscieFabularne": "pulpit w Pracowni Gwiazd",
+      "wymaga": "pracownia-gwiazd",
+      "tlo": "linear-gradient(135deg,#FFE3C6,#F0B98A)"
+    }
+  ]
+}

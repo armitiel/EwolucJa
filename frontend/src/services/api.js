@@ -51,8 +51,21 @@ export const api = {
   // Missions
   generateMission: (player_id) => call("/missions/generate", { method: "POST", body: { player_id } }),
   getCurrentMission: (player_id) => call(`/missions/current/${player_id}`),
+  // UWAGA: getCurrentMission zwraca tylko statusy pending/submitted/rejected,
+  // wiec po akceptacji Mentora misja z niej znika. Do sledzenia decyzji uzywamy id.
+  getMissionById: (mission_id) => call(`/missions/${mission_id}`),
   submitMissionProof: (mission_id, proof) =>
     call(`/missions/${mission_id}/submit`, { method: "POST", body: proof }),
+
+  // Przygoda (Mapa Iskier) — synchronizacja stanu i misje fabularne.
+  // Uwaga: pierwsza przygoda dziala bez tych endpointow (localStorage jest zrodlem prawdy).
+  getAdventureState: (player_id) => call(`/players/${player_id}/adventure`),
+  saveAdventureState: (player_id, state) =>
+    call(`/players/${player_id}/adventure`, { method: "PUT", body: { state } }),
+  applyAdventureProfile: (player_id, payload) =>
+    call(`/players/${player_id}/adventure-profile`, { method: "POST", body: payload }),
+  seedMission: (player_id, mission) =>
+    call("/missions/seed", { method: "POST", body: { player_id, ...mission } }),
 
   // GM
   registerGM: (payload) => call("/gm/register", { method: "POST", body: payload }),

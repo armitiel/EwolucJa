@@ -13,18 +13,25 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { session } from "../services/api.js";
 import { ttsPlayer } from "../services/ttsPlayer";
 
+// Trasy doswiadczenia dziecka — tu narzedzia programisty sa ukryte.
+const CHILD_ROUTES = ["/przygoda", "/mapa", "/swiat", "/backpack", "/profile"];
+
 export default function DevTools() {
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [playerId, setPlayerId] = useState(session.getPlayer());
   const [gmId, setGmId] = useState(session.getGM());
+  const hiddenForChild = CHILD_ROUTES.some((r) => location.pathname.startsWith(r));
 
   // Odśwież snapshot sesji przy każdej zmianie ścieżki
   useEffect(() => {
     setPlayerId(session.getPlayer());
     setGmId(session.getGM());
   }, [location.pathname]);
+
+  // Doswiadczenie dziecka nie moze zawierac przycisku programisty.
+  if (hiddenForChild) return null;
 
   function logoutPlayer() {
     if (!confirm("Wyloguj gracza i zacznij nową postać?")) return;
@@ -61,6 +68,7 @@ export default function DevTools() {
       </button>
     );
   }
+
 
   return (
     <div style={styles.panel}>

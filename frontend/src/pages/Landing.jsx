@@ -118,7 +118,7 @@ export default function Landing() {
   function goChild() {
     // Pierwszy gest uzytkownika - odblokuj audio dla TTS (iOS/Safari wymaga gestu)
     ttsPlayer.unlock();
-    navigate(playerId ? "/world" : "/onboarding");
+    navigate(playerId ? "/swiat" : "/onboarding");
   }
 
   function goGM(e) {

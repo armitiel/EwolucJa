@@ -168,7 +168,7 @@ export default function Reward() {
         <button
           className="btn btn-magic btn-block"
           style={{ maxWidth: 360, marginTop: 6, position: "relative", zIndex: 1 }}
-          onClick={() => navigate("/world")}
+          onClick={() => navigate("/swiat")}
         >
           Dziękuję ✦
         </button>

@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#243147">
 <meta name="robots" content="noindex">
 <title>EwolucJA — mapka 3D</title>
+<link rel="stylesheet" href="./hud.css">
 <style>
   html, body { margin: 0; height: 100%; overflow: hidden; background: #243147; }
   #scena-3d { position: fixed; inset: 0; }
@@ -15,6 +16,103 @@
 </head>
 <body>
 <div id="scena-3d"></div>
+<div class="game-hud" aria-label="Interfejs świata">
+  <div class="game-hud-top">
+    <a class="game-hud-profile" href="/profile" aria-label="Otwórz profil Wędrowca">
+      <img src="/assets/hub-nav/profil-simple.png" alt="" aria-hidden="true">
+      <span>Wędrowiec</span>
+    </a>
+
+    <div class="game-hud-resources">
+      <span class="game-hud-counter game-hud-counter--coins" aria-label="Monety: 55 ze 100">
+        <img src="/assets/hub-nav/moneta.png" alt="" aria-hidden="true">
+        <strong>55</strong>
+        <i class="game-hud-progress" aria-hidden="true"><i style="width: 55%"></i></i>
+      </span>
+
+      <button class="game-hud-music" type="button" aria-pressed="true" aria-label="Wycisz muzykę krainy">
+        <img src="/music.png" alt="" aria-hidden="true">
+      </button>
+    </div>
+  </div>
+
+  <div class="game-hud-bottom">
+    <nav class="game-hud-dock" aria-label="Sekcje świata">
+      <button type="button" data-section="Minigry" aria-label="Minigry">
+        <img src="/assets/hub-nav/minigry-simple.png" alt="" aria-hidden="true">
+      </button>
+      <button type="button" data-section="Czat" aria-label="Czat">
+        <img src="/assets/hub-nav/czat-simple.png" alt="" aria-hidden="true">
+      </button>
+      <button type="button" data-section="Wiadomości" aria-label="Wiadomości">
+        <img src="/assets/hub-nav/wiadomosci-simple.png" alt="" aria-hidden="true">
+        <span class="game-hud-badge" aria-label="2 nieprzeczytane">2</span>
+      </button>
+      <button type="button" data-section="Porada" aria-label="Porada">
+        <img src="/assets/hub-nav/porada-simple.png" alt="" aria-hidden="true">
+      </button>
+    </nav>
+  </div>
+</div>
+
+<section class="message-scroll" aria-hidden="true" aria-label="Wiadomości">
+  <button class="message-scroll-backdrop" type="button" aria-label="Zamknij wiadomości"></button>
+  <div class="message-scroll-parchment" role="dialog" aria-modal="true" aria-label="Wiadomości">
+    <div class="message-scroll-paper">
+      <div class="message-scroll-content">
+      <div class="message-scroll-list">
+        <article class="scroll-message is-unread">
+          <button class="scroll-message-head" type="button" aria-expanded="false">
+            <span class="scroll-message-avatar"><img src="/assets/hub-nav/profil-simple.png" alt="" aria-hidden="true"></span>
+            <span class="scroll-message-copy">
+              <strong>Brawo!</strong>
+              <small>Mentor przeczytał zadanie.</small>
+            </span>
+            <span class="scroll-message-meta">2 godz.<i></i></span>
+          </button>
+          <div class="scroll-message-body" hidden>
+            <span>od pani Kasi</span>
+            <p>Świetna robota! Iskra wraca do lasu.</p>
+          </div>
+        </article>
+
+        <article class="scroll-message is-unread">
+          <button class="scroll-message-head" type="button" aria-expanded="false">
+            <span class="scroll-message-avatar"><img src="/assets/hub-nav/iskra.png" alt="" aria-hidden="true"></span>
+            <span class="scroll-message-copy">
+              <strong>Iskra wróciła</strong>
+              <small>Nowa droga jest otwarta.</small>
+            </span>
+            <span class="scroll-message-meta">2 godz.<i></i></span>
+          </button>
+          <div class="scroll-message-body" hidden>
+            <p>Możesz ruszyć dalej, kiedy chcesz.</p>
+          </div>
+        </article>
+
+        <article class="scroll-message">
+          <button class="scroll-message-head" type="button" aria-expanded="false">
+            <span class="scroll-message-avatar"><img src="/assets/hub-nav/porada-simple.png" alt="" aria-hidden="true"></span>
+            <span class="scroll-message-copy">
+              <strong>Porada czeka</strong>
+              <small>Otwórz ją, gdy masz ochotę.</small>
+            </span>
+            <span class="scroll-message-meta">wczoraj</span>
+          </button>
+          <div class="scroll-message-body" hidden>
+            <p>Zatrzymaj się na chwilę i posłuchaj.</p>
+          </div>
+        </article>
+      </div>
+      </div>
+    </div>
+    <button class="message-scroll-close" type="button" aria-label="Zamknij wiadomości">×</button>
+    <img class="message-scroll-rod message-scroll-rod--top" src="/zwoj-gora.svg" alt="" aria-hidden="true">
+    <img class="message-scroll-rod message-scroll-rod--bottom" src="/zwoj-gora.svg" alt="" aria-hidden="true">
+  </div>
+</section>
+
+<div class="game-hud-toast" role="status" aria-live="polite"></div>
 <div id="scena3d-info">Otwierasz z dysku — przechodzę do wersji jednoplikowej
 <code>podglad-offline.html</code>.<br><br>
 Jeśli to nie zadziała: uruchom <code>npm run dev</code> i wejdź na
@@ -41,6 +139,146 @@ Jeśli to nie zadziała: uruchom <code>npm run dev</code> i wejdź na
   s.src = kat + 'scena3d.js';
   s.onerror = function () { document.getElementById('scena3d-info').style.display = 'grid'; };
   document.head.appendChild(s);
+})();
+</script>
+<script>
+(function () {
+  var hud = document.querySelector('.game-hud');
+  var wariant = new URLSearchParams(location.search).get('wariant');
+  if (wariant && wariant.toUpperCase() === 'A') {
+    hud.classList.add('is-shelf');
+    hud.setAttribute('data-variant', 'A');
+  } else {
+    hud.setAttribute('data-variant', 'B');
+  }
+  var toast = document.querySelector('.game-hud-toast');
+  var timeout;
+  var messageScroll = document.querySelector('.message-scroll');
+  var messageParchment = messageScroll.querySelector('.message-scroll-parchment');
+  var messagePaper = messageScroll.querySelector('.message-scroll-paper');
+  var messageList = messageScroll.querySelector('.message-scroll-list');
+  var messageButton = document.querySelector('[data-section="Wiadomości"]');
+  var messageBadge = document.querySelector('.game-hud-badge');
+  var resizeTimer;
+  var heroShadowBlendTries = 0;
+
+  function enableHeroShadowMultiply() {
+    var heroShadow = globalThis.__POC && globalThis.__POC.app && globalThis.__POC.app.heroShadow;
+    if (!heroShadow) {
+      heroShadowBlendTries += 1;
+      if (heroShadowBlendTries < 120) window.setTimeout(enableHeroShadowMultiply, 100);
+      return;
+    }
+
+    heroShadow.material.blending = 4; // THREE.MultiplyBlending
+    heroShadow.material.premultipliedAlpha = true;
+    heroShadow.material.map.premultiplyAlpha = true;
+    heroShadow.material.map.needsUpdate = true;
+    heroShadow.material.needsUpdate = true;
+    heroShadow.geometry.scale(0.7, 0.7, 1);
+    document.documentElement.dataset.heroShadowBlend = 'multiply';
+    document.documentElement.dataset.heroShadowScale = '0.7';
+  }
+
+  enableHeroShadowMultiply();
+
+  function resizeMessageScroll(animated) {
+    var paperStyle = window.getComputedStyle(messagePaper);
+    var paperShell = parseFloat(paperStyle.top) + parseFloat(paperStyle.bottom);
+    var targetHeight = Math.ceil((messageList.scrollHeight + 56) / 0.85 + paperShell);
+    targetHeight = Math.max(360, Math.min(530, targetHeight));
+
+    if (animated) messageParchment.classList.add('is-resizing');
+    messageParchment.style.setProperty('--message-scroll-height', targetHeight + 'px');
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(function () {
+      messageParchment.classList.remove('is-resizing');
+    }, 380);
+  }
+
+  function openMessages() {
+    resizeMessageScroll(false);
+    messageScroll.classList.add('is-open');
+    messageScroll.setAttribute('aria-hidden', 'false');
+    messageButton.classList.add('is-active');
+  }
+
+  function closeMessages() {
+    messageScroll.classList.remove('is-open');
+    messageScroll.setAttribute('aria-hidden', 'true');
+    messageButton.classList.remove('is-active');
+    messageButton.focus();
+  }
+
+  document.querySelectorAll('.game-hud-dock button').forEach(function (button) {
+    button.addEventListener('click', function () {
+      if (button.dataset.section === 'Wiadomości') {
+        openMessages();
+        return;
+      }
+      document.querySelectorAll('.game-hud-dock button').forEach(function (item) {
+        item.classList.toggle('is-active', item === button);
+      });
+      toast.textContent = button.dataset.section;
+      toast.classList.add('is-visible');
+      window.clearTimeout(timeout);
+      timeout = window.setTimeout(function () {
+        toast.classList.remove('is-visible');
+      }, 1100);
+    });
+  });
+
+  var messageCloseButton = messageScroll.querySelector('.message-scroll-close');
+  var messageCloseTimer;
+
+  messageCloseButton.addEventListener('click', function () {
+    messageCloseButton.classList.remove('is-pressed');
+    void messageCloseButton.offsetWidth;
+    messageCloseButton.classList.add('is-pressed');
+    window.clearTimeout(messageCloseTimer);
+    messageCloseTimer = window.setTimeout(function () {
+      messageCloseButton.classList.remove('is-pressed');
+      closeMessages();
+    }, 180);
+  });
+
+  messageScroll.querySelector('.message-scroll-backdrop').addEventListener('click', closeMessages);
+
+  messageScroll.querySelectorAll('.scroll-message-head').forEach(function (button) {
+    button.addEventListener('click', function () {
+      var item = button.closest('.scroll-message');
+      var body = item.querySelector('.scroll-message-body');
+      var expanded = button.getAttribute('aria-expanded') === 'true';
+      button.setAttribute('aria-expanded', String(!expanded));
+      body.hidden = expanded;
+      window.requestAnimationFrame(function () { resizeMessageScroll(true); });
+      if (!expanded && item.classList.contains('is-unread')) {
+        item.classList.remove('is-unread');
+        var dot = item.querySelector('.scroll-message-meta i');
+        if (dot) dot.remove();
+        var unread = messageScroll.querySelectorAll('.scroll-message.is-unread').length;
+        if (unread > 0) messageBadge.textContent = String(unread);
+        else messageBadge.remove();
+      }
+    });
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && messageScroll.classList.contains('is-open')) closeMessages();
+  });
+})();
+</script>
+<script>
+// Podgląd nie odtwarza muzyki (nie ma tu serwisu bgMusic) — przełącza tylko
+// wygląd przycisku, żeby dało się ocenić stan „wyciszone" w designie.
+(function () {
+  var muzyka = document.querySelector('.game-hud-music');
+  if (!muzyka) return;
+  muzyka.addEventListener('click', function () {
+    var gra = muzyka.classList.toggle('is-off') === false;
+    muzyka.setAttribute('aria-pressed', String(gra));
+    muzyka.setAttribute('aria-label', gra ? 'Wycisz muzykę krainy' : 'Włącz muzykę krainy');
+  });
 })();
 </script>
 </body>

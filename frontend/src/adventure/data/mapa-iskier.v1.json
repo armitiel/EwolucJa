@@ -1,0 +1,247 @@
+{
+  "id": "mapa-iskier",
+  "version": 1,
+  "title": "Mapa, która zgubiła Iskry",
+  "act": 1,
+  "start": "przystan.przybycie",
+  "traitModel": ["ciekawosc", "tworzenie", "wspolpraca", "odwaga", "wytrwalosc"],
+  "locations": {
+    "przystan": {
+      "id": "przystan",
+      "name": "Przystań Mapy",
+      "art": "przystan",
+      "accent": "#57C7D4",
+      "unlockedFromStart": true,
+      "blurb": "Kamienne pomosty, latarnie i spokojna woda. Tu wracasz.",
+      "map": { "x": 50, "y": 74 }
+    },
+    "las-szeptow": {
+      "id": "las-szeptow",
+      "name": "Las Szeptów",
+      "art": "las",
+      "accent": "#7BD48F",
+      "blurb": "Świecące liście i małe ślady na ścieżkach.",
+      "map": { "x": 25, "y": 47 }
+    },
+    "dolina-dzwiekow": {
+      "id": "dolina-dzwiekow",
+      "name": "Dolina Dźwięków",
+      "art": "dolina",
+      "accent": "#F2B45C",
+      "blurb": "Wzgórza pełne dzwonków wiatru.",
+      "map": { "x": 72, "y": 40 },
+      "teaser": true
+    },
+    "pracownia-gwiazd": {
+      "id": "pracownia-gwiazd",
+      "name": "Pracownia Gwiazd",
+      "art": "pracownia",
+      "accent": "#B58CF0",
+      "blurb": "Pracownia pod nocnym niebem.",
+      "map": { "x": 50, "y": 17 },
+      "teaser": true
+    }
+  },
+  "characters": {
+    "opiekun": { "id": "opiekun", "name": "Opiekun Mapy", "art": "opiekun", "color": "#F5D48B" },
+    "szeptun": { "id": "szeptun", "name": "Szeptun", "art": "szeptun", "color": "#9BE3AC" },
+    "narrator": { "id": "narrator", "name": "", "art": null, "color": "#CFE6F2" }
+  },
+  "grants": {
+    "znak-sladu": { "label": "Znak Śladu", "kind": "znak", "icon": "slad", "note": "Widzisz to, czego inni nie zauważają." },
+    "znak-oddechu": { "label": "Oddech Wiatru", "kind": "zdolnosc", "icon": "wiatr", "note": "Twój oddech porusza to, co zastygło." },
+    "znak-ucha": { "label": "Ucho Przystani", "kind": "znak", "icon": "ucho", "note": "Słyszysz, zanim ktoś powie." },
+    "znak-kroku": { "label": "Krok Pomostu", "kind": "znak", "icon": "krok", "note": "Idziesz pierwszy, spokojnie." },
+    "latarenka": { "label": "Mała Latarenka", "kind": "artefakt", "icon": "latarnia", "note": "Świeci tyle, ile trzeba." },
+    "pioro-wiatru": { "label": "Pióro Wiatru", "kind": "artefakt", "icon": "pioro", "note": "Lekkie jak pomysł." },
+    "kamyk-ciszy": { "label": "Kamyk Ciszy", "kind": "artefakt", "icon": "kamyk", "note": "Trzymasz go, gdy czekasz." },
+    "wstega": { "label": "Wstęga Dwóch Rąk", "kind": "artefakt", "icon": "wstega", "note": "Łączy to, co osobno." },
+    "plaszcz-mchu": { "label": "Płaszcz z Mchu", "kind": "stroj", "icon": "plaszcz", "note": "Cichy jak las." },
+    "szal-swiatla": { "label": "Szal Światła", "kind": "stroj", "icon": "szal", "note": "Widać cię z daleka." },
+    "kaptur-nocy": { "label": "Kaptur Nocy", "kind": "stroj", "icon": "kaptur", "note": "Dobry na długie patrzenie." },
+    "naramiennik": { "label": "Naramiennik Mostu", "kind": "stroj", "icon": "naramiennik", "note": "Dla tych, co podają rękę." }
+  },
+  "iskry": {
+    "iskra-lasu": { "label": "Iskra Lasu", "location": "las-szeptow", "color": "#7BD48F" },
+    "iskra-doliny": { "label": "Iskra Doliny", "location": "dolina-dzwiekow", "color": "#F2B45C" },
+    "iskra-pracowni": { "label": "Iskra Pracowni", "location": "pracownia-gwiazd", "color": "#B58CF0" }
+  },
+  "missions": {
+    "las.dzwiek-domu": {
+      "id": "las.dzwiek-domu",
+      "title": "Dźwięk, po którym się wraca",
+      "world": "Szeptun zgubił dźwięk, po którym trafia do domu.",
+      "goal": "Zapytaj kogoś dorosłego w domu o dźwięk, który pamięta z dzieciństwa.",
+      "how": "Posłuchaj, a potem zapisz ten dźwięk w jednym zdaniu albo nagraj, jak go naśladujesz.",
+      "example": "„Babcia powiedziała, że pamięta skrzypienie furtki u swojej mamy. Nagrałem, jak skrzypią nasze drzwi.”",
+      "safeVariant": "Nie masz kogo zapytać? Wyjdź na chwilę na balkon albo do okna i zapisz jeden dźwięk, który słyszysz najbliżej siebie.",
+      "proofTypes": ["text", "audio", "photo"],
+      "competency_focus": ["DT", "EM"],
+      "minutes": 10,
+      "reward": { "iskra": "iskra-lasu", "grant": "plaszcz-mchu", "coins": 25 }
+    }
+  },
+  "scenes": {
+    "przystan.przybycie": {
+      "location": "przystan",
+      "mood": "swit",
+      "steps": [
+        { "kind": "line", "who": "narrator", "text": "Woda niesie cię do przystani, o której nikt ci nie mówił." },
+        { "kind": "line", "who": "narrator", "text": "Na kamieniu leży mapa. Połowa jej jest ciemna." },
+        { "kind": "enter", "who": "opiekun" },
+        { "kind": "line", "who": "opiekun", "text": "Jesteś. Mapa czekała dłużej, niż myślisz." },
+        { "kind": "line", "who": "opiekun", "text": "Widzisz te ciemne miejsca? Mapa zgubiła swoje Iskry." },
+        { "kind": "line", "who": "opiekun", "text": "Bez nich nie umie już nikomu pokazać drogi." },
+        {
+          "kind": "choice",
+          "prompt": "Mapa leży tuż przy twoich stopach.",
+          "options": [
+            {
+              "id": "a",
+              "text": "Wodzę palcem po ciemnym miejscu.",
+              "traits": { "ciekawosc": 3, "tworzenie": 1, "wytrwalosc": 1 },
+              "grant": "znak-sladu",
+              "reaction": "Pod palcem zostaje cienka, świecąca linia."
+            },
+            {
+              "id": "b",
+              "text": "Dmucham na mapę, żeby sprawdzić, czy zadrży.",
+              "traits": { "tworzenie": 3, "ciekawosc": 1, "odwaga": 1 },
+              "grant": "znak-oddechu",
+              "reaction": "Papier faluje jak woda i przez chwilę pachnie latem."
+            },
+            {
+              "id": "c",
+              "text": "Pytam Opiekuna, co mapa czuje.",
+              "traits": { "wspolpraca": 3, "ciekawosc": 1, "wytrwalosc": 1 },
+              "grant": "znak-ucha",
+              "reaction": "Opiekun milknie na chwilę. To dobre pytanie."
+            },
+            {
+              "id": "d",
+              "text": "Biorę mapę i idę z nią na koniec pomostu.",
+              "traits": { "odwaga": 3, "wytrwalosc": 1, "tworzenie": 1 },
+              "grant": "znak-kroku",
+              "reaction": "Deski skrzypią. Woda pod nimi robi się jaśniejsza."
+            }
+          ]
+        },
+        { "kind": "line", "who": "opiekun", "text": "O. Mapa cię zauważyła." },
+        {
+          "kind": "choice",
+          "prompt": "Latarnia na pomoście ledwo się tli.",
+          "options": [
+            {
+              "id": "a",
+              "text": "Osłaniam płomień dłońmi i czekam.",
+              "traits": { "wytrwalosc": 3, "wspolpraca": 1, "odwaga": 1 },
+              "grant": "kamyk-ciszy",
+              "reaction": "Płomień przestaje drżeć. Ty też."
+            },
+            {
+              "id": "b",
+              "text": "Zdejmuję ją i niosę bliżej wody.",
+              "traits": { "odwaga": 3, "ciekawosc": 1, "tworzenie": 1 },
+              "grant": "latarenka",
+              "reaction": "Odbicie w wodzie świeci mocniej niż sama latarnia."
+            },
+            {
+              "id": "c",
+              "text": "Nucę jej coś cicho.",
+              "traits": { "tworzenie": 3, "wspolpraca": 1, "wytrwalosc": 1 },
+              "grant": "pioro-wiatru",
+              "reaction": "Płomień kołysze się w rytm. Naprawdę."
+            },
+            {
+              "id": "d",
+              "text": "Proszę Opiekuna, żeby przytrzymał z drugiej strony.",
+              "traits": { "wspolpraca": 3, "wytrwalosc": 1, "ciekawosc": 1 },
+              "grant": "wstega",
+              "reaction": "We dwoje idzie łatwiej. Opiekun się uśmiecha."
+            }
+          ]
+        },
+        {
+          "kind": "choice",
+          "prompt": "Coś małego siedzi pod pomostem i nie chce wyjść.",
+          "options": [
+            {
+              "id": "a",
+              "text": "Siadam obok i nic nie mówię.",
+              "traits": { "wspolpraca": 3, "wytrwalosc": 2 },
+              "reaction": "Po chwili słychać ciche człapanie. Podeszło bliżej."
+            },
+            {
+              "id": "b",
+              "text": "Kładę przy nim małe światełko.",
+              "traits": { "tworzenie": 3, "wspolpraca": 2 },
+              "reaction": "Światełko znika pod pomostem. Ktoś je zabrał."
+            },
+            {
+              "id": "c",
+              "text": "Pytam, jak ma na imię.",
+              "traits": { "ciekawosc": 3, "wspolpraca": 2 },
+              "reaction": "Odpowiada szeptem, którego jeszcze nie rozumiesz."
+            },
+            {
+              "id": "d",
+              "text": "Zaglądam pod pomost.",
+              "traits": { "odwaga": 3, "ciekawosc": 2 },
+              "reaction": "Dwoje okrągłych oczu. I bardzo mokry nos."
+            }
+          ]
+        },
+        { "kind": "line", "who": "opiekun", "text": "Zanim ruszysz — mapa pyta, jakiego jesteś światła." },
+        {
+          "kind": "choice",
+          "prompt": "Wybierz swoje światło.",
+          "kindHint": "kolor",
+          "options": [
+            { "id": "turkus", "text": "Turkusowe jak woda", "color": "#57C7D4", "traits": { "wytrwalosc": 1 }, "grant": "kaptur-nocy", "reaction": "Woda wokół pomostu robi się turkusowa." },
+            { "id": "zloto", "text": "Złote jak latarnia", "color": "#F5C45E", "traits": { "odwaga": 1 }, "grant": "szal-swiatla", "reaction": "Latarnie na pomoście zapalają się jedna po drugiej." },
+            { "id": "zielen", "text": "Zielone jak mech", "color": "#7BD48F", "traits": { "wspolpraca": 1 }, "grant": "plaszcz-mchu", "reaction": "Między deskami wyrasta mały, świecący mech." },
+            { "id": "fiolet", "text": "Fioletowe jak wieczór", "color": "#B58CF0", "traits": { "tworzenie": 1 }, "grant": "naramiennik", "reaction": "Niebo nad przystanią ciemnieje w dobry sposób." }
+          ]
+        },
+        { "kind": "avatarReveal" },
+        { "kind": "line", "who": "opiekun", "text": "Tak wyglądasz na mapie. Zapamiętam." },
+        { "kind": "line", "who": "opiekun", "text": "Pierwsza ścieżka prowadzi do Lasu Szeptów. On już nasłuchuje." },
+        { "kind": "unlock", "location": "las-szeptow" },
+        { "kind": "toMap", "hint": "Dotknij Lasu Szeptów" }
+      ]
+    },
+    "las.przybycie": {
+      "location": "las-szeptow",
+      "mood": "dzien",
+      "steps": [
+        { "kind": "line", "who": "narrator", "text": "Liście świecą od spodu. Ścieżka jest pełna małych śladów." },
+        { "kind": "enter", "who": "szeptun" },
+        { "kind": "line", "who": "szeptun", "text": "Cii. Nie chodzi o to, że się boję." },
+        { "kind": "line", "who": "szeptun", "text": "Zgubiłem dźwięk, po którym wracam do domu." },
+        { "kind": "line", "who": "szeptun", "text": "U ciebie w domu ludzie znają dużo takich dźwięków." },
+        { "kind": "mission", "missionRef": "las.dzwiek-domu" }
+      ]
+    },
+    "las.iskra": {
+      "location": "las-szeptow",
+      "mood": "swit",
+      "steps": [
+        { "kind": "line", "who": "szeptun", "text": "To on. Dokładnie ten." },
+        { "kind": "iskra", "iskra": "iskra-lasu" },
+        { "kind": "line", "who": "narrator", "text": "Las zapala się od środka. Mapa dopisuje sobie kawałek zieleni." },
+        { "kind": "line", "who": "szeptun", "text": "W Dolinie Dźwięków ktoś śpi od bardzo dawna. Zajrzysz tam?" },
+        { "kind": "unlock", "location": "dolina-dzwiekow" },
+        { "kind": "toMap", "hint": "Dolina Dźwięków czeka" }
+      ]
+    },
+    "dolina.zapowiedz": {
+      "location": "dolina-dzwiekow",
+      "mood": "dzien",
+      "steps": [
+        { "kind": "line", "who": "narrator", "text": "Dzwonki wiatru poruszają się, choć nie ma wiatru." },
+        { "kind": "line", "who": "narrator", "text": "Tu kończy się to, co dziś przygotowano. Dalsza droga budzi się wkrótce." },
+        { "kind": "toMap", "hint": "Wróć na mapę" }
+      ]
+    }
+  }
+}
