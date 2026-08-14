@@ -52,6 +52,10 @@ export default function Swiat() {
   const scenaRef = useRef(null);
   const poprzedniPanel = useRef(null);
   const [scenaMartwa, setScenaMartwa] = useState(() => !webglDostepny());
+  // Scena wchodzi przejściem dopiero gdy naprawdę ma co pokazać (zdarzenie
+  // „gotowa" z modułu). Do tego czasu widać spokojne tło huba, a nie puste
+  // płótno WebGL, które przeskakuje w jasny las.
+  const [scenaGotowa, setScenaGotowa] = useState(false);
   const [komunikat, setKomunikat] = useState(null);
   const [nieprzeczytane, setNieprzeczytane] = useState(0);
   // Podpowiedź sterowania pokazujemy do pierwszego dotknięcia i nigdy więcej —
@@ -59,6 +63,15 @@ export default function Swiat() {
   const [pokazPodpowiedz, setPokazPodpowiedz] = useState(() => {
     try { return localStorage.getItem("ewolucja.hub.chodzenie") !== "1"; } catch { return true; }
   });
+
+  // Bezpiecznik: gdyby moduł kiedyś przestał wysyłać „gotowa" (inna wersja
+  // sceny, cichy błąd), scena zostałaby przezroczysta na zawsze. Po 6 s
+  // pokazujemy ją bez pytania — lepiej jeden przeskok niż czarny ekran.
+  useEffect(() => {
+    if (scenaGotowa || scenaMartwa) return undefined;
+    const t = window.setTimeout(() => setScenaGotowa(true), 6000);
+    return () => window.clearTimeout(t);
+  }, [scenaGotowa, scenaMartwa]);
 
   useEffect(() => {
     if (!pokazPodpowiedz) return undefined;
@@ -118,6 +131,7 @@ export default function Swiat() {
       if (nazwa === "gotowa") {
         scenaRef.current?.ustawPowrotZnaku?.("medal", false);
         if (panel) scenaRef.current?.pauza?.();
+        setScenaGotowa(true);
         return;
       }
       if (nazwa === "minigra:start") { otworz("gry"); return; }
@@ -165,7 +179,12 @@ export default function Swiat() {
           </div>
         </div>
       ) : (
-        <Scena3D apiRef={scenaRef} onZdarzenie={naZdarzenieSceny} onBlad={() => setScenaMartwa(true)} />
+        <Scena3D
+          apiRef={scenaRef}
+          onZdarzenie={naZdarzenieSceny}
+          onBlad={() => setScenaMartwa(true)}
+          className={`hub-scena${scenaGotowa ? " is-ready" : ""}`}
+        />
       )}
 
       <div className="game-hud" data-variant="B" aria-label="Interfejs świata">

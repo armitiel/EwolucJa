@@ -8,13 +8,22 @@
 
 .hub-root{
   position:fixed; inset:0; overflow:hidden;
-  background:#0d1b2a;
+  /* Ten sam kolor co tło podglądu `/scena-3d/`. Świeci przez pół sekundy, zanim
+     scena wejdzie — im bliżej jej tonacji, tym mniej to wygląda na ładowanie. */
+  background:#243147;
   font-family: var(--font-body,'Nunito'), system-ui, sans-serif;
   color: var(--p-ink,#4e4d76);
 }
 
 /* ── scena 3D / tło zastępcze ── */
-.hub-scena{ position:absolute; inset:0; z-index:0; }
+/* Scena montuje się z opóźnieniem (bundle + model GLB), a WebGL do pierwszej
+   narysowanej klatki pokazuje puste płótno. Bez tego widać skok: ciemne tło →
+   nagle jasny las. Trzymamy ją przezroczystą i wpuszczamy miękko dopiero na
+   zdarzenie „gotowa", więc dziecko widzi rozjaśnienie, a nie przeskok. */
+.hub-scena{ position:absolute; inset:0; z-index:0; opacity:0; transition:opacity .5s ease; }
+.hub-scena.is-ready{ opacity:1; }
+/* Tło zastępcze (bez WebGL) nie czeka na nic — pokazuje się od razu. */
+.hub-scena-zastepcza{ opacity:1; }
 /* Moduł 3D rysuje własną podpowiedź sterowania na górze ekranu — tam stoi już
    czip awatara i liczniki. Wyłączamy ją i pokazujemy tę samą treść nad dokiem
    (klasa .hub-hint), gdzie nic nie zasłania. */
