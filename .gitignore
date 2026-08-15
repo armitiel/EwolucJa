@@ -39,3 +39,8 @@ _do_usuniecia/
 # Mastery audio (193 kbps) - do repo ida tylko wersje webowe z public/.
 # Trzymane lokalnie, zeby dalo sie przekodowac od nowa bez utraty jakosci.
 frontend/audio-zrodla/
+
+# Kopie modeli sprzed optymalizacji (*.oryginal, *.bak-*). Trzymane lokalnie
+# jako punkt powrotu; do repo ida tylko wersje uzywane przez gre.
+*.glb.oryginal
+*.glb.bak-*
