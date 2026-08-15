@@ -35,3 +35,7 @@ frontend/dist/
 # Poczekalnia na pliki do skasowania - kopie robocze po patchach.
 # Lezy w projekcie, zeby dalo sie je obejrzec przed usunieciem.
 _do_usuniecia/
+
+# Mastery audio (193 kbps) - do repo ida tylko wersje webowe z public/.
+# Trzymane lokalnie, zeby dalo sie przekodowac od nowa bez utraty jakosci.
+frontend/audio-zrodla/

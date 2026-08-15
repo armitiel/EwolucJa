@@ -1,15 +1,21 @@
 /**
  * Kto jest bohaterem — jedno miejsce prawdy dla sceny 3D i dla interfejsu.
  *
- * Wybór robi się adresem: `/swiat?postac=fox`. Zapamiętujemy go w localStorage,
- * więc przy kolejnych wejściach zostaje, dopóki ktoś nie poda innego.
+ * Domyślnym bohaterem jest LIS. Chłopiec (`adventurer`) zostaje dostępny pod
+ * `/swiat?postac=adventurer` — wybór zapamiętuje się w localStorage, więc przy
+ * kolejnych wejściach trzyma się tego, co ostatnio podano w adresie.
+ *
+ * UWAGA przy testach: skoro wybór siedzi w localStorage, przeglądarka, w której
+ * kiedykolwiek otwarto `?postac=…`, będzie trzymać TAMTĄ postać niezależnie od
+ * tego, co jest domyślne w kodzie. Stąd wrażenie, że „produkcja ma starą wersję",
+ * gdy lokalnie widać nową — to nie build, to zapamiętany wybór.
  *
  * Model GLB, mapowanie klipów animacji i wygląd materiału siedzą po stronie
  * modułu sceny (`SCENA3D_POSTACIE` w `public/scena-3d/scena3d.js`). Tutaj jest
  * tylko to, czego potrzebuje aplikacja Reacta: identyfikator i grafiki.
  */
 export const KLUCZ_POSTACI = "ewolucja.postac";
-export const POSTAC_DOMYSLNA = "adventurer";
+export const POSTAC_DOMYSLNA = "fox";
 
 /** Awatary postaci innych niż domyślna. Brak wpisu = zostaje grafika domyślna. */
 const AWATARY = {
