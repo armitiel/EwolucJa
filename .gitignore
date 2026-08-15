@@ -21,3 +21,17 @@ frontend/public/assets/EwolucJa/
 *.psd
 *.psb
 *.ai
+
+# Katalog roboczy: logi serwerow dev, pobrane pliki .env, zrzuty.
+# `vercel env pull` laduje tu prawdziwe sekrety (JWT_SECRET, klucze API),
+# wiec tmp/ NIE MOZE trafic do repo nawet przypadkiem.
+tmp/
+*.env.neon
+
+# Zbudowana aplikacja. Vercel ma wlasny buildCommand i buduje ze zrodel,
+# wiec kopia builda w repo tylko sie starzeje i myli przy przegladaniu zmian.
+frontend/dist/
+
+# Poczekalnia na pliki do skasowania - kopie robocze po patchach.
+# Lezy w projekcie, zeby dalo sie je obejrzec przed usunieciem.
+_do_usuniecia/
