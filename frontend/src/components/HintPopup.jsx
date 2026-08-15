@@ -60,10 +60,15 @@ export default function HintPopup() {
       setCurrent(null);
       return;
     }
+    // Na ekranach dziecka NIE odpytujemy wcale. Dymek i tak jest tam wyciszony
+    // (`SILENT_POPUP_PATHS`), więc zapytanie co 8 s tylko obciążało sieć
+    // i wywoływało przerenderowanie Reacta w trakcie pracy WebGL-a.
+    // Wiadomości Mentora dziecko dostaje w zwoju, który zaciąga je przy otwarciu.
+    if (isSilentRoute) return undefined;
     fetchHints();
     const i = setInterval(fetchHints, POLL_INTERVAL_MS);
     return () => clearInterval(i);
-  }, [fetchHints, isMentorRoute, location.pathname]);
+  }, [fetchHints, isMentorRoute, isSilentRoute, location.pathname]);
 
   // Wyciagnij pierwszy z kolejki do "current" jezeli nic juz nie pokazujemy.
   // Na trasach SILENT (np. /porady) NIE wyciagamy popupu - lista i tak jest widoczna w inboxie.

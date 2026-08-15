@@ -187,16 +187,22 @@ export default function Swiat() {
   );
 
   /* ── kroki ───────────────────────────────────────────────────────────── */
-  // Moduł sceny nie emituje zdarzenia „stawiam krok" — daje za to `stan()`
-  // z nazwą aktualnego klipu. Odpytujemy go 8 razy na sekundę: dla dźwięku,
-  // który i tak wchodzi z wygaszeniem, to niesłyszalnie gęsto, a kosztuje
-  // ułamek tego, co nasłuch w pętli renderowania.
+  // Moduł sceny nie emituje zdarzenia „stawiam krok", więc odpytujemy go
+  // 8 razy na sekundę o stan ruchu.
+  //
+  // Sterujemy PRĘDKOŚCIĄ, a nie nazwą klipu animacji — i to jest poprawka
+  // błędu, nie kosmetyka. Nazwa klipu potrafi zostać na „walk" po zatrzymaniu
+  // (klip dobiega swoje, sekwencje w rodzaju „happy" wchodzą po swojemu),
+  // więc dźwięk zapętlał się przy stojącej postaci. Prędkość jest liczbą
+  // i zeruje się natychmiast — nie da się jej źle zinterpretować.
   useEffect(() => {
     if (!scenaGotowa || scenaMartwa) return undefined;
     const t = window.setInterval(() => {
       const stan = scenaRef.current?.stan?.();
-      const idzie = !!stan && !stan.pauza && (stan.animacja === "walk" || stan.animacja === "run");
-      if (idzie) fx.krokiGraj({ bieg: stan.animacja === "run" });
+      const v = stan && !stan.pauza ? stan.predkosc ?? 0 : 0;
+      // Próg 0,08 zamiast zera: przy dobieganiu do celu prędkość schodzi
+      // asymptotycznie i szczątkowy ruch trzymałby dźwięk w nieskończoność.
+      if (v > 0.08) fx.krokiGraj({ bieg: v > 2.2 });
       else fx.krokiStop();
     }, 125);
     return () => { window.clearInterval(t); fx.krokiStop(); };
@@ -205,6 +211,14 @@ export default function Swiat() {
   // Panel zasłania świat i pauzuje scenę — kroki muszą ucichnąć razem z nią,
   // inaczej dudnią pod otwartym arkuszem.
   useEffect(() => { if (panel) fx.krokiStop(); }, [panel]);
+
+  // Karta w tle: przeglądarka wstrzymuje pętlę renderowania, ale nie audio —
+  // bez tego kroki zostają słyszalne po przełączeniu zakładki.
+  useEffect(() => {
+    const naZmiane = () => { if (document.hidden) fx.krokiStop(); };
+    document.addEventListener("visibilitychange", naZmiane);
+    return () => document.removeEventListener("visibilitychange", naZmiane);
+  }, []);
 
   /* ── muzyka krainy ───────────────────────────────────────────────────── */
   // bgMusic ma własny localStorage i bywa przełączany spoza tego ekranu
