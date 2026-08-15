@@ -11,7 +11,45 @@
  * może prosić o ducking. Music wraca dopiero gdy WSZYSCY puszcza.
  */
 
-const DEFAULT_TRACK = "/Mindful_Forest_Path.mp3";
+/**
+ * Playlista tła — utwory lecą PO KOLEI, a nie w pętli jeden.
+ *
+ * Pętla z jednego kawałka robi się słyszalna po kilku minutach i dziecko
+ * zaczyna czekać na powtórkę zamiast grać. Trzy utwory (2:00 + 1:32 + 1:32)
+ * dają ponad pięć minut, zanim cokolwiek wróci.
+ *
+ * Wszystkie trzy przygotowane pod web: 32 kHz, VBR ~80 kbps, joint stereo —
+ * z 193 kbps / 44,1 kHz. Razem 3,0 MB zamiast 7,3 MB, przy materiale, który
+ * i tak gra w tle na 25% głośności.
+ *
+ * `Mindful_Forest_Path` celowo BEZ narastania i wyciszenia: ten sam plik służy
+ * też za tło scen w `adventure/audio/sceneAudio.js`, gdzie leci w pętli —
+ * fade zrobiłby w niej słyszalne wgniecenie co przejście. Dwa spacery mają
+ * 0,8 s wejścia i 1,2 s wyjścia, bo grają wyłącznie tutaj.
+ *
+ * Źródła w 193 kbps leżą w `frontend/audio-zrodla/`, celowo poza `public/`:
+ * wszystko z `public/` trafia do builda, a mastery nie mają po co jechać do
+ * przeglądarki dziecka.
+ */
+const PLAYLISTA = ["/Mindful_Forest_Path.mp3", "/spacer-1.mp3", "/spacer-2.mp3"];
+/**
+ * Losowanie bez powtórek: tasujemy całą playlistę i gramy ją do końca, dopiero
+ * potem tasujemy od nowa. To nie to samo, co losowanie przed każdym utworem —
+ * przy trzech kawałkach czysty los co rundę wraca do tego samego średnio co
+ * trzeci raz i brzmi jak zepsuta playlista, mimo że jest „bardziej losowy".
+ *
+ * Przy przetasowaniu pilnujemy jeszcze, żeby nowa runda nie zaczęła się od
+ * tego, który właśnie skończył grać — inaczej na styku rund utwór potrafi
+ * polecieć dwa razy z rzędu.
+ */
+function potasuj(lista) {
+  const t = lista.slice();
+  for (let i = t.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [t[i], t[j]] = [t[j], t[i]];
+  }
+  return t;
+}
 const STORAGE_KEY = "ewolucja.bgmusic";
 
 class BgMusic {
@@ -21,11 +59,15 @@ class BgMusic {
     this._source = null;         // MediaElementAudioSourceNode (jednorazowy per audio element!)
     this._gain = null;           // GainNode — TYM sterujemy zamiast audio.volume
     this._enabled = this._readEnabled();
-    this._volume = 0.25;         // 25% domyślnie
-    this._duckedVolume = 0.05;   // 5% — gdy TTS mówi LUB strona prosi (np. /mission, /porady)
+    this._volume = 0.2;          // 20% (ściszone o 20% z dawnych 25%)
+    // Ściszenie na czas lektora zjeżdża razem z głośnością bazową — trzyma tę
+    // samą proporcję (1/5), więc muzyka pod mową jest tak samo dyskretna
+    // jak była, a nie nagle wyraźniejsza względem reszty.
+    this._duckedVolume = 0.04;
     this._target = this._volume;
     this._unlocked = false;
-    this._track = DEFAULT_TRACK;
+    this._kolejka = [];          // reszta bieżącej, przetasowanej rundy
+    this._track = this._dobierzUtwor();
     this._duckRequests = 0;
     this._installAutoUnlock();
   }
@@ -46,14 +88,39 @@ class BgMusic {
   _installAutoUnlock() {
     if (typeof window === "undefined" || this._unlockInstalled) return;
     this._unlockInstalled = true;
-    const handler = () => {
-      if (this._unlocked) return;
-      this._unlocked = true;
-      if (this._enabled) this._start();
+    const odepnij = () => {
       window.removeEventListener("click", handler, true);
       window.removeEventListener("touchstart", handler, true);
       window.removeEventListener("keydown", handler, true);
       window.removeEventListener("pointerdown", handler, true);
+    };
+    /**
+     * Odblokowanie NIE jest jednorazową próbą.
+     *
+     * Wcześniej pierwszy gest od razu odpinał wszystkie nasłuchy, niezależnie
+     * od tego, czy `play()` się udało. A `play()` bywa odrzucone mimo gestu —
+     * przeglądarka nie zawsze uznaje za aktywację dotknięcie w trakcie
+     * ładowania strony ani gest, który trafił w warstwę z `pointer-events: none`
+     * (u nas: kurtyna z chmur na starcie świata). Wtedy muzyka milkła do końca
+     * sesji i wyglądało to na zepsuty dźwięk, choć wystarczyłoby spróbować
+     * jeszcze raz przy następnym kliknięciu.
+     *
+     * Teraz nasłuchy schodzą dopiero, gdy odtwarzanie NAPRAWDĘ ruszyło.
+     */
+    const handler = () => {
+      if (this._unlocked) return;
+      if (!this._enabled) {
+        // Muzyka wyłączona świadomie — gest i tak się liczy, bo późniejsze
+        // `setEnabled(true)` samo w sobie jest kliknięciem.
+        this._unlocked = true;
+        odepnij();
+        return;
+      }
+      this._start().then((udalo) => {
+        if (!udalo) return;          // spróbujemy przy kolejnym geście
+        this._unlocked = true;
+        odepnij();
+      });
     };
     window.addEventListener("click", handler, true);
     window.addEventListener("touchstart", handler, { capture: true, passive: true });
@@ -61,10 +128,47 @@ class BgMusic {
     window.addEventListener("pointerdown", handler, true);
   }
 
+  /**
+   * Kolejny utwór z przetasowanej rundy; pusta runda = nowe tasowanie.
+   */
+  _dobierzUtwor() {
+    if (!this._kolejka.length) {
+      const runda = potasuj(PLAYLISTA);
+      // Nowa runda nie zaczyna się od tego, który przed chwilą grał.
+      if (runda.length > 1 && runda[0] === this._track) runda.push(runda.shift());
+      this._kolejka = runda;
+    }
+    return this._kolejka.shift();
+  }
+
+  /**
+   * Przejście do kolejnego utworu — podmieniamy `src` w TYM SAMYM elemencie
+   * audio, zamiast tworzyć nowy.
+   *
+   * To nie jest oszczędność, tylko konieczność: `createMediaElementSource`
+   * wiąże graf Web Audio z konkretnym elementem i przy podmianie elementu
+   * trzeba by odbudować cały łańcuch source → gain → destination. A wraz z nim
+   * zgubiłby się stan duckingu, czyli ściszenia na czas lektora.
+   */
+  _nastepnyUtwor() {
+    this._track = this._dobierzUtwor();
+    if (!this._audio) return;
+    try {
+      this._audio.src = this._track;
+      this._audio.currentTime = 0;
+      const p = this._audio.play();
+      if (p?.catch) p.catch(() => {});
+    } catch (e) {
+      console.warn("[bgMusic] nie udało się przełączyć utworu:", e?.message);
+    }
+  }
+
   _ensureAudio() {
     if (this._audio) return this._audio;
     const a = new Audio(this._track);
-    a.loop = true;
+    // Bez `loop` — koniec utworu jest sygnałem do przełączenia na kolejny.
+    a.loop = false;
+    a.addEventListener("ended", () => this._nastepnyUtwor());
     a.crossOrigin = "anonymous"; // wymagane dla Web Audio jesli serwer ustawia CORS
     a.volume = 1;                // zostawiamy 1 — gloscia steruje GainNode
     a.preload = "auto";
@@ -125,9 +229,10 @@ class BgMusic {
     }
   }
 
+  /** @returns {Promise<boolean>} czy odtwarzanie faktycznie ruszyło */
   _start() {
     const a = this._ensureAudio();
-    a.play()
+    return a.play()
       .then(() => {
         // Buduj graf Web Audio dopiero PO play() — musi byc w gestcie usera.
         this._ensureAudioGraph();
@@ -139,8 +244,16 @@ class BgMusic {
         // zacznij od duckedVolume.
         const target = this._duckRequests > 0 ? this._duckedVolume : this._target;
         this._fade(target, 1500);
+        // Widoczne w konsoli, bo „ciągle leci to samo" jest nie do rozstrzygnięcia
+        // ze słuchu — przy trzech utworach powtórka po odświeżeniu wypada
+        // średnio co trzeci raz i łatwo wziąć ją za brak losowania.
+        console.info("[bgMusic] gram:", this._track, "| dalej w rundzie:", this._kolejka.join(", ") || "(koniec rundy)");
+        return true;
       })
-      .catch((e) => console.warn("[bgMusic] play blocked:", e.message));
+      .catch((e) => {
+        console.warn("[bgMusic] play blocked:", e.message);
+        return false;
+      });
   }
 
   /** Włącz lub wyłącz (zapamiętane w localStorage). */

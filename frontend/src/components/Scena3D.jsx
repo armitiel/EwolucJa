@@ -14,9 +14,27 @@
  * trzymamy w refach, żeby zmiana funkcji w rodzicu nie przeładowywała WebGL.
  */
 import React, { useEffect, useRef } from "react";
+import { idPostaci } from "../utils/postac.js";
 
-export const WERSJA_SCENY = "2";
+// UWAGA: numer ma tylko ROSNĄĆ. Numery 3–13 zostały już wydane przeglądarce
+// z inną zawartością modułu (kolejne wersje znaków, gwiazdki, tempo ruchu),
+// więc cofnięcie go serwuje z cache starą scenę zamiast aktualnej.
+export const WERSJA_SCENY = "14";  // wybór postaci (chłopiec / lis) + szybszy ruch +20% + gwiazdki
 const ZASOBY = "/scena-3d/assets/";
+
+/**
+ * Wybór bohatera — na czas testów lisa, docelowo pewnie stała.
+ *
+ *   /swiat?postac=fox   → lis (zapamiętane, więc przy kolejnych wejściach zostaje)
+ *   /swiat?postac=adventurer → powrót do chłopca
+ *
+ * Identyfikator postaci trzyma `utils/postac.js` — wspólnie ze HUD-em, który
+ * bierze stamtąd awatar. Sam moduł sceny ma swoją tablicę (`SCENA3D_POSTACIE`):
+ * nazwę pliku GLB, mapowanie nazw klipów (lis ma chód i bieg w odwrotnej
+ * kolejności niż chłopiec) oraz korektę tempa i wyglądu materiału. Tutaj
+ * wybieramy tylko KTÓRĄ postać wczytać — dokładnie tak samo, jak `SCENA3D_ZOOM`
+ * ustawiany niżej.
+ */
 
 /**
  * Adres modułu budujemy DOPIERO W RUNTIME z `location.origin`.
@@ -105,6 +123,8 @@ export default function Scena3D({ apiRef, onZdarzenie, onBlad, spokojnyRuch, zoo
         // Zoom ustawiamy PRZED utworzeniem sceny — pierwszy `resize()` już go użyje.
         const zAdresu = Number(new URLSearchParams(window.location.search).get("zoom"));
         globalThis.SCENA3D_ZOOM = zAdresu > 0 ? zAdresu : zoom;
+        // Postać też musi być znana przed startem — model wczytuje się raz.
+        globalThis.SCENA3D_POSTAC = idPostaci();
 
         const adres = adresModulu();
         const modul = await import(/* @vite-ignore */ adres);

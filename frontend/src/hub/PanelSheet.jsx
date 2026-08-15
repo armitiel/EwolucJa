@@ -5,7 +5,7 @@
  */
 import React, { useEffect, useRef } from "react";
 
-export default function PanelSheet({ open, kicker, title, onClose, children, testId }) {
+export default function PanelSheet({ open, kicker = null, title, onClose, children, testId }) {
   const arkuszRef = useRef(null);
 
   // Esc zamyka — na desktopie i na klawiaturach zewnętrznych.
@@ -43,8 +43,10 @@ export default function PanelSheet({ open, kicker, title, onClose, children, tes
       >
         <span className="hub-sheet-grip" aria-hidden="true" />
         <header className="hub-sheet-head">
+          {/* Nadtytuł jest opcjonalny — pusty <span> zostawiał w nagłówku
+              martwy odstęp, więc rysujemy go tylko, gdy naprawdę jest. */}
           <div>
-            <span className="hub-kicker">{kicker}</span>
+            {kicker ? <span className="hub-kicker">{kicker}</span> : null}
             <h2>{title}</h2>
           </div>
           <button type="button" className="hub-sheet-close" onClick={onClose} aria-label="Zamknij" data-testid="hub-sheet-close">

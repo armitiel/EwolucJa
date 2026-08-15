@@ -7,6 +7,7 @@
  */
 
 import React from "react";
+import { awatarPostaci } from "../../utils/postac.js";
 
 function Aura({ color, r = 46, opacity = 0.45 }) {
   return (
@@ -97,10 +98,20 @@ export function AvatarArt({ size = 120, color = "#57C7D4", grants = [], grantDef
   return (
     <svg viewBox="0 0 120 140" width={size} height={(size * 140) / 120} className="adv-char adv-avatar" aria-hidden="true">
       <Aura color={color} r={40} opacity={0.35} />
-      <image href="/assets/adventure-v2/avatar-front-v2.png" x="3" y="0" width="114" height="140" preserveAspectRatio="xMidYMid meet" />
-      {/* światło dziecka */}
-      <circle cx="60" cy="72" r="5" fill={color} />
-      <circle cx="60" cy="72" r="12" fill={color} opacity="0.4" filter="url(#cGlow)" />
+      {/* Portret bohatera. Lis ma własny (medalion), więc `preserveAspectRatio`
+          musi zostać na `meet` — inaczej kwadratowa grafika rozjechałaby się
+          na pionowej ramce sylwetki. */}
+      <image
+        href={awatarPostaci("/assets/adventure-v2/avatar-front-v2.png")}
+        x="3"
+        y="0"
+        width="114"
+        height="140"
+        preserveAspectRatio="xMidYMid meet"
+      />
+      {/* Kropka „światła dziecka" siedziała dokładnie na środku portretu
+          i czytała się jak plamka na twarzy. Kolor gracza niesie teraz sama
+          aura pod spodem — wystarczy, a portret zostaje czysty. */}
     </svg>
   );
 }

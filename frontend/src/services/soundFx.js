@@ -89,9 +89,71 @@ export function playFx(key, volume = DEFAULT_VOLUME) {
   }
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+   Kroki — jedyny dźwięk ciągły, więc żyje poza pulą one-shotów.
+
+   Nie da się go zrobić przez `playFx`: tamte odtwarzają próbkę raz i kończą,
+   a kroki muszą chodzić w pętli dokładnie tak długo, jak długo bohater idzie,
+   i ucichnąć bez trzasku, gdy stanie. Stąd osobny element z `loop` i krótkie
+   wygaszenie zamiast twardego `pause()`.
+
+   Tempo klipu podbijamy przy biegu (`playbackRate`), żeby stopy nie zostawały
+   w tyle za animacją — to ta sama zależność, którą moduł sceny stosuje do
+   klipów: szybszy ruch, szybszy klip.
+   ───────────────────────────────────────────────────────────────────────── */
+const KROKI_GLOSNOSC = 0.15;   // ściszone o 30% z 0,22
+let kroki = null;
+let krokiFade = null;
+
+function krokiElement() {
+  if (kroki || typeof window === "undefined") return kroki;
+  kroki = new Audio("/footstep_scuff_run.mp3");
+  kroki.loop = true;
+  kroki.preload = "auto";
+  kroki.volume = 0;
+  try { kroki.load(); } catch {}
+  return kroki;
+}
+
+/** Włącza pętlę kroków (jeśli już gra, tylko dostraja tempo). */
+export function krokiGraj({ bieg = false } = {}) {
+  const a = krokiElement();
+  if (!a) return;
+  a.playbackRate = bieg ? 1.35 : 1;
+  if (krokiFade) { clearInterval(krokiFade); krokiFade = null; }
+  a.volume = KROKI_GLOSNOSC;
+  if (a.paused) {
+    const p = a.play();
+    if (p?.catch) p.catch(() => {});   // przed pierwszym gestem — normalne
+  }
+}
+
+/** Wygasza kroki i zatrzymuje je dopiero po wyciszeniu (bez trzasku). */
+export function krokiStop() {
+  const a = kroki;
+  if (!a || a.paused) return;
+  // Wygaszanie już trwa — nie restartuj go. Bez tego strażnika odpytywanie
+  // stanu co 125 ms co chwilę zerowało 40-milisekundowy licznik i wyciszenie
+  // szarpało się zamiast płynnie zejść.
+  if (krokiFade) return;
+  krokiFade = setInterval(() => {
+    const nowa = a.volume - KROKI_GLOSNOSC / 4;
+    if (nowa <= 0.01) {
+      a.volume = 0;
+      try { a.pause(); a.currentTime = 0; } catch {}
+      clearInterval(krokiFade);
+      krokiFade = null;
+      return;
+    }
+    a.volume = nowa;
+  }, 40);
+}
+
 /** Convenience wrappers - obecnie uzywane dzwieki. */
 export const fx = {
   dopamine: (vol) => playFx("dopamine", vol ?? 0.6),
   magicalAncient: (vol) => playFx("magicalAncient", vol ?? 0.6),
   gentleMagical: (vol) => playFx("gentleMagical", vol ?? 0.6),
+  krokiGraj,
+  krokiStop,
 };

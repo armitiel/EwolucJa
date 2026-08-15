@@ -1,7 +1,11 @@
 /**
- * ProfilPanel — awatar, ślady wyborów, ekwipunek, stan mapy.
+ * ProfilPanel — awatar, mocne strony, ekwipunek, stan mapy.
  * Dane wyłącznie z istniejącego silnika przygody (`useAdventure`) i z gracza
  * w `AppData` — żadnego drugiego źródła prawdy o postępie.
+ *
+ * Panel jest celowo ubogi w słowa: wiersze to nazwa plus ikona stanu, bez
+ * podpisów powtarzających to, co ikona już mówi. Objaśnienia mechaniki
+ * („każdy wybór zostawia ślad") zeszły — dziecko widzi to po samych paskach.
  */
 import React, { useMemo } from "react";
 import { AvatarArt } from "../../adventure/art/characters.jsx";
@@ -38,9 +42,7 @@ export default function ProfilPanel() {
         <div className="hub-orbit" style={{ "--hub-avatar-color": state.color }}>
           <AvatarArt size={150} color={state.color} grants={state.grants} grantDefs={adventure.grants} />
         </div>
-        <span className="hub-kicker">Światło wędrowca</span>
         <h3>{player?.name || "Wędrowiec bez imienia"}</h3>
-        <p className="hub-muted">Każdy wybór i każda oddana misja zostawiają ślad na awatarze.</p>
         <div className="hub-counter-row">
           <span className="hub-counter">
             <img className="hub-resource-icon" src="/assets/hub-nav/iskra.png" alt="" aria-hidden="true" draggable="false" />
@@ -54,10 +56,9 @@ export default function ProfilPanel() {
       </div>
 
       <div className="hub-card">
-        <span className="hub-kicker">Twoje mocne strony</span>
-        <h3 className="hub-card-title">Ślady wyborów</h3>
+        <h3 className="hub-card-title">Mocne strony</h3>
         {cechy.length === 0 ? (
-          <p className="hub-muted">Pierwszy ślad pojawi się po pierwszym wyborze w przygodzie.</p>
+          <p className="hub-muted">Jeszcze nic — pierwszy wybór zostawi ślad.</p>
         ) : (
           cechy.map(([klucz, wartosc], indeks) => (
             <div className="hub-trait" key={klucz}>
@@ -83,15 +84,12 @@ export default function ProfilPanel() {
       </div>
       <div className="hub-card">
         {zdobycze.length === 0 ? (
-          <p className="hub-muted">Pierwszy element stroju pojawi się po ważnym wyborze.</p>
+          <p className="hub-muted">Jeszcze pusto.</p>
         ) : (
           zdobycze.map((zdobycz) => (
             <div className="hub-row" key={zdobycz.label}>
               <span className="hub-row-dot"><GameIcon name="gift" size={19} /></span>
-              <span>
-                <strong>{zdobycz.label}</strong>
-                <small>{zdobycz.note}</small>
-              </span>
+              <span><strong>{zdobycz.label}</strong></span>
             </div>
           ))
         )}
@@ -106,12 +104,7 @@ export default function ProfilPanel() {
             <span className="hub-row-dot">
               <GameIcon name={kraina.otwarta ? (kraina.rozswietlona ? "spark" : "compass") : "lock"} size={19} />
             </span>
-            <span>
-              <strong>{kraina.name}</strong>
-              <small>
-                {!kraina.otwarta ? "jeszcze zamknięta" : kraina.rozswietlona ? "rozświetlona" : "otwarta"}
-              </small>
-            </span>
+            <span><strong>{kraina.name}</strong></span>
           </div>
         ))}
       </div>

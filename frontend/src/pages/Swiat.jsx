@@ -29,6 +29,8 @@ import { unreadCount } from "../adventure/engine/notifications.js";
 import { useAppData } from "../contexts/AppData.jsx";
 import { api, session } from "../services/api.js";
 import bgMusic from "../services/bgMusic.js";
+import { fx } from "../services/soundFx.js";
+import { awatarPostaci } from "../utils/postac.js";
 import "../adventure/styles/adventure.css";
 import "../hub/styles/hub.css";
 
@@ -36,11 +38,28 @@ import "../hub/styles/hub.css";
 // dopóki ekonomia się ustala, to liczba do strojenia, nie ustawienie gracza.
 const CEL_MONET = 100;
 
+/**
+ * Znaki w scenie ↔ panele huba.
+ *
+ * PUSTA MAPA JEST CELOWA. Znaki na mapie są teraz zbieractwem: dziecko wbiega
+ * w złoty listek, listek znika z wybuchem iskier i po chwili odrasta. Otwarcie
+ * panelu w tym momencie przerywałoby bieg — a bieg jest tu całą przyjemnością.
+ * Sekcje otwiera się dokiem na dole.
+ *
+ * Mechanizm zostaje gotowy: wystarczy dopisać `{ id_znaku: "nazwa_panelu" }`,
+ * żeby wybrany znak znów coś otwierał. Uwaga na identyfikatory — złote listki
+ * mają id `zloto-1`…`zloto-9`, a `lisc` to tylko nazwa pliku GLB (na tej
+ * pomyłce już raz straciliśmy wieczór).
+ */
+const ZNAK_PANELU = {};
+
+// Sam tytuł sekcji, bez nadtytułu. Nadtytuł powtarzał innymi słowami to, co
+// mówi już przycisk w doku — dziecko czytało dwie linijki zamiast jednej.
 const NAGLOWKI = {
-  gry: { kicker: "Biblioteka", title: "Minigry" },
-  profil: { kicker: "Wędrowiec", title: "Twój profil" },
-  czat: { kicker: "Rozmowa", title: "Czat" },
-  porada: { kicker: "Chwila Światła", title: "Porada dnia" },
+  gry: "Minigry",
+  profil: "Twój profil",
+  czat: "Czat",
+  porada: "Porada dnia",
 };
 
 export default function Swiat() {
@@ -50,12 +69,17 @@ export default function Swiat() {
   useHudSkin();
 
   const scenaRef = useRef(null);
-  const poprzedniPanel = useRef(null);
   const [scenaMartwa, setScenaMartwa] = useState(() => !webglDostepny());
   // Scena wchodzi przejściem dopiero gdy naprawdę ma co pokazać (zdarzenie
   // „gotowa" z modułu). Do tego czasu widać spokojne tło huba, a nie puste
   // płótno WebGL, które przeskakuje w jasny las.
   const [scenaGotowa, setScenaGotowa] = useState(false);
+  // Kurtyna z chmur żyje w `index.html` (musi zakryć też czas ładowania
+  // bundla). Jeśli jej nie ma — bo dziecko weszło tu przejściem z innego
+  // ekranu, a nie przeładowaniem — HUD pokazujemy od razu.
+  const [odsloniete, setOdsloniete] = useState(
+    () => typeof window === "undefined" || typeof window.__rozsunChmury !== "function"
+  );
   const [komunikat, setKomunikat] = useState(null);
   const [nieprzeczytane, setNieprzeczytane] = useState(0);
   // Podpowiedź sterowania pokazujemy do pierwszego dotknięcia i nigdy więcej —
@@ -72,6 +96,16 @@ export default function Swiat() {
     const t = window.setTimeout(() => setScenaGotowa(true), 6000);
     return () => window.clearTimeout(t);
   }, [scenaGotowa, scenaMartwa]);
+
+  // Świat jest gotowy (albo wiadomo, że nie będzie) → rozsuwamy chmury,
+  // a HUD wpuszczamy dopiero po ich zejściu.
+  useEffect(() => {
+    if (odsloniete || !(scenaGotowa || scenaMartwa)) return undefined;
+    const rozsun = window.__rozsunChmury;
+    if (typeof rozsun !== "function") { setOdsloniete(true); return undefined; }
+    rozsun(() => setOdsloniete(true));
+    return undefined;
+  }, [scenaGotowa, scenaMartwa, odsloniete]);
 
   useEffect(() => {
     if (!pokazPodpowiedz) return undefined;
@@ -120,29 +154,56 @@ export default function Swiat() {
     if (scena) {
       if (panel) scena.pauza?.();
       else scena.wznow?.();
-      // Medal zabrany na czas minigry wraca, gdy panel gier się zamknie.
-      if (poprzedniPanel.current === "gry" && panel !== "gry") scena.pokazZnak?.("medal");
     }
-    poprzedniPanel.current = panel;
   }, [panel]);
 
   const naZdarzenieSceny = useCallback(
     (nazwa, dane) => {
       if (nazwa === "gotowa") {
-        scenaRef.current?.ustawPowrotZnaku?.("medal", false);
+        // Znaki wracają SAME, po swoim czasie z definicji (3,2 s). Wcześniej
+        // wstrzymywaliśmy powrót do zamknięcia panelu (`ustawPowrotZnaku(…, false)`)
+        // i to było źródłem szarpania: znak wracał dokładnie w chwili, gdy
+        // bohater wciąż na nim stał, więc od razu wchłaniał się znowu.
+        // Teraz cykl jest jeden: powiększenie → zanik → chwila przerwy → powrót,
+        // a przed natychmiastowym powtórzeniem chroni `armed` w module — znak
+        // uzbraja się dopiero, gdy bohater odejdzie dalej niż 1,7 jednostki.
         if (panel) scenaRef.current?.pauza?.();
         setScenaGotowa(true);
         return;
       }
-      if (nazwa === "minigra:start") { otworz("gry"); return; }
-      if (nazwa === "znak:dotkniety") {
-        if (dane?.znak === "lisc") otworz("porada");
+      // `minigra:start` = znak wchłonięty (dotknięty palcem albo wejściem
+      // bohatera), `znak:dotkniety` = znak bez wchłaniania. Oba prowadzą do
+      // panelu, więc obsługujemy je tą samą ścieżką.
+      if (nazwa === "minigra:start" || nazwa === "znak:dotkniety") {
+        fx.gentleMagical(0.55);
+        const doOtwarcia = ZNAK_PANELU[dane?.znak];
+        if (doOtwarcia) otworz(doOtwarcia);
         return;
       }
       if (nazwa === "blad") setScenaMartwa(true);
     },
     [otworz, panel]
   );
+
+  /* ── kroki ───────────────────────────────────────────────────────────── */
+  // Moduł sceny nie emituje zdarzenia „stawiam krok" — daje za to `stan()`
+  // z nazwą aktualnego klipu. Odpytujemy go 8 razy na sekundę: dla dźwięku,
+  // który i tak wchodzi z wygaszeniem, to niesłyszalnie gęsto, a kosztuje
+  // ułamek tego, co nasłuch w pętli renderowania.
+  useEffect(() => {
+    if (!scenaGotowa || scenaMartwa) return undefined;
+    const t = window.setInterval(() => {
+      const stan = scenaRef.current?.stan?.();
+      const idzie = !!stan && !stan.pauza && (stan.animacja === "walk" || stan.animacja === "run");
+      if (idzie) fx.krokiGraj({ bieg: stan.animacja === "run" });
+      else fx.krokiStop();
+    }, 125);
+    return () => { window.clearInterval(t); fx.krokiStop(); };
+  }, [scenaGotowa, scenaMartwa]);
+
+  // Panel zasłania świat i pauzuje scenę — kroki muszą ucichnąć razem z nią,
+  // inaczej dudnią pod otwartym arkuszem.
+  useEffect(() => { if (panel) fx.krokiStop(); }, [panel]);
 
   /* ── muzyka krainy ───────────────────────────────────────────────────── */
   // bgMusic ma własny localStorage i bywa przełączany spoza tego ekranu
@@ -187,7 +248,11 @@ export default function Swiat() {
         />
       )}
 
-      <div className="game-hud" data-variant="B" aria-label="Interfejs świata">
+      <div
+        className={`game-hud${odsloniete ? " jest-widoczny" : ""}`}
+        data-variant="B"
+        aria-label="Interfejs świata"
+      >
         <div className="game-hud-top">
           <button
             type="button"
@@ -196,7 +261,7 @@ export default function Swiat() {
             aria-label={`Otwórz profil: ${player?.name || "Wędrowiec"}`}
             data-testid="hub-chip-profil"
           >
-            <img src="/assets/hub-nav/profil-simple.png" alt="" aria-hidden="true" draggable="false" />
+            <img src={awatarPostaci("/assets/hub-nav/profil-simple.png")} alt="" aria-hidden="true" draggable="false" />
             <span>{player?.name || "Wędrowiec"}</span>
           </button>
 
@@ -241,14 +306,13 @@ export default function Swiat() {
 
       <PanelSheet
         open={!!naglowek}
-        kicker={naglowek?.kicker}
-        title={naglowek?.title}
+        title={naglowek}
         onClose={zamknij}
         testId="hub-sheet"
       >
         {panel === "gry" ? <MinigryPanel onZamknij={zamknij} onKomunikat={pokazKomunikat} /> : null}
         {panel === "profil" ? <ProfilPanel /> : null}
-        {panel === "czat" ? <CzatPanel onKomunikat={pokazKomunikat} /> : null}
+        {panel === "czat" ? <CzatPanel /> : null}
         {panel === "porada" ? <PoradaPanel onZamknij={zamknij} /> : null}
       </PanelSheet>
 

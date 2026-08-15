@@ -40,6 +40,20 @@
 }
 .hub-scena-info p{ margin:0; font-size:13.5px; line-height:1.5; }
 
+/* HUD wchodzi PO rozsunięciu chmur (kurtyna startowa z index.html), a nie
+   razem ze sceną. Kolejność jest celowa: najpierw dziecko widzi swój świat,
+   dopiero potem doklejają się do niego liczniki i przyciski.
+   `visibility` obok `opacity`, bo samo `opacity:0` zostawia klikalne
+   przyciski — dziecko trafiłoby w niewidzialny dok. */
+.hub-root .game-hud{
+  opacity:0; visibility:hidden;
+  transition:opacity .45s ease, visibility 0s linear .45s;
+}
+.hub-root .game-hud.jest-widoczny{
+  opacity:1; visibility:visible;
+  transition:opacity .45s ease .12s, visibility 0s;
+}
+
 /* ── HUD ── */
 .hub-hud{
   position:absolute; inset:0; z-index:6; pointer-events:none;
@@ -396,8 +410,12 @@
 .hub-grid{ display:grid; grid-template-columns:1fr 1fr; gap:11px; }
 .hub-tile{ border:none; padding:0; background:transparent; cursor:pointer; font-family:inherit; }
 .hub-tile-in{
-  display:flex; flex-direction:column; align-items:center; gap:8px; text-align:center;
-  min-height:154px; padding:14px 10px 12px; border-radius:var(--r-card,22px);
+  /* Kafel ma juz tylko obrazek, nazwe i nagrode - bez opisu. Bez wysrodkowania
+     w pionie te trzy elementy wisialyby przy gornej krawedzi, a pod nimi
+     zostawalaby dziura po zdjetym tekscie. */
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:9px; text-align:center;
+  min-height:142px; padding:14px 10px 12px; border-radius:var(--r-card,22px);
   border:1.7px solid rgba(255,223,130,.88);
   box-shadow:inset 0 1.5px 0 rgba(255,255,255,.72),0 3px 0 rgba(134,81,27,.4),0 7px 13px rgba(61,47,25,.13);
   position:relative; overflow:hidden; background:rgba(255,255,255,.7);

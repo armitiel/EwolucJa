@@ -134,6 +134,10 @@ Jeśli to nie zadziała: uruchom <code>npm run dev</code> i wejdź na
     return;
   }
   globalThis.__SCENA3D_ZASOBY = kat + 'assets/';
+  // Postac bohatera do testow: /scena-3d/?postac=fox (domyslnie chlopiec).
+  // Nazwy klipow i korekte tempa modul bierze z SCENA3D_POSTACIE - tu tylko wybor.
+  var postac = new URLSearchParams(location.search).get('postac');
+  if (postac) globalThis.SCENA3D_POSTAC = postac;
   var s = document.createElement('script');
   s.type = 'module';
   s.src = kat + 'scena3d.js';

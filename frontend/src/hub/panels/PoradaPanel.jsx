@@ -47,7 +47,6 @@ export default function PoradaPanel({ onZamknij }) {
         <div className="hub-tip-art">
           <IskraArt size={72} />
         </div>
-        <span className="hub-kicker">Chwila Światła</span>
         <p className="hub-tip-text">{chwila.text}</p>
         <span className="hub-muted">— od {zrodloNazwa(chwila.from)}</span>
 
@@ -66,11 +65,6 @@ export default function PoradaPanel({ onZamknij }) {
           </button>
         </div>
       </div>
-
-      <p className="hub-note">
-        <GameIcon name="leaf" size={18} />
-        <span>Jedna myśl na dobę, zawsze ta sama w ciągu dnia. Nie zbiera się jej i nie traci.</span>
-      </p>
 
       <div className="hub-sec-title">
         <h3>Inne myśli z mapy</h3>

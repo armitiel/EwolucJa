@@ -3,8 +3,11 @@
  *
  * Odblokowania NIE mają własnej listy: liczą się z `state.unlocked` przygody,
  * więc biblioteka nie może pokazać czegoś, czego nie ma na mapie.
- * Gra bez `trasa` jest jeszcze niezbudowana — mówimy to wprost, zamiast
- * udawać kafel, który nic nie robi.
+ *
+ * Kafel mówi tylko trzy rzeczy: co to za gra (obrazek + nazwa) i ile daje
+ * monet. Opis, kraina i wejście fabularne z niego zeszły — dziecko wybiera
+ * grę wzrokiem, a nie czytaniem. Powód blokady zostaje, ale pokazujemy go
+ * dopiero po dotknięciu kafla, jako krótki komunikat.
  */
 import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -32,7 +35,7 @@ export default function MinigryPanel({ onZamknij, onKomunikat }) {
       return;
     }
     if (!gra.trasa) {
-      onKomunikat?.(`${gra.tytul} — jeszcze nie zbudowana`);
+      onKomunikat?.("Wkrótce");
       return;
     }
     onZamknij?.();
@@ -41,14 +44,6 @@ export default function MinigryPanel({ onZamknij, onKomunikat }) {
 
   return (
     <div className="hub-pane" data-testid="hub-pane-gry">
-      <p className="hub-note">
-        <GameIcon name="spark" size={18} />
-        <span>
-          Minigry są <b>narzędziem w świecie</b>, nie osobną zakładką — medal na mapie prowadzi do tej samej gry.
-          Biblioteka to drugie wejście, dla dziecka, które chce wrócić do gry poznanej w fabule.
-        </span>
-      </p>
-
       <div className="hub-grid">
         {gry.map((gra) => (
           <button
@@ -59,33 +54,14 @@ export default function MinigryPanel({ onZamknij, onKomunikat }) {
             data-testid={`hub-gra-${gra.id}`}
           >
             <span className="hub-tile-in" style={{ background: gra.otwarta ? gra.tlo : undefined }}>
-              {gra.otwarta && !gra.trasa ? <span className="hub-flag">wkrótce</span> : null}
               <span className="hub-tile-emoji">{gra.otwarta ? gra.emoji : <GameIcon name="lock" size={26} />}</span>
               <span className="hub-tile-title">{gra.tytul}</span>
-              <small>{gra.otwarta ? gra.opis : `Otworzy się w krainie: ${gra.kraina}`}</small>
               <span className="hub-coin">
                 <img src="/assets/hub-nav/moneta.png" alt="" aria-hidden="true" draggable="false" />
                 +{gra.monety}
               </span>
             </span>
           </button>
-        ))}
-      </div>
-
-      <div className="hub-sec-title">
-        <h3>Skąd wchodzi się do gry</h3>
-      </div>
-      <div className="hub-card">
-        {gry.map((gra) => (
-          <div className="hub-row" key={`wejscie-${gra.id}`}>
-            <span className="hub-row-dot">
-              <GameIcon name={gra.otwarta ? "compass" : "lock"} size={19} />
-            </span>
-            <span>
-              <strong>{gra.tytul}</strong>
-              <small>{gra.wejscieFabularne}</small>
-            </span>
-          </div>
         ))}
       </div>
     </div>
