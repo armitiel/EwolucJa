@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "note": "Krótkie podpowiedzi prozdrowotne Mędrca, mówione w hubie. Zasady: jedno zdanie, tryb zapraszający zamiast rozkazującego, zero straszenia i zero liczenia (żadnych „wypij 8 szklanek\"). Mają brzmieć jak życzliwa uwaga kogoś starszego, a nie jak plakat w gabinecie.",
+  "porady": [
+    { "id": "woda",      "tekst": "Kubek wody teraz smakuje lepiej niż trzy później." },
+    { "id": "oczy",      "tekst": "Popatrz przez chwilę daleko za okno — oczy lubią dalekie widoki." },
+    { "id": "plecy",     "tekst": "Wyprostuj plecy i opuść ramiona. O, właśnie tak." },
+    { "id": "ruch",      "tekst": "Wstań i przeciągnij się — ciało lubi, gdy o nim pamiętasz." },
+    { "id": "oddech",    "tekst": "Trzy spokojne wdechy potrafią zmienić cały dzień." },
+    { "id": "dwor",      "tekst": "Nawet krótkie wyjście na dwór liczy się bardziej, niż myślisz." },
+    { "id": "sen",       "tekst": "Wieczorem jest ciemno nie bez powodu — sen to twoja supermoc." },
+    { "id": "przekaska", "tekst": "Coś chrupiącego i kolorowego na talerzu dodaje energii na dłużej." },
+    { "id": "rece",      "tekst": "Umyte ręce to najprostsza tarcza, jaką masz." },
+    { "id": "nogi",      "tekst": "Postój chwilę na jednej nodze — równowaga to też ćwiczenie." },
+    { "id": "przerwa",   "tekst": "Po dłuższym patrzeniu w ekran należy ci się przerwa." },
+    { "id": "ramiona",   "tekst": "Zakręć ramionami do tyłu pięć razy — napięcie samo odpływa." },
+    { "id": "usmiech",   "tekst": "Uśmiech do siebie w lustrze działa nawet wtedy, gdy jest udawany." },
+    { "id": "cisza",     "tekst": "Chwila ciszy bez dźwięków to odpoczynek dla uszu." },
+    { "id": "posilek",   "tekst": "Jedz powoli — brzuch potrzebuje chwili, żeby nadążyć." },
+    { "id": "sluchawki", "tekst": "Ciszej w słuchawkach to więcej muzyki na całe życie." }
+  ]
+}

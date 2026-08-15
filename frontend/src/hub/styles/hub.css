@@ -576,3 +576,138 @@
   .hub-sheet, .hub-scrim, .hub-dock-item{ transition:none; }
   .hub-toast{ animation:none; }
 }
+
+
+/* ── Podpowiedz Medrca ─────────────────────────────────────────────────── */
+/* Karta wchodzi nad dokiem, a nie nad HUD-em u gory: gora to zasoby dziecka
+   (monety, awatar), a to jest glos z zewnatrz - siada blizej reki i latwiej
+   go odsunac. Warstwa jest przezroczysta dla dotkniec, klika sie tylko sama
+   karta, wiec chodzenie po swiecie dziala pod spodem bez zmian. */
+.medrzec-podpowiedz{
+  position:fixed; left:12px; right:12px; z-index:40;
+  bottom:calc(env(safe-area-inset-bottom,0px) + 104px);
+  margin:0 auto; max-width:520px;
+  pointer-events:none;
+  animation:medrzec-wejscie .42s cubic-bezier(.2,.9,.3,1.2) both;
+}
+.medrzec-podpowiedz > *{ pointer-events:auto; cursor:pointer; }
+
+/* JEDEN ksztalt. Glowa Medrca jest grafika NA karcie i wystaje poza jej gorna
+   krawedz - tak samo jak moneta wystaje z kafelka w HUD-zie. Wczesniej siedziala
+   we wlasnym bialym kolku z obwodka i calosc czytala sie jak dwa przypadkowo
+   zestawione obiekty.
+   Kolory i kroje WYLACZNIE z tokenow `styles/ewolucja.css`: papier + fiolet
+   "magic" to w tym projekcie barwy Mentora (tak samo ustawiony jest domyslny
+   ton `MentorBubble`), a nie zloto HUD-u, ktore oznacza zasoby gracza. */
+.medrzec-karta{
+  display:flex; align-items:center; gap:13px;
+  padding:13px 20px 13px 10px;
+  border:2px solid var(--p-magic,#B886E8);
+  border-radius:var(--r-card,22px);
+  background:linear-gradient(180deg,var(--p-paper,#FBF1D6),var(--p-paper-2,#F4E3B8));
+  box-shadow:var(--shadow-md,0 3px 0 rgba(78,77,118,.10),0 10px 24px rgba(78,77,118,.14));
+  /* Krój tytułowy gry (Baloo 2), a nie krok z arkusza HUD-u: HUD ma wlasny
+     ("Arial Rounded"), bo musi dzialac takze w podgladzie bez Google Fonts.
+     Tekst Medrca to zdanie do przeczytania, wiec idzie typografia aplikacji. */
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  color:var(--p-ink,#4e4d76);
+}
+
+.medrzec-glowa{
+  width:66px; height:66px; flex:none; object-fit:contain;
+  /* Ujemne marginesy w pionie: glowa jest wyzsza niz karta i z niej wychodzi. */
+  margin:-16px 0 -16px 0;
+  filter:drop-shadow(0 3px 3px var(--p-shadow,rgba(78,77,118,.18)));
+  user-select:none; -webkit-user-drag:none;
+}
+
+.medrzec-tekst{
+  margin:0; min-width:0;
+  font-size:16px; font-weight:700; line-height:1.32;
+  color:var(--p-ink,#4e4d76);
+}
+
+@keyframes medrzec-wejscie{
+  from{ opacity:0; transform:translateY(14px) scale(.96); }
+  to{ opacity:1; transform:none; }
+}
+
+@media (max-width:340px){
+  .medrzec-karta{ gap:10px; padding:11px 15px 11px 8px; }
+  .medrzec-glowa{ width:56px; height:56px; margin:-13px 0 -13px 0; }
+  .medrzec-tekst{ font-size:14.5px; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .medrzec-podpowiedz{ animation:none; }
+}
+
+
+/* ── Tryb gry (minigry) ────────────────────────────────────────────────── */
+/* Minigra zajmuje caly ekran i NIE ma dolnej belki z zakladkami. Belka kusila
+   wyjsciem w srodku rozgrywki, a i tak wracalo sie tam, skad sie przyszlo -
+   jedno wyjscie w lewym gornym rogu jest uczciwsze i trudniej w nie trafic
+   przypadkiem kciukiem trzymajacym telefon.
+   Kolory i przyciski sa te same co w hubie (`hub-btn`), zeby gra nie wygladala
+   na doklejona z innej aplikacji. */
+.gra-root{
+  position:fixed; inset:0; z-index:1;
+  display:flex; flex-direction:column;
+  background:linear-gradient(180deg,#C9E9FF 0%,#FFE0B5 58%,#FFC9A0 100%);
+}
+
+.gra-scroll{
+  position:relative; flex:1; min-height:0; overflow-y:auto;
+  display:flex; flex-direction:column;
+  padding:2px 0 calc(18px + env(safe-area-inset-bottom,0px));
+}
+
+/* Pasek trzyma tylko sterowanie: restart (w trakcie gry) i zamkniecie.
+   Wszystko dosuniete do prawej - kciuk trzymajacy telefon jest tam, a lewy
+   gorny rog zostaje wolny, wiec nie zamyka sie gry przez przypadek. */
+.gra-pasek{
+  flex:none; display:flex; align-items:center; justify-content:flex-end; gap:10px;
+  padding:calc(8px + env(safe-area-inset-top,0px)) 12px 6px;
+}
+
+/* Czerwony krzyzyk - ten sam, ktorym zamyka sie zwoj wiadomosci. Jeden ksztalt
+   "zamknij" w calej aplikacji: dziecko uczy sie go raz. */
+.gra-x{
+  width:46px; height:46px; flex:none;
+  display:grid; place-items:center; padding:0 0 4px;
+  border:2px solid #8f2d27; border-radius:50%;
+  background:linear-gradient(180deg,#ff6a5e,#d53537);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 3px 0 #8d2a27,0 6px 9px rgba(77,35,22,.2);
+  color:#fff4c9; font:900 32px/1 system-ui,sans-serif;
+  cursor:pointer; -webkit-tap-highlight-color:transparent;
+}
+.gra-x:active{ transform:translateY(2px); box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 1px 0 #8d2a27; }
+
+.gra-tytul{
+  flex:1; min-width:0; text-align:center;
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  font-size:17px; font-weight:800; color:var(--p-ink,#4e4d76);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  text-shadow:0 1px 0 rgba(255,255,255,.6);
+}
+
+.gra-ikona{
+  width:38px; height:38px; flex:none;
+  display:grid; place-items:center;
+  border:2px solid transparent; border-radius:50%;
+  background:
+    linear-gradient(180deg,rgba(255,251,224,.97),rgba(243,224,171,.97)) padding-box,
+    linear-gradient(180deg,#fff3a8 0%,#e5aa32 62%,#a46418 100%) border-box;
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.8),0 3px 0 #925118,0 6px 12px rgba(49,42,20,.22);
+  color:#5a3d12; cursor:pointer;
+}
+.gra-ikona:active{ transform:translateY(2px); }
+/* Pusty placeholder trzyma tytul dokladnie na srodku, gdy nie ma restartu. */
+.gra-ikona.is-pusta{ background:none; border:0; box-shadow:none; pointer-events:none; }
+
+.gra-btn-duzy{ margin-top:14px; width:100%; min-height:52px; font-size:17px; }
+.gra-akcje{ margin-top:14px; }
+
+@media (prefers-reduced-motion:reduce){
+  .gra-x:active,.gra-ikona:active{ transform:none; }
+}

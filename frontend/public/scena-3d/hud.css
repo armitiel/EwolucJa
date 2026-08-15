@@ -1020,3 +1020,129 @@
   font-style: italic;
   line-height: 1.45;
 }
+
+
+/* --- MONETA-ODSTEPY: moneta blizej liczby, dalej od krawedzi kafelka --- */
+/* Ikona ma ujemny margines z lewej (celowo wystaje poza zloty kant), przez co
+   dotykala krawedzi tla, a jednoczesnie wspolny `gap` odsuwal od niej liczbe.
+   Wygladalo to, jakby moneta i "0" nalezaly do dwoch roznych kafelkow.
+   Padding odsuwa ja od krawedzi, a ujemny margines z PRAWEJ przyciaga liczbe -
+   `gap` zostaje nietkniety, wiec pasek postepu ma dalej swoje powietrze. */
+.game-hud-counter--coins { padding-left: 10px; }
+.game-hud-counter--coins img { margin-left: 0; margin-right: -6px; }
+
+/* Nutka byla na 44 px w krazku 52 px - zlota obwodka schowala sie pod ikona.
+   Odstep robi teraz PADDING przycisku, a nie wpisany rozmiar obrazka: ikona
+   dostaje 100% tego, co zostanie w srodku, wiec zmiana wielkosci krazka nigdy
+   nie zjedzie oddechu do zera. 11 px paddingu przy krazku 52 px i obwodce 2 px
+   daje nutke ~26 px z rownym marginesem dookola. */
+.game-hud-music { padding: 11px; }
+.game-hud-music img {
+  width: 100%;
+  height: 100%;
+  /* Geometrycznie nutka stoi w srodku, ale OPTYCZNIE ucieka w prawo i w dol:
+     ciezar ksztaltu siedzi w dwoch dolnych glowkach, a choragiewka u gory jest
+     lekka i cienka. Przesuniecie w procentach, nie w px, zeby trzymalo sie
+     rowniez na wezszym ekranie, gdzie ikona jest mniejsza. */
+  transform: translate(-4%, -4%);
+}
+.game-hud-music.is-off::after { width: 26px; }
+
+@media (max-width: 340px) {
+  .game-hud-counter--coins { padding-left: 8px; }
+  .game-hud-counter--coins img { margin-right: -5px; }
+  .game-hud-music { padding: 9px; }
+  .game-hud-music.is-off::after { width: 22px; }
+}
+
+
+/* --- ROWNA-GORA: wszystkie ikony gornego paska zaczynaja sie na tej samej wysokosci --- */
+/* Awatar mial `margin: -4px 0 -4px -2px` z czasow, gdy siedzial w zlotym kafelku
+   i mial z niego celowo wystawac. Kafelka juz nie ma, a ujemny margines zostal -
+   przez to awatar zaczynal sie 6 px od krawedzi ekranu, a moneta i nutka 10 px.
+   Same pudelka flexa byly rowne, rozjezdzal sie dopiero obrazek w srodku, wiec
+   w inspektorze wygladalo to na porzadek. Zerujemy margines: gora, dol i lewa
+   krawedz awatara zgadzaja sie teraz z reszta paska i z dokiem na dole. */
+.game-hud-profile img { margin: 0; }
+
+/* --- Podklad pod dokiem (zawsze) --- */
+/* Dok zostaje NAD panelem, gdy szuflada jest wysunieta (przejscie z minigier
+   do czatu ma byc jednym dotknieciem, a nie "zamknij, otworz"). Kosztem jest
+   to, ze ikony leza wtedy na tresci - na wpisach czatu, na polu tekstowym.
+   Na samej mapie problem jest ten sam, tylko tlem jest scena 3D: trawa, woda
+   i drzewa potrafia byc rownie halasliwe co panel.
+   Dlatego rozjasniacz jest STALY, a nie tylko pod szuflada - dok ma jedna,
+   przewidywalna podstawe niezaleznie od tego, co pod nim akurat jest.
+   U gory calkiem przezroczysty, ku dolowi kremowy: nie ma zadnej krawedzi,
+   wiec nie ma czego zobaczyc jako linii ciecia.
+   Bez z-index: ::before rysuje sie przed pozycjonowanymi dziecmi doka,
+   wiec same ikony zostaja ostre na wierzchu. */
+.game-hud-bottom { position: relative; }
+
+.game-hud-bottom::before {
+  content: "";
+  position: absolute;
+  left: -12vw; right: -12vw;
+  /* Na samej mapie rozjasniacz jest niski i nie dochodzi do pelnego krycia:
+     ma podlozyc sie pod ikony, a nie zabielac dolu sceny. Pod szuflada
+     (nizej) siega wyzej i kryje mocniej, bo tam konkuruje z trescia. */
+  top: -58px; bottom: -56px;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 248, 226, 0) 0%,
+    rgba(255, 247, 219, .22) 34%,
+    rgba(255, 245, 210, .5) 62%,
+    rgba(255, 243, 202, .72) 86%,
+    rgba(255, 242, 198, .8) 100%
+  );
+}
+
+/* --- Mocniejszy podklad, gdy szuflada jest wysunieta --- */
+/* Pod otwartym arkuszem ikony leza na gestej tresci: wpisy czatu, pole
+   tekstowe, przyciski wyboru. Podklad musi tam siegac wyzej i szybciej
+   dochodzic do pelnego krycia niz na samej mapie.
+   Nie dotyczy zwoju wiadomosci - komponent nie dodaje wtedy tej klasy,
+   bo pergamin sam przykrywa ekran i drugie tlo pod dokiem tylko by z nim
+   konkurowalo. */
+.game-hud.ma-szuflade .game-hud-bottom::before {
+  top: -118px;
+  left: -16vw; right: -16vw;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 248, 226, 0) 0%,
+    rgba(255, 247, 219, .5) 18%,
+    rgba(255, 245, 210, .84) 38%,
+    rgba(255, 243, 202, .97) 58%,
+    rgba(255, 242, 198, 1) 74%
+  );
+}
+
+
+/* --- JOYSTICK-SUBTELNIE: na dotyku joystick ma byc podpowiedzia, nie elementem sceny --- */
+/* Style joysticka siedza w bundlu `scena3d.js` i wstrzykuja sie do <head> PO tym
+   arkuszu, wiec zwykle nadpisanie by przegralo kolejnoscia. Stad podwojona klasa
+   (`.scena3d-stick.scena3d-stick`) - ta sama regula, wyzsza specyficznosc, wiec
+   wygrywa niezaleznie od kolejnosci i przezyje przebudowe bundla.
+   Warunek to `pointer: coarse`, a nie szerokosc ekranu: joystick istnieje dla
+   palca, a nie dla waskiego okna - na myszy sterowanie idzie strzalkami. */
+@media (pointer: coarse) {
+  .scena3d-stick.scena3d-stick.on { opacity: .5; }
+
+  /* Bieg musi zostac czytelny - to jedyna informacja zwrotna, ze dziecko
+     trzyma palec dluzej. Ciszej niz bylo, ale wyrazniej niz chod. */
+  .scena3d-stick.scena3d-stick.run.on { opacity: .72; }
+
+  .scena3d-stick.scena3d-stick {
+    background: radial-gradient(circle, rgba(255, 242, 207, .10), rgba(255, 242, 207, .03) 60%, transparent 70%);
+    box-shadow: inset 0 0 0 2px rgba(255, 242, 207, .28);
+  }
+
+  .scena3d-stick.scena3d-stick.run {
+    box-shadow: inset 0 0 0 2.5px rgba(255, 216, 115, .6), 0 0 16px rgba(255, 216, 115, .22);
+  }
+
+  .scena3d-stick.scena3d-stick .scena3d-knob {
+    box-shadow: 0 3px 9px rgba(0, 0, 0, .3), inset 0 0 0 1.5px rgba(255, 255, 255, .35);
+  }
+}

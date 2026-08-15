@@ -1,21 +1,24 @@
 /**
  * MemoryGame — "Pamięć Mędrca" — klikalna mini-gra w pamięć par.
  * Z handoff Ewolucja-handoff(4)/game-memory.jsx, zaadaptowana do projektu EwolucJA:
- *  - PageShell + TopBar + TabBar zamiast inline frame
+ *  - TRYB GRY: bez wspolnego chromu aplikacji (PageShell/TopBar/TabBar).
+ *    Gra zajmuje caly ekran, a jedynym wyjsciem jest przycisk w lewym gornym
+ *    rogu. Dolna belka z zakladkami znikala tu z rozmyslem: kusila wyjsciem
+ *    w srodku rozgrywki, a wracalo sie i tak do miejsca, z ktorego sie przyszlo.
+ *  - Styl z huba (`hub/styles/hub.css`): te same zlote przyciski i kroje co na
+ *    glownym ekranie, zeby gra nie wygladala na doklejona z innej aplikacji.
  *  - Sparkle/Cloud z naszego art.jsx
- *  - navigate("/games") po wyjściu
+ *  - wyjscie wraca do `/swiat` — hub jest baza gry
  *  - 3 fazy: intro → playing → done
  *  - 2 poziomy: easy (6 par 3×4) / hard (8 par 4×4)
  *  - Star rating po liczbie ruchów (<idealne+2 → 3*, <idealne+6 → 2*, inaczej 1*)
  */
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import PageShell from "../components/PageShell.jsx";
-import TabBar from "../components/TabBar.jsx";
-import TopBar from "../components/TopBar.jsx";
 import { Sparkle, Cloud, Coin } from "../components/art.jsx";
 import { fx } from "../services/soundFx.js";
 import RewardScreen from "../components/RewardScreen.jsx";
+import "../hub/styles/hub.css";
 
 // ─── Game symbols (8 unique) ────────────────────────────────────
 const GAME_SYMS = [
@@ -299,41 +302,45 @@ export default function MemoryGame() {
   const progress = matched.size / (pairs * 2);
   const cardSize = useMemo(() => Math.floor((342 - (cols - 1) * 10) / cols), []);
 
-  return (
-    <PageShell>
-      <TopBar />
+  // Wyjscie z trybu gry. W trakcie rozgrywki najpierw cofa do ekranu startowego
+  // (zeby przypadkowe dotkniecie nie kasowalo partii), dopiero z niego do huba -
+  // i to od razu do OTWARTEJ zakladki minigier, czyli tam, skad sie tu weszlo.
+  // Panel huba czyta sie z adresu (`useHubPanel`), wiec wystarczy query.
+  const wyjdz = () => {
+    if (phase === "playing") { setPhase("intro"); return; }
+    navigate("/swiat?panel=gry");
+  };
 
-      <div className="screen-scroll" style={{ flex: 1, padding: "8px 0 calc(100px + env(safe-area-inset-bottom, 0px))", display: "flex", flexDirection: "column", minHeight: 0 }}>
+  return (
+    <main className="gra-root" data-testid="gra-memory">
+      <div className="gra-pasek">
+        {/* Tytul gry stoi juz w tresci ekranu startowego - powtarzanie go w pasku
+            bylo drugim takim samym napisem na jednym ekranie. */}
+        {phase === "playing" ? (
+          <button type="button" className="gra-ikona" onClick={() => restart()} title="Zagraj od nowa" aria-label="Zagraj od nowa">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 12a8 8 0 1 1 2.3 5.6M4 4v6h6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        ) : null}
+        <button
+          type="button"
+          className="gra-x"
+          onClick={wyjdz}
+          aria-label={phase === "playing" ? "Przerwij grę" : "Zamknij grę"}
+          title={phase === "playing" ? "Przerwij" : "Zamknij"}
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="gra-scroll screen-scroll">
         <div style={{ position: "absolute", top: 80, right: -20, animation: "float-slow 6s ease-in-out infinite", zIndex: 0, pointerEvents: "none" }}><Cloud size={100} opacity={0.5} /></div>
         <div style={{ position: "absolute", bottom: 120, left: -30, animation: "float-mid 7s ease-in-out infinite", zIndex: 0, pointerEvents: "none" }}><Cloud size={80} opacity={0.4} /></div>
-
-        {/* PLAYING — top bar with restart */}
-        {phase === "playing" && (
-          <div style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "center", gap: 8, padding: "6px 16px 8px" }}>
-            <button onClick={() => setPhase("intro")} className="btn btn-ghost btn-sm" style={{ padding: "8px 10px" }}>‹</button>
-            <div style={{ flex: 1, textAlign: "center" }}>
-              <div style={{ fontSize: 9, fontWeight: 900, letterSpacing: 1.4, color: "var(--p-magic-dk)", textTransform: "uppercase" }}>Gra tygodnia · 1/3</div>
-              <div className="t-display" style={{ fontSize: 17, lineHeight: 1.1, marginTop: 1 }}>Pamięć Mędrca</div>
-            </div>
-            <button onClick={() => restart()} title="Restart" style={{
-              border: "none", cursor: "pointer",
-              width: 34, height: 34, borderRadius: "50%",
-              background: "rgba(122,77,194,.18)",
-              boxShadow: "inset 0 0 0 1.4px rgba(122,77,194,.3)",
-              display: "inline-flex", alignItems: "center", justifyContent: "center",
-            }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M4 12a8 8 0 1 1 2.3 5.6M4 4v6h6" stroke="#7A4DC2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-          </div>
-        )}
 
         {/* INTRO */}
         {phase === "intro" && (
           <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", padding: "10px 24px 24px" }}>
-            <button onClick={() => navigate("/games")} className="btn btn-ghost btn-sm" style={{ alignSelf: "flex-start", padding: "8px 14px" }}>‹ Wróć</button>
-
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: 16, gap: 10 }}>
               <div style={{ position: "relative", width: 150, height: 150 }}>
                 <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,210,105,.5), transparent 65%)", filter: "blur(8px)", animation: "float-mid 4s ease-in-out infinite" }} />
@@ -354,15 +361,13 @@ export default function MemoryGame() {
                 <div style={{ position: "absolute", bottom: 24, left: 14 }}><Sparkle size={12} c="#C8A0F0" delay={0.4} /></div>
               </div>
 
-              <div style={{ fontSize: 10.5, fontWeight: 900, letterSpacing: 1.6, color: "var(--p-magic-dk)", textTransform: "uppercase" }}>Gra tygodnia · #1</div>
               <h1 className="t-display" style={{ fontSize: 32, margin: 0, textShadow: "0 2px 0 rgba(255,255,255,.4)" }}>Pamięć Mędrca</h1>
               <p className="t-hand" style={{ margin: 0, fontSize: 16, color: "var(--p-ink-soft)", textAlign: "center", maxWidth: 280, lineHeight: 1.4 }}>
-                Znajdź pary magicznych symboli. Im mniej ruchów, tym więcej ech ✦
+                Znajdź pary symboli.
               </p>
             </div>
 
             <div style={{ marginTop: 22 }}>
-              <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: 1.4, color: "var(--p-ink-soft)", marginBottom: 8 }}>POZIOM TRUDNOŚCI</div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 {[
                   { k: "easy", t: "Łatwy", sub: "6 par · 3×4", stars: 1 },
@@ -395,19 +400,17 @@ export default function MemoryGame() {
             </div>
 
             <div style={{ marginTop: 14, padding: "12px 14px", borderRadius: 14, background: "linear-gradient(180deg, #FCF5E1 0%, #F4E3B8 100%)", boxShadow: "inset 0 0 0 1.5px rgba(168,122,42,.25)", display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ fontSize: 10, fontWeight: 900, letterSpacing: 1.4, color: "#A87A2A" }}>NAGRODY</span>
               <span style={{ flex: 1 }} />
               <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, fontWeight: 900, color: "#4A2A0E" }}>
                 <Coin size={16} /> 10
               </span>
-              <span style={{ fontSize: 13, color: "#7A4DC2", fontWeight: 900 }}>✦</span>
-              <span style={{ fontSize: 11, color: "var(--p-magic-dk)", fontWeight: 900 }}>+1 Skupienie</span>
+              <span style={{ fontSize: 12.5, fontWeight: 900, color: "var(--p-magic-dk)" }}>✦ 1</span>
             </div>
 
             <div style={{ flex: 1 }} />
 
-            <button onClick={() => restart()} className="btn btn-magic btn-block" style={{ marginTop: 14 }}>
-              <span style={{ fontSize: 18 }}>✦</span> Zagraj
+            <button onClick={() => restart()} className="hub-btn hub-btn-primary gra-btn-duzy">
+              Zagraj
             </button>
           </div>
         )}
@@ -446,10 +449,6 @@ export default function MemoryGame() {
                   />
                 ))}
               </div>
-              <div style={{ marginTop: 14, fontSize: 12, color: "var(--p-ink-soft)", fontWeight: 700, textAlign: "center", maxWidth: 280, lineHeight: 1.4 }}>
-                Odkryj dwie karty z tym samym symbolem.<br />
-                <b style={{ color: "var(--p-magic-dk)" }}>{idealMoves + 2}</b> ruchów = 3 gwiazdki ★★★
-              </div>
             </div>
           </>
         )}
@@ -482,7 +481,6 @@ export default function MemoryGame() {
                 })}
               </div>
 
-              <div style={{ fontSize: 10.5, fontWeight: 900, letterSpacing: 1.6, color: "var(--p-magic-dk)", textTransform: "uppercase", marginTop: 6 }}>Pamięć Mędrca · ukończona</div>
               <h1 className="t-display" style={{ fontSize: 32, margin: "2px 0 0", textShadow: "0 2px 0 rgba(255,255,255,.4)" }}>
                 {stars === 3 ? "Wspaniale!" : stars === 2 ? "Super!" : "Brawo!"}
               </h1>
@@ -499,7 +497,6 @@ export default function MemoryGame() {
               </div>
 
               <div style={{ padding: "14px 14px", width: "100%", marginTop: 6, borderRadius: 14, background: "linear-gradient(180deg, #FCF5E1 0%, #F4E3B8 100%)", boxShadow: "inset 0 0 0 1.5px rgba(168,122,42,.25)" }}>
-                <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: 1.6, color: "#A87A2A", marginBottom: 8 }}>OTRZYMUJESZ</div>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "space-between" }}>
                   <RewardItem icon={<Coin size={26} />} v={5 + stars * 3} label="monet" />
                   <RewardItem icon={<span style={{ fontSize: 24, color: "#FFD269" }}>✦</span>} v={stars} label="ech" />
@@ -510,19 +507,13 @@ export default function MemoryGame() {
 
             <div style={{ flex: 1 }} />
 
-            <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
-              <button onClick={() => restart()} className="btn btn-ghost btn-block" style={{ flex: 1, color: "var(--p-ink)" }}>
-                Zagraj ponownie
-              </button>
-              <button onClick={() => navigate("/games")} className="btn btn-magic btn-block" style={{ flex: 1.2 }}>
-                Wróć do gier ✦
-              </button>
+            <div className="hub-actions gra-akcje">
+              <button onClick={() => restart()} className="hub-btn hub-btn-ghost">Jeszcze raz</button>
+              <button onClick={() => navigate("/swiat?panel=gry")} className="hub-btn hub-btn-primary">Wracam</button>
             </div>
           </div>
         )}
       </div>
-
-      <TabBar current="games" />
 
       {/* Celebration overlay - pokazuje sie PIERWSZY po wygranej, z huczna animacja.
           Po dismiss user widzi pelen summary screen z gwiazdkami i nagrodami. */}
@@ -542,6 +533,6 @@ export default function MemoryGame() {
           onDismiss={() => setRewardShown(true)}
         />
       )}
-    </PageShell>
+    </main>
   );
 }

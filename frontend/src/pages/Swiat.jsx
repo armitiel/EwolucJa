@@ -18,6 +18,7 @@ import Scena3D, { webglDostepny } from "../components/Scena3D.jsx";
 import HubDock from "../hub/HubDock.jsx";
 import PanelSheet from "../hub/PanelSheet.jsx";
 import MessageScroll from "../hub/MessageScroll.jsx";
+import PodpowiedzMedrca from "../hub/PodpowiedzMedrca.jsx";
 import useHudSkin from "../hub/useHudSkin.js";
 import { useHubPanel } from "../hub/useHubPanel.js";
 import MinigryPanel from "../hub/panels/MinigryPanel.jsx";
@@ -248,8 +249,11 @@ export default function Swiat() {
         />
       )}
 
+      {/* `naglowek`, a nie `panel`: zwój wiadomości nie jest szufladą i sam
+          przykrywa ekran pergaminem — mocniejszy podkład pod dokiem robiłby
+          tam drugie, konkurencyjne tło. */}
       <div
-        className={`game-hud${odsloniete ? " jest-widoczny" : ""}`}
+        className={`game-hud${odsloniete ? " jest-widoczny" : ""}${naglowek ? " ma-szuflade" : ""}`}
         data-variant="B"
         aria-label="Interfejs świata"
       >
@@ -301,6 +305,10 @@ export default function Swiat() {
           <HubDock aktywny={panel} onWybor={przelacz} nieprzeczytane={nieprzeczytane} />
         </div>
       </div>
+
+      {/* Mędrzec odzywa się tylko w spokojnym hubie: nie nad panelem, nie nad
+          zwojem i nie zanim rozsuną się chmury. */}
+      <PodpowiedzMedrca aktywna={!panel && !zwojOtwarty && odsloniete} />
 
       <MessageScroll open={zwojOtwarty} onClose={zamknij} onZmiana={przeliczNieprzeczytane} />
 
