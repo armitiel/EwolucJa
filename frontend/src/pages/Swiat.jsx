@@ -22,8 +22,8 @@ import PodpowiedzMedrca from "../hub/PodpowiedzMedrca.jsx";
 import PopupPostaci from "../hub/PopupPostaci.jsx";
 import PytanieSpotkania from "../hub/PytanieSpotkania.jsx";
 import RewardScreen from "../components/RewardScreen.jsx";
+import { bonusMonet, ZDARZENIE_ZMIANY as MONETY_ZMIANA } from "../services/monety.js";
 import {
-  bonusMonet,
   CEL_DOMYSLNY,
   dolicz as doliczGwiazdke,
   NAGRODA_MONET,
@@ -336,6 +336,18 @@ export default function Swiat() {
     };
     document.addEventListener("visibilitychange", odswiez);
     return () => document.removeEventListener("visibilitychange", odswiez);
+  }, []);
+
+  /**
+   * Monety mogą dojść spoza huba — dziś z minigry, jutro z czegokolwiek, co
+   * zawoła `dodajMonety`. Nasłuch zamiast odpytywania: licznik podnosi się
+   * w tej samej chwili, w której nagroda została przyznana, nawet jeśli hub
+   * akurat wisi pod otwartym panelem.
+   */
+  useEffect(() => {
+    const naZmiane = () => setBonus(bonusMonet());
+    window.addEventListener(MONETY_ZMIANA, naZmiane);
+    return () => window.removeEventListener(MONETY_ZMIANA, naZmiane);
   }, []);
 
   /**

@@ -17,8 +17,9 @@
  * `odbierzNagrode` ma wysłać ją na serwer i wyzerować bonus lokalny; reszta
  * kodu nie zauważy różnicy.
  */
+import { bonusMonet, dodajMonety, wyzerujBonus } from "../services/monety.js";
+
 const KLUCZ = "ewolucja.zadanie.gwiazdki";
-const KLUCZ_BONUS = "ewolucja.monety.bonus";
 
 export const CEL_DOMYSLNY = 10;
 export const NAGRODA_MONET = 30;
@@ -113,10 +114,10 @@ export function dolicz() {
   return nowe;
 }
 
-/** Lokalny bonus monetowy — do doliczenia obok liczby z bazy. */
-export function bonusMonet() {
-  try { return Math.max(0, Number(localStorage.getItem(KLUCZ_BONUS)) || 0); } catch { return 0; }
-}
+// Lokalny licznik monet mieszka w `services/monety.js` — dzieli go zadanie
+// czarodzieja z minigrami. Wystawiamy go dalej, żeby nie łamać istniejących
+// importów, ale ŹRÓDŁEM jest tamten moduł.
+export { bonusMonet };
 
 /**
  * Rozliczenie zadania: dopisuje monety do lokalnego bonusu i zamyka zadanie.
@@ -127,15 +128,13 @@ export function odbierzNagrode(ile = NAGRODA_MONET) {
   const teraz = czytaj();
   if (!teraz || !teraz.spelnione || teraz.wyplacone) return { stan: stanZadania(), dodane: 0 };
   zapisz({ ...teraz, wyplacone: true });
-  try { localStorage.setItem(KLUCZ_BONUS, String(bonusMonet() + ile)); } catch {}
+  dodajMonety(ile, "zadanie:gwiazdki");
   return { stan: stanZadania(), dodane: ile };
 }
 
-/** Kasuje zadanie i bonus — na razie tylko do testów z konsoli. */
+/** Kasuje zadanie i CAŁY lokalny bonus — na razie tylko do testów z konsoli. */
 export function skasujZadanie() {
-  try {
-    localStorage.removeItem(KLUCZ);
-    localStorage.removeItem(KLUCZ_BONUS);
-  } catch {}
+  try { localStorage.removeItem(KLUCZ); } catch {}
+  wyzerujBonus();
   return PUSTE;
 }

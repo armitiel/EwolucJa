@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { Sparkle, Cloud, Coin } from "../components/art.jsx";
 import { fx } from "../services/soundFx.js";
 import RewardScreen from "../components/RewardScreen.jsx";
+import { dodajMonety } from "../services/monety.js";
 import "../hub/styles/hub.css";
 
 // ─── Game symbols (8 unique) ────────────────────────────────────
@@ -257,6 +258,27 @@ export default function MemoryGame() {
 
   // `soundFx` nie pobiera juz nic z gory — kazdy ekran zamawia to, czego uzywa.
   useEffect(() => { try { fx.przygotuj("dopamine"); } catch {} }, []);
+
+  /**
+   * Monety z minigry TRAFIAJA DO LICZNIKA. Wczesniej ekran wygranej pokazywal
+   * "+11", ale nikt tej liczby nigdzie nie zapisywal — dziecko widzialo
+   * nagrode, ktora znikala razem z ekranem.
+   *
+   * Zapis idzie przez `services/monety.js`, czyli tam, gdzie leza monety
+   * z zadania czarodzieja: backend nie ma koncowki "dodaj graczowi monety",
+   * wiec dorobek z gry trzymamy lokalnie i doliczamy w HUD-dzie do liczby
+   * z bazy. Straznik `wyplaconoRef` pilnuje, zeby jedna wygrana zaplacila
+   * raz - efekt potrafi odpalic ponownie przy kazdym renderze fazy "done".
+   */
+  const wyplaconoRef = useRef(false);
+  useEffect(() => {
+    if (phase !== "done" || wyplaconoRef.current) return;
+    wyplaconoRef.current = true;
+    dodajMonety(5 + stars * 3, "minigra:memory");
+  }, [phase, stars]);
+
+  // Nowa partia = nowa wyplata.
+  useEffect(() => { if (phase === "playing") wyplaconoRef.current = false; }, [phase]);
 
   useEffect(() => {
     if (phase !== "playing") { clearInterval(tickRef.current); return; }
