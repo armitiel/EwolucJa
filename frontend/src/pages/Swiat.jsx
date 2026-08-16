@@ -19,6 +19,7 @@ import HubDock from "../hub/HubDock.jsx";
 import PanelSheet from "../hub/PanelSheet.jsx";
 import MessageScroll from "../hub/MessageScroll.jsx";
 import PodpowiedzMedrca from "../hub/PodpowiedzMedrca.jsx";
+import PopupPostaci from "../hub/PopupPostaci.jsx";
 import useHudSkin from "../hub/useHudSkin.js";
 import { useHubPanel } from "../hub/useHubPanel.js";
 import MinigryPanel from "../hub/panels/MinigryPanel.jsx";
@@ -31,6 +32,7 @@ import { useAppData } from "../contexts/AppData.jsx";
 import { api, session } from "../services/api.js";
 import bgMusic from "../services/bgMusic.js";
 import { fx } from "../services/soundFx.js";
+import kolejkaStartu from "../services/kolejkaStartu.js";
 import { awatarPostaci } from "../utils/postac.js";
 import "../adventure/styles/adventure.css";
 import "../hub/styles/hub.css";
@@ -53,6 +55,27 @@ const CEL_MONET = 100;
  * pomyłce już raz straciliśmy wieczór).
  */
 const ZNAK_PANELU = {};
+
+/**
+ * Powitanie postaci. Docelowo odpali je spotkanie w świecie („lisek podszedł
+ * do czarodzieja") — ten wyzwalacz przychodzi osobno, razem z postacią na
+ * mapie. Do tego czasu treść siedzi tutaj jako jeden obiekt, żeby wyzwalacz
+ * miał co podać, a okno dało się obejrzeć:
+ *
+ *   window.popupPostaci.pokaz()                     — otwórz teraz
+ *   window.popupPostaci.pokaz({ imie: "Ktoś" })     — podmień pola
+ *   window.popupPostaci.schowaj()
+ *   /swiat?popup=1                                  — otwarte od razu po wejściu
+ */
+const POWITANIE_WIZCOR = {
+  imie: "Wizcor",
+  obrazek: "/wizPop.webp",
+  tekst:
+    "Witaj, mały wędrowcze! Jestem Wizcor, strażnik Lasu Szeptów. " +
+    "Zbierz dla mnie 10 złotych gwiazdek, a otworzę przed tobą pierwszą bramę.",
+  wyroznienie: "10 złotych gwiazdek",
+  przycisk: "Ruszam po gwiazdki!",
+};
 
 // Sam tytuł sekcji, bez nadtytułu. Nadtytuł powtarzał innymi słowami to, co
 // mówi już przycisk w doku — dziecko czytało dwie linijki zamiast jednej.
@@ -81,6 +104,8 @@ export default function Swiat() {
   const [odsloniete, setOdsloniete] = useState(
     () => typeof window === "undefined" || typeof window.__rozsunChmury !== "function"
   );
+  // Powitanie postaci: `null` = zamknięte, obiekt = treść okna.
+  const [powitanie, setPowitanie] = useState(null);
   const [komunikat, setKomunikat] = useState(null);
   const [nieprzeczytane, setNieprzeczytane] = useState(0);
   // Podpowiedź sterowania pokazujemy do pierwszego dotknięcia i nigdy więcej —
@@ -149,14 +174,30 @@ export default function Swiat() {
   }, []);
   useEffect(() => () => window.clearTimeout(pokazKomunikat._t), [pokazKomunikat]);
 
+  /* ── powitanie postaci (na razie bez wyzwalacza w świecie) ───────────── */
+  // Uchwyt do konsoli i adres `?popup=1` — inaczej okna nie da się obejrzeć,
+  // dopóki nie powstanie spotkanie z postacią na mapie.
+  useEffect(() => {
+    const pokaz = (nadpisz) => setPowitanie({ ...POWITANIE_WIZCOR, ...(nadpisz || {}) });
+    window.popupPostaci = { pokaz, schowaj: () => setPowitanie(null) };
+    try {
+      if (new URLSearchParams(window.location.search).get("popup") === "1") pokaz();
+    } catch {}
+    return () => { delete window.popupPostaci; };
+  }, []);
+
   /* ── scena reaguje na panele ─────────────────────────────────────────── */
+  // Powitanie zatrzymuje świat tak samo jak szuflada: postać mówi, a lisek
+  // w tle biegłby dalej pod kartą — razem z dźwiękiem kroków.
   useEffect(() => {
     const scena = scenaRef.current;
     if (scena) {
-      if (panel) scena.pauza?.();
+      if (panel || powitanie) scena.pauza?.();
       else scena.wznow?.();
     }
-  }, [panel]);
+  }, [panel, powitanie]);
+
+  useEffect(() => { if (powitanie) fx.krokiStop(); }, [powitanie]);
 
   const naZdarzenieSceny = useCallback(
     (nazwa, dane) => {
@@ -186,6 +227,28 @@ export default function Swiat() {
     [otworz, panel]
   );
 
+  /* ── doładowanie dźwięków pod kurtyną z chmur ────────────────────────── */
+  /**
+   * Kolejka rusza w chwili, gdy scena zgłosi „gotowa" — czyli DOKŁADNIE wtedy,
+   * gdy modele są już pobrane, a chmury dopiero zaczynają się rozsuwać.
+   * To najtańsze okno w całym starcie: pasmo jest wolne, główny wątek prawie
+   * bezczynny (rozsuwanie chmur to transformacje CSS na kompozytorze), a
+   * dziecko i tak nie może jeszcze grać. Zanim kurtyna zejdzie, kroki
+   * (12 KB) i brzdęk połknięcia (70 KB) są na miejscu.
+   *
+   * Wcześniej te pliki — i jeszcze 385 KB ambientu, którego hub w ogóle nie
+   * używa — leciały RÓWNOLEGLE z modelami, bo `soundFx` pobierał wszystko
+   * przy imporcie modułu.
+   */
+  useEffect(() => {
+    kolejkaStartu.dodaj("kroki", () => fx.przygotuj("kroki"), { priorytet: 1 });
+    kolejkaStartu.dodaj("polkniecie", () => fx.przygotuj("gentleMagical"), { priorytet: 2 });
+  }, []);
+
+  useEffect(() => {
+    if (scenaGotowa || scenaMartwa) kolejkaStartu.ruszaj();
+  }, [scenaGotowa, scenaMartwa]);
+
   /* ── kroki ───────────────────────────────────────────────────────────── */
   // Moduł sceny nie emituje zdarzenia „stawiam krok", więc odpytujemy go
   // 8 razy na sekundę o stan ruchu.
@@ -197,13 +260,24 @@ export default function Swiat() {
   // i zeruje się natychmiast — nie da się jej źle zinterpretować.
   useEffect(() => {
     if (!scenaGotowa || scenaMartwa) return undefined;
+    // Bieg z HISTEREZĄ i na tych samych progach co animacja w module sceny
+    // (`e > 1.46` przy wchodzeniu w bieg, `e > 1.37` przy wychodzeniu).
+    // Wcześniej dźwięk miał własny, jeden próg 2,2: między 1,46 a 2,2 lis
+    // wizualnie biegł, a brzmiał jakby szedł, a przy drążku trzymanym równo
+    // w okolicy progu tempo przeskakiwało kilka razy na sekundę.
+    let bieg = false;
     const t = window.setInterval(() => {
       const stan = scenaRef.current?.stan?.();
       const v = stan && !stan.pauza ? stan.predkosc ?? 0 : 0;
       // Próg 0,08 zamiast zera: przy dobieganiu do celu prędkość schodzi
       // asymptotycznie i szczątkowy ruch trzymałby dźwięk w nieskończoność.
-      if (v > 0.08) fx.krokiGraj({ bieg: v > 2.2 });
-      else fx.krokiStop();
+      if (v > 0.08) {
+        bieg = bieg ? v > 1.37 : v > 1.46;
+        fx.krokiGraj({ bieg });
+      } else {
+        bieg = false;
+        fx.krokiStop();
+      }
     }, 125);
     return () => { window.clearInterval(t); fx.krokiStop(); };
   }, [scenaGotowa, scenaMartwa]);
@@ -248,10 +322,14 @@ export default function Swiat() {
           <img src="/assets/adventure-v2/harbor-arrival.png" alt="" aria-hidden="true" />
           <div className="hub-scena-info">
             <GameIcon name="compass" size={26} />
-            <p>Ta przeglądarka nie rysuje sceny 3D. Świat czeka na mapie — wszystko inne działa normalnie.</p>
-            <button type="button" className="hub-btn hub-btn-ghost" onClick={() => navigate("/mapa")}>
-              Otwórz Mapę Iskier
-            </button>
+            {/* Bez przycisku „Otwórz Mapę Iskier": plaska mapa zostala usunieta,
+                a jej adres przekierowuje tutaj — przycisk zawracalby na ten sam
+                ekran. Zamiast slepego wyjscia zostaje uczciwa informacja, bo
+                HUD, zakladki i zadania dzialaja pod spodem normalnie. */}
+            <p>
+              Ta przeglądarka nie rysuje sceny 3D — zostaje nieruchomy widok świata.
+              Zakładki na dole, zadania i wiadomości działają normalnie.
+            </p>
           </div>
         </div>
       ) : (
@@ -322,7 +400,17 @@ export default function Swiat() {
 
       {/* Mędrzec odzywa się tylko w spokojnym hubie: nie nad panelem, nie nad
           zwojem i nie zanim rozsuną się chmury. */}
-      <PodpowiedzMedrca aktywna={!panel && !zwojOtwarty && odsloniete} />
+      <PodpowiedzMedrca aktywna={!panel && !zwojOtwarty && !powitanie && odsloniete} />
+
+      <PopupPostaci
+        otwarty={!!powitanie}
+        imie={powitanie?.imie}
+        obrazek={powitanie?.obrazek}
+        tekst={powitanie?.tekst || ""}
+        wyroznienie={powitanie?.wyroznienie}
+        przycisk={powitanie?.przycisk}
+        onZamknij={() => setPowitanie(null)}
+      />
 
       <MessageScroll open={zwojOtwarty} onClose={zamknij} onZmiana={przeliczNieprzeczytane} />
 

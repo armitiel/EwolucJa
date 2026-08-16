@@ -14,7 +14,7 @@ import RewardScreen from "./RewardScreen.jsx";
 const POLL_INTERVAL_MS = 8_000; // co 8s - szybkie powiadomienia o nowych zadaniach/wiadomosciach od mentora
 const MENTOR_PATHS = ["/mentor", "/gm", "/dev"]; // sciezki na ktorych NIE pollujemy hintow ucznia
 // Sciezki, na ktorych popup jest wyciszony (uzytkownik widzi liste w inboxie)
-const SILENT_POPUP_PATHS = ["/porady", "/przygoda", "/mapa", "/swiat", "/backpack", "/profile"]; // przygoda pokazuje decyzje Mentora wlasna scena
+const SILENT_POPUP_PATHS = ["/porady", "/przygoda", "/swiat", "/backpack", "/profile"]; // przygoda pokazuje decyzje Mentora wlasna scena
 
 export default function HintPopup() {
   const location = useLocation();

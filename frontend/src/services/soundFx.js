@@ -1,10 +1,25 @@
 /**
- * soundFx — jednorazowe efekty dzwiekowe (krótkie audio one-shot).
- * Strategia:
- *   1) Eager prealokacja Audio objects + .load() przy imporcie modulu
- *   2) Warmup (play/pause z volume=0) przy pierwszym user gesture - unlock autoplay policy
- *   3) Buforowane elementy gotowe natychmiast do play() bez czekania na pobranie
+ * soundFx — efekty dźwiękowe gry.
+ *
+ * Dwie osobne drogi, bo to dwa różne problemy:
+ *
+ *   • JEDNORAZOWE (brzdęk, nagroda) — zwykły element <audio>. Odtwarza próbkę
+ *     raz i kończy; nie ma czego zapętlać, więc prostsze narzędzie wystarcza.
+ *
+ *   • KROKI — Web Audio (AudioBufferSourceNode). To NIE jest nadmiarowość:
+ *     zapętlony MP3 w elemencie <audio> ma na styku dziurę. Format dokłada
+ *     ciszę na końcu (padding kodera), a nasz plik ma dodatkowo ~0,19 s ciszy
+ *     po ostatnim kroku — razem słychać przerwę w rytmie stóp co ~2 s chodu
+ *     i co ~1,5 s biegu. Bufor w Web Audio zapętla się co do próbki, a
+ *     `loopEnd` pozwala uciąć ogon bez ruszania samego pliku.
+ *     Przy okazji znikają dwa timery: głośnością steruje rampa GainNode.
+ *
+ * NIC nie pobiera się przy imporcie. Wcześniej moduł tworzył trzy elementy
+ * z `preload="auto"`, co ściągało 525 KB (w tym 385 KB ambientu używanego
+ * tylko w misjach) dokładnie wtedy, gdy sceną leciały modele. Teraz plik
+ * rusza dopiero, gdy ktoś go zamówi — patrz `kolejkaStartu`.
  */
+import { audioCtx, audioCtxIstniejacy, odblokuj } from "./audioCtx.js";
 
 const DEFAULT_VOLUME = 0.6;
 
@@ -14,70 +29,100 @@ const SOURCES = {
   gentleMagical: "/Gentle_magical.mp3",
 };
 
-// Eager-tworzenie i load() przy imporcie modulu
 const AUDIO_POOL = {};
-if (typeof window !== "undefined") {
-  for (const [key, src] of Object.entries(SOURCES)) {
-    const a = new Audio(src);
-    a.preload = "auto";
-    a.volume = DEFAULT_VOLUME;
-    try { a.load(); } catch {}
-    AUDIO_POOL[key] = a;
+// Czy padł już gest użytkownika — elementy tworzone PO nim trzeba rozgrzać
+// od razu, bo nie doczekają się wspólnego rozgrzewania.
+let bylGest = false;
+
+/** Tworzy (i zaczyna pobierać) element dla klucza. Idempotentne. */
+function element(key) {
+  const src = SOURCES[key];
+  if (!src) {
+    console.warn("[soundFx] nieznany klucz:", key);
+    return null;
   }
+  if (AUDIO_POOL[key]) return AUDIO_POOL[key];
+  if (typeof window === "undefined") return null;
+  const a = new Audio(src);
+  a.preload = "auto";
+  a.volume = DEFAULT_VOLUME;
+  try { a.load(); } catch {}
+  AUDIO_POOL[key] = a;
+  if (bylGest) rozgrzej(a);
+  return a;
 }
 
-// Warmup - przy pierwszym kliknieciu robimy play/pause z volume=0 na kazdym audio.
-// To "odblokowuje" je w przegladarce - kolejne play() beda natychmiastowe.
-// muted=true blokuje wyjscie na hardware (volume=0 NIE blokuje pierwszej probki na iOS).
-let warmed = false;
-function warmupOnFirstGesture() {
-  if (warmed || typeof window === "undefined") return;
-  const handler = () => {
-    if (warmed) return;
-    warmed = true;
-    for (const a of Object.values(AUDIO_POOL)) {
-      try {
-        const prevVol = a.volume;
-        a.muted = true;          // KLUCZOWE — zaden sample nie wychodzi do glosnika
-        a.volume = 0;
-        const p = a.play();
-        if (p && typeof p.then === "function") {
-          p.then(() => {
-            try { a.pause(); } catch {}
-            try { a.currentTime = 0; } catch {}
-            a.muted = false;     // unmute dopiero po pause, gdy element zatrzymany
-            a.volume = prevVol;
-          }).catch(() => {
-            a.muted = false;
-            a.volume = prevVol;
-          });
-        } else {
-          try { a.pause(); } catch {}
-          a.muted = false;
-          a.volume = prevVol;
-        }
-      } catch {}
-    }
-    window.removeEventListener("click", handler, true);
-    window.removeEventListener("touchstart", handler, true);
-    window.removeEventListener("pointerdown", handler, true);
-    window.removeEventListener("keydown", handler, true);
+/**
+ * Zamawia pobranie dźwięków z wyprzedzeniem — ekran woła to dla tego, czego
+ * naprawdę użyje. Zwraca obietnicę spełnianą, gdy przeglądarka ma dość danych
+ * do natychmiastowego startu (albo od razu, gdy nie umie tego zgłosić).
+ */
+export function przygotuj(...klucze) {
+  return Promise.all(
+    klucze.flat().map((key) => {
+      if (key === "kroki") return przygotujKroki();
+      const a = element(key);
+      if (!a) return Promise.resolve(null);
+      if (a.readyState >= 3) return Promise.resolve(a);
+      return new Promise((gotowe) => {
+        const koniec = () => {
+          a.removeEventListener("canplaythrough", koniec);
+          a.removeEventListener("error", koniec);
+          gotowe(a);
+        };
+        a.addEventListener("canplaythrough", koniec);
+        a.addEventListener("error", koniec);
+        // Bezpiecznik: gdyby zdarzenie nie przyszło (bywa przy cache), nie
+        // blokujemy kolejki w nieskończoność.
+        window.setTimeout(koniec, 8000);
+      });
+    })
+  );
+}
+
+/**
+ * Rozgrzewka: krótkie play/pause przy WYCISZONYM elemencie odblokowuje go
+ * w przeglądarce, więc pierwsze prawdziwe `play()` jest natychmiastowe.
+ * `muted`, a nie `volume = 0` — na iOS samo zero nie blokuje pierwszej próbki.
+ */
+function rozgrzej(a) {
+  try {
+    const glosnosc = a.volume;
+    a.muted = true;
+    a.volume = 0;
+    const p = a.play();
+    const posprzataj = () => {
+      try { a.pause(); a.currentTime = 0; } catch {}
+      a.muted = false;
+      a.volume = glosnosc;
+    };
+    if (p && typeof p.then === "function") p.then(posprzataj).catch(posprzataj);
+    else posprzataj();
+  } catch {}
+}
+
+if (typeof window !== "undefined") {
+  const naGest = () => {
+    if (bylGest) return;
+    bylGest = true;
+    odblokuj();
+    for (const a of Object.values(AUDIO_POOL)) rozgrzej(a);
+    window.removeEventListener("click", naGest, true);
+    window.removeEventListener("touchstart", naGest, true);
+    window.removeEventListener("pointerdown", naGest, true);
+    window.removeEventListener("keydown", naGest, true);
   };
-  window.addEventListener("click", handler, true);
-  window.addEventListener("touchstart", handler, { capture: true, passive: true });
-  window.addEventListener("pointerdown", handler, true);
-  window.addEventListener("keydown", handler, true);
+  window.addEventListener("click", naGest, true);
+  window.addEventListener("touchstart", naGest, { capture: true, passive: true });
+  window.addEventListener("pointerdown", naGest, true);
+  window.addEventListener("keydown", naGest, true);
 }
-warmupOnFirstGesture();
 
-/** Odtwarza dzwiek raz. Volume w zakresie 0-1 (60% domyslnie). */
+/** Odtwarza dźwięk raz. Volume 0-1 (60% domyślnie). */
 export function playFx(key, volume = DEFAULT_VOLUME) {
   try {
-    const a = AUDIO_POOL[key];
-    if (!a) {
-      console.warn("[soundFx] unknown key:", key);
-      return;
-    }
+    const a = element(key);
+    if (!a) return;
     a.volume = Math.max(0, Math.min(1, volume));
     try { a.currentTime = 0; } catch {}
     const p = a.play();
@@ -90,70 +135,120 @@ export function playFx(key, volume = DEFAULT_VOLUME) {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   Kroki — jedyny dźwięk ciągły, więc żyje poza pulą one-shotów.
+   KROKI — jedyny dźwięk ciągły, więc chodzi po Web Audio, a nie po <audio>.
 
-   Nie da się go zrobić przez `playFx`: tamte odtwarzają próbkę raz i kończą,
-   a kroki muszą chodzić w pętli dokładnie tak długo, jak długo bohater idzie,
-   i ucichnąć bez trzasku, gdy stanie. Stąd osobny element z `loop` i krótkie
-   wygaszenie zamiast twardego `pause()`.
+   `KROKI_KONIEC_PETLI` ucina ogon nagrania: ostatnie stąpnięcie wybrzmiewa
+   do 1,857 s, a plik trwa 2,052 s. Ta ćwierć sekundy ciszy była słyszalna
+   jako dziura w rytmie co jedno okrążenie pętli. Zapętlamy więc wcześniej,
+   zostawiając tylko tyle przerwy, ile mają odstępy między krokami w środku
+   nagrania. Wartość jest w sekundach ORYGINAŁU — `playbackRate` skaluje ją
+   sam, więc bieg nie wymaga drugiej liczby.
 
-   Tempo klipu podbijamy przy biegu (`playbackRate`), żeby stopy nie zostawały
-   w tyle za animacją — to ta sama zależność, którą moduł sceny stosuje do
-   klipów: szybszy ruch, szybszy klip.
+   Tempo biegu podbija `playbackRate` na buforze: w Web Audio zmienia ono też
+   wysokość dźwięku i to jest tu zaletą — szybsze i odrobinę wyższe stopy
+   brzmią jak bieg, a nie jak przewinięty chód.
    ───────────────────────────────────────────────────────────────────────── */
-const KROKI_GLOSNOSC = 0.15;   // ściszone o 30% z 0,22
-let kroki = null;
-let krokiFade = null;
+const KROKI_PLIK = "/footstep_scuff_run.mp3";
+const KROKI_GLOSNOSC = 0.15;      // ściszone o 30% z 0,22
+const KROKI_KONIEC_PETLI = 1.89;  // s — patrz komentarz wyżej
+const KROKI_NARASTANIE = 0.05;    // s
+const KROKI_WYGASZENIE = 0.13;    // s — tyle, żeby nie było trzasku
 
-function krokiElement() {
-  if (kroki || typeof window === "undefined") return kroki;
-  kroki = new Audio("/footstep_scuff_run.mp3");
-  kroki.loop = true;
-  kroki.preload = "auto";
-  kroki.volume = 0;
-  try { kroki.load(); } catch {}
-  return kroki;
+let krokiBufor = null;
+let krokiLadowanie = null;
+let krokiZrodlo = null;
+let krokiWzm = null;
+let krokiTimerStopu = null;
+
+/** Pobiera i dekoduje próbkę kroków. Woła to kolejka startowa. */
+export function przygotujKroki() {
+  if (krokiBufor) return Promise.resolve(krokiBufor);
+  if (krokiLadowanie) return krokiLadowanie;
+  const ctx = audioCtx();
+  if (!ctx) return Promise.resolve(null);
+  krokiLadowanie = fetch(KROKI_PLIK)
+    .then((r) => r.arrayBuffer())
+    .then((dane) => ctx.decodeAudioData(dane))
+    .then((bufor) => { krokiBufor = bufor; return bufor; })
+    .catch((e) => { console.warn("[soundFx] kroki:", e?.message); return null; })
+    .finally(() => { krokiLadowanie = null; });
+  return krokiLadowanie;
 }
 
-/** Włącza pętlę kroków (jeśli już gra, tylko dostraja tempo). */
+function krokiNaglosnij(ctx) {
+  if (!krokiWzm) return;
+  const t = ctx.currentTime;
+  krokiWzm.gain.cancelScheduledValues(t);
+  krokiWzm.gain.setValueAtTime(krokiWzm.gain.value, t);
+  krokiWzm.gain.linearRampToValueAtTime(KROKI_GLOSNOSC, t + KROKI_NARASTANIE);
+}
+
+/** Włącza pętlę kroków (jeśli już gra — tylko dostraja tempo). */
 export function krokiGraj({ bieg = false } = {}) {
-  const a = krokiElement();
-  if (!a) return;
-  a.playbackRate = bieg ? 1.35 : 1;
-  if (krokiFade) { clearInterval(krokiFade); krokiFade = null; }
-  a.volume = KROKI_GLOSNOSC;
-  if (a.paused) {
-    const p = a.play();
-    if (p?.catch) p.catch(() => {});   // przed pierwszym gestem — normalne
+  const ctx = audioCtx();
+  if (!ctx) return;
+  if (!krokiBufor) {
+    // Jeszcze się ładuje (albo nikt nie zamówił). Nie czekamy — sonda ruchu
+    // odpyta nas za chwilę jeszcze raz i wtedy bufor już będzie.
+    przygotujKroki();
+    return;
   }
+  odblokuj();
+  if (krokiTimerStopu) { clearTimeout(krokiTimerStopu); krokiTimerStopu = null; }
+  const tempo = bieg ? 1.35 : 1;
+
+  if (krokiZrodlo) {
+    if (krokiZrodlo.playbackRate.value !== tempo) krokiZrodlo.playbackRate.value = tempo;
+    krokiNaglosnij(ctx);
+    return;
+  }
+
+  krokiWzm = ctx.createGain();
+  krokiWzm.gain.value = 0;
+  krokiWzm.connect(ctx.destination);
+
+  const z = ctx.createBufferSource();
+  z.buffer = krokiBufor;
+  z.loop = true;
+  z.loopStart = 0;
+  z.loopEnd = Math.min(KROKI_KONIEC_PETLI, krokiBufor.duration);
+  z.playbackRate.value = tempo;
+  z.connect(krokiWzm);
+  z.start(0);
+  krokiZrodlo = z;
+  krokiNaglosnij(ctx);
 }
 
-/** Wygasza kroki i zatrzymuje je dopiero po wyciszeniu (bez trzasku). */
+/** Wygasza kroki i dopiero potem zatrzymuje źródło (bez trzasku). */
 export function krokiStop() {
-  const a = kroki;
-  if (!a || a.paused) return;
-  // Wygaszanie już trwa — nie restartuj go. Bez tego strażnika odpytywanie
-  // stanu co 125 ms co chwilę zerowało 40-milisekundowy licznik i wyciszenie
-  // szarpało się zamiast płynnie zejść.
-  if (krokiFade) return;
-  krokiFade = setInterval(() => {
-    const nowa = a.volume - KROKI_GLOSNOSC / 4;
-    if (nowa <= 0.01) {
-      a.volume = 0;
-      try { a.pause(); a.currentTime = 0; } catch {}
-      clearInterval(krokiFade);
-      krokiFade = null;
-      return;
-    }
-    a.volume = nowa;
-  }, 40);
+  const ctx = audioCtxIstniejacy();
+  if (!ctx || !krokiZrodlo || !krokiWzm) return;
+  // Wygaszanie już trwa — nie zaczynaj go od nowa. Bez tego strażnika sonda
+  // ruchu (co 125 ms) co chwilę zerowałaby rampę i wyciszenie by się szarpało.
+  if (krokiTimerStopu) return;
+
+  const t = ctx.currentTime;
+  krokiWzm.gain.cancelScheduledValues(t);
+  krokiWzm.gain.setValueAtTime(krokiWzm.gain.value, t);
+  krokiWzm.gain.linearRampToValueAtTime(0, t + KROKI_WYGASZENIE);
+
+  const z = krokiZrodlo;
+  const w = krokiWzm;
+  krokiTimerStopu = window.setTimeout(() => {
+    krokiTimerStopu = null;
+    try { z.stop(); } catch {}
+    try { z.disconnect(); } catch {}
+    try { w.disconnect(); } catch {}
+    if (krokiZrodlo === z) { krokiZrodlo = null; krokiWzm = null; }
+  }, KROKI_WYGASZENIE * 1000 + 40);
 }
 
-/** Convenience wrappers - obecnie uzywane dzwieki. */
+/** Skróty do dźwięków używanych w grze. */
 export const fx = {
   dopamine: (vol) => playFx("dopamine", vol ?? 0.6),
   magicalAncient: (vol) => playFx("magicalAncient", vol ?? 0.6),
   gentleMagical: (vol) => playFx("gentleMagical", vol ?? 0.6),
+  przygotuj,
   krokiGraj,
   krokiStop,
 };

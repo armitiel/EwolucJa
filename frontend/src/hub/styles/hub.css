@@ -711,3 +711,197 @@
 @media (prefers-reduced-motion:reduce){
   .gra-x:active,.gra-ikona:active{ transform:none; }
 }
+
+
+/* ── Popup nowej postaci ───────────────────────────────────────────────── */
+/* Okno powitalne postaci (na razie Wizcor). Kolory idą z tokenow gry:
+   fiolet `--p-magic` = magia i mentorzy, papier = karta, zielen `--p-leaf`
+   = "idz dalej". Zadnej nowej barwy - to ma byc ta sama gra, nie osobny ekran.
+   Warstwa jest WYZEJ niz zwoj wiadomosci (z-index 60 vs 45): powitanie
+   przerywa wszystko inne, bo pojawia sie raz na spotkanie. */
+.popup-postaci{
+  position:fixed; inset:0; z-index:60;
+  display:grid; place-items:center;
+  padding:calc(env(safe-area-inset-top,0px) + 12px) 16px calc(env(safe-area-inset-bottom,0px) + 12px);
+}
+
+.popup-postaci-zaslona{
+  position:absolute; inset:0;
+  background:rgba(26,20,44,.5);
+  backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px);
+  cursor:pointer;
+  animation:popup-postaci-zaslona .28s ease both;
+}
+
+/* Karta ma DUZY zapas u gory (`margin-top`), bo czarodziej wychodzi poza jej
+   krawedz i musi miec gdzie stanac na malym ekranie. Zapas jest w tej samej
+   jednostce co wysokosc grafiki, wiec obie skaluja sie razem. */
+.popup-postaci-karta{
+  --popup-bohater:clamp(178px,44vw,236px);
+  position:relative; z-index:1;
+  width:min(100%,382px);
+  margin-top:calc(var(--popup-bohater) * .74);
+  padding:34px 22px 24px;
+  border:3px solid transparent;
+  border-radius:28px;
+  background:
+    linear-gradient(180deg,var(--p-paper,#FBF1D6) 0%,var(--p-paper-2,#F4E3B8) 100%) padding-box,
+    linear-gradient(180deg,#fff0a1 0%,#e9b436 55%,#a4671b 100%) border-box;
+  box-shadow:
+    inset 0 3px 0 rgba(255,255,255,.75),
+    0 6px 0 rgba(122,77,194,.28),
+    0 22px 46px rgba(40,26,70,.45);
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  color:var(--p-ink,#4e4d76);
+  text-align:center;
+  animation:popup-postaci-karta .46s cubic-bezier(.2,.9,.3,1.25) both;
+}
+
+/* Czarodziej stoi ZA karta i wychodzi ponad jej krawedz. Grafika ma plaskie
+   ciecie na wysokosci ~96% (ponizej zwisa juz tylko dlon), wiec przesuwamy ja
+   w dol dokladnie o te 4% - linia ciecia lezy wtedy na gornej krawedzi karty
+   i chowa sie pod wstega z imieniem. Stad `.044` liczone z SZEROKOSCI: obraz
+   ma staly stosunek 560:599, wiec jedna zmienna skaluje cala kompozycje. */
+.popup-postaci-bohater{
+  position:absolute;
+  left:50%; bottom:calc(100% - var(--popup-bohater) * .044);
+  width:var(--popup-bohater); height:auto;
+  transform:translateX(-50%);
+  filter:drop-shadow(0 8px 14px rgba(40,26,70,.42));
+  user-select:none; -webkit-user-drag:none; pointer-events:none;
+  animation:popup-postaci-bohater .52s cubic-bezier(.2,.9,.3,1.3) .06s both;
+}
+
+/* Wstega siedzi OKRAKIEM na krawedzi karty: gorna polowa jest nad nia,
+   dolna wchodzi w papier. Ujemny margines (a nie `position:absolute`)
+   celowo - dzieki temu tekst pod spodem sam odsuwa sie o jej wysokosc
+   i nic nie trzeba przeliczac przy dluzszym imieniu. */
+.popup-postaci-wstega{
+  position:relative; z-index:2;
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  /* Wezsza niz karta z dwoch powodow: musi zakryc plaskie ciecie grafiki
+     (~79% jej szerokosci), ale zostawic w rogu miejsce na krzyzyk. */
+  width:min(240px,72%);
+  margin:-58px auto 12px; padding:8px 18px;
+  border:2.5px solid transparent; border-radius:999px;
+  background:
+    linear-gradient(180deg,#a878e6 0%,#7A4DC2 58%,#5a3499 100%) padding-box,
+    linear-gradient(180deg,#fff0a1 0%,#e9b436 58%,#a4671b 100%) border-box;
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.34),
+    0 4px 0 rgba(74,45,128,.85),
+    0 9px 16px rgba(40,26,70,.34);
+  color:#fff;
+  font-size:20px; font-weight:800; letter-spacing:.6px; line-height:1.15;
+  text-transform:uppercase;
+  text-shadow:0 2px 0 rgba(74,45,128,.9);
+}
+
+.popup-postaci-wstega span{
+  min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+
+.popup-postaci-gwiazdka{
+  width:17px; height:17px; flex:none;
+  fill:var(--p-amber,#F4C95D);
+  filter:drop-shadow(0 1.5px 0 rgba(74,45,128,.75));
+}
+
+.popup-postaci-tekst{
+  margin:0; padding:0 2px;
+  font-size:16.5px; font-weight:600; line-height:1.44;
+  color:var(--p-ink,#4e4d76);
+}
+
+/* Wyroznik zamalowany "od polowy w gore" - to zakreslacz, a nie inny kolor
+   tekstu. Dziecko, ktore jeszcze slabo czyta, widzi wtedy KSZTALT frazy,
+   nawet gdy nie odroznia odcieni. */
+.popup-postaci-wyroznik{
+  background:linear-gradient(180deg,transparent 58%,rgba(244,201,93,.75) 58%);
+  color:inherit; font-weight:800;
+  border-radius:3px; padding:0 2px;
+}
+
+.popup-postaci-przerywnik{
+  display:flex; align-items:center; justify-content:center; gap:7px;
+  margin:14px auto 2px; width:min(220px,80%);
+}
+
+.popup-postaci-przerywnik::before,
+.popup-postaci-przerywnik::after{
+  content:""; flex:1; height:2px; border-radius:2px;
+  background:linear-gradient(90deg,rgba(196,146,44,0),rgba(196,146,44,.55));
+}
+.popup-postaci-przerywnik::after{ transform:scaleX(-1); }
+
+.popup-postaci-iskra{
+  width:11px; height:11px; flex:none;
+  fill:rgba(196,146,44,.75);
+}
+.popup-postaci-iskra--duza{ width:16px; height:16px; fill:var(--p-amber,#F4C95D); }
+
+.popup-postaci-akcja{
+  margin-top:14px; width:100%;
+  min-height:54px; font-size:17.5px;
+}
+
+/* Krzyzyk siedzi W ROGU KARTY, nie poza nia: przy karcie szerokiej na caly
+   ekran (a taka jest na telefonie) wszystko wystajace poza jej krawedz laduje
+   pod krawedzia ekranu i sie przycina. Miejsce robi mu wezsza wstega. */
+.popup-postaci-zamknij{
+  position:absolute; z-index:3; top:8px; right:8px;
+  width:30px; height:30px; padding:0;
+  display:grid; place-items:center;
+  border:2px solid transparent; border-radius:50%;
+  background:
+    linear-gradient(180deg,rgba(255,251,224,.97),rgba(243,224,171,.97)) padding-box,
+    linear-gradient(180deg,#fff3a8,#e5aa32 62%,#a46418) border-box;
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.8),0 2px 0 #925118,0 5px 10px rgba(40,26,70,.35);
+  cursor:pointer;
+}
+.popup-postaci-zamknij svg{
+  width:15px; height:15px;
+  stroke:#7a4a12; stroke-width:2.6; stroke-linecap:round; fill:none;
+}
+.popup-postaci-zamknij:active{ transform:translateY(1px); }
+
+@keyframes popup-postaci-zaslona{
+  from{ opacity:0; }
+  to{ opacity:1; }
+}
+@keyframes popup-postaci-karta{
+  from{ opacity:0; transform:translateY(26px) scale(.9); }
+  to{ opacity:1; transform:none; }
+}
+/* Czarodziej wchodzi CHWILE po karcie i troche mocniej - dzieki temu czyta sie
+   to jako "wyskoczyl zza karty", a nie "obrazek pojawil sie razem z tlem". */
+@keyframes popup-postaci-bohater{
+  from{ opacity:0; transform:translate(-50%,34px) scale(.82); }
+  to{ opacity:1; transform:translateX(-50%); }
+}
+
+/* Nizsze telefony: karta z czarodziejem u gory potrafi nie zmiescic sie
+   w pionie. Grafika jest wtedy mniejsza, a karta ciasniejsza - zamiast
+   przewijania, ktore w oknie modalnym zawsze wyglada na blad. */
+@media (max-height:680px){
+  .popup-postaci-karta{
+    --popup-bohater:clamp(140px,34vw,178px);
+    padding:28px 18px 20px;
+  }
+  .popup-postaci-wstega{ margin-top:-50px; font-size:18px; }
+  .popup-postaci-tekst{ font-size:15.5px; }
+  .popup-postaci-przerywnik{ margin-top:11px; }
+  .popup-postaci-akcja{ min-height:50px; font-size:16.5px; }
+}
+
+@media (max-width:340px){
+  .popup-postaci-karta{ padding:30px 16px 20px; }
+  .popup-postaci-wstega{ font-size:18px; padding:7px 14px; gap:7px; }
+  .popup-postaci-tekst{ font-size:15.5px; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .popup-postaci-zaslona,
+  .popup-postaci-karta,
+  .popup-postaci-bohater{ animation:none; }
+}

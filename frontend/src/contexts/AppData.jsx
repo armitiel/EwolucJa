@@ -33,13 +33,15 @@ export function useAppData() {
   return ctx;
 }
 
-// Sciezki na ktorych potrzebujemy danych gracza (Swiat 3D / Mapa / Przygoda / Plecak / Profil / Mission / Gry / Reward).
+// Sciezki na ktorych potrzebujemy danych gracza (Swiat 3D / Przygoda / Plecak / Profil / Mission / Gry / Reward).
 // UWAGA: hub 3D (/swiat) jest baza gry i czyta z gracza imie oraz monety do HUD-u —
 // bez niego na liscie HUD pokazywal "Wedrowiec" i 0 monet.
-const PROTECTED_PATHS = ["/swiat", "/mapa", "/przygoda", "/backpack", "/profile", "/mission", "/games", "/reward"];
+// `/mapa` zeszlo z listy razem z plaska Mapa Iskier — ten adres tylko
+// przekierowuje na `/swiat`, wiec dane pobiera juz docelowy ekran.
+const PROTECTED_PATHS = ["/swiat", "/przygoda", "/backpack", "/profile", "/mission", "/games", "/reward"];
 // Trasy przygody maja wlasny cykl misji (misje fabularne z danych przygody).
 // Automatyczne losowanie misji z biblioteki podstawialoby Mentorowi obca misje.
-const ADVENTURE_PATHS = ["/przygoda", "/mapa", "/swiat", "/backpack", "/profile"];
+const ADVENTURE_PATHS = ["/przygoda", "/swiat", "/backpack", "/profile"];
 
 export default function AppDataProvider({ children }) {
   const location = useLocation();

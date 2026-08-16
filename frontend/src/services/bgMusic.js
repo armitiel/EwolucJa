@@ -31,6 +31,8 @@
  * wszystko z `public/` trafia do builda, a mastery nie mają po co jechać do
  * przeglądarki dziecka.
  */
+import { audioCtx } from "./audioCtx.js";
+
 const PLAYLISTA = ["/Mindful_Forest_Path.mp3", "/spacer-1.mp3", "/spacer-2.mp3"];
 /**
  * Losowanie bez powtórek: tasujemy całą playlistę i gramy ją do końca, dopiero
@@ -181,9 +183,11 @@ class BgMusic {
     if (this._ctx) return true;
     if (!this._audio) return false;
     try {
-      const AC = window.AudioContext || window.webkitAudioContext;
-      if (!AC) return false; // Web Audio nie wspierany (bardzo stare przegladarki)
-      this._ctx = new AC();
+      // Wspólny kontekst całej aplikacji (patrz `audioCtx.js`) — nie własny.
+      // Drugi strumień do karty dźwiękowej na telefonie potrafi dołożyć
+      // opóźnienie i trzaski, a po powrocie z tła budzi się tylko jeden.
+      this._ctx = audioCtx();
+      if (!this._ctx) return false; // Web Audio nie wspierany (bardzo stare przegladarki)
       this._source = this._ctx.createMediaElementSource(this._audio);
       this._gain = this._ctx.createGain();
       this._gain.gain.value = 0; // start cicho, _fade go podniesie

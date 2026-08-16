@@ -14,7 +14,7 @@ import { session } from "../services/api.js";
 import { ttsPlayer } from "../services/ttsPlayer";
 
 // Trasy doswiadczenia dziecka — tu narzedzia programisty sa ukryte.
-const CHILD_ROUTES = ["/przygoda", "/mapa", "/swiat", "/backpack", "/profile"];
+const CHILD_ROUTES = ["/przygoda", "/swiat", "/backpack", "/profile"];
 
 export default function DevTools() {
   const navigate = useNavigate();

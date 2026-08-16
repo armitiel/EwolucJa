@@ -255,6 +255,9 @@ export default function MemoryGame() {
     setFlipped([]); setMatched(new Set()); setMoves(0); setSeconds(0);
   }, [pairs]);
 
+  // `soundFx` nie pobiera juz nic z gory — kazdy ekran zamawia to, czego uzywa.
+  useEffect(() => { try { fx.przygotuj("dopamine"); } catch {} }, []);
+
   useEffect(() => {
     if (phase !== "playing") { clearInterval(tickRef.current); return; }
     tickRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);

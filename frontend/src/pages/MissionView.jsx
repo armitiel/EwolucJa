@@ -48,6 +48,14 @@ export default function MissionView() {
     return () => { try { bgMusic.unduck(); } catch {} };
   }, []);
 
+  // Dzwieki zwoju sciagamy TUTAJ, bo tylko ten ekran ich uzywa. `soundFx` nie
+  // pobiera juz nic przy imporcie — wczesniej `A_magical_ancient` (385 KB)
+  // ladowal sie na kazdym ekranie aplikacji, wlacznie z hubem 3D, gdzie
+  // konkurowal pasmem z modelami.
+  useEffect(() => {
+    try { fx.przygotuj("magicalAncient", "dopamine"); } catch {}
+  }, []);
+
   useEffect(() => {
     if (step === 1) {
       const id = setTimeout(() => setStep(2), 2000);
