@@ -1146,3 +1146,71 @@
     box-shadow: 0 3px 9px rgba(0, 0, 0, .3), inset 0 0 0 1.5px rgba(255, 255, 255, .35);
   }
 }
+
+
+/* --- Licznik zadania: gwiazdki dla czarodzieja --- */
+/* Ten sam kafelek co moneta (zlota obwodka, kremowe tlo), zeby czytal sie jako
+   ta sama rodzina, ale BEZ paska postepu: przy dziesieciu sztukach "3/10" mowi
+   wiecej niz kreska w jednej trzeciej, a na waskim ekranie oszczedza miejsce
+   licznikowi monet, ktory paska naprawde potrzebuje (cel to 100).
+   Wchodzi na ekran dopiero po przyjeciu zadania - stad brak stanu "pustego". */
+.game-hud-counter--gwiazdki {
+  min-width: 0;
+  padding: 3px 13px 3px 4px;
+  gap: 3px;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.game-hud-counter--gwiazdki img {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  object-fit: contain;
+  /* Gwiazdka ma cztery cienkie ramiona i optycznie ginie obok pelnego krazka
+     monety - stad nieco wiekszy rozmiar przy tej samej wysokosci kafelka. */
+  filter: drop-shadow(0 1.5px 1px rgba(73, 39, 12, .28));
+}
+
+.game-hud-counter--gwiazdki strong { text-shadow: 0 1px 0 rgba(255, 255, 255, .9); }
+
+/* Cel jest mniejszy i ciemniejszy: liczy sie to, ile dziecko MA, a nie ile
+   zostalo. "3" ma byc pierwsza rzecza, ktora widac. */
+.game-hud-counter--gwiazdki em {
+  font-style: normal;
+  font-size: 12.5px;
+  font-weight: 800;
+  opacity: .62;
+  letter-spacing: -.2px;
+}
+
+/* Komplet: kafelek swieci tym samym zlotem co pelny pasek monet. */
+.game-hud-counter--gwiazdki.jest-spelnione {
+  background:
+    linear-gradient(180deg, rgba(255, 252, 227, .98), rgba(255, 226, 150, .98)) padding-box,
+    linear-gradient(180deg, var(--hud-gold-light), var(--hud-gold) 52%, var(--hud-gold-deep)) border-box;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, .9),
+    0 3px 0 var(--hud-shadow),
+    0 0 14px rgba(255, 214, 105, .85);
+}
+
+.game-hud-counter--gwiazdki.jest-spelnione em { opacity: .8; }
+
+@media (max-width: 380px) {
+  .game-hud-counter--gwiazdki { padding: 3px 10px 3px 3px; font-size: 15px; }
+  .game-hud-counter--gwiazdki img { width: 30px; height: 30px; }
+}
+
+
+/* --- Trzeci kafelek w gornym pasku: co ustepuje na waskim ekranie --- */
+/* Z licznikiem zadania gorny pasek ma cztery elementy (awatar, gwiazdki,
+   monety, nutka) i na telefonie ponizej 400 px sumuje sie szerzej niz ekran.
+   Ustepuje PASEK POSTEPU MONET, a nie zadna z liczb: liczba mowi, ile dziecko
+   ma, pasek tylko powtarza to samo ksztaltem. Sama moneta z liczba zostaje.
+   Klase `ma-zadanie` dokleja hub, gdy zadanie jest przyjete - bez zadania
+   pasek monet wraca, bo jest wtedy na niego miejsce. */
+@media (max-width: 400px) {
+  .game-hud-resources.ma-zadanie .game-hud-progress { display: none; }
+  .game-hud-resources.ma-zadanie .game-hud-counter--coins { padding-right: 14px; }
+}

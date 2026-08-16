@@ -379,30 +379,11 @@
 .hub-row strong{ display:block; font-size:13.5px; line-height:1.3; }
 .hub-row small{ display:block; font-size:11.5px; color:var(--p-ink-soft,#5A4F77); line-height:1.35; }
 
-.hub-btn{
-  border:2px solid transparent; cursor:pointer; border-radius:17px; padding:11px 16px;
-  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
-  font-weight:800; font-size:16px; letter-spacing:.35px; line-height:1; min-height:47px;
-  text-transform:uppercase;
-}
-.hub-btn-primary{
-  color:#fff5b8;
-  background:
-    linear-gradient(180deg,#9bd33e 0%,#64a727 62%,#478519 100%) padding-box,
-    linear-gradient(180deg,#e6f58a 0%,#72aa29 58%,#315d19 100%) border-box;
-  -webkit-text-stroke:.65px #315617; paint-order:stroke fill;
-  text-shadow:0 2px 0 #315617,0 3px 3px rgba(34,67,18,.28);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.3),0 4px 0 #356d18,0 7px 11px rgba(47,81,21,.22);
-}
-.hub-btn-primary:disabled{ filter:grayscale(.35); cursor:default; box-shadow:none; }
-.hub-btn-ghost{
-  color:#4a3755;
-  background:
-    linear-gradient(180deg,#fff9df,#ecd99e) padding-box,
-    linear-gradient(180deg,#fff0a1,#d59a31 65%,#925719) border-box;
-  text-shadow:0 1px 0 rgba(255,255,255,.82);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.66),0 3px 0 #93601f,0 6px 9px rgba(66,47,22,.17);
-}
+/* .hub-btn / .hub-btn-primary / .hub-btn-ghost PRZENIESIONE do
+   `styles/ewolucja.css`. Powod: te przyciski sa juz jezykiem calej gry, a nie
+   samego huba - uzywa ich ekran nagrody, minigra Memory i okna postaci, ktore
+   nie importuja tego arkusza. Druga kopia tutaj skonczylaby sie tym, ze zielony
+   przycisk w hubie i zielony przycisk w nagrodzie rozjezdzaja sie po miesiacu. */
 .hub-actions{ display:flex; gap:8px; margin-top:14px; }
 .hub-actions .hub-btn{ flex:1; }
 
@@ -904,4 +885,38 @@
   .popup-postaci-zaslona,
   .popup-postaci-karta,
   .popup-postaci-bohater{ animation:none; }
+}
+
+
+/* ── Pytanie o spotkanie ("zagadać?") ──────────────────────────────────── */
+/* Ten sam kształt co okno postaci, tylko mniejszy: to pytanie, nie scena.
+   Karta jest węższa, tekst krótszy, a zamiast jednego wielkiego przycisku
+   są dwa - bo tu naprawdę są dwa wyjścia i oba są w porządku. */
+.popup-pytanie .popup-postaci-karta{
+  --popup-bohater:clamp(136px,34vw,168px);
+  width:min(100%,320px);
+  padding:22px 18px 18px;
+}
+
+.popup-pytanie-tekst{
+  font-size:16px; line-height:1.4;
+}
+
+/* Pion, nie poziom. Dwa przyciski obok siebie na telefonie robią się wąskie,
+   a "Zagadaj" ma być duże i pierwsze pod kciukiem - to ono jest zaproszeniem,
+   a "nie teraz" tylko wyjściem. */
+.popup-pytanie-wybor{
+  display:flex; flex-direction:column; gap:9px;
+  margin-top:16px;
+}
+
+.popup-pytanie-tak{ width:100%; min-height:52px; font-size:17px; }
+.popup-pytanie-nie{ width:100%; min-height:44px; font-size:15px; }
+
+@media (max-height:680px){
+  .popup-pytanie .popup-postaci-karta{
+    --popup-bohater:clamp(112px,28vw,136px);
+    padding:18px 16px 16px;
+  }
+  .popup-pytanie-tak{ min-height:48px; }
 }

@@ -156,6 +156,40 @@ h3.title{ font-size: 22px; margin:0; }
 .btn-block{ width:100%; padding:16px 22px; font-size:17px; }
 .btn-sm{ padding:10px 16px; font-size:14px; }
 
+/* ─── Przyciski „grubego" UI gry (dawniej tylko hub) ─────────────────────
+   Zloto-zielona rodzina z HUD-u: gruby kant z gradientu w border-box, obwodka
+   tekstu i twardy cien pod spodem. Uzywa jej hub, okna postaci, ekran nagrody
+   i minigry - dlatego mieszka TUTAJ, w arkuszu globalnym, a nie w `hub.css`,
+   ktorego polowa ekranow nie importuje.
+   `.btn-*` wyzej zostaje: to lzejsza, wczesniejsza rodzina z ekranow tekstowych
+   (Landing, onboarding). Nie mieszaj ich w jednym widoku. */
+.hub-btn{
+  border:2px solid transparent; cursor:pointer; border-radius:17px; padding:11px 16px;
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  font-weight:800; font-size:16px; letter-spacing:.35px; line-height:1; min-height:47px;
+  text-transform:uppercase;
+}
+.hub-btn-primary{
+  color:#fff5b8;
+  background:
+    linear-gradient(180deg,#9bd33e 0%,#64a727 62%,#478519 100%) padding-box,
+    linear-gradient(180deg,#e6f58a 0%,#72aa29 58%,#315d19 100%) border-box;
+  -webkit-text-stroke:.65px #315617; paint-order:stroke fill;
+  text-shadow:0 2px 0 #315617,0 3px 3px rgba(34,67,18,.28);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.3),0 4px 0 #356d18,0 7px 11px rgba(47,81,21,.22);
+}
+.hub-btn-primary:disabled{ filter:grayscale(.35); cursor:default; box-shadow:none; }
+.hub-btn-ghost{
+  color:#4a3755;
+  background:
+    linear-gradient(180deg,#fff9df,#ecd99e) padding-box,
+    linear-gradient(180deg,#fff0a1,#d59a31 65%,#925719) border-box;
+  text-shadow:0 1px 0 rgba(255,255,255,.82);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.66),0 3px 0 #93601f,0 6px 9px rgba(66,47,22,.17);
+}
+.hub-btn:active{ transform:translateY(2px); }
+@media (prefers-reduced-motion:reduce){ .hub-btn:active{ transform:none; } }
+
 /* ─── Cards ─── */
 .card{
   background: rgba(255,255,255,.78);

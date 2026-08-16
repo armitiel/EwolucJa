@@ -20,6 +20,18 @@ import PanelSheet from "../hub/PanelSheet.jsx";
 import MessageScroll from "../hub/MessageScroll.jsx";
 import PodpowiedzMedrca from "../hub/PodpowiedzMedrca.jsx";
 import PopupPostaci from "../hub/PopupPostaci.jsx";
+import PytanieSpotkania from "../hub/PytanieSpotkania.jsx";
+import RewardScreen from "../components/RewardScreen.jsx";
+import {
+  bonusMonet,
+  CEL_DOMYSLNY,
+  dolicz as doliczGwiazdke,
+  NAGRODA_MONET,
+  odbierzNagrode,
+  rozpocznijZadanie,
+  skasujZadanie,
+  stanZadania,
+} from "../hub/zadanieGwiazdek.js";
 import useHudSkin from "../hub/useHudSkin.js";
 import { useHubPanel } from "../hub/useHubPanel.js";
 import MinigryPanel from "../hub/panels/MinigryPanel.jsx";
@@ -67,15 +79,83 @@ const ZNAK_PANELU = {};
  *   window.popupPostaci.schowaj()
  *   /swiat?popup=1                                  — otwarte od razu po wejściu
  */
-const POWITANIE_WIZCOR = {
-  imie: "Wizcor",
-  obrazek: "/wizPop.webp",
-  tekst:
-    "Witaj, mały wędrowcze! Jestem Wizcor, strażnik Lasu Szeptów. " +
-    "Zbierz dla mnie 10 złotych gwiazdek, a otworzę przed tobą pierwszą bramę.",
-  wyroznienie: "10 złotych gwiazdek",
-  przycisk: "Ruszam po gwiazdki!",
-};
+/**
+ * Czarodziej na mapie: identyfikator znaku w module sceny (`xf` w `scena3d.js`)
+ * i pytanie, które pada, zanim otworzy się jego okno.
+ *
+ * Rytm pojawiania się siedzi PO STRONIE SCENY, nie tutaj: znak ma `cykl: 30`
+ * (tyle stoi) i `respawn: 60` (tyle go nie ma), a przy każdym powrocie staje
+ * w losowym miejscu z listy `pozycje`. Zegar chodzi w pętli renderowania, więc
+ * zatrzymuje się razem z nią — pod otwartym panelem czarodziej nie zniknie.
+ */
+const ZNAK_CZARODZIEJA = "czarodziej";
+const PYTANIE_CZARODZIEJA =
+  "Czarodziej zatrzymał się na polanie i patrzy w twoją stronę. Zagadać do niego?";
+
+/**
+ * Co czarodziej mówi, zależy od STANU ZADANIA — i to nie jest ozdoba, tylko
+ * poprawka błędu. Wcześniej miał jedną kwestię i zlecał zbieranie gwiazdek
+ * nawet wtedy, gdy dziecko miało już komplet albo dawno odebrało nagrodę.
+ *
+ * Liczby w zdaniach biorą się ze stanu, nie z palca: to te same wartości,
+ * które liczy kafelek w HUD-zie. Rozjazd między „zbierz 10" a licznikiem
+ * do 12 byłby dla dziecka po prostu kłamstwem.
+ *
+ * `akcja` mówi hubowi, co zrobić po zielonym przycisku:
+ *   "start"   → załóż zadanie i zapal licznik
+ *   "nagroda" → otwórz ekran wygranej (zaległe rozliczenie)
+ *   null      → sam przycisk zamykający, nic się nie dzieje
+ */
+function powitanieCzarodzieja(z) {
+  const baza = { imie: "Wizcor", obrazek: "/wizPop.webp" };
+
+  if (z.wyplacone) {
+    return {
+      ...baza,
+      tekst:
+        "Dobrze się spisałeś, mały wędrowcze. Odpocznij chwilę — " +
+        "przygotowuję dla ciebie nową drogę.",
+      wyroznienie: "nową drogę",
+      przycisk: "Do zobaczenia!",
+      akcja: null,
+    };
+  }
+
+  if (z.spelnione) {
+    return {
+      ...baza,
+      tekst:
+        `Masz je wszystkie! ${z.cel} gwiazdek, co do jednej. ` +
+        `Należy ci się ${NAGRODA_MONET} monet — bierz.`,
+      wyroznienie: `${NAGRODA_MONET} monet`,
+      przycisk: "Odbieram nagrodę!",
+      akcja: "nagroda",
+    };
+  }
+
+  if (z.istnieje) {
+    const zostalo = z.cel - z.zebrane;
+    return {
+      ...baza,
+      tekst:
+        `Widzę, że szukasz. Masz ${z.zebrane} z ${z.cel} gwiazdek — ` +
+        `zostało ${zostalo}. Świecą w trawie, trzeba tylko wbiec.`,
+      wyroznienie: `${z.zebrane} z ${z.cel} gwiazdek`,
+      przycisk: "Zbieram dalej!",
+      akcja: null,
+    };
+  }
+
+  return {
+    ...baza,
+    tekst:
+      `Witaj, mały wędrowcze! Jestem Wizcor, strażnik Lasu Szeptów. ` +
+      `Zbierz dla mnie ${CEL_DOMYSLNY} złotych gwiazdek, a otworzę przed tobą pierwszą bramę.`,
+    wyroznienie: `${CEL_DOMYSLNY} złotych gwiazdek`,
+    przycisk: "Ruszam po gwiazdki!",
+    akcja: "start",
+  };
+}
 
 // Sam tytuł sekcji, bez nadtytułu. Nadtytuł powtarzał innymi słowami to, co
 // mówi już przycisk w doku — dziecko czytało dwie linijki zamiast jednej.
@@ -93,6 +173,15 @@ export default function Swiat() {
   useHudSkin();
 
   const scenaRef = useRef(null);
+  /**
+   * Czy rozmowa jest właśnie na ekranie (pytanie albo okno postaci).
+   *
+   * REF, a nie stan: `naZdarzenieSceny` trafia do modułu sceny raz i trzyma
+   * domknięcie sprzed zmiany — odczyt zwykłego stanu byłby w nim nieaktualny.
+   * Bez tego strażnika kolejne dotknięcie czarodzieja potrafiło otworzyć
+   * pytanie NAD otwartym już oknem i dziecko zamykało dwa okna po kolei.
+   */
+  const rozmowaRef = useRef(false);
   const [scenaMartwa, setScenaMartwa] = useState(() => !webglDostepny());
   // Scena wchodzi przejściem dopiero gdy naprawdę ma co pokazać (zdarzenie
   // „gotowa" z modułu). Do tego czasu widać spokojne tło huba, a nie puste
@@ -106,6 +195,15 @@ export default function Swiat() {
   );
   // Powitanie postaci: `null` = zamknięte, obiekt = treść okna.
   const [powitanie, setPowitanie] = useState(null);
+  // Krok przed powitaniem: „zagadać?". `false` = lis biegnie dalej.
+  const [pytanie, setPytanie] = useState(false);
+  // Zadanie od czarodzieja. Czytamy je z localStorage przy montowaniu, bo
+  // zbieranie ma przeżyć zamknięcie apki.
+  const [zadanie, setZadanie] = useState(() => stanZadania());
+  // Ekran nagrody po skompletowaniu gwiazdek (konfetti + lecące monety).
+  const [nagroda, setNagroda] = useState(false);
+  // Monety z lokalnych zadań, doliczane do liczby z bazy — patrz `zadanieGwiazdek`.
+  const [bonus, setBonus] = useState(() => bonusMonet());
   const [komunikat, setKomunikat] = useState(null);
   const [nieprzeczytane, setNieprzeczytane] = useState(0);
   // Podpowiedź sterowania pokazujemy do pierwszego dotknięcia i nigdy więcej —
@@ -178,7 +276,8 @@ export default function Swiat() {
   // Uchwyt do konsoli i adres `?popup=1` — inaczej okna nie da się obejrzeć,
   // dopóki nie powstanie spotkanie z postacią na mapie.
   useEffect(() => {
-    const pokaz = (nadpisz) => setPowitanie({ ...POWITANIE_WIZCOR, ...(nadpisz || {}) });
+    const pokaz = (nadpisz) =>
+      setPowitanie({ ...powitanieCzarodzieja(stanZadania()), ...(nadpisz || {}) });
     window.popupPostaci = { pokaz, schowaj: () => setPowitanie(null) };
     try {
       if (new URLSearchParams(window.location.search).get("popup") === "1") pokaz();
@@ -192,12 +291,138 @@ export default function Swiat() {
   useEffect(() => {
     const scena = scenaRef.current;
     if (scena) {
-      if (panel || powitanie) scena.pauza?.();
+      if (panel || powitanie || pytanie || nagroda) scena.pauza?.();
       else scena.wznow?.();
     }
-  }, [panel, powitanie]);
+  }, [panel, powitanie, pytanie, nagroda]);
 
-  useEffect(() => { if (powitanie) fx.krokiStop(); }, [powitanie]);
+  useEffect(() => {
+    rozmowaRef.current = !!powitanie || pytanie || nagroda;
+    if (powitanie || pytanie || nagroda) fx.krokiStop();
+  }, [powitanie, pytanie, nagroda]);
+
+  /**
+   * PILNOWANIE STANU, a nie tylko reagowanie na przejścia.
+   *
+   * Nagroda pokazywała się wyłącznie w momencie złapania dziesiątej gwiazdki.
+   * Wystarczyło zamknąć apkę sekundę wcześniej (albo mieć zapis z poprzedniej
+   * wersji kodu), żeby zadanie zostało na zawsze w stanie „10/10 i nic" —
+   * licznik pełny, monet brak, a czarodziej dalej zlecał to samo zbieranie.
+   *
+   * Dlatego stan sprawdzamy przy KAŻDYM wejściu do świata: jeśli gwiazdki są
+   * komplet, a nagroda nieodebrana, ekran wygranej wchodzi sam. Czekamy tylko
+   * na rozsunięcie chmur, żeby konfetti nie leciało pod kurtyną.
+   */
+  useEffect(() => {
+    if (!odsloniete || nagroda) return;
+    if (zadanie.spelnione && !zadanie.wyplacone) setNagroda(true);
+  }, [odsloniete, nagroda, zadanie.spelnione, zadanie.wyplacone]);
+
+  /**
+   * Powrót do karty: stan mógł zmienić się gdzie indziej (druga zakładka,
+   * konsola, inny ekran gry). Odczytujemy zapis od nowa, żeby licznik monet
+   * i gwiazdek nie pokazywał liczb sprzed przełączenia.
+   */
+  useEffect(() => {
+    const odswiez = () => {
+      if (document.hidden) return;
+      setZadanie(stanZadania());
+      setBonus(bonusMonet());
+    };
+    document.addEventListener("visibilitychange", odswiez);
+    return () => document.removeEventListener("visibilitychange", odswiez);
+  }, []);
+
+  /**
+   * Dźwięk nagrody ściągamy przy PRZEDOSTATNIEJ gwiazdce, nie przy pierwszej.
+   * `soundFx` nie pobiera już nic z góry, a `dopamine` (70 KB) gra wyłącznie
+   * na ekranie wygranej — dla dziecka, które zadania nie skończy, byłby
+   * czystym marnotrawstwem pasma. Jedna gwiazdka zapasu w zupełności starcza,
+   * żeby plik zdążył.
+   */
+  useEffect(() => {
+    if (!zadanie.aktywne || zadanie.zebrane < zadanie.cel - 1) return;
+    try { fx.przygotuj("dopamine"); } catch {}
+  }, [zadanie.aktywne, zadanie.zebrane, zadanie.cel]);
+
+  /**
+   * Monety z ekranu nagrody dopisujemy DOKŁADNIE wtedy, gdy tam dolatują.
+   * `RewardScreen` po animacji licznika wypuszcza monety w stronę prawego
+   * górnego rogu i na koniec lotu wysyła `ewolucja:coinsLanded` — kafelek
+   * w HUD-zie ma podskoczyć w tej sekundzie, a nie po zamknięciu ekranu.
+   * Samo dopisanie jest idempotentne, więc powtórka zdarzenia nic nie psuje.
+   */
+  useEffect(() => {
+    if (!nagroda) return undefined;
+    const naLadowanie = () => {
+      const { stan, dodane } = odbierzNagrode(NAGRODA_MONET);
+      if (dodane) setBonus(bonusMonet());
+      setZadanie(stan);
+    };
+    window.addEventListener("ewolucja:coinsLanded", naLadowanie);
+    return () => window.removeEventListener("ewolucja:coinsLanded", naLadowanie);
+  }, [nagroda]);
+
+  /**
+   * Zamknięcie ekranu nagrody. Rozliczenie wołamy jeszcze raz na wypadek,
+   * gdyby dziecko zamknęło ekran, zanim monety dolecą — nagroda nie może
+   * przepaść przez szybsze kliknięcie.
+   */
+  const zamknijNagrode = useCallback(() => {
+    const { stan, dodane } = odbierzNagrode(NAGRODA_MONET);
+    if (dodane) setBonus(bonusMonet());
+    setZadanie(stan);
+    setNagroda(false);
+  }, []);
+
+  /**
+   * Po rozmowie czarodziej odchodzi — w iskrach, tą samą animacją, którą
+   * znika po swoim czasie. Bez tego stałby dalej obok lisa i przy pierwszym
+   * odbiegnięciu i powrocie zapytałby o to samo jeszcze raz; a już
+   * odpowiedział. Wróci sam, w innym miejscu, po swojej przerwie.
+   */
+  const rozstanie = useCallback(() => {
+    setPowitanie(null);
+    try { scenaRef.current?.schowajZnak?.(ZNAK_CZARODZIEJA); } catch {}
+  }, []);
+
+  /**
+   * Zielony przycisk w oknie czarodzieja. Co robi, mówi `akcja` z kwestii —
+   * bo ta sama postać w czterech stanach zadania proponuje cztery różne
+   * rzeczy. Zamknięcie krzyżykiem albo dotknięciem obok NIGDY nie startuje
+   * zadania ani nie wypłaca nagrody: to jest „jeszcze nie".
+   */
+  const naPrzyciskCzarodzieja = useCallback(() => {
+    const akcja = powitanie?.akcja;
+    if (akcja === "start") {
+      setZadanie(rozpocznijZadanie(CEL_DOMYSLNY));
+      rozstanie();
+      pokazKomunikat(`Zbierz ${CEL_DOMYSLNY} złotych gwiazdek`);
+      return;
+    }
+    if (akcja === "nagroda") {
+      // Okno czarodzieja schodzi, ekran wygranej wchodzi na jego miejsce.
+      // Rozstania NIE wołamy — czarodziej ma zostać, bo to on właśnie płaci.
+      setPowitanie(null);
+      setNagroda(true);
+      return;
+    }
+    rozstanie();
+  }, [powitanie, rozstanie, pokazKomunikat]);
+
+  // Uchwyt do konsoli — czekanie na dziesięć gwiazdek przy każdym sprawdzeniu
+  // licznika byłoby nie do zniesienia:
+  //   window.zadanieGwiazdek.start() / .dolicz() / .kasuj() / .stan()
+  useEffect(() => {
+    window.zadanieGwiazdek = {
+      start: () => { const s = rozpocznijZadanie(CEL_DOMYSLNY); setZadanie(s); return s; },
+      dolicz: () => { const s = doliczGwiazdke(); if (s) setZadanie(s); return s; },
+      kasuj: () => { const s = skasujZadanie(); setZadanie(s); setBonus(bonusMonet()); return s; },
+      stan: () => ({ ...stanZadania(), bonusMonet: bonusMonet() }),
+      nagroda: () => setNagroda(true),
+    };
+    return () => { delete window.zadanieGwiazdek; };
+  }, []);
 
   const naZdarzenieSceny = useCallback(
     (nazwa, dane) => {
@@ -218,13 +443,34 @@ export default function Swiat() {
       // panelu, więc obsługujemy je tą samą ścieżką.
       if (nazwa === "minigra:start" || nazwa === "znak:dotkniety") {
         fx.gentleMagical(0.55);
+        // Czarodziej nie jest zbieractwem — po dotknięciu nie znika, tylko
+        // pyta. Moduł pilnuje, żeby zapytał RAZ na podejście (`raz: true`):
+        // pytanie wraca dopiero, gdy lis odbiegnie i wróci.
+        if (dane?.znak === ZNAK_CZARODZIEJA) {
+          // Rozmowa już trwa — drugie dotknięcie nie ma czego otwierać.
+          if (!rozmowaRef.current) setPytanie(true);
+          return;
+        }
+        // Gwiazdki liczą się TYLKO, gdy zadanie trwa. Przed rozmową z
+        // czarodziejem są zwykłym zbieractwem i nie ma czego pokazywać, więc
+        // `dolicz` zwraca wtedy null i nic się nie dzieje.
+        if (typeof dane?.znak === "string" && dane.znak.startsWith("gwiazda-")) {
+          const po = doliczGwiazdke();
+          if (po) {
+            setZadanie(po);
+            // Komplet — ekran nagrody wchodzi od razu, w miejscu, w którym
+            // dziecko właśnie złapało ostatnią gwiazdkę. Czekanie na powrót
+            // do czarodzieja rozjeżdżałoby nagrodę z wysiłkiem.
+            if (po.spelnione) setNagroda(true);
+          }
+        }
         const doOtwarcia = ZNAK_PANELU[dane?.znak];
         if (doOtwarcia) otworz(doOtwarcia);
         return;
       }
       if (nazwa === "blad") setScenaMartwa(true);
     },
-    [otworz, panel]
+    [otworz, panel, pokazKomunikat]
   );
 
   /* ── doładowanie dźwięków pod kurtyną z chmur ────────────────────────── */
@@ -310,7 +556,10 @@ export default function Swiat() {
     setMuzykaGra(bgMusic.toggle());
   }, []);
 
-  const monety = player?.coins ?? 0;
+  // Baza + lokalny bonus z zadań. Dopóki backend nie ma końcówki „dodaj
+  // monety", to jedyny sposób, żeby nagroda była widoczna od razu, a liczba
+  // z bazy została nietknięta. Szczegóły w `hub/zadanieGwiazdek.js`.
+  const monety = (player?.coins ?? 0) + bonus;
   // Pasek nie przepełnia się powyżej celu — po przekroczeniu 100 zostaje pełny
   // i świeci, zamiast wychodzić poza kafelek.
   const postepMonet = Math.max(0, Math.min(100, (monety / CEL_MONET) * 100));
@@ -361,7 +610,24 @@ export default function Swiat() {
             <span>{player?.name || "Wędrowiec"}</span>
           </button>
 
-          <div className="game-hud-resources">
+          <div className={`game-hud-resources${zadanie.aktywne ? " ma-zadanie" : ""}`}>
+            {/* Licznik zadania pojawia się DOPIERO po jego przyjęciu i znika
+                razem z nim. Stały licznik „0/10" na ekranie dziecka, które nie
+                dostało jeszcze żadnego zadania, byłby wyrzutem sumienia bez
+                powodu. Bez paska postępu — przy dziesięciu sztukach sama para
+                liczb jest czytelniejsza niż kreska. */}
+            {zadanie.aktywne ? (
+              <span
+                className={`game-hud-counter game-hud-counter--gwiazdki${zadanie.spelnione ? " jest-spelnione" : ""}`}
+                aria-label={`Gwiazdki dla czarodzieja: ${zadanie.zebrane} z ${zadanie.cel}`}
+                data-testid="hub-zadanie-gwiazdki"
+              >
+                <img src="/assets/hub-nav/iskra.png" alt="" aria-hidden="true" draggable="false" />
+                <strong>{zadanie.zebrane}</strong>
+                <em>/{zadanie.cel}</em>
+              </span>
+            ) : null}
+
             <span
               className="game-hud-counter game-hud-counter--coins"
               aria-label={`Monety: ${monety} ze ${CEL_MONET}`}
@@ -400,7 +666,21 @@ export default function Swiat() {
 
       {/* Mędrzec odzywa się tylko w spokojnym hubie: nie nad panelem, nie nad
           zwojem i nie zanim rozsuną się chmury. */}
-      <PodpowiedzMedrca aktywna={!panel && !zwojOtwarty && !powitanie && odsloniete} />
+      <PodpowiedzMedrca
+        aktywna={!panel && !zwojOtwarty && !powitanie && !pytanie && odsloniete}
+      />
+
+      {/* Dwa kroki, nie jeden: najpierw „zagadać?", dopiero po „tak" pełne
+          okno postaci. Odmowa nie kosztuje nic — czarodziej stoi dalej i lis
+          może wrócić, dopóki nie skończy mu się czas na polanie. */}
+      <PytanieSpotkania
+        otwarte={pytanie}
+        tekst={PYTANIE_CZARODZIEJA}
+        potwierdz="Zagadaj"
+        odrzuc="Nie teraz"
+        onTak={() => { setPytanie(false); setPowitanie(powitanieCzarodzieja(stanZadania())); }}
+        onNie={() => setPytanie(false)}
+      />
 
       <PopupPostaci
         otwarty={!!powitanie}
@@ -409,8 +689,24 @@ export default function Swiat() {
         tekst={powitanie?.tekst || ""}
         wyroznienie={powitanie?.wyroznienie}
         przycisk={powitanie?.przycisk}
-        onZamknij={() => setPowitanie(null)}
+        onAkcja={naPrzyciskCzarodzieja}
+        onZamknij={rozstanie}
       />
+
+      {/* Ekran wygranej — ten sam, którym gra świętuje minigry i zatwierdzone
+          zadania: konfetti, licznik liczący się do 30 i monety lecące w prawy
+          górny róg, dokładnie tam, gdzie stoi kafelek monet. */}
+      {nagroda ? (
+        <RewardScreen
+          eyebrow="✦ ZADANIE CZARODZIEJA"
+          title="Wszystkie gwiazdki!"
+          subtitle={`Zebrałeś ${CEL_DOMYSLNY} złotych gwiazdek dla Wizcora.`}
+          coins={NAGRODA_MONET}
+          note="Czarodziej dotrzymał słowa"
+          ctaLabel="Super! ✦"
+          onDismiss={zamknijNagrode}
+        />
+      ) : null}
 
       <MessageScroll open={zwojOtwarty} onClose={zamknij} onZmiana={przeliczNieprzeczytane} />
 

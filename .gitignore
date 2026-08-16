@@ -44,3 +44,4 @@ frontend/audio-zrodla/
 # jako punkt powrotu; do repo ida tylko wersje uzywane przez gre.
 *.glb.oryginal
 *.glb.bak-*
+*.przed-czarodziejem 
