@@ -695,7 +695,7 @@
 
 
 /* ── Popup nowej postaci ───────────────────────────────────────────────── */
-/* Okno powitalne postaci (na razie Wizcor). Kolory idą z tokenow gry:
+/* Okno powitalne postaci (na razie Wizkor). Kolory idą z tokenow gry:
    fiolet `--p-magic` = magia i mentorzy, papier = karta, zielen `--p-leaf`
    = "idz dalej". Zadnej nowej barwy - to ma byc ta sama gra, nie osobny ekran.
    Warstwa jest WYZEJ niz zwoj wiadomosci (z-index 60 vs 45): powitanie

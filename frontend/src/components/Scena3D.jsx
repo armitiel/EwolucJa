@@ -19,7 +19,7 @@ import { idPostaci } from "../utils/postac.js";
 // UWAGA: numer ma tylko ROSNĄĆ. Numery 3–13 zostały już wydane przeglądarce
 // z inną zawartością modułu (kolejne wersje znaków, gwiazdki, tempo ruchu),
 // więc cofnięcie go serwuje z cache starą scenę zamiast aktualnej.
-export const WERSJA_SCENY = "21";  // czarodziej: animowany znak, cykl znikania, losowe miejsca
+export const WERSJA_SCENY = "22";  // czarodziej staje tylko na wolnym miejscu (test pierścieniem)
 const ZASOBY = "/scena-3d/assets/";
 
 /**

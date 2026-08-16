@@ -107,15 +107,15 @@ const PYTANIE_CZARODZIEJA =
  *   null      → sam przycisk zamykający, nic się nie dzieje
  */
 function powitanieCzarodzieja(z) {
-  const baza = { imie: "Wizcor", obrazek: "/wizPop.webp" };
+  const baza = { imie: "Wizkor", obrazek: "/wizPop.webp" };
 
   if (z.wyplacone) {
     return {
       ...baza,
       tekst:
         "Dobrze się spisałeś, mały wędrowcze. Odpocznij chwilę — " +
-        "przygotowuję dla ciebie nową drogę.",
-      wyroznienie: "nową drogę",
+        "przygotowuję dla ciebie nowe zadanie.",
+      wyroznienie: "nowe zadanie",
       przycisk: "Do zobaczenia!",
       akcja: null,
     };
@@ -154,7 +154,7 @@ function powitanieCzarodzieja(z) {
   return {
     ...baza,
     tekst:
-      `Witaj, mały wędrowcze! Jestem Wizcor, strażnik Lasu Szeptów. ` +
+      `Witaj, mały wędrowcze! Jestem Wizkor, strażnik Lasu Szeptów. ` +
       `Zbierz dla mnie ${CEL_DOMYSLNY} złotych gwiazdek, a otworzę przed tobą pierwszą bramę.`,
     wyroznienie: `${CEL_DOMYSLNY} złotych gwiazdek`,
     przycisk: "Ruszam po gwiazdki!",
@@ -475,7 +475,7 @@ export default function Swiat() {
           // żeby dziecko wiedziało, że to nie awaria, i od razu widziało,
           // ile mu zostało. Wchodzi najwyżej raz na podejście (`raz` w scenie).
           if (z.istnieje && !z.spelnione) {
-            pokazKomunikat(`Wizcor czeka — masz ${z.zebrane} z ${z.cel} gwiazdek`);
+            pokazKomunikat(`Wizkor czeka — masz ${z.zebrane} z ${z.cel} gwiazdek`);
             return;
           }
           setPytanie(true);
@@ -736,7 +736,7 @@ export default function Swiat() {
         <RewardScreen
           eyebrow="✦ ZADANIE CZARODZIEJA"
           title="Wszystkie gwiazdki!"
-          subtitle={`Zebrałeś ${CEL_DOMYSLNY} złotych gwiazdek dla Wizcora.`}
+          subtitle={`Zebrałeś ${CEL_DOMYSLNY} złotych gwiazdek dla Wizkora.`}
           coins={NAGRODA_MONET}
           note="Czarodziej dotrzymał słowa"
           ctaLabel="Super! ✦"

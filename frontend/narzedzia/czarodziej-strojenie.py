@@ -17,7 +17,12 @@ import sys
 NOWA = (
     '{id:"czarodziej",file:"wizard",label:"Czarodziej",'
     'toast:"Czarodziej pojawi\\u0142 si\\u0119 w lesie",'
-    'pos:[-6.2,1.8],pozycje:[[-6.2,1.8],[4.8,2.6],[-2.4,-5.2],[6.4,-3.4],[.6,6.2]],'
+    # Miejsca NIE sa wpisane z palca - wyszly ze skanu mapy w prawdziwym
+    # module: siatka co 0,5 jednostki, test `miejsceWolne` z marginesem 1,8,
+    # a z 453 wolnych punktow wybor zachlanny tak, zeby dzielilo je co
+    # najmniej 6 jednostek. Piec poprzednich, zgadywanych, nie przechodzilo
+    # testu ANI JEDNO - czarodziej wchodzil w choinki i na gwiazdki.
+    'pos:[-3,4],pozycje:[[-3,4],[-7,-8],[4,3.5],[4,-8],[.5,9]],'
     # scale = mnoznik wysokosci bazowej 0,55 jednostki -> 3.7 daje ~2 jednostki.
     # height = srodek modelu nad ziemia; polowa wysokosci to 1,02, wiec 1.3
     # unosi stopy ~37 cm nad trawe. Czarodziej LEWITUJE, nie stoi - dlatego
@@ -26,7 +31,11 @@ NOWA = (
     'animuj:!0,bezObrotu:!0,obrotY:.484,'
     # zasieg = z jakiej odleglosci zagaduje; zbrojenie = jak daleko trzeba
     # odejsc, zeby zapytal ponownie. Zbrojenie musi byc WIEKSZE od zasiegu.
-    'absorb:!1,raz:!0,zasieg:1.9,zbrojenie:3.4,cykl:30,respawn:60,'
+    # margines = ile wolnej przestrzeni musi miec wokol siebie w miejscu
+    # pojawienia. Sprawdzany pierscieniem osmiu punktow przez `canWalk`
+    # (patrz `znak-wolne-miejsce.py`), wiec obejmuje drzewa, chatke i rzeke,
+    # a osobno trzyma odstep od innych znakow.
+    'absorb:!1,raz:!0,zasieg:1.9,zbrojenie:3.4,margines:1.8,cykl:30,respawn:60,'
     # jasnosc mnozy kolor materialu - 1.6 wyciaga fiolet szaty z cienia lasu.
     'glow:12093672,ringColor:14268159,jasnosc:1.6,metalness:0,roughness:.85,'
     'haloOpacity:.2,haloScale:1.7,ringOpacity:.3,lightBase:0,iskry:38,iskrySila:1.9}'

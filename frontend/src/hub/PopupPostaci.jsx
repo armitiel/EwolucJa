@@ -53,7 +53,7 @@ function zlozTekst(tekst, wyroznienie) {
 
 export default function PopupPostaci({
   otwarty = false,
-  imie = "Wizcor",
+  imie = "Wizkor",
   obrazek = "/wizPop.webp",
   tekst = "",
   wyroznienie = "",
