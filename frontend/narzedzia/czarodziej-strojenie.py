@@ -35,7 +35,11 @@ NOWA = (
     # pojawienia. Sprawdzany pierscieniem osmiu punktow przez `canWalk`
     # (patrz `znak-wolne-miejsce.py`), wiec obejmuje drzewa, chatke i rzeke,
     # a osobno trzyma odstep od innych znakow.
-    'absorb:!1,raz:!0,zasieg:1.9,zbrojenie:3.4,margines:1.8,cykl:30,respawn:60,'
+    # cykl = ile stoi, respawn = ile go nie ma, respawnPierwszy = ile go nie ma
+    # PO PIERWSZYM zniknieciu (tylko raz). Dziecko, ktore przegapilo pierwsze
+    # spotkanie, dostaje druga szanse szybko; dalej rytm robi sie spokojny.
+    'absorb:!1,raz:!0,zasieg:1.9,zbrojenie:3.4,margines:1.8,'
+    'cykl:35,respawn:60,respawnPierwszy:12,'
     # jasnosc mnozy kolor materialu - 1.6 wyciaga fiolet szaty z cienia lasu.
     'glow:12093672,ringColor:14268159,jasnosc:1.6,metalness:0,roughness:.85,'
     'haloOpacity:.2,haloScale:1.7,ringOpacity:.3,lightBase:0,iskry:38,iskrySila:1.9}'
