@@ -11,11 +11,11 @@ import React, { useMemo } from "react";
 import { AvatarArt } from "../../adventure/art/characters.jsx";
 import { GameIcon } from "../../adventure/components/icons.jsx";
 import { TRAIT_LABELS } from "../../adventure/engine/adventureState.js";
-import { useAdventure } from "../../adventure/engine/useAdventure.js";
+import { useAdventureDane } from "../../adventure/engine/useAdventure.js";
 import { useAppData } from "../../contexts/AppData.jsx";
 
 export default function ProfilPanel() {
-  const { adventure, state } = useAdventure();
+  const { adventure, state } = useAdventureDane();
   const { player } = useAppData();
 
   const cechy = useMemo(

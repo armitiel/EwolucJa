@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useAdventure } from "../adventure/engine/useAdventure.js";
+import { useAdventureDane } from "../adventure/engine/useAdventure.js";
 import { ActionButton, GameIcon, IconButton } from "../adventure/components/icons.jsx";
 import "../adventure/styles/adventure.css";
 
@@ -28,7 +28,7 @@ const STATUS = {
 
 export default function Backpack() {
   const navigate = useNavigate();
-  const { adventure, state, nextStep } = useAdventure();
+  const { adventure, state, nextStep } = useAdventureDane();
   const active = state.activeMission;
   const mission = active ? adventure.missions[active.ref] : null;
   const status = STATUS[active?.status] || STATUS.offered;

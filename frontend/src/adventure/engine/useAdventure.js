@@ -35,7 +35,25 @@ export const ADVENTURES = { "mapa-iskier": ADVENTURE };
 /** Kroki, które są instrukcją sceniczną — nie wymagają decyzji dziecka. */
 const SIDE_EFFECT_STEPS = new Set(["enter", "unlock"]);
 
-export function useAdventure(adventureId = "mapa-iskier") {
+/**
+ * Wersja TYLKO DO ODCZYTU — postęp, cechy, zdobycze, następny krok.
+ *
+ * Używaj jej wszędzie, gdzie przygoda jest źródłem danych, a nie ekranem:
+ * w panelach huba, w plecaku, w profilu, w zwoju wiadomości. Różnica jest
+ * jedna, ale istotna — nie rusza dźwięku. Pełne `useAdventure` przy każdym
+ * zamontowaniu ustawia nastrój muzyczny sceny, co w hubie znaczyło: otwierasz
+ * profil, muzyka startuje od nowa.
+ */
+export function useAdventureDane(adventureId) {
+  return useAdventure(adventureId, { dzwiek: false });
+}
+
+/**
+ * @param {string} adventureId
+ * @param {{dzwiek?: boolean}} opcje  `dzwiek: false` = hook jest wyłącznie
+ *   źródłem danych i NIE rusza dźwięku (patrz `useAdventureDane` niżej).
+ */
+export function useAdventure(adventureId = "mapa-iskier", { dzwiek = true } = {}) {
   const adventure = ADVENTURES[adventureId] || ADVENTURE;
   const [state, setState] = useState(() => loadState(adventure));
   const [cast, setCast] = useState([]); // postacie obecne na scenie
@@ -60,13 +78,20 @@ export function useAdventure(adventureId = "mapa-iskier") {
   const scene = state.sceneId ? adventure.scenes[state.sceneId] : null;
   const location = scene ? adventure.locations[scene.location] : adventure.locations[state.location];
 
-  /* Nastrój muzyczny przy wejściu do sceny. */
+  /* Nastrój muzyczny przy wejściu do sceny.
+     UWAGA: efekt odpala się także przy PIERWSZYM renderze, więc każdy
+     komponent, który wywoła ten hook, przestawia muzykę tłem samym swoim
+     zamontowaniem. Przez to otwarcie profilu albo minigier w hubie zrywało
+     utwór i wracało do „Mindful Forest Path" od zera. Ekrany, które używają
+     hooka wyłącznie jako źródła danych, biorą `useAdventureDane` i tego
+     efektu nie uruchamiają. */
   useEffect(() => {
+    if (!dzwiek) return;
     if (scene?.mood) setMood(scene.mood);
     if (scene) cue.sceneEnter();
     setCast([]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.sceneId]);
+  }, [state.sceneId, dzwiek]);
 
   const persist = useCallback((updater) => {
     setState((prev) => {

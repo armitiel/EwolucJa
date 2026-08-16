@@ -3,12 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { AvatarArt } from "../adventure/art/characters.jsx";
 import { GameIcon, IconButton } from "../adventure/components/icons.jsx";
 import { TRAIT_LABELS } from "../adventure/engine/adventureState.js";
-import { useAdventure } from "../adventure/engine/useAdventure.js";
+import { useAdventureDane } from "../adventure/engine/useAdventure.js";
 import "../adventure/styles/adventure.css";
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { adventure, state } = useAdventure();
+  const { adventure, state } = useAdventureDane();
   const traits = Object.entries(state.traits || {}).sort((a, b) => b[1] - a[1]);
   const grants = state.grants.map((id) => adventure.grants[id]).filter(Boolean);
 

@@ -12,12 +12,12 @@
 import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { GameIcon } from "../../adventure/components/icons.jsx";
-import { useAdventure } from "../../adventure/engine/useAdventure.js";
+import { useAdventureDane } from "../../adventure/engine/useAdventure.js";
 import KATALOG from "../data/minigry.v1.json";
 
 export default function MinigryPanel({ onZamknij, onKomunikat }) {
   const navigate = useNavigate();
-  const { adventure, state } = useAdventure();
+  const { adventure, state } = useAdventureDane();
 
   const gry = useMemo(
     () =>

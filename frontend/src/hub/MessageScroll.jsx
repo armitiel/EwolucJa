@@ -12,7 +12,7 @@
  */
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAdventure } from "../adventure/engine/useAdventure.js";
+import { useAdventureDane } from "../adventure/engine/useAdventure.js";
 import { kiedyTekst, oznaczPrzeczytana, wpisZadania, zbierzWiadomosci } from "./wiadomosci.js";
 
 const MIN_WYSOKOSC = 360;
@@ -25,7 +25,7 @@ export default function MessageScroll({ open, onClose, onZmiana }) {
   const listaRef = useRef(null);
   const czasomierzRef = useRef(null);
 
-  const { adventure, state, nextStep } = useAdventure();
+  const { adventure, state, nextStep } = useAdventureDane();
   const [wiesci, setWiesci] = useState([]);
   const [rozwinieta, setRozwinieta] = useState(null);
   const [ladowanie, setLadowanie] = useState(true);

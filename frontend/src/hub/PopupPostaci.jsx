@@ -23,6 +23,8 @@
  * `window.popupPostaci.pokaz()` i adres `?popup=1`.
  */
 import React, { useEffect, useRef } from "react";
+import bgMusic from "../services/bgMusic.js";
+import { ttsPlayer } from "../services/ttsPlayer.js";
 
 /** Gwiazdka wektorem, nie plikiem: skaluje się bez rozmycia i bierze kolor z CSS. */
 function Gwiazdka({ className }) {
@@ -56,10 +58,34 @@ export default function PopupPostaci({
   tekst = "",
   wyroznienie = "",
   przycisk = "Poznajmy się!",
+  glos = null,
+  ton = "mystery",
   onAkcja,
   onZamknij,
 }) {
   const przyciskRef = useRef(null);
+
+  /**
+   * Postać MÓWI to, co ma w dymku. Tekst i tak jest na ekranie, więc lektor
+   * nie jest jedynym nośnikiem treści — jest dla dzieci, które jeszcze słabo
+   * czytają, i dla wrażenia, że ktoś naprawdę się odezwał.
+   *
+   * Dwie zasady, obie te same co u Mędrca:
+   *  • milczy przy wyciszonej grze — przycisk nutki w HUD-zie znaczy dla
+   *    dziecka „ciszej w grze", a nie „ciszej, ale głos i tak wejdzie";
+   *  • zamknięcie okna ucina mowę w pół słowa. Postać skończyła rozmowę,
+   *    więc nie ma prawa mówić dalej zza kadru, gdy lis już biegnie.
+   *
+   * Muzykę ścisza i przywraca sam `ttsPlayer`.
+   */
+  useEffect(() => {
+    if (!otwarty || !glos || !tekst) return undefined;
+    if (!bgMusic.isEnabled()) return undefined;
+    try {
+      ttsPlayer.speak(tekst, { land: glos, tone: ton, interrupt: true });
+    } catch {}
+    return () => { try { ttsPlayer.stop(); } catch {} };
+  }, [otwarty, glos, ton, tekst]);
 
   // Escape zamyka — na desktopie to odruch, a okno nie ma nic do stracenia.
   useEffect(() => {

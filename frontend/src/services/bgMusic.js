@@ -309,6 +309,12 @@ class BgMusic {
   /** Zmiana utworu. UWAGA: MediaElementAudioSource nie da sie podpiac drugi raz —
    *  trzeba zrobic nowy <audio> i nowy source. */
   setTrack(url) {
+    // Ten sam utwór = NIC SIĘ NIE DZIEJE. Bez tego strażnika każde wywołanie
+    // przebudowywało graf i startowało kawałek od zera — a woła to `setMood`
+    // z przygody, czyli potencjalnie każde wejście w ekran, który dotyka
+    // silnika fabuły. Dziecko słyszało wtedy, że muzyka „skacze" po otwarciu
+    // profilu czy minigier.
+    if (url === this._track && this._audio && !this._audio.paused) return;
     this._track = url;
     if (this._audio) {
       // Tear down audio graph (zachowamy _ctx)

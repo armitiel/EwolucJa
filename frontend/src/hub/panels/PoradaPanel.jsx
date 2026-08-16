@@ -12,11 +12,11 @@ import React, { useMemo, useState } from "react";
 import { IskraArt } from "../../adventure/art/characters.jsx";
 import { GameIcon } from "../../adventure/components/icons.jsx";
 import { markSeen, pickLightMoment } from "../../adventure/components/LightMoment.jsx";
-import { useAdventure } from "../../adventure/engine/useAdventure.js";
+import { useAdventureDane } from "../../adventure/engine/useAdventure.js";
 import CHWILE from "../../adventure/data/chwile-swiatla.v1.json";
 
 export default function PoradaPanel({ onZamknij }) {
-  const { adventure, state } = useAdventure();
+  const { adventure, state } = useAdventureDane();
   const [przyjeta, setPrzyjeta] = useState(false);
 
   const chwila = useMemo(() => pickLightMoment({ location: state.location }), [state.location]);

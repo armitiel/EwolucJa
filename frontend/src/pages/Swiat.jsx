@@ -133,6 +133,11 @@ function powitanieCzarodzieja(z) {
     };
   }
 
+  // Kwestia „w trakcie" jest dziś nieosiągalna ze świata: w czasie zbierania
+  // czarodziej w ogóle nie zagaduje (patrz obsługa dotknięcia — zamiast okna
+  // wchodzi krótki komunikat). Zostaje, bo stan istnieje i wróci w chwili,
+  // gdy rozmowa w trakcie zadania znów będzie miała co wnosić; na razie
+  // dosięga jej tylko `window.popupPostaci.pokaz()`.
   if (z.istnieje) {
     const zostalo = z.cel - z.zebrane;
     return {
@@ -448,7 +453,20 @@ export default function Swiat() {
         // pytanie wraca dopiero, gdy lis odbiegnie i wróci.
         if (dane?.znak === ZNAK_CZARODZIEJA) {
           // Rozmowa już trwa — drugie dotknięcie nie ma czego otwierać.
-          if (!rozmowaRef.current) setPytanie(true);
+          if (rozmowaRef.current) return;
+          // Stan czytamy ze ŹRÓDŁA, nie ze stanu Reacta: ta funkcja trafia do
+          // modułu sceny raz i trzyma domknięcie sprzed zmiany.
+          const z = stanZadania();
+          // W TRAKCIE ZBIERANIA CZARODZIEJ NIE ZAGADUJE. Zadanie jest już
+          // przyjęte, a on nie ma nic nowego do powiedzenia — okno na środku
+          // przerywałoby tylko bieg za gwiazdkami. Zostaje krótki komunikat,
+          // żeby dziecko wiedziało, że to nie awaria, i od razu widziało,
+          // ile mu zostało. Wchodzi najwyżej raz na podejście (`raz` w scenie).
+          if (z.istnieje && !z.spelnione) {
+            pokazKomunikat(`Wizcor czeka — masz ${z.zebrane} z ${z.cel} gwiazdek`);
+            return;
+          }
+          setPytanie(true);
           return;
         }
         // Gwiazdki liczą się TYLKO, gdy zadanie trwa. Przed rozmową z
@@ -682,6 +700,10 @@ export default function Swiat() {
         onNie={() => setPytanie(false)}
       />
 
+      {/* Głos czarodzieja: kraina „las decyzji" mapuje się w backendzie na
+          barwę `mystical`, a ton `mystery` zwalnia tempo i dokłada pauzy —
+          brzmi wtedy inaczej niż Mędrzec, który mówi głosem Mentora w tonie
+          `calm`. Mowa milknie sama przy wyciszonej grze i przy zamknięciu okna. */}
       <PopupPostaci
         otwarty={!!powitanie}
         imie={powitanie?.imie}
@@ -689,6 +711,8 @@ export default function Swiat() {
         tekst={powitanie?.tekst || ""}
         wyroznienie={powitanie?.wyroznienie}
         przycisk={powitanie?.przycisk}
+        glos="las_decyzji"
+        ton="mystery"
         onAkcja={naPrzyciskCzarodzieja}
         onZamknij={rozstanie}
       />
