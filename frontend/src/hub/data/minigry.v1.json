@@ -14,6 +14,17 @@
       "tlo": "linear-gradient(135deg,#FFE0B5,#FFD269)"
     },
     {
+      "id": "sekret-pod-puchem",
+      "tytul": "Sekret pod puchem",
+      "opis": "Rozgarnij piórka i zgadnij",
+      "emoji": "🪶",
+      "monety": 25,
+      "trasa": "/games/piorka",
+      "wejscieFabularne": "kopiec piór przy gnieździe",
+      "wymaga": null,
+      "tlo": "linear-gradient(135deg,#FBF1D6,#F4C95D)"
+    },
+    {
       "id": "echo-melodii",
       "tytul": "Echo Melodii",
       "opis": "Powtórz dźwięk Szeptuna",

@@ -69,6 +69,17 @@ const CEL_MONET = 100;
 const ZNAK_PANELU = {};
 
 /**
+ * Znaki w scenie, które ODPALAJĄ MINIGRĘ zamiast otwierać panel huba.
+ *
+ * `leaf` to identyfikator historyczny — model pod nim to dziś PIÓRKO
+ * (`assets/lisc.glb`), nie liść. Nie zmieniam id w scenie, bo siedzi w bundlu
+ * i w zapisanych stanach; zmiana nazwy dałaby tylko nowe miejsca do pomyłki.
+ */
+const ZNAK_GRY = {
+  leaf: "/games/piorka",
+};
+
+/**
  * Powitanie postaci. Docelowo odpali je spotkanie w świecie („lisek podszedł
  * do czarodzieja") — ten wyzwalacz przychodzi osobno, razem z postacią na
  * mapie. Do tego czasu treść siedzi tutaj jako jeden obiekt, żeby wyzwalacz
@@ -494,13 +505,20 @@ export default function Swiat() {
             if (po.spelnione) setNagroda(true);
           }
         }
+        // Znak, który prowadzi wprost do minigry — piórko na mapie otwiera
+        // „Sekret pod puchem". Scena zostaje zapauzowana przez odmontowanie
+        // huba, a powrót z gry wraca na `/swiat?panel=gry`, więc dziecko widzi,
+        // skąd przyszło.
+        const doGry = ZNAK_GRY[dane?.znak];
+        if (doGry) { navigate(doGry); return; }
+
         const doOtwarcia = ZNAK_PANELU[dane?.znak];
         if (doOtwarcia) otworz(doOtwarcia);
         return;
       }
       if (nazwa === "blad") setScenaMartwa(true);
     },
-    [otworz, panel, pokazKomunikat]
+    [otworz, panel, pokazKomunikat, navigate]
   );
 
   /* ── doładowanie dźwięków pod kurtyną z chmur ────────────────────────── */

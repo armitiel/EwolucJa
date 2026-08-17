@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { Sparkle, Cloud, Coin } from "../components/art.jsx";
 import { fx } from "../services/soundFx.js";
 import RewardScreen from "../components/RewardScreen.jsx";
+import SplashGry from "../hub/SplashGry.jsx";
 import { dodajMonety } from "../services/monety.js";
 import "../hub/styles/hub.css";
 
@@ -211,6 +212,34 @@ function StatPill({ icon, label, value }) {
   );
 }
 
+/**
+ * Gwiazda — jedna zlota ikonka (public/star.png) na wszystkie miejsca, w ktorych
+ * gra liczy gwiazdki: kafelki poziomu, podium wyniku i nagroda „echa".
+ * Wczesniej byly to trzy rozne rysunki SVG i dziecko widzialo trzy rozne
+ * gwiazdki za to samo. Niezdobyta to ta sama grafika, tylko wyszarzona — od razu
+ * widac, czego brakuje, bo ksztalt sie nie zmienia.
+ */
+function Gwiazda({ size = 24, zdobyta = true, style }) {
+  return (
+    <img
+      src="/star.png"
+      alt=""
+      aria-hidden="true"
+      width={size}
+      height={size}
+      draggable="false"
+      style={{
+        display: "block", width: size, height: size, userSelect: "none",
+        filter: zdobyta
+          ? "drop-shadow(0 3px 4px rgba(180,115,34,.42))"
+          : "grayscale(1) brightness(1.3) opacity(.34)",
+        transition: "width .3s, height .3s, filter .3s",
+        ...style,
+      }}
+    />
+  );
+}
+
 function SummaryTile({ n, l }) {
   return (
     <div style={{
@@ -238,7 +267,7 @@ function RewardItem({ icon, v, label }) {
 // ─── MAIN COMPONENT ───────────────────────────────────────────
 export default function MemoryGame() {
   const navigate = useNavigate();
-  const [phase, setPhase] = useState("intro"); // intro | playing | done
+  const [phase, setPhase] = useState("splash"); // intro | playing | done
   const [rewardShown, setRewardShown] = useState(false); // gdy true -> ukryty RewardScreen, pokazany summary
   const [diff, setDiff] = useState("easy");
   const pairs = diff === "easy" ? 6 : 8;
@@ -250,6 +279,16 @@ export default function MemoryGame() {
   const [moves, setMoves] = useState(0);
   const [seconds, setSeconds] = useState(0);
   const tickRef = useRef(null);
+
+  /**
+   * Ocena partii liczy sie TU, przed efektami, ktore z niej korzystaja.
+   * Wczesniej `stars` stalo nizej niz efekt wyplacajacy monety, a ten mial je
+   * w tablicy zaleznosci — tablica jest czytana przy renderze, wiec React
+   * dostawal ReferenceError zanim cokolwiek narysowal i gra "wieszala sie"
+   * zaraz po wejsciu. Kolejnosc deklaracji jest tu czescia dzialania, nie stylu.
+   */
+  const idealMoves = pairs;
+  const stars = moves <= idealMoves + 2 ? 3 : moves <= idealMoves + 6 ? 2 : 1;
 
   useEffect(() => {
     setDeck(makeDeck(pairs));
@@ -322,8 +361,6 @@ export default function MemoryGame() {
     setPhase("playing");
   };
 
-  const idealMoves = pairs;
-  const stars = moves <= idealMoves + 2 ? 3 : moves <= idealMoves + 6 ? 2 : 1;
   const progress = matched.size / (pairs * 2);
   const cardSize = useMemo(() => Math.floor((342 - (cols - 1) * 10) / cols), []);
 
@@ -360,6 +397,18 @@ export default function MemoryGame() {
       </div>
 
       <div className="gra-scroll screen-scroll">
+        {/* Splash także tutaj — żeby wejście w każdą minigrę wyglądało tak samo.
+            Ta gra nie dociąga plików, więc `gotowe` zostaje domyślnie prawdą
+            i ekran schodzi po samym minimalnym czasie. */}
+        {phase === "splash" ? (
+          <SplashGry
+            tytul="Pamięć Mędrca"
+            podpis="Tasuję symbole…"
+            emoji="🧠"
+            onKoniec={() => setPhase("intro")}
+          />
+        ) : null}
+
         <div style={{ position: "absolute", top: 80, right: -20, animation: "float-slow 6s ease-in-out infinite", zIndex: 0, pointerEvents: "none" }}><Cloud size={100} opacity={0.5} /></div>
         <div style={{ position: "absolute", bottom: 120, left: -30, animation: "float-mid 7s ease-in-out infinite", zIndex: 0, pointerEvents: "none" }}><Cloud size={80} opacity={0.4} /></div>
 
@@ -412,10 +461,7 @@ export default function MemoryGame() {
                       <div style={{ fontSize: 12, color: "var(--p-ink-soft)", fontWeight: 700, marginTop: 2 }}>{opt.sub}</div>
                       <div style={{ display: "flex", gap: 2, marginTop: 6 }}>
                         {[1, 2, 3].map((i) => (
-                          <svg key={i} width="12" height="12" viewBox="0 0 24 24">
-                            <path d="M12 2l2.5 6 6 .5-4.5 4.2 1.5 6.3L12 17l-5.5 3 1.5-6.3L3.5 9.5l6-.5L12 2z"
-                              fill={i <= opt.stars ? "#E89A3D" : "rgba(43,42,74,.15)"} />
-                          </svg>
+                          <Gwiazda key={i} size={13} zdobyta={i <= opt.stars} />
                         ))}
                       </div>
                     </button>
@@ -429,7 +475,7 @@ export default function MemoryGame() {
               <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, fontWeight: 900, color: "#4A2A0E" }}>
                 <Coin size={16} /> 10
               </span>
-              <span style={{ fontSize: 12.5, fontWeight: 900, color: "var(--p-magic-dk)" }}>✦ 1</span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12.5, fontWeight: 900, color: "var(--p-magic-dk)" }}><Gwiazda size={15} /> 1</span>
             </div>
 
             <div style={{ flex: 1 }} />
@@ -487,20 +533,11 @@ export default function MemoryGame() {
                   const earned = i <= stars;
                   return (
                     <div key={i} style={{
-                      width: earned ? 56 : 44, height: earned ? 56 : 44,
-                      borderRadius: "50%",
-                      background: earned ? "radial-gradient(circle at 35% 30%, #FFE7B0, #E89A3D)" : "rgba(255,255,255,.6)",
-                      boxShadow: earned ? "0 4px 0 #B47322, 0 10px 22px rgba(232,154,61,.5)" : "inset 0 0 0 1.5px rgba(43,42,74,.12)",
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      transform: `translateY(${i === 2 ? -6 : 0}px)`,
+                      transform: `translateY(${i === 2 ? -8 : 0}px)`,
                       transition: "all .3s",
                     }}>
-                      <svg width={earned ? 32 : 26} height={earned ? 32 : 26} viewBox="0 0 24 24">
-                        <path d="M12 3l2.5 6 6 .5-4.5 4.2 1.5 6.3L12 17l-5.5 3 1.5-6.3L3.5 9.5l6-.5L12 3z"
-                          fill={earned ? "#fff" : "rgba(43,42,74,.18)"}
-                          stroke={earned ? "#fff" : "rgba(43,42,74,.2)"}
-                          strokeWidth="1" strokeLinejoin="round" />
-                      </svg>
+                      <Gwiazda size={earned ? 64 : 46} zdobyta={earned} />
                     </div>
                   );
                 })}
@@ -524,7 +561,7 @@ export default function MemoryGame() {
               <div style={{ padding: "14px 14px", width: "100%", marginTop: 6, borderRadius: 14, background: "linear-gradient(180deg, #FCF5E1 0%, #F4E3B8 100%)", boxShadow: "inset 0 0 0 1.5px rgba(168,122,42,.25)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "space-between" }}>
                   <RewardItem icon={<Coin size={26} />} v={5 + stars * 3} label="monet" />
-                  <RewardItem icon={<span style={{ fontSize: 24, color: "#FFD269" }}>✦</span>} v={stars} label="ech" />
+                  <RewardItem icon={<Gwiazda size={26} />} v={stars} label="ech" />
                   <RewardItem icon={<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#7A4DC2" strokeWidth="2" /><circle cx="12" cy="12" r="5" stroke="#7A4DC2" strokeWidth="2" /><circle cx="12" cy="12" r="1.5" fill="#7A4DC2" /></svg>} v="+1" label="Skupienie" />
                 </div>
               </div>

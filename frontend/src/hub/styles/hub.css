@@ -920,3 +920,104 @@
   }
   .popup-pytanie-tak{ min-height:48px; }
 }
+
+
+/* ── Sekret pod puchem ─────────────────────────────────────────────────── */
+/* Plotno zajmuje wszystko, co zostanie miedzy paskiem a kafelkami. `touch-action:
+   none` jest tu obowiazkowe - bez tego przeciagniecie palcem przewija strone
+   zamiast rozgarniac puch. */
+.puch-plotno{
+  flex:1; min-height:0; width:100%; display:block;
+  touch-action:none; cursor:grab;
+}
+.puch-plotno:active{ cursor:grabbing; }
+
+.puch-runda{
+  margin-right:auto; padding:6px 14px;
+  border-radius:var(--r-pill,999px);
+  background:rgba(255,251,224,.9); box-shadow:inset 0 0 0 1.5px rgba(168,122,42,.35);
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  font-size:13px; font-weight:800; color:#7A4D10;
+}
+
+/* Kafelki wchodza dopiero, gdy cos widac - inaczej dalo by sie strzelac na
+   slepo, zanim kopiec w ogole zostal ruszony. */
+.puch-kafelki{
+  flex:none; display:flex; gap:10px; justify-content:center;
+  padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));
+  opacity:0; transform:translateY(10px); pointer-events:none;
+  transition:opacity .3s ease, transform .3s ease;
+}
+.puch-kafelki.widoczne{ opacity:1; transform:none; pointer-events:auto; }
+
+.puch-kafel{
+  flex:1; max-width:150px; min-height:78px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+  padding:8px 6px; cursor:pointer;
+  border:2px solid transparent; border-radius:var(--r-card,22px);
+  background:
+    linear-gradient(180deg,rgba(255,251,224,.98),rgba(243,224,171,.98)) padding-box,
+    linear-gradient(180deg,#fff3a8 0%,#e5aa32 62%,#a46418 100%) border-box;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.85),0 4px 0 #925118,0 8px 16px rgba(49,42,20,.28);
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  font-size:13px; font-weight:800; color:#513c14;
+}
+/* Sylwetka zamiast pelnego koloru: kolorowy kafelek konkurowalby z tym, co
+   wlasnie sie odslania. `brightness(0)` robi ja z tego samego pliku, wiec
+   kadrowanie zawsze zgadza sie z obrazkiem pod puchem. */
+.puch-kafel img{
+  width:38px; height:38px; object-fit:contain;
+  filter:brightness(0) opacity(.72);
+}
+.puch-kafel:active{ transform:translateY(2px); }
+.puch-kafel.zgaszony{ filter:grayscale(1); opacity:.4; transform:translateY(4px); }
+
+.puch-intro,.puch-srodek{
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:10px; padding:24px 26px calc(24px + env(safe-area-inset-bottom,0px)); text-align:center;
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif; color:var(--p-ink,#4e4d76);
+}
+.puch-intro h1{ margin:0; font-size:30px; }
+.puch-intro p{ margin:0; font-size:16px; font-weight:600; }
+.puch-wskazowka{ color:#7A4D10; font-weight:800 !important; }
+.puch-godlo{
+  width:104px; height:104px; object-fit:contain;
+  filter:drop-shadow(0 6px 10px rgba(78,77,118,.25));
+  animation:medrzec-wejscie .5s cubic-bezier(.2,.9,.3,1.2) both;
+}
+.puch-intro .gra-btn-duzy{ max-width:320px; }
+
+
+/* ── Splash gry (wspolny dla wszystkich minigier) ──────────────────────── */
+/* Nie ozdoba: gry dociagaja wlasna grafike (Sekret pod puchem blisko megabajta)
+   i bez tego ekranu dziecko patrzy w tym czasie na puste tlo. Elementy opadaja
+   jedno po drugim (`--nr` steruje opoznieniem), wiec czekanie samo cos pokazuje. */
+.splash-gry{
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:12px; padding:24px; text-align:center;
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif; color:var(--p-ink,#4e4d76);
+}
+.splash-gry h1{ margin:0; font-size:28px; }
+.splash-gry p{ margin:0; font-size:15px; font-weight:600; opacity:.75; }
+
+.splash-gry-art{ display:flex; align-items:flex-end; gap:6px; height:96px; margin-bottom:4px; }
+.splash-gry-art img{
+  width:52px; height:52px; object-fit:contain;
+  filter:drop-shadow(0 4px 6px rgba(78,77,118,.22));
+}
+.splash-gry-emoji{ font-size:56px; line-height:1; }
+.splash-gry-art img,
+.splash-gry-emoji{
+  animation:splash-gry-opada 1.9s ease-in-out infinite;
+  animation-delay:calc(var(--nr) * .16s);
+}
+
+@keyframes splash-gry-opada{
+  0%   { transform:translateY(-26px) rotate(-14deg); opacity:.25; }
+  45%  { transform:translateY(0) rotate(6deg); opacity:1; }
+  100% { transform:translateY(-26px) rotate(-14deg); opacity:.25; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .splash-gry-art img,.splash-gry-emoji{ animation:none; opacity:1; }
+}

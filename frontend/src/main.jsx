@@ -43,6 +43,7 @@ import MentorPairs from "./pages/MentorPairs.jsx";
 import JoinClass from "./pages/JoinClass.jsx";
 import PoradyPage from "./pages/PoradyPage.jsx";
 import MemoryGame from "./pages/MemoryGame.jsx";
+import PiorkaGame from "./pages/PiorkaGame.jsx";
 import LoginAsStudent from "./pages/LoginAsStudent.jsx";
 import LoginByCode from "./pages/LoginByCode.jsx";
 import DevTools from "./components/DevTools.jsx";
@@ -80,6 +81,7 @@ function AppRoutes() {
       <Route path="/mapa" element={<Navigate to="/swiat" replace />} />
       <Route path="/games" element={<Games />} />
       <Route path="/games/memory" element={<MemoryGame />} />
+      <Route path="/games/piorka" element={<PiorkaGame />} />
       <Route path="/backpack" element={<Backpack />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/mission" element={<MissionView />} />
