@@ -48,22 +48,20 @@ export default function LoginByCode() {
 
   return (
     <PageShell sky="dawn">
-      <div style={{
-        flex: 1, display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center",
-        gap: 18, padding: "24px 26px", textAlign: "center",
-      }}>
-        <div style={{ fontSize: 56 }}>🗝️</div>
-        <div className="t-display" style={{ fontSize: 26, color: "var(--p-magic-dk)", margin: 0 }}>
-          Wracasz po przygodę?
-        </div>
-        <div style={{ fontSize: 14, color: "var(--p-ink-soft)", lineHeight: 1.4, maxWidth: 300 }}>
-          Wpisz swój magiczny kod (znajdziesz go u rodzica lub nauczyciela).
-        </div>
+      <div className="kod-ekran">
+        {/* Klucz to ten sam plik, ktory siedzi w przycisku „Mam juz kod" na
+            ekranie startowym — dziecko widzi, ze trafilo tam, gdzie chcialo. */}
+        <img className="kod-klucz" src="/assets/wejscie/klucz.png" alt="" aria-hidden="true" />
+
+        <h1 className="t-display kod-tytul">Wpisz swój kod</h1>
+        <p className="kod-podpis">
+          Sześć znaków od rodzica albo nauczyciela. Otworzą Twoją Kronikę.
+        </p>
 
         <form onSubmit={handleSubmit} style={{ width: "100%", maxWidth: 340, display: "flex", flexDirection: "column", gap: 12 }}>
           <input
             ref={inputRef}
+            className="kod-pole"
             value={code}
             onChange={(e) => { setCode(clean(e.target.value)); setError(null); }}
             placeholder="HQ7K2P"
@@ -72,39 +70,30 @@ export default function LoginByCode() {
             autoComplete="off"
             spellCheck={false}
             maxLength={8}
-            style={{
-              width: "100%", boxSizing: "border-box",
-              padding: "16px 18px",
-              border: "2px solid rgba(122,77,194,.35)",
-              borderRadius: 14,
-              background: "rgba(255,255,255,.95)",
-              color: "var(--p-magic-dk)",
-              fontFamily: "var(--font-display, 'Baloo 2'), sans-serif",
-              fontSize: 32, fontWeight: 800,
-              letterSpacing: 6, textAlign: "center", textTransform: "uppercase",
-              outline: "none",
-            }}
+            aria-label="Kod ucznia"
           />
-          {error && (
-            <div style={{ fontSize: 13, color: "#B85B47", fontWeight: 700 }}>{error}</div>
-          )}
+          {error && <div className="kod-blad">{error}</div>}
           <button
             type="submit"
             className="btn btn-magic btn-block"
             disabled={submitting || clean(code).length < 4}
           >
-            {submitting ? "Sprawdzam…" : "✨ Otwórz Kronikę"}
+            {submitting ? "Sprawdzam…" : (
+              <>
+                <img className="kod-ikona" src="/star.png" alt="" aria-hidden="true" />
+                Otwórz Kronikę
+              </>
+            )}
           </button>
         </form>
 
-        <div style={{ marginTop: 14, fontSize: 12, color: "var(--p-ink-soft)" }}>
+        <div className="kod-stopka">
           Nie masz kodu?{" "}
-          <button onClick={() => navigate("/dolacz")} style={{ background: "none", border: "none", color: "var(--p-magic-dk)", fontWeight: 800, cursor: "pointer", padding: 0 }}>
-            Dołącz przez kod klasy
-          </button>
+          <button type="button" onClick={() => navigate("/dolacz")}>Dołącz przez kod klasy</button>
         </div>
-        <button onClick={() => navigate("/")} className="btn btn-ghost btn-sm" style={{ marginTop: 4 }}>
-          ← Wróć
+
+        <button onClick={() => navigate("/")} className="btn btn-ghost btn-sm" style={{ marginTop: 2 }}>
+          Wróć
         </button>
       </div>
     </PageShell>

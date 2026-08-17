@@ -550,3 +550,75 @@ h3.title{ font-size: 22px; margin:0; }
   background: var(--c,#FFD269); border-radius: 60% 0 60% 0;
   transform-origin: center; opacity:0;
 }
+
+/* ─── Ekran startowy (Landing) ─────────────────────────────────────────────
+   Jeden ekran zamiast dwoch: ilustracja jest tlem, tresc siedzi na niej u dolu.
+   Zaslona to nie ozdoba — bez niej podpis i przyciski leza na trawie i chmurach,
+   a wtedy nic sie nie da przeczytac. Gradient zaczyna sie przezroczysty, zeby
+   nie ucinac obrazka twarda linia. */
+.start-ekran{ position:relative; flex:1; display:flex; flex-direction:column; overflow:hidden; }
+/* Ilustracja NIE wypelnia calego ekranu. Jej dol (lew z choragiewka) to
+   najwazniejszy kadr, a przy pelnym cover ladowal dokladnie pod przyciskami.
+   Dlatego kotwiczymy DOL obrazka nad blokiem CTA i przycinamy gore — niebo
+   i drzewa da sie stracic, bohatera nie. */
+.start-tlo{
+  position:absolute; left:0; right:0; bottom:29%;
+  width:100%; height:auto;
+}
+.start-zaslona{
+  position:absolute; left:0; right:0; bottom:0; height:52%;
+  background:linear-gradient(180deg,
+    rgba(251,241,214,0) 0%,
+    rgba(251,241,214,.55) 22%,
+    rgba(251,241,214,.94) 42%,
+    var(--p-paper) 58%);
+}
+.start-tresc{
+  position:relative; z-index:1; margin-top:auto; width:100%;
+  /* +46 px u dolu: w rogu siedzi plakietka DEV i bez tego wchodzila
+     w linijke o Mentorze. */
+  padding:0 24px calc(46px + env(safe-area-inset-bottom, 0px));
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+}
+.start-logo{
+  font-family:var(--font-display), system-ui, sans-serif;
+  font-size:clamp(52px, 17vw, 68px); font-weight:800; line-height:1;
+  margin:0; letter-spacing:-1px; color:var(--p-ink);
+  text-shadow:0 3px 0 rgba(255,255,255,.6), 0 6px 0 rgba(78,77,118,.06);
+}
+.start-haslo{
+  margin:0; max-width:268px; text-align:center;
+  font-size:19px; line-height:1.25; color:var(--p-ink-soft);
+}
+.start-cta{ width:100%; max-width:360px; margin-top:14px; display:flex; flex-direction:column; gap:10px; }
+/* Ikonki w przyciskach to te same pliki, co w grze (gwiazdka z Pamieci Medrca,
+   klucz z ekranu logowania) — dziecko widzi ten sam przedmiot, nie emoji. */
+.start-ikona{ width:24px; height:24px; object-fit:contain; display:block; filter:drop-shadow(0 2px 2px rgba(120,80,20,.32)); }
+.start-nuta{
+  margin:10px 0 0; max-width:320px; text-align:center;
+  font-size:12px; line-height:1.35; color:var(--p-ink-soft); opacity:.85;
+}
+.start-dorosly{ margin:4px 0 0; text-align:center; font-size:13px; color:var(--p-ink-soft); }
+.start-dorosly a{ color:var(--p-magic-dk); font-weight:800; text-decoration:underline; text-underline-offset:3px; }
+
+/* ─── Ekran logowania kodem ───────────────────────────────────────────────── */
+.kod-ekran{
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:14px; padding:24px 26px; text-align:center;
+}
+.kod-klucz{ width:118px; height:auto; display:block; animation:float-mid 4s ease-in-out infinite; filter:drop-shadow(0 12px 18px rgba(140,95,25,.28)); }
+.kod-tytul{ margin:2px 0 0; font-size:27px; color:var(--p-magic-dk); }
+.kod-podpis{ margin:0; max-width:300px; font-size:14px; line-height:1.4; color:var(--p-ink-soft); }
+.kod-pole{
+  width:100%; box-sizing:border-box; padding:16px 18px;
+  border:2px solid rgba(122,77,194,.35); border-radius:16px;
+  background:rgba(255,255,255,.95); color:var(--p-magic-dk);
+  font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
+  font-size:32px; font-weight:800; letter-spacing:6px; text-align:center; text-transform:uppercase;
+  outline:none; transition:border-color .15s ease, box-shadow .15s ease;
+}
+.kod-pole:focus{ border-color:var(--p-magic); box-shadow:0 0 0 4px rgba(184,134,232,.22); }
+.kod-blad{ font-size:13px; font-weight:800; color:#B85B47; }
+.kod-ikona{ width:22px; height:22px; object-fit:contain; display:block; }
+.kod-stopka{ margin-top:12px; font-size:12.5px; color:var(--p-ink-soft); }
+.kod-stopka button{ background:none; border:none; padding:0; cursor:pointer; font-weight:800; color:var(--p-magic-dk); font-family:inherit; font-size:inherit; }
