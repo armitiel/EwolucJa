@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "note": "Porady dnia. Trzy zasady, ktore trzymaja ten plik w ryzach: (1) MAKSYMALNIE JEDNO KROTKIE ZDANIE - dziecko 6-12 lat nie czyta akapitow, tylko je omija; (2) BEZ NADAWCY - nikt tego nie mowi, to jest karteczka, a nie kwestia postaci; (3) o CZYNNOSCI, nie o samopoczuciu dziecka - 'napij sie wody' zamiast 'zadbaj o nawodnienie'. Pola: `pora` (rano|poludnie|popoludnie|wieczor|noc), `typ` (zdrowie|samopoczucie).",
+  "porady": [
+    { "id": "p-woda-rano", "pora": "rano", "typ": "zdrowie", "tekst": "Wypij szklankę wody." },
+    { "id": "p-okno-rano", "pora": "rano", "typ": "zdrowie", "tekst": "Otwórz okno na chwilę." },
+    { "id": "p-przeciag-rano", "pora": "rano", "typ": "zdrowie", "tekst": "Przeciągnij się i ziewnij." },
+    { "id": "p-sniadanie", "pora": "rano", "typ": "zdrowie", "tekst": "Zjedz coś ciepłego." },
+    { "id": "p-usmiech-rano", "pora": "rano", "typ": "samopoczucie", "tekst": "Powiedz komuś dzień dobry." },
+    { "id": "p-plan-rano", "pora": "rano", "typ": "samopoczucie", "tekst": "Pomyśl o jednej fajnej rzeczy na dziś." },
+    { "id": "p-oddech-rano", "pora": "rano", "typ": "samopoczucie", "tekst": "Weź trzy wolne oddechy." },
+
+    { "id": "p-woda-poludnie", "pora": "poludnie", "typ": "zdrowie", "tekst": "Napij się wody." },
+    { "id": "p-owoc", "pora": "poludnie", "typ": "zdrowie", "tekst": "Zjedz coś kolorowego." },
+    { "id": "p-wstan", "pora": "poludnie", "typ": "zdrowie", "tekst": "Wstań i przejdź się chwilę." },
+    { "id": "p-oczy-poludnie", "pora": "poludnie", "typ": "zdrowie", "tekst": "Popatrz przez okno, daleko." },
+    { "id": "p-dziekuje", "pora": "poludnie", "typ": "samopoczucie", "tekst": "Podziękuj komuś za coś małego." },
+    { "id": "p-pomoc", "pora": "poludnie", "typ": "samopoczucie", "tekst": "Pomóż komuś w drobnej rzeczy." },
+
+    { "id": "p-ruch-popoludnie", "pora": "popoludnie", "typ": "zdrowie", "tekst": "Wyjdź na dwór, choć na chwilę." },
+    { "id": "p-skoki", "pora": "popoludnie", "typ": "zdrowie", "tekst": "Podskocz dziesięć razy." },
+    { "id": "p-woda-popoludnie", "pora": "popoludnie", "typ": "zdrowie", "tekst": "Znowu woda — jedna szklanka." },
+    { "id": "p-plecy", "pora": "popoludnie", "typ": "zdrowie", "tekst": "Wyprostuj plecy." },
+    { "id": "p-rozmowa-popoludnie", "pora": "popoludnie", "typ": "samopoczucie", "tekst": "Opowiedz komuś, co dziś było fajne." },
+    { "id": "p-muzyka", "pora": "popoludnie", "typ": "samopoczucie", "tekst": "Włącz ulubioną piosenkę." },
+    { "id": "p-nuda", "pora": "popoludnie", "typ": "samopoczucie", "tekst": "Ponudź się przez pięć minut." },
+
+    { "id": "p-zeby", "pora": "wieczor", "typ": "zdrowie", "tekst": "Umyj zęby dokładnie." },
+    { "id": "p-kolacja", "pora": "wieczor", "typ": "zdrowie", "tekst": "Zjedz lekką kolację." },
+    { "id": "p-ekran-wieczor", "pora": "wieczor", "typ": "zdrowie", "tekst": "Odłóż ekran przed snem." },
+    { "id": "p-przewietrz", "pora": "wieczor", "typ": "zdrowie", "tekst": "Przewietrz pokój przed spaniem." },
+    { "id": "p-trzy-rzeczy", "pora": "wieczor", "typ": "samopoczucie", "tekst": "Przypomnij sobie trzy dobre rzeczy z dziś." },
+    { "id": "p-dobranoc", "pora": "wieczor", "typ": "samopoczucie", "tekst": "Powiedz komuś dobranoc." },
+    { "id": "p-jutro", "pora": "wieczor", "typ": "samopoczucie", "tekst": "Odłóż zmartwienia do jutra." },
+
+    { "id": "p-sen", "pora": "noc", "typ": "zdrowie", "tekst": "Czas spać." },
+    { "id": "p-ciemno", "pora": "noc", "typ": "zdrowie", "tekst": "Zgaś światło." },
+    { "id": "p-oddech-noc", "pora": "noc", "typ": "samopoczucie", "tekst": "Oddychaj wolno i licz do dziesięciu." },
+    { "id": "p-cisza", "pora": "noc", "typ": "samopoczucie", "tekst": "Posłuchaj ciszy." }
+  ]
+}

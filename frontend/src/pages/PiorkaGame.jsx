@@ -378,7 +378,7 @@ export default function PiorkaGame({ osadzona = false, onWyjscie }) {
 
         {faza === "intro" ? (
           <EkranStartuGry
-            ilustracja={SCIEZKA + "lis-piorko.png"}
+            ilustracja={SCIEZKA + "lis-skok.webp"}
             tytul="Sekret pod puchem"
             poziomy={[{ id: "jeden", monetyMax: RUND * NAGRODY[0].monety }]}
             wybrany="jeden"

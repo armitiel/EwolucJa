@@ -107,7 +107,23 @@ const GRY_OSADZONE = {
  * Mówi LISEK, a nie narrator: to bohater dziecka znalazł coś na mapie, więc
  * pyta w pierwszej osobie liczby mnogiej („zagramy?"). `wyroznienie` musi być
  * dosłownym fragmentem `tekst` — inaczej podkreślenie po prostu nie wejdzie.
+ *
+ * Kiedy to okno wchodzi.
+ *
+ * Znak nie znika od razu: moduł sceny gra na nim wchłanianie — obiekt unosi
+ * się, powiększa i gaśnie przez 0,95 s (stała `Hx` w bundlu). Okno wchodzące
+ * natychmiast przykrywało tę animację w połowie, więc dziecko słyszało brzdęk,
+ * ale nie widziało, co się właściwie stało z kartą.
+ *
+ * Ale czekanie na SAM koniec, a potem jeszcze chwilę, było już dłużyzną. Okno
+ * rusza więc tuż PRZED końcem znikania: karta jest wtedy już prawie
+ * przezroczysta, a jej ostatnie iskry gasną pod wjeżdżającym oknem. Dwa ruchy
+ * zazębiają się o te 160 ms i czyta się to jak jedno zdarzenie, a nie jak
+ * animacja, pauza i dopiero okno.
  */
+const WCHLANIANIE_MS = 950;
+const WYPRZEDZENIE_MS = 160;
+
 const ZAPROSZENIA = {
   "sekret-pod-puchem": {
     tekst: "Zagramy w Sekret pod puchem?",
@@ -301,6 +317,10 @@ export default function Swiat() {
   // Zaproszenie do minigry: `null` albo `id` gry z katalogu. Znak na mapie nie
   // wrzuca już dziecka prosto w grę — najpierw pyta, tak samo jak czarodziej.
   const [zaproszenie, setZaproszenie] = useState(null);
+  // Odliczanie od dotknięcia znaku do wejścia okna. REF, nie stan: to tylko
+  // uchwyt do sprzątnięcia, a przerysowanie huba w trakcie animacji sceny
+  // byłoby dokładnie tym, czego ta pauza ma uniknąć.
+  const zegarZaproszeniaRef = useRef(0);
   // Zadanie od czarodzieja. Czytamy je z localStorage przy montowaniu, bo
   // zbieranie ma przeżyć zamknięcie apki.
   const [zadanie, setZadanie] = useState(() => stanZadania());
@@ -417,9 +437,18 @@ export default function Swiat() {
   }, [panel, gra, powitanie, pytanie, zaproszenie, nagroda]);
 
   useEffect(() => {
-    rozmowaRef.current = !!powitanie || pytanie || !!zaproszenie || nagroda;
+    // `||` z lewej strony, a nie przypisanie wprost: gdy odliczanie do
+    // zaproszenia już trwa, blokada ma zostać wciśnięta, choć żadne okno
+    // jeszcze nie stoi na ekranie.
+    rozmowaRef.current =
+      !!powitanie || pytanie || !!zaproszenie || nagroda || !!zegarZaproszeniaRef.current;
     if (powitanie || pytanie || zaproszenie || nagroda) fx.krokiStop();
   }, [powitanie, pytanie, zaproszenie, nagroda]);
+
+  // Wyjście ze świata w trakcie odliczania: bez tego okno wskoczyłoby na
+  // ekranie, którego już nie ma, i React zapłakałby o `setState` po
+  // odmontowaniu.
+  useEffect(() => () => window.clearTimeout(zegarZaproszeniaRef.current), []);
 
   /**
    * PILNOWANIE STANU, a nie tylko reagowanie na przejścia.
@@ -617,7 +646,19 @@ export default function Swiat() {
         const doGry = ZNAK_GRY[dane?.znak];
         if (doGry) {
           if (rozmowaRef.current) return;
-          setZaproszenie(doGry);
+          // Blokada zapada OD RAZU, choć okno wejdzie dopiero za chwilę:
+          // przez te 0,8 s lis biegnie dalej i bez tego zdążyłby wpaść
+          // w drugi znak albo na czarodzieja, a wtedy odliczania nałożyłyby
+          // się na siebie. Zdejmie ją zamknięcie okna (efekt niżej).
+          rozmowaRef.current = true;
+          window.clearTimeout(zegarZaproszeniaRef.current);
+          zegarZaproszeniaRef.current = window.setTimeout(() => {
+            // Zerujemy PRZED `setZaproszenie`, żeby uchwyt znaczył dokładnie
+            // „odliczanie trwa" — inaczej blokada zostałaby wciśnięta na stałe
+            // po pierwszym zaproszeniu.
+            zegarZaproszeniaRef.current = 0;
+            setZaproszenie(doGry);
+          }, WCHLANIANIE_MS - WYPRZEDZENIE_MS);
           return;
         }
 

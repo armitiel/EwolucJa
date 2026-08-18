@@ -860,13 +860,25 @@
    imieniem - tak samo jak plaskie ciecie u czarodzieja. */
 .popup-postaci--lis .popup-postaci-karta{
   margin-top:calc(var(--popup-postac) * .708);
+  /* Bez przeskoku. Powitanie postaci wchodzi z odbiciem (`1.25` na koncu
+     krzywej), bo tam okno jest wydarzeniem. Zaproszenie przychodzi PO ciszy,
+     ktora sami przed nim zrobilismy - odbicie kasowaloby ten spokoj w polowie
+     sekundy. Dluzej i lagodniej, prawie bez przestrzelenia. */
+  animation-duration:.56s;
+  animation-timing-function:cubic-bezier(.22,.86,.3,1.03);
 }
+.popup-postaci--lis .popup-postaci-zaslona{ animation-duration:.4s; }
 .popup-postaci--lis .popup-postaci-bohater{
   width:auto; height:var(--popup-postac);
   /* Lapy schodza pod wstege z imieniem - u czarodzieja robi to plaskie
      ciecie grafiki, tutaj samo przesuniecie. Liczone z WYSOKOSCI, bo to ona
      jest teraz miara postaci. */
   bottom:calc(100% - var(--popup-postac) * .054);
+  /* Lisek wchodzi razem z karta, a nie wyskakuje zza niej - to samo uspokojenie
+     co wyzej, plus krotsze opoznienie, zeby oba ruchy czytaly sie jako jeden. */
+  animation-duration:.6s;
+  animation-timing-function:cubic-bezier(.22,.86,.3,1.05);
+  animation-delay:.04s;
 }
 
 /* Krzyzyk siedzi W ROGU KARTY, nie poza nia: przy karcie szerokiej na caly
@@ -1241,3 +1253,168 @@
   margin:6px 0 0; font-size:13px; font-weight:800; color:var(--p-ink-soft,#5A4F77);
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
 }
+
+/* ── Porada dnia ───────────────────────────────────────────────────────────
+   Karteczka przypieta do tablicy, a nie kolejny kafelek UI: papier w cieplym
+   zoltym, lekkie przechylenie, pinezka u gory. Dziecko ma poczuc, ze to jest
+   JEDNA rzecz na dzis, ktora sie zdejmuje - a nie pozycja na liscie. */
+.porada-karta{
+  position:relative;
+  margin:26px auto 22px; width:min(100%,300px);
+  padding:30px 20px 18px;
+  border-radius:6px;
+  background:linear-gradient(180deg,#FFF6C9 0%,#FFEFAE 100%);
+  box-shadow:0 10px 18px rgba(60,45,15,.22), inset 0 1px 0 rgba(255,255,255,.7);
+  transform:rotate(-1.6deg);
+  text-align:center;
+}
+/* Zagiety rog. Dwa trojkaty z gradientow: gorny "sciete" tlo panelu, dolny
+   cien pod odgietym papierem. Bez tego karteczka jest po prostu prostokatem. */
+.porada-karta::after{
+  content:""; position:absolute; right:0; bottom:0;
+  width:26px; height:26px;
+  background:linear-gradient(135deg, rgba(0,0,0,.14) 0%, rgba(0,0,0,.06) 45%, transparent 46%),
+             linear-gradient(315deg, var(--p-paper,#FBF1D6) 50%, transparent 51%);
+  border-bottom-right-radius:6px;
+}
+.porada-pinezka{
+  position:absolute; top:-9px; left:50%; transform:translateX(-50%);
+  width:19px; height:19px; border-radius:50%;
+  background:radial-gradient(circle at 36% 32%, #ff9a8e, #d6352c 70%);
+  box-shadow:0 3px 5px rgba(60,20,10,.4), inset 0 1px 0 rgba(255,255,255,.55);
+}
+.porada-tekst{
+  margin:0 0 16px;
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  font-size:21px; line-height:1.25; font-weight:700;
+  color:#5a4a1e;
+}
+
+/* Dwie ikony zamiast dwoch przyciskow z napisami: dziecko, ktore jeszcze slabo
+   czyta, rozpoznaje kciuk i krzyzyk od razu, a napisy kazalyby mu czytac po raz
+   drugi to samo zdanie, ktore wlasnie przeczytalo wyzej. */
+.porada-akcje{ display:flex; justify-content:center; gap:16px; }
+.porada-ikona{
+  width:52px; height:52px; padding:0; flex:none;
+  display:grid; place-items:center;
+  border:2px solid transparent; border-radius:50%;
+  cursor:pointer;
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+.porada-ikona svg{ width:26px; height:26px; }
+.porada-ikona:active{ transform:translateY(2px); }
+@media (prefers-reduced-motion:reduce){ .porada-ikona{ transition:none; } }
+
+/* Zielony = to samo "idz dalej", co przycisk glowny w calej grze. */
+.porada-ikona--tak{
+  background:linear-gradient(180deg,#8ed15f,#5aa733) padding-box,
+             linear-gradient(180deg,#b6e88f,#3e7a22) border-box;
+  box-shadow:0 4px 0 #3c761f, 0 8px 14px rgba(30,70,15,.3), inset 0 2px 0 rgba(255,255,255,.5);
+}
+.porada-ikona--tak svg{ fill:#fffdf4; stroke:none; }
+.porada-ikona--tak:active{ box-shadow:0 2px 0 #3c761f, 0 4px 8px rgba(30,70,15,.3); }
+
+/* Krzyzyk jest LZEJSZY, nie czerwony: odlozenie porady to nie blad ani kara,
+   a czerwony krzyzyk czyta sie jak "zle zrobiles". */
+.porada-ikona--nie{
+  background:linear-gradient(180deg,#fdf3d8,#f0e0b4) padding-box,
+             linear-gradient(180deg,#fff8e4,#c8a86a) border-box;
+  box-shadow:0 4px 0 #b9955a, 0 6px 10px rgba(90,70,25,.22), inset 0 2px 0 rgba(255,255,255,.7);
+}
+.porada-ikona--nie svg{ fill:none; stroke:#8a6f36; stroke-width:2.6; stroke-linecap:round; }
+.porada-ikona--nie:active{ box-shadow:0 2px 0 #b9955a, 0 3px 6px rgba(90,70,25,.22); }
+
+/* Zejscie karteczki. Kciuk = zdejmuje sie w gore i gasnie (zrobione, znika
+   z tablicy). Krzyzyk = zsuwa sie W DOL, w strone listy pod spodem, zeby bylo
+   widac, DOKAD poleciala - inaczej dziecko nie wie, ze cos zostalo zachowane. */
+@keyframes porada-wzieta{
+  0%{ transform:rotate(-1.6deg) translateY(0) scale(1); opacity:1; }
+  35%{ transform:rotate(-1.6deg) translateY(-10px) scale(1.03); opacity:1; }
+  100%{ transform:rotate(-6deg) translateY(-64px) scale(.9); opacity:0; }
+}
+@keyframes porada-odlozona{
+  0%{ transform:rotate(-1.6deg) translateY(0) scale(1); opacity:1; }
+  25%{ transform:rotate(1deg) translateY(-6px) scale(1.01); opacity:1; }
+  100%{ transform:rotate(4deg) translateY(180px) scale(.72); opacity:0; }
+}
+.porada-karta--wzieta{ animation:porada-wzieta .38s cubic-bezier(.4,0,.7,.4) forwards; }
+.porada-karta--odlozona{ animation:porada-odlozona .46s cubic-bezier(.45,0,.75,.5) forwards; }
+@media (prefers-reduced-motion:reduce){
+  .porada-karta--wzieta,.porada-karta--odlozona{ animation:none; opacity:0; }
+}
+
+/* ── Zegar ── */
+.porada-zegar-blok{ display:grid; place-items:center; margin:22px 0 20px; }
+.zegar{ display:grid; place-items:center; gap:6px; }
+.zegar-tarcza{ width:100%; height:auto; display:block;
+  filter:drop-shadow(0 6px 10px rgba(60,45,15,.28)); }
+.zegar-koperta{ fill:#c8a86a; }
+.zegar-plyta{ fill:#fdf6e0; stroke:#8a6f36; stroke-width:.8; }
+.zegar-kreska{ stroke:#8a6f36; stroke-width:1.4; stroke-linecap:round; }
+.zegar-kreska--duza{ stroke:#5a4a1e; stroke-width:2.6; }
+.zegar-wsk{ stroke:#4e4d76; stroke-linecap:round; }
+.zegar-wsk--godz{ stroke-width:4.4; }
+.zegar-wsk--min{ stroke-width:3; }
+.zegar-os{ fill:#4e4d76; }
+.zegar-etykieta{
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  font-size:17px; font-weight:800; color:var(--p-ink,#4e4d76);
+}
+
+/* ── Polki: cialo i glowa ──
+   Dwa naglowki zamiast jednego dlugiego bloku. "Cialo" i "Glowa", nie
+   "zdrowie" i "wellbeing": dziecko wie, gdzie ma cialo, a slowa "wellbeing"
+   nie zna nawet polowa doroslych. Kropki, nie numery - to nie jest lista
+   do odhaczenia, tylko do wybrania z niej czegos. */
+.porada-polka{ margin:0 0 14px; }
+.porada-polka h3{
+  margin:0 0 8px;
+  display:flex; align-items:center; gap:8px;
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  font-size:16px; font-weight:800; color:var(--p-ink,#4e4d76);
+}
+.porada-polka h3::before{
+  content:""; width:11px; height:11px; flex:none; border-radius:50%;
+  background:linear-gradient(180deg,#8ed15f,#5aa733);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.6);
+}
+.porada-polka--dusza h3::before{ background:linear-gradient(180deg,#b98ce6,#7A4DC2); }
+.porada-polka h3::after{
+  content:""; flex:1; height:2px; border-radius:2px;
+  background:linear-gradient(90deg, rgba(196,146,44,.4), rgba(196,146,44,0));
+}
+.porada-polka ul{ margin:0; padding:0; list-style:none; display:grid; gap:6px; }
+.porada-polka li{
+  padding:9px 12px;
+  border-radius:12px;
+  background:var(--p-paper,#FBF1D6);
+  box-shadow:inset 0 0 0 1.5px rgba(196,146,44,.25);
+  font-size:15px; line-height:1.3; color:var(--p-ink-soft,#5A4F77);
+}
+
+/* ── Historia: tablica pod spodem ──
+   Karteczki, ktore juz zeszly. Blade i male - to jest slad, nie tresc do
+   czytania. Znak z lewej mowi, ktoredy karteczka wyszla; wzieta dostaje
+   zielony kciuk, odlozona szary krzyzyk i przekreslenie. */
+.porada-historia{ margin:18px 0 4px; }
+.porada-historia h3{
+  margin:0 0 8px;
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  font-size:14px; font-weight:800; letter-spacing:.3px;
+  color:var(--p-ink-soft,#5A4F77); opacity:.75;
+}
+.porada-historia ul{ margin:0; padding:0; list-style:none; display:grid; gap:5px; }
+.porada-historia li{
+  display:flex; align-items:center; gap:9px;
+  padding:7px 11px; border-radius:10px;
+  background:rgba(255,255,255,.45);
+  box-shadow:inset 0 0 0 1px rgba(196,146,44,.2);
+  font-size:13.5px; color:var(--p-ink-soft,#5A4F77);
+}
+.porada-historia-znak{ width:17px; height:17px; flex:none; display:grid; place-items:center; }
+.porada-historia-znak svg{ width:17px; height:17px; }
+.porada-historia--wzieta .porada-historia-znak svg{ fill:#5aa733; stroke:none; }
+.porada-historia--odlozona .porada-historia-znak svg{
+  fill:none; stroke:#9a8f7a; stroke-width:2.6; stroke-linecap:round;
+}
+.porada-historia--odlozona{ opacity:.72; }
