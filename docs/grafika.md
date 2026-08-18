@@ -46,6 +46,36 @@ Paleta to te same barwy, co w `src/styles/ewolucja.css`. Jeśli kiedyś zmienimy
 tokeny UI, ten blok trzeba zmienić razem z nimi — inaczej gra rozjedzie się
 kolorystycznie z własną grafiką.
 
+### 2b. Drugie DNA — styl ilustracyjny (pop-upy, ekrany startu)
+
+Glina jest dobra dla **assetów wewnątrz gry** (pionki, symbole kart, przedmioty).
+Ilustracje, które mówią do dziecka z całego ekranu — pop-upy zaproszeń, splash
+screeny minigier, tła — robimy w drugim stylu: grubej kresce wektorowej. Nie
+mieszamy ich w jednym kadrze.
+
+```
+STYLE: bold cartoon vector illustration for a children's fantasy game — the look
+of a hand-drawn storybook sticker, NOT clay, NOT 3D render. Every shape is
+enclosed by a thick, dark warm-brown #3A2350 outline of even weight. Flat
+saturated fills with crisp two-tone cel shading: one darker shade block for
+shadow, one lighter block for light, hard edges between them, plus a few sharp
+white specular highlights. Glossy, vivid and graphic. No soft airbrushed
+gradients, no matte clay texture, no photographic realism, no depth-of-field.
+
+PALETTE: vivid violet #7A3FD0, deep violet #5C2FA8, light lilac #B886E8,
+amber gold #F4C95D, deep gold #E0A32E, cream #FBF1D6, warm white #FFFDF4,
+dark plum outline #3A2350.
+```
+
+Kadr dla splash screenu: popiersie ucięte płasko dolną krawędzią kadru, postać
+wyśrodkowana, tło przezroczyste, nic poza bohaterem. Wzorzec: `assets/karty/
+wizkor-karty.png` (Wizkor z wachlarzem naszych rewersów).
+
+Model sam z siebie wraca do gliny, jeśli w prompcie zostanie choć jedno słowo
+z tamtego DNA („matte", „soft rounded") — bloki trzymamy rozdzielnie.
+
+---
+
 ---
 
 ## 3. Parametry API i prompty, które działają
