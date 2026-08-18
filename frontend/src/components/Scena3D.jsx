@@ -19,7 +19,7 @@ import { idPostaci } from "../utils/postac.js";
 // UWAGA: numer ma tylko ROSNĄĆ. Numery 3–13 zostały już wydane przeglądarce
 // z inną zawartością modułu (kolejne wersje znaków, gwiazdki, tempo ruchu),
 // więc cofnięcie go serwuje z cache starą scenę zamiast aktualnej.
-export const WERSJA_SCENY = "23";  // czarodziej: pewne pierwsze spotkanie, krótki pierwszy powrót
+export const WERSJA_SCENY = "25";  // mapa z pliku: geometria świata w /scena-3d/mapa.json
 const ZASOBY = "/scena-3d/assets/";
 
 /**
@@ -125,6 +125,20 @@ export default function Scena3D({ apiRef, onZdarzenie, onBlad, spokojnyRuch, zoo
         globalThis.SCENA3D_ZOOM = zAdresu > 0 ? zAdresu : zoom;
         // Postać też musi być znana przed startem — model wczytuje się raz.
         globalThis.SCENA3D_POSTAC = idPostaci();
+
+        // MAPA ŚWIATA. Geometria sceny — ścieżka, rzeka, most, drzewa, głazy,
+        // budynki i znaki — mieszka w `/scena-3d/mapa.json` i wchodzi do modułu
+        // przez `globalThis.__SCENA3D_MAPA` (patch `scripts/mapa-hook.py`).
+        // Musi być ustawiona PRZED importem: literały czytają ją w chwili
+        // wykonania modułu, nie przy tworzeniu sceny. Gdy pliku nie ma albo się
+        // nie wczyta, bundle wraca do wartości wbudowanych — scena wygląda tak
+        // jak przed edytorem, więc awaria mapy nie gasi świata.
+        try {
+          const odp = await fetch("/scena-3d/mapa.json", { cache: "no-cache" });
+          if (odp.ok) globalThis.__SCENA3D_MAPA = await odp.json();
+        } catch (e) {
+          console.warn("[scena3d] mapa.json niedostępna, lecę na wbudowanej", e);
+        }
 
         const adres = adresModulu();
         const modul = await import(/* @vite-ignore */ adres);

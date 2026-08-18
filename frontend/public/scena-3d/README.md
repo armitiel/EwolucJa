@@ -123,3 +123,36 @@ Ortograficzna kamera, materiały Lambert, brak cieni rzucanych, modele odchudzon
 (mapa bazowa JPEG, zbędne tekstury zamienione na 1×1 px). Wersja z osobnymi
 plikami to ~1,7 MB, z czego 1 MB to modele — trafiają do cache przeglądarki, więc
 kolejne wejścia są natychmiastowe.
+
+## Mapa świata i edytor
+
+Geometria sceny — ścieżka, rzeka, most, brama, latarnia, drzewa, głazy, budynki
+i znaki minigier — leży w **`mapa.json`** obok tego pliku. Scena czyta ją przez
+`globalThis.__SCENA3D_MAPA`, które musi być ustawione **przed** doładowaniem
+modułu (robi to `index.html` i `src/components/Scena3D.jsx`). Gdy pliku nie ma,
+bundle wraca do wartości wbudowanych i świat wygląda tak, jak przed edytorem.
+
+Bundle jest zminifikowany i nie ma źródeł, więc te literały otworzył na dane
+skrypt **`scripts/mapa-hook.py`**:
+
+```bash
+python scripts/mapa-hook.py            # podepnij mapę (idempotentne)
+python scripts/mapa-hook.py --cofnij   # wróć do bundla sprzed patcha
+python scripts/mapa-eksport.py         # wygeneruj mapa.json z bundla na nowo
+```
+
+**Po każdej podmianie `scena3d.js` / `scena3d.esm.js` trzeba uruchomić
+`mapa-hook.py` ponownie** — nowy bundle przychodzi bez tych zaczepów.
+
+### Edytor: `/scena-3d/edytor.html`
+
+Rzut mapy z góry plus podgląd 3D w rogu. Lewy przycisk zaznacza i przeciąga,
+prawy (albo spacja) przesuwa mapę, kółko przybliża. `Delete` kasuje, `Q`/`E`
+obracają, `[`/`]` skalują, strzałki przesuwają co 10 cm, `Ctrl+Z` cofa.
+
+Zmiany lądują w `localStorage` (klucz `scena3d.mapa`) i to je pokazuje podgląd —
+prawdziwa aplikacja czyta wyłącznie `mapa.json`. Żeby je utrwalić: **Pobierz
+mapa.json** i podmień plik w `public/scena-3d/`.
+
+Czego edytor NIE ruszy: trawy, kwiatków i płyt ścieżki malowanych na teksturze
+terenu (powstają z ziarna losowego w środku modułu) ani samych modeli GLB.

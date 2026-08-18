@@ -136,13 +136,36 @@ Jeśli to nie zadziała: uruchom <code>npm run dev</code> i wejdź na
   globalThis.__SCENA3D_ZASOBY = kat + 'assets/';
   // Postac bohatera do testow: /scena-3d/?postac=fox (domyslnie chlopiec).
   // Nazwy klipow i korekte tempa modul bierze z SCENA3D_POSTACIE - tu tylko wybor.
-  var postac = new URLSearchParams(location.search).get('postac');
+  var pyt = new URLSearchParams(location.search);
+  var postac = pyt.get('postac');
   if (postac) globalThis.SCENA3D_POSTAC = postac;
-  var s = document.createElement('script');
-  s.type = 'module';
-  s.src = kat + 'scena3d.js';
-  s.onerror = function () { document.getElementById('scena3d-info').style.display = 'grid'; };
-  document.head.appendChild(s);
+
+  function odpal() {
+    var s = document.createElement('script');
+    s.type = 'module';
+    s.src = kat + 'scena3d.js';
+    s.onerror = function () { document.getElementById('scena3d-info').style.display = 'grid'; };
+    document.head.appendChild(s);
+  }
+
+  // MAPA. Scena czyta geometrie swiata z `globalThis.__SCENA3D_MAPA` (patch
+  // `scripts/mapa-hook.py`), a bez niej wraca do wartosci wbudowanych w bundle.
+  // Dlatego mapa MUSI byc ustawiona przed doladowaniem modulu - stad ta zwloka.
+  //
+  // `?mapa=podglad` bierze wersje roboczą z localStorage. Tego uzywa edytor
+  // (`edytor.html`) w swoim iframe: dzieki temu widzisz zmiany bez zapisywania
+  // pliku, a prawdziwa apka i tak czyta tylko `mapa.json`.
+  if (pyt.get('mapa') === 'podglad') {
+    try {
+      var robocza = localStorage.getItem('scena3d.mapa');
+      if (robocza) { globalThis.__SCENA3D_MAPA = JSON.parse(robocza); odpal(); return; }
+    } catch (e) { console.warn('mapa robocza:', e); }
+  }
+  fetch(kat + 'mapa.json', { cache: 'no-cache' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (m) { if (m) globalThis.__SCENA3D_MAPA = m; })
+    .catch(function () {})
+    .then(odpal);
 })();
 </script>
 <script>
