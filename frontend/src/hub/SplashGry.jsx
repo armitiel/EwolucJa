@@ -52,6 +52,9 @@ export default function SplashGry({
       </div>
       <h1>{tytul}</h1>
       <p>{podpis}</p>
+      {/* Pasek zamiast samego napisu: dwa ekrany z tym samym tekstem i bez
+          ruchu czytaja sie jak zawieszona aplikacja. */}
+      <span className="splash-gry-pasek" aria-hidden="true"><i /></span>
     </div>
   );
 }

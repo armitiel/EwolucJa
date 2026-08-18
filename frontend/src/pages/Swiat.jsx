@@ -12,7 +12,7 @@
  * Bez WebGL-a hub NIE przestaje działać: scena zamienia się w statyczne tło,
  * a wszystkie sekcje zostają dostępne.
  */
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Scena3D, { webglDostepny } from "../components/Scena3D.jsx";
 import HubDock from "../hub/HubDock.jsx";
@@ -33,8 +33,10 @@ import {
   stanZadania,
 } from "../hub/zadanieGwiazdek.js";
 import useHudSkin from "../hub/useHudSkin.js";
-import { useHubPanel } from "../hub/useHubPanel.js";
+import { useHubPanel, useHubGra } from "../hub/useHubPanel.js";
 import MinigryPanel from "../hub/panels/MinigryPanel.jsx";
+import SplashGry from "../hub/SplashGry.jsx";
+import KATALOG_GIER from "../hub/data/minigry.v1.json";
 import ProfilPanel from "../hub/panels/ProfilPanel.jsx";
 import CzatPanel from "../hub/panels/CzatPanel.jsx";
 import PoradaPanel from "../hub/panels/PoradaPanel.jsx";
@@ -76,8 +78,60 @@ const ZNAK_PANELU = {};
  * i w zapisanych stanach; zmiana nazwy dałaby tylko nowe miejsca do pomyłki.
  */
 const ZNAK_GRY = {
-  leaf: "/games/piorka",
+  leaf: "sekret-pod-puchem",
+  karty: "pamiec-medrca",
 };
+
+/**
+ * Minigry, które hub potrafi wyświetlić NAD sceną. Klucz to `id` z katalogu
+ * `hub/data/minigry.v1.json` — to samo, którego używa `useHubGra` w adresie.
+ * Gra spoza tej mapy (na razie żadnej takiej nie ma) poleci po staremu na
+ * własny adres `/games/…`.
+ *
+ * `lazy`, a nie zwykły import — i to nie jest mikro-optymalizacja. Kod gier
+ * (plansze, pętla canvas, ekrany nagród) siedział w tej samej paczce co hub,
+ * więc dziecko czekało na niego przy KAŻDYM wejściu do świata, nawet jeśli
+ * tego dnia nie zagrało w nic. Teraz każda gra to osobny plik, pobierany
+ * dopiero przy jej otwarciu.
+ */
+const GRY_OSADZONE = {
+  "pamiec-medrca": lazy(() => import("./MemoryGame.jsx")),
+  "sekret-pod-puchem": lazy(() => import("./PiorkaGame.jsx")),
+};
+
+/**
+ * Ekran przejścia — to, co widać między dotknięciem kafelka a pierwszą klatką
+ * gry. Musi wyglądać DOKŁADNIE jak splash, który gra pokaże za chwilę sama:
+ * ten sam tytuł, ten sam znaczek, to samo tło. Inaczej dziecko widzi trzy
+ * różne ekrany po kolei zamiast jednego wejścia do gry.
+ *
+ * Wcześniej tego ekranu nie było wcale — przez czas pobierania paczki gry
+ * na ekranie stał sam gradient bez jednego napisu, co czyta się jak zawieszona
+ * aplikacja, a nie jak ładowanie.
+ */
+function EkranPrzejscia({ id, onWyjscie }) {
+  const pozycja = (KATALOG_GIER.gry || []).find((g) => g.id === id);
+  return (
+    <main className="gra-root gra-osadzona" data-testid="gra-wczytywanie">
+      {/* Krzyżyk stoi tu od pierwszej klatki, w tym samym miejscu co w grze.
+          Na wolnym łączu wczytywanie potrafi trwać i bez niego dziecko jest
+          na ten czas zamknięte na ekranie, z którego nie ma jak wyjść. */}
+      <div className="gra-pasek">
+        <button type="button" className="gra-x" onClick={onWyjscie} aria-label="Zamknij" title="Zamknij">
+          ×
+        </button>
+      </div>
+      <div className="gra-scroll">
+        <SplashGry
+          tytul={pozycja?.tytul || "Chwileczkę"}
+          podpis="Otwieram grę…"
+          emoji={pozycja?.emoji || "✦"}
+          gotowe={false}
+        />
+      </div>
+    </main>
+  );
+}
 
 /**
  * Powitanie postaci. Docelowo odpali je spotkanie w świecie („lisek podszedł
@@ -185,6 +239,7 @@ const NAGLOWKI = {
 export default function Swiat() {
   const navigate = useNavigate();
   const { panel, otworz, zamknij, przelacz } = useHubPanel();
+  const { gra, otworzGre, zamknijGre } = useHubGra();
   const { player } = useAppData();
   useHudSkin();
 
@@ -204,10 +259,12 @@ export default function Swiat() {
   // płótno WebGL, które przeskakuje w jasny las.
   const [scenaGotowa, setScenaGotowa] = useState(false);
   // Kurtyna z chmur żyje w `index.html` (musi zakryć też czas ładowania
-  // bundla). Jeśli jej nie ma — bo dziecko weszło tu przejściem z innego
-  // ekranu, a nie przeładowaniem — HUD pokazujemy od razu.
+  // bundla). Pytamy, czy WISI, a nie czy istnieje jej funkcja: od kiedy da się
+  // ją postawić na żądanie, `__rozsunChmury` jest zdefiniowane zawsze, więc
+  // stare sprawdzenie kazałoby HUD-owi czekać także tam, gdzie żadnej kurtyny
+  // nie ma i nikt jej nie rozsunie.
   const [odsloniete, setOdsloniete] = useState(
-    () => typeof window === "undefined" || typeof window.__rozsunChmury !== "function"
+    () => typeof window === "undefined" || !window.__chmuryWisza
   );
   // Powitanie postaci: `null` = zamknięte, obiekt = treść okna.
   const [powitanie, setPowitanie] = useState(null);
@@ -256,6 +313,22 @@ export default function Swiat() {
     window.addEventListener("pointerdown", schowaj, { once: true });
     return () => window.removeEventListener("pointerdown", schowaj);
   }, [pokazPodpowiedz]);
+
+  // Komponent minigry, która ma się teraz rysować nad światem (albo `null`).
+  const GraOsadzona = gra ? GRY_OSADZONE[gra] || null : null;
+
+  /**
+   * Wejście do gry z kafelka biblioteki. Gry z `GRY_OSADZONE` otwieramy nad
+   * hubem; pozostałe (jeszcze żadnej takiej nie ma, ale katalog rośnie)
+   * dostają po staremu własny adres.
+   */
+  const uruchomGre = useCallback(
+    (pozycja) => {
+      if (GRY_OSADZONE[pozycja.id]) { otworzGre(pozycja.id); return; }
+      if (pozycja.trasa) navigate(pozycja.trasa);
+    },
+    [otworzGre, navigate]
+  );
 
   // Wiadomości mają własną formę (zwój), więc nie wchodzą do arkusza sekcji.
   const zwojOtwarty = panel === "wiadomosci";
@@ -307,10 +380,10 @@ export default function Swiat() {
   useEffect(() => {
     const scena = scenaRef.current;
     if (scena) {
-      if (panel || powitanie || pytanie || nagroda) scena.pauza?.();
+      if (panel || gra || powitanie || pytanie || nagroda) scena.pauza?.();
       else scena.wznow?.();
     }
-  }, [panel, powitanie, pytanie, nagroda]);
+  }, [panel, gra, powitanie, pytanie, nagroda]);
 
   useEffect(() => {
     rozmowaRef.current = !!powitanie || pytanie || nagroda;
@@ -506,11 +579,12 @@ export default function Swiat() {
           }
         }
         // Znak, który prowadzi wprost do minigry — piórko na mapie otwiera
-        // „Sekret pod puchem". Scena zostaje zapauzowana przez odmontowanie
-        // huba, a powrót z gry wraca na `/swiat?panel=gry`, więc dziecko widzi,
-        // skąd przyszło.
+        // „Sekret pod puchem". Gra rysuje się NAD sceną, a nie na własnym
+        // adresie: scena tylko pauzuje, więc po zamknięciu lis stoi dokładnie
+        // tam, gdzie wbiegł w znak, i nie otwiera się przy tym zakładka
+        // z biblioteką, której dziecko wcale nie odwiedziło.
         const doGry = ZNAK_GRY[dane?.znak];
-        if (doGry) { navigate(doGry); return; }
+        if (doGry) { otworzGre(doGry); return; }
 
         const doOtwarcia = ZNAK_PANELU[dane?.znak];
         if (doOtwarcia) otworz(doOtwarcia);
@@ -518,7 +592,7 @@ export default function Swiat() {
       }
       if (nazwa === "blad") setScenaMartwa(true);
     },
-    [otworz, panel, pokazKomunikat, navigate]
+    [otworz, otworzGre, panel, pokazKomunikat, navigate]
   );
 
   /* ── doładowanie dźwięków pod kurtyną z chmur ────────────────────────── */
@@ -578,7 +652,7 @@ export default function Swiat() {
 
   // Panel zasłania świat i pauzuje scenę — kroki muszą ucichnąć razem z nią,
   // inaczej dudnią pod otwartym arkuszem.
-  useEffect(() => { if (panel) fx.krokiStop(); }, [panel]);
+  useEffect(() => { if (panel || gra) fx.krokiStop(); }, [panel, gra]);
 
   // Karta w tle: przeglądarka wstrzymuje pętlę renderowania, ale nie audio —
   // bez tego kroki zostają słyszalne po przełączeniu zakładki.
@@ -770,7 +844,13 @@ export default function Swiat() {
         onClose={zamknij}
         testId="hub-sheet"
       >
-        {panel === "gry" ? <MinigryPanel onZamknij={zamknij} onKomunikat={pokazKomunikat} /> : null}
+        {/* `onGra`, a nie `onZamknij` + `navigate`: zakładka ZOSTAJE otwarta pod
+            grą. Dzięki temu zamknięcie gry odsłania ją z powrotem, zamiast
+            odbudowywać hub od zera — a wynika to z samego adresu
+            (`?panel=gry&gra=…` → `?panel=gry`). */}
+        {panel === "gry" ? (
+          <MinigryPanel onGra={uruchomGre} onZamknij={zamknij} onKomunikat={pokazKomunikat} />
+        ) : null}
         {panel === "profil" ? <ProfilPanel /> : null}
         {panel === "czat" ? <CzatPanel /> : null}
         {panel === "porada" ? <PoradaPanel onZamknij={zamknij} /> : null}
@@ -778,6 +858,16 @@ export default function Swiat() {
 
       {komunikat ? (
         <div className="game-hud-toast is-visible" role="status" data-testid="hub-toast">{komunikat}</div>
+      ) : null}
+
+      {/* MINIGRA NAD ŚWIATEM — ostatnia w drzewie, żeby przykryła wszystko:
+          HUD, dok, arkusz sekcji. Scena pod spodem zostaje zamontowana
+          i zapauzowana, więc wyjście z gry nie kosztuje ani jednego pobrania
+          modelu, a lis stoi tam, gdzie go zostawiliśmy. */}
+      {GraOsadzona ? (
+        <Suspense fallback={<EkranPrzejscia id={gra} onWyjscie={zamknijGre} />}>
+          <GraOsadzona osadzona onWyjscie={zamknijGre} />
+        </Suspense>
       ) : null}
     </main>
   );

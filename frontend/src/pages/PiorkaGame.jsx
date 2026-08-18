@@ -76,8 +76,16 @@ function tasuj(t) {
   return k;
 }
 
-export default function PiorkaGame() {
+/**
+ * `osadzona` = gra rysuje sie NAD huba `/swiat`, ktory zostaje zamontowany
+ * (scena 3D pauzuje w tle zamiast sie wyladowac). Wtedy wyjscie oddaje
+ * sterowanie rodzicowi przez `onWyjscie`, zamiast nawigowac gdziekolwiek.
+ * Bez tych propsow komponent dziala po staremu, jako wlasny ekran pod
+ * `/games/piorka` - stare linki i zakladki dalej trafiaja, gdzie trzeba.
+ */
+export default function PiorkaGame({ osadzona = false, onWyjscie }) {
   const navigate = useNavigate();
+  const wrocDoHuba = () => (onWyjscie ? onWyjscie() : navigate("/swiat?panel=gry"));
   const canvasRef = useRef(null);
   const obrazy = useRef({});
   const piorka = useRef([]);
@@ -328,12 +336,12 @@ export default function PiorkaGame() {
 
   const wyjdz = () => {
     if (faza === "gra") { setFaza("intro"); return; }
-    navigate("/swiat?panel=gry");
+    wrocDoHuba();
   };
 
   /* ── widok ─────────────────────────────────────────────────────────────── */
   return (
-    <main className="gra-root" data-testid="gra-piorka">
+    <main className={`gra-root${osadzona ? " gra-osadzona" : ""}`} data-testid="gra-piorka">
       <div className="gra-pasek">
         {faza === "gra" ? (
           <span className="puch-runda">{runda + 1} / {RUND}</span>
@@ -363,7 +371,7 @@ export default function PiorkaGame() {
         {faza === "blad" ? (
           <div className="puch-srodek">
             <p className="hub-muted">Nie udało się wczytać piórek.</p>
-            <button className="hub-btn hub-btn-primary" onClick={() => navigate("/swiat?panel=gry")}>Wróć</button>
+            <button className="hub-btn hub-btn-primary" onClick={wrocDoHuba}>Wróć</button>
           </div>
         ) : null}
 
@@ -411,7 +419,7 @@ export default function PiorkaGame() {
             <p>Zebrane monety: <strong>{monety}</strong></p>
             <div className="hub-actions gra-akcje">
               <button className="hub-btn hub-btn-ghost" onClick={start}>Jeszcze raz</button>
-              <button className="hub-btn hub-btn-primary" onClick={() => navigate("/swiat?panel=gry")}>Wracam</button>
+              <button className="hub-btn hub-btn-primary" onClick={wrocDoHuba}>Wracam</button>
             </div>
           </div>
         ) : null}

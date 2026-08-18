@@ -41,3 +41,58 @@ export function useHubPanel() {
 
   return { panel, otworz, zamknij, przelacz };
 }
+
+/**
+ * Identyfikatory minigier, które hub potrafi otworzyć NAD sceną, bez opuszczania
+ * `/swiat`. To te same `id`, co w `hub/data/minigry.v1.json` — jedno słownictwo
+ * dla katalogu, dla znaków na mapie i dla adresu.
+ */
+export const GRY_W_HUBIE = ["pamiec-medrca", "sekret-pod-puchem"];
+
+/**
+ * useHubGra — otwarta minigra trzymana w adresie (`/swiat?gra=pamiec-medrca`).
+ *
+ * Dlaczego w ogóle NAD hubem, a nie na własnym adresie (`/games/…`): wyjście
+ * z gry odmontowywało `Swiat`, a razem z nim całą scenę WebGL. Powrót znaczył
+ * ponowne wczytanie modeli — kilka sekund czarnego ekranu — i lisa
+ * postawionego z powrotem na starcie, choć dziecko weszło do gry na drugim
+ * końcu mapy. Scena zostaje zamontowana i zapauzowana, więc powrót jest
+ * natychmiastowy i w tym samym miejscu.
+ *
+ * Dokąd wraca zamknięcie, wynika z SAMEGO ADRESU: `gra` dokładamy do tego, co
+ * już w nim jest, i przy wyjściu tylko je usuwamy. Wejście z kafelka
+ * biblioteki ma w adresie `panel=gry`, więc wraca do otwartej zakładki;
+ * wejście ze znaku na mapie nie ma nic, więc wraca na czystą mapę. Żadnej
+ * osobnej pamięci „skąd przyszedłem" — nie ma się czemu rozjechać.
+ */
+export function useHubGra() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const gra = useMemo(() => {
+    const wartosc = new URLSearchParams(location.search).get("gra");
+    return GRY_W_HUBIE.includes(wartosc) ? wartosc : null;
+  }, [location.search]);
+
+  const otworzGre = useCallback(
+    (id) => {
+      if (!GRY_W_HUBIE.includes(id) || id === gra) return;
+      const parametry = new URLSearchParams(location.search);
+      parametry.set("gra", id);
+      // Wpis w historii, nie podmiana: systemowy „wstecz" ma zamykać grę,
+      // a nie wyrzucać dziecko ze świata.
+      navigate(`${location.pathname}?${parametry.toString()}`);
+    },
+    [navigate, location.pathname, location.search, gra]
+  );
+
+  const zamknijGre = useCallback(() => {
+    if (!gra) return;
+    const parametry = new URLSearchParams(location.search);
+    parametry.delete("gra");
+    const reszta = parametry.toString();
+    navigate(reszta ? `${location.pathname}?${reszta}` : location.pathname, { replace: true });
+  }, [navigate, location.pathname, location.search, gra]);
+
+  return { gra, otworzGre, zamknijGre };
+}

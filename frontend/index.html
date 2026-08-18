@@ -155,12 +155,24 @@
   <div id="chmury" aria-hidden="true"></div>
 
   <script>
-    // Kurtyna dotyczy tylko swiata 3D. Na pozostalych ekranach znika, zanim
-    // ktokolwiek ja zobaczy - inaczej zaslanialaby logowanie i onboarding.
+    // Kurtyna dotyczy tylko swiata 3D. Na pozostalych ekranach jest schowana -
+    // inaczej zaslanialaby logowanie i onboarding - ale zostaje gotowa do
+    // postawienia, bo do swiata wchodzi sie takze z ekranu startowego.
     (function () {
       var chmury = document.getElementById('chmury');
       if (!chmury) return;
-      if (location.pathname.indexOf('/swiat') !== 0) { chmury.remove(); return; }
+
+      /* Kurtyna NIE jest juz przywiazana do pierwszego wczytania strony.
+         Wczesniej budowala sie wylacznie wtedy, gdy adres od razu zaczynal sie
+         od /swiat, a na kazdym innym ekranie znikala z DOM-u na dobre. Skutek:
+         dziecko, ktore weszlo do gry przyciskiem START, nie dostawalo kurtyny
+         wcale - to przejscie robi router, a nie przeladowanie strony - i przez
+         caly czas wczytywania sceny patrzylo na ciemne tlo huba.
+         Teraz sa dwa wejscia: kurtyna stawia sie sama przy wczytaniu /swiat
+         i daje sie postawic na zadanie przez `window.__zbudujChmury()`. */
+      var rozsuniete = true;   // dopoki nie zbudowana, nie ma czego rozsuwac
+      var bezpiecznik = 0;
+      var najdluzej = 0;       // najdluzszy czas odlotu - z niego liczymy sprzatanie
 
       function los(min, max) { return min + Math.random() * (max - min); }
 
@@ -286,7 +298,6 @@
         };
       }
       var lista = [];
-      var najdluzej = 0;   // najdluzszy czas odlotu - z niego liczymy sprzatanie
 
       function dodaj(def, strona, nr) {
         var el = document.createElement('div');
@@ -326,23 +337,43 @@
         lista.push(el);
       }
 
-      var nr = 0;
-      // Najpierw podklad - kolejnosc w DOM nie decyduje (o tym jest z-index),
-      // ale trzymanie go z przodu ulatwia czytanie w inspektorze.
-      LEWE.forEach(function (d) { dodaj(podklad(d), 'l', nr++); });
-      PRAWE.forEach(function (d) { dodaj(podklad(d), 'p', nr++); });
-      GORA.forEach(function (d) { dodaj(podklad(d), 'l', nr++); });
-      DOL.forEach(function (d) { dodaj(podklad(d), 'l', nr++); });
-      LEWE.forEach(function (d) { dodaj(d, 'l', nr++); });
-      PRAWE.forEach(function (d) { dodaj(d, 'p', nr++); });
-      GORA.forEach(function (d) { dodaj(d, 'l', nr++); });
-      DOL.forEach(function (d) { dodaj(d, 'l', nr++); });
-      SRODEK.forEach(function (d) { dodaj(d, 'l', nr++); });
+      /* Postawienie kurtyny. Wolane przy wczytaniu /swiat i z aplikacji, tuz
+         PRZED przejsciem do swiata (przycisk START), zeby chmury zdazyly
+         zakryc ekran, zanim router zdejmie poprzedni. */
+      function zbuduj() {
+        if (!rozsuniete) return;              // kurtyna juz wisi
+        chmury.innerHTML = '';
+        lista.length = 0;
+        najdluzej = 0;
+        rozsuniete = false;
+        window.__chmuryWisza = true;
+        chmury.classList.remove('rozsuwa', 'znikly');
+        przelicz();
 
-      var rozsuniete = false;
-      window.__rozsunChmury = function (poZakonczeniu) {
+        var nr = 0;
+        // Najpierw podklad - kolejnosc w DOM nie decyduje (o tym jest z-index),
+        // ale trzymanie go z przodu ulatwia czytanie w inspektorze.
+        LEWE.forEach(function (d) { dodaj(podklad(d), 'l', nr++); });
+        PRAWE.forEach(function (d) { dodaj(podklad(d), 'p', nr++); });
+        GORA.forEach(function (d) { dodaj(podklad(d), 'l', nr++); });
+        DOL.forEach(function (d) { dodaj(podklad(d), 'l', nr++); });
+        LEWE.forEach(function (d) { dodaj(d, 'l', nr++); });
+        PRAWE.forEach(function (d) { dodaj(d, 'p', nr++); });
+        GORA.forEach(function (d) { dodaj(d, 'l', nr++); });
+        DOL.forEach(function (d) { dodaj(d, 'l', nr++); });
+        SRODEK.forEach(function (d) { dodaj(d, 'l', nr++); });
+
+        // Bezpiecznik na wypadek, gdyby aplikacja nigdy nie zawolala (blad
+        // bundla, wylaczony JS modulu): po 9 s kurtyna rozsuwa sie sama.
+        window.clearTimeout(bezpiecznik);
+        bezpiecznik = window.setTimeout(function () { rozsun(); }, 9000);
+      }
+
+      function rozsun(poZakonczeniu) {
         if (rozsuniete) { if (poZakonczeniu) poZakonczeniu(); return; }
         rozsuniete = true;
+        window.__chmuryWisza = false;
+        window.clearTimeout(bezpiecznik);
         chmury.classList.add('rozsuwa');
         // Czas sprzatania liczony z FAKTYCZNIE wylosowanych wartosci, a nie
         // wpisany na sztywno. Stala zawsze predzej czy pozniej rozjedzie sie
@@ -352,11 +383,16 @@
           chmury.classList.add('znikly');
           if (poZakonczeniu) poZakonczeniu();
         }, Math.ceil(najdluzej * 1000) + 120);
-      };
+      }
 
-      // Bezpiecznik na wypadek, gdyby aplikacja nigdy nie zawolala (blad bundla,
-      // wylaczony JS modulu): po 9 s kurtyna rozsuwa sie sama.
-      window.setTimeout(function () { window.__rozsunChmury(); }, 9000);
+      window.__zbudujChmury = zbuduj;
+      window.__rozsunChmury = rozsun;
+      window.__chmuryWisza = false;
+
+      // Puste `#chmury` nadal malowaloby niebo (`::before` na calym ekranie),
+      // wiec dopoki kurtyny nie ma, trzymamy je schowane.
+      chmury.classList.add('znikly');
+      if (location.pathname.indexOf('/swiat') === 0) zbuduj();
     })();
   </script>
 

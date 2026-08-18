@@ -28,6 +28,11 @@ export default function Landing() {
   function wejdz(dokad) {
     try { ttsPlayer.unlock(); } catch {}
     try { bgMusic.setEnabled(true); } catch {}
+    // Kurtyna z chmur PRZED nawigacja, nie po. Swiat 3D wczytuje modele kilka
+    // sekund i bez niej dziecko dostawalo w tym czasie ciemne tlo huba —
+    // kurtyna zyje w `index.html`, wiec przy wejsciu przez router (a nie przez
+    // przeladowanie strony) trzeba ja postawic recznie.
+    if (dokad === "/swiat") { try { window.__zbudujChmury?.(); } catch {} }
     navigate(dokad);
   }
 

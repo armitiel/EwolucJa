@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { lazy, Suspense, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 
@@ -42,8 +42,11 @@ import MentorClassDetail from "./pages/MentorClassDetail.jsx";
 import MentorPairs from "./pages/MentorPairs.jsx";
 import JoinClass from "./pages/JoinClass.jsx";
 import PoradyPage from "./pages/PoradyPage.jsx";
-import MemoryGame from "./pages/MemoryGame.jsx";
-import PiorkaGame from "./pages/PiorkaGame.jsx";
+// Minigry osobnymi paczkami. Statyczny import wciagalby je z powrotem do
+// glownego pliku i lazy w `Swiat.jsx` nie dawaloby nic — Vite dzieli po
+// grafie importow, a nie po tym, jak komponent jest uzyty.
+const MemoryGame = lazy(() => import("./pages/MemoryGame.jsx"));
+const PiorkaGame = lazy(() => import("./pages/PiorkaGame.jsx"));
 import LoginAsStudent from "./pages/LoginAsStudent.jsx";
 import LoginByCode from "./pages/LoginByCode.jsx";
 import DevTools from "./components/DevTools.jsx";
@@ -80,8 +83,17 @@ function AppRoutes() {
       <Route path="/map" element={<Navigate to="/swiat" replace />} />
       <Route path="/mapa" element={<Navigate to="/swiat" replace />} />
       <Route path="/games" element={<Games />} />
-      <Route path="/games/memory" element={<MemoryGame />} />
-      <Route path="/games/piorka" element={<PiorkaGame />} />
+      {/* Suspense na kazdej trasie z osobna, a nie wokol calego <Routes>:
+          fallback ma zastapic TYLKO wczytywana gre. Owiniety globalnie
+          zdejmowalby z ekranu wszystko przy kazdym przejsciu. */}
+      <Route
+        path="/games/memory"
+        element={<Suspense fallback={<Loading text="Otwieram grę…" />}><MemoryGame /></Suspense>}
+      />
+      <Route
+        path="/games/piorka"
+        element={<Suspense fallback={<Loading text="Otwieram grę…" />}><PiorkaGame /></Suspense>}
+      />
       <Route path="/backpack" element={<Backpack />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/mission" element={<MissionView />} />

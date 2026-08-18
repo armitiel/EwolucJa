@@ -15,7 +15,7 @@ import { GameIcon } from "../../adventure/components/icons.jsx";
 import { useAdventureDane } from "../../adventure/engine/useAdventure.js";
 import KATALOG from "../data/minigry.v1.json";
 
-export default function MinigryPanel({ onZamknij, onKomunikat }) {
+export default function MinigryPanel({ onGra, onZamknij, onKomunikat }) {
   const navigate = useNavigate();
   const { adventure, state } = useAdventureDane();
 
@@ -38,6 +38,11 @@ export default function MinigryPanel({ onZamknij, onKomunikat }) {
       onKomunikat?.("Wkrótce");
       return;
     }
+    // Zakładki NIE zamykamy. Gra rysuje się nad hubem, a otwarta zakładka pod
+    // nią jest tym, do czego dziecko wraca po wyjściu — wcześniej hub trzeba
+    // było w tym momencie zbudować od nowa, razem ze sceną 3D.
+    if (onGra) { onGra(gra); return; }
+    // Bez `onGra` (gra otwierana spoza huba) zostaje stara droga.
     onZamknij?.();
     navigate(gra.trasa);
   }

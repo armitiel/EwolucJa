@@ -265,8 +265,16 @@ function RewardItem({ icon, v, label }) {
 }
 
 // ─── MAIN COMPONENT ───────────────────────────────────────────
-export default function MemoryGame() {
+/**
+ * `osadzona` = gra rysuje sie NAD huba `/swiat`, ktory zostaje zamontowany
+ * (scena 3D pauzuje w tle zamiast sie wyladowac). Wtedy wyjscie oddaje
+ * sterowanie rodzicowi przez `onWyjscie`, zamiast nawigowac gdziekolwiek.
+ * Bez tych propsow komponent dziala po staremu, jako wlasny ekran pod
+ * `/games/memory` - stare linki i zakladki dalej trafiaja, gdzie trzeba.
+ */
+export default function MemoryGame({ osadzona = false, onWyjscie }) {
   const navigate = useNavigate();
+  const wrocDoHuba = () => (onWyjscie ? onWyjscie() : navigate("/swiat?panel=gry"));
   const [phase, setPhase] = useState("splash"); // intro | playing | done
   const [rewardShown, setRewardShown] = useState(false); // gdy true -> ukryty RewardScreen, pokazany summary
   const [diff, setDiff] = useState("easy");
@@ -370,11 +378,11 @@ export default function MemoryGame() {
   // Panel huba czyta sie z adresu (`useHubPanel`), wiec wystarczy query.
   const wyjdz = () => {
     if (phase === "playing") { setPhase("intro"); return; }
-    navigate("/swiat?panel=gry");
+    wrocDoHuba();
   };
 
   return (
-    <main className="gra-root" data-testid="gra-memory">
+    <main className={`gra-root${osadzona ? " gra-osadzona" : ""}`} data-testid="gra-memory">
       <div className="gra-pasek">
         {/* Tytul gry stoi juz w tresci ekranu startowego - powtarzanie go w pasku
             bylo drugim takim samym napisem na jednym ekranie. */}
@@ -571,7 +579,7 @@ export default function MemoryGame() {
 
             <div className="hub-actions gra-akcje">
               <button onClick={() => restart()} className="hub-btn hub-btn-ghost">Jeszcze raz</button>
-              <button onClick={() => navigate("/swiat?panel=gry")} className="hub-btn hub-btn-primary">Wracam</button>
+              <button onClick={wrocDoHuba} className="hub-btn hub-btn-primary">Wracam</button>
             </div>
           </div>
         )}
