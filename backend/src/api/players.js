@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getPlayer, savePlayer, initDatabase, findPlayerByLoginCode } from "../database/db.js";
+import { getPlayer, savePlayer, initDatabase, findPlayerByLoginCode, getPool } from "../database/db.js";
 import { randomUUID } from "crypto";
 
 export function playerRoutes(db) {
@@ -71,6 +71,77 @@ export function playerRoutes(db) {
   });
 
   // HINT/ARTEFAKT od mentora - pobierz nieprzeczytane
+  /* ── Przygoda „Mapa Iskier" ─────────────────────────────────────────────
+   * Stan przygody trzyma klient (localStorage) — te dwa endpointy sluza
+   * wylacznie synchronizacji miedzy urzadzeniami. Brak sieci nie blokuje gry.
+   */
+  router.get("/:id/adventure", async (req, res) => {
+    try {
+      const pool = await getPool();
+      const { rows } = await pool.query("SELECT adventure_state FROM players WHERE id = $1", [req.params.id]);
+      if (!rows.length) return res.status(404).json({ error: "Gracz nie znaleziony" });
+      res.json(rows[0].adventure_state || null);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  router.put("/:id/adventure", async (req, res) => {
+    try {
+      const { state } = req.body || {};
+      if (!state || typeof state !== "object") return res.status(400).json({ error: "state jest wymagany" });
+      const pool = await getPool();
+      const { rowCount } = await pool.query(
+        "UPDATE players SET adventure_state = $1, updated_at = NOW() WHERE id = $2",
+        [JSON.stringify(state), req.params.id]
+      );
+      if (!rowCount) return res.status(404).json({ error: "Gracz nie znaleziony" });
+      res.json({ ok: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  /* Wybory z pierwszej przygody zasilaja ISTNIEJACY system cech.
+   * Nowy model 5 cech dziecka jest juz przelozony po stronie klienta na kody
+   * EM/ST/KR/LD/DT/MD, wiec radar, raporty mentora i biblioteka misji dzialaja
+   * bez zmian. Archetyp ustawiamy tylko gdy gracz go jeszcze nie ma.
+   */
+  router.post("/:id/adventure-profile", async (req, res) => {
+    try {
+      const { scores, name } = req.body || {};
+      if (!scores || typeof scores !== "object") return res.status(400).json({ error: "scores sa wymagane" });
+      const CODES = ["EM", "ST", "KR", "LD", "DT", "MD"];
+      const pool = await getPool();
+      const { rows } = await pool.query(
+        "SELECT lifetime_scores, scores, archetype, coins, name FROM players WHERE id = $1",
+        [req.params.id]
+      );
+      if (!rows.length) return res.status(404).json({ error: "Gracz nie znaleziony" });
+      const p = rows[0];
+      const lifetime = { ...(p.lifetime_scores || {}) };
+      const cycleScores = { ...(p.scores || {}) };
+      for (const code of CODES) {
+        const add = Number(scores[code]) || 0;
+        lifetime[code] = (lifetime[code] || 0) + add;
+        cycleScores[code] = (cycleScores[code] || 0) + add;
+      }
+      let archetype = p.archetype;
+      if (!archetype) {
+        archetype = CODES.reduce((best, c) => ((scores[c] || 0) > (scores[best] || 0) ? c : best), "DT");
+      }
+      const nextName = (name && name.trim()) || p.name;
+      const coins = Math.max(Number(p.coins) || 0, 50);
+      await pool.query(
+        "UPDATE players SET lifetime_scores = $1, scores = $2, archetype = $3, archetype_assigned_at = COALESCE(archetype_assigned_at, NOW()), name = $4, coins = $5, updated_at = NOW() WHERE id = $6",
+        [JSON.stringify(lifetime), JSON.stringify(cycleScores), archetype, nextName, coins, req.params.id]
+      );
+      res.json({ ok: true, archetype, lifetime_scores: lifetime });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   router.get("/:id/hints/unread", async (req, res) => {
     try {
       const pool = await initDatabase();

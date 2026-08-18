@@ -3,6 +3,7 @@
  * Eksportuje `createApp()` (do Vercel Function) i sam się uruchamia gdy odpalony jako CLI.
  */
 import "dotenv/config";
+import { pathToFileURL } from "url";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -52,7 +53,9 @@ export function createApp() {
 }
 
 // Start serwera tylko gdy odpalony bezpośrednio (npm run dev)
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Na Windows process.argv[1] to sciezka "C:\\...", a import.meta.url to "file:///C:/...",
+// wiec proste porownanie stringow bylo zawsze falszywe i serwer nigdy nie wchodzil w listen().
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const PORT = process.env.PORT || 3001;
   const app = createApp();
   app.listen(PORT, () => {

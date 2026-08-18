@@ -188,6 +188,9 @@ async function ensureSchema(pool) {
     -- Login code: krotki kod do recznego wpisania w celu odzyskania konta (gdy localStorage znika).
     -- Format: 6 znakow z alfabetu bez 0/O/1/I (np. HQ7K2P). Unikalny.
     ALTER TABLE players ADD COLUMN IF NOT EXISTS login_code TEXT UNIQUE;
+    -- Stan przygody 'Mapa Iskier'. Zrodlem prawdy jest klient (localStorage);
+    -- ta kolumna sluzy synchronizacji miedzy urzadzeniami i podgladowi dla mentora.
+    ALTER TABLE players ADD COLUMN IF NOT EXISTS adventure_state JSONB;
     CREATE INDEX IF NOT EXISTS idx_players_demo_owner ON players(created_by_gm_account_id) WHERE is_demo = TRUE;
     CREATE INDEX IF NOT EXISTS idx_players_login_code ON players(login_code) WHERE login_code IS NOT NULL;
 

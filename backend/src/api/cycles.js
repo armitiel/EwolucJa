@@ -183,6 +183,58 @@ export function missionRoutes(db) {
     } catch (e) { console.error("[mission generate]", e); res.status(500).json({ error: e.message }); }
   });
 
+  /* Misja fabularna z przygody. W przeciwienstwie do /generate tresc nie jest
+   * losowana ani generowana przez AI — przychodzi z wersjonowanych danych
+   * przygody, wiec Mentor widzi dokladnie to, co dziecko dostalo w swiecie.
+   * Idempotentne: ponowne wywolanie dla tego samego adventure_ref w aktywnym
+   * cyklu zwraca istniejaca misje zamiast tworzyc duplikat.
+   */
+  router.post("/seed", async (req, res) => {
+    try {
+      const {
+        player_id, title, body, narrative_intro, competency_focus,
+        proof_type, estimated_minutes, safety_notes, adventure_ref,
+      } = req.body || {};
+      if (!player_id || !title?.trim() || !body?.trim()) {
+        return res.status(400).json({ error: "player_id, title i body sa wymagane" });
+      }
+      const player = await getPlayer(db, player_id);
+      if (!player) return res.status(404).json({ error: "Gracz nie znaleziony" });
+
+      let cycle = await getCurrentCycle(db, player_id);
+      if (!cycle) cycle = await createCycle(db, player_id);
+
+      const pool = await getPool();
+      if (adventure_ref) {
+        const { rows } = await pool.query(
+          `SELECT id FROM missions
+             WHERE player_id = $1 AND cycle_id = $2 AND title = $3
+               AND status IN ('pending','submitted','rejected')
+             ORDER BY generated_at DESC LIMIT 1`,
+          [player_id, cycle.cycle_id, title.trim()]
+        );
+        if (rows.length) return res.json({ mission_id: rows[0].id, reused: true });
+      }
+
+      const mission = await createMission(db, {
+        cycle_id: cycle.cycle_id,
+        player_id,
+        title: title.trim(),
+        body: body.trim(),
+        narrative_intro: narrative_intro || null,
+        competency_focus: Array.isArray(competency_focus) ? competency_focus : [],
+        proof_type: proof_type || "text",
+        estimated_minutes: Number(estimated_minutes) || 10,
+        safety_notes: safety_notes || null,
+      });
+      mission.source = "adventure";
+      res.json(mission);
+    } catch (e) {
+      console.error("[mission seed]", e);
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   router.get("/current/:playerId", async (req, res) => {
     try {
       const m = await getCurrentMission(db, req.params.playerId);

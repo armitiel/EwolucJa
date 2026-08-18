@@ -39,7 +39,11 @@ export function uploadRoutes() {
         onBeforeGenerateToken: async (pathname, clientPayload) => {
           // Walidacja: zdjecia tylko, max 10MB, random suffix zeby uniknac kolizji
           return {
-            allowedContentTypes: ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"],
+            allowedContentTypes: [
+              "image/jpeg", "image/png", "image/webp", "image/heic", "image/heif",
+              // Dowody dzwiekowe (melodia, rytm, nagrany odglos) — rdzen misji w Dolinie Dzwiekow.
+              "audio/mpeg", "audio/mp4", "audio/aac", "audio/ogg", "audio/wav", "audio/webm", "audio/x-m4a",
+            ],
             maximumSizeInBytes: 10 * 1024 * 1024,
             addRandomSuffix: true,
             tokenPayload: clientPayload || null,
