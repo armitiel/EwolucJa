@@ -34,38 +34,58 @@ export default function Landing() {
   return (
     <PageShell showClouds={false}>
       <div className="start-ekran">
-        <img className="start-tlo" src="/assets/wejscie/tlo-start.webp" alt="" aria-hidden="true" />
+        {/* Nowa nazwa pliku, a nie podmiana starego: pliki w `public/` nie maja
+            hasha, wiec nadpisanie `tlo-start.webp` zostawiloby dzieciom stary
+            obrazek z cache przegladarki na dlugie tygodnie. */}
+        <img className="start-tlo" src="/assets/wejscie/tlo-start-lis.webp" alt="" aria-hidden="true" />
         <div className="start-zaslona" aria-hidden="true" />
 
         <div className="start-tresc">
+          {/* „JA" jest tu osobnym elementem, bo to nie jest wyroznienie
+              typograficzne, tylko znaczek: zlota plakietka z HUD-u. Iskra
+              siedzi w <h1>, a nie w tle, zeby skalowala sie razem z napisem. */}
           <h1 className="start-logo">
-            Ewoluc<span className="aurora-text">JA</span>
+            Ewoluc<b>JA</b>
+            <svg className="start-logo-iskra" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M12 1.6l3.1 6.4 7 1-5 4.9 1.2 7-6.3-3.3-6.3 3.3 1.2-7-5-4.9 7-1z"
+                fill="#ffd257" stroke="#fffdf6" strokeWidth="1.6"
+              />
+            </svg>
           </h1>
 
+          {/* Trzy slowa, bo to jedyna linijka, ktora dziecko przeczyta zanim
+              kliknie. Dluzsze haslo lamalo sie tu na trzy wiersze i zaczynalo
+              konkurowac z logo. */}
           <p className="start-haslo t-hand">
-            Baw się, odkrywaj i zdobywaj nowe moce.
+            Baw się i ucz
           </p>
 
+          {/* Przyciski z rodziny HUD-u (`hub-btn`), a nie lzejsze `btn` z ekranow
+              tekstowych: to pierwszy przycisk, jaki dziecko widzi, i ma wygladac
+              dokladnie jak te w grze — zielony „idz dalej" i zloty poboczny. */}
           <div className="start-cta">
-            <button className="btn btn-magic btn-block" onClick={() => wejdz(playerId ? "/swiat" : "/onboarding")}>
-              <img className="start-ikona" src="/star.png" alt="" aria-hidden="true" />
-              {playerId ? "Wróć do świata" : "Rozpocznij przygodę"}
+            {/* Jedno slowo, bez ikonki. Wczesniej byly dwa rozne napisy i
+                gwiazdka — dziecko musialo je przeczytac, zeby wiedziec, gdzie
+                klika. „START" rozpoznaje sie z odleglosci, a dokad prowadzi,
+                decyduje sesja, nie tekst. */}
+            <button className="hub-btn hub-btn-primary" onClick={() => wejdz(playerId ? "/swiat" : "/onboarding")}>
+              START
             </button>
 
             {/* Widoczne zawsze — kodem loguje sie tez dziecko, ktore na tym
                 telefonie ma juz zapisana czyjas sesje (np. rodzenstwa). */}
-            <button className="btn btn-ghost btn-block" onClick={() => wejdz("/odzyskaj")}>
+            <button className="hub-btn hub-btn-ghost" onClick={() => wejdz("/odzyskaj")}>
               <img className="start-ikona" src="/assets/wejscie/klucz.png" alt="" aria-hidden="true" />
               {playerId ? "Zaloguj innym kodem" : "Mam już kod"}
             </button>
           </div>
 
-          <p className="start-nuta">
-            Muzyka włączy się razem z grą. Nutką w rogu wyciszysz ją w każdej chwili.
-          </p>
+          {/* Linijka o muzyce zeszla: dziecko i tak nie ma tu czego ustawiac,
+              a nutka w HUD-zie tlumaczy sie sama w chwili, gdy jest potrzebna. */}
 
           <p className="start-dorosly">
-            Rodzic albo nauczyciel?{" "}
+            Rodzic albo nauczyciel?
             <a href="#" onClick={(e) => { e.preventDefault(); wejdz("/mentor/zaloguj"); }}>
               wejdź do panelu Mentora
             </a>

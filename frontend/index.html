@@ -7,7 +7,10 @@
   <link rel="manifest" href="/manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@300;400;500;600;700;800;900&family=Mali:wght@400;500;700&family=Caveat:wght@400;700&display=swap" rel="stylesheet" />
+  <!-- Sniglet dolozony dla logo na ekranie startowym: Baloo i Fredoka maja
+       proste boki liter, a logo ma byc bakowate. Jedna grubosc (800) - to
+       jeden napis na jednym ekranie, nie ma po co ciagnac calej rodziny. -->
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Sniglet:wght@800&family=Nunito:wght@300;400;500;600;700;800;900&family=Mali:wght@400;500;700&family=Caveat:wght@400;700&display=swap" rel="stylesheet" />
   <!-- HUD swiata 3D. Wpiety TUTAJ, a nie wstrzykiwany z Reacta: arkusz musi byc
        w dokumencie przed pierwszym malowaniem. Wstrzykniety z komponentu dociera
        o klatke za pozno, wiec HUD zdazy sie narysowac bez stylow - ikony w swoim
@@ -26,7 +29,7 @@
   <link rel="preload" as="image" href="/assets/hub-nav/porada-simple.png" fetchpriority="high" />
 
   <!-- Najwazniejsze obrazy z fetchpriority high - laduja sie obok JS bundle -->
-  <link rel="preload" as="image" href="/assets/wejscie/tlo-start.webp" fetchpriority="high" />
+  <link rel="preload" as="image" href="/assets/wejscie/tlo-start-lis.webp" fetchpriority="high" />
   <link rel="preload" as="image" href="/wizard.png" fetchpriority="high" />
   <link rel="preload" as="image" href="/book.png" fetchpriority="high" />
   <link rel="preload" as="image" href="/zwoj-gora.svg" fetchpriority="high" />

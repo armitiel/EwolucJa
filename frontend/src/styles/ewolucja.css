@@ -557,13 +557,21 @@ h3.title{ font-size: 22px; margin:0; }
    a wtedy nic sie nie da przeczytac. Gradient zaczyna sie przezroczysty, zeby
    nie ucinac obrazka twarda linia. */
 .start-ekran{ position:relative; flex:1; display:flex; flex-direction:column; overflow:hidden; }
-/* Ilustracja NIE wypelnia calego ekranu. Jej dol (lew z choragiewka) to
-   najwazniejszy kadr, a przy pelnym cover ladowal dokladnie pod przyciskami.
-   Dlatego kotwiczymy DOL obrazka nad blokiem CTA i przycinamy gore — niebo
-   i drzewa da sie stracic, bohatera nie. */
+/* Ilustracja NIE wypelnia calego ekranu. Kotwiczymy jej DOL nad blokiem CTA
+   i przycinamy gore — niebo i czubki drzew da sie stracic, bohaterow nie.
+   33%, a nie 29%: na nowej ilustracji najwazniejsze sa lis i czarodziej
+   w SRODKU kadru, a nie sam dol. Przy 29% logo wchodzilo lisowi na grzbiet,
+   przy 37% urywala sie czapka czarodzieja. Sprawdzone renderem trzech
+   wariantow obok siebie. */
 .start-tlo{
-  position:absolute; left:0; right:0; bottom:29%;
+  position:absolute; left:0; right:0; bottom:33%;
   width:100%; height:auto;
+  /* Sama ilustracja gasnie ku dolowi, zamiast konczyc sie kreska. Zaslona
+     kremowym gradientem robi swoje dopiero nizej, wiec bez tej maski dolna
+     krawedz obrazka bylo widac jako proste ciecie w poprzek lasu. Maska
+     zaczyna dzialac dopiero od 62% wysokosci — gora zostaje nienaruszona. */
+  -webkit-mask-image:linear-gradient(180deg, #000 62%, rgba(0,0,0,.55) 84%, transparent 100%);
+  mask-image:linear-gradient(180deg, #000 62%, rgba(0,0,0,.55) 84%, transparent 100%);
 }
 .start-zaslona{
   position:absolute; left:0; right:0; bottom:0; height:52%;
@@ -580,17 +588,64 @@ h3.title{ font-size: 22px; margin:0; }
   padding:0 24px calc(46px + env(safe-area-inset-bottom, 0px));
   display:flex; flex-direction:column; align-items:center; gap:8px;
 }
+/* Logo. Wczesniej caly napis lezal plasko na tle, a koncowka „JA" swiecila
+   gradientem zorzy — ladnym, ale nienalezacym do zadnego innego miejsca w grze.
+   Teraz „Ewoluc" ma kremowy kant i cien (czyta sie na kazdym kadrze lasu),
+   a „JA" siedzi na tej samej zlotej plytce, co kafelki i przyciski w HUD-zie.
+   Lekkie przechylenie i iskra w rogu robia z koncowki znaczek, a nie kolejny
+   kawalek slowa — i to ona zostaje dziecku w glowie. */
 .start-logo{
-  font-family:var(--font-display), system-ui, sans-serif;
-  font-size:clamp(52px, 17vw, 68px); font-weight:800; line-height:1;
-  margin:0; letter-spacing:-1px; color:var(--p-ink);
-  text-shadow:0 3px 0 rgba(255,255,255,.6), 0 6px 0 rgba(78,77,118,.06);
+  /* Sniglet, a nie Baloo ani Fredoka. Obie tamte maja proste pionowe boki
+     w „E", „l" i „u" — przy tym rozmiarze napis czyta sie kanciasto. Sniglet
+     jest rysowany grubym, okraglym piorem: kazda kreska konczy sie kolem,
+     a „o" i „c" sa niemal idealnie okragle. To jedyne miejsce w apce, gdzie
+     ten font jest uzyty, i dlatego nie idzie do --font-display.
+     Slowo „EwolucJA" nie ma polskich znakow, wiec ciagniemy sam podzbior
+     latin — reszta tekstu zostaje na Baloo. */
+  font-family:'Sniglet', var(--font-display), system-ui, sans-serif;
+  font-size:clamp(40px, 13.2vw, 54px); font-weight:800; line-height:1;
+  /* Sniglet jest bardzo szeroki; bez sciagniecia „Ewoluc" rozjezdza sie
+     na pol ekranu i plakietka ucieka za krawedz. */
+  letter-spacing:-.04em;
+  margin:0; position:relative; color:var(--p-ink);
+  display:inline-flex; align-items:center; gap:7px;
+  -webkit-text-stroke:1.4px #fffaf0; paint-order:stroke fill;
+  text-shadow:0 3px 0 rgba(255,255,255,.85), 0 5px 0 rgba(90,60,20,.18), 0 10px 16px rgba(60,40,15,.28);
+}
+/* Dwa gradienty naraz: pierwszy maluje wnetrze (padding-box), drugi ramke
+   (border-box). Bez tego zloty kant trzeba by robic drugim elementem. */
+.start-logo b{
+  /* Plakietka nie dziedziczy sciagniecia — „JA" ma stac swobodnie, a ciasny
+     trakt zbijalby dwie litery w jeden ksztalt. */
+  font-weight:800; letter-spacing:0; padding:3px 13px 6px; border-radius:16px;
+  border:3px solid transparent; transform:rotate(-4deg);
+  background:linear-gradient(180deg,#fff3a8,#f0b93a 58%,#c07a1c) padding-box,
+             linear-gradient(180deg,#fff6c6,#e0a52c 60%,#8d5412) border-box;
+  color:#5a3410; -webkit-text-stroke:0;
+  text-shadow:0 2px 0 rgba(255,255,255,.7);
+  box-shadow:0 4px 0 #9c6318, 0 8px 14px rgba(80,50,10,.32), inset 0 2px 0 rgba(255,255,255,.75);
+}
+.start-logo-iskra{
+  position:absolute; right:-13px; top:-11px; width:24px; height:24px;
+  animation:float-mid 4s ease-in-out infinite;
 }
 .start-haslo{
-  margin:0; max-width:268px; text-align:center;
+  margin:0; max-width:300px; text-align:center;
   font-size:19px; line-height:1.25; color:var(--p-ink-soft);
 }
 .start-cta{ width:100%; max-width:360px; margin-top:14px; display:flex; flex-direction:column; gap:10px; }
+/* `hub-btn` nie ma wariantu „na cala szerokosc" — w hubie siedzi w siatkach
+   i w rzedach. Tutaj ma byc jednym, szerokim celem dla palca, wiec rozmiar
+   nadajemy na miejscu, zamiast dokladac kolejnej klasy do rodziny. */
+.start-cta .hub-btn{
+  width:100%; min-height:56px; padding:14px 18px;
+  display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  font-size:17px;
+}
+/* „START" to jedno slowo wersalikami — bez rozstrzelenia T i A zlewaja sie
+   w jeden ksztalt. `text-indent` oddaje z powrotem odstep, ktory
+   `letter-spacing` dokleja za ostatnia litera, zeby napis stal w osi. */
+.start-cta .hub-btn-primary{ font-size:20px; letter-spacing:.16em; text-indent:.16em; }
 /* Ikonki w przyciskach to te same pliki, co w grze (gwiazdka z Pamieci Medrca,
    klucz z ekranu logowania) — dziecko widzi ten sam przedmiot, nie emoji. */
 .start-ikona{ width:24px; height:24px; object-fit:contain; display:block; filter:drop-shadow(0 2px 2px rgba(120,80,20,.32)); }
@@ -599,7 +654,11 @@ h3.title{ font-size: 22px; margin:0; }
   font-size:12px; line-height:1.35; color:var(--p-ink-soft); opacity:.85;
 }
 .start-dorosly{ margin:4px 0 0; text-align:center; font-size:13px; color:var(--p-ink-soft); }
-.start-dorosly a{ color:var(--p-magic-dk); font-weight:800; text-decoration:underline; text-underline-offset:3px; }
+/* Link w osobnej linijce i bez podkreslenia: to jedyne wyjscie na tym ekranie
+   NIE dla dziecka, wiec ma byc czytelne dla doroslego, a nie przyciagac wzrok.
+   Rozroznia go kolor i grubosc — kreska pod spodem robila z niego trzeci
+   przycisk tuz pod dwoma prawdziwymi. */
+.start-dorosly a{ display:block; margin-top:2px; color:var(--p-magic-dk); font-weight:800; text-decoration:none; }
 
 /* ─── Ekran logowania kodem ───────────────────────────────────────────────── */
 .kod-ekran{
