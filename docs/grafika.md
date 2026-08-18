@@ -52,21 +52,36 @@ Glina jest dobra dla **assetów wewnątrz gry** (pionki, symbole kart, przedmiot
 Ilustracje, które mówią do dziecka z całego ekranu — pop-upy zaproszeń, splash
 screeny minigier — są w drugim stylu: renderowana kreskówkowa ikona. Gruby,
 ciemny obrys wokół całej sylwetki, nasycony fiolet i złoto, gładkie cieniowanie
-z połyskiem i wyraźnymi światłami, duże okrągłe kształty. Bliżej ikony gry
-mobilnej niż płaskiego wektora.
+z połyskiem, duże okrągłe kształty. Bliżej ikony gry mobilnej niż płaskiego
+wektora.
 
-Wzorce (nie ruszać, to referencja stylu):
+**Tego stylu nie da się opisać promptem.** Próbowaliśmy: gruby obrys, cel
+shading, paleta z tokenów — wychodzi płaska naklejka. Z daleka podobna, z bliska
+obca. gpt-image-1 nie ma też seeda ani ID stylu, więc nie ma czego zapisać jako
+liczby.
 
-- `frontend/public/wizPop.webp` — Wizkor z laską, pop-up zaproszenia
-- `frontend/public/lisPop.webp` — lisek, pop-up zaproszenia
-- `frontend/public/assets/karty/wizkor-karty.png` — Wizkor z kartami, splash
+Styl zapisujemy więc jako **referencje**: `docs/styl/*.png`. To wzorce zmniejszone
+do 512 px, które lecą do modelu razem z każdym promptem (`images.edit`), a prompt
+mówi wyłącznie, **co** jest na obrazku — o stylu ani słowa.
 
-**Tych ilustracji nie generujemy promptem z rozdziału 2.** Próba opisania stylu
-słowami (gruby obrys, cel shading, paleta) daje płaską naklejkę wektorową —
-podobną z daleka, obcą z bliska. Postacie w tym stylu przychodzą z zewnątrz jako
-gotowe pliki; nasza robota to kadr i odchudzenie (rozdział 4). Jeśli kiedyś
-wrócimy do generowania, punktem wyjścia jest `images.edit` z jednym z plików
-powyżej jako referencją, nie prompt pisany od zera.
+```
+python scripts\styl-ilustracja.py lisek-piorko "Ten sam rudy lisek, popiersie,
+trzyma oburącz jedno duże złote pióro i patrzy na nie z zachwytem."
+```
+
+Wynik ląduje w `tmp/gen/<nazwa>.png` (surowy) i `tmp/gen/<nazwa>-gotowy.png`
+(przycięty, 560 px, skwantyzowany). Dorzucenie nowej postaci do `docs/styl/`
+poszerza wzorzec — to jest miejsce, w którym „uczy się" nasz styl.
+
+Trzy rzeczy, które kosztowały czas przy tej ścieżce:
+
+- **referencje muszą być małe** (512 px). Pełnowymiarowe pliki potrafiły wisieć
+  kilkanaście minut na uploadzie i nie zwrócić nic
+- **klucz API bierzemy z pliku, nie ze zmiennej środowiskowej.** W zmiennej
+  użytkownika na Windowsie siedzi stary klucz — skrypt odpalony przez `cmd`
+  dostawał 401, odpalony inaczej działał
+- **proces trzeba odczepić od powłoki** (`Win32_Process.Create`), bo generacja
+  trwa dłużej niż limit narzędzia i dziecko ginie razem z rodzicem
 
 Kadr dla splash screenu: popiersie ucięte płasko dolną krawędzią kadru, postać
 wyśrodkowana, tło przezroczyste, nic poza bohaterem.
