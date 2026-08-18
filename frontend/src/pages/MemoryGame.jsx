@@ -22,76 +22,45 @@ import SplashGry from "../hub/SplashGry.jsx";
 import { dodajMonety } from "../services/monety.js";
 import "../hub/styles/hub.css";
 
-// ─── Game symbols (8 unique) ────────────────────────────────────
+/* ─── Symbole kart ────────────────────────────────────────────────────────
+   Karty pokazują te same gliniane przedmioty, co „Sekret pod puchem" — cztery
+   pliki są wprost stamtąd (zwój, księżyc, grzyb, piórko), złota gwiazdka to ta
+   z ekranu wyniku, a kryształ, moneta i sowa doszły w tym samym stylu
+   (`scripts/assety-karty.py`, ten sam blok DNA promptu).
+
+   Dlaczego nie SVG jak wcześniej: gra rysowała symbole kreską, a cała reszta
+   świata jest z gliny. Dziecko widziało dwa różne języki graficzne w jednej
+   aplikacji — a to ten sam świat, więc i te same przedmioty.               */
 const GAME_SYMS = [
-  { id: "scroll",  name: "Zwój",     c: "#A87A2A" },
-  { id: "crystal", name: "Kryształ", c: "#7A4DC2" },
-  { id: "coin",    name: "Moneta",   c: "#E89A3D" },
-  { id: "owl",     name: "Sowa",     c: "#2E7AB8" },
-  { id: "mush",    name: "Grzyb",    c: "#D45A5A" },
-  { id: "star",    name: "Gwiazda",  c: "#F4C95D" },
-  { id: "moon",    name: "Księżyc",  c: "#5FA76F" },
-  { id: "feather", name: "Pióro",    c: "#B886E8" },
+  { id: "scroll",  name: "Zwój",     c: "#A87A2A", plik: "/assets/piorka/ukryty-zwoj.png" },
+  { id: "crystal", name: "Kryształ", c: "#7A4DC2", plik: "/assets/karty/krysztal.png" },
+  { id: "coin",    name: "Moneta",   c: "#E89A3D", plik: "/assets/karty/moneta.png" },
+  { id: "owl",     name: "Sowa",     c: "#2E7AB8", plik: "/assets/karty/sowa.png" },
+  { id: "mush",    name: "Grzyb",    c: "#D45A5A", plik: "/assets/piorka/ukryty-grzyb.png" },
+  { id: "star",    name: "Gwiazda",  c: "#F4C95D", plik: "/star.png" },
+  { id: "moon",    name: "Księżyc",  c: "#5FA76F", plik: "/assets/piorka/ukryty-ksiezyc.png" },
+  { id: "feather", name: "Pióro",    c: "#B886E8", plik: "/assets/piorka/piorko-krem.png" },
 ];
 
-function GameSym({ kind, size = 42, c = "#7A4DC2" }) {
-  const ic = {
-    scroll: (
-      <g>
-        <rect x="5" y="6" width="14" height="12" rx="2" fill={c} opacity=".15" />
-        <path d="M5 8h14M5 12h10M5 16h12" stroke={c} strokeWidth="1.8" strokeLinecap="round" />
-        <circle cx="20" cy="7" r="1.8" fill={c} />
-      </g>
-    ),
-    crystal: (
-      <g>
-        <path d="M12 3l5 5-5 13-5-13 5-5z" fill={c} fillOpacity=".2" stroke={c} strokeWidth="1.8" strokeLinejoin="round" />
-        <path d="M7 8h10M12 3v18" stroke={c} strokeWidth="1.8" />
-      </g>
-    ),
-    coin: (
-      <g>
-        <circle cx="12" cy="12" r="8" fill={c} fillOpacity=".2" stroke={c} strokeWidth="1.8" />
-        <text x="12" y="16" textAnchor="middle" fontSize="11" fontWeight="900" fill={c} fontFamily="Nunito">$</text>
-      </g>
-    ),
-    owl: (
-      <g>
-        <ellipse cx="12" cy="13" rx="6" ry="7" fill={c} fillOpacity=".2" stroke={c} strokeWidth="1.6" />
-        <circle cx="9.5" cy="11" r="1.7" fill={c} />
-        <circle cx="14.5" cy="11" r="1.7" fill={c} />
-        <path d="M12 14l-1.2 1.5h2.4L12 14z" fill={c} />
-      </g>
-    ),
-    mush: (
-      <g>
-        <path d="M6 13c0-3.5 2.7-6 6-6s6 2.5 6 6H6z" fill={c} fillOpacity=".2" stroke={c} strokeWidth="1.6" />
-        <rect x="10" y="13" width="4" height="6" rx="1" fill={c} fillOpacity=".4" />
-        <circle cx="9" cy="11" r="1" fill={c} />
-        <circle cx="14" cy="10" r="1.2" fill={c} />
-      </g>
-    ),
-    star: (
-      <g>
-        <path d="M12 3l2.5 6 6 .5-4.5 4.2 1.5 6.3L12 17l-5.5 3 1.5-6.3L3.5 9.5l6-.5L12 3z" fill={c} fillOpacity=".25" stroke={c} strokeWidth="1.6" strokeLinejoin="round" />
-      </g>
-    ),
-    moon: (
-      <g>
-        <path d="M16 12a6 6 0 1 1-6.5-6 5 5 0 0 0 6.5 6z" fill={c} fillOpacity=".25" stroke={c} strokeWidth="1.6" />
-      </g>
-    ),
-    feather: (
-      <g>
-        <path d="M18 4c-7 0-12 5-12 12l3 3 11-11c1-1 1-3 0-4s-1-0-2 0z" fill={c} fillOpacity=".2" stroke={c} strokeWidth="1.6" strokeLinejoin="round" />
-        <path d="M6 19l4-4" stroke={c} strokeWidth="1.6" strokeLinecap="round" />
-      </g>
-    ),
-  }[kind] || null;
+/* Dwa warianty rewersu, bo kafelek w rozgrywce jest KWADRATOWY, a karta na
+   ekranie startowym stoi pionowo. Jeden plik na oba obcinalby albo pierscien,
+   albo boki — a to wlasnie po tym zostawaly jasne pasy przy krawedziach. */
+const REWERS = "/assets/karty/rewers.png";        // 1:1 — kafelki w grze
+const REWERS_PION = "/assets/karty/rewers-3d.png"; // 2:3 — godlo i model 3D
+
+function GameSym({ sym, size = 42 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24">
-      {ic}
-    </svg>
+    <img
+      src={sym.plik}
+      alt=""
+      aria-hidden="true"
+      draggable="false"
+      style={{
+        width: size, height: size, objectFit: "contain", display: "block",
+        filter: "drop-shadow(0 3px 4px rgba(78,77,118,.28))",
+        userSelect: "none",
+      }}
+    />
   );
 }
 
@@ -145,33 +114,37 @@ function MemCard({ card, flipped, matched, onFlip, size }) {
         }}
       >
         {displayUp ? (
+          /* Awers = kafelek odpowiedzi z „Sekretu pod puchem": kremowa glina
+             w złotym kancie z gradientu. Para znaleziona świeci obwódką
+             w kolorze symbolu, żeby sukces było widać bez czytania. */
           <div style={{
-            width: "100%", height: "100%", borderRadius: 14,
+            width: "100%", height: "100%", borderRadius: 16,
+            border: "2px solid transparent",
             background: matched
-              ? `linear-gradient(135deg, ${card.sym.c}30, ${card.sym.c}15)`
-              : "linear-gradient(180deg,#FCF5E1,#F4E3B8)",
+              ? `linear-gradient(180deg, ${card.sym.c}26, ${card.sym.c}12) padding-box,
+                 linear-gradient(180deg, ${card.sym.c}, ${card.sym.c}88) border-box`
+              : `linear-gradient(180deg,rgba(255,251,224,.98),rgba(243,224,171,.98)) padding-box,
+                 linear-gradient(180deg,#fff0a1,#d59a31 65%,#925719) border-box`,
             boxShadow: matched
-              ? `inset 0 0 0 2px ${card.sym.c}88, 0 0 0 3px ${card.sym.c}33`
-              : "inset 0 0 0 1.5px rgba(168,122,42,.4), 0 3px 0 rgba(120,90,30,.18), 0 6px 12px rgba(80,50,10,.15)",
+              ? `0 0 0 3px ${card.sym.c}22, 0 4px 10px rgba(80,50,10,.16)`
+              : "inset 0 2px 0 rgba(255,255,255,.66), 0 3px 0 #93601f, 0 6px 10px rgba(66,47,22,.18)",
             display: "flex", alignItems: "center", justifyContent: "center",
           }}>
-            <GameSym kind={card.sym.id} size={size * 0.55} c={card.sym.c} />
+            <GameSym sym={card.sym} size={size * 0.62} />
           </div>
         ) : (
+          /* Rewers to jeden obrazek — ten sam, który jest teksturą karty
+             stojącej na mapie 3D (`assets/karta.glb`). Jeden plik zamiast
+             dwóch rysunków, więc karta na mapie i karta w ręce nie mogą się
+             rozjechać. */
           <div style={{
-            width: "100%", height: "100%", borderRadius: 14,
-            background: "linear-gradient(135deg,#7A4DC2 0%,#4A2D80 60%,#291752 100%)",
+            width: "100%", height: "100%", borderRadius: 16, overflow: "hidden",
             boxShadow: "inset 0 0 0 1.5px rgba(255,255,255,.15), 0 3px 0 #2A1452, 0 8px 14px rgba(43,30,90,.4)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            position: "relative", overflow: "hidden",
+            position: "relative",
           }}>
-            <svg width={size * 0.6} height={size * 0.6} viewBox="0 0 60 60">
-              <circle cx="30" cy="30" r="22" stroke="#FFD269" strokeWidth="1.2" fill="none" opacity=".6" />
-              <circle cx="30" cy="30" r="16" stroke="#FFD269" strokeWidth="1.2" fill="none" opacity=".4" strokeDasharray="3 4" />
-              <path d="M30 12l4 11 11 1-8 8 3 11-10-6-10 6 3-11-8-8 11-1 4-11z" fill="#FFD269" opacity=".75" />
-            </svg>
+            <img src={REWERS} alt="" aria-hidden="true" draggable="false"
+                 style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
             <div style={{ position: "absolute", top: 6, right: 8 }}><Sparkle size={10} c="#FFE7B0" /></div>
-            <div style={{ position: "absolute", bottom: 6, left: 8 }}><Sparkle size={8} c="#C8A0F0" delay={0.4} /></div>
           </div>
         )}
       </div>
@@ -412,7 +385,9 @@ export default function MemoryGame({ osadzona = false, onWyjscie }) {
           <SplashGry
             tytul="Pamięć Mędrca"
             podpis="Tasuję symbole…"
-            emoji="🧠"
+            /* Zamiast emoji lecą prawdziwe symbole z talii — ten sam widok,
+               który za chwilę zobaczysz na kartach. */
+            obrazy={[GAME_SYMS[5], GAME_SYMS[1], GAME_SYMS[7], GAME_SYMS[3]].map((s) => s.plik)}
             onKoniec={() => setPhase("intro")}
           />
         ) : null}
@@ -424,23 +399,26 @@ export default function MemoryGame({ osadzona = false, onWyjscie }) {
         {phase === "intro" && (
           <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", padding: "10px 24px 24px" }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: 16, gap: 10 }}>
-              <div style={{ position: "relative", width: 150, height: 150 }}>
-                <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,210,105,.5), transparent 65%)", filter: "blur(8px)", animation: "float-mid 4s ease-in-out infinite" }} />
-                <div style={{
-                  position: "absolute", inset: 14, borderRadius: "50%",
-                  background: "linear-gradient(135deg,#7A4DC2 0%,#4A2D80 60%,#291752 100%)",
-                  boxShadow: "0 6px 0 #2A1452, 0 20px 40px rgba(43,30,90,.5), inset 0 0 0 2px rgba(255,255,255,.12)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  animation: "float-mid 3.5s ease-in-out infinite",
-                }}>
-                  <svg width="76" height="76" viewBox="0 0 60 60">
-                    <circle cx="30" cy="30" r="22" stroke="#FFD269" strokeWidth="1.5" fill="none" opacity=".6" />
-                    <circle cx="30" cy="30" r="16" stroke="#FFD269" strokeWidth="1.2" fill="none" opacity=".4" strokeDasharray="3 4" />
-                    <path d="M30 12l4 11 11 1-8 8 3 11-10-6-10 6 3-11-8-8 11-1 4-11z" fill="#FFD269" opacity=".85" />
-                  </svg>
-                </div>
-                <div style={{ position: "absolute", top: 8, right: 18 }}><Sparkle size={16} c="#FFD269" /></div>
-                <div style={{ position: "absolute", bottom: 24, left: 14 }}><Sparkle size={12} c="#C8A0F0" delay={0.4} /></div>
+              {/* Godło ekranu startowego: prawdziwa karta, a nie medalion
+                  z okręgami. Ten sam plik, co rewers w rozgrywce i co tekstura
+                  karty stojącej na mapie 3D — dziecko widzi przedmiot, po
+                  który przyszło, zanim jeszcze zacznie grać. */}
+              <div style={{ position: "relative", width: 150, height: 176, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ position: "absolute", inset: "6% 2%", borderRadius: "50%", background: "radial-gradient(circle, rgba(255,210,105,.5), transparent 65%)", filter: "blur(8px)", animation: "float-mid 4s ease-in-out infinite" }} />
+                <img
+                  src={REWERS_PION}
+                  alt=""
+                  aria-hidden="true"
+                  draggable="false"
+                  style={{
+                    position: "relative", width: 114, height: 164, objectFit: "cover",
+                    borderRadius: 16, transform: "rotate(-6deg)",
+                    boxShadow: "0 6px 0 #2A1452, 0 18px 34px rgba(43,30,90,.45), inset 0 0 0 2px rgba(255,255,255,.12)",
+                    animation: "float-mid 3.5s ease-in-out infinite",
+                  }}
+                />
+                <div style={{ position: "absolute", top: 4, right: 12 }}><Sparkle size={16} c="#FFD269" /></div>
+                <div style={{ position: "absolute", bottom: 16, left: 8 }}><Sparkle size={12} c="#C8A0F0" delay={0.4} /></div>
               </div>
 
               <h1 className="t-display" style={{ fontSize: 32, margin: 0, textShadow: "0 2px 0 rgba(255,255,255,.4)" }}>Pamięć Mędrca</h1>

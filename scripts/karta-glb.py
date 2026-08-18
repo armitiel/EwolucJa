@@ -124,8 +124,22 @@ bin_uv = b"".join(struct.pack("<2f", *t) for t in uv)
 bin_idx = b"".join(struct.pack("<H", i) for i in indeksy)
 
 import io as _io
+# Rewers bierzemy z assetu gry, jesli istnieje — wtedy karta na mapie i karta
+# w rece to DOKLADNIE ten sam obrazek. Rysowana tekstura zostaje jako zapas na
+# wypadek, gdyby pliku nie bylo (np. swiezy klon bez wygenerowanych assetow).
+ASSET = ROOT / "frontend" / "public" / "assets" / "karty" / "rewers-3d.png"
 buf_png = _io.BytesIO()
-tekstura().save(buf_png, "PNG", optimize=True)
+if ASSET.exists():
+    # Kwantyzacja do 128 kolorow: rewers to plaskie pola gliny i zloto, wiec
+    # roznicy nie widac, a plik GLB chudnie z ~170 do ~60 kB. Model wisi na
+    # mapie, ktora wczytuje sie razem ze scena — kazdy kilobajt to opoznienie.
+    (Image.open(ASSET).convert("RGB").resize((SZER, WYS), Image.LANCZOS)
+        .quantize(colors=128, method=Image.FASTOCTREE)
+        .save(buf_png, "PNG", optimize=True))
+    print("tekstura: assets/karty/rewers.png")
+else:
+    tekstura().save(buf_png, "PNG", optimize=True)
+    print("tekstura: rysowana w kodzie (brak assets/karty/rewers.png)")
 png = buf_png.getvalue()
 
 
