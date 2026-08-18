@@ -100,6 +100,34 @@ const GRY_OSADZONE = {
 };
 
 /**
+ * Zaproszenie do gry, którym lisek odzywa się po wbiegnięciu w znak minigry.
+ * Klucz to `id` z katalogu; brak wpisu = zdanie ogólne, więc dopisanie gry
+ * do katalogu nigdy nie zostawi pustego okna.
+ *
+ * Mówi LISEK, a nie narrator: to bohater dziecka znalazł coś na mapie, więc
+ * pyta w pierwszej osobie liczby mnogiej („zagramy?"). `wyroznienie` musi być
+ * dosłownym fragmentem `tekst` — inaczej podkreślenie po prostu nie wejdzie.
+ */
+const ZAPROSZENIA = {
+  "sekret-pod-puchem": {
+    tekst: "Zagramy w Sekret pod puchem? Za każdy odkryty sekret są monety.",
+    wyroznienie: "Sekret pod puchem",
+  },
+  "pamiec-medrca": {
+    tekst: "Zagramy w Pamięć Mędrca? Trzeba znaleźć pary symboli ze zwoju.",
+    wyroznienie: "Pamięć Mędrca",
+  },
+};
+
+function zaproszenieDoGry(id) {
+  const zKatalogu = (KATALOG_GIER.gry || []).find((g) => g.id === id);
+  const tytul = zKatalogu?.tytul || "tę grę";
+  return (
+    ZAPROSZENIA[id] || { tekst: `Zagramy w ${tytul}?`, wyroznienie: tytul }
+  );
+}
+
+/**
  * Ekran przejścia — to, co widać między dotknięciem kafelka a pierwszą klatką
  * gry. Musi wyglądać DOKŁADNIE jak splash, który gra pokaże za chwilę sama:
  * ten sam tytuł, ten sam znaczek, to samo tło. Inaczej dziecko widzi trzy
@@ -270,6 +298,9 @@ export default function Swiat() {
   const [powitanie, setPowitanie] = useState(null);
   // Krok przed powitaniem: „zagadać?". `false` = lis biegnie dalej.
   const [pytanie, setPytanie] = useState(false);
+  // Zaproszenie do minigry: `null` albo `id` gry z katalogu. Znak na mapie nie
+  // wrzuca już dziecka prosto w grę — najpierw pyta, tak samo jak czarodziej.
+  const [zaproszenie, setZaproszenie] = useState(null);
   // Zadanie od czarodzieja. Czytamy je z localStorage przy montowaniu, bo
   // zbieranie ma przeżyć zamknięcie apki.
   const [zadanie, setZadanie] = useState(() => stanZadania());
@@ -380,15 +411,15 @@ export default function Swiat() {
   useEffect(() => {
     const scena = scenaRef.current;
     if (scena) {
-      if (panel || gra || powitanie || pytanie || nagroda) scena.pauza?.();
+      if (panel || gra || powitanie || pytanie || zaproszenie || nagroda) scena.pauza?.();
       else scena.wznow?.();
     }
-  }, [panel, gra, powitanie, pytanie, nagroda]);
+  }, [panel, gra, powitanie, pytanie, zaproszenie, nagroda]);
 
   useEffect(() => {
-    rozmowaRef.current = !!powitanie || pytanie || nagroda;
-    if (powitanie || pytanie || nagroda) fx.krokiStop();
-  }, [powitanie, pytanie, nagroda]);
+    rozmowaRef.current = !!powitanie || pytanie || !!zaproszenie || nagroda;
+    if (powitanie || pytanie || zaproszenie || nagroda) fx.krokiStop();
+  }, [powitanie, pytanie, zaproszenie, nagroda]);
 
   /**
    * PILNOWANIE STANU, a nie tylko reagowanie na przejścia.
@@ -578,13 +609,17 @@ export default function Swiat() {
             if (po.spelnione) setNagroda(true);
           }
         }
-        // Znak, który prowadzi wprost do minigry — piórko na mapie otwiera
-        // „Sekret pod puchem". Gra rysuje się NAD sceną, a nie na własnym
-        // adresie: scena tylko pauzuje, więc po zamknięciu lis stoi dokładnie
-        // tam, gdzie wbiegł w znak, i nie otwiera się przy tym zakładka
-        // z biblioteką, której dziecko wcale nie odwiedziło.
+        // Znak minigry — piórko albo karty na mapie. NIE wrzucamy dziecka
+        // prosto w grę: bieg jest tu osobną przyjemnością i wpadnięcie w znak
+        // bywa przypadkowe, więc najpierw pyta lisek, dokładnie tak jak
+        // czarodziej pyta o rozmowę. Dopiero „Gramy!" otwiera grę — nad sceną,
+        // która tylko pauzuje, więc po wyjściu lis stoi tam, gdzie stał.
         const doGry = ZNAK_GRY[dane?.znak];
-        if (doGry) { otworzGre(doGry); return; }
+        if (doGry) {
+          if (rozmowaRef.current) return;
+          setZaproszenie(doGry);
+          return;
+        }
 
         const doOtwarcia = ZNAK_PANELU[dane?.znak];
         if (doOtwarcia) otworz(doOtwarcia);
@@ -592,8 +627,27 @@ export default function Swiat() {
       }
       if (nazwa === "blad") setScenaMartwa(true);
     },
-    [otworz, otworzGre, panel, pokazKomunikat, navigate]
+    [otworz, panel, pokazKomunikat, navigate]
   );
+
+  // Uchwyt do konsoli — bieganie po mapie w poszukiwaniu piórka przy każdej
+  // poprawce w oknie zaproszenia byłoby nie do zniesienia. Ten sam wzorzec, co
+  // `window.popupPostaci` i `window.zadanieGwiazdek`:
+  //   window.zaproszenieGry.pokaz("sekret-pod-puchem") / .schowaj()
+  useEffect(() => {
+    window.zaproszenieGry = {
+      pokaz: (id = "sekret-pod-puchem") => setZaproszenie(id),
+      schowaj: () => setZaproszenie(null),
+    };
+    return () => { delete window.zaproszenieGry; };
+  }, []);
+
+  /** „Gramy!" w oknie liska — okno schodzi, gra wchodzi na jego miejsce. */
+  const naZaproszenie = useCallback(() => {
+    const id = zaproszenie;
+    setZaproszenie(null);
+    if (id) otworzGre(id);
+  }, [zaproszenie, otworzGre]);
 
   /* ── doładowanie dźwięków pod kurtyną z chmur ────────────────────────── */
   /**
@@ -789,7 +843,7 @@ export default function Swiat() {
       {/* Mędrzec odzywa się tylko w spokojnym hubie: nie nad panelem, nie nad
           zwojem i nie zanim rozsuną się chmury. */}
       <PodpowiedzMedrca
-        aktywna={!panel && !zwojOtwarty && !powitanie && !pytanie && odsloniete}
+        aktywna={!panel && !zwojOtwarty && !powitanie && !pytanie && !zaproszenie && odsloniete}
       />
 
       {/* Dwa kroki, nie jeden: najpierw „zagadać?", dopiero po „tak" pełne
@@ -819,6 +873,24 @@ export default function Swiat() {
         ton="mystery"
         onAkcja={naPrzyciskCzarodzieja}
         onZamknij={rozstanie}
+      />
+
+      {/* Zaproszenie do minigry. To samo okno co u czarodzieja — bo to ta sama
+          sytuacja: ktoś zatrzymał lisa i coś proponuje. Różni się postacią
+          (wariant `lis` ma własną geometrię) i tym, że ma DWA wyjścia:
+          znak i tak wróci na mapę, więc odmowa nic nie kosztuje. */}
+      <PopupPostaci
+        otwarty={!!zaproszenie}
+        wariant="lis"
+        imie="Lisek"
+        obrazek="/lisPop.webp"
+        tekst={zaproszenie ? zaproszenieDoGry(zaproszenie).tekst : ""}
+        wyroznienie={zaproszenie ? zaproszenieDoGry(zaproszenie).wyroznienie : ""}
+        przycisk="Gramy!"
+        przyciskDrugi="Nie teraz"
+        onAkcja={naZaproszenie}
+        onDrugi={() => setZaproszenie(null)}
+        onZamknij={() => setZaproszenie(null)}
       />
 
       {/* Ekran wygranej — ten sam, którym gra świętuje minigry i zatwierdzone

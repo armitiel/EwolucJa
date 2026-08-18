@@ -191,7 +191,13 @@ gltf = {
     "buffers": [{"byteLength": len(bin_all)}],
 }
 
-json_bin = wyrownaj(json.dumps(gltf, separators=(",", ":")).encode("utf-8"), 4)
+# Chunk JSON dopelnia sie SPACJAMI (0x20), a nie zerami - tego wymaga glTF 2.0.
+# Na tym wlasnie karta sie wywracala: `wyrownaj` dokladalo \0, a three.js robi
+# JSON.parse na CALYM chunku i leci wyjatkiem na koncowych NUL-ach. GLTFLoader
+# polyka ten blad po cichu, wiec znak karty po prostu nie powstawal na mapie -
+# bez jednej linijki w konsoli. Dopelnienie liczymy tu sami; `wyrownaj` zostaje
+# do chunku BIN, ktory zerami dopelnia sie prawidlowo.
+json_bin = json.dumps(gltf, separators=(",", ":")).encode("utf-8")
 if len(json_bin) % 4:
     json_bin += b" " * (4 - len(json_bin) % 4)
 

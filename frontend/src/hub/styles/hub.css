@@ -708,6 +708,14 @@
    Warstwa jest WYZEJ niz zwoj wiadomosci (z-index 60 vs 45): powitanie
    przerywa wszystko inne, bo pojawia sie raz na spotkanie. */
 .popup-postaci{
+  /* WZROST POSTACI, wspolny dla calej rodziny okien. `--popup-bohater` (nizej,
+     na karcie) steruje ukladem KARTY i dlatego pytanie „zagadac?" ma go
+     mniejszy - karta ma tam byc ciasniejsza. Ale sam bohater ma byc wszedzie
+     tego samego wzrostu: czarodziej w pytaniu i lisek w zaproszeniu do gry to
+     dwie te same sytuacje i rozny rozmiar postaci czytal sie jak pomylka.
+     Wartosc to dokladnie dotychczasowa wysokosc liska, wiec jego okno wyglada
+     jak wygladalo - to czarodziej do niego dorasta. */
+  --popup-postac:calc(clamp(178px,44vw,236px) * 1.30);
   position:fixed; inset:0; z-index:60;
   display:grid; place-items:center;
   padding:calc(env(safe-area-inset-top,0px) + 12px) 16px calc(env(safe-area-inset-bottom,0px) + 12px);
@@ -833,6 +841,31 @@
   min-height:54px; font-size:17.5px;
 }
 
+/* Odmowa jest lzejsza i nizsza od zgody - dokladnie te same proporcje, co
+   "nie teraz" w oknie "zagadac?". Dziecko uczy sie jednego ukladu. */
+.popup-postaci-akcja-drugi{
+  margin-top:9px; width:100%;
+  min-height:44px; font-size:15px;
+}
+
+/* ── Wariant: lisek ────────────────────────────────────────────────────── */
+/* Czarodziej jest prawie kwadratowy (kapelusz zajmuje pol kadru), lisek waski
+   i wysoki (uszy). Geometria okna jest liczona z SZEROKOSCI grafiki, wiec przy
+   wspolnych wartosciach lisek wychodzil o glowe za maly. Tutaj sterujemy jego
+   WYSOKOSCIA, a karta dostaje wiekszy zapas u gory, zeby uszy zmiescily sie
+   nad nia na niskim ekranie. Przesuniecie w dol chowa lapy pod wstega z
+   imieniem - tak samo jak plaskie ciecie u czarodzieja. */
+.popup-postaci--lis .popup-postaci-karta{
+  margin-top:calc(var(--popup-postac) * .708);
+}
+.popup-postaci--lis .popup-postaci-bohater{
+  width:auto; height:var(--popup-postac);
+  /* Lapy schodza pod wstege z imieniem - u czarodzieja robi to plaskie
+     ciecie grafiki, tutaj samo przesuniecie. Liczone z WYSOKOSCI, bo to ona
+     jest teraz miara postaci. */
+  bottom:calc(100% - var(--popup-postac) * .054);
+}
+
 /* Krzyzyk siedzi W ROGU KARTY, nie poza nia: przy karcie szerokiej na caly
    ekran (a taka jest na telefonie) wszystko wystajace poza jej krawedz laduje
    pod krawedzia ekranu i sie przycina. Miejsce robi mu wezsza wstega. */
@@ -872,6 +905,9 @@
    w pionie. Grafika jest wtedy mniejsza, a karta ciasniejsza - zamiast
    przewijania, ktore w oknie modalnym zawsze wyglada na blad. */
 @media (max-height:680px){
+  /* Postac maleje razem z karta - inaczej na niskim telefonie glowa wychodzi
+     poza gorna krawedz ekranu. Jedna wartosc dla calej rodziny okien. */
+  .popup-postaci{ --popup-postac:calc(clamp(140px,34vw,178px) * 1.16); }
   .popup-postaci-karta{
     --popup-bohater:clamp(140px,34vw,178px);
     padding:28px 18px 20px;
@@ -903,6 +939,18 @@
   --popup-bohater:clamp(136px,34vw,168px);
   width:min(100%,320px);
   padding:22px 18px 18px;
+  margin-top:calc(var(--popup-postac) * .708);
+}
+
+/* Czarodziej dokladnie tego samego wzrostu, co lisek w zaproszeniu do gry.
+   Wczesniej to okno mialo wlasna, mniejsza miare i ta sama postac wychodzila
+   raz duza, raz mala - a dziecko widzi te dwa okna w odstepie minuty.
+   Sterujemy WYSOKOSCIA (jak u liska): czarodziej jest prawie kwadratowy przez
+   kapelusz, wiec przy wspolnej szerokosci bylby o glowe nizszy. Przesuniecie
+   o 4% wysokosci klada plaskie ciecie grafiki na gornej krawedzi karty. */
+.popup-pytanie .popup-postaci-bohater{
+  width:auto; height:var(--popup-postac);
+  bottom:calc(100% - var(--popup-postac) * .04);
 }
 
 .popup-pytanie-tekst{

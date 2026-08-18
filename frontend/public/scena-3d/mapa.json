@@ -1101,30 +1101,6 @@
       "respawn": 3.2
     },
     {
-      "id": "medal",
-      "file": "medal",
-      "label": "Minigra",
-      "toast": "Znak minigry: Medal Odwagi",
-      "pos": [
-        4.02,
-        -7.92
-      ],
-      "scale": 1.15,
-      "height": 1.15,
-      "glow": 16767091,
-      "ringColor": 16771496,
-      "metalness": 0.55,
-      "roughness": 0.72,
-      "faceCamera": true,
-      "haloOpacity": 0,
-      "ringOpacity": 0.24,
-      "lightBase": 0,
-      "jasnosc": 1.45,
-      "absorb": true,
-      "absorbLift": 1.7,
-      "respawn": 3.2
-    },
-    {
       "id": "leaf",
       "file": "lisc",
       "label": "Sekret pod puchem",

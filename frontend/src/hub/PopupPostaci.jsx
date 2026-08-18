@@ -58,9 +58,24 @@ export default function PopupPostaci({
   tekst = "",
   wyroznienie = "",
   przycisk = "Poznajmy się!",
+  /**
+   * Drugi przycisk pojawia się tylko wtedy, gdy okno naprawdę o coś PYTA.
+   * Powitanie ma jedno wyjście („poznajmy się") i domknięcie krzyżykiem —
+   * dokładanie mu „nie teraz" sugerowałoby wybór tam, gdzie go nie ma.
+   * Zaproszenie do minigry ma dwa wyjścia i oba są w porządku.
+   */
+  przyciskDrugi = null,
+  /**
+   * Nazwa wariantu wyglądu (`lis` → klasa `popup-postaci--lis`). Postacie mają
+   * różne sylwetki: czarodziej jest prawie kwadratowy przez kapelusz, lisek
+   * wąski i wysoki przez uszy. Ta sama geometria dla obu dawałaby albo lisa
+   * wielkości znaczka, albo czarodzieja poza ekranem.
+   */
+  wariant = null,
   glos = null,
   ton = "mystery",
   onAkcja,
+  onDrugi,
   onZamknij,
 }) {
   const przyciskRef = useRef(null);
@@ -108,7 +123,10 @@ export default function PopupPostaci({
   if (!otwarty) return null;
 
   return (
-    <div className="popup-postaci" data-testid="popup-postaci">
+    <div
+      className={`popup-postaci${wariant ? ` popup-postaci--${wariant}` : ""}`}
+      data-testid="popup-postaci"
+    >
       {/* Zasłona jest osobnym elementem, a nie tłem kontenera: dzięki temu
           dotknięcie obok karty zamyka okno, a dotknięcie karty nie. */}
       <div className="popup-postaci-zaslona" onClick={() => onZamknij?.()} aria-hidden="true" />
@@ -163,6 +181,20 @@ export default function PopupPostaci({
         >
           {przycisk}
         </button>
+
+        {/* Odmowa jest lżejsza od zgody i stoi niżej — pierwszy pod kciukiem
+            ma być ten przycisk, który prowadzi dalej. Ten sam układ, co
+            w oknie „zagadać?": pion, nie dwa wąskie obok siebie. */}
+        {przyciskDrugi ? (
+          <button
+            type="button"
+            className="hub-btn hub-btn-ghost popup-postaci-akcja-drugi"
+            onClick={() => (onDrugi || onZamknij)?.()}
+            data-testid="popup-postaci-drugi"
+          >
+            {przyciskDrugi}
+          </button>
+        ) : null}
       </div>
     </div>
   );
