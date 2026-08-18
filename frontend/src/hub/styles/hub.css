@@ -778,7 +778,7 @@
   /* Wezsza niz karta z dwoch powodow: musi zakryc plaskie ciecie grafiki
      (~79% jej szerokosci), ale zostawic w rogu miejsce na krzyzyk. */
   width:min(240px,72%);
-  margin:-58px auto 12px; padding:8px 18px;
+  margin:-58px auto 22px; padding:8px 18px;
   border:2.5px solid transparent; border-radius:999px;
   background:
     linear-gradient(180deg,#a878e6 0%,#7A4DC2 58%,#5a3499 100%) padding-box,
@@ -804,7 +804,10 @@
 }
 
 .popup-postaci-tekst{
-  margin:0; padding:0 2px;
+  /* Boczny oddech liczony od KRZYZYKA, nie od krawedzi karty: przycisk
+     zamkniecia siedzi 8 px od brzegu i ma 30 px, wiec pierwszy wiersz musi
+     zaczynac sie dalej niz 38 px - inaczej wchodzi mu pod spod. */
+  margin:0; padding:0 26px;
   font-size:16.5px; font-weight:600; line-height:1.44;
   color:var(--p-ink,#4e4d76);
 }
@@ -820,7 +823,7 @@
 
 .popup-postaci-przerywnik{
   display:flex; align-items:center; justify-content:center; gap:7px;
-  margin:14px auto 2px; width:min(220px,80%);
+  margin:9px auto 2px; width:min(220px,80%);
 }
 
 .popup-postaci-przerywnik::before,
@@ -1129,7 +1132,10 @@
    liczbie rzędów, a nie wiernym zdjęciem mebla. Drewno to znosi. */
 .karty-blat{
   position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-  width:min(98%, 470px); height:min(70%, 560px);
+  /* Blat CELOWO wychodzi poza ekran: mebel ucięty krawędzią czyta się jak
+     kawałek większego świata, a nie jak wysepka na trawie — i nie zostawia
+     paska trawy między brzegiem stołu a skrajną kartą. */
+  width:122%; height:min(78%, 660px);
   object-fit:fill;
   filter:drop-shadow(0 10px 16px rgba(40,30,10,.35));
   animation:blat-wjazd .5s ease-out both;
@@ -1149,4 +1155,89 @@
 /* Kto prosi o mniej ruchu, dostaje gotową scenę bez wjazdu. */
 @media (prefers-reduced-motion:reduce){
   .karty-blat, .karty-wizkor, .karty-lis{ animation:none; }
+}
+
+/* ── Ekran startu minigry (wspólny dla wszystkich gier) ───────────────────
+   Ekran dla dziecka, ktore czesto jeszcze nie czyta. Stad tylko cztery rzeczy:
+   ILUSTRACJA (co to za gra) → TYTUL → ILE MONET (ikonka + liczba, bez slowa
+   „monet") → CTA. Zdania opisujace zasady wylecialy: dziecko i tak ich nie
+   przeczyta, a gra tlumaczy sie sama w pierwszej rundzie.
+
+   Ilustracja jest ta sama, ktora zaprasza do gry w popupie na mapie — dziecko
+   widzi te sama postac, ktora przed chwila zadala pytanie.
+
+   Typografia i przyciski z ekranu glownego (`hub-btn`, `--font-display`). */
+.start-gry{
+  position:relative; z-index:1; flex:1; min-height:0;
+  display:flex; flex-direction:column; align-items:center;
+  gap:12px; padding:6px 22px calc(20px + env(safe-area-inset-bottom,0px));
+  text-align:center; font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+}
+.start-gry-art{
+  width:min(70%,250px); height:auto; margin-top:2px;
+  filter:drop-shadow(0 14px 22px rgba(78,77,118,.34));
+  animation:float-mid 4s ease-in-out infinite;
+}
+.start-gry-tytul{
+  margin:0; font-size:clamp(30px,9vw,40px); line-height:1.05;
+  text-shadow:0 2px 0 rgba(255,255,255,.55);
+}
+
+.start-gry-poziomy{
+  display:grid; grid-template-columns:1fr 1fr; gap:12px;
+  width:100%; max-width:380px; margin-top:2px;
+}
+.start-gry-poziomy.jeden{ grid-template-columns:1fr; max-width:300px; }
+
+.start-gry-poziom{
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+  min-height:104px; padding:14px 12px; cursor:pointer;
+  border:3px solid transparent; border-radius:20px;
+  background:
+    linear-gradient(180deg,rgba(255,251,224,.98),rgba(243,224,171,.98)) padding-box,
+    linear-gradient(180deg,#fff3c9,#d9b775 65%,#b08c46) border-box;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.7), 0 4px 0 rgba(150,110,45,.55);
+  font-family:inherit; color:var(--p-ink,#4e4d76);
+}
+.start-gry-poziom.wybrany{
+  background:
+    linear-gradient(180deg,#F1E4FC,#DBC4F6) padding-box,
+    linear-gradient(180deg,#e6cfff,#7A4DC2 70%,#4a2c77) border-box;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.6), 0 4px 0 #4a2c77, 0 10px 16px rgba(74,45,128,.25);
+}
+.start-gry-poziom:disabled{ cursor:default; }
+.start-gry-poziom:not(:disabled):active{ transform:translateY(2px); }
+
+.start-gry-poziom-nazwa{ font-size:24px; font-weight:900; line-height:1; }
+/* Liczba monet ma byc najwieksza rzecza na przycisku — to ona odpowiada na
+   pytanie „ile dostane”, a nie nazwa poziomu. */
+.start-gry-poziom-monety{
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:30px; font-weight:900; line-height:1; color:#7A4D10;
+  text-shadow:0 2px 0 rgba(255,255,255,.6);
+}
+.start-gry-poziom.wybrany .start-gry-poziom-monety{ color:#4a2c77; }
+
+.start-gry-luz{ flex:1; min-height:10px; }
+.start-gry-cta{
+  width:100%; max-width:380px; min-height:64px;
+  font-size:22px; letter-spacing:.6px;
+}
+
+/* Wynik: jedna waluta, duży licznik — ta sama tabliczka co na starcie gry. */
+.wynik-nagroda{
+  display:flex; align-items:center; justify-content:center; gap:12px;
+  width:100%; margin-top:8px; padding:12px 20px;
+  border:2.5px solid transparent; border-radius:20px;
+  background:
+    linear-gradient(180deg,#FFF8E2 0%,#F3DFA6 100%) padding-box,
+    linear-gradient(180deg,#fff0a1 0%,#e0a63a 60%,#a4671b 100%) border-box;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.8), 0 4px 0 #b8842c, 0 10px 18px rgba(90,60,15,.22);
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+}
+.wynik-nagroda-kwota{ font-size:38px; font-weight:900; line-height:1; color:#5A3407; text-shadow:0 2px 0 rgba(255,255,255,.6); }
+.wynik-nagroda-opis{ font-size:14px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; color:#7A4D10; }
+.wynik-rozbicie{
+  margin:6px 0 0; font-size:13px; font-weight:800; color:var(--p-ink-soft,#5A4F77);
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
 }

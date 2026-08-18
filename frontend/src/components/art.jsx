@@ -458,48 +458,37 @@ export const TabIcons = {
 };
 
 // ─── Coin (Złota Moneta) — currency icon ─────────────────────
-export const Coin = ({ size = 22, anim = false, delay = 0 }) => {
-  const uid = `coin-${size}-${Math.round(delay * 100)}`;
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 32 32"
-      style={{
-        display: "inline-block",
-        verticalAlign: "middle",
-        animation: anim ? `coin-spin 2.6s ease-in-out infinite` : "none",
-        animationDelay: `${delay}s`,
-        filter: "drop-shadow(0 2px 3px rgba(120,80,10,.45))",
-      }}
-    >
-      <defs>
-        <radialGradient id={`coinG-${uid}`} cx="35%" cy="32%" r="70%">
-          <stop offset="0" stopColor="#FFF1B0" />
-          <stop offset=".55" stopColor="#FFD269" />
-          <stop offset="1" stopColor="#C2851E" />
-        </radialGradient>
-        <linearGradient id={`coinR-${uid}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#FFE39A" />
-          <stop offset="1" stopColor="#A66614" />
-        </linearGradient>
-      </defs>
-      <circle cx="16" cy="16" r="15" fill={`url(#coinR-${uid})`} />
-      <circle cx="16" cy="16" r="12" fill={`url(#coinG-${uid})`} />
-      <circle cx="16" cy="16" r="11" fill="none" stroke="#B47322" strokeWidth=".8" opacity=".55" />
-      <path
-        d="M16 7.5 L17.6 13.4 L23.6 14.0 L18.9 17.6 L20.6 23.4 L16 19.9 L11.4 23.4 L13.1 17.6 L8.4 14.0 L14.4 13.4 Z"
-        fill="#B47322"
-        opacity=".42"
-      />
-      <path
-        d="M16 8.5 L17.4 13.6 L22.6 14.1 L18.5 17.1 L19.9 22.1 L16 19.0 L12.1 22.1 L13.5 17.1 L9.4 14.1 L14.6 13.6 Z"
-        fill="#FFEFA8"
-      />
-      <ellipse cx="11.5" cy="11" rx="2.6" ry="1.4" fill="#fff" opacity=".75" />
-    </svg>
-  );
-};
+/**
+ * Coin — moneta. JEDNA ikonka na całą aplikację: ten sam plik, który leży
+ * w HUD-zie nad światem 3D (`/assets/hub-nav/moneta.png`).
+ *
+ * Wcześniej moneta w HUD-zie była obrazkiem, a w ekranach Reacta rysunkiem SVG
+ * — dwie różne monety w jednej grze. Dziecko liczy jedną walutę, więc widzi
+ * jeden przedmiot. API zostaje bez zmian (`size`, `anim`, `delay`), bo używa
+ * go kilkanaście miejsc.
+ */
+export const Coin = ({ size = 22, anim = false, delay = 0 }) => (
+  <img
+    src="/assets/hub-nav/moneta.png"
+    alt=""
+    aria-hidden="true"
+    draggable="false"
+    width={size}
+    height={size}
+    style={{
+      display: "inline-block",
+      verticalAlign: "middle",
+      width: size,
+      height: size,
+      objectFit: "contain",
+      animation: anim ? "coin-spin 2.6s ease-in-out infinite" : "none",
+      animationDelay: `${delay}s`,
+      filter: "drop-shadow(0 2px 3px rgba(120,80,10,.45))",
+      userSelect: "none",
+    }}
+  />
+);
+
 
 // Pigułka z licznikiem monet
 // pulse=true -> animacja scale+glow (np. po wyladowaniu coinow z RewardScreen)

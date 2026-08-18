@@ -27,6 +27,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import RewardScreen from "../components/RewardScreen.jsx";
 import SplashGry from "../hub/SplashGry.jsx";
+import EkranStartuGry from "../hub/EkranStartuGry.jsx";
 import { fx } from "../services/soundFx.js";
 import "../hub/styles/hub.css";
 
@@ -376,13 +377,14 @@ export default function PiorkaGame({ osadzona = false, onWyjscie }) {
         ) : null}
 
         {faza === "intro" ? (
-          <div className="puch-intro">
-            <img className="puch-godlo" src={SCIEZKA + "piorko-zlote.png"} alt="" aria-hidden="true" />
-            <h1>Sekret pod puchem</h1>
-            <p>Rozgarnij piórka i zgadnij, co jest pod spodem.</p>
-            <p className="puch-wskazowka">Im mniej odsłonisz, tym więcej monet.</p>
-            <button className="hub-btn hub-btn-primary gra-btn-duzy" onClick={start}>Zaczynamy</button>
-          </div>
+          <EkranStartuGry
+            ilustracja={SCIEZKA + "lis-piorko.png"}
+            tytul="Sekret pod puchem"
+            poziomy={[{ id: "jeden", monetyMax: RUND * NAGRODY[0].monety }]}
+            wybrany="jeden"
+            cta="Zaczynamy"
+            onGraj={start}
+          />
         ) : null}
 
         {faza === "gra" ? (

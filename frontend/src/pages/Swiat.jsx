@@ -110,11 +110,11 @@ const GRY_OSADZONE = {
  */
 const ZAPROSZENIA = {
   "sekret-pod-puchem": {
-    tekst: "Zagramy w Sekret pod puchem? Za każdy odkryty sekret są monety.",
+    tekst: "Zagramy w Sekret pod puchem?",
     wyroznienie: "Sekret pod puchem",
   },
   "pamiec-medrca": {
-    tekst: "Zagramy w Pamięć Mędrca? Trzeba znaleźć pary symboli ze zwoju.",
+    tekst: "Zagramy w Pamięć Mędrca?",
     wyroznienie: "Pamięć Mędrca",
   },
 };

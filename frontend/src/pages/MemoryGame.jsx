@@ -19,6 +19,7 @@ import { Sparkle, Cloud, Coin } from "../components/art.jsx";
 import { fx } from "../services/soundFx.js";
 import RewardScreen from "../components/RewardScreen.jsx";
 import SplashGry from "../hub/SplashGry.jsx";
+import EkranStartuGry from "../hub/EkranStartuGry.jsx";
 import { dodajMonety } from "../services/monety.js";
 import "../hub/styles/hub.css";
 
@@ -45,6 +46,29 @@ const GAME_SYMS = [
 /* Dwa warianty rewersu, bo kafelek w rozgrywce jest KWADRATOWY, a karta na
    ekranie startowym stoi pionowo. Jeden plik na oba obcinalby albo pierscien,
    albo boki — a to wlasnie po tym zostawaly jasne pasy przy krawedziach. */
+/* ─── Nagroda ──────────────────────────────────────────────────────────────
+   Monety zalezą od DWÓCH rzeczy: liczby ruchów (przez gwiazdki) i czasu.
+   Sama liczba ruchów premiowała ostrożne, powolne granie w kółko; sam czas
+   premiowałby klikanie na oślep. Razem trzeba i pamiętać, i nie zwlekać.
+
+   Progi czasu są hojne — to gra dla dziecka, nie zawody. Trudniejszy poziom
+   daje więcej, bo ma o dwie pary więcej do zapamiętania.                    */
+const NAGRODY = {
+  easy: { baza: 3, zaGwiazdke: 3, progiCzasu: [[40, 3], [70, 1]], max: 15 },
+  hard: { baza: 5, zaGwiazdke: 5, progiCzasu: [[60, 5], [100, 2]], max: 25 },
+};
+
+function bonusCzasu(diff, sekundy) {
+  const progi = NAGRODY[diff]?.progiCzasu || [];
+  const trafiony = progi.find(([limit]) => sekundy <= limit);
+  return trafiony ? trafiony[1] : 0;
+}
+
+function policzNagrode(diff, gwiazdki, sekundy) {
+  const t = NAGRODY[diff] || NAGRODY.easy;
+  return Math.min(t.max, t.baza + gwiazdki * t.zaGwiazdke + bonusCzasu(diff, sekundy));
+}
+
 const REWERS = "/assets/karty/rewers.png";        // 1:1 — kafelki w grze
 const REWERS_PION = "/assets/karty/rewers-3d.png"; // 2:3 — godlo i model 3D
 
@@ -227,15 +251,6 @@ function SummaryTile({ n, l }) {
   );
 }
 
-function RewardItem({ icon, v, label }) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1, gap: 4 }}>
-      {icon}
-      <div className="t-display" style={{ fontSize: 18, lineHeight: 1 }}>{v}</div>
-      <div style={{ fontSize: 10, fontWeight: 800, color: "var(--p-ink-soft)", letterSpacing: 0.4 }}>{label}</div>
-    </div>
-  );
-}
 
 // ─── MAIN COMPONENT ───────────────────────────────────────────
 /**
@@ -294,8 +309,8 @@ export default function MemoryGame({ osadzona = false, onWyjscie }) {
   useEffect(() => {
     if (phase !== "done" || wyplaconoRef.current) return;
     wyplaconoRef.current = true;
-    dodajMonety(5 + stars * 3, "minigra:memory");
-  }, [phase, stars]);
+    dodajMonety(policzNagrode(diff, stars, seconds), "minigra:memory");
+  }, [phase, stars, diff, seconds]);
 
   // Nowa partia = nowa wyplata.
   useEffect(() => { if (phase === "playing") wyplaconoRef.current = false; }, [phase]);
@@ -397,79 +412,18 @@ export default function MemoryGame({ osadzona = false, onWyjscie }) {
 
         {/* INTRO */}
         {phase === "intro" && (
-          <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", padding: "10px 24px 24px" }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: 16, gap: 10 }}>
-              {/* Godło ekranu startowego: prawdziwa karta, a nie medalion
-                  z okręgami. Ten sam plik, co rewers w rozgrywce i co tekstura
-                  karty stojącej na mapie 3D — dziecko widzi przedmiot, po
-                  który przyszło, zanim jeszcze zacznie grać. */}
-              <div style={{ position: "relative", width: 150, height: 176, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <div style={{ position: "absolute", inset: "6% 2%", borderRadius: "50%", background: "radial-gradient(circle, rgba(255,210,105,.5), transparent 65%)", filter: "blur(8px)", animation: "float-mid 4s ease-in-out infinite" }} />
-                <img
-                  src={REWERS_PION}
-                  alt=""
-                  aria-hidden="true"
-                  draggable="false"
-                  style={{
-                    position: "relative", width: 114, height: 164, objectFit: "cover",
-                    borderRadius: 16, transform: "rotate(-6deg)",
-                    boxShadow: "0 6px 0 #2A1452, 0 18px 34px rgba(43,30,90,.45), inset 0 0 0 2px rgba(255,255,255,.12)",
-                    animation: "float-mid 3.5s ease-in-out infinite",
-                  }}
-                />
-                <div style={{ position: "absolute", top: 4, right: 12 }}><Sparkle size={16} c="#FFD269" /></div>
-                <div style={{ position: "absolute", bottom: 16, left: 8 }}><Sparkle size={12} c="#C8A0F0" delay={0.4} /></div>
-              </div>
-
-              <h1 className="t-display" style={{ fontSize: 32, margin: 0, textShadow: "0 2px 0 rgba(255,255,255,.4)" }}>Pamięć Mędrca</h1>
-              <p className="t-hand" style={{ margin: 0, fontSize: 16, color: "var(--p-ink-soft)", textAlign: "center", maxWidth: 280, lineHeight: 1.4 }}>
-                Znajdź pary symboli.
-              </p>
-            </div>
-
-            <div style={{ marginTop: 22 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                {[
-                  { k: "easy", t: "Łatwy", sub: "6 par · 3×4", stars: 1 },
-                  { k: "hard", t: "Średni", sub: "8 par · 4×4", stars: 2 },
-                ].map((opt) => {
-                  const active = diff === opt.k;
-                  return (
-                    <button key={opt.k} onClick={() => setDiff(opt.k)} style={{
-                      border: "none", cursor: "pointer", textAlign: "left",
-                      padding: "12px 14px", borderRadius: 18,
-                      background: active ? "rgba(184,134,232,.22)" : "rgba(255,255,255,.78)",
-                      boxShadow: active
-                        ? "inset 0 0 0 2.5px var(--p-magic-dk), 0 4px 14px rgba(122,77,194,.2)"
-                        : "inset 0 0 0 1.4px rgba(43,42,74,.08)",
-                    }}>
-                      <div className="t-display" style={{ fontSize: 18, lineHeight: 1 }}>{opt.t}</div>
-                      <div style={{ fontSize: 12, color: "var(--p-ink-soft)", fontWeight: 700, marginTop: 2 }}>{opt.sub}</div>
-                      <div style={{ display: "flex", gap: 2, marginTop: 6 }}>
-                        {[1, 2, 3].map((i) => (
-                          <Gwiazda key={i} size={13} zdobyta={i <= opt.stars} />
-                        ))}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div style={{ marginTop: 14, padding: "12px 14px", borderRadius: 14, background: "linear-gradient(180deg, #FCF5E1 0%, #F4E3B8 100%)", boxShadow: "inset 0 0 0 1.5px rgba(168,122,42,.25)", display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ flex: 1 }} />
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, fontWeight: 900, color: "#4A2A0E" }}>
-                <Coin size={16} /> 10
-              </span>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12.5, fontWeight: 900, color: "var(--p-magic-dk)" }}><Gwiazda size={15} /> 1</span>
-            </div>
-
-            <div style={{ flex: 1 }} />
-
-            <button onClick={() => restart()} className="hub-btn hub-btn-primary gra-btn-duzy">
-              Zagraj
-            </button>
-          </div>
+          <EkranStartuGry
+            ilustracja="/assets/karty/wizkor-karty.png"
+            tytul="Pamięć Mędrca"
+            poziomy={[
+              { id: "easy", nazwa: "Łatwy", monetyMax: NAGRODY.easy.max },
+              { id: "hard", nazwa: "Średni", monetyMax: NAGRODY.hard.max },
+            ]}
+            wybrany={diff}
+            onWybor={setDiff}
+            cta="Zagraj"
+            onGraj={() => restart()}
+          />
         )}
 
         {/* PLAYING — grid */}
@@ -555,13 +509,14 @@ export default function MemoryGame({ osadzona = false, onWyjscie }) {
                 <SummaryTile n={`${matched.size / 2}/${pairs}`} l="pary" />
               </div>
 
-              <div style={{ padding: "14px 14px", width: "100%", marginTop: 6, borderRadius: 14, background: "linear-gradient(180deg, #FCF5E1 0%, #F4E3B8 100%)", boxShadow: "inset 0 0 0 1.5px rgba(168,122,42,.25)" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "space-between" }}>
-                  <RewardItem icon={<Coin size={26} />} v={5 + stars * 3} label="monet" />
-                  <RewardItem icon={<Gwiazda size={26} />} v={stars} label="ech" />
-                  <RewardItem icon={<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#7A4DC2" strokeWidth="2" /><circle cx="12" cy="12" r="5" stroke="#7A4DC2" strokeWidth="2" /><circle cx="12" cy="12" r="1.5" fill="#7A4DC2" /></svg>} v="+1" label="Skupienie" />
-                </div>
+              {/* Jedna waluta, jeden duzy licznik. Wczesniej stały tu trzy
+                  kafelki (monety, „echa", Skupienie) i dziecko nie wiedziało,
+                  co z tego jest nagrodą. */}
+              <div className="wynik-nagroda">
+                <Coin size={54} anim />
+                <span className="wynik-nagroda-kwota">+{policzNagrode(diff, stars, seconds)}</span>
               </div>
+
             </div>
 
             <div style={{ flex: 1 }} />
@@ -585,8 +540,8 @@ export default function MemoryGame({ osadzona = false, onWyjscie }) {
             stars === 2 ? "Niezła robota — spróbuj jeszcze raz!" :
                          "Każdy ruch to krok do wprawy."
           }
-          coins={5 + stars * 3}
-          note={`${stars} ${stars === 1 ? "echo" : "echa"} · +1 Skupienie`}
+          coins={policzNagrode(diff, stars, seconds)}
+          note={`${stars} ${stars === 1 ? "gwiazdka" : "gwiazdki"} · ${fmtTime(seconds)}`}
           noteStyle="caption"
           ctaLabel="Zobacz wynik ✦"
           onDismiss={() => setRewardShown(true)}
