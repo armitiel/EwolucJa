@@ -475,6 +475,17 @@ export default function MemoryGame({ osadzona = false, onWyjscie }) {
         {/* PLAYING — grid */}
         {phase === "playing" && (
           <>
+            {/* Scena stołu: kamera nad stołem, Wizkor po drugiej stronie,
+                lisek tyłem do gracza na dole. Trzy osobne elementy (dwie
+                postaci + drewno w tle), bo tylko wtedy trzymają się krawędzi
+                ekranu przy każdej wysokości telefonu — jeden gotowy obrazek
+                rozjeżdżałby się z siatką kart. */}
+            <div className="karty-stol" aria-hidden="true">
+              <img className="karty-blat" src="/assets/karty/blat.png" alt="" draggable="false" />
+              <img className="karty-wizkor" src="/assets/karty/wizkor.png" alt="" draggable="false" />
+              <img className="karty-lis" src="/assets/karty/lis.png" alt="" draggable="false" />
+            </div>
+
             <div style={{ position: "relative", zIndex: 1, padding: "4px 18px 8px", display: "flex", gap: 10 }}>
               <StatPill icon="moves" label="Ruchy" value={moves} />
               <StatPill icon="time" label="Czas" value={fmtTime(seconds)} />

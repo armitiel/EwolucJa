@@ -69,3 +69,28 @@ zapisz("rewers", client.images.generate(
     output_format="png", n=1))
 
 print("gotowe.")
+
+
+# ── Scena stolu: ujecie z gory, lis na dole ekranu, Wizkor na gorze ──────────
+# Uwaga na kadr: to NIE sa portrety, tylko dwa pasy przyklejone do krawedzi
+# ekranu. Dlatego prompty tak uporczywie powtarzaja "widok dokladnie z gory"
+# i "postac ucieta krawedzia kadru" — model domyslnie ustawia bohatera na
+# wprost, a wtedy wychodzi zdjecie legitymacyjne zamiast rak na stole.
+GORA_DOL = """STRICT TOP-DOWN VIEW: the camera is directly above, looking straight down at a table. Flat, almost orthographic perspective — we see the tops of things, not their faces."""
+
+SCENA = {
+    "wizkor-gora": (f"""{GORA_DOL} A friendly old wizard sits at the FAR side of the table, seen from straight above. Visible: the top of his wide pointed hat in deep violet #4a2c77 with an amber #F4C95D band and a small gold star, the tip of his cream beard poking out below the hat brim, his violet-robed shoulders, and BOTH HANDS resting flat on the table, one to the left and one to the right, wide sleeves, palms down, fingers relaxed. The figure is CROPPED BY THE TOP EDGE of the frame — nothing below the forearms. Calm and warm, as if waiting for his turn. No table surface, no cards, no floor, no shadow: isolated on a fully transparent background, centred horizontally, wide and shallow composition.""", "1536x1024", "transparent"),
+
+    "lis-dol": (f"""{GORA_DOL} A friendly young fox sits at the NEAR side of the table, seen from straight above. Visible: the top of his head with two pointed ginger ears with cream inner fur, the tip of his snout with a small dark nose pointing away from the viewer, his shoulders in a small cream scarf, and BOTH FRONT PAWS resting on the table, one to the left and one to the right. Ginger fur #E89A3D with a cream #FBF1D6 muzzle and chest. The figure is CROPPED BY THE BOTTOM EDGE of the frame — nothing below the shoulders. Curious and eager. No table surface, no cards, no floor, no shadow: isolated on a fully transparent background, centred horizontally, wide and shallow composition.""", "1536x1024", "transparent"),
+
+    "stol": ("""STYLE: stylized 3D claymorphism, Pixar-like children's game art, matte clay, no gloss, no glitter, soft even lighting. STRICT TOP-DOWN VIEW of an empty wooden table surface, filling the entire frame: warm honey-brown clay planks running horizontally, soft rounded edges between the planks, gentle wood grain, a barely visible darker shading in the corners. Absolutely nothing on the table: no cards, no objects, no hands, no border, no frame, no text.""", "1024x1024", "opaque"),
+}
+
+for nazwa, (tresc, rozmiar, tlo) in SCENA.items():
+    print(f"generuje {nazwa}...", flush=True)
+    zapisz(nazwa, client.images.generate(
+        model="gpt-image-1",
+        prompt=(f"{DNA}\n\n{tresc}" if tlo == "transparent" else tresc),
+        size=rozmiar, quality="high", background=tlo, output_format="png", n=1))
+
+print("scena gotowa.")
