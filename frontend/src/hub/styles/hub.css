@@ -332,7 +332,24 @@
   /* dok stoi nad arkuszem — treść musi mieć czym się pod nim skończyć */
   padding:18px 18px calc(90px + env(safe-area-inset-bottom,0px));
 }
-.hub-sheet-body::-webkit-scrollbar{ display:none; }
+/* Pasek przewijania BYL schowany i to byl blad: panel konczyl sie w polowie
+   zdania, a nic nie mowilo, ze cos jest nizej. Cienki zloty pasek + miekkie
+   sciemnienie przy dolnej krawedzi arkusza wystarczaja, zeby bylo widac,
+   ze tresc leci dalej. */
+.hub-sheet-body::-webkit-scrollbar{ width:6px; }
+.hub-sheet-body::-webkit-scrollbar-track{ background:transparent; }
+.hub-sheet-body::-webkit-scrollbar-thumb{
+  border-radius:99px;
+  background:linear-gradient(180deg,#e9b64a,#b8801f);
+  border:1px solid rgba(255,255,255,.5);
+}
+.hub-sheet-body{ scrollbar-width:thin; scrollbar-color:#d5a33c transparent; }
+
+.hub-sheet::after{
+  content:""; position:absolute; z-index:4; left:3px; right:3px;
+  bottom:0; height:74px; border-radius:0 0 27px 27px; pointer-events:none;
+  background:linear-gradient(180deg,rgba(244,225,172,0) 0%,rgba(244,225,172,.92) 62%,#f4e1ac 100%);
+}
 
 /* ── wspólne klocki paneli ── */
 .hub-kicker{
@@ -968,8 +985,11 @@
   bottom:calc(100% - var(--popup-postac) * .04);
 }
 
+/* Boczny oddech liczony z krzyzyka: 8 px odstepu + 30 px przycisku minus
+   18 px paddingu karty. Bez tego pierwszy wiersz wchodzi pod "x". */
 .popup-pytanie-tekst{
   font-size:16px; line-height:1.4;
+  padding:0 22px;
 }
 
 /* Pion, nie poziom. Dwa przyciski obok siebie na telefonie robią się wąskie,
@@ -1344,7 +1364,67 @@
 }
 
 /* ── Zegar ── */
-.porada-zegar-blok{ display:grid; place-items:center; margin:22px 0 20px; }
+/* Zegar i kacik stoja obok siebie, nie pod soba: gora panelu ma byc jednym
+   pasem, ktory widac bez przewijania. Ponizej 330 px kacik schodzi pod zegar. */
+.porada-zegar-blok{
+  display:grid; grid-template-columns:auto 1fr; align-items:center;
+  gap:14px; margin:18px 0 20px;
+}
+@media (max-width:330px){
+  .porada-zegar-blok{ grid-template-columns:1fr; justify-items:center; }
+}
+
+/* ── Kacik dobrostanu ── */
+.kacik{
+  display:grid; justify-items:center; gap:8px;
+  padding:12px 10px 13px; border-radius:20px;
+  border:1.6px solid rgba(138,111,54,.28);
+  background:linear-gradient(180deg,rgba(255,253,244,.92),rgba(250,240,206,.92));
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.8),0 3px 0 rgba(180,140,60,.22);
+}
+.kacik-tytul{
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  font-size:14px; font-weight:800; letter-spacing:.4px; color:#7a5a1e;
+}
+
+/* Kolo oddechu: skala zmienia sie przez transition o dlugosci fazy, wiec ruch
+   jest rowny i da sie go zatrzymac bez skoku. */
+.kacik-oddech-kolo{
+  width:74px; height:74px; border-radius:50%; border:none; padding:0; cursor:pointer;
+  display:grid; place-items:center;
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  font-size:12.5px; font-weight:800; color:#3f6f8e;
+  background:radial-gradient(circle at 38% 32%,#eaf6ff,#bfe0f4 70%,#a6d0ec);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.85),0 3px 8px rgba(60,110,140,.25);
+  transform:scale(.72); transition:transform 4s ease-in-out;
+}
+.kacik-oddech-kolo.jest-wdech{ transform:scale(1); }
+.kacik-oddech-kolo.jest-wydech{ transform:scale(.68); }
+@media (prefers-reduced-motion:reduce){
+  .kacik-oddech-kolo{ transition:none; transform:scale(.9); }
+}
+
+.kacik-krople{ display:grid; grid-template-columns:repeat(3,1fr); gap:6px 8px; }
+.kacik-kropla-btn{ border:none; background:none; padding:0; cursor:pointer; line-height:0; }
+.kacik-kropla{ width:26px; height:26px; fill:rgba(120,150,170,.20); stroke:#6f96ad; stroke-width:1.3; }
+.kacik-kropla.jest-pelna{ fill:#8fc9e8; stroke:#3f7ea3; }
+.kacik-kropla-btn:active{ transform:translateY(1px); }
+
+.kacik-ruch-tekst{
+  margin:0; text-align:center; font-size:13.5px; line-height:1.35;
+  color:var(--p-ink,#4e4d76); max-width:150px;
+}
+.kacik-ruch-btn{
+  min-height:36px; padding:0 16px; border-radius:99px; cursor:pointer;
+  border:2px solid transparent;
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  font-size:14px; font-weight:800; color:#fffdf4;
+  background:
+    linear-gradient(180deg,#79c04a,#4f9a2a) padding-box,
+    linear-gradient(180deg,#bce88f,#3c761f) border-box;
+  box-shadow:0 3px 0 #3c761f,0 5px 9px rgba(30,70,15,.28);
+}
+.kacik-ruch-btn:active{ transform:translateY(2px); box-shadow:0 1px 0 #3c761f; }
 .zegar{ display:grid; place-items:center; gap:6px; }
 .zegar-tarcza{ width:100%; height:auto; display:block;
   filter:drop-shadow(0 6px 10px rgba(60,45,15,.28)); }
@@ -1355,7 +1435,20 @@
 .zegar-wsk{ stroke:#4e4d76; stroke-linecap:round; }
 .zegar-wsk--godz{ stroke-width:4.4; }
 .zegar-wsk--min{ stroke-width:3; }
+/* Sekundnik cienki i miedziany - ma byc widac, ze zegar chodzi, ale nie ma
+   przekrzykiwac dwoch wazniejszych wskazowek. */
+.zegar-wsk--sek{ stroke:#c9553f; stroke-width:1.2; }
 .zegar-os{ fill:#4e4d76; }
+.zegar-os-sek{ fill:#c9553f; }
+
+/* Pierscien por dnia: pastele, nie plakat. Kolor ma podpowiadac, gdzie w dobie
+   stoi wskazowka, a nie zabierac uwage tarczy. */
+.zegar-pora{ fill:none; stroke-width:4.6; stroke-linecap:butt; }
+.zegar-pora--rano{ stroke:#CFE6F7; }
+.zegar-pora--poludnie{ stroke:#FBEFB6; }
+.zegar-pora--popoludnie{ stroke:#FAD9A6; }
+.zegar-pora--wieczor{ stroke:#DFCDEE; }
+.zegar-pora--noc{ stroke:#C6C6DE; }
 .zegar-etykieta{
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-size:17px; font-weight:800; color:var(--p-ink,#4e4d76);

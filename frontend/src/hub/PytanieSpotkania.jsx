@@ -54,6 +54,19 @@ export default function PytanieSpotkania({
           aria-hidden="true"
           draggable="false"
         />
+        {/* Krzyzyk robi to samo, co "nie teraz" - ale dziecko szuka go odruchowo
+            w rogu, bo tak zamyka sie kazde inne okno w grze. */}
+        <button
+          type="button"
+          className="popup-postaci-zamknij"
+          onClick={() => onNie?.()}
+          aria-label="Zamknij"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M6.4 6.4l11.2 11.2M17.6 6.4L6.4 17.6" />
+          </svg>
+        </button>
+
         <p className="popup-postaci-tekst popup-pytanie-tekst">{tekst}</p>
         <div className="popup-pytanie-wybor">
           <button
