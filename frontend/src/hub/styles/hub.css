@@ -1423,40 +1423,102 @@
 }
 
 /* ── Oddech: ekran ── */
+/* Wszystko, co rosnie w trakcie seansu, wisi na jednej zmiennej --poziom
+   (0 przy pierwszym oddechu, 1 przy piatym): poswiata kola, jasnosc tla,
+   liczba iskier. Jedno zrodlo prawdy zamiast pieciu klas stanu. */
 .oddech-ekran{
+  --poziom:0;
   position:fixed; inset:0; z-index:60;
   display:grid; place-content:center; justify-items:center; gap:26px;
-  background:radial-gradient(circle at 50% 42%,#5b4a86 0%,#3a2f5c 58%,#241d3c 100%);
+  background:
+    radial-gradient(circle at 50% 42%,
+      rgba(150,205,245,calc(.10 + .16 * var(--poziom))) 0%,
+      rgba(0,0,0,0) 52%),
+    radial-gradient(circle at 50% 42%,#5b4a86 0%,#3a2f5c 58%,#241d3c 100%);
   animation:oddech-wejscie .35s ease-out;
 }
 @keyframes oddech-wejscie{ from{ opacity:0; } to{ opacity:1; } }
 
+.oddech-scena{ position:relative; display:grid; place-items:center; }
+
+.oddech-poswiata{
+  position:absolute; left:50%; top:50%;
+  width:min(112vw,420px); aspect-ratio:1; transform:translate(-50%,-50%);
+  border-radius:50%; pointer-events:none;
+  background:radial-gradient(circle,
+    rgba(196,236,255,calc(.10 + .34 * var(--poziom))) 0%,
+    rgba(160,220,255,calc(.05 + .18 * var(--poziom))) 38%,
+    rgba(160,220,255,0) 68%);
+  transition:opacity .6s ease;
+}
 .oddech-kolo{
   width:min(62vw,230px); aspect-ratio:1; border-radius:50%;
   display:grid; place-items:center;
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-size:26px; font-weight:800; color:#2f4a63;
   background:radial-gradient(circle at 38% 32%,#f2fbff,#bfe3f6 62%,#8fc6e6);
-  box-shadow:inset 0 4px 0 rgba(255,255,255,.8),0 0 60px rgba(150,210,245,.35);
+  box-shadow:inset 0 4px 0 rgba(255,255,255,.8);
   transform:scale(.55);
   transition-property:transform; transition-timing-function:ease-in-out;
 }
 .oddech-kolo--start{ transform:scale(.6); }
 .oddech-kolo--wdech{ transform:scale(1); }
+/* Wstrzymanie: kolo zostaje duze i tylko lekko oddycha w miejscu - to jest
+   sygnal "trzymaj", a nie kolejny ruch do nasladowania. */
+.oddech-kolo--wstrzymaj{ transform:scale(1.02); }
 .oddech-kolo--wydech{ transform:scale(.55); }
-.oddech-kolo--koniec{ transform:scale(.78); }
-.oddech-kolo.bez-ruchu{ transition:none; transform:scale(.8); }
+.oddech-kolo--koniec{ transform:scale(.8); }
+/* Drzenie robimy CIENIEM, nie filtrem. `filter` przycina obszar rysowania do
+   pudelka elementu, wiec poswiata kola urywala sie na prostokacie - bylo widac
+   jasny kwadrat dokola. */
+/* Na wstrzymaniu pulsuje sama poswiata - kolo stoi. Dzieki temu "trzymaj"
+   ma swoj sygnal, ale nie wyglada jak kolejny ruch do nasladowania. */
+.oddech-scena:has(.oddech-kolo--wstrzymaj) .oddech-poswiata{
+  animation:oddech-drzenie 1.15s ease-in-out infinite;
+}
+@keyframes oddech-drzenie{
+  0%,100%{ opacity:.85; transform:translate(-50%,-50%) scale(.96); }
+  50%{ opacity:1; transform:translate(-50%,-50%) scale(1.05); }
+}
+
+/* Iskry: wspolny obrot kontenera, kazda odchylona o wlasny kat. Pojawiaja sie
+   po kolei wraz z --poziom, wiec piaty oddech jest najjasniejszy. */
+.oddech-iskry{
+  position:absolute; inset:-14%; pointer-events:none;
+  animation:oddech-obrot 26s linear infinite;
+}
+/* Promien liczony z rozmiaru kola (polowa jego szerokosci) plus odstep -
+   procenty tu nie dzialaja, bo odnosilyby sie do 11-pikselowej iskry. */
+.oddech-iskra{
+  --promien:calc(min(31vw,115px) + 30px);
+  position:absolute; left:50%; top:50%; width:11px; height:11px; margin:-5.5px;
+  border-radius:50%;
+  background:radial-gradient(circle,#fff6cf 0%,#ffd977 45%,rgba(255,200,90,0) 72%);
+  transform:rotate(var(--kat)) translateY(calc(-1 * var(--promien) + 22px)) scale(.3);
+  opacity:0; transition:opacity .8s ease, transform .8s ease;
+}
+.oddech-iskra.jest-widoczna{
+  opacity:.95; transform:rotate(var(--kat)) translateY(calc(-1 * var(--promien))) scale(1);
+  animation:oddech-migot 2.8s ease-in-out infinite;
+  animation-delay:var(--zwloka);
+}
+@keyframes oddech-obrot{ to{ transform:rotate(360deg); } }
+@keyframes oddech-migot{
+  0%,100%{ opacity:.6; }
+  50%{ opacity:1; }
+}
 
 .oddech-platki{ display:flex; gap:12px; }
 .oddech-platek{
   width:13px; height:13px; border-radius:50%;
   background:rgba(255,255,255,.18);
   box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.35);
-  transition:background .4s ease, box-shadow .4s ease;
+  transition:background .4s ease, box-shadow .4s ease, transform .4s ease;
 }
 .oddech-platek.jest-pelny{
   background:linear-gradient(180deg,#ffe9a1,#e6ac36);
   box-shadow:0 0 12px rgba(255,214,120,.7);
+  transform:scale(1.15);
 }
 
 .oddech-koniec{ display:grid; justify-items:center; gap:16px; }
@@ -1464,6 +1526,13 @@
   margin:0; font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-size:22px; font-weight:700; color:#fff4d2; text-align:center;
 }
+
+/* Dziecko, ktore ma wylaczone animacje w systemie, dostaje sam rytm slow i
+   dzwieku - nic nie pulsuje, nic nie kraży. */
+.oddech-ekran.bez-ruchu .oddech-kolo{ transition:none; transform:scale(.8); animation:none; }
+.oddech-ekran.bez-ruchu .oddech-iskry{ animation:none; }
+.oddech-ekran.bez-ruchu .oddech-poswiata{ animation:none; }
+.oddech-ekran.bez-ruchu .oddech-iskra{ animation:none; }
 
 .oddech-zamknij{
   position:absolute; top:calc(14px + env(safe-area-inset-top,0px)); right:14px;
@@ -1475,6 +1544,7 @@
   width:18px; height:18px; fill:none;
   stroke:#fff4d2; stroke-width:2.6; stroke-linecap:round;
 }
+
 .zegar{ display:grid; place-items:center; gap:6px; }
 .zegar-tarcza{ width:100%; height:auto; display:block;
   filter:drop-shadow(0 6px 10px rgba(60,45,15,.28)); }
@@ -1564,3 +1634,158 @@
   fill:none; stroke:#9a8f7a; stroke-width:2.6; stroke-linecap:round;
 }
 .porada-historia--odlozona{ opacity:.72; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   REFLEKTOR — wskazówka, która gasi świat i podświetla jeden element.
+   Komponent: `hub/Reflektor.jsx`, treści: `hub/wskazowki.js`.
+
+   Warstwa 58: NAD hubem i dokiem (20), POD oknami postaci (60) i grami (70).
+   Reflektor nigdy nie wchodzi nad okno ani nad grę — hub go w tych chwilach
+   nie pokazuje — ale gdyby kiedyś wszedł, ma przegrać z tym, co dziecko
+   właśnie robi, a nie zasłonić to sobą.
+   ═══════════════════════════════════════════════════════════════════════ */
+.reflektor{ position:fixed; inset:0; z-index:58; }
+
+/* Przyciemnienie z otworem w kształcie celu (maska SVG). Nie łapie kliknięć —
+   od tego są łapacze niżej. Rozdzielenie „co widać" od „co klika" jest tu
+   celowe: dzięki niemu otwór ma kształt koła, a mimo to zostaje klikalny. */
+.reflektor-cien{
+  position:fixed; inset:0; width:100%; height:100%;
+  pointer-events:none;
+  animation:reflektor-wejscie .28s ease-out both;
+}
+
+/* Przezroczysty łapacz kliknięć poza otworem. */
+.reflektor-lapacz{ position:fixed; cursor:pointer; }
+
+@keyframes reflektor-wejscie{ from{ opacity:0 } to{ opacity:1 } }
+
+/* Obręcz światła. Nie łapie kliknięć — inaczej przykryłaby cel, który
+   podświetla, i „dotknij tego" przestałoby działać. */
+.reflektor-obrecz{
+  position:fixed; pointer-events:none;
+  border:3px solid rgba(255,224,140,.95);
+  box-shadow:0 0 0 3px rgba(255,224,140,.25), 0 0 22px 6px rgba(255,206,90,.45);
+  animation:reflektor-puls 1.9s ease-in-out infinite;
+}
+
+@keyframes reflektor-puls{
+  0%,100%{ box-shadow:0 0 0 3px rgba(255,224,140,.22), 0 0 18px 4px rgba(255,206,90,.38); }
+  50%    { box-shadow:0 0 0 7px rgba(255,224,140,.14), 0 0 30px 10px rgba(255,206,90,.6); }
+}
+
+.reflektor-dymek{
+  position:fixed; left:0; right:0;
+  display:flex; justify-content:center;
+  padding:0 12px;
+  animation:reflektor-dymek-wejscie .34s cubic-bezier(.2,1.2,.4,1) both;
+}
+
+@keyframes reflektor-dymek-wejscie{
+  from{ opacity:0; transform:translateY(10px) scale(.96) }
+  to  { opacity:1; transform:none }
+}
+
+.reflektor-blok{ position:relative; width:100%; max-width:360px; }
+
+/* Wizkor stoi NA karcie, nie obok: przy szerokości telefonu postać obok
+   dymka zabiera połowę miejsca na tekst. Wystaje ponad górną krawędź,
+   więc czyta się jako ktoś, kto się nad nią pochylił. */
+.reflektor-postac{
+  position:absolute; top:-104px; left:-10px;
+  width:132px; height:auto;
+  filter:drop-shadow(0 6px 10px rgba(35,20,60,.45));
+  pointer-events:none;
+  animation:reflektor-postac-wejscie .42s .06s cubic-bezier(.2,1.3,.4,1) both;
+}
+
+@keyframes reflektor-postac-wejscie{
+  from{ opacity:0; transform:translateY(14px) rotate(-6deg) }
+  to  { opacity:1; transform:none }
+}
+
+.reflektor-karta{
+  position:relative;
+  padding:14px 16px 14px;
+  border-radius:20px;
+  background:linear-gradient(180deg,#fffaea,#ffeec4);
+  border:2px solid #e8b45a;
+  box-shadow:0 10px 26px rgba(30,18,52,.45), inset 0 2px 0 rgba(255,255,255,.85);
+  color:var(--p-ink,#4e4d76);
+}
+
+.reflektor-imie{
+  display:inline-block; margin-bottom:2px;
+  font-family:"Caveat",cursive; font-size:19px; color:#8a5cc0;
+}
+
+.reflektor-karta h2{
+  margin:0 0 5px;
+  font-family:"Baloo 2",system-ui,sans-serif; font-size:21px; line-height:1.15;
+}
+
+.reflektor-karta p{
+  margin:0 0 11px;
+  font-family:"Nunito",system-ui,sans-serif; font-size:14.5px; line-height:1.4;
+}
+
+.reflektor-x{
+  position:absolute; top:6px; right:8px;
+  border:0; background:transparent; color:#a08a5e;
+  font-size:23px; line-height:1; cursor:pointer;
+  /* Cel dotyku ma 44 px, choć znak jest mały — palec sześciolatka nie trafia
+     w krzyżyk wielkości litery. */
+  width:34px; height:34px;
+}
+
+.reflektor-guziki{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+
+.reflektor-glowny{
+  flex:1 1 auto; min-height:44px; padding:0 18px;
+  border:0; border-radius:999px;
+  background:linear-gradient(180deg,#7ed37a,#48a84c);
+  box-shadow:0 3px 0 #2f7a33, 0 6px 14px rgba(40,90,40,.3);
+  color:#fff; font-family:"Baloo 2",system-ui,sans-serif; font-size:16px; cursor:pointer;
+}
+
+.reflektor-glowny:active{ transform:translateY(2px); box-shadow:0 1px 0 #2f7a33; }
+
+.reflektor-drugi{
+  min-height:44px; padding:0 12px;
+  border:0; background:transparent;
+  color:#8a7a55; font-family:"Nunito",system-ui,sans-serif; font-size:14px; cursor:pointer;
+}
+
+/* Dzióbek: trójkąt w kolorze karty, obrysowany tak samo jak ona. Robimy go
+   dwoma warstwami (obrys + wypełnienie), bo pojedynczy `border` nie umie
+   trójkąta z ramką. */
+.reflektor-dziobek{
+  position:absolute; width:22px; height:12px; pointer-events:none;
+}
+
+.reflektor-dymek.jest-nad .reflektor-dziobek{
+  bottom:-12px;
+  background:#ffeec4;
+  clip-path:polygon(0 0, 100% 0, 50% 100%);
+  filter:drop-shadow(0 2px 0 #e8b45a);
+}
+
+.reflektor-dymek.jest-pod .reflektor-dziobek{
+  top:-12px;
+  background:#fffaea;
+  clip-path:polygon(50% 0, 0 100%, 100% 100%);
+  filter:drop-shadow(0 -2px 0 #e8b45a);
+}
+
+@media (max-width:360px){
+  .reflektor-postac{ width:112px; top:-88px; left:-8px }
+  .reflektor-karta h2{ font-size:19px }
+  .reflektor-karta p{ font-size:13.5px }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .reflektor-cien,
+  .reflektor-dymek,
+  .reflektor-postac{ animation:none }
+  .reflektor-obrecz{ animation:none; box-shadow:0 0 0 4px rgba(255,224,140,.3), 0 0 22px 6px rgba(255,206,90,.5) }
+}
