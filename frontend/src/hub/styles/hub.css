@@ -284,31 +284,33 @@
     0 -24px 48px rgba(30,20,10,.34),
     inset 0 2px 0 rgba(255,255,255,.76);
   transform:translateY(103%); transition:transform .28s cubic-bezier(.2,.8,.25,1);
-  outline:none;
+  outline:none; overflow:hidden;
 }
 .hub-sheet.is-open{ transform:translateY(0); }
 .hub-sheet-grip{ display:none; }
+/* Naglowek to PAS przez caly arkusz, nie pigulka w srodku. Wczesniej tonal w
+   tym samym pergaminie, co tresc pod nim - dziecko nie mialo sie czego zlapac
+   wzrokiem przy otwarciu panelu. Wlasne, ciemne tlo i zlota linia pod spodem
+   robia z niego wyrazna belke tytulowa. */
 .hub-sheet-head{
   position:relative; flex:none;
-  margin:12px 12px 0; padding:10px 58px 10px;
-  min-height:67px; display:flex; align-items:center; justify-content:center; text-align:center;
-  border:2.5px solid transparent; border-radius:22px;
-  background:
-    linear-gradient(180deg,#725b8d 0%,#58446f 54%,#443455 100%) padding-box,
-    linear-gradient(180deg,#ffed8c 0%,#e4a52f 58%,#945319 100%) border-box;
+  margin:0; padding:14px 62px 16px;
+  min-height:76px; display:flex; align-items:center; justify-content:center; text-align:center;
+  border:none; border-bottom:3px solid #a46219; border-radius:27px 27px 0 0;
+  background:linear-gradient(180deg,#7a63a0 0%,#5b4577 52%,#42324f 100%);
   box-shadow:
-    inset 0 -4px 0 rgba(41,27,54,.2),
-    0 4px 0 #5a343d,
-    0 7px 12px rgba(66,39,24,.22);
+    inset 0 2px 0 rgba(255,255,255,.16),
+    inset 0 -6px 0 rgba(41,27,54,.28),
+    0 6px 14px rgba(40,25,55,.3);
 }
 .hub-sheet-head > div{ min-width:0; }
 .hub-sheet-head .hub-kicker{
-  color:#ffd96f; font-size:11px; letter-spacing:1.4px;
+  color:#ffd96f; font-size:12.5px; letter-spacing:1.3px;
   text-shadow:0 1px 0 #34243f;
 }
 .hub-sheet-head h2{
   font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
-  font-size:27px; font-weight:800; margin:1px 0 0; line-height:1;
+  font-size:31px; font-weight:800; margin:2px 0 0; line-height:1.05;
   color:#fff1b2;
   -webkit-text-stroke:1px #35243d; paint-order:stroke fill;
   text-shadow:0 3px 0 #35243d,0 5px 5px rgba(32,22,39,.28);
@@ -326,11 +328,14 @@
   text-shadow:0 2px 0 #6f292c;
 }
 .hub-sheet-close:active{ transform:translateY(-49%); box-shadow:inset 0 2px 0 rgba(255,255,255,.22),0 2px 0 #79272c; }
-.hub-sheet-body{
+.hub-sheet-body.screen-scroll{
   flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
   overscroll-behavior-y:contain;
-  /* dok stoi nad arkuszem — treść musi mieć czym się pod nim skończyć */
-  padding:18px 18px calc(90px + env(safe-area-inset-bottom,0px));
+  /* Dok stoi NAD arkuszem i zjada okolo 90 px, a przy dolnej krawedzi jest
+     jeszcze miekkie sciemnienie. Przy 90 px ostatni wiersz konczyl sie
+     dokladnie na krawedzi doku - wygladalo, jakby scroll sie urywal w polowie
+     tresci. 156 px daje ostatniej pozycji czym sie skonczyc. */
+  padding:18px 18px calc(156px + env(safe-area-inset-bottom,0px));
 }
 /* Pasek przewijania BYL schowany i to byl blad: panel konczyl sie w polowie
    zdania, a nic nie mowilo, ze cos jest nizej. Cienki zloty pasek + miekkie
