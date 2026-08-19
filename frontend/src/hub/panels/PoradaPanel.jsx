@@ -22,7 +22,8 @@
  */
 import React, { useEffect, useMemo, useState } from "react";
 import ZegarKlasyczny from "../ZegarKlasyczny.jsx";
-import KacikDobrostanu from "../KacikDobrostanu.jsx";
+import PrzyciskOddechu from "../PrzyciskOddechu.jsx";
+import EkranOddechu from "../EkranOddechu.jsx";
 import {
   czytajHistorie,
   poradaDnia,
@@ -53,6 +54,7 @@ export default function PoradaPanel() {
   const [porada, setPorada] = useState(() => poradaDnia());
   const [historia, setHistoria] = useState(() => czytajHistorie());
   const [znika, setZnika] = useState(null);
+  const [oddech, setOddech] = useState(false);
 
   const pora = useMemo(() => poraDnia(), []);
   // Karteczka dnia WYPADA z półek pod spodem. Bez tego to samo zdanie stało na
@@ -92,6 +94,7 @@ export default function PoradaPanel() {
 
   return (
     <div className="hub-pane" data-testid="hub-pane-porada">
+      {oddech ? <EkranOddechu pora={pora.id} onKoniec={() => setOddech(false)} /> : null}
       {porada ? (
         <div
           className={`porada-karta${znika ? ` porada-karta--${znika}` : ""}`}
@@ -125,9 +128,9 @@ export default function PoradaPanel() {
       ) : (
         <div className="porada-zegar-blok" data-testid="porada-zegar">
           <ZegarKlasyczny size={112} etykieta={pora.nazwa} />
-          {/* Obok zegara losowana drobnostka dla siebie - inna przy kazdym
-              wejsciu, zeby gora panelu nie byla martwa po trzecim dniu. */}
-          <KacikDobrostanu pora={pora.id} />
+          {/* Oddech stoi na wierzchu, zawsze w tym samym miejscu - to jedyna
+              rzecz w panelu, ktora dziecko ma robic z wlasnej woli. */}
+          <PrzyciskOddechu onStart={() => setOddech(true)} />
         </div>
       )}
 
