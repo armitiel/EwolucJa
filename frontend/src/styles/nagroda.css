@@ -18,13 +18,26 @@
   z-index: 9999;
   display: grid;
   place-items: center;
-  padding: calc(env(safe-area-inset-top, 0px) + 14px) 16px calc(env(safe-area-inset-bottom, 0px) + 14px);
-  overflow: hidden;
+  /* Zapas u góry na wstęgę, która wystaje ponad kartę o 24 px. */
+  padding: calc(env(safe-area-inset-top, 0px) + 44px) 16px calc(env(safe-area-inset-bottom, 0px) + 16px);
+  /* Karta z pełnym wynikiem partii (gwiazdki + rozbicie + kafelki + dwa
+     przyciski) potrafi być wyższa niż telefon położony poziomo. Wcześniej
+     `overflow: hidden` po prostu ucinał dół razem z przyciskiem „Wracam"
+     i nie było jak wyjść z gry. */
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
+/* `margin: auto` zamiast samego `place-items`: przy treści wyższej niż ekran
+   siatka wypycha element poza górną krawędź i nie da się do niego doscrollować.
+   Z `auto` marginesy zjadają się same, gdy miejsca brakuje. */
+.nagroda-karta { margin: auto; }
+
 /* Zasłona jak w oknach postaci — ta sama głębia fioletu, ta sama miękkość. */
+/* `fixed`, nie `absolute`: od kiedy karta może się przewijać, zasłona
+   przyklejona do treści odjeżdżałaby razem z nią i odsłaniała grę pod spodem. */
 .nagroda-zaslona {
-  position: absolute;
+  position: fixed;
   inset: 0;
   background: radial-gradient(circle at 50% 40%, rgba(122, 77, 194, .58) 0%, rgba(26, 20, 44, .88) 100%);
   backdrop-filter: blur(3px);
@@ -32,7 +45,7 @@
 }
 
 .nagroda-warstwa {
-  position: absolute;
+  position: fixed;
   inset: 0;
   pointer-events: none;
   overflow: hidden;
@@ -200,6 +213,111 @@
   line-height: 1.35;
 }
 
+/* ── Wynik partii na tej samej karcie ───────────────────────────────────────
+   Minigry miały wcześniej osobny ekran podsumowania, z tym samym tytułem
+   i tą samą liczbą monet co ekran celebracji. Te trzy bloki (gwiazdki,
+   rozbicie nagrody, kafelki) przenoszą jego treść tutaj, żeby koniec gry
+   był JEDNYM ekranem, a nie dwoma prawie identycznymi. */
+
+/* Podium: środkowa gwiazdka wyżej i większa. Niezdobyte to ta sama grafika,
+   tylko wyszarzona — dziecko widzi, czego brakuje, bo kształt się nie zmienia. */
+.nagroda-gwiazdki {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  min-height: 58px;
+}
+
+.nagroda-gwiazda {
+  width: 46px;
+  height: 46px;
+  filter: drop-shadow(0 3px 5px rgba(122, 77, 194, .3));
+  animation: nagroda-gwiazda-wskok .5s cubic-bezier(.2, .9, .3, 1.5) both;
+}
+.nagroda-gwiazda--srodek { width: 58px; height: 58px; transform: translateY(-7px); animation-delay: .1s; }
+.nagroda-gwiazda--pusta { filter: grayscale(1) opacity(.32); }
+
+@keyframes nagroda-gwiazda-wskok {
+  from { opacity: 0; transform: scale(.4); }
+}
+.nagroda-gwiazda--srodek { animation-name: nagroda-gwiazda-wskok-srodek; }
+@keyframes nagroda-gwiazda-wskok-srodek {
+  from { opacity: 0; transform: translateY(-7px) scale(.4); }
+  to { opacity: 1; transform: translateY(-7px) scale(1); }
+}
+
+/* Skąd te monety. Dwie krótkie linijki pod licznikiem — bez nich dziecko nie
+   ma jak się dowiedzieć, że w sumie siedzi też nagroda Wizkora za misję. */
+.nagroda-rozbicie {
+  list-style: none;
+  width: min(260px, 88%);
+  margin: 8px auto 0;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--p-ink-soft, #5A4F77);
+}
+
+.nagroda-rozbicie li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 3px 0;
+}
+
+.nagroda-rozbicie li + li { border-top: 1.5px dashed rgba(122, 77, 194, .18); }
+.nagroda-rozbicie b { color: #8a5a12; font-weight: 800; }
+
+/* Kafelki statystyk — ciekawostka, nie nagroda, więc celowo drobne i szare. */
+.nagroda-kafelki {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 8px;
+  margin: 12px 0 0;
+}
+
+.nagroda-kafel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 9px 6px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .72);
+  box-shadow: inset 0 0 0 1.2px rgba(43, 42, 74, .07);
+}
+
+.nagroda-kafel b {
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.05;
+  color: var(--p-magic-dk, #7A4DC2);
+}
+
+.nagroda-kafel span {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .3px;
+  text-transform: lowercase;
+  color: var(--p-ink-soft, #5A4F77);
+}
+
+/* Dwa wyjścia zamiast jednego: „jeszcze raz" i „wracam". Pionowo, bo oba mają
+   być pełnej szerokości — obok siebie zrobiłyby się dwa wąskie przyciski
+   dla palca, który dopiero co grał. */
+.nagroda-akcje {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 16px;
+}
+
+.nagroda-akcje .hub-btn { width: 100%; min-height: 54px; font-size: 17.5px; }
+
 .nagroda-cta { margin-top: 16px; width: 100%; min-height: 54px; font-size: 17.5px; }
 
 @media (max-height: 680px) {
@@ -209,6 +327,16 @@
   .nagroda-pigulka { margin-top: 14px; padding: 12px 22px; font-size: 30px; }
   .nagroda-przerywnik { margin-top: 12px; }
   .nagroda-cta { min-height: 50px; font-size: 16.5px; }
+  /* Wynik partii schodzi o klasę: gwiazdki i kafelki to informacja dodatkowa,
+     więc to one ustępują miejsca, a nie liczba monet i przyciski. */
+  .nagroda-gwiazdki { min-height: 46px; margin-bottom: 4px; }
+  .nagroda-gwiazda { width: 38px; height: 38px; }
+  .nagroda-gwiazda--srodek { width: 48px; height: 48px; }
+  .nagroda-kafelki { margin-top: 9px; gap: 6px; }
+  .nagroda-kafel { padding: 7px 4px; }
+  .nagroda-kafel b { font-size: 17px; }
+  .nagroda-akcje { margin-top: 12px; gap: 7px; }
+  .nagroda-akcje .hub-btn { min-height: 50px; font-size: 16.5px; }
 }
 
 @media (max-width: 340px) {
@@ -219,5 +347,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .nagroda-karta,
+  .nagroda-gwiazda,
   .nagroda-pigulka { animation: none; }
 }

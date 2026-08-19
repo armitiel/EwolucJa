@@ -74,11 +74,28 @@ export function useHubGra() {
     return GRY_W_HUBIE.includes(wartosc) ? wartosc : null;
   }, [location.search]);
 
+  /**
+   * Poziom wybrany PRZED wejściem do gry (`?gra=…&poziom=easy`).
+   *
+   * Jest w adresie z tego samego powodu, co sama gra: zaproszenie liska na
+   * mapie pyta o poziom u siebie i od razu startuje partię, więc gra musi
+   * dostać tę odpowiedź. Przekazanie jej stanem znaczyłoby, że odświeżenie
+   * strony w trakcie partii cofa dziecko na ekran wyboru, którego już nie ma.
+   *
+   * `null` = weszliśmy z kafelka w zakładce i gra ma pokazać swój ekran
+   * startowy. To jedyna różnica między tymi dwiema drogami.
+   */
+  const poziom = useMemo(() => {
+    return new URLSearchParams(location.search).get("poziom") || null;
+  }, [location.search]);
+
   const otworzGre = useCallback(
-    (id) => {
+    (id, { poziom: wybrany = null } = {}) => {
       if (!GRY_W_HUBIE.includes(id) || id === gra) return;
       const parametry = new URLSearchParams(location.search);
       parametry.set("gra", id);
+      if (wybrany) parametry.set("poziom", wybrany);
+      else parametry.delete("poziom");
       // Wpis w historii, nie podmiana: systemowy „wstecz" ma zamykać grę,
       // a nie wyrzucać dziecko ze świata.
       navigate(`${location.pathname}?${parametry.toString()}`);
@@ -90,9 +107,10 @@ export function useHubGra() {
     if (!gra) return;
     const parametry = new URLSearchParams(location.search);
     parametry.delete("gra");
+    parametry.delete("poziom");
     const reszta = parametry.toString();
     navigate(reszta ? `${location.pathname}?${reszta}` : location.pathname, { replace: true });
   }, [navigate, location.pathname, location.search, gra]);
 
-  return { gra, otworzGre, zamknijGre };
+  return { gra, poziom, otworzGre, zamknijGre };
 }

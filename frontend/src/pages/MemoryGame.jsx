@@ -15,13 +15,19 @@
  */
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sparkle, Cloud, Coin } from "../components/art.jsx";
+import { Sparkle, Cloud } from "../components/art.jsx";
 import { fx } from "../services/soundFx.js";
 import RewardScreen from "../components/RewardScreen.jsx";
 import SplashGry from "../hub/SplashGry.jsx";
 import EkranStartuGry from "../hub/EkranStartuGry.jsx";
 import { dodajMonety } from "../services/monety.js";
+import { rozliczPartie } from "../hub/misjeGier.js";
+import { maksMonet, poziomIstnieje, poziomyGry } from "../hub/poziomyGier.js";
+import { czyDev } from "../services/dev.js";
 import "../hub/styles/hub.css";
+
+/** Identyfikator z katalogu — ten sam w misjach, na mapie i w adresie. */
+const GRA = "pamiec-medrca";
 
 /* ─── Symbole kart ────────────────────────────────────────────────────────
    Karty pokazują te same gliniane przedmioty, co „Sekret pod puchem" — cztery
@@ -52,10 +58,14 @@ const GAME_SYMS = [
    premiowałby klikanie na oślep. Razem trzeba i pamiętać, i nie zwlekać.
 
    Progi czasu są hojne — to gra dla dziecka, nie zawody. Trudniejszy poziom
-   daje więcej, bo ma o dwie pary więcej do zapamiętania.                    */
+   daje więcej, bo ma o dwie pary więcej do zapamiętania.
+
+   SUFIT bierzemy z `hub/poziomyGier.js`, a nie z liczby wpisanej tutaj: tę
+   samą kwotę obiecuje teraz okno liska na mapie, więc dwie kopie rozjechałyby
+   się przy pierwszym strojeniu i któraś z nich zaczęłaby kłamać.            */
 const NAGRODY = {
-  easy: { baza: 3, zaGwiazdke: 3, progiCzasu: [[40, 3], [70, 1]], max: 15 },
-  hard: { baza: 5, zaGwiazdke: 5, progiCzasu: [[60, 5], [100, 2]], max: 25 },
+  easy: { baza: 3, zaGwiazdke: 3, progiCzasu: [[40, 3], [70, 1]], max: maksMonet(GRA, "easy") },
+  hard: { baza: 5, zaGwiazdke: 5, progiCzasu: [[60, 5], [100, 2]], max: maksMonet(GRA, "hard") },
 };
 
 function bonusCzasu(diff, sekundy) {
@@ -209,48 +219,11 @@ function StatPill({ icon, label, value }) {
   );
 }
 
-/**
- * Gwiazda — jedna zlota ikonka (public/star.png) na wszystkie miejsca, w ktorych
- * gra liczy gwiazdki: kafelki poziomu, podium wyniku i nagroda „echa".
- * Wczesniej byly to trzy rozne rysunki SVG i dziecko widzialo trzy rozne
- * gwiazdki za to samo. Niezdobyta to ta sama grafika, tylko wyszarzona — od razu
- * widac, czego brakuje, bo ksztalt sie nie zmienia.
- */
-function Gwiazda({ size = 24, zdobyta = true, style }) {
-  return (
-    <img
-      src="/star.png"
-      alt=""
-      aria-hidden="true"
-      width={size}
-      height={size}
-      draggable="false"
-      style={{
-        display: "block", width: size, height: size, userSelect: "none",
-        filter: zdobyta
-          ? "drop-shadow(0 3px 4px rgba(180,115,34,.42))"
-          : "grayscale(1) brightness(1.3) opacity(.34)",
-        transition: "width .3s, height .3s, filter .3s",
-        ...style,
-      }}
-    />
-  );
-}
-
-function SummaryTile({ n, l }) {
-  return (
-    <div style={{
-      padding: "10px 8px", borderRadius: 14,
-      background: "rgba(255,255,255,.78)",
-      boxShadow: "inset 0 0 0 1.2px rgba(43,42,74,.06)",
-      display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
-    }}>
-      <div className="t-display" style={{ fontSize: 20, lineHeight: 1 }}>{n}</div>
-      <div style={{ fontSize: 10.5, fontWeight: 800, color: "var(--p-ink-soft)", textTransform: "uppercase", letterSpacing: 0.4 }}>{l}</div>
-    </div>
-  );
-}
-
+/* Stały tu jeszcze `Gwiazda` i `SummaryTile` — podium z oceną partii i kafelki
+   „ruchy / czas / pary". Poszły razem z osobnym ekranem podsumowania: jedno
+   i drugie rysuje teraz `RewardScreen` (`gwiazdki`, `kafelki`), bo koniec gry
+   ma być jednym ekranem, a nie dwoma. Gwiazdki dalej są tą samą grafiką
+   `/star.png`, tylko wyszarzoną, gdy nie zdobyte. */
 
 // ─── MAIN COMPONENT ───────────────────────────────────────────
 /**
@@ -260,12 +233,18 @@ function SummaryTile({ n, l }) {
  * Bez tych propsow komponent dziala po staremu, jako wlasny ekran pod
  * `/games/memory` - stare linki i zakladki dalej trafiaja, gdzie trzeba.
  */
-export default function MemoryGame({ osadzona = false, onWyjscie }) {
+/**
+ * `poziom` = dziecko wybrało trudność JUŻ WCZEŚNIEJ, w oknie liska na mapie.
+ * Wtedy ekran startowy tej gry nie ma o co zapytać, więc go pomijamy i po
+ * splashu od razu rozdajemy karty. Wejście z kafelka w zakładce nie ma tego
+ * propsa i działa po staremu.
+ */
+export default function MemoryGame({ osadzona = false, poziom = null, onWyjscie }) {
   const navigate = useNavigate();
   const wrocDoHuba = () => (onWyjscie ? onWyjscie() : navigate("/swiat?panel=gry"));
+  const zPominieciemIntro = poziomIstnieje(GRA, poziom);
   const [phase, setPhase] = useState("splash"); // intro | playing | done
-  const [rewardShown, setRewardShown] = useState(false); // gdy true -> ukryty RewardScreen, pokazany summary
-  const [diff, setDiff] = useState("easy");
+  const [diff, setDiff] = useState(zPominieciemIntro ? poziom : "easy");
   const pairs = diff === "easy" ? 6 : 8;
   const cols = 3;
 
@@ -306,14 +285,57 @@ export default function MemoryGame({ osadzona = false, onWyjscie }) {
    * raz - efekt potrafi odpalic ponownie przy kazdym renderze fazy "done".
    */
   const wyplaconoRef = useRef(false);
+  const [nagrodaPartii, setNagrodaPartii] = useState(0);
+  const [nagrodaMisji, setNagrodaMisji] = useState(0);
   useEffect(() => {
     if (phase !== "done" || wyplaconoRef.current) return;
     wyplaconoRef.current = true;
-    dodajMonety(policzNagrode(diff, stars, seconds), "minigra:memory");
+    const zaPartie = policzNagrode(diff, stars, seconds);
+    dodajMonety(zaPartie, "minigra:memory");
+    setNagrodaPartii(zaPartie);
+    /**
+     * Misja Wizkora („znajdz karte na mapie i zagraj") zalicza sie TUTAJ,
+     * a nie przy wejsciu do gry: warunkiem jest ROZEGRANA partia. Gdy misji
+     * nie ma albo karta nie zostala znaleziona na mapie, `rozliczPartie`
+     * zwraca `dodane: 0` i ekran wyniku po prostu nie pisze o Wizkorze.
+     *
+     * Wyplata idzie TUTAJ, a nie w hubie po powrocie: hub otwieral na nia
+     * osobny ekran nagrody, czyli trzecie okno „wygrales" pod rzad. Ten ekran
+     * w hubie zostaje jako bezpiecznik dla zapisow sprzed tej zmiany.
+     */
+    try {
+      const { dodane } = rozliczPartie(GRA);
+      setNagrodaMisji(dodane || 0);
+    } catch { setNagrodaMisji(0); }
   }, [phase, stars, diff, seconds]);
 
-  // Nowa partia = nowa wyplata.
-  useEffect(() => { if (phase === "playing") wyplaconoRef.current = false; }, [phase]);
+  // Nowa partia = nowa wyplata. Zerujemy tez liczby na ekranie wyniku, zeby
+  // druga partia nie chwalila sie nagroda misji odebrana w pierwszej.
+  useEffect(() => {
+    if (phase !== "playing") return;
+    wyplaconoRef.current = false;
+    setNagrodaPartii(0);
+    setNagrodaMisji(0);
+  }, [phase]);
+
+  /**
+   * Uchwyt dla pulpitu testowego (`hub/DevRezyserka.jsx`): dobiera wszystkie
+   * pary naraz. Rejestrujemy go TYLKO w trybie dev — na ekranie dziecka nie
+   * ma prawa istniec przycisk konczacy gre za nie.
+   *
+   * Faze ustawiamy na "playing" razem z kartami, bo to efekt pilnujacy
+   * kompletu (nizej) przenosi gre w "done" — i robi to wylacznie w trakcie
+   * partii. Dzieki temu wygrana z pulpitu przechodzi DOKLADNIE ta sama droga
+   * co wygrana dziecka: dzwiek, ekran nagrody, monety, zaliczenie misji.
+   */
+  useEffect(() => {
+    if (!czyDev()) return undefined;
+    window.__devGra = {
+      id: GRA,
+      wygraj: () => { setPhase("playing"); setMatched(new Set(deck.map((c) => c.uid))); },
+    };
+    return () => { if (window.__devGra?.id === GRA) delete window.__devGra; };
+  }, [deck]);
 
   useEffect(() => {
     if (phase !== "playing") { clearInterval(tickRef.current); return; }
@@ -353,7 +375,6 @@ export default function MemoryGame({ osadzona = false, onWyjscie }) {
     if (newDiff) setDiff(newDiff);
     else setDeck(makeDeck(pairs));
     setFlipped([]); setMatched(new Set()); setMoves(0); setSeconds(0);
-    setRewardShown(false);
     setPhase("playing");
   };
 
@@ -364,8 +385,12 @@ export default function MemoryGame({ osadzona = false, onWyjscie }) {
   // (zeby przypadkowe dotkniecie nie kasowalo partii), dopiero z niego do huba -
   // i to od razu do OTWARTEJ zakladki minigier, czyli tam, skad sie tu weszlo.
   // Panel huba czyta sie z adresu (`useHubPanel`), wiec wystarczy query.
+  //
+  // Przy wejsciu z mapy ekranu startowego NIE MA, wiec krzyzyk wychodzi wprost
+  // do swiata: cofanie na ekran, ktorego dziecko nigdy nie widzialo, bylo by
+  // pojawieniem sie z niczego.
   const wyjdz = () => {
-    if (phase === "playing") { setPhase("intro"); return; }
+    if (phase === "playing" && !zPominieciemIntro) { setPhase("intro"); return; }
     wrocDoHuba();
   };
 
@@ -403,7 +428,7 @@ export default function MemoryGame({ osadzona = false, onWyjscie }) {
             /* Zamiast emoji lecą prawdziwe symbole z talii — ten sam widok,
                który za chwilę zobaczysz na kartach. */
             obrazy={[GAME_SYMS[5], GAME_SYMS[1], GAME_SYMS[7], GAME_SYMS[3]].map((s) => s.plik)}
-            onKoniec={() => setPhase("intro")}
+            onKoniec={() => setPhase(zPominieciemIntro ? "playing" : "intro")}
           />
         ) : null}
 
@@ -415,10 +440,7 @@ export default function MemoryGame({ osadzona = false, onWyjscie }) {
           <EkranStartuGry
             ilustracja="/assets/karty/wizkor-karty.png"
             tytul="Pamięć Mędrca"
-            poziomy={[
-              { id: "easy", nazwa: "Łatwy", monetyMax: NAGRODY.easy.max },
-              { id: "hard", nazwa: "Średni", monetyMax: NAGRODY.hard.max },
-            ]}
+            poziomy={poziomyGry(GRA)}
             wybrany={diff}
             onWybor={setDiff}
             cta="Zagraj"
@@ -426,8 +448,11 @@ export default function MemoryGame({ osadzona = false, onWyjscie }) {
           />
         )}
 
-        {/* PLAYING — grid */}
-        {phase === "playing" && (
+        {/* PLAYING — grid. Zostaje na ekranie także po wygranej: pod kartą
+            wyniku widać wtedy WŁASNY, skończony stół z odkrytymi parami,
+            zamiast pustego tła. Wcześniej plansza znikała w tej samej chwili,
+            w której padła ostatnia para. */}
+        {(phase === "playing" || phase === "done") && (
           <>
             {/* Scena stołu: kamera nad stołem, Wizkor po drugiej stronie,
                 lisek tyłem do gracza na dole. Trzy osobne elementy (dwie
@@ -475,76 +500,40 @@ export default function MemoryGame({ osadzona = false, onWyjscie }) {
           </>
         )}
 
-        {/* DONE */}
-        {phase === "done" && (
-          <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", padding: "20px 24px 24px" }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-              <div className="pop-in" style={{ display: "flex", gap: 8 }}>
-                {[1, 2, 3].map((i) => {
-                  const earned = i <= stars;
-                  return (
-                    <div key={i} style={{
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      transform: `translateY(${i === 2 ? -8 : 0}px)`,
-                      transition: "all .3s",
-                    }}>
-                      <Gwiazda size={earned ? 64 : 46} zdobyta={earned} />
-                    </div>
-                  );
-                })}
-              </div>
-
-              <h1 className="t-display" style={{ fontSize: 32, margin: "2px 0 0", textShadow: "0 2px 0 rgba(255,255,255,.4)" }}>
-                {stars === 3 ? "Wspaniale!" : stars === 2 ? "Super!" : "Brawo!"}
-              </h1>
-              <p className="t-hand" style={{ margin: 0, fontSize: 16, color: "var(--p-ink-soft)", textAlign: "center" }}>
-                {stars === 3 ? "Twoja pamięć jest jak zwój Mędrca." :
-                 stars === 2 ? "Niezła robota — spróbuj jeszcze raz!" :
-                              "Każdy ruch to krok do wprawy."}
-              </p>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, width: "100%", marginTop: 6 }}>
-                <SummaryTile n={moves} l="ruchy" />
-                <SummaryTile n={fmtTime(seconds)} l="czas" />
-                <SummaryTile n={`${matched.size / 2}/${pairs}`} l="pary" />
-              </div>
-
-              {/* Jedna waluta, jeden duzy licznik. Wczesniej stały tu trzy
-                  kafelki (monety, „echa", Skupienie) i dziecko nie wiedziało,
-                  co z tego jest nagrodą. */}
-              <div className="wynik-nagroda">
-                <Coin size={54} anim />
-                <span className="wynik-nagroda-kwota">+{policzNagrode(diff, stars, seconds)}</span>
-              </div>
-
-            </div>
-
-            <div style={{ flex: 1 }} />
-
-            <div className="hub-actions gra-akcje">
-              <button onClick={() => restart()} className="hub-btn hub-btn-ghost">Jeszcze raz</button>
-              <button onClick={wrocDoHuba} className="hub-btn hub-btn-primary">Wracam</button>
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* Celebration overlay - pokazuje sie PIERWSZY po wygranej, z huczna animacja.
-          Po dismiss user widzi pelen summary screen z gwiazdkami i nagrodami. */}
-      {phase === "done" && !rewardShown && (
+      {/* JEDEN ekran na koniec partii. Wcześniej stały tu dwa: ten, z konfetti
+          i licznikiem, a po kliknięciu „Zobacz wynik" drugi — z TYM SAMYM
+          tytułem, tym samym zdaniem i tą samą liczbą monet, tylko bez konfetti.
+          Dziecko przeklikiwało to samo dwa razy, a nagroda Wizkora za misję
+          dokładała po powrocie na mapę trzeci. Teraz wszystko jest tutaj:
+          ocena, statystyki, obie nagrody i oba wyjścia. */}
+      {phase === "done" && (
         <RewardScreen
-          eyebrow="✨ PAMIĘĆ MĘDRCA · UKOŃCZONA"
+          /* Sama nazwa gry — „· UKOŃCZONA" nie mieściło się na wstędze
+             i ucinało się wielokropkiem w środku słowa. */
+          eyebrow="PAMIĘĆ MĘDRCA"
           title={stars === 3 ? "Wspaniale!" : stars === 2 ? "Super!" : "Brawo!"}
           subtitle={
             stars === 3 ? "Twoja pamięć jest jak zwój Mędrca." :
             stars === 2 ? "Niezła robota — spróbuj jeszcze raz!" :
                          "Każdy ruch to krok do wprawy."
           }
-          coins={policzNagrode(diff, stars, seconds)}
-          note={`${stars} ${stars === 1 ? "gwiazdka" : "gwiazdki"} · ${fmtTime(seconds)}`}
-          noteStyle="caption"
-          ctaLabel="Zobacz wynik ✦"
-          onDismiss={() => setRewardShown(true)}
+          gwiazdki={stars}
+          coins={nagrodaPartii + nagrodaMisji}
+          rozbicie={[
+            { etykieta: "Za partię", monety: nagrodaPartii },
+            { etykieta: "Od Wizkora za misję", monety: nagrodaMisji },
+          ]}
+          kafelki={[
+            { wartosc: moves, etykieta: "ruchy" },
+            { wartosc: fmtTime(seconds), etykieta: "czas" },
+            { wartosc: `${pairs}/${pairs}`, etykieta: "pary" },
+          ]}
+          akcje={[
+            { etykieta: "Wracam", onClick: wrocDoHuba },
+            { etykieta: "Jeszcze raz", onClick: () => restart(), ton: "ghost" },
+          ]}
         />
       )}
     </main>

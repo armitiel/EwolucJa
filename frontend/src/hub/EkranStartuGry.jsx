@@ -24,7 +24,7 @@
  *   />
  */
 import React from "react";
-import { Coin } from "../components/art.jsx";
+import WyborPoziomu from "./WyborPoziomu.jsx";
 
 export default function EkranStartuGry({
   ilustracja,
@@ -35,8 +35,6 @@ export default function EkranStartuGry({
   cta = "Zagraj",
   onGraj,
 }) {
-  const jeden = poziomy.length < 2;
-
   return (
     <div className="start-gry">
       {ilustracja ? (
@@ -45,28 +43,9 @@ export default function EkranStartuGry({
 
       <h1 className="start-gry-tytul t-display">{tytul}</h1>
 
-      {/* Nagroda BEZ SLOWA „monet”: moneta jest tu rzeczownikiem. Dziecko,
-          ktore jeszcze nie czyta, widzi ikonke z HUD-u i liczbe — dokladnie to,
-          co przybedzie mu na liczniku po wygranej. */}
-      <div className={"start-gry-poziomy" + (jeden ? " jeden" : "")}>
-        {poziomy.map((p) => (
-          <button
-            key={p.id}
-            type="button"
-            className={"start-gry-poziom" + (p.id === wybrany ? " wybrany" : "")}
-            onClick={() => onWybor?.(p.id)}
-            aria-pressed={poziomy.length > 1 ? p.id === wybrany : undefined}
-            aria-label={p.nazwa ? `${p.nazwa}, do ${p.monetyMax} monet` : `Do ${p.monetyMax} monet`}
-            disabled={jeden}
-          >
-            {p.nazwa ? <span className="start-gry-poziom-nazwa">{p.nazwa}</span> : null}
-            <span className="start-gry-poziom-monety">
-              <Coin size={34} />
-              <b>{p.monetyMax}</b>
-            </span>
-          </button>
-        ))}
-      </div>
+      {/* Te same kafelki, co w zaproszeniu liska na mapie — patrz
+          `hub/WyborPoziomu.jsx`. */}
+      <WyborPoziomu poziomy={poziomy} wybrany={wybrany} onWybor={onWybor} />
 
       <div className="start-gry-luz" />
 

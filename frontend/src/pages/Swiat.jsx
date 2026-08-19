@@ -12,7 +12,7 @@
  * Bez WebGL-a hub NIE przestaje działać: scena zamienia się w statyczne tło,
  * a wszystkie sekcje zostają dostępne.
  */
-import React, { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
+import React, { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Scena3D, { webglDostepny } from "../components/Scena3D.jsx";
 import HubDock from "../hub/HubDock.jsx";
@@ -20,7 +20,6 @@ import PanelSheet from "../hub/PanelSheet.jsx";
 import MessageScroll from "../hub/MessageScroll.jsx";
 import PodpowiedzMedrca from "../hub/PodpowiedzMedrca.jsx";
 import PopupPostaci from "../hub/PopupPostaci.jsx";
-import PytanieSpotkania from "../hub/PytanieSpotkania.jsx";
 import RewardScreen from "../components/RewardScreen.jsx";
 import { bonusMonet, ZDARZENIE_ZMIANY as MONETY_ZMIANA } from "../services/monety.js";
 import {
@@ -32,6 +31,32 @@ import {
   skasujZadanie,
   stanZadania,
 } from "../hub/zadanieGwiazdek.js";
+import {
+  aktualnaMisja,
+  MISJE,
+  odbierzNagrode as odbierzNagrodeMisji,
+  odkryj as odkryjGre,
+  skasujMisje,
+  stanGry,
+  stanMisji,
+  ujawnij as ujawnijMisje,
+  zaliczWygrana,
+  znakiNaMapie,
+  ZDARZENIE_ZMIANY as MISJE_ZMIANA,
+} from "../hub/misjeGier.js";
+import { powitanieCzarodzieja, ZNAK_CZARODZIEJA } from "../hub/kwestieWizkora.js";
+import { poziomDomyslny, poziomyGry } from "../hub/poziomyGier.js";
+import WyborPoziomu from "../hub/WyborPoziomu.jsx";
+import { pozycjaNaEkranie, zastosujZnakiUparcie } from "../hub/znakiMapy.js";
+import { lecDoLicznika, podbijKafelek } from "../hub/lotDoLicznika.js";
+import { czyDev, czyLokalnie, ustawDev } from "../services/dev.js";
+import {
+  nastepnaWskazowka,
+  oznaczPoznana,
+  wskazowkaPoId,
+  WSKAZOWKI,
+  ZDARZENIE_ZMIANY as WSKAZOWKI_ZMIANA,
+} from "../hub/wskazowki.js";
 import useHudSkin from "../hub/useHudSkin.js";
 import { useHubPanel, useHubGra } from "../hub/useHubPanel.js";
 import MinigryPanel from "../hub/panels/MinigryPanel.jsx";
@@ -77,10 +102,7 @@ const ZNAK_PANELU = {};
  * (`assets/lisc.glb`), nie liść. Nie zmieniam id w scenie, bo siedzi w bundlu
  * i w zapisanych stanach; zmiana nazwy dałaby tylko nowe miejsca do pomyłki.
  */
-const ZNAK_GRY = {
-  leaf: "sekret-pod-puchem",
-  karty: "pamiec-medrca",
-};
+const ZNAK_GRY = Object.fromEntries(MISJE.map((m) => [m.znak, m.id]));
 
 /**
  * Minigry, które hub potrafi wyświetlić NAD sceną. Klucz to `id` z katalogu
@@ -94,6 +116,20 @@ const ZNAK_GRY = {
  * tego dnia nie zagrało w nic. Teraz każda gra to osobny plik, pobierany
  * dopiero przy jej otwarciu.
  */
+/**
+ * Pulpit testowy. `lazy`, i to nie dla wygody: kod narzędzia ma NIE WCHODZIĆ
+ * do paczki, którą pobiera dziecko. Import wykonuje się dopiero wtedy, gdy
+ * tryb dev jest naprawdę włączony (`services/dev.js`).
+ */
+const DevRezyserka = lazy(() => import("../hub/DevRezyserka.jsx"));
+
+/**
+ * Reflektor — wskazówka, która gasi świat i podświetla jeden element HUD-u.
+ * `lazy`, bo dziecko zobaczy każdą z nich RAZ w życiu: nie ma powodu, żeby
+ * ten kod wchodził do paczki wczytywanej przy każdym starcie.
+ */
+const Reflektor = lazy(() => import("../hub/Reflektor.jsx"));
+
 const GRY_OSADZONE = {
   "pamiec-medrca": lazy(() => import("./MemoryGame.jsx")),
   "sekret-pod-puchem": lazy(() => import("./PiorkaGame.jsx")),
@@ -105,8 +141,13 @@ const GRY_OSADZONE = {
  * do katalogu nigdy nie zostawi pustego okna.
  *
  * Mówi LISEK, a nie narrator: to bohater dziecka znalazł coś na mapie, więc
- * pyta w pierwszej osobie liczby mnogiej („zagramy?"). `wyroznienie` musi być
- * dosłownym fragmentem `tekst` — inaczej podkreślenie po prostu nie wejdzie.
+ * mówi w pierwszej osobie. `wyroznienie` musi być dosłownym fragmentem
+ * `tekst` — inaczej podkreślenie po prostu nie wejdzie.
+ *
+ * Zdanie ZAPOWIADA kafelki pod spodem, zamiast pytać „zagramy?". To okno jest
+ * teraz ekranem startowym gry: pokazuje, ile można wygrać, pozwala wybrać
+ * poziom i startuje partię. Pytanie „zagramy?", po którym gra i tak pytała
+ * o to samo jeszcze raz na własnym ekranie, było jednym oknem za dużo.
  *
  * Kiedy to okno wchodzi.
  *
@@ -126,12 +167,12 @@ const WYPRZEDZENIE_MS = 160;
 
 const ZAPROSZENIA = {
   "sekret-pod-puchem": {
-    tekst: "Zagramy w Sekret pod puchem?",
-    wyroznienie: "Sekret pod puchem",
+    tekst: "Znalazłem złote piórko! Tyle monet można wygrać:",
+    wyroznienie: "złote piórko",
   },
   "pamiec-medrca": {
-    tekst: "Zagramy w Pamięć Mędrca?",
-    wyroznienie: "Pamięć Mędrca",
+    tekst: "Znalazłem kartę Mędrca! Wybierz, jak trudno gramy:",
+    wyroznienie: "kartę Mędrca",
   },
 };
 
@@ -177,100 +218,6 @@ function EkranPrzejscia({ id, onWyjscie }) {
   );
 }
 
-/**
- * Powitanie postaci. Docelowo odpali je spotkanie w świecie („lisek podszedł
- * do czarodzieja") — ten wyzwalacz przychodzi osobno, razem z postacią na
- * mapie. Do tego czasu treść siedzi tutaj jako jeden obiekt, żeby wyzwalacz
- * miał co podać, a okno dało się obejrzeć:
- *
- *   window.popupPostaci.pokaz()                     — otwórz teraz
- *   window.popupPostaci.pokaz({ imie: "Ktoś" })     — podmień pola
- *   window.popupPostaci.schowaj()
- *   /swiat?popup=1                                  — otwarte od razu po wejściu
- */
-/**
- * Czarodziej na mapie: identyfikator znaku w module sceny (`xf` w `scena3d.js`)
- * i pytanie, które pada, zanim otworzy się jego okno.
- *
- * Rytm pojawiania się siedzi PO STRONIE SCENY, nie tutaj: znak ma `cykl: 30`
- * (tyle stoi) i `respawn: 60` (tyle go nie ma), a przy każdym powrocie staje
- * w losowym miejscu z listy `pozycje`. Zegar chodzi w pętli renderowania, więc
- * zatrzymuje się razem z nią — pod otwartym panelem czarodziej nie zniknie.
- */
-const ZNAK_CZARODZIEJA = "czarodziej";
-const PYTANIE_CZARODZIEJA =
-  "Czarodziej zatrzymał się na polanie i patrzy w twoją stronę. Zagadać do niego?";
-
-/**
- * Co czarodziej mówi, zależy od STANU ZADANIA — i to nie jest ozdoba, tylko
- * poprawka błędu. Wcześniej miał jedną kwestię i zlecał zbieranie gwiazdek
- * nawet wtedy, gdy dziecko miało już komplet albo dawno odebrało nagrodę.
- *
- * Liczby w zdaniach biorą się ze stanu, nie z palca: to te same wartości,
- * które liczy kafelek w HUD-zie. Rozjazd między „zbierz 10" a licznikiem
- * do 12 byłby dla dziecka po prostu kłamstwem.
- *
- * `akcja` mówi hubowi, co zrobić po zielonym przycisku:
- *   "start"   → załóż zadanie i zapal licznik
- *   "nagroda" → otwórz ekran wygranej (zaległe rozliczenie)
- *   null      → sam przycisk zamykający, nic się nie dzieje
- */
-function powitanieCzarodzieja(z) {
-  const baza = { imie: "Wizkor", obrazek: "/wizPop.webp" };
-
-  if (z.wyplacone) {
-    return {
-      ...baza,
-      tekst:
-        "Dobrze się spisałeś, mały wędrowcze. Odpocznij chwilę — " +
-        "przygotowuję dla ciebie nowe zadanie.",
-      wyroznienie: "nowe zadanie",
-      przycisk: "Do zobaczenia!",
-      akcja: null,
-    };
-  }
-
-  if (z.spelnione) {
-    return {
-      ...baza,
-      tekst:
-        `Masz je wszystkie! ${z.cel} gwiazdek, co do jednej. ` +
-        `Należy ci się ${NAGRODA_MONET} monet — bierz.`,
-      wyroznienie: `${NAGRODA_MONET} monet`,
-      przycisk: "Odbieram nagrodę!",
-      akcja: "nagroda",
-    };
-  }
-
-  // Kwestia „w trakcie" jest dziś nieosiągalna ze świata: w czasie zbierania
-  // czarodziej w ogóle nie zagaduje (patrz obsługa dotknięcia — zamiast okna
-  // wchodzi krótki komunikat). Zostaje, bo stan istnieje i wróci w chwili,
-  // gdy rozmowa w trakcie zadania znów będzie miała co wnosić; na razie
-  // dosięga jej tylko `window.popupPostaci.pokaz()`.
-  if (z.istnieje) {
-    const zostalo = z.cel - z.zebrane;
-    return {
-      ...baza,
-      tekst:
-        `Widzę, że szukasz. Masz ${z.zebrane} z ${z.cel} gwiazdek — ` +
-        `zostało ${zostalo}. Świecą w trawie, trzeba tylko wbiec.`,
-      wyroznienie: `${z.zebrane} z ${z.cel} gwiazdek`,
-      przycisk: "Zbieram dalej!",
-      akcja: null,
-    };
-  }
-
-  return {
-    ...baza,
-    tekst:
-      `Witaj, mały wędrowcze! Jestem Wizkor, strażnik Lasu Szeptów. ` +
-      `Zbierz dla mnie ${CEL_DOMYSLNY} złotych gwiazdek, a otworzę przed tobą pierwszą bramę.`,
-    wyroznienie: `${CEL_DOMYSLNY} złotych gwiazdek`,
-    przycisk: "Ruszam po gwiazdki!",
-    akcja: "start",
-  };
-}
-
 // Sam tytuł sekcji, bez nadtytułu. Nadtytuł powtarzał innymi słowami to, co
 // mówi już przycisk w doku — dziecko czytało dwie linijki zamiast jednej.
 const NAGLOWKI = {
@@ -283,18 +230,24 @@ const NAGLOWKI = {
 export default function Swiat() {
   const navigate = useNavigate();
   const { panel, otworz, zamknij, przelacz } = useHubPanel();
-  const { gra, otworzGre, zamknijGre } = useHubGra();
+  const { gra, poziom: poziomGry, otworzGre, zamknijGre } = useHubGra();
   const { player } = useAppData();
   useHudSkin();
 
   const scenaRef = useRef(null);
   /**
-   * Czy rozmowa jest właśnie na ekranie (pytanie albo okno postaci).
+   * Kafelek gwiazdek w HUD — CEL lecących iskier. Ref, bo mówimy o pozycji
+   * elementu na ekranie i o jednorazowym podbiciu; przez stan Reacta nie da
+   * się zapytać „gdzie to jest".
+   */
+  const licznikGwiazdekRef = useRef(null);
+  /**
+   * Czy rozmowa jest właśnie na ekranie (okno postaci albo zaproszenie).
    *
    * REF, a nie stan: `naZdarzenieSceny` trafia do modułu sceny raz i trzyma
    * domknięcie sprzed zmiany — odczyt zwykłego stanu byłby w nim nieaktualny.
    * Bez tego strażnika kolejne dotknięcie czarodzieja potrafiło otworzyć
-   * pytanie NAD otwartym już oknem i dziecko zamykało dwa okna po kolei.
+   * drugie okno NAD otwartym już oknem i dziecko zamykało dwa po kolei.
    */
   const rozmowaRef = useRef(false);
   const [scenaMartwa, setScenaMartwa] = useState(() => !webglDostepny());
@@ -311,12 +264,24 @@ export default function Swiat() {
     () => typeof window === "undefined" || !window.__chmuryWisza
   );
   // Powitanie postaci: `null` = zamknięte, obiekt = treść okna.
+  //
+  // Wcześniej stał przed nim jeszcze jeden krok — okno „Czarodziej patrzy
+  // w twoją stronę. Zagadać do niego?". Kosztowało dodatkowe kliknięcie
+  // i nic za nie nie dawało: dziecko, które WBIEGŁO w czarodzieja, już
+  // podjęło tę decyzję nogami. Do tego pytanie i odpowiedź wyglądały
+  // niemal tak samo (ta sama karta, ta sama postać), więc drugie okno
+  // czytało się jak zacięcie. Teraz dotknięcie otwiera od razu to, po co
+  // się podchodzi — kwestię Wizkora, z jego zielonym przyciskiem.
   const [powitanie, setPowitanie] = useState(null);
-  // Krok przed powitaniem: „zagadać?". `false` = lis biegnie dalej.
-  const [pytanie, setPytanie] = useState(false);
   // Zaproszenie do minigry: `null` albo `id` gry z katalogu. Znak na mapie nie
-  // wrzuca już dziecka prosto w grę — najpierw pyta, tak samo jak czarodziej.
+  // wrzuca dziecka prosto w grę — najpierw pyta lisek. Tu pytanie ZOSTAJE,
+  // choć u czarodzieja je zdjęliśmy: w znak gry wbiega się także przypadkiem,
+  // biegnąc gdzie indziej, a wejście w grę wyrywa z biegu na dłużej niż
+  // rozmowa. Do czarodzieja podchodzi się po coś.
   const [zaproszenie, setZaproszenie] = useState(null);
+  // Poziom zaznaczony w oknie zaproszenia. Ustawia się razem z samym oknem
+  // (na domyślny dla tej gry), więc START działa bez dotykania kafelków.
+  const [poziomZaproszenia, setPoziomZaproszenia] = useState(null);
   // Odliczanie od dotknięcia znaku do wejścia okna. REF, nie stan: to tylko
   // uchwyt do sprzątnięcia, a przerysowanie huba w trakcie animacji sceny
   // byłoby dokładnie tym, czego ta pauza ma uniknąć.
@@ -324,8 +289,50 @@ export default function Swiat() {
   // Zadanie od czarodzieja. Czytamy je z localStorage przy montowaniu, bo
   // zbieranie ma przeżyć zamknięcie apki.
   const [zadanie, setZadanie] = useState(() => stanZadania());
-  // Ekran nagrody po skompletowaniu gwiazdek (konfetti + lecące monety).
-  const [nagroda, setNagroda] = useState(false);
+  /**
+   * Tryb testowy. LOKALNIE włączony od razu i przełączany `Ctrl+Shift+D`
+   * w obie strony — do sprawdzenia, jak świat wygląda bez narzędzi, i z
+   * powrotem, bez przeładowania i bez grzebania w adresie.
+   *
+   * NA PUBLIKACJI tego skrótu nie ma wcale (patrz `services/dev.js`), więc
+   * dziecko nie odkryje pulpitu przypadkowym splotem klawiszy.
+   */
+  const [dev, setDev] = useState(() => czyDev());
+
+  useEffect(() => {
+    if (!czyLokalnie()) return undefined;
+    const naKlawisz = (e) => {
+      if (!e.ctrlKey || !e.shiftKey || (e.key || "").toLowerCase() !== "d") return;
+      e.preventDefault();
+      setDev((teraz) => ustawDev(!teraz));
+    };
+    window.addEventListener("keydown", naKlawisz);
+    return () => window.removeEventListener("keydown", naKlawisz);
+  }, []);
+  // Wskazówka „reflektor": `null` albo definicja z `hub/wskazowki.js`.
+  const [wskazowka, setWskazowka] = useState(null);
+  /**
+   * Czy podpowiedź WSTRZYMUJE świat. Chmurka („dymek") nie: dziecko biega
+   * dalej, a ona wisi nad ikoną i schodzi sama. Świat zatrzymuje dopiero tryb
+   * mocny („reflektor"), bo tam trzeba coś zdecydować.
+   */
+  const wskazowkaBlokuje = !!wskazowka && wskazowka.tryb === "reflektor";
+  /**
+   * Łańcuch misji z grami (karta Mędrca, złote piórko, …). Trzymamy CAŁĄ
+   * listę, a nie samą bieżącą misję, bo hub czyta z niej trzy różne rzeczy:
+   * kafelek w HUD (pierwsza aktywna), zestaw znaków na mapie (wszystkie
+   * ujawnione) i kwestię Wizkora (pierwsza nierozliczona).
+   */
+  const [misje, setMisje] = useState(() => stanMisji());
+  const misjaHud = misje.find((m) => m.aktywna) || null;
+  const misjaDoZaplaty = misje.find((m) => m.wygrana && !m.wyplacona) || null;
+  /**
+   * Ekran nagrody: `null`, "gwiazdki" albo `id` gry, której misja właśnie
+   * płaci. Zwykłe `true/false` nie wystarczy od chwili, gdy zadań jest kilka —
+   * ekran musi wiedzieć, jaką kwotę wypłacić i co napisać, a pomyłka
+   * oznaczałaby monety z jednego zadania wpisane na konto drugiego.
+   */
+  const [nagroda, setNagroda] = useState(null);
   // Monety z lokalnych zadań, doliczane do liczby z bazy — patrz `zadanieGwiazdek`.
   const [bonus, setBonus] = useState(() => bonusMonet());
   const [komunikat, setKomunikat] = useState(null);
@@ -404,6 +411,82 @@ export default function Swiat() {
   useEffect(() => { przeliczNieprzeczytane(); }, [przeliczNieprzeczytane]);
   useEffect(() => { if (!panel) przeliczNieprzeczytane(); }, [panel, przeliczNieprzeczytane]);
 
+  /**
+   * KIEDY WCHODZI CHMURKA — i to jest tu najważniejsza decyzja, nie wygląd.
+   *
+   * 1. NIE W TRAKCIE MISJI. Dziecko z zadaniem ma cel i biegnie do niego;
+   *    zaproszenie do zakładki jest wtedy przeszkodą, nawet ładne. Chmurka
+   *    wykorzystuje DZIURY w rozgrywce — chodzenie po mapie bez zadania.
+   * 2. NIE NA WEJŚCIU. Pierwsze sekundy w świecie to już nowa scena,
+   *    sterowanie i czarodziej. Chmurka odzywa się dopiero po chwili biegania
+   *    (`poCzasie`), a potem najwyżej kilka razy (`maksNaSesje`).
+   * 3. NIE NAD NICZYM. Panel, gra, okno postaci, ekran nagrody — wstrzymują.
+   *
+   * Zegar liczy CIĄGŁE wolne chodzenie: wejście w misję zeruje go (`wolneOdRef`),
+   * bo odliczanie w tle podczas zadania skończyłoby się chmurką wyskakującą
+   * w sekundzie, w której dziecko właśnie skończyło misję.
+   */
+  const rytmWskazowekRef = useRef({});
+  const wolneOdRef = useRef(0);
+  const misjaWToku = (zadanie.aktywne && !zadanie.spelnione) || !!misjaHud;
+
+  useEffect(() => {
+    if (wskazowka) return undefined;
+    if (misjaWToku) { wolneOdRef.current = 0; return undefined; }
+
+    const spokoj = odsloniete && !panel && !gra && !powitanie && !zaproszenie && !nagroda;
+    // Otwarty panel wstrzymuje pokaz, ale NIE zeruje zegara: zajrzenie na
+    // chwilę do profilu nie jest powodem, żeby kazać dziecku czekać od nowa.
+    if (!spokoj) return undefined;
+
+    const kandydat = nastepnaWskazowka({ chodzenieOswojone: !pokazPodpowiedz, zadanie, misje });
+    if (!kandydat) return undefined;
+
+    const rytm = rytmWskazowekRef.current[kandydat.id] || { pokazy: 0, ostatni: 0 };
+    if (rytm.pokazy >= (kandydat.maksNaSesje ?? 3)) return undefined;
+
+    if (!wolneOdRef.current) wolneOdRef.current = Date.now();
+    const odKiedy = Math.max(wolneOdRef.current, rytm.ostatni);
+    const czekaj = rytm.pokazy === 0 ? (kandydat.poCzasie ?? 75000) : (kandydat.powtorkaCo ?? 210000);
+    const zostalo = Math.max(500, odKiedy + czekaj - Date.now());
+
+    const zegar = window.setTimeout(() => {
+      rytmWskazowekRef.current[kandydat.id] = { pokazy: rytm.pokazy + 1, ostatni: Date.now() };
+      setWskazowka(kandydat);
+    }, zostalo);
+    return () => window.clearTimeout(zegar);
+  }, [
+    wskazowka, misjaWToku, odsloniete, panel, gra, powitanie, zaproszenie, nagroda,
+    pokazPodpowiedz, zadanie, misje,
+  ]);
+
+  /**
+   * Zamknięcie chmurki NIE znaczy „już wiem". Upłynął czas, dziecko dotknęło
+   * krzyżyka — to tylko tyle, że akurat nie teraz. Wskazówka milknie na zawsze
+   * dopiero wtedy, gdy dziecko naprawdę zajrzy we wskazane miejsce (efekt
+   * niżej), bo dopiero wtedy spełniła swoje zadanie.
+   */
+  const zamknijWskazowke = useCallback(() => setWskazowka(null), []);
+
+  // Otwarcie wskazanego panelu — obojętnie czy z chmurki, czy samodzielnie —
+  // kończy podpowiedź na dobre.
+  useEffect(() => {
+    if (!panel) return;
+    for (const w of WSKAZOWKI) if (w.panelCelu === panel) oznaczPoznana(w.id);
+  }, [panel]);
+
+  // Reset z pulpitu testowego kasuje pamięć wskazówek — hub ma o tym wiedzieć
+  // od razu, a nie dopiero po przeładowaniu strony.
+  useEffect(() => {
+    const naZmiane = () => {
+      rytmWskazowekRef.current = {};
+      wolneOdRef.current = 0;
+      setWskazowka(null);
+    };
+    window.addEventListener(WSKAZOWKI_ZMIANA, naZmiane);
+    return () => window.removeEventListener(WSKAZOWKI_ZMIANA, naZmiane);
+  }, []);
+
   /* ── komunikaty (krótkie, bez modali) ────────────────────────────────── */
   const pokazKomunikat = useCallback((tekst) => {
     setKomunikat(tekst);
@@ -417,7 +500,10 @@ export default function Swiat() {
   // dopóki nie powstanie spotkanie z postacią na mapie.
   useEffect(() => {
     const pokaz = (nadpisz) =>
-      setPowitanie({ ...powitanieCzarodzieja(stanZadania()), ...(nadpisz || {}) });
+      setPowitanie({
+        ...powitanieCzarodzieja(stanZadania(), aktualnaMisja()),
+        ...(nadpisz || {}),
+      });
     window.popupPostaci = { pokaz, schowaj: () => setPowitanie(null) };
     try {
       if (new URLSearchParams(window.location.search).get("popup") === "1") pokaz();
@@ -431,19 +517,19 @@ export default function Swiat() {
   useEffect(() => {
     const scena = scenaRef.current;
     if (scena) {
-      if (panel || gra || powitanie || pytanie || zaproszenie || nagroda) scena.pauza?.();
+      if (panel || gra || powitanie || zaproszenie || nagroda || wskazowkaBlokuje) scena.pauza?.();
       else scena.wznow?.();
     }
-  }, [panel, gra, powitanie, pytanie, zaproszenie, nagroda]);
+  }, [panel, gra, powitanie, zaproszenie, nagroda, wskazowkaBlokuje]);
 
   useEffect(() => {
     // `||` z lewej strony, a nie przypisanie wprost: gdy odliczanie do
     // zaproszenia już trwa, blokada ma zostać wciśnięta, choć żadne okno
     // jeszcze nie stoi na ekranie.
     rozmowaRef.current =
-      !!powitanie || pytanie || !!zaproszenie || nagroda || !!zegarZaproszeniaRef.current;
-    if (powitanie || pytanie || zaproszenie || nagroda) fx.krokiStop();
-  }, [powitanie, pytanie, zaproszenie, nagroda]);
+      !!powitanie || !!zaproszenie || !!nagroda || wskazowkaBlokuje || !!zegarZaproszeniaRef.current;
+    if (powitanie || zaproszenie || nagroda || wskazowkaBlokuje) fx.krokiStop();
+  }, [powitanie, zaproszenie, nagroda, wskazowkaBlokuje]);
 
   // Wyjście ze świata w trakcie odliczania: bez tego okno wskoczyłoby na
   // ekranie, którego już nie ma, i React zapłakałby o `setState` po
@@ -464,8 +550,15 @@ export default function Swiat() {
    */
   useEffect(() => {
     if (!odsloniete || nagroda) return;
-    if (zadanie.spelnione && !zadanie.wyplacone) setNagroda(true);
-  }, [odsloniete, nagroda, zadanie.spelnione, zadanie.wyplacone]);
+    // NIE nad otwartą grą. Ekran nagrody wchodzi wtedy POD nią (gra jest
+    // ostatnia w drzewie), więc dziecko nie zobaczyłoby ani konfetti, ani
+    // lecących monet — a `coinsLanded` po cichu wypłaciłby nagrodę i po
+    // wyjściu z gry zostałby martwy ekran z odebranym już zadaniem.
+    // Misje zaliczają się właśnie w grach, więc ten warunek nie jest teorią.
+    if (gra) return;
+    if (zadanie.spelnione && !zadanie.wyplacone) { setNagroda("gwiazdki"); return; }
+    if (misjaDoZaplaty) setNagroda(misjaDoZaplaty.id);
+  }, [odsloniete, nagroda, gra, zadanie.spelnione, zadanie.wyplacone, misjaDoZaplaty?.id]);
 
   /**
    * Powrót do karty: stan mógł zmienić się gdzie indziej (druga zakładka,
@@ -476,10 +569,23 @@ export default function Swiat() {
     const odswiez = () => {
       if (document.hidden) return;
       setZadanie(stanZadania());
+      setMisje(stanMisji());
       setBonus(bonusMonet());
     };
     document.addEventListener("visibilitychange", odswiez);
     return () => document.removeEventListener("visibilitychange", odswiez);
+  }, []);
+
+  /**
+   * Misje domykają się W INNYCH komponentach: partię kończy `MemoryGame`
+   * albo `PiorkaGame`, rysowane nad hubem. Nasłuch zamiast odpytywania —
+   * licznik ma podskoczyć w tej samej chwili, w której padła ostatnia para,
+   * a nie dopiero po powrocie do świata.
+   */
+  useEffect(() => {
+    const naZmiane = (e) => setMisje(e?.detail?.misje || stanMisji());
+    window.addEventListener(MISJE_ZMIANA, naZmiane);
+    return () => window.removeEventListener(MISJE_ZMIANA, naZmiane);
   }, []);
 
   /**
@@ -516,6 +622,12 @@ export default function Swiat() {
   useEffect(() => {
     if (!nagroda) return undefined;
     const naLadowanie = () => {
+      if (nagroda !== "gwiazdki") {
+        const { dodane } = odbierzNagrodeMisji(nagroda);
+        if (dodane) setBonus(bonusMonet());
+        setMisje(stanMisji());
+        return;
+      }
       const { stan, dodane } = odbierzNagrode(NAGRODA_MONET);
       if (dodane) setBonus(bonusMonet());
       setZadanie(stan);
@@ -530,11 +642,17 @@ export default function Swiat() {
    * przepaść przez szybsze kliknięcie.
    */
   const zamknijNagrode = useCallback(() => {
-    const { stan, dodane } = odbierzNagrode(NAGRODA_MONET);
-    if (dodane) setBonus(bonusMonet());
-    setZadanie(stan);
-    setNagroda(false);
-  }, []);
+    if (nagroda && nagroda !== "gwiazdki") {
+      const { dodane } = odbierzNagrodeMisji(nagroda);
+      if (dodane) setBonus(bonusMonet());
+      setMisje(stanMisji());
+    } else {
+      const { stan, dodane } = odbierzNagrode(NAGRODA_MONET);
+      if (dodane) setBonus(bonusMonet());
+      setZadanie(stan);
+    }
+    setNagroda(null);
+  }, [nagroda]);
 
   /**
    * Po rozmowie czarodziej odchodzi — w iskrach, tą samą animacją, którą
@@ -545,6 +663,21 @@ export default function Swiat() {
   const rozstanie = useCallback(() => {
     setPowitanie(null);
     try { scenaRef.current?.schowajZnak?.(ZNAK_CZARODZIEJA); } catch {}
+  }, []);
+
+  /**
+   * Mapa pod bieżący stan misji: znaki gier jeszcze nieujawnionych po prostu
+   * na niej nie stoją. Wołane po „gotowa" sceny i po każdej zmianie misji —
+   * `zastosujZnaki` jest idempotentne, więc powtórzenie nic nie kosztuje.
+   *
+   * WSZYSTKIE znaki bierzemy z definicji misji, a widoczne ze stanu: dopisanie
+   * trzeciej gry do `MISJE` wystarczy, żeby jej znak zniknął z mapy do czasu
+   * zlecenia — bez jednej linijki tutaj.
+   */
+  const odswiezZnakiMisji = useCallback(() => {
+    const scena = scenaRef.current;
+    if (!scena) return false;
+    return zastosujZnakiUparcie(scena, MISJE.map((m) => m.znak), znakiNaMapie);
   }, []);
 
   /**
@@ -565,11 +698,30 @@ export default function Swiat() {
       // Okno czarodzieja schodzi, ekran wygranej wchodzi na jego miejsce.
       // Rozstania NIE wołamy — czarodziej ma zostać, bo to on właśnie płaci.
       setPowitanie(null);
-      setNagroda(true);
+      setNagroda("gwiazdki");
+      return;
+    }
+    if (typeof akcja === "string" && akcja.startsWith("zlec:")) {
+      const id = akcja.slice(5);
+      const stan = ujawnijMisje(id);
+      setMisje(stanMisji());
+      // ZNAK WCHODZI NA MAPĘ OD RAZU. Dziecko wychodzi z rozmowy prosto
+      // w las i musi mieć czego szukać — czekanie na kolejne wejście do
+      // świata byłoby dla niego po prostu brakiem zadania.
+      try { odswiezZnakiMisji(); } catch {}
+      rozstanie();
+      // Komunikat mówi CO zrobić, a nie „przyjęto zadanie": to jedyne zdanie,
+      // które zostaje dziecku na ekranie po zamknięciu okna.
+      if (stan) pokazKomunikat(`Znajdź ${stan.def.szukaj} na mapie`);
+      return;
+    }
+    if (typeof akcja === "string" && akcja.startsWith("naplac:")) {
+      setPowitanie(null);
+      setNagroda(akcja.slice(7));
       return;
     }
     rozstanie();
-  }, [powitanie, rozstanie, pokazKomunikat]);
+  }, [powitanie, rozstanie, pokazKomunikat, odswiezZnakiMisji]);
 
   // Uchwyt do konsoli — czekanie na dziesięć gwiazdek przy każdym sprawdzeniu
   // licznika byłoby nie do zniesienia:
@@ -580,10 +732,148 @@ export default function Swiat() {
       dolicz: () => { const s = doliczGwiazdke(); if (s) setZadanie(s); return s; },
       kasuj: () => { const s = skasujZadanie(); setZadanie(s); setBonus(bonusMonet()); return s; },
       stan: () => ({ ...stanZadania(), bonusMonet: bonusMonet() }),
-      nagroda: () => setNagroda(true),
+      nagroda: () => setNagroda("gwiazdki"),
     };
-    return () => { delete window.zadanieGwiazdek; };
-  }, []);
+    // Misje z grami mają własny uchwyt — bieganie po mapie w poszukiwaniu
+    // karty przy każdej poprawce w kwestii Wizkora byłoby nie do zniesienia:
+    //   window.misjeGier.zlec("pamiec-medrca") / .znajdz(id) / .wygraj(id)
+    //   window.misjeGier.stan() / .kasuj() / .nagroda(id)
+    window.misjeGier = {
+      lista: () => MISJE.map((m) => m.id),
+      zlec: (id) => {
+        const stan = ujawnijMisje(id);
+        setMisje(stanMisji());
+        try { odswiezZnakiMisji(); } catch {}
+        return stan;
+      },
+      znajdz: (id) => { const stan = odkryjGre(id); setMisje(stanMisji()); return stan; },
+      wygraj: (id) => { const stan = zaliczWygrana(id); setMisje(stanMisji()); return stan; },
+      kasuj: () => { const stan = skasujMisje(); setMisje(stan); return stan; },
+      stan: () => stanMisji().map(({ def, ...reszta }) => reszta),
+      nagroda: (id) => setNagroda(id),
+    };
+    return () => { delete window.zadanieGwiazdek; delete window.misjeGier; };
+  }, [odswiezZnakiMisji]);
+
+  /**
+   * KATALOG ZDARZEŃ dla pulpitu testowego.
+   *
+   * Świat odzywa się rzeczami, które przychodzą SAME i rzadko: Wizkor staje
+   * na polanie co ~95 s, chmurka po minucie wolnego chodzenia, ekran nagrody
+   * po dziesiątej gwiazdce, zaproszenie liska po wbiegnięciu w znak. Każde
+   * z nich trzeba dać się obejrzeć NA ŻĄDANIE — inaczej sprawdzenie jednego
+   * przecinka w kwestii czarodzieja kosztuje kwadrans biegania po mapie.
+   *
+   * Lista mieszka TUTAJ, a nie w pulpicie: to hub wie, co potrafi się w nim
+   * wydarzyć. Pulpit dostaje gotowe pozycje i tylko rysuje przyciski, więc
+   * dołożenie nowego okna nie wymaga zmiany w dwóch plikach.
+   *
+   * Kwestie Wizkora odpalamy na PODSTAWIONYCH stanach, nie na prawdziwych —
+   * dzięki temu da się obejrzeć „nagrodę za gwiazdki", nie zbierając ich,
+   * i nic przy tym nie zapisuje się do postępu dziecka.
+   */
+  const zdarzeniaDev = useMemo(() => {
+    if (!dev) return [];
+
+    const gwiazdkiStan = (nadpisz) => ({
+      istnieje: true, aktywne: true, cel: CEL_DOMYSLNY, zebrane: 0,
+      spelnione: false, wyplacone: false, ...nadpisz,
+    });
+    const misjaStan = (def, nadpisz) => ({
+      id: def.id, def, ujawniona: true, znaleziona: false, wygrana: false,
+      wyplacona: false, aktywna: true, naMapie: true, wZakladce: false, ...nadpisz,
+    });
+    const okno = (z, misja) => setPowitanie(powitanieCzarodzieja(z, misja));
+
+    const pozycje = [
+      {
+        grupa: "Okno Wizkora",
+        etykieta: "Stan bieżący",
+        odpal: () => okno(stanZadania(), aktualnaMisja()),
+      },
+      {
+        grupa: "Okno Wizkora",
+        etykieta: "Gwiazdki: zlecenie",
+        odpal: () => okno(gwiazdkiStan({ istnieje: false, aktywne: false }), null),
+      },
+      {
+        grupa: "Okno Wizkora",
+        etykieta: "Gwiazdki: w trakcie",
+        odpal: () => okno(gwiazdkiStan({ zebrane: 4 }), null),
+      },
+      {
+        grupa: "Okno Wizkora",
+        etykieta: "Gwiazdki: nagroda",
+        odpal: () => okno(gwiazdkiStan({ zebrane: CEL_DOMYSLNY, spelnione: true }), null),
+      },
+      {
+        grupa: "Okno Wizkora",
+        etykieta: "Łańcuch skończony",
+        odpal: () => okno(gwiazdkiStan({ spelnione: true, wyplacone: true, aktywne: false }), null),
+      },
+    ];
+
+    // Cztery kwestie na każdą misję — tyle, ile ma etapów.
+    const poGwiazdkach = gwiazdkiStan({ spelnione: true, wyplacone: true, aktywne: false });
+    for (const def of MISJE) {
+      const krotki = def.tytul.split(" ")[0];
+      pozycje.push(
+        { grupa: "Okno Wizkora", etykieta: `${krotki}: zlecenie`,
+          odpal: () => okno(poGwiazdkach, misjaStan(def, { ujawniona: false })) },
+        { grupa: "Okno Wizkora", etykieta: `${krotki}: szukanie`,
+          odpal: () => okno(poGwiazdkach, misjaStan(def)) },
+        { grupa: "Okno Wizkora", etykieta: `${krotki}: gra`,
+          odpal: () => okno(poGwiazdkach, misjaStan(def, { znaleziona: true })) },
+        { grupa: "Okno Wizkora", etykieta: `${krotki}: wypłata`,
+          odpal: () => okno(poGwiazdkach, misjaStan(def, { znaleziona: true, wygrana: true })) },
+      );
+    }
+
+    for (const def of MISJE) {
+      pozycje.push({
+        grupa: "Okna i ekrany",
+        etykieta: `Zaproszenie: ${def.tytul}`,
+        odpal: () => setZaproszenie(def.id),
+      });
+    }
+
+    pozycje.push(
+      { grupa: "Okna i ekrany", etykieta: "Nagroda: gwiazdki", odpal: () => setNagroda("gwiazdki") },
+      ...MISJE.map((def) => ({
+        grupa: "Okna i ekrany",
+        etykieta: `Nagroda: ${def.tytul}`,
+        // Ekran nagrody czyta kwotę i teksty z definicji misji, więc pokaże
+        // się poprawnie także wtedy, gdy misja nie jest jeszcze wygrana.
+        // Wypłatę i tak blokuje `odbierzNagrode` (nie ma czego rozliczać).
+        odpal: () => setNagroda(def.id),
+      })),
+      {
+        grupa: "Okna i ekrany",
+        etykieta: "Komunikat (toast)",
+        odpal: () => pokazKomunikat("DEV: tak wygląda komunikat"),
+      },
+      {
+        grupa: "Animacje",
+        etykieta: "Lot gwiazdki do licznika",
+        /**
+         * Sam LOT, bez dopisywania gwiazdki — licznik ma pokazać podskok,
+         * a nie urosnąć. Inaczej sprawdzenie animacji zmieniałoby postęp
+         * zadania i po pięciu kliknięciach zadanie byłoby skończone.
+         */
+        odpal: () => {
+          const kafelek = licznikGwiazdekRef.current;
+          if (!kafelek) { pokazKomunikat("DEV: licznik gwiazdek jest ukryty"); return; }
+          lecDoLicznika({
+            start: pozycjaNaEkranie(scenaRef.current, "gwiazda-1"),
+            cel: kafelek,
+            onDolot: () => podbijKafelek(kafelek),
+          });
+        },
+      },
+    );
+
+    return pozycje;
+  }, [dev, pokazKomunikat]);
 
   const naZdarzenieSceny = useCallback(
     (nazwa, dane) => {
@@ -596,6 +886,10 @@ export default function Swiat() {
         // a przed natychmiastowym powtórzeniem chroni `armed` w module — znak
         // uzbraja się dopiero, gdy bohater odejdzie dalej niż 1,7 jednostki.
         if (panel) scenaRef.current?.pauza?.();
+        // Znaki gier, których Wizkor jeszcze nie zlecił, schodzą z mapy ZANIM
+        // dziecko zdąży cokolwiek zobaczyć — moduł buduje je z `mapa.json`,
+        // która nic o misjach nie wie.
+        odswiezZnakiMisji();
         setScenaGotowa(true);
         return;
       }
@@ -605,8 +899,8 @@ export default function Swiat() {
       if (nazwa === "minigra:start" || nazwa === "znak:dotkniety") {
         fx.gentleMagical(0.55);
         // Czarodziej nie jest zbieractwem — po dotknięciu nie znika, tylko
-        // pyta. Moduł pilnuje, żeby zapytał RAZ na podejście (`raz: true`):
-        // pytanie wraca dopiero, gdy lis odbiegnie i wróci.
+        // mówi. Moduł pilnuje, żeby odezwał się RAZ na podejście (`raz: true`):
+        // okno wraca dopiero, gdy lis odbiegnie i wróci.
         if (dane?.znak === ZNAK_CZARODZIEJA) {
           // Rozmowa już trwa — drugie dotknięcie nie ma czego otwierać.
           if (rozmowaRef.current) return;
@@ -622,7 +916,21 @@ export default function Swiat() {
             pokazKomunikat(`Wizkor czeka — masz ${z.zebrane} z ${z.cel} gwiazdek`);
             return;
           }
-          setPytanie(true);
+          // To samo w trakcie MISJI Z GRĄ. Przypomnienie mówi dokładnie to,
+          // czego brakuje na tym etapie: szukać znaku czy dograć partię.
+          const m = z.wyplacone ? aktualnaMisja() : null;
+          if (m && m.ujawniona && !m.wygrana) {
+            pokazKomunikat(
+              m.znaleziona
+                ? `Wizkor czeka — zagraj w ${m.def.tytul}`
+                : `Wizkor czeka — znajdź ${m.def.szukaj} na mapie`
+            );
+            return;
+          }
+          // WPROST do kwestii — bez kroku „zagadać?". Stan czytamy jeszcze
+          // raz ze źródła, tuż przed otwarciem: `z` powyżej dotyczy gwiazdek,
+          // a misja mogła domknąć się chwilę wcześniej w grze.
+          setPowitanie(powitanieCzarodzieja(stanZadania(), aktualnaMisja()));
           return;
         }
         // Gwiazdki liczą się TYLKO, gdy zadanie trwa. Przed rozmową z
@@ -631,11 +939,29 @@ export default function Swiat() {
         if (typeof dane?.znak === "string" && dane.znak.startsWith("gwiazda-")) {
           const po = doliczGwiazdke();
           if (po) {
-            setZadanie(po);
-            // Komplet — ekran nagrody wchodzi od razu, w miejscu, w którym
-            // dziecko właśnie złapało ostatnią gwiazdkę. Czekanie na powrót
-            // do czarodzieja rozjeżdżałoby nagrodę z wysiłkiem.
-            if (po.spelnione) setNagroda(true);
+            /**
+             * Licznik NIE skacze od razu — najpierw lecą iskry. Liczba zmienia
+             * się dopiero, gdy pierwsza z nich dolatuje do kafelka, więc
+             * dziecko widzi jedno zdarzenie („ta gwiazdka poleciała tam
+             * i dlatego mam więcej"), a nie dwa naraz w dwóch rogach ekranu.
+             *
+             * Stan czytamy w chwili dolotu ze ŹRÓDŁA, a nie z domknięcia:
+             * przy zbieraniu w biegu potrafią lecieć dwie gwiazdki naraz
+             * i druga musi zastać liczbę po pierwszej.
+             */
+            lecDoLicznika({
+              start: pozycjaNaEkranie(scenaRef.current, dane.znak),
+              cel: licznikGwiazdekRef.current,
+              onDolot: () => {
+                const teraz = stanZadania();
+                setZadanie(teraz);
+                podbijKafelek(licznikGwiazdekRef.current);
+                // Komplet — ekran nagrody wchodzi od razu, w miejscu, w którym
+                // dziecko właśnie złapało ostatnią gwiazdkę. Czekanie na powrót
+                // do czarodzieja rozjeżdżałoby nagrodę z wysiłkiem.
+                if (teraz.spelnione) setNagroda("gwiazdki");
+              },
+            });
           }
         }
         // Znak minigry — piórko albo karty na mapie. NIE wrzucamy dziecka
@@ -645,6 +971,13 @@ export default function Swiat() {
         // która tylko pauzuje, więc po wyjściu lis stoi tam, gdzie stał.
         const doGry = ZNAK_GRY[dane?.znak];
         if (doGry) {
+          // ZNALEZIONE. Od tej chwili gra siedzi w zakładce minigier na stałe
+          // — także wtedy, gdy dziecko odmówi teraz gry albo przerwie partię.
+          // Znalezienie jest osobną nagrodą i nie może zależeć od wyniku.
+          // Stan podnosi nasłuch `MISJE_ZMIANA` — moduł ogłasza zmianę tylko
+          // wtedy, gdy naprawdę zaszła, więc kolejne wbiegnięcia w znaleziony
+          // już znak nie przerysowują huba.
+          odkryjGre(doGry);
           if (rozmowaRef.current) return;
           // Blokada zapada OD RAZU, choć okno wejdzie dopiero za chwilę:
           // przez te 0,8 s lis biegnie dalej i bez tego zdążyłby wpaść
@@ -668,7 +1001,7 @@ export default function Swiat() {
       }
       if (nazwa === "blad") setScenaMartwa(true);
     },
-    [otworz, panel, pokazKomunikat, navigate]
+    [otworz, panel, pokazKomunikat, navigate, odswiezZnakiMisji]
   );
 
   // Uchwyt do konsoli — bieganie po mapie w poszukiwaniu piórka przy każdej
@@ -683,12 +1016,45 @@ export default function Swiat() {
     return () => { delete window.zaproszenieGry; };
   }, []);
 
-  /** „Gramy!" w oknie liska — okno schodzi, gra wchodzi na jego miejsce. */
+  /**
+   * Każda zmiana misji przekłada się na mapę: zlecenie stawia znak, a stan
+   * wczytany z zapisu (inne urządzenie, powrót po tygodniu) domyka resztę.
+   * Osobny efekt, a nie wywołanie przy okazji — scena bywa gotowa PÓŹNIEJ niż
+   * stan, więc jedno miejsce musi pilnować obu kolejności.
+   */
+  useEffect(() => {
+    if (!scenaGotowa) return;
+    odswiezZnakiMisji();
+  }, [scenaGotowa, misje, odswiezZnakiMisji]);
+
+  /**
+   * Każde nowe zaproszenie zaczyna od poziomu domyślnego — czyli tego
+   * łatwiejszego. Bez tego drugie wejście w kartę pamiętałoby wybór sprzed
+   * godziny, a dziecko nie ma jak skojarzyć, skąd on się wziął.
+   */
+  useEffect(() => {
+    setPoziomZaproszenia(zaproszenie ? poziomDomyslny(zaproszenie) : null);
+  }, [zaproszenie]);
+
+  /**
+   * START w oknie liska — okno schodzi, gra wchodzi na jego miejsce i od razu
+   * rozdaje karty. Wybrany poziom leci przez adres (`?gra=…&poziom=…`), więc
+   * gra pomija swój ekran startowy: dziecko odpowiedziało na jego jedyne
+   * pytanie już tutaj.
+   */
   const naZaproszenie = useCallback(() => {
     const id = zaproszenie;
+    const poziom = poziomZaproszenia;
     setZaproszenie(null);
-    if (id) otworzGre(id);
-  }, [zaproszenie, otworzGre]);
+    if (id) otworzGre(id, { poziom });
+  }, [zaproszenie, poziomZaproszenia, otworzGre]);
+
+  /**
+   * Zasady „najpierw znajdź na mapie" nie pilnuje już żadna ulotna flaga:
+   * gry NIE MA w zakładce, dopóki jej znak nie zostanie znaleziony, więc
+   * każda rozegrana partia z definicji przyszła po odkryciu. Warunek siedzi
+   * w `zaliczWygrana` (`misjeGier.js`) i przeżywa zamknięcie apki.
+   */
 
   /* ── doładowanie dźwięków pod kurtyną z chmur ────────────────────────── */
   /**
@@ -827,7 +1193,9 @@ export default function Swiat() {
             <span>{player?.name || "Wędrowiec"}</span>
           </button>
 
-          <div className={`game-hud-resources${zadanie.aktywne ? " ma-zadanie" : ""}`}>
+          <div
+            className={`game-hud-resources${zadanie.aktywne || misjaHud ? " ma-zadanie" : ""}`}
+          >
             {/* Licznik zadania pojawia się DOPIERO po jego przyjęciu i znika
                 razem z nim. Stały licznik „0/10" na ekranie dziecka, które nie
                 dostało jeszcze żadnego zadania, byłby wyrzutem sumienia bez
@@ -835,13 +1203,52 @@ export default function Swiat() {
                 liczb jest czytelniejsza niż kreska. */}
             {zadanie.aktywne ? (
               <span
+                ref={licznikGwiazdekRef}
                 className={`game-hud-counter game-hud-counter--gwiazdki${zadanie.spelnione ? " jest-spelnione" : ""}`}
                 aria-label={`Gwiazdki dla czarodzieja: ${zadanie.zebrane} z ${zadanie.cel}`}
                 data-testid="hub-zadanie-gwiazdki"
               >
-                <img src="/assets/hub-nav/iskra.png" alt="" aria-hidden="true" draggable="false" />
+                {/* TA SAMA gwiazdka, co leży w trawie i co świeci na ekranie
+                    nagrody (`/star.png`). Wcześniej stała tu `iskra.png` —
+                    czteroramienny klejnot z listkami, czyli inny przedmiot.
+                    Dziecko zbiera gwiazdki, a licznik pokazywał coś innego. */}
+                <img src="/star.png" alt="" aria-hidden="true" draggable="false" />
                 <strong>{zadanie.zebrane}</strong>
                 <em>/{zadanie.cel}</em>
+              </span>
+            ) : null}
+
+            {/* Licznik misji z grą. Misje idą po kolei, więc na ekranie stoi
+                zawsze najwyżej JEDEN kafelek — dwa cele naraz byłyby dla
+                sześciolatka listą zadań, a nie przygodą. Wygląd dzieli
+                z licznikiem gwiazdek (wspólne selektory w `hud.css`), a ikona
+                idzie z definicji misji: rewers karty, złote piórko, cokolwiek
+                dojdzie później.
+
+                Kropka zamiast liczby, dopóki znak nie jest znaleziony: „0/1"
+                sugerowałoby, że gdzieś się już liczy postęp, a na tym etapie
+                nie ma czego liczyć — jest szukanie. */}
+            {misjaHud ? (
+              <span
+                className={`game-hud-counter game-hud-counter--misja${misjaHud.wygrana ? " jest-spelnione" : ""}`}
+                aria-label={
+                  misjaHud.wygrana
+                    ? `${misjaHud.def.tytul}: rozegrane`
+                    : misjaHud.znaleziona
+                      ? `${misjaHud.def.tytul}: znaleziona, zagraj`
+                      : `${misjaHud.def.tytul}: znajdź ${misjaHud.def.szukaj} na mapie`
+                }
+                data-testid={`hub-misja-${misjaHud.id}`}
+              >
+                <img
+                  className={misjaHud.znaleziona ? undefined : "jest-nieznaleziona"}
+                  src={misjaHud.def.ikona}
+                  alt=""
+                  aria-hidden="true"
+                  draggable="false"
+                />
+                <strong>{misjaHud.wygrana ? "1" : misjaHud.znaleziona ? "0" : "?"}</strong>
+                <em>/1</em>
               </span>
             ) : null}
 
@@ -884,19 +1291,7 @@ export default function Swiat() {
       {/* Mędrzec odzywa się tylko w spokojnym hubie: nie nad panelem, nie nad
           zwojem i nie zanim rozsuną się chmury. */}
       <PodpowiedzMedrca
-        aktywna={!panel && !zwojOtwarty && !powitanie && !pytanie && !zaproszenie && odsloniete}
-      />
-
-      {/* Dwa kroki, nie jeden: najpierw „zagadać?", dopiero po „tak" pełne
-          okno postaci. Odmowa nie kosztuje nic — czarodziej stoi dalej i lis
-          może wrócić, dopóki nie skończy mu się czas na polanie. */}
-      <PytanieSpotkania
-        otwarte={pytanie}
-        tekst={PYTANIE_CZARODZIEJA}
-        potwierdz="Zagadaj"
-        odrzuc="Nie teraz"
-        onTak={() => { setPytanie(false); setPowitanie(powitanieCzarodzieja(stanZadania())); }}
-        onNie={() => setPytanie(false)}
+        aktywna={!panel && !zwojOtwarty && !powitanie && !zaproszenie && !wskazowka && odsloniete}
       />
 
       {/* Głos czarodzieja: kraina „las decyzji" mapuje się w backendzie na
@@ -916,10 +1311,14 @@ export default function Swiat() {
         onZamknij={rozstanie}
       />
 
-      {/* Zaproszenie do minigry. To samo okno co u czarodzieja — bo to ta sama
-          sytuacja: ktoś zatrzymał lisa i coś proponuje. Różni się postacią
-          (wariant `lis` ma własną geometrię) i tym, że ma DWA wyjścia:
-          znak i tak wróci na mapę, więc odmowa nic nie kosztuje. */}
+      {/* Zaproszenie do minigry — i zarazem JEJ EKRAN STARTOWY. To samo okno
+          co u czarodzieja (wariant `lis` ma własną geometrię), ale niesie
+          jeszcze kafelki „poziom + ile można wygrać" i startuje partię.
+          Wcześniej pytało „zagramy?", a gra pytała o to samo jeszcze raz —
+          dwa okna na jedną decyzję.
+
+          Drugie wyjście ZOSTAJE: w znak gry wbiega się także przypadkiem,
+          a znak i tak wróci na mapę, więc odmowa nic nie kosztuje. */}
       <PopupPostaci
         otwarty={!!zaproszenie}
         wariant="lis"
@@ -927,7 +1326,16 @@ export default function Swiat() {
         obrazek="/lisPop.webp"
         tekst={zaproszenie ? zaproszenieDoGry(zaproszenie).tekst : ""}
         wyroznienie={zaproszenie ? zaproszenieDoGry(zaproszenie).wyroznienie : ""}
-        przycisk="Gramy!"
+        dodatek={
+          zaproszenie ? (
+            <WyborPoziomu
+              poziomy={poziomyGry(zaproszenie)}
+              wybrany={poziomZaproszenia}
+              onWybor={setPoziomZaproszenia}
+            />
+          ) : null
+        }
+        przycisk="START"
         przyciskDrugi="Nie teraz"
         onAkcja={naZaproszenie}
         onDrugi={() => setZaproszenie(null)}
@@ -937,13 +1345,29 @@ export default function Swiat() {
       {/* Ekran wygranej — ten sam, którym gra świętuje minigry i zatwierdzone
           zadania: konfetti, licznik liczący się do 30 i monety lecące w prawy
           górny róg, dokładnie tam, gdzie stoi kafelek monet. */}
-      {nagroda ? (
+      {nagroda === "gwiazdki" ? (
         <RewardScreen
           eyebrow="✦ ZADANIE CZARODZIEJA"
           title="Wszystkie gwiazdki!"
           subtitle={`Zebrałeś ${CEL_DOMYSLNY} złotych gwiazdek dla Wizkora.`}
           coins={NAGRODA_MONET}
           note="Czarodziej dotrzymał słowa"
+          ctaLabel="Super! ✦"
+          onDismiss={zamknijNagrode}
+        />
+      ) : null}
+
+      {/* Nagroda za misję z grą. Wchodzi dopiero po WYJŚCIU z gry — efekt
+          pilnujący zaległych nagród nie odpala jej nad otwartą minigrą, żeby
+          konfetti nie leciało pod planszą. Teksty stoją przy definicji misji,
+          więc trzecia gra nie wymaga tu ani jednej linijki. */}
+      {nagroda && nagroda !== "gwiazdki" && stanGry(nagroda) ? (
+        <RewardScreen
+          eyebrow="✦ ZADANIE WIZKORA"
+          title={stanGry(nagroda).def.nagrodaEkran.title}
+          subtitle={stanGry(nagroda).def.nagrodaEkran.subtitle}
+          coins={stanGry(nagroda).def.nagroda}
+          note="Wizkor dotrzymał słowa"
           ctaLabel="Super! ✦"
           onDismiss={zamknijNagrode}
         />
@@ -979,7 +1403,49 @@ export default function Swiat() {
           modelu, a lis stoi tam, gdzie go zostawiliśmy. */}
       {GraOsadzona ? (
         <Suspense fallback={<EkranPrzejscia id={gra} onWyjscie={zamknijGre} />}>
-          <GraOsadzona osadzona onWyjscie={zamknijGre} />
+          {/* `poziom` z adresu = dziecko wybrało go już w oknie liska, więc
+              gra pomija swój ekran startowy i od razu zaczyna partię. */}
+          <GraOsadzona osadzona poziom={poziomGry} onWyjscie={zamknijGre} />
+        </Suspense>
+      ) : null}
+
+      {/* Reflektor: świat gaśnie, światło zostaje na jednym przycisku doku. */}
+      {wskazowka ? (
+        <Suspense fallback={null}>
+          <Reflektor wskazowka={wskazowka} onZamknij={zamknijWskazowke} />
+        </Suspense>
+      ) : null}
+
+      {/* Pulpit testowy NAD wszystkim, także nad otwartą grą — inaczej
+          „wygraj otwartą grę" byłoby przyciskiem, do którego nie da się
+          dosięgnąć w jedynym momencie, w którym ma sens. */}
+      {dev ? (
+        <Suspense fallback={null}>
+          <DevRezyserka
+            scenaRef={scenaRef}
+            onZmiana={() => {
+              setZadanie(stanZadania());
+              setMisje(stanMisji());
+              setBonus(bonusMonet());
+              // Znaki gier trzeba przeliczyć RĘCZNIE. Same zmiany zapisu
+              // ogłasza `misjeGier`, ale mapa nie słucha zdarzeń — buduje się
+              // z `mapa.json` i dostaje listę widocznych znaków dopiero, gdy
+              // ktoś ją poda. Bez tej linijki „zleć" z pulpitu zmieniało stan,
+              // a znak pojawiał się na mapie dopiero po przeładowaniu.
+              try { odswiezZnakiMisji(); } catch {}
+              // Skok na inny etap unieważnia okno, które akurat stoi: kwestia
+              // Wizkora sprzed skoku dotyczy już nieistniejącego stanu.
+              setPowitanie(null);
+              setNagroda(null);
+            }}
+            onOtworzGre={otworzGre}
+            onKomunikat={pokazKomunikat}
+            zdarzenia={zdarzeniaDev}
+            onWylacz={() => setDev(ustawDev(false))}
+            onPokazWskazowke={(id) =>
+              setWskazowka(wskazowkaPoId(id) || nastepnaWskazowka({ chodzenieOswojone: true }))
+            }
+          />
         </Suspense>
       ) : null}
     </main>

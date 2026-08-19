@@ -29,7 +29,14 @@ import RewardScreen from "../components/RewardScreen.jsx";
 import SplashGry from "../hub/SplashGry.jsx";
 import EkranStartuGry from "../hub/EkranStartuGry.jsx";
 import { fx } from "../services/soundFx.js";
+import { dodajMonety } from "../services/monety.js";
+import { rozliczPartie } from "../hub/misjeGier.js";
+import { poziomIstnieje, poziomyGry } from "../hub/poziomyGier.js";
+import { czyDev } from "../services/dev.js";
 import "../hub/styles/hub.css";
+
+/** Identyfikator z katalogu — ten sam w misjach, na mapie i w adresie. */
+const GRA = "sekret-pod-puchem";
 
 const SCIEZKA = "/assets/piorka/";
 const PIORKA = ["piorko-krem", "piorko-piasek", "piorko-biel", "piorko-blekit"];
@@ -84,9 +91,16 @@ function tasuj(t) {
  * Bez tych propsow komponent dziala po staremu, jako wlasny ekran pod
  * `/games/piorka` - stare linki i zakladki dalej trafiaja, gdzie trzeba.
  */
-export default function PiorkaGame({ osadzona = false, onWyjscie }) {
+/**
+ * `poziom` = dziecko potwierdziło start JUŻ WCZEŚNIEJ, w oknie liska na mapie
+ * (ta gra ma jeden poziom, więc okno pokazywało tam samą kwotę). Ekran startowy
+ * tej gry nie ma wtedy nic do dodania, więc go pomijamy. Wejście z kafelka
+ * w zakładce nie ma tego propsa i działa po staremu.
+ */
+export default function PiorkaGame({ osadzona = false, poziom = null, onWyjscie }) {
   const navigate = useNavigate();
   const wrocDoHuba = () => (onWyjscie ? onWyjscie() : navigate("/swiat?panel=gry"));
+  const zPominieciemIntro = poziomIstnieje(GRA, poziom);
   const canvasRef = useRef(null);
   const obrazy = useRef({});
   const piorka = useRef([]);
@@ -101,7 +115,12 @@ export default function PiorkaGame({ osadzona = false, onWyjscie }) {
   const [zestaw, setZestaw] = useState(null);        // { cel, opcje }
   const [zgaszone, setZgaszone] = useState([]);      // id-ki spudłowanych kafelków
   const [kara, setKara] = useState(0);               // ile progów w dół za pudła
-  const [nagrodaPokazana, setNagrodaPokazana] = useState(false);
+  // Rundy zgadnięte za pierwszym razem — jedyna liczba poza monetami, która
+  // mówi dziecku coś o TYM, jak grało, a nie ile dostało.
+  const [bezPudla, setBezPudla] = useState(0);
+  // Nagroda Wizkora za misję, doliczona na koniec partii. Ekran wyniku pisze
+  // o niej tylko wtedy, gdy naprawdę była — patrz `misjeGier.rozliczPartie`.
+  const [nagrodaMisji, setNagrodaMisji] = useState(0);
   const [zaladowane, setZaladowane] = useState(false);
 
   /* ── wczytanie grafiki ─────────────────────────────────────────────────── */
@@ -320,23 +339,69 @@ export default function PiorkaGame({ osadzona = false, onWyjscie }) {
     const prog = NAGRODY.findIndex((n) => odslon <= n.doOdsloniecia);
     const indeks = Math.min(NAGRODY.length - 1, (prog < 0 ? NAGRODY.length - 1 : prog) + kara);
     setMonety((m) => m + NAGRODY[indeks].monety);
+    if (kara === 0) setBezPudla((n) => n + 1);
     scena.current.faza = "wybuch";
     try { fx?.sukces?.(); } catch {}
     window.setTimeout(() => {
-      if (runda + 1 >= RUND) { setFaza("koniec"); return; }
+      if (runda + 1 >= RUND) {
+        // Sama zmiana fazy. Wypłata i domknięcie misji siedzą w efekcie niżej,
+        // żeby dev-owe „wygraj partię" szło DOKŁADNIE tą samą drogą.
+        setFaza("koniec");
+        return;
+      }
       setRunda((r) => r + 1);
       nowaRunda(zestaw.cel.id);
     }, 1700);
   }
 
+  /**
+   * Uchwyt dla pulpitu testowego — konczy partie od reki. Tylko w trybie dev;
+   * patrz blizniaczy komentarz w `MemoryGame.jsx`.
+   */
+  useEffect(() => {
+    if (!czyDev()) return undefined;
+    window.__devGra = {
+      id: GRA,
+      wygraj: () => setFaza("koniec"),
+    };
+    return () => { if (window.__devGra?.id === GRA) delete window.__devGra; };
+  }, []);
+
+  /**
+   * Koniec partii: monety trafiają do licznika, a misja Wizkora domyka się
+   * i PŁACI od razu.
+   *
+   * Monety zbierane w rundach były do tej pory tylko liczbą na ekranie —
+   * `dodajMonety` nie było tu wołane ani razu, więc dziecko oglądało nagrodę,
+   * której nikt nie zapisywał. Ekran wyniku, który obiecuje i nie daje, jest
+   * gorszy niż brak ekranu.
+   *
+   * Strażnik `wyplaconoRef` pilnuje jednej wypłaty na partię: efekt potrafi
+   * odpalić ponownie przy każdym renderze fazy „koniec".
+   */
+  const wyplaconoRef = useRef(false);
+  useEffect(() => {
+    if (faza !== "koniec" || wyplaconoRef.current) return;
+    wyplaconoRef.current = true;
+    if (monety > 0) dodajMonety(monety, "minigra:piorka");
+    try {
+      const { dodane } = rozliczPartie(GRA);
+      setNagrodaMisji(dodane || 0);
+    } catch { setNagrodaMisji(0); }
+  }, [faza, monety]);
+
   function start() {
-    setRunda(0); setMonety(0); setNagrodaPokazana(false);
+    setRunda(0); setMonety(0); setBezPudla(0); setNagrodaMisji(0);
+    wyplaconoRef.current = false;
     nowaRunda();
     setFaza("gra");
   }
 
+  // Przy wejsciu z mapy ekranu startowego NIE MA, wiec krzyzyk wychodzi wprost
+  // do swiata — cofanie na ekran, ktorego dziecko nigdy nie widzialo, byloby
+  // pojawieniem sie z niczego. To samo rozwiazanie, co w `MemoryGame`.
   const wyjdz = () => {
-    if (faza === "gra") { setFaza("intro"); return; }
+    if (faza === "gra" && !zPominieciemIntro) { setFaza("intro"); return; }
     wrocDoHuba();
   };
 
@@ -365,7 +430,9 @@ export default function PiorkaGame({ osadzona = false, onWyjscie }) {
             podpis="Zbieram piórka…"
             obrazy={[...PIORKA.slice(0, 2), ZLOTE, ...PIORKA.slice(2)].map((n) => SCIEZKA + n + ".png")}
             gotowe={zaladowane}
-            onKoniec={() => setFaza("intro")}
+            /* Z mapy wchodzimy prosto w rundę: pytanie „zaczynamy?" padło
+               już w oknie liska, razem z kwotą. */
+            onKoniec={() => (zPominieciemIntro ? start() : setFaza("intro"))}
           />
         ) : null}
 
@@ -380,7 +447,9 @@ export default function PiorkaGame({ osadzona = false, onWyjscie }) {
           <EkranStartuGry
             ilustracja={SCIEZKA + "lis-skok.webp"}
             tytul="Sekret pod puchem"
-            poziomy={[{ id: "jeden", monetyMax: RUND * NAGRODY[0].monety }]}
+            /* Kwota z `hub/poziomyGier.js` — tę samą obiecuje okno liska
+               na mapie, więc nie ma jej gdzie policzyć dwa razy. */
+            poziomy={poziomyGry(GRA)}
             wybrany="jeden"
             cta="Zaczynamy"
             onGraj={start}
@@ -414,27 +483,30 @@ export default function PiorkaGame({ osadzona = false, onWyjscie }) {
           </>
         ) : null}
 
-        {faza === "koniec" ? (
-          <div className="puch-intro">
-            <img className="puch-godlo" src={SCIEZKA + "piorko-zlote.png"} alt="" aria-hidden="true" />
-            <h1>{monety >= RUND * 4 ? "Bystre oko!" : monety >= RUND * 2 ? "Dobra robota!" : "Brawo!"}</h1>
-            <p>Zebrane monety: <strong>{monety}</strong></p>
-            <div className="hub-actions gra-akcje">
-              <button className="hub-btn hub-btn-ghost" onClick={start}>Jeszcze raz</button>
-              <button className="hub-btn hub-btn-primary" onClick={wrocDoHuba}>Wracam</button>
-            </div>
-          </div>
-        ) : null}
       </div>
 
-      {faza === "koniec" && !nagrodaPokazana ? (
+      {/* JEDEN ekran na koniec partii — patrz bliźniaczy komentarz
+          w `MemoryGame.jsx`. Wcześniej stały tu dwa: ten i zaraz pod nim
+          własne podsumowanie z tą samą liczbą monet, a po powrocie na mapę
+          dochodziła jeszcze nagroda Wizkora za misję. */}
+      {faza === "koniec" ? (
         <RewardScreen
           eyebrow="SEKRET POD PUCHEM"
-          title="Znalezione!"
+          title={monety >= RUND * 4 ? "Bystre oko!" : monety >= RUND * 2 ? "Dobra robota!" : "Brawo!"}
           subtitle="Pięć sekretów odkrytych."
-          coins={monety}
-          ctaLabel="Zobacz wynik"
-          onDismiss={() => setNagrodaPokazana(true)}
+          coins={monety + nagrodaMisji}
+          rozbicie={[
+            { etykieta: "Za partię", monety },
+            { etykieta: "Od Wizkora za misję", monety: nagrodaMisji },
+          ]}
+          kafelki={[
+            { wartosc: `${RUND}/${RUND}`, etykieta: "rundy" },
+            { wartosc: `${bezPudla}/${RUND}`, etykieta: "za pierwszym" },
+          ]}
+          akcje={[
+            { etykieta: "Wracam", onClick: wrocDoHuba },
+            { etykieta: "Jeszcze raz", onClick: start, ton: "ghost" },
+          ]}
         />
       ) : null}
     </main>

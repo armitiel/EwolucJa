@@ -18,11 +18,24 @@
  * (konfetti, iskry, lot monet) — tych nie da się sensownie zapisać w CSS,
  * bo każdy kawałek ma inny tor, rozmiar i opóźnienie.
  *
- * Props (bez zmian — ekran jest wspólny dla pięciu miejsc):
+ * JEDEN EKRAN NA KONIEC GRY. Minigry miały wcześniej dwa: ten (konfetti,
+ * licznik monet, „Zobacz wynik") i zaraz pod nim własne podsumowanie z tym
+ * SAMYM tytułem, tym samym zdaniem i tą samą liczbą monet, tylko bez
+ * konfetti. Dziecko klikało przez to samo dwa razy. Dlatego doszły tu cztery
+ * pola opisujące wynik — gwiazdki, kafelki statystyk, rozbicie nagrody
+ * i akcje — żeby wszystko, co gra ma do powiedzenia, zmieściło się na jednym
+ * ekranie. Wszystkie są opcjonalne, więc pozostałe cztery miejsca (zadanie
+ * czarodzieja, MissionView, HintPopup, quiz) działają bez zmian.
+ *
+ * Props:
  *  - eyebrow: string   (nadtytuł na wstędze, np. "ZADANIE CZARODZIEJA")
  *  - title: string     (duży nagłówek)
  *  - subtitle?: string
  *  - coins: number     (liczba w animowanym liczniku)
+ *  - gwiazdki?: number (0–3; podium z oceną partii)
+ *  - kafelki?: [{ wartosc, etykieta }]      (ruchy, czas, pary…)
+ *  - rozbicie?: [{ etykieta, monety }]      (skąd te monety: partia, Wizkor)
+ *  - akcje?: [{ etykieta, onClick, ton }]   (zastępują pojedyncze CTA)
  *  - note?: string     (komentarz pod licznikiem)
  *  - noteStyle?: 'quote' | 'caption'
  *  - ctaLabel?: string
@@ -56,6 +69,10 @@ export default function RewardScreen({
   title,
   subtitle,
   coins = 0,
+  gwiazdki = null,
+  kafelki = null,
+  rozbicie = null,
+  akcje = null,
   note,
   noteStyle = "caption",
   ctaLabel = "Dziękuję ✦",
@@ -164,6 +181,23 @@ export default function RewardScreen({
           </p>
         ) : null}
 
+        {/* Gwiazdki NAD tytułem: to jest ocena partii, a dziecko czyta ją
+            obrazkiem szybciej niż zdaniem. Środkowa stoi wyżej — podium widać
+            zanim się policzy sztuki. */}
+        {typeof gwiazdki === "number" ? (
+          <p className="nagroda-gwiazdki" aria-label={`${gwiazdki} z 3 gwiazdek`}>
+            {[1, 2, 3].map((i) => (
+              <img
+                key={i}
+                src="/star.png"
+                alt=""
+                aria-hidden="true"
+                className={`nagroda-gwiazda${i <= gwiazdki ? "" : " nagroda-gwiazda--pusta"}${i === 2 ? " nagroda-gwiazda--srodek" : ""}`}
+              />
+            ))}
+          </p>
+        ) : null}
+
         {title ? <h2 className="nagroda-tytul">{title}</h2> : null}
         {subtitle ? <p className="nagroda-podtytul">{subtitle}</p> : null}
 
@@ -174,11 +208,39 @@ export default function RewardScreen({
           <span className="nagroda-iskra nagroda-iskra--dol" aria-hidden="true"><Sparkle size={18} delay={0.4} /></span>
         </p>
 
+        {/* Rozbicie pokazujemy TYLKO wtedy, gdy nagroda ma więcej niż jedno
+            źródło. Przy samej partii linijka „za grę +11" pod liczbą +11
+            byłaby powtórzeniem, a dziecko szukałoby w niej różnicy. */}
+        {rozbicie && rozbicie.filter((r) => r && r.monety > 0).length > 1 ? (
+          <ul className="nagroda-rozbicie">
+            {rozbicie.filter((r) => r && r.monety > 0).map((r) => (
+              <li key={r.etykieta}>
+                <span>{r.etykieta}</span>
+                <b>+{r.monety}</b>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+
         <p className="nagroda-przerywnik" aria-hidden="true">
           <Gwiazdka className="nagroda-iskierka" />
           <Gwiazdka className="nagroda-iskierka nagroda-iskierka--duza" />
           <Gwiazdka className="nagroda-iskierka" />
         </p>
+
+        {/* Statystyki stoją POD nagrodą i są celowo mniejsze: to ciekawostka
+            dla dziecka, które chce wiedzieć „w ile ruchów", a nie odpowiedź
+            na pytanie „ile dostałem". */}
+        {kafelki && kafelki.length ? (
+          <div className="nagroda-kafelki">
+            {kafelki.map((k) => (
+              <div className="nagroda-kafel" key={k.etykieta}>
+                <b>{k.wartosc}</b>
+                <span>{k.etykieta}</span>
+              </div>
+            ))}
+          </div>
+        ) : null}
 
         {note ? (
           <p className={`nagroda-notka${noteStyle === "quote" ? " nagroda-notka--cytat" : ""}`}>
@@ -186,7 +248,20 @@ export default function RewardScreen({
           </p>
         ) : null}
 
-        {onDismiss ? (
+        {akcje && akcje.length ? (
+          <div className="nagroda-akcje">
+            {akcje.map((a) => (
+              <button
+                key={a.etykieta}
+                type="button"
+                className={`hub-btn ${a.ton === "ghost" ? "hub-btn-ghost" : "hub-btn-primary"}`}
+                onClick={a.onClick}
+              >
+                {a.etykieta}
+              </button>
+            ))}
+          </div>
+        ) : onDismiss ? (
           <button type="button" className="hub-btn hub-btn-primary nagroda-cta" onClick={onDismiss}>
             {ctaLabel}
           </button>

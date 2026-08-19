@@ -72,6 +72,15 @@ export default function PopupPostaci({
    * wielkości znaczka, albo czarodzieja poza ekranem.
    */
   wariant = null,
+  /**
+   * Cokolwiek, co okno ma pokazać MIĘDZY zdaniem postaci a przyciskami —
+   * dziś kafelki „poziom + ile można wygrać" w zaproszeniu do minigry.
+   *
+   * Slot, a nie własne pole „poziomy": okno postaci nie ma nic wspólnego
+   * z minigrami i nie powinno o nich wiedzieć. Wie tylko, że pod zdaniem
+   * bywa coś do wybrania, zanim padnie odpowiedź.
+   */
+  dodatek = null,
   glos = null,
   ton = "mystery",
   onAkcja,
@@ -171,6 +180,8 @@ export default function PopupPostaci({
           <Gwiazdka className="popup-postaci-iskra popup-postaci-iskra--duza" />
           <Gwiazdka className="popup-postaci-iskra" />
         </p>
+
+        {dodatek ? <div className="popup-postaci-dodatek">{dodatek}</div> : null}
 
         <button
           type="button"
