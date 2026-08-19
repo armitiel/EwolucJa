@@ -7,7 +7,7 @@
  *
  * Instrukcja jest podana TRZEMA kanałami naraz, bo sześciolatek jeszcze czyta
  * wolno, a dwunastolatek nie chce, żeby mu tłumaczyć:
- *   1. ruch  — koło rośnie, zatrzymuje się i maleje; kanał główny, wystarcza sam,
+ *   1. ruch  — balon rośnie, zatrzymuje się i maleje; kanał główny, wystarcza sam,
  *   2. słowo — jedno słowo w środku, nie zdanie,
  *   3. dźwięk — pad idący w górę na wdechu, drżący na wstrzymaniu, opadający
  *      na wydechu, plus dzwonek na każdej zmianie fazy.
@@ -21,6 +21,15 @@
  * idzie wszystko naraz — poświata koła, liczba iskier krążących wokół, jasność
  * tła i wysokość dźwięku. Piąty oddech ma wyglądać na nagrodę za cztery
  * poprzednie, a nie na piąte powtórzenie tego samego.
+ *
+ * SCENA: dziecko nadmuchuje balon razem z liskiem, który trzyma sznurek u dołu
+ * ekranu. Balon skaluje się od WĘZEŁKA (transform-origin przy dolnej krawędzi),
+ * a nie od środka — inaczej przy każdym wdechu odjeżdżałby od sznurka i cała
+ * scena rozpadałaby się na dwa niezależne obrazki.
+ *
+ * ODLICZANIE 3-2-1 na starcie robi dwie rzeczy naraz: daje czas na odłożenie
+ * telefonu wygodniej i ustawia rytm — trzy tyknięcia w tym samym tempie, w
+ * którym za chwilę pójdzie wdech.
  *
  * Dźwięk chodzi tylko wtedy, gdy dziecko ma włączoną muzykę gry.
  */
@@ -41,7 +50,8 @@ const SLOWA = { wdech: "wdech", wstrzymaj: "trzymaj", wydech: "wydech" };
 export default function EkranOddechu({ pora = "poludnie", onKoniec }) {
   const dlugosc = TEMPO[pora] || 4;
   const wstrzymanie = Math.min(1.6, dlugosc * 0.4);
-  const [faza, setFaza] = useState("start");   // start | wdech | wstrzymaj | wydech | koniec
+  const [faza, setFaza] = useState("odliczanie"); // odliczanie | wdech | wstrzymaj | wydech | koniec
+  const [licznik, setLicznik] = useState(3);
   const [cykl, setCykl] = useState(0);
   const audio = useRef(null);
 
@@ -120,8 +130,11 @@ export default function EkranOddechu({ pora = "poludnie", onKoniec }) {
   // ── Przebieg seansu ──────────────────────────────────────────────────
   useEffect(() => {
     if (faza === "koniec") return undefined;
-    if (faza === "start") {
-      const t = window.setTimeout(() => setFaza("wdech"), 900);
+    if (faza === "odliczanie") {
+      const t = window.setTimeout(() => {
+        if (licznik > 1) { setLicznik((l) => l - 1); return; }
+        setFaza("wdech");
+      }, 850);
       return () => window.clearTimeout(t);
     }
     const ile = faza === "wstrzymaj" ? wstrzymanie : dlugosc;
@@ -133,7 +146,7 @@ export default function EkranOddechu({ pora = "poludnie", onKoniec }) {
       setFaza("wdech");
     }, ile * 1000);
     return () => window.clearTimeout(t);
-  }, [faza, cykl, dlugosc, wstrzymanie]);
+  }, [faza, cykl, licznik, dlugosc, wstrzymanie]);
 
   // Dźwięk idzie za fazą.
   useEffect(() => {
@@ -155,13 +168,15 @@ export default function EkranOddechu({ pora = "poludnie", onKoniec }) {
       a.filtr.frequency.setValueAtTime(a.filtr.frequency.value, t);
       a.lfoGain.gain.setTargetAtTime(faza === "wstrzymaj" ? 0.012 : 0, t, 0.15);
 
-      if (faza === "koniec" || faza === "start") {
+      if (faza === "odliczanie") {
+        a.master.gain.linearRampToValueAtTime(0, t + 0.2);
+        return;
+      }
+      if (faza === "koniec") {
         a.master.gain.linearRampToValueAtTime(0, t + 1);
         a.filtr.frequency.linearRampToValueAtTime(420, t + 1);
-        if (faza === "koniec") {
-          dzwonek(TONY[TONY.length - 1] * 2, 0.06);
-          window.setTimeout(() => dzwonek(TONY[TONY.length - 1] * 3, 0.045), 180);
-        }
+        dzwonek(TONY[TONY.length - 1] * 2, 0.06);
+        window.setTimeout(() => dzwonek(TONY[TONY.length - 1] * 3, 0.045), 180);
         return;
       }
       if (faza === "wdech") {
@@ -177,8 +192,15 @@ export default function EkranOddechu({ pora = "poludnie", onKoniec }) {
     } catch {}
   }, [faza, cykl, dlugosc, dzwonek]);
 
+  // Trzy tykniecia odliczania: coraz wyzej, ostatnie najglosniej.
   useEffect(() => {
-    if (faza === "start" || faza === "koniec") return;
+    if (faza !== "odliczanie") return;
+    dzwonek(392 + (3 - licznik) * 44, 0.035 + (3 - licznik) * 0.008);
+    try { navigator.vibrate?.(8); } catch {}
+  }, [faza, licznik, dzwonek]);
+
+  useEffect(() => {
+    if (faza === "odliczanie" || faza === "koniec") return;
     try { navigator.vibrate?.(faza === "wstrzymaj" ? 6 : 12); } catch {}
   }, [faza]);
 
@@ -188,24 +210,32 @@ export default function EkranOddechu({ pora = "poludnie", onKoniec }) {
 
   return createPortal(
     <div
-      className={`oddech-ekran${wolniej ? " bez-ruchu" : ""}`}
+      className={`oddech-ekran oddech-ekran--${faza}${wolniej ? " bez-ruchu" : ""}`}
       style={{ "--poziom": poziom }}
       role="dialog"
       aria-modal="true"
       aria-label="Oddech"
     >
+      {/* Tlo to trzy warstwy gaszone opacity, a nie jeden gradient zmieniany
+          w locie: przejscia miedzy gradientami w tle sie NIE animuja - kolor
+          skakalby na kazdej fazie zamiast plynnie przechodzic. */}
+      <span className="oddech-tlo oddech-tlo--wdech" aria-hidden="true" />
+      <span className="oddech-tlo oddech-tlo--wstrzymaj" aria-hidden="true" />
+      <span className="oddech-tlo oddech-tlo--wydech" aria-hidden="true" />
+
       <button type="button" className="oddech-zamknij" onClick={onKoniec} aria-label="Zamknij">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.4 6.4l11.2 11.2M17.6 6.4L6.4 17.6" /></svg>
       </button>
 
       <div className="oddech-scena">
-        {/* Poswiata jest OSOBNYM elementem, a nie cieniem kola: animowany
+        {/* Poswiata jest OSOBNYM elementem, a nie cieniem balonu: animowany
             box-shadow ląduje w kompozytowanej warstwie i jego rozmycie urywa
-            sie na prostokacie tej warstwy - dokola kola widac bylo jasny
-            kwadrat. Gradient wewnatrz wlasnego pudelka nie ma tego problemu. */}
+            sie na prostokacie tej warstwy - dokola widac bylo jasny kwadrat.
+            Gradient wewnatrz wlasnego pudelka nie ma tego problemu. */}
         <span className="oddech-poswiata" aria-hidden="true" />
-        {/* Iskry krążą wokół koła. Przy pierwszym oddechu są dwie, przy piątym
-            wszystkie — to jest cała „rosnąca ekscytacja", bez fajerwerków. */}
+
+        {/* Swietliki kraza wokol balonu. Przy pierwszym oddechu swieci sie
+            dwa, przy piatym wszystkie - to jest cala „rosnaca ekscytacja". */}
         <div className="oddech-iskry" aria-hidden="true">
           {Array.from({ length: ISKRY }, (_, i) => (
             <span
@@ -217,12 +247,29 @@ export default function EkranOddechu({ pora = "poludnie", onKoniec }) {
         </div>
 
         <div
-          className={`oddech-kolo oddech-kolo--${faza}`}
+          className={`oddech-balon oddech-balon--${faza}`}
           style={{ transitionDuration: `${trwanie}s` }}
           aria-hidden="true"
         >
-          <span>{faza === "koniec" ? "" : SLOWA[faza] || "gotów?"}</span>
+          <img src="/assets/porady/balon.png" alt="" draggable="false" />
+          <span className={`oddech-slowo oddech-slowo--${faza}`}>
+            {faza === "wdech" || faza === "wydech" || faza === "wstrzymaj" ? (
+              <i className="oddech-znak" />
+            ) : null}
+            {faza === "odliczanie" ? licznik : faza === "koniec" ? "" : SLOWA[faza] || ""}
+          </span>
         </div>
+
+        {/* Pufy pary lecą do góry przy wydechu; klucz z numerem cyklu wymusza
+            ponowne odegranie animacji przy każdym kolejnym oddechu. */}
+        {faza === "wydech" ? (
+          <div className="oddech-pufy" key={cykl} aria-hidden="true">
+            <span /><span /><span />
+          </div>
+        ) : null}
+
+        <span className="oddech-sznurek" aria-hidden="true" />
+        <img className="oddech-lisek" src="/assets/porady/lis-balon.png" alt="" aria-hidden="true" draggable="false" />
       </div>
 
       {/* Płatki zamiast licznika: widać, ile zostało, ale nikt nie liczy. */}
