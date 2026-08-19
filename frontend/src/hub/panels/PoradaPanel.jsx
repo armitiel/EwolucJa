@@ -124,7 +124,7 @@ export default function PoradaPanel() {
         </div>
       ) : (
         <div className="porada-zegar-blok" data-testid="porada-zegar">
-          <ZegarKlasyczny size={124} etykieta={pora.nazwa} />
+          <ZegarKlasyczny size={112} etykieta={pora.nazwa} />
           {/* Obok zegara losowana drobnostka dla siebie - inna przy kazdym
               wejsciu, zeby gora panelu nie byla martwa po trzecim dniu. */}
           <KacikDobrostanu pora={pora.id} />
