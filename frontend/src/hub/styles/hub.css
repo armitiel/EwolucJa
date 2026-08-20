@@ -1153,9 +1153,35 @@
   font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
   font-size:30px; font-weight:800; color:#8A5A18;
 }
+/* Zdjęcie dowodu w szufladzie zadania — POLAROID położony na papierze.
+   Dziecko ogląda tu własne zdjęcie, kiedy czeka na werdykt. Jako prostokąt na
+   całą szerokość z zaokrąglonym rogiem czytało się jak podgląd załącznika;
+   polaroid mówi „pamiątka po tym, co zrobiłeś", i o to na tym ekranie chodzi.
+
+   Ramka to BORDER samego <img>, nie osobne pudełko — dolna krawędź jest po
+   prostu grubsza (30 px przy 9 px z boków). Dzięki temu nie ma tu żadnego
+   dodatkowego elementu w JSX ani żadnej grafiki: kadr, ramka, cień i skos to
+   cztery właściwości jednego selektora.
+
+   `box-sizing: content-box` jest konieczne, bo globalnie stoi `border-box`
+   (`ewolucja.css`) — przy nim `aspect-ratio` liczyłoby się razem z ramkami
+   i pole zdjęcia wyszłoby prostokątne mimo proporcji 1:1. */
 .zadanie-podglad{
-  width:100%; max-height:200px; object-fit:cover; border-radius:16px; display:block;
-  box-shadow:0 3px 0 rgba(125,73,25,.35);
+  box-sizing:content-box; display:block;
+  width:196px; max-width:74%; aspect-ratio:1/1; object-fit:cover;
+  /* Biel jest CIEPŁA (#fffdf7): papier szuflady jest kremowy, więc czysta biel
+     robi się przy nim sina. */
+  border:9px solid #fffdf7; border-bottom-width:30px; border-radius:3px;
+  /* Cień pod spodem odkleja zdjęcie od papieru — twarda linia tuż pod
+     krawędzią plus miękka poświata niżej. */
+  box-shadow:0 1px 2px rgba(83,51,20,.3), 0 8px 16px rgba(83,51,20,.26);
+  /* Jedno zdjęcie na ekran, więc skos jest stały. Losowanie przy każdym
+     otwarciu panelu czytałoby się jak usterka, a nie jak rzecz położona. */
+  transform:rotate(-2.4deg);
+}
+
+@media (max-width: 340px){
+  .zadanie-podglad{ width:158px; border-width:8px; border-bottom-width:25px; }
 }
 
 /* ── wiadomości ── */

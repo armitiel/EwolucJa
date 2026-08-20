@@ -118,9 +118,6 @@ export function wpisZadania(adventure, state, nextStep) {
     jak: misja.how || null,
     przyklad: misja.example || null,
     notatka: aktywna.note || null,
-    // Zdjęcie dowodu — to, co dziecko wysłało Mentorowi. W zwoju leży jako
-    // polaroid na pergaminie (`.scroll-photo` w hud.css).
-    zdjecie: aktywna.proof?.mediaUrl || null,
     kiedy: aktywna.offeredAt,
     etykieta: status.etykieta,
     cta: status.cta,
@@ -154,7 +151,6 @@ export function wpisZadaniaWizkora() {
     tresc: stan.def.cel,
     jak: stan.def.jak || null,
     notatka: stan.notatka || null,
-    zdjecie: stan.dowod?.zdjecieUrl || null,
     kiedy: stan.zleconeAt,
     etykieta: stan.etykieta,
     cta: stan.cta,
