@@ -9,18 +9,21 @@
  *   FORUM     — wspólny czat wszystkich, którzy teraz grają. NIC poza
  *               rozmową i paskiem pisania: to ekran startowy i ma pokazywać
  *               wiadomości, a nie otoczkę wokół nich.
- *   PRYWATNE  — ludzie. Na górze „kto teraz gra", pod spodem lista rozmów →
- *               wątek. Postaci z gry TU NIE MA (mówią przez chmurkę Wizkora
- *               i misje) — czat jest miejscem kontaktu z ludźmi.
+ *   PRYWATNE  — same rozmowy jeden na jeden: lista → wątek. Tu trafiają
+ *               wiadomości bezpośrednie i nic poza nimi. Postaci z gry TU
+ *               NIE MA (mówią przez chmurkę Wizkora i misje) — czat jest
+ *               miejscem kontaktu z ludźmi.
  *   MENTOR    — zablokowany do czasu zgody rodzica.
  *
  * UKŁAD (2026-08-20, druga tura). Panel wygląda jak zwykły komunikator:
  *   - kanały to PAS POD BELKĄ TYTUŁOWĄ, na całą szerokość szuflady (portal
  *     przez `SlotNaglowka`). Nie trzy kafle w treści i nie wkładka wciśnięta
  *     w ciemną belkę — wybór miejsca to nawigacja, nie treść i nie ozdoba;
- *   - forum to JEDNA kolumna na całą szerokość, bez spisu obecnych. Pionowa
- *     szyna z awatarami zabierała 92 z 375 px i robiła z rozmowy wąski pasek
- *     obok listy ludzi; lista przeniosła się do zakładki Prywatne;
+ *   - forum to JEDNA kolumna na całą szerokość. SPISU OBECNYCH NIE MA NIGDZIE
+ *     (2026-08-20): najpierw jako pionowa szyna zabierał 92 z 375 px i robił
+ *     z rozmowy wąski pasek obok listy ludzi, potem jako zwijany pasek
+ *     w Prywatnych — a Prywatne to skrzynka wiadomości bezpośrednich i nic
+ *     więcej. Kto jest w grze, widać na mapie;
  *   - strumień to DYMKI, tak samo jak w rozmowie prywatnej: cudze po lewej
  *     z buźką, własne po prawej, bez buźki. Jeden język w obu kanałach
  *     zamiast dwóch różnych rysunków wiadomości;
@@ -54,74 +57,6 @@ const KANALY = [
   { id: "prywatne", nazwa: "Prywatne" },
   { id: "mentor", nazwa: "Mentor" },
 ];
-
-const STATUS_OPIS = { gra: "w grze", misja: "w misji", offline: "poza grą" };
-
-/**
- * Polska odmiana po liczbie. „4 osoby grają" i „5 osób gra" to nie jest
- * detal — pasek czyta dziecko, które uczy się języka, i błędna forma
- * w interfejsie jest widoczna od razu.
- */
-function opisObecnych(ile) {
-  if (ile === 1) return "1 osoba teraz gra";
-  const koncowka = ile % 10;
-  const setka = ile % 100;
-  const mnoga = koncowka >= 2 && koncowka <= 4 && (setka < 12 || setka > 14);
-  return mnoga ? `${ile} osoby teraz grają` : `${ile} osób teraz gra`;
-}
-
-/**
- * Pasek obecnych — kto teraz gra.
- *
- * NIE MA GO NA FORUM (decyzja właściciela 2026-08-20: „na głównej zakładce
- * czatu nie muszą być widoczni aktywni gracze"). Forum to rozmowa i nic poza
- * rozmową. Lista obecnych mieszka w zakładce PRYWATNE, bo tam jest do czegoś
- * potrzebna: to zakładka od pisania do konkretnej osoby, więc „kto jest teraz
- * pod ręką" odpowiada na pytanie, które dziecko właśnie sobie zadaje.
- *
- * Zwinięty pokazuje TYLKO liczbę i nakładające się buźki. Rozwinięty daje
- * imiona i miejsca. Osoby poza grą są dopiero w rozwinięciu — w zwiniętym
- * pasku „kto teraz gra" nie ma miejsca na tych, których nie ma.
- */
-function Obecni({ gracze, domyslnieOtwarte = false }) {
-  const [rozwiniete, setRozwiniete] = useState(domyslnieOtwarte);
-  const wGrze = gracze.filter((g) => g.wStatusie !== "offline");
-  if (!gracze.length) return null;
-
-  return (
-    <div className={`czat-obecni${rozwiniete ? " is-otwarte" : ""}`}>
-      <button
-        type="button"
-        className="czat-obecni-pasek"
-        onClick={() => setRozwiniete((czy) => !czy)}
-        aria-expanded={rozwiniete}
-      >
-        <span className="czat-obecni-buzki" aria-hidden="true">
-          {wGrze.slice(0, 4).map((g) => (
-            <i key={g.id}>{g.emoji}</i>
-          ))}
-        </span>
-        <span className="czat-obecni-opis">{opisObecnych(wGrze.length)}</span>
-        <span className="czat-obecni-strzalka" aria-hidden="true">▾</span>
-      </button>
-
-      {rozwiniete ? (
-        <ul className="czat-obecni-lista">
-          {gracze.map((g) => (
-            <li key={g.id} className={g.wStatusie === "offline" ? "is-off" : ""}>
-              <span className="czat-avatar" aria-hidden="true">
-                {g.emoji}
-                <i className={`czat-lampka is-${g.wStatusie}`} />
-              </span>
-              <strong>{g.imie}</strong>
-              <small>{g.gdzie || STATUS_OPIS[g.wStatusie]}</small>
-            </li>
-          ))}
-        </ul>
-      ) : null}
-    </div>
-  );
-}
 
 /** Dymek z trzema kropkami — znak „gotowe zdania". */
 function IkonaPodpowiedzi() {
@@ -369,11 +304,6 @@ export default function CzatPanel() {
       {/* ── PRYWATNE: lista rozmów → wątek ── */}
       {kanal === "prywatne" && !rozmowa ? (
         <div className="czat-lista">
-          {/* Rozwinięty od razu: dziecko weszło do zakładki „z kim porozmawiać",
-              więc odpowiedź na to pytanie ma być na wierzchu, a nie za
-              kliknięciem. Zwinąć nadal można. */}
-          <Obecni gracze={gracze} domyslnieOtwarte />
-
           {rozmowy.map((r) => {
             const kto = graczById[r.ktoId] || {};
             return (
