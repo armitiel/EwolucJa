@@ -460,6 +460,14 @@ export default function Swiat() {
   // Wiadomości mają własną formę (zwój), więc nie wchodzą do arkusza sekcji.
   const zwojOtwarty = panel === "wiadomosci";
   const naglowek = zwojOtwarty ? null : NAGLOWKI[panel] || null;
+  /**
+   * Szuflada, która SAMA trzyma treść nad dokiem: nic w niej nie przewija się
+   * pod ikony, bo pasek pisania jest przyklejony do dołu i przycina strumień.
+   * To ta sama decyzja co `wypelnia` na `PanelSheet` (niżej) — stąd ten sam
+   * warunek. Dok nie potrzebuje wtedy rozjaśniacza w górę i pasek pisania może
+   * podejść blisko ikon, zamiast zostawiać 37 px pustego pergaminu.
+   */
+  const szufladaPelna = !!naglowek && panel === "czat";
 
   /* ── licznik nieprzeczytanych: świat + Mentor ─────────────────────────── */
   const przeliczNieprzeczytane = useCallback(async () => {
@@ -1453,9 +1461,10 @@ export default function Swiat() {
 
       {/* `naglowek`, a nie `panel`: zwój wiadomości nie jest szufladą i sam
           przykrywa ekran pergaminem — mocniejszy podkład pod dokiem robiłby
-          tam drugie, konkurencyjne tło. */}
+          tam drugie, konkurencyjne tło.
+          `ma-szuflade-pelna` zdejmuje podkład zupełnie — patrz `szufladaPelna`. */}
       <div
-        className={`game-hud${odsloniete ? " jest-widoczny" : ""}${naglowek ? " ma-szuflade" : ""}`}
+        className={`game-hud${odsloniete ? " jest-widoczny" : ""}${naglowek ? " ma-szuflade" : ""}${szufladaPelna ? " ma-szuflade-pelna" : ""}`}
         data-variant="B"
         aria-label="Interfejs świata"
       >

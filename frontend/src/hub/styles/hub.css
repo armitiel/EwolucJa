@@ -649,18 +649,26 @@
   /* 156 px odstępu na dole ma sens przy LIŚCIE, która się kończy. Tutaj pasek
      pisania odjeżdżałby pół ekranu nad dok — zostaje tyle, ile dok naprawdę
      zajmuje, plus prześwit.
-     TA LICZBA JEST SPRZĘŻONA Z `hud.css`. Dok stoi 85 px nad dolną krawędzią
-     ekranu (12 px marginesu HUD + 73 px wysokości), a jego rozjaśniacz zaczyna
-     się 22 px wyżej, czyli 107 px nad krawędzią. 122 px zostawia paskowi
-     pisania 15 px czystego pergaminu nad tą granicą. Zmniejszając tę wartość
-     albo podnosząc `top` rozjaśniacza wsadzasz pole do pisania z powrotem
-     pod mgłę — to był błąd naprawiany 2026-08-20. */
-  padding-bottom:calc(122px + env(safe-area-inset-bottom,0px));
+     LICZBA JEST SPRZĘŻONA Z `hud.css`. Dok stoi 85 px nad dolną krawędzią
+     ekranu (12 px marginesu HUD + 73 px wysokości). 96 px zostawia między
+     paskiem pisania a ikonami 11 px — tyle, żeby się nie stykały.
+     Było 122 px, bo pasek musiał kończyć się NAD rozjaśniaczem doku i zostawało
+     przez to 37 px pustego pergaminu. Rozjaśniacza pod tą szufladą już nie ma
+     (`.game-hud.ma-szuflade-pelna` w `hud.css`), więc odstęp jest tylko
+     odstępem. Schodząc niżej niż 85 px wsadzisz pole pod ikony doku. */
+  padding-bottom:calc(96px + env(safe-area-inset-bottom,0px));
 }
 .hub-pane--czat{ flex:1; min-height:0; display:flex; flex-direction:column; }
 /* Lista rozmów i ekran Mentora dalej są listą — przewijają się u siebie. */
 .czat-lista{ flex:1; min-height:0; overflow-y:auto; }
-.czat-mentor{ flex:1; }
+/* `min-height:0` NIE JEST OZDOBĄ: bez niego element flex nie zejdzie poniżej
+   wysokości swojej treści (domyślne `min-height:auto`), a ekran Mentora ma
+   kłódkę, tytuł i akapit — na 320×568 nie mieści się w tym, co zostaje po
+   nagłówku i zakładkach. Nadmiar wychodził wtedy w dolny padding arkusza,
+   czyli dokładnie pod ikony doku (`overflow:hidden` ciała szuflady tnie przy
+   krawędzi PADDING BOXA, więc padding nadmiaru nie ukrywa). Teraz treść
+   przewija się u siebie, tak jak lista rozmów obok. */
+.czat-mentor{ flex:1; min-height:0; overflow-y:auto; }
 
 .czat-rozmowa{ flex:1; min-width:0; min-height:0; display:flex; flex-direction:column; }
 
@@ -825,16 +833,14 @@
   .czat-zakladka{ font-size:12px; }
 }
 
-/* ── NISKI EKRAN: belka tytułowa oddaje miejsce treści ────────────────────
-   Koszty stałe szuflady (nagłówek, pasek kanałów, 122–156 px pod dok) są
-   w pikselach, więc na ekranie 667 px zjadają nieproporcjonalnie dużo.
-   Reguła obejmuje KAŻDĄ szufladę, nie tylko czat — inaczej panele różniłyby
-   się wysokością belki i wróciłby ten sam problem, co przy różnych wysokościach
-   samej szuflady: przełączenie zakładki przesuwałoby treść. */
+/* ── NISKI EKRAN ──────────────────────────────────────────────────────────
+   BELKA TYTUŁOWA ZOSTAJE TAKA, JAKA BYŁA — na każdym ekranie i w każdym
+   panelu. Zbijałem ją tu do 47 px (mniejszy tytuł, ciaśniejszy padding),
+   żeby wygospodarować miejsce dla rozmowy; skutek był taki, że zmiana
+   przeznaczona dla czatu przeszła na Gry, Profil, Poradę i Zadanie. Miejsce
+   dla rozmowy bierze się z jej wnętrza, nie z cudzych nagłówków.
+   Zostaje sam pasek kanałów, bo jest wyłącznie czatu i nie rusza belki. */
 @media (max-height:700px){
-  .hub-sheet-head{ min-height:0; padding:8px 56px 10px; }
-  .hub-sheet-head h2{ font-size:23px; text-shadow:0 2px 0 #35243d; }
-  .hub-sheet-close{ width:38px; height:38px; font-size:19px; }
   .czat-zakladka{ min-height:50px; padding:5px 4px; gap:0; font-size:12.5px; }
   .czat-zakladka svg{ width:22px; height:22px; }
   .czat-zakladka-klodka{ top:4px; }

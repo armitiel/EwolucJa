@@ -1261,6 +1261,19 @@
   );
 }
 
+/* --- Szuflada, ktora sama trzyma tresc nad dokiem (czat) --- */
+/* Rozjasniacz w gore chroni ikony przed trescia PRZEWIJANA pod dok. W czacie
+   nic sie tam nie przewija: pasek pisania jest przyklejony do dolu arkusza
+   i przycina strumien, a lista rozmow i ekran Mentora koncza sie na tej samej
+   krawedzi. Za dokiem jest wtedy sam pergamin arkusza (plus `.hub-sheet::after`,
+   74 px kremowego wygaszenia przy jego dolnej krawedzi) — czyli dokladnie to,
+   po co rozjasniacz istnieje, tylko za darmo.
+   Zdjecie go pozwala podciagnac pasek pisania blisko ikon; wczesniej musial
+   konczyc sie nad mgla i zostawialo to 37 px pustego pergaminu. Klasa idzie
+   ze `Swiat.jsx` (`szufladaPelna`) i jest sprzezona z `wypelnia` na arkuszu —
+   jesli kiedys inny panel dostanie `wypelnia`, ma dostac takze ta klase. */
+.game-hud.ma-szuflade-pelna .game-hud-bottom::before { display: none; }
+
 
 /* --- JOYSTICK-SUBTELNIE: na dotyku joystick ma byc podpowiedzia, nie elementem sceny --- */
 /* Style joysticka siedza w bundlu `scena3d.js` i wstrzykuja sie do <head> PO tym
