@@ -294,11 +294,13 @@
   outline:none; overflow:hidden;
 }
 .hub-sheet.is-open{ transform:translateY(0); }
-/* Arkusz, ktory sam zarzadza przewijaniem (dzis: czat) dostaje wiecej ekranu.
-   78 % wystarcza panelowi-liscie, bo lista sie konczy. Czat sie nie konczy,
-   a pasek pisania i zwijany pasek obecnych zjadaja stale ~150 px — przy 78 %
-   na sam strumien zostawaly trzy wiadomosci. */
-.hub-sheet--wypelnia{ height:88%; max-height:88%; }
+/* WSZYSTKIE SZUFLADY MAJA TE SAMA WYSOKOSC. Czat mial przez chwile 88 %
+   („czat sie nie konczy, wiec zaslugiwal na wiecej ekranu") i to byl blad:
+   dok stoi na wierzchu przez caly czas, wiec przejscie z Gry na Czat skakalo
+   o 82 px w gore i z powrotem. Panel, ktory zmienia rozmiar przy kazdym
+   przelaczeniu zakladki, czyta sie jak usterka. Miejsce dla rozmowy bierze sie
+   z jej wnetrza (schowane gotowe zdania, brak spisu obecnych), a nie z rozciagania
+   samej szuflady. */
 /* Zloty wlos tuz przy wewnetrznej krawedzi - domyka obrys od srodka i klada
    sie takze na fioletowym naglowku (inset-owy highlight arkusza chowa sie pod
    naglowkiem, bo to dziecko). Dzieki temu okno ma ciagly, czysty kontur. */
@@ -765,13 +767,36 @@
   border-top:2px solid rgba(160,120,45,.26);
   box-shadow:0 -6px 12px rgba(120,84,30,.10);
 }
-/* Gotowe zdania: JEDEN pasek przewijany w bok. Zawijane w kilka rzędów
-   zajmowały pół ekranu tuż nad polem pisania. Znikają, gdy dziecko zacznie
-   pisać własne zdanie (logika w `DolRozmowy`). */
+/* Gotowe zdania: JEDEN pasek przewijany w bok, wysuwany przyciskiem z dymkiem
+   przy polu pisania. Na stałe nad polem były pięcioma kolorowymi przyciskami
+   na ekranie, który ma pokazywać rozmowę — patrz `DolRozmowy` w CzatPanel.jsx.
+   Wysuwa się z paska, a nie pojawia znikąd: skala od dolnej krawędzi. */
 .czat-skroty{
   display:flex; flex:none; gap:6px; overflow-x:auto; padding:0 0 8px; margin:0;
   scrollbar-width:none; -webkit-overflow-scrolling:touch;
+  transform-origin:bottom center; animation:czat-skroty-wjazd .16s ease-out;
 }
+@keyframes czat-skroty-wjazd{
+  from{ opacity:0; transform:translateY(8px); }
+  to{ opacity:1; transform:none; }
+}
+@media (prefers-reduced-motion:reduce){
+  .czat-skroty{ animation:none; }
+}
+
+/* Przycisk „gotowe zdania" — ten sam rozmiar co ➤ po drugiej stronie pola,
+   ale cichszy: to wyjście awaryjne dla dziecka, ktore jeszcze nie pisze,
+   a nie glowna droga. Gaśnie, gdy w polu jest juz wlasny tekst. */
+.czat-podpowiedzi{
+  flex:none; display:grid; place-items:center; cursor:pointer;
+  width:44px; height:44px; border-radius:50%;
+  border:2px solid rgba(122,77,194,.3); background:rgba(255,255,255,.85);
+  color:var(--p-magic-dk,#7A4DC2);
+}
+.czat-podpowiedzi.is-otwarte{
+  background:linear-gradient(180deg,#C8A0F0,#7A4DC2); border-color:transparent; color:#fff;
+}
+.czat-podpowiedzi:disabled{ opacity:.32; cursor:default; }
 .czat-skroty::-webkit-scrollbar{ display:none; }
 .czat-skroty button{
   flex:none; cursor:pointer; font-family:inherit; font-weight:700; font-size:12.5px;
@@ -794,25 +819,20 @@
   .czat-zakladka{ font-size:12px; }
 }
 
-/* ── NISKI EKRAN: belka tytułowa oddaje miejsce rozmowie ──────────────────
-   Koszty stałe czatu (nagłówek, pasek obecnych, pasek pisania, 122 px pod dok)
-   są w pikselach, więc na 667 px wysokości zjadały tyle, że na sam strumień
-   zostawało 165 px — dwie wiadomości. Reguła dotyczy TYLKO arkusza, który sam
-   zarządza przewijaniem: panel-lista i tak przewija się w całości, więc niższy
-   nagłówek nic by mu nie dał, a tytuł jest tam jedyną etykietą.
-   W czacie tytuł „Czat" jest zapasowy — pod nim stoją trzy zakładki z nazwami
-   kanałów, a w doku świeci ikona otwartego panelu. */
+/* ── NISKI EKRAN: belka tytułowa oddaje miejsce treści ────────────────────
+   Koszty stałe szuflady (nagłówek, pasek kanałów, 122–156 px pod dok) są
+   w pikselach, więc na ekranie 667 px zjadają nieproporcjonalnie dużo.
+   Reguła obejmuje KAŻDĄ szufladę, nie tylko czat — inaczej panele różniłyby
+   się wysokością belki i wróciłby ten sam problem, co przy różnych wysokościach
+   samej szuflady: przełączenie zakładki przesuwałoby treść. */
 @media (max-height:700px){
-  .hub-sheet--wypelnia{ height:93%; max-height:93%; }
-  .hub-sheet--wypelnia .hub-sheet-head{ min-height:0; padding:8px 56px 10px; }
-  .hub-sheet--wypelnia .hub-sheet-head h2{ font-size:23px; text-shadow:0 2px 0 #35243d; }
-  .hub-sheet--wypelnia .hub-sheet-close{ width:38px; height:38px; font-size:19px; }
-  /* Zakładki są osobnym pasem POD belką, więc nie muszą już omijać krzyżyka —
-     zostaje samo obniżenie paska, żeby oddał kilka pikseli rozmowie. */
-  .hub-sheet--wypelnia .czat-zakladka{ min-height:50px; padding:5px 4px; gap:0; font-size:12.5px; }
-  .hub-sheet--wypelnia .czat-zakladka svg{ width:22px; height:22px; }
-  .hub-sheet--wypelnia .czat-zakladka-klodka{ top:4px; }
-  .hub-sheet--wypelnia .czat-zakladka .czat-kropka{ top:4px; }
+  .hub-sheet-head{ min-height:0; padding:8px 56px 10px; }
+  .hub-sheet-head h2{ font-size:23px; text-shadow:0 2px 0 #35243d; }
+  .hub-sheet-close{ width:38px; height:38px; font-size:19px; }
+  .czat-zakladka{ min-height:50px; padding:5px 4px; gap:0; font-size:12.5px; }
+  .czat-zakladka svg{ width:22px; height:22px; }
+  .czat-zakladka-klodka{ top:4px; }
+  .czat-zakladka .czat-kropka{ top:4px; }
 }
 
 .hub-pane .hub-sec-title h3{ font-size:21px; }

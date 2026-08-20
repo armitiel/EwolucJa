@@ -24,16 +24,16 @@
  *   - strumień to DYMKI, tak samo jak w rozmowie prywatnej: cudze po lewej
  *     z buźką, własne po prawej, bez buźki. Jeden język w obu kanałach
  *     zamiast dwóch różnych rysunków wiadomości;
- *   - strumień przewija się SAM, a gotowe zdania i pole pisania stoją razem
- *     w jednym nieprzezroczystym pasku przyklejonym do dołu szuflady.
+ *   - strumień przewija się SAM, a pole pisania stoi w nieprzezroczystym pasku
+ *     przyklejonym do dołu szuflady. Gotowe zdania wysuwają się z tego paska
+ *     dopiero po dotknięciu dymka.
  * Stąd `hub-pane--czat` i `wypelnia` na arkuszu: panel bierze całą wysokość
  * i sam rozdziela ją między strumień a pasek pisania.
  *
  * Świadome decyzje projektowe, których nie cofamy bez powodu:
  * - Dziecko PISZE z klawiatury (decyzja właściciela z 2026-08-20). Gotowe
- *   zdania zostają nad polem jako skróty, nie jako jedyne wyjście, i CHOWAJĄ
- *   SIĘ, gdy tylko dziecko zacznie pisać — skrót przestaje być skrótem
- *   w chwili, w której ktoś układa własne zdanie.
+ *   zdania są SCHOWANE pod przyciskiem z dymkiem przy polu — na ekranie widać
+ *   rozmowę, a nie pięć kolorowych podpowiedzi. Szczegóły przy `DolRozmowy`.
  *   UWAGA DLA ZESPOŁU: to przenosi całą moderację na serwer. Wolny tekst na
  *   forum publicznym bez filtra i bez człowieka po drugiej stronie NIE MOŻE
  *   wyjść na produkcję — do zrobienia razem z warstwą danych.
@@ -123,19 +123,46 @@ function Obecni({ gracze, domyslnieOtwarte = false }) {
   );
 }
 
+/** Dymek z trzema kropkami — znak „gotowe zdania". */
+function IkonaPodpowiedzi() {
+  return (
+    <svg viewBox="0 0 32 32" width="21" height="21" aria-hidden="true" focusable="false">
+      <path
+        fill="currentColor"
+        d="M6.5 4h19A5.5 5.5 0 0 1 31 9.5v8a5.5 5.5 0 0 1-5.5 5.5H14.6l-6.1 4.1a.9.9 0 0 1-1.4-.8V23h-.6A5.5 5.5 0 0 1 1 17.5v-8A5.5 5.5 0 0 1 6.5 4Z"
+      />
+      <circle cx="10.4" cy="13.5" r="2.2" fill="#fff" />
+      <circle cx="16" cy="13.5" r="2.2" fill="#fff" />
+      <circle cx="21.6" cy="13.5" r="2.2" fill="#fff" />
+    </svg>
+  );
+}
+
 /**
- * Dół rozmowy — gotowe zdania i pole pisania w JEDNYM pasku.
+ * Dół rozmowy — pole pisania, a gotowe zdania SCHOWANE pod przyciskiem.
  *
- * Razem, bo razem stoją na nieprzezroczystym tle: pasek jest granicą między
- * przewijającą się rozmową a tym, co dziecko robi teraz. Osobno wyglądały
- * jak dwie warstwy pływające nad pergaminem.
+ * Wszystko stoi na jednym nieprzezroczystym pasku: to granica między
+ * przewijającą się rozmową a tym, co dziecko robi teraz.
  *
- * Skróty znikają, gdy w polu jest choć jeden znak — dlatego stan tekstu
- * siedzi TUTAJ, a nie w samym polu.
+ * DLACZEGO SCHOWANE (decyzja właściciela 2026-08-20): pięć gotowych zdań
+ * leżących na stałe nad polem to pięć kolorowych przycisków na ekranie, który
+ * ma pokazywać rozmowę. Podpowiedź, której nikt nie prosił, przestaje być
+ * podpowiedzią i staje się tłem.
+ *
+ * DLACZEGO NIE USUNIĘTE ZUPEŁNIE: dolna granica wieku to sześć lat. Dziecko,
+ * które jeszcze nie pisze na klawiaturze, bez gotowych zdań nie odezwie się
+ * w ogóle. Przycisk z dymkiem obok pola zostawia im drogę, nie zaśmiecając
+ * ekranu wszystkim pozostałym.
+ *
+ * Zamykają się same po wybraniu zdania i nie otwierają się, gdy w polu jest
+ * już jakiś tekst — dlatego stan tekstu siedzi TUTAJ, a nie w samym polu.
  */
 function DolRozmowy({ zdania, onWyslij, placeholder }) {
   const [tekst, setTekst] = useState("");
+  const [pokazZdania, setPokazZdania] = useState(false);
   const gotowe = tekst.trim();
+  const saZdania = !!zdania?.length;
+  const zdaniaWidoczne = saZdania && pokazZdania && !gotowe;
 
   function wyslij(zdarzenie) {
     zdarzenie.preventDefault();
@@ -144,12 +171,17 @@ function DolRozmowy({ zdania, onWyslij, placeholder }) {
     setTekst("");
   }
 
+  function wybierz(zdanie) {
+    onWyslij(zdanie);
+    setPokazZdania(false);
+  }
+
   return (
     <div className="czat-dol">
-      {zdania?.length && !gotowe ? (
+      {zdaniaWidoczne ? (
         <div className="czat-skroty">
           {zdania.map((zdanie) => (
-            <button key={zdanie} type="button" onClick={() => onWyslij(zdanie)}>
+            <button key={zdanie} type="button" onClick={() => wybierz(zdanie)}>
               {zdanie}
             </button>
           ))}
@@ -157,6 +189,18 @@ function DolRozmowy({ zdania, onWyslij, placeholder }) {
       ) : null}
 
       <form className="hub-composer" onSubmit={wyslij}>
+        {saZdania ? (
+          <button
+            type="button"
+            className={`czat-podpowiedzi${zdaniaWidoczne ? " is-otwarte" : ""}`}
+            onClick={() => setPokazZdania((czy) => !czy)}
+            aria-expanded={zdaniaWidoczne}
+            aria-label="Gotowe zdania"
+            disabled={!!gotowe}
+          >
+            <IkonaPodpowiedzi />
+          </button>
+        ) : null}
         <input
           value={tekst}
           onChange={(zdarzenie) => setTekst(zdarzenie.target.value)}

@@ -23,11 +23,10 @@ export const SlotNaglowka = createContext(null);
  * pole pisania stoi). Domyślnie przewija się CAŁY arkusz i tak zostaje dla
  * paneli, które są listą.
  *
- * Taki arkusz dostaje też WIĘCEJ WYSOKOŚCI (`hub-sheet--wypelnia` w `hub.css`).
- * Panel-lista kończy się tam, gdzie kończy się lista, więc 78 % ekranu mu
- * wystarcza. Czat nie kończy się nigdy — a że pasek pisania i zwijany pasek
- * obecnych zjadają stałe ~150 px, przy 78 % na sam strumień zostawały trzy
- * wiadomości.
+ * `wypelnia` NIE zmienia wysokości arkusza. Czat miał przez chwilę własne
+ * 88 % ekranu i to było widać jako usterkę: dok stoi na wierzchu, więc
+ * przejście z Gier na Czat skakało o 82 px. Wszystkie szuflady mają jedną
+ * wysokość, a miejsce dla rozmowy bierze się z jej wnętrza.
  */
 export default function PanelSheet({ open, kicker = null, title, onClose, children, testId, wypelnia = false }) {
   const arkuszRef = useRef(null);
@@ -59,7 +58,7 @@ export default function PanelSheet({ open, kicker = null, title, onClose, childr
       />
       <section
         ref={arkuszRef}
-        className={`hub-sheet${open ? " is-open" : ""}${wypelnia ? " hub-sheet--wypelnia" : ""}`}
+        className={`hub-sheet${open ? " is-open" : ""}`}
         role="dialog"
         aria-modal="false"
         aria-label={title}
