@@ -328,7 +328,11 @@
     0 6px 14px rgba(40,25,55,.3);
 }
 .hub-sheet-head > div{ min-width:0; }
-.hub-sheet-head-slot:empty{ display:none; }
+/* Pas pod belka tytulowa, na cala szerokosc arkusza (dzis: kanaly czatu).
+   `flex:none`, zeby nie kurczyl sie razem z trescia. Pusty zwija sie do zera —
+   panele, ktore go nie uzywaja, wygladaja tak jak wczesniej. */
+.hub-sheet-slot{ flex:none; }
+.hub-sheet-slot:empty{ display:none; }
 .hub-sheet-head .hub-kicker{
   color:#ffd96f; font-size:12.5px; letter-spacing:1.3px;
   text-shadow:0 1px 0 #34243f;
@@ -340,12 +344,15 @@
   -webkit-text-stroke:1px #35243d; paint-order:stroke fill;
   text-shadow:0 3px 0 #35243d,0 5px 5px rgba(32,22,39,.28);
 }
-/* Krzyzyk stoi na STALEJ wysokosci od gory, a nie na 50% naglowka. Przy samym
-   tytule wychodzi to samo miejsce co wczesniej, ale gdy panel dolozy do
-   naglowka wlasny pasek (kanaly czatu), krzyzyk zostaje przy tytule zamiast
-   zjezdzac na srodek i wchodzic miedzy zakladki. */
+/* Krzyzyk wrocil na SRODEK wysokosci naglowka (2026-08-20). Stala odleglosc
+   od gory byla obejsciem na czasy, gdy panel wrzucal do naglowka wlasny pasek
+   kanalow — krzyzyk zjezdzal wtedy na srodek i wchodzil miedzy zakladki.
+   Pasek kanalow jest dzis osobnym pasem POD naglowkiem (`.hub-sheet-slot`),
+   wiec w naglowku stoi juz tylko tytul. Srodkowanie samo sie dopasowuje, gdy
+   naglowek niznieje na niskim ekranie — przy stalym `top` 40-px kolko
+   wystawalo ponizej belki i kladlo sie na zakladce. */
 .hub-sheet-close{
-  position:absolute; right:8px; top:16px; transform:none;
+  position:absolute; right:8px; top:50%; transform:translateY(-50%);
   flex:none; width:43px; height:43px; border-radius:50%;
   border:2px solid transparent;
   background:
@@ -356,7 +363,7 @@
   -webkit-text-stroke:1px #6f292c; paint-order:stroke fill;
   text-shadow:0 2px 0 #6f292c;
 }
-.hub-sheet-close:active{ transform:translateY(2px); box-shadow:inset 0 2px 0 rgba(255,255,255,.22),0 2px 0 #79272c; }
+.hub-sheet-close:active{ transform:translateY(calc(-50% + 2px)); box-shadow:inset 0 2px 0 rgba(255,255,255,.22),0 2px 0 #79272c; }
 .hub-sheet-body.screen-scroll{
   flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
   overscroll-behavior-y:contain;
@@ -580,34 +587,42 @@
    wrażenia „za dużo przycisków": wybór miejsca konkurował z rozmową o uwagę,
    choć rozmowa jest tu jedyną treścią. Teraz to jeden pasek zakładek wtopiony
    w belkę tytułową — czytelnie „gdzie jestem", zero kafli w treści. */
+/* Pasek kanalow: OSOBNY PAS POD BELKA TYTULOWA, na cala szerokosc szuflady.
+   Wczesniej siedzial w srodku ciemnej belki tytulowej i musial sie zmiescic
+   miedzy krzyzykiem a krawedziami (337 z 369 px) — czytal sie jak ozdoba
+   naglowka, a nie jak nawigacja. Zero marginesow i `1fr` na kanal: kazda
+   zakladka bierze rowna trzecia szerokosci, od krawedzi do krawedzi. */
 .czat-zakladki{
-  display:grid; grid-template-columns:repeat(3,1fr); gap:4px;
-  /* Ujemne marginesy: pasek ma dotykać boków i dolnej krawędzi nagłówka,
-     a nagłówek ma po 62 px na krzyżyk i 16 px na dole. */
-  margin:10px -46px -16px; padding:5px 5px 0;
-  border-radius:18px 18px 0 0;
-  background:rgba(24,15,33,.28);
-  box-shadow:inset 0 2px 5px rgba(20,12,28,.32);
+  display:grid; grid-template-columns:repeat(3,1fr); gap:0;
+  width:100%; margin:0; padding:0; border-radius:0;
+  background:linear-gradient(180deg,#e6d1a0 0%,#d9c088 100%);
+  border-bottom:2.5px solid #a46219;
+  box-shadow:inset 0 3px 7px rgba(88,56,18,.20);
 }
 .czat-zakladka{
   position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:2px; min-height:56px; padding:7px 4px 8px; cursor:pointer;
-  border:none; border-radius:14px 14px 0 0; background:transparent;
+  gap:2px; min-height:60px; padding:8px 4px; cursor:pointer;
+  /* Kreska rozdzielajaca jest BORDEREM, nie cieniem: `box-shadow` przegralby
+     z cieniem aktywnej zakladki (ta sama wlasciwosc, jedna wygrywa calosc). */
+  border:none; border-left:1.5px solid rgba(138,94,34,.26); border-radius:0;
+  background:transparent;
   font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
-  font-weight:800; font-size:13px; line-height:1.1;
-  color:rgba(255,241,178,.72);
+  font-weight:800; font-size:13.5px; line-height:1.1;
+  color:#7a5c33;
 }
+.czat-zakladka:first-child{ border-left:none; }
 .czat-zakladka svg{ display:block; }
-/* Aktywna zakładka jest w kolorze PERGAMINU pod spodem — dosłownie łączy się
-   z treścią, jak przekładka w segregatorze. */
+/* Aktywna zakladka jest w kolorze PERGAMINU pod spodem — doslownie laczy sie
+   z trescia, jak przekladka w segregatorze. Zlota kreska u gory mowi „tutaj
+   jestes" takze wtedy, gdy roznica jasnosci ginie na sloncu. */
 .czat-zakladka.is-active{
   color:#4a2f10;
-  background:linear-gradient(180deg,#fff6cf 0%,#f4dda2 100%);
-  box-shadow:inset 0 -2px 0 rgba(255,255,255,.6), 0 3px 0 rgba(255,255,255,.25);
+  background:linear-gradient(180deg,#fff8e2 0%,#f6e5ba 100%);
+  box-shadow:inset 0 3px 0 #d99a2a, inset 0 -2px 0 rgba(255,255,255,.7);
 }
-.czat-zakladka.is-locked{ color:rgba(255,241,178,.5); }
-.czat-zakladka.is-active.is-locked{ color:#7a5c33; }
-.czat-zakladka-klodka{ position:absolute; top:5px; right:calc(50% - 26px); display:grid; opacity:.8; }
+.czat-zakladka.is-locked{ color:rgba(122,92,51,.6); }
+.czat-zakladka.is-active.is-locked{ color:#6b5230; }
+.czat-zakladka-klodka{ position:absolute; top:7px; right:calc(50% - 26px); display:grid; opacity:.75; }
 
 /* Kropka „nowe" zamiast liczby nieprzeczytanych — patrz komentarz w
    CzatPanel.jsx. Liczba rosnąca w tle popycha do ciągłego wracania. */
@@ -615,7 +630,7 @@
   display:inline-block; width:10px; height:10px; border-radius:50%; margin-left:6px;
   background:#E89A3D; box-shadow:0 0 0 2px rgba(255,255,255,.85);
 }
-.czat-zakladka .czat-kropka{ position:absolute; top:5px; right:calc(50% - 24px); margin:0; width:9px; height:9px; }
+.czat-zakladka .czat-kropka{ position:absolute; top:7px; right:calc(50% - 24px); margin:0; width:9px; height:9px; }
 
 /* ── czat wypełnia szufladę ──────────────────────────────────────────────
    Ciało szuflady przestaje przewijać się jako całość: przewija się sam
@@ -641,15 +656,14 @@
 
 .czat-rozmowa{ flex:1; min-width:0; min-height:0; display:flex; flex-direction:column; }
 
-/* ── kto teraz gra: JEDEN wiersz, nie pionowa szyna ──────────────────────
+/* ── kto teraz gra: JEDEN wiersz, i to NIE NA FORUM ──────────────────────
    USUNIĘTE 2026-08-20: `.czat-forum` (dwie kolumny) i cała rodzina
    `.czat-rail*`. Kolumna oprawionych awatarów z lampkami przy lewej krawędzi
-   czytała się jak pasek aktywnych umiejętności z gry RPG — pięć kafelków,
-   które wyglądają na klikalne, choć nic nie otwierają — i zabierała 92 z 375
-   px szerokości, więc wiadomości łamały się po trzy słowa.
-   Teraz to informacja („nie jesteś tu sam"), a nie spis: zwinięty pasek
-   z liczbą i buźkami, rozwijany dopiero na żądanie. */
-.czat-obecni{ flex:none; margin:0 0 8px; }
+   zabierała 92 z 375 px szerokości, więc wiadomości łamały się po trzy słowa,
+   a forum wyglądało jak wąski pasek rozmowy przyklejony do listy ludzi.
+   Pasek mieszka teraz w zakładce PRYWATNE — patrz komentarz przy `Obecni`
+   w `CzatPanel.jsx`. Na forum nie ma go wcale. */
+.czat-obecni{ flex:none; margin:0 0 12px; }
 .czat-obecni-pasek{
   display:flex; align-items:center; gap:9px; width:100%; cursor:pointer;
   border:none; border-radius:var(--r-pill,999px); padding:5px 12px 5px 6px;
@@ -792,17 +806,13 @@
   .hub-sheet--wypelnia{ height:93%; max-height:93%; }
   .hub-sheet--wypelnia .hub-sheet-head{ min-height:0; padding:8px 56px 10px; }
   .hub-sheet--wypelnia .hub-sheet-head h2{ font-size:23px; text-shadow:0 2px 0 #35243d; }
-  .hub-sheet--wypelnia .hub-sheet-close{ top:8px; width:40px; height:40px; font-size:20px; }
-  /* GÓRNY margines paska kanałów jest liczony od krzyżyka, nie od tytułu:
-     krzyżyk stoi na stałej wysokości od góry (8 px + 40 px = 48 px), a tytuł
-     kończy się wyżej. Przy mniejszym marginesie czerwone kółko wchodziło
-     rogiem na zakładkę „Mentor".
-     DOLNY ujemny margines MUSI odpowiadać paddingowi nagłówka — inaczej pasek
-     albo odkleja się od dolnej krawędzi, albo za nią wychodzi. */
-  .hub-sheet--wypelnia .czat-zakladki{ margin:14px -40px -10px; }
-  .hub-sheet--wypelnia .czat-zakladka{ min-height:47px; padding:5px 4px 6px; gap:0; }
+  .hub-sheet--wypelnia .hub-sheet-close{ width:38px; height:38px; font-size:19px; }
+  /* Zakładki są osobnym pasem POD belką, więc nie muszą już omijać krzyżyka —
+     zostaje samo obniżenie paska, żeby oddał kilka pikseli rozmowie. */
+  .hub-sheet--wypelnia .czat-zakladka{ min-height:50px; padding:5px 4px; gap:0; font-size:12.5px; }
   .hub-sheet--wypelnia .czat-zakladka svg{ width:22px; height:22px; }
-  .hub-sheet--wypelnia .czat-obecni{ margin-bottom:6px; }
+  .hub-sheet--wypelnia .czat-zakladka-klodka{ top:4px; }
+  .hub-sheet--wypelnia .czat-zakladka .czat-kropka{ top:4px; }
 }
 
 .hub-pane .hub-sec-title h3{ font-size:21px; }

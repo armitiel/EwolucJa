@@ -6,10 +6,15 @@
 import React, { createContext, useEffect, useRef, useState } from "react";
 
 /**
- * Miejsce w NAGŁÓWKU, do którego panel może wrzucić własny pasek (dziś: kanały
- * czatu). Portal, a nie prop przez `Swiat` — inaczej stan „który kanał" musiałby
- * wyjechać z `CzatPanel` na samą górę drzewa tylko po to, żeby narysować trzy
- * zakładki. Panel zostaje samowystarczalny, arkusz tylko udostępnia miejsce.
+ * Miejsce POD NAGŁÓWKIEM, do którego panel może wrzucić własny pasek na całą
+ * szerokość arkusza (dziś: kanały czatu). Portal, a nie prop przez `Swiat` —
+ * inaczej stan „który kanał" musiałby wyjechać z `CzatPanel` na samą górę
+ * drzewa tylko po to, żeby narysować trzy zakładki. Panel zostaje
+ * samowystarczalny, arkusz tylko udostępnia miejsce.
+ *
+ * Pas jest RODZEŃSTWEM nagłówka i ciała, a nie dzieckiem żadnego z nich:
+ * w nagłówku musiałby się mieścić między krzyżykiem a krawędziami, a w ciele
+ * przewijałby się razem z treścią.
  */
 export const SlotNaglowka = createContext(null);
 
@@ -73,10 +78,15 @@ export default function PanelSheet({ open, kicker = null, title, onClose, childr
           <button type="button" className="hub-sheet-close" onClick={onClose} aria-label="Zamknij" data-testid="hub-sheet-close">
             ✕
           </button>
-          {/* Pusty slot zwija się do zera (`:empty` w CSS), więc panele, które
-              go nie używają, mają nagłówek co do piksela taki jak wcześniej. */}
-          <div className="hub-sheet-head-slot" ref={setSlot} />
         </header>
+        {/* Slot stoi POD belką tytułową, na całą szerokość arkusza — nie
+            w środku nagłówka. Pasek kanałów wciśnięty w ciemną belkę czytał
+            się jak jej ozdoba, a nie jak nawigacja, i musiał się mieścić
+            między krzyżykiem a krawędziami, więc nigdy nie brał pełnej
+            szerokości. Tutaj jest samodzielnym pasem nad treścią.
+            Pusty slot zwija się do zera (`:empty` w CSS), więc panele, które
+            go nie używają, wyglądają co do piksela tak jak wcześniej. */}
+        <div className="hub-sheet-slot" ref={setSlot} />
         <div className={`hub-sheet-body screen-scroll${wypelnia ? " is-wypelnia" : ""}`}>
           <SlotNaglowka.Provider value={slot}>{children}</SlotNaglowka.Provider>
         </div>

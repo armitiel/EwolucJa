@@ -6,22 +6,21 @@
  * warstwa danych jeszcze nie istnieje. Ten panel jest atrapą pod decyzję,
  * ale rozkład kanałów jest już docelowy:
  *
- *   FORUM     — wspólny czat wszystkich, którzy teraz grają, plus zwijana
- *               informacja „kto teraz gra". To ekran startowy: dziecko od
- *               razu widzi rozmowę, a nie spis obecnych.
- *   PRYWATNE  — rozmowy jeden na jeden z innymi dziećmi. Lista rozmów →
+ *   FORUM     — wspólny czat wszystkich, którzy teraz grają. NIC poza
+ *               rozmową i paskiem pisania: to ekran startowy i ma pokazywać
+ *               wiadomości, a nie otoczkę wokół nich.
+ *   PRYWATNE  — ludzie. Na górze „kto teraz gra", pod spodem lista rozmów →
  *               wątek. Postaci z gry TU NIE MA (mówią przez chmurkę Wizkora
  *               i misje) — czat jest miejscem kontaktu z ludźmi.
  *   MENTOR    — zablokowany do czasu zgody rodzica.
  *
  * UKŁAD (2026-08-20, druga tura). Panel wygląda jak zwykły komunikator:
- *   - kanały siedzą w NAGŁÓWKU szuflady (portal przez `SlotNaglowka`), a nie
- *     jako trzy duże kafle w treści — wybór miejsca to nie jest treść;
- *   - forum to JEDNA kolumna na całą szerokość. Pionowa szyna obecnych
- *     (kolumna oprawionych awatarów z lampkami) czytała się jak pasek
- *     aktywnych umiejętności z gry RPG i zabierała 92 z 375 px szerokości.
- *     Zastąpił ją jeden zwijany pasek nad rozmową: „4 osoby teraz grają"
- *     + nakładające się buźki. Rozwija się na żądanie, domyślnie zwinięty;
+ *   - kanały to PAS POD BELKĄ TYTUŁOWĄ, na całą szerokość szuflady (portal
+ *     przez `SlotNaglowka`). Nie trzy kafle w treści i nie wkładka wciśnięta
+ *     w ciemną belkę — wybór miejsca to nawigacja, nie treść i nie ozdoba;
+ *   - forum to JEDNA kolumna na całą szerokość, bez spisu obecnych. Pionowa
+ *     szyna z awatarami zabierała 92 z 375 px i robiła z rozmowy wąski pasek
+ *     obok listy ludzi; lista przeniosła się do zakładki Prywatne;
  *   - strumień to DYMKI, tak samo jak w rozmowie prywatnej: cudze po lewej
  *     z buźką, własne po prawej, bez buźki. Jeden język w obu kanałach
  *     zamiast dwóch różnych rysunków wiadomości;
@@ -72,16 +71,20 @@ function opisObecnych(ile) {
 }
 
 /**
- * Pasek obecnych — jeden wiersz zamiast pionowej szyny kafelków.
+ * Pasek obecnych — kto teraz gra.
  *
- * Zwinięty pokazuje TYLKO liczbę i nakładające się buźki: to informacja
- * („nie jesteś tu sam"), a nie lista do przeglądania. Rozwinięty daje imiona
- * i miejsca, bo wtedy dziecko naprawdę o to poprosiło. Osoby poza grą są
- * dopiero w rozwinięciu — w zwiniętym pasku „kto teraz gra" nie ma miejsca
- * na tych, których nie ma.
+ * NIE MA GO NA FORUM (decyzja właściciela 2026-08-20: „na głównej zakładce
+ * czatu nie muszą być widoczni aktywni gracze"). Forum to rozmowa i nic poza
+ * rozmową. Lista obecnych mieszka w zakładce PRYWATNE, bo tam jest do czegoś
+ * potrzebna: to zakładka od pisania do konkretnej osoby, więc „kto jest teraz
+ * pod ręką" odpowiada na pytanie, które dziecko właśnie sobie zadaje.
+ *
+ * Zwinięty pokazuje TYLKO liczbę i nakładające się buźki. Rozwinięty daje
+ * imiona i miejsca. Osoby poza grą są dopiero w rozwinięciu — w zwiniętym
+ * pasku „kto teraz gra" nie ma miejsca na tych, których nie ma.
  */
-function Obecni({ gracze }) {
-  const [rozwiniete, setRozwiniete] = useState(false);
+function Obecni({ gracze, domyslnieOtwarte = false }) {
+  const [rozwiniete, setRozwiniete] = useState(domyslnieOtwarte);
   const wGrze = gracze.filter((g) => g.wStatusie !== "offline");
   if (!gracze.length) return null;
 
@@ -264,8 +267,9 @@ export default function CzatPanel() {
       {/* ── FORUM: zwijany pasek obecnych nad wspólną rozmową ── */}
       {kanal === "forum" ? (
         <div className="czat-rozmowa czat-rozmowa--forum">
-          <Obecni gracze={gracze} />
-
+          {/* Na forum nie ma NIC poza rozmową i paskiem pisania — ani spisu
+              obecnych, ani nagłówka sekcji. Wszystko, co tu wcześniej stało,
+              konkurowało o uwagę z jedyną treścią tego ekranu. */}
           <div className="czat-feed" ref={feedRef}>
             {wiadomosciForum.map((wpis) => {
               const autor = wpis.kto === "ja" ? DANE.ja : graczById[wpis.kto];
@@ -321,6 +325,11 @@ export default function CzatPanel() {
       {/* ── PRYWATNE: lista rozmów → wątek ── */}
       {kanal === "prywatne" && !rozmowa ? (
         <div className="czat-lista">
+          {/* Rozwinięty od razu: dziecko weszło do zakładki „z kim porozmawiać",
+              więc odpowiedź na to pytanie ma być na wierzchu, a nie za
+              kliknięciem. Zwinąć nadal można. */}
+          <Obecni gracze={gracze} domyslnieOtwarte />
+
           {rozmowy.map((r) => {
             const kto = graczById[r.ktoId] || {};
             return (
