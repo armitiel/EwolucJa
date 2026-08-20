@@ -693,16 +693,32 @@
 }
 
 /* UKLAD. Zadanie jest ZAWSZE rozwiniete (patrz `MessageScroll`), wiec naglowek
-   to jedna linia: ilustracja, tytul, plakietka stanu. Tresc siedzi nizej i ma
-   dla siebie pelna szerokosc zwoju.
+   nie musi sie miescic w jednej linii. Tresc siedzi nizej i ma dla siebie
+   pelna szerokosc zwoju.
+
+   DWA WIERSZE, nie trzy kolumny (2026-08-20). Plakietka stanu ("Do zrobienia",
+   "Nagroda czeka") stala wczesniej w trzeciej kolumnie i zabierala tytulowi
+   tyle szerokosci, ile sama miala - a ma jej duzo, bo to slowa, nie data przy
+   wiesci. Tytul zadania lamal sie wiec na dwie-trzy linijki w waskiej rynience
+   obok ilustracji. Teraz:
+
+     [ilustracja]  TYTUL ZADANIA NA CALA SZEROKOSC
+     [ilustracja]  [plakietka stanu]
+
+   Plakietka schodzi POD tytul, do lewej krawedzi tekstu - czyta sie jak
+   stempel przybity pod naglowkiem, a tytul dostaje cala szerokosc pergaminu
+   pomniejszona tylko o ilustracje. Ilustracja obejmuje oba wiersze, wiec nadal
+   stoi na wysokosci srodka calego naglowka.
 
    Wciecia poziome zeszly do zera: papier ma juz swoj margines
    (`.message-scroll-content`), a drugi, wewnetrzny, odtwarzalby kartke, ktora
    wlasnie znika. Zostaje 1 px, zeby obrys liter nie dotykal krawedzi. */
 .scroll-message.is-quest .scroll-message-head {
-  grid-template-columns: 56px minmax(0,1fr) auto;
+  grid-template-columns: 56px minmax(0,1fr);
+  grid-template-rows: auto auto;
   align-items: center;
   column-gap: 15px;
+  row-gap: 7px;
   padding: 0 1px 9px;
   border-bottom: 0;
   box-shadow: none;
@@ -712,12 +728,33 @@
       rgba(122,77,194,.34) 86%,
       transparent) bottom left / 100% 1.5px no-repeat;
 }
-.scroll-message.is-quest .scroll-message-avatar { width: 56px; height: 56px; }
+.scroll-message.is-quest .scroll-message-avatar {
+  width: 56px;
+  height: 56px;
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  align-self: center;
+}
 .scroll-message.is-quest .scroll-message-avatar img { width: 62px; height: 62px; }
 
-/* Tytul zadania jest o klase wiekszy od tytulu wiesci. */
-.scroll-message.is-quest .scroll-message-copy strong { font-size: 17px; line-height: 1.15; }
-.scroll-message.is-quest .scroll-message-meta { align-self: center; }
+/* Tytul zadania jest o klase wiekszy od tytulu wiesci i nie ma juz z czym
+   dzielic wiersza - stad 18 px i pelna szerokosc drugiej kolumny. */
+.scroll-message.is-quest .scroll-message-copy {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: end;
+}
+.scroll-message.is-quest .scroll-message-copy strong { font-size: 18px; line-height: 1.18; }
+
+/* Plakietka w drugim wierszu, przy LEWEJ krawedzi tekstu (dziedziczone
+   `justify-items: end` zepchneloby ja pod prawy brzeg, daleko od tytulu,
+   ktory opisuje). */
+.scroll-message.is-quest .scroll-message-meta {
+  grid-column: 2;
+  grid-row: 2;
+  justify-items: start;
+  align-self: start;
+}
 
 /* TRESC: JEDNO zdanie, duze. W zwoju stoi tylko cel zadania (patrz
    `MessageScroll`), wiec ten akapit nie konkuruje juz z niczym i moze wziac
