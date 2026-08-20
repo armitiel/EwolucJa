@@ -593,37 +593,43 @@
    Wczesniej siedzial w srodku ciemnej belki tytulowej i musial sie zmiescic
    miedzy krzyzykiem a krawedziami (337 z 369 px) — czytal sie jak ozdoba
    naglowka, a nie jak nawigacja. Zero marginesow i `1fr` na kanal: kazda
-   zakladka bierze rowna trzecia szerokosci, od krawedzi do krawedzi. */
+   zakladka bierze rowna trzecia szerokosci, od krawedzi do krawedzi.
+
+   JEDNO OBRAMOWANIE, NIE CZTERY (2026-08-20). Pasek mial wlasne tlo, wlasny
+   cien wewnetrzny i wlasna zlota kreske u dolu, do tego kazda zakladka miala
+   `border-left`, a aktywna jeszcze wlasne tlo i zloty pasek u gory. Pod
+   naglowkiem, ktory sam konczy sie zlota kreska, dawalo to dwie rownolegle
+   kreski i dwa ramowane pasy jeden na drugim — belka tytulowa czytala sie
+   przez to inaczej niz w Grach czy Profilu, choc jest co do piksela ta sama.
+   Zostaje kreska POD NAGLOWKIEM (ta wspolna dla wszystkich paneli) i nic
+   wiecej: zakladki leza na goym pergaminie, a aktywna ma jedno oznaczenie —
+   zlota kreske pod soba i mocniejszy kolor. */
 .czat-zakladki{
   display:grid; grid-template-columns:repeat(3,1fr); gap:0;
-  width:100%; margin:0; padding:0; border-radius:0;
-  background:linear-gradient(180deg,#e6d1a0 0%,#d9c088 100%);
-  border-bottom:2.5px solid #a46219;
-  box-shadow:inset 0 3px 7px rgba(88,56,18,.20);
+  width:100%; margin:0; padding:0;
+  background:transparent; border:none; border-radius:0; box-shadow:none;
 }
 .czat-zakladka{
   position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:2px; min-height:60px; padding:8px 4px; cursor:pointer;
-  /* Kreska rozdzielajaca jest BORDEREM, nie cieniem: `box-shadow` przegralby
-     z cieniem aktywnej zakladki (ta sama wlasciwosc, jedna wygrywa calosc). */
-  border:none; border-left:1.5px solid rgba(138,94,34,.26); border-radius:0;
-  background:transparent;
+  gap:3px; min-height:60px; padding:9px 4px; cursor:pointer;
+  border:none; border-radius:0; background:transparent; box-shadow:none;
   font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
   font-weight:800; font-size:13.5px; line-height:1.1;
-  color:#7a5c33;
+  color:var(--p-ink-soft,#5A4F77); opacity:.68;
 }
-.czat-zakladka:first-child{ border-left:none; }
 .czat-zakladka svg{ display:block; }
-/* Aktywna zakladka jest w kolorze PERGAMINU pod spodem — doslownie laczy sie
-   z trescia, jak przekladka w segregatorze. Zlota kreska u gory mowi „tutaj
-   jestes" takze wtedy, gdy roznica jasnosci ginie na sloncu. */
-.czat-zakladka.is-active{
-  color:#4a2f10;
-  background:linear-gradient(180deg,#fff8e2 0%,#f6e5ba 100%);
-  box-shadow:inset 0 3px 0 #d99a2a, inset 0 -2px 0 rgba(255,255,255,.7);
+/* Aktywny kanal: pelne krycie, kolor magii i zlota kreska pod spodem. Kreska
+   jest `::after`, a nie `border-bottom`, zeby nie robic z niej drugiej linii
+   ciagnacej sie przez caly pasek. */
+.czat-zakladka.is-active{ color:var(--p-magic-dk,#7A4DC2); opacity:1; }
+.czat-zakladka.is-active::after{
+  content:""; position:absolute; left:16%; right:16%; bottom:0; height:4px;
+  border-radius:4px 4px 0 0; background:#d99a2a;
 }
-.czat-zakladka.is-locked{ color:rgba(122,92,51,.6); }
-.czat-zakladka.is-active.is-locked{ color:#6b5230; }
+/* Zamkniety kanal poznaje sie po KLODCE i po niczym wiecej. Wygaszanie calej
+   zakladki bylo drugim znakiem tego samego („tu nie wejdziesz") i sprawialo,
+   ze Mentor ledwie majaczyl — a ma byc widac, ze doroly jest w zasiegu,
+   nawet zanim rodzic kanal wlaczy. Wybrany Mentor wyglada na wybranego. */
 .czat-zakladka-klodka{ position:absolute; top:7px; right:calc(50% - 26px); display:grid; opacity:.75; }
 
 /* Kropka „nowe" zamiast liczby nieprzeczytanych — patrz komentarz w
