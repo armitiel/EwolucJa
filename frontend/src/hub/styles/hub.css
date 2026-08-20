@@ -307,10 +307,14 @@
    tym samym pergaminie, co tresc pod nim - dziecko nie mialo sie czego zlapac
    wzrokiem przy otwarciu panelu. Wlasne, ciemne tlo i zlota linia pod spodem
    robia z niego wyrazna belke tytulowa. */
+/* Uklad KOLUMNOWY, choc najczesciej jest w nim tylko tytul: pod tytulem stoi
+   slot, do ktorego panel moze wrzucic wlasny pasek (kanaly czatu). Pusty slot
+   zwija sie do zera (`:empty` nizej), wiec pozostale panele maja naglowek
+   piksel w piksel taki, jak byl. */
 .hub-sheet-head{
   position:relative; flex:none;
   margin:0; padding:14px 62px 16px;
-  min-height:76px; display:flex; align-items:center; justify-content:center; text-align:center;
+  min-height:76px; display:flex; flex-direction:column; align-items:stretch; justify-content:center; text-align:center;
   border:none; border-bottom:3px solid #a46219; border-radius:27px 27px 0 0;
   background:linear-gradient(180deg,#7a63a0 0%,#5b4577 52%,#42324f 100%);
   box-shadow:
@@ -319,6 +323,7 @@
     0 6px 14px rgba(40,25,55,.3);
 }
 .hub-sheet-head > div{ min-width:0; }
+.hub-sheet-head-slot:empty{ display:none; }
 .hub-sheet-head .hub-kicker{
   color:#ffd96f; font-size:12.5px; letter-spacing:1.3px;
   text-shadow:0 1px 0 #34243f;
@@ -330,8 +335,12 @@
   -webkit-text-stroke:1px #35243d; paint-order:stroke fill;
   text-shadow:0 3px 0 #35243d,0 5px 5px rgba(32,22,39,.28);
 }
+/* Krzyzyk stoi na STALEJ wysokosci od gory, a nie na 50% naglowka. Przy samym
+   tytule wychodzi to samo miejsce co wczesniej, ale gdy panel dolozy do
+   naglowka wlasny pasek (kanaly czatu), krzyzyk zostaje przy tytule zamiast
+   zjezdzac na srodek i wchodzic miedzy zakladki. */
 .hub-sheet-close{
-  position:absolute; right:8px; top:50%; transform:translateY(-54%);
+  position:absolute; right:8px; top:16px; transform:none;
   flex:none; width:43px; height:43px; border-radius:50%;
   border:2px solid transparent;
   background:
@@ -342,7 +351,7 @@
   -webkit-text-stroke:1px #6f292c; paint-order:stroke fill;
   text-shadow:0 2px 0 #6f292c;
 }
-.hub-sheet-close:active{ transform:translateY(-49%); box-shadow:inset 0 2px 0 rgba(255,255,255,.22),0 2px 0 #79272c; }
+.hub-sheet-close:active{ transform:translateY(2px); box-shadow:inset 0 2px 0 rgba(255,255,255,.22),0 2px 0 #79272c; }
 .hub-sheet-body.screen-scroll{
   flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
   overscroll-behavior-y:contain;
@@ -544,42 +553,56 @@
   border-radius:var(--r-pill,999px); padding:10px 14px; min-height:44px;
   font-family:inherit; font-weight:800; font-size:12.5px; color:var(--p-magic-dk,#7A4DC2);
 }
-.hub-composer{ display:flex; gap:8px; align-items:center; margin-top:14px; opacity:.6; }
+.hub-composer{ display:flex; gap:8px; align-items:center; margin-top:14px; }
 .hub-composer input{
   flex:1; border:1.5px solid rgba(120,90,30,.22); background:rgba(255,255,255,.6);
   border-radius:var(--r-pill,999px); padding:12px 14px; font-family:inherit; font-size:13px;
 }
 .hub-composer button{
-  width:44px; height:44px; border-radius:50%; border:none; cursor:not-allowed;
-  background:linear-gradient(180deg,#C8A0F0,#7A4DC2); color:#fff; font-size:16px;
+  width:52px; height:52px; flex:none; border-radius:50%; border:none; cursor:pointer;
+  background:linear-gradient(180deg,#C8A0F0,#7A4DC2); color:#fff; font-size:19px;
+  box-shadow:0 3px 0 rgba(74,42,120,.4);
 }
+.hub-composer button:disabled{ opacity:.45; cursor:default; box-shadow:none; }
 
 /* ── czat: kanały, kto teraz gra, wspólny czat ── */
 /* Wszystkie rozmiary tu są celowo większe niż w reszcie huba. Ten panel czyta
    dziecko, które często czyta jeszcze wolno i literuje — 13 px to za mało.
    Minimum dla treści wiadomości to 16 px, dla podpisów 13 px. */
 
-/* Zakładki kanałów: trzy równe kafle, emoji nad podpisem. Pigułka z ikonką
-   w linii była za mała i wyglądała jak filtr, a nie jak wybór miejsca. */
-.czat-kanaly{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
-.czat-kanal{
+/* ZAKŁADKI KANAŁÓW SIEDZĄ W NAGŁÓWKU SZUFLADY (portal z `CzatPanel`).
+   Wcześniej były to trzy duże kafle W TREŚCI panelu i to był główny powód
+   wrażenia „za dużo przycisków": wybór miejsca konkurował z rozmową o uwagę,
+   choć rozmowa jest tu jedyną treścią. Teraz to jeden pasek zakładek wtopiony
+   w belkę tytułową — czytelnie „gdzie jestem", zero kafli w treści. */
+.czat-zakladki{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:4px;
+  /* Ujemne marginesy: pasek ma dotykać boków i dolnej krawędzi nagłówka,
+     a nagłówek ma po 62 px na krzyżyk i 16 px na dole. */
+  margin:10px -46px -16px; padding:5px 5px 0;
+  border-radius:18px 18px 0 0;
+  background:rgba(24,15,33,.28);
+  box-shadow:inset 0 2px 5px rgba(20,12,28,.32);
+}
+.czat-zakladka{
   position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:4px; cursor:pointer; min-height:74px; padding:10px 6px;
-  border:2px solid rgba(120,90,30,.22); background:rgba(255,255,255,.7);
-  border-radius:20px; font-family:inherit; color:var(--p-ink-soft,#5A4F77);
-  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.8),0 2px 0 rgba(134,81,27,.22);
-}
-.czat-kanal-emoji{ font-size:28px; line-height:1; }
-.czat-kanal-nazwa{
+  gap:2px; min-height:56px; padding:7px 4px 8px; cursor:pointer;
+  border:none; border-radius:14px 14px 0 0; background:transparent;
   font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
-  font-weight:800; font-size:15px; line-height:1.1;
+  font-weight:800; font-size:13px; line-height:1.1;
+  color:rgba(255,241,178,.72);
 }
-.czat-kanal.is-active{
-  background:linear-gradient(180deg,#C8A0F0,#7A4DC2); color:#fff; border-color:transparent;
-  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.35),0 3px 0 rgba(74,42,120,.45);
+.czat-zakladka svg{ display:block; }
+/* Aktywna zakładka jest w kolorze PERGAMINU pod spodem — dosłownie łączy się
+   z treścią, jak przekładka w segregatorze. */
+.czat-zakladka.is-active{
+  color:#4a2f10;
+  background:linear-gradient(180deg,#fff6cf 0%,#f4dda2 100%);
+  box-shadow:inset 0 -2px 0 rgba(255,255,255,.6), 0 3px 0 rgba(255,255,255,.25);
 }
-.czat-kanal.is-locked{ opacity:.7; }
-.czat-kanal-klodka{ position:absolute; top:7px; right:9px; display:grid; }
+.czat-zakladka.is-locked{ color:rgba(255,241,178,.5); }
+.czat-zakladka.is-active.is-locked{ color:#7a5c33; }
+.czat-zakladka-klodka{ position:absolute; top:5px; right:calc(50% - 26px); display:grid; opacity:.8; }
 
 /* Kropka „nowe" zamiast liczby nieprzeczytanych — patrz komentarz w
    CzatPanel.jsx. Liczba rosnąca w tle popycha do ciągłego wracania. */
@@ -587,22 +610,128 @@
   display:inline-block; width:10px; height:10px; border-radius:50%; margin-left:6px;
   background:#E89A3D; box-shadow:0 0 0 2px rgba(255,255,255,.85);
 }
-.czat-kanal .czat-kropka{ position:absolute; top:8px; right:10px; margin:0; }
+.czat-zakladka .czat-kropka{ position:absolute; top:5px; right:calc(50% - 24px); margin:0; width:9px; height:9px; }
 
-.hub-pane .hub-sec-title h3{ font-size:20px; }
-.czat-podtytul{ margin:-4px 2px 10px; font-size:13.5px; line-height:1.4; color:var(--p-ink-soft,#5A4F77); }
-.czat-podpowiedz{
-  margin:16px 2px 8px; font-size:13.5px; font-weight:800; color:var(--p-magic-dk,#7A4DC2);
+/* ── czat wypełnia szufladę ──────────────────────────────────────────────
+   Ciało szuflady przestaje przewijać się jako całość: przewija się sam
+   strumień wiadomości, a pole pisania stoi na dole. To jest cała różnica
+   między „listą wpisów" a czatem. */
+.hub-sheet-body.is-wypelnia{
+  overflow:hidden; display:flex; flex-direction:column;
+  /* 156 px odstępu na dole ma sens przy LIŚCIE, która się kończy. Tutaj pole
+     pisania odjeżdżałoby pół ekranu nad dok — zostaje tyle, ile dok zjada. */
+  padding-bottom:calc(102px + env(safe-area-inset-bottom,0px));
 }
+.hub-pane--czat{ flex:1; min-height:0; display:flex; flex-direction:column; }
+/* Lista rozmów i ekran Mentora dalej są listą — przewijają się u siebie. */
+.czat-lista{ flex:1; min-height:0; overflow-y:auto; }
+.czat-mentor{ flex:1; }
 
-/* Pasek obecnych. Przewija się w bok, bo lista ma rosnąć, a panel nie. */
-.czat-online{
-  display:flex; gap:12px; overflow-x:auto; padding:2px 2px 10px;
+.czat-forum{
+  flex:1; min-height:0; display:grid; gap:12px;
+  grid-template-columns:92px minmax(0,1fr);
+  /* Wiersz musi mieć WYMIAR, nie „auto": bez `minmax(0,1fr)` kolumna rozmowy
+     dostaje wysokość swojej treści i strumień kończy się w połowie panelu,
+     zamiast sięgać do pola pisania. */
+  grid-template-rows:minmax(0,1fr);
+}
+.czat-rozmowa{ min-width:0; min-height:0; display:flex; flex-direction:column; }
+.czat-rozmowa--watek{ flex:1; }
+
+/* Lewa szyna: pionowa lista obecnych. Poziomy pasek nad rozmową zabierał całą
+   szerokość i spychał wiadomości poniżej krawędzi ekranu. */
+.czat-rail{
+  min-height:0; display:flex; flex-direction:column;
+  border-right:2px solid rgba(160,120,45,.22); padding-right:10px;
+}
+.czat-rail-tytul{
+  margin:0 0 8px; font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
+  font-size:12px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase;
+  color:var(--p-ink-soft,#5A4F77); opacity:.75;
+}
+.czat-rail-lista{
+  list-style:none; margin:0; padding:0 0 8px; overflow-y:auto; min-height:0;
+  display:flex; flex-direction:column; gap:9px; scrollbar-width:none;
+}
+.czat-rail-lista::-webkit-scrollbar{ display:none; }
+/* To NIE jest przycisk — nic nie otwiera. Bez ramki i bez tła, żeby nie
+   dokładać kolejnych klikalnie wyglądających kafelków. */
+.czat-rail-osoba{ display:grid; justify-items:center; gap:3px; text-align:center; }
+.czat-rail-osoba.is-off{ opacity:.42; }
+.czat-rail-osoba strong{ font-size:12.5px; font-weight:700; line-height:1.15; }
+.czat-rail .czat-avatar{ width:46px; height:46px; border-radius:16px; font-size:25px; }
+.czat-rail .czat-lampka{ width:13px; height:13px; border-width:2.5px; }
+
+/* Strumień: to jedyne miejsce w panelu, które się przewija. */
+.czat-rozmowa .czat-feed,
+.czat-rozmowa .hub-bubbles{
+  flex:1; min-height:0; overflow-y:auto; gap:7px;
+  padding:2px 4px 8px 0; scrollbar-width:thin;
+}
+/* Wiadomość bez własnej ramki i cienia: rozmowa ma być ciągiem wypowiedzi,
+   a nie stosem kart. Ramka zostaje tylko przy własnych wpisach, żeby dziecko
+   od razu widziało, co napisało samo. */
+.czat-forum .czat-wpis{ background:transparent; border:none; box-shadow:none; border-radius:0; padding:4px 0; }
+.czat-forum .czat-wpis.is-moja{
+  background:linear-gradient(180deg,rgba(255,240,196,.9),rgba(247,223,164,.9));
+  border-radius:16px; padding:8px 11px;
+}
+.czat-forum .czat-wpis-av{ width:34px; height:34px; border-radius:12px; font-size:19px; }
+/* Brawa: znak, nie guzik. Ramka i tło robiły z każdej wiadomości kafelek
+   z przyciskiem — pięć wiadomości to było pięć przycisków na ekranie. */
+.czat-forum .czat-brawa{
+  border:none; background:transparent; box-shadow:none;
+  min-height:0; padding:2px 0; margin:4px 0 0 auto; font-size:12.5px; opacity:.72;
+}
+.czat-forum .czat-brawa.is-dane{ opacity:1; color:#8A5A18; background:transparent; }
+
+/* Gotowe zdania: JEDEN pasek przewijany w bok. Zawijane w kilka rzędów
+   zajmowały pół ekranu tuż nad polem pisania. */
+.czat-skroty{
+  display:flex; flex:none; gap:6px; overflow-x:auto; padding:8px 0 2px; margin:0;
   scrollbar-width:none; -webkit-overflow-scrolling:touch;
 }
-.czat-online::-webkit-scrollbar{ display:none; }
-.czat-osoba{ flex:none; width:84px; display:grid; justify-items:center; gap:4px; text-align:center; }
-.czat-osoba.is-off{ opacity:.5; }
+.czat-skroty::-webkit-scrollbar{ display:none; }
+.czat-skroty button{
+  flex:none; cursor:pointer; font-family:inherit; font-weight:700; font-size:12.5px;
+  border:1.5px solid rgba(122,77,194,.28); background:rgba(255,255,255,.7);
+  border-radius:var(--r-pill,999px); padding:7px 12px; min-height:34px;
+  color:var(--p-magic-dk,#7A4DC2); white-space:nowrap;
+}
+/* `margin:12px 0 88px` z `.hub-pane .hub-composer` (niżej w pliku) robiło
+   miejsce na dok, gdy panel przewijał się w całości. Tu dok obchodzi `padding`
+   ciała szuflady, a ten margines zostawiał 88 px pustego pergaminu pod polem
+   pisania. Trzy klasy w selektorze, bo tamta reguła stoi PÓŹNIEJ i przy równej
+   wadze wygrywałaby kolejnością. */
+.hub-pane--czat .czat-rozmowa .hub-composer{ flex:none; margin:6px 0 0; }
+.hub-pane--czat .czat-rozmowa .hub-composer button{ width:46px; height:46px; font-size:17px; }
+.czat-rozmowa .czat-powrot{ flex:none; }
+
+/* Wąski telefon: szyna schodzi do samych awatarów. */
+@media (max-width:400px){
+  .czat-forum{ grid-template-columns:60px minmax(0,1fr); gap:9px; }
+  .czat-rail{ padding-right:7px; }
+  .czat-rail .czat-avatar{ width:40px; height:40px; border-radius:14px; font-size:21px; }
+  .czat-rail-tytul{ font-size:10px; letter-spacing:.8px; }
+  .czat-rail-osoba strong{ font-size:11px; }
+  .czat-zakladka{ font-size:12px; }
+}
+
+.hub-pane .hub-sec-title h3{ font-size:21px; }
+
+/* Nagłówek sekcji. W czacie już go nie ma („Kto teraz gra", „Napisz do
+   wszystkich" — pusty czat i tak mówi sam, czym jest), ale klasy używa
+   ZadaniePanel i tam zostaje. */
+.czat-naglowek{
+  font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
+  font-size:21px; font-weight:800; margin:6px 2px 10px; line-height:1.2;
+}
+.czat-naglowek--pisz{ margin-top:20px; color:var(--p-magic-dk,#7A4DC2); }
+
+/* Awatar osoby. Wspólny dla szyny obecnych i dla wszystkiego, co jeszcze
+   pokaże czyjąś twarz. USUNIĘTE 2026-08-20: `.czat-online` / `.czat-osoba`
+   (poziomy pasek nad rozmową — zastąpiła go pionowa szyna) oraz `.czat-kanaly`
+   / `.czat-kanal` (trzy kafle kanałów — wjechały do nagłówka szuflady). */
 .czat-avatar{
   position:relative; width:58px; height:58px; border-radius:20px; display:grid; place-items:center;
   font-size:31px; line-height:1; background:rgba(255,255,255,.88);
@@ -614,34 +743,38 @@
 }
 .czat-lampka.is-gra{ background:#5FBF6A; }
 .czat-lampka.is-misja{ background:#E89A3D; }
-.czat-osoba strong{ font-size:13.5px; line-height:1.2; }
-.czat-osoba small{ font-size:11px; line-height:1.2; color:var(--p-ink-soft,#5A4F77); }
+/* Pod awatarem zostaje SAMO imię. Kraina wisi w atrybucie title — w szynie
+   obecnych byłaby trzecią linijką mikroskopijnego tekstu na osobę. */
 
 /* Wspólny czat — to są WIADOMOŚCI od dzieci, nie dziennik zdarzeń. */
-.czat-feed{ display:flex; flex-direction:column; gap:10px; }
+.czat-feed{ display:flex; flex-direction:column; gap:8px; }
+/* Karta wiadomości była za duża: przy 17 px treści i 12 px oddechu trzy wpisy
+   zajmowały cały ekran i czat wyglądał jak lista ogłoszeń, a nie rozmowa.
+   15,5 px dalej jest powyżej progu czytelności dla dziecka, a mieści się
+   dwa razy więcej rozmowy naraz. */
 .czat-wpis{
-  display:flex; gap:11px; align-items:flex-start; padding:12px 13px;
+  display:flex; gap:10px; align-items:flex-start; padding:10px 12px;
   background:rgba(255,255,255,.8); border:2px solid rgba(255,255,255,.9);
-  border-radius:20px; box-shadow:var(--shadow-md);
+  border-radius:18px; box-shadow:var(--shadow-md);
 }
 .czat-wpis.is-moja{
   background:linear-gradient(180deg,#FFF0C4,#F7DFA4); border-color:rgba(228,182,106,.75);
 }
 .czat-wpis-av{
-  width:44px; height:44px; flex:none; border-radius:15px; display:grid; place-items:center;
-  font-size:24px; line-height:1; background:rgba(255,255,255,.92);
+  width:38px; height:38px; flex:none; border-radius:13px; display:grid; place-items:center;
+  font-size:21px; line-height:1; background:rgba(255,255,255,.92);
 }
 .czat-wpis-tresc{ flex:1; min-width:0; }
 .czat-wpis-kto{
   display:block; font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
-  font-weight:800; font-size:15px; line-height:1.2; color:var(--p-magic-dk,#7A4DC2);
+  font-weight:800; font-size:14.5px; line-height:1.2; color:var(--p-magic-dk,#7A4DC2);
 }
 .czat-wpis.is-moja .czat-wpis-kto{ color:#8A5A18; }
-.czat-wpis-kto i{ font-style:normal; font-weight:700; font-size:11.5px; color:var(--p-ink-soft,#5A4F77); margin-left:5px; }
-.czat-wpis-tresc p{ margin:3px 0 0; font-size:16px; line-height:1.45; }
+.czat-wpis-tresc p{ margin:2px 0 0; font-size:15.5px; line-height:1.42; }
+/* Przycisk brawa jest POD tekstem wiadomości, dosunięty w prawo. */
 .czat-brawa{
-  flex:none; align-self:center; cursor:pointer; font-family:inherit; font-weight:800; font-size:14px;
-  display:inline-flex; align-items:center; gap:5px; min-height:42px; padding:7px 13px;
+  margin:7px 0 0 auto; cursor:pointer; font-family:inherit; font-weight:800; font-size:13px;
+  display:flex; align-items:center; justify-content:center; gap:5px; min-height:36px; padding:6px 13px;
   border:2px solid rgba(122,77,194,.3); border-radius:var(--r-pill,999px);
   background:rgba(255,255,255,.85); color:var(--p-magic-dk,#7A4DC2);
 }
@@ -660,16 +793,246 @@
 
 /* Powiększenia elementów współdzielonych — tylko wewnątrz czatu. */
 .hub-pane .hub-replies{ gap:8px; }
-.hub-pane .hub-replies button{ font-size:14.5px; min-height:50px; padding:12px 18px; border-width:2px; }
-.hub-pane .hub-bubble{ font-size:16px; line-height:1.5; padding:12px 15px; max-width:88%; }
+/* Gotowe zdania to SKRÓTY, nie treść. Przy 15,5 px i 52 px wysokości pięć
+   podpowiedzi zajmowało pół ekranu i przykrywało rozmowę, o którą chodzi. */
+.hub-pane .hub-replies{ gap:7px; }
+.hub-pane .hub-replies button{ font-size:13.5px; min-height:42px; padding:10px 15px; border-width:2px; }
+.hub-pane .hub-bubble{ font-size:17px; line-height:1.5; padding:13px 16px; max-width:88%; }
 .hub-pane .hub-bubble-who{ font-size:11.5px; }
 .hub-pane .hub-msg-head{ min-height:70px; padding:14px; gap:12px; }
 .hub-pane .hub-msg-av{ width:46px; height:46px; border-radius:15px; font-size:25px; }
 .hub-pane .hub-msg-copy strong{ font-size:16px; }
-.hub-pane .hub-msg-copy small{ font-size:13.5px; }
-.hub-pane .hub-note{ font-size:13.5px; line-height:1.5; }
-.hub-pane .hub-empty p{ font-size:15px; }
-.hub-pane .hub-composer input{ font-size:14.5px; }
+.hub-pane .hub-msg-copy small{ font-size:14px; }
+.hub-pane .hub-note{ font-size:14px; line-height:1.5; }
+.hub-pane .hub-empty p{ font-size:16px; }
+/* Pole do pisania jest aktywne (decyzja właściciela 2026-08-20) — musi
+   wyglądać jak zaproszenie, a nie jak wyszarzona atrapa.
+   Z-INDEX NIE JEST OZDOBĄ: przy dolnej krawędzi arkusza leży miękkie
+   rozjaśnienie (`.hub-sheet::after`, z-index 4, 74 px kremowego gradientu),
+   które ma sygnalizować „treść leci dalej". Pole do pisania stoi dokładnie
+   tam i wychodziło spod tego gradientu wyblakłe — wyglądało na wyłączone.
+   Teraz siedzi NAD nim, na pełnej bieli, więc jest widać, że da się w nie
+   kliknąć. Gradient dalej działa dla treści, która pod nie podjeżdża. */
+/* MARGINES U DOŁU NIE JEST ODDECHEM, TYLKO NAPRAWĄ.
+   Nad dokiem leży rozjaśniacz `.game-hud-bottom::before` (public/scena-3d/hud.css):
+   przy wysuniętej szufladzie sięga 118 px NAD dok i dochodzi tam prawie do
+   pełnego krycia, żeby ikony doku zostały czytelne na gęstej treści panelu.
+   Pole do pisania kończyło się ~46 px pod jego górną krawędzią — biało-kremowa
+   mgła kładła się na polu i na okrągłym ➤, przez co wyglądały jak wyłączone.
+   Z-INDEX TEGO NIE NAPRAWI: HUD to osobna, wyższa warstwa (`.game-hud`,
+   z-index 20) niż arkusz panelu (z-index 5). Jedyne wyjście, które nie psuje
+   czytelności doku, to skończyć pole NAD rozjaśniaczem. */
+.hub-pane .hub-composer{ position:relative; z-index:6; margin:12px 0 88px; }
+/* Ten sam powód: zielony „Wyślij do Mentora" stał dokładnie tam co pole czatu. */
+[data-testid="hub-pane-zadanie"] .hub-actions{ margin-bottom:88px; }
+.hub-pane .hub-composer input{
+  font-size:16px; min-height:52px; padding:13px 18px;
+  border:2px solid rgba(120,90,30,.3); background:#fff; color:var(--p-ink,#4e4d76);
+  box-shadow:inset 0 1px 2px rgba(120,90,30,.12);
+}
+.hub-pane .hub-composer input::placeholder{ color:var(--p-ink-soft,#5A4F77); opacity:.75; }
+/* WYBRANE POLE MA BYĆ WIDAĆ Z DRUGIEGO KOŃCA POKOJU.
+   Cienki obrys nie wystarcza: dziecko klika w pole, wyskakuje klawiatura
+   systemowa i przez sekundę nie wiadomo, czy trafiło. Zmienia się kolor
+   obrysu, grubość, tło idzie na czystą biel i dochodzi fioletowa poświata
+   — trzy sygnały naraz, bo jeden bywa niewidoczny przy jasnym ekranie
+   na dworze. `outline` zostaje osobno dla nawigacji klawiaturą. */
+.hub-pane .hub-composer input:focus{
+  border-color:#7A4DC2; background:#fff;
+  box-shadow:0 0 0 4px rgba(200,160,240,.55),inset 0 1px 2px rgba(120,90,30,.1);
+  outline:none;
+}
+.hub-pane .hub-composer input:focus-visible{ outline:3px solid rgba(122,77,194,.35); outline-offset:3px; }
+.hub-pane .hub-composer input:focus::placeholder{ opacity:.45; }
+/* Skoro pole jest aktywne, ➤ przestaje być ozdobą — dostaje wyraźny cień
+   i lekko podnosi się nad tło. */
+.hub-pane .hub-composer:focus-within button:not(:disabled){
+  box-shadow:0 3px 0 rgba(74,42,120,.55),0 0 0 4px rgba(200,160,240,.4);
+}
+
+/* ── zadanie od Wizkora (robione poza ekranem) ── */
+/* Rozmiary jak w czacie: to czyta dziecko, więc treść nie schodzi poniżej
+   16 px. Karteczki miejsc są zbudowane jak karteczka Porady dnia — papier,
+   pinezka, jedno zdanie — bo to ten sam gest: „weź jedną i zrób". */
+.zadanie-karta{
+  /* Miejsce w prawym górnym rogu jest zarezerwowane dla monety, więc nagłówek
+     i tekst mają własny padding od tej strony — inaczej tytuł wchodziłby pod
+     plakietkę przy dłuższej nazwie zadania. */
+  position:relative; border:2px solid rgba(255,223,130,.9); border-radius:var(--r-card,22px);
+  background:linear-gradient(180deg,rgba(255,252,232,.96),rgba(245,228,181,.96));
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.82),0 3px 0 rgba(125,73,25,.5),0 8px 15px rgba(72,53,26,.14);
+  padding:16px 84px 15px 16px; margin-bottom:14px;
+}
+.zadanie-moneta{ position:absolute; top:12px; right:12px; }
+/* Tytuł jest pierwszym wierszem karty (nadtytuł wyleciał — powtarzał belkę
+   szuflady), więc nie potrzebuje odstępu u góry.
+
+   MUSI SIĘ RÓŻNIĆ OD ZDANIA POD SPODEM. Wcześniej tytuł i cel miały ten sam
+   krój, ten sam kolor i podobną wagę — różniły się samym rozmiarem, a że oba
+   są grube i stoją tuż nad sobą, czytały się jak jeden blok tekstu i wzrok
+   nie miał gdzie zacząć. Trzy rzeczy to rozdzielają:
+
+     1. KOLOR — fiolet Wizkora zamiast atramentu treści; to on daje zadanie,
+        więc nagłówek mówi jego głosem.
+     2. ZŁOTY ROMB przed tytułem — ten sam kształt, co klejnot w kapeluszu
+        Wizkora i w obwódkach HUD-u. Rysowany CSS-em (obrócony kwadrat),
+        a nie znakiem ✦: glify symboli na Androidzie potrafią wejść jako
+        kolorowe emoji i nagłówek wyglądałby inaczej na co drugim telefonie.
+     3. ZŁOTA KRESKA za tytułem — dociąga wiersz do plakietki z monetą
+        i zamyka nagłówek jako osobne piętro karty. Przy długim tytule
+        kurczy się do zera i po prostu znika.
+
+   `align-items:flex-start`, bo tytuł bywa dwu- i trzywierszowy: romb ma
+   stać przy PIERWSZYM wierszu, a nie w pionowym środku bloku. */
+.zadanie-tytul{
+  display:flex; align-items:flex-start; gap:10px;
+  font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
+  font-size:26px; font-weight:800; margin:0 0 10px; line-height:1.12;
+  letter-spacing:.2px;
+  color:#8a4fbd;
+  text-shadow:0 2px 0 rgba(255,255,255,.9);
+}
+
+.zadanie-tytul::before{
+  content:""; flex:none; width:15px; height:15px; margin-top:6px;
+  border-radius:4px; transform:rotate(45deg);
+  background:linear-gradient(180deg,#ffdf82,#e0a02c);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.75), 0 1px 0 rgba(150,95,20,.35);
+}
+
+.zadanie-tytul::after{
+  content:""; flex:1; min-width:0; height:3px; margin-top:12px;
+  border-radius:3px;
+  background:linear-gradient(90deg,#e8bd63,rgba(232,189,99,0));
+}
+/* Cel to JEDYNE zdanie, które dziecko musi zrozumieć — dostaje więc rozmiar
+   i wagę, a „jak" siada pod nim jako podpis, nie jako drugi akapit. */
+/* Cel zostaje najgrubszym ZDANIEM karty, ale juz nie konkuruje z tytulem:
+   tamten ma teraz wlasny kolor i ornament, wiec tu wystarczy waga 700
+   i atramentowy kolor tresci. */
+.zadanie-cel{ margin:0 0 7px; padding-right:0; font-size:18.5px; font-weight:700; line-height:1.38; color:var(--p-ink,#4e4d76); }
+.zadanie-jak{ margin:0; font-size:14.5px; line-height:1.4; color:var(--p-ink-soft,#5A4F77); }
+/* Zdanie o dowodzie: ten sam glos co `jak`, tylko odrobine wieksze - stoi
+   samo pod naglowkiem sekcji, wiec nie ma sie o co oprzec wzrokiem. */
+.zadanie-dowod{ margin:-4px 2px 12px; font-size:15px; line-height:1.42; color:var(--p-ink-soft,#5A4F77); }
+.zadanie-szept{ margin:2px 2px 16px; font-size:14px; line-height:1.45; color:var(--p-ink-soft,#5A4F77); }
+/* WZÓR, nie kolejne polecenie. Wcześniej stało tu samo zdanie pisanką pod
+   polem tekstowym — w tym rozmiarze i kolorze czytało się jak szept i dziecko
+   po prostu je mijało. Teraz jest karteczką z podpisem: własne tło, wyraźna
+   ramka od strony tekstu i podpis „Na przykład:" wersalikami nad zdaniem. */
+.zadanie-przyklad{
+  display:grid; gap:3px;
+  margin:10px 0 0; padding:11px 14px 12px;
+  border-radius:14px; border-left:4px solid var(--p-magic,#8A5CD6);
+  background:rgba(122,77,194,.09);
+}
+.zadanie-przyklad b{
+  font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
+  font-size:11px; font-weight:900; letter-spacing:1.2px; text-transform:uppercase;
+  color:var(--p-magic-dk,#7A4DC2);
+}
+.zadanie-przyklad span{
+  font-family:'Caveat', var(--font-display,'Baloo 2'), cursive;
+  font-size:20px; line-height:1.3; color:#4a3270;
+}
+
+/* Miejsca — karteczki, nie lista do odhaczenia. Wybór niczego nie blokuje. */
+.zadanie-miejsca{ display:grid; gap:10px; margin-bottom:6px; }
+/* ZWINIETA = IKONA + NAZWA. Opis dochodzi dopiero po wybraniu (patrz
+   `ZadaniePanel`), wiec karteczka w spoczynku jest niska i cztery mieszcza sie
+   na ekranie bez przewijania. */
+.zadanie-miejsce{
+  position:relative; display:grid; grid-template-columns:auto 1fr; gap:4px 12px; align-items:center;
+  text-align:left; cursor:pointer; font-family:inherit; color:var(--p-ink,#4e4d76);
+  padding:12px 14px; border:none; border-radius:16px;
+  background:linear-gradient(180deg,#FFF6C9,#FFEFAE);
+  box-shadow:0 2px 0 rgba(150,105,30,.28),0 7px 14px rgba(72,53,26,.14);
+  transform:rotate(-.7deg);
+}
+.zadanie-miejsce:nth-child(even){ transform:rotate(.8deg); }
+.zadanie-miejsce{ transition:opacity .18s ease, filter .18s ease, transform .18s ease; }
+/* JEDNO WYBRANE, RESZTA W TLE. Cztery jednakowo krzyczące karteczki to dla
+   dziecka lista do przeczytania od nowa przy każdym spojrzeniu. Po wyborze
+   zostaje jedna wyraźna — i to ona jest teraz zadaniem. Reszta nie znika
+   (wybór ma dać się zmienić), tylko cofa się o krok. */
+.zadanie-miejsca.ma-wybor .zadanie-miejsce{ opacity:.42; filter:saturate(.55); }
+.zadanie-miejsce.is-wybrane{
+  background:linear-gradient(180deg,#FFE6A8,#F4C95D);
+  box-shadow:0 3px 0 rgba(150,105,30,.45),0 10px 18px rgba(72,53,26,.24),inset 0 0 0 2.5px rgba(255,255,255,.7);
+  transform:rotate(0deg) scale(1.03);
+}
+.zadanie-miejsca.ma-wybor .zadanie-miejsce.is-wybrane{ opacity:1; filter:none; }
+.zadanie-miejsce.is-wybrane{ padding:14px 14px 15px; }
+.zadanie-miejsce.is-wybrane strong{ font-size:18px; }
+/* Opis wjezdza z gory, zeby bylo widac, ze WYROSL z tej karteczki, a nie ze
+   lista przeskoczyla. */
+.zadanie-miejsce small{ animation:zadanie-opis-wejscie .18s ease both; }
+@keyframes zadanie-opis-wejscie{
+  from{ opacity:0; transform:translateY(-4px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+@media (prefers-reduced-motion:reduce){
+  .zadanie-miejsce small{ animation:none; }
+  .zadanie-miejsce{ transition:none; }
+}
+.zadanie-pinezka{
+  position:absolute; top:-7px; left:50%; width:16px; height:16px; border-radius:50%; margin-left:-8px;
+  background:radial-gradient(circle at 35% 30%,#ff8f8f,#c0392b 70%);
+  box-shadow:0 2px 3px rgba(80,40,10,.35);
+}
+.zadanie-miejsce-emoji{ grid-row:1 / span 2; font-size:30px; line-height:1; }
+.zadanie-miejsce strong{ font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif; font-size:17px; }
+.zadanie-miejsce small{ font-size:14px; line-height:1.4; color:#6b5c3c; }
+
+/* Dowód dla Mentora */
+.zadanie-zdjecie{
+  width:100%; display:grid; justify-items:center; gap:5px; cursor:pointer; font-family:inherit;
+  padding:20px 14px; margin-bottom:10px; overflow:hidden;
+  border:2px dashed rgba(122,77,194,.45); border-radius:20px;
+  background:rgba(255,255,255,.72); color:var(--p-magic-dk,#7A4DC2);
+}
+.zadanie-zdjecie strong{ font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif; font-size:17px; }
+.zadanie-zdjecie small{ font-size:13.5px; color:var(--p-ink-soft,#5A4F77); }
+.zadanie-zdjecie img{ width:100%; max-height:220px; object-fit:cover; border-radius:14px; display:block; }
+.zadanie-zdjecie:disabled{ opacity:.7; cursor:default; }
+.zadanie-opis{
+  width:100%; box-sizing:border-box; resize:vertical; min-height:104px;
+  border:2px solid rgba(120,90,30,.22); border-radius:18px; padding:13px 15px;
+  font-family:inherit; font-size:16px; line-height:1.45; color:var(--p-ink,#4e4d76);
+  background:rgba(255,255,255,.9);
+}
+.zadanie-opis::placeholder{ color:var(--p-ink-soft,#5A4F77); opacity:.75; }
+.zadanie-opis:focus{
+  border-color:#7A4DC2; background:#fff;
+  box-shadow:0 0 0 4px rgba(200,160,240,.55); outline:none;
+}
+.zadanie-opis:focus-visible{ outline:3px solid rgba(122,77,194,.35); outline-offset:3px; }
+.zadanie-blad{
+  margin:10px 0 0; padding:11px 13px; border-radius:14px; font-size:14.5px; line-height:1.45;
+  background:rgba(232,154,61,.14); border:1px dashed rgba(180,115,34,.5); color:#5A3A12;
+}
+
+/* Czekanie i nagroda — po jednym ekranie na stan, nigdy dwa naraz. */
+.zadanie-czekanie,
+.zadanie-nagroda{
+  display:grid; justify-items:center; text-align:center; gap:10px; padding:22px 16px;
+  color:var(--p-magic-dk,#7A4DC2);
+}
+.zadanie-czekanie p,
+.zadanie-nagroda p{ margin:0; font-size:16px; line-height:1.5; color:var(--p-ink,#4e4d76); }
+.zadanie-czekanie .hub-btn{ margin-top:6px; }
+.zadanie-notatka{
+  font-family:'Caveat', var(--font-display,'Baloo 2'), cursive; font-size:20px; line-height:1.35;
+  color:var(--p-magic-dk,#7A4DC2);
+}
+.zadanie-kwota{
+  font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
+  font-size:30px; font-weight:800; color:#8A5A18;
+}
+.zadanie-podglad{
+  width:100%; max-height:200px; object-fit:cover; border-radius:16px; display:block;
+  box-shadow:0 3px 0 rgba(125,73,25,.35);
+}
 
 /* ── wiadomości ── */
 .hub-list-head{ display:flex; justify-content:space-between; align-items:baseline; margin:0 2px 8px; }
@@ -1687,13 +2050,25 @@
 /* ── Oddech: ekran ── */
 /* Wszystko, co rosnie w trakcie seansu, wisi na jednej zmiennej --poziom
    (0 przy pierwszym oddechu, 1 przy piatym): poswiata, jasnosc tla, liczba
-   swietlikow. Jedno zrodlo prawdy zamiast pieciu klas stanu. */
+   swietlikow. Jedno zrodlo prawdy zamiast pieciu klas stanu.
+
+   Zwykla zmienna CSS zmienia sie SKOKIEM, wiec przy kazdym domknietym cyklu
+   cala ta nagroda wskakiwala jedna klatka. Z `@property` przegladarka zna jej
+   typ i potrafi ja animowac - teraz naplywa przez 1,4 s. Tam, gdzie
+   `@property` nie ma, zostaje stare zachowanie i nic sie nie psuje. */
+@property --poziom{
+  syntax:"<number>";
+  inherits:true;
+  initial-value:0;
+}
+
 .oddech-ekran{
   --poziom:0;
   position:fixed; inset:0; z-index:60; overflow:hidden;
   display:block;
   background:radial-gradient(circle at 50% 42%,#5b4a86 0%,#3a2f5c 58%,#241d3c 100%);
   animation:oddech-wejscie .35s ease-out;
+  transition:--poziom 1.4s ease;
 }
 @keyframes oddech-wejscie{ from{ opacity:0; } to{ opacity:1; } }
 
@@ -1729,7 +2104,16 @@
   position:absolute; left:50%; bottom:min(30vh,210px); z-index:1;
   width:min(54vw,196px); translate:-50% 0;
   transform-origin:50% 100%; transform:scale(.9);
-  transition-property:transform; transition-timing-function:ease-in-out;
+  /* `rotate` jest na liscie razem z `transform`, bo kolysanie na wstrzymaniu
+     konczy sie w losowym miejscu cyklu (wstrzymanie trwa 1,52 s, animacja
+     1,6 s) - bez przejscia balon prostowalby sie skokiem w chwili, gdy
+     animacja znika. Teraz reszta przechylu splywa razem z wydechem. */
+  transition-property:transform, rotate;
+  /* Sinusoida (ease-in-out z lagodniejszymi koncami), a nie `ease-in-out`.
+     Ta druga hamuje pod koniec tak mocno, ze wdech przez ostatnie pol sekundy
+     stoi w miejscu, a potem rusza znowu przy wydechu - i to czyta sie jak
+     zacinanie, mimo ze zadnej przerwy w kodzie nie ma. */
+  transition-timing-function:cubic-bezier(.37,0,.63,1);
 }
 .oddech-balon img{ width:100%; height:auto; display:block; }
 .oddech-balon--odliczanie{ transform:scale(.86); }
@@ -1737,15 +2121,24 @@
 .oddech-balon--wstrzymaj{ transform:scale(1.12); animation:oddech-kolysanie 1.6s ease-in-out infinite; }
 .oddech-balon--wydech{ transform:scale(.9); }
 .oddech-balon--koniec{ transform:scale(1); }
+/* Kolysanie zaczyna sie i konczy w ZERZE. Wczesniej pierwsza klatka ustawiala
+   od razu -2,2 stopnia, wiec balon przeskakiwal w bok w chwili wejscia we
+   wstrzymanie i drugi raz przy wyjsciu z niego. */
 @keyframes oddech-kolysanie{
-  0%,100%{ rotate:-2.2deg; }
-  50%{ rotate:2.2deg; }
+  0%,100%{ rotate:0deg; }
+  25%{ rotate:-2.2deg; }
+  75%{ rotate:2.2deg; }
 }
 
-/* Slowo jedzie razem z balonem - rosnie na wdechu, maleje na wydechu. Kolor i
-   znak mowia to samo drugi raz, dla dziecka, ktore jeszcze slabo czyta. */
-/* Slowo siedzi na jasnej plytce, bo na balonie sa zlote gwiazdki i sam napis
-   po nich plywal - litery gubily sie w tle wlasnego obiektu. */
+/* Slowo jedzie razem z balonem - rosnie na wdechu, maleje na wydechu. Kolor
+   i strzalka mowia to samo drugi raz, dla dziecka, ktore jeszcze slabo czyta.
+   Plytka jest jasna, bo na balonie sa zlote gwiazdki i sam napis po nich
+   plywal - litery gubily sie w tle wlasnego obiektu.
+
+   NIC SIE TU NIE PRZELACZA SKOKIEM. Kolor plynie przejsciem, napisy przenikaja
+   sie przezroczystoscia, strzalka sie obraca. Wczesniej kazda zmiana fazy byla
+   podmiana: inny kolor, inny tekst, inny ksztalt - trzy mrugniecia naraz w
+   scenie, ktora ma uspokajac. */
 .oddech-slowo{
   position:absolute; left:50%; top:36%; translate:-50% 0;
   display:grid; justify-items:center; gap:5px;
@@ -1754,6 +2147,10 @@
   box-shadow:0 2px 0 rgba(40,80,110,.18);
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-size:25px; font-weight:800; letter-spacing:.4px; line-height:1;
+  color:#2d5f86;
+  /* Kolor i rozmiar plytki tez sa przejsciem: wejscie z odliczania w pierwszy
+     wdech zmienia oba naraz i bez tego byloby to szarpniecie na starcie. */
+  transition:color .85s ease, font-size .5s ease, padding .5s ease, top .5s ease, opacity .6s ease;
 }
 .oddech-slowo--odliczanie{
   font-size:46px; color:#2d5f86; top:31%; padding:6px 22px 8px; border-radius:20px;
@@ -1762,18 +2159,69 @@
 .oddech-slowo--wstrzymaj{ color:#9a6a12; }
 .oddech-slowo--wydech{ color:#4a3d86; }
 
-/* Trojkat z obramowan: strzalka w gore na wdechu, w dol na wydechu, a na
-   wstrzymaniu plaska kreska - trzeci ksztalt, nie trzeci odcien. */
-.oddech-znak{ width:0; height:0; border-style:solid; opacity:.9; }
-.oddech-slowo--wdech .oddech-znak{
-  border-width:0 10px 14px 10px; border-color:transparent transparent #1f6390 transparent;
+/* Strzalka: JEDEN ksztalt, ktory sie obraca. W gore na wdechu, w bok na
+   wstrzymaniu, w dol na wydechu - i dalej tym samym kierunkiem w kolejny
+   oddech (kat rosnie o 360 na cykl, patrz `EkranOddechu.jsx`).
+   Cwierc obrotu trwa dluzej niz zmiana fazy w kodzie, bo ma byc widoczne, ze
+   strzalka SIE OBRACA, a nie ze mrugnela w nowej pozycji.
+
+   Cien siedzi na tej warstwie, ktora sie NIE obraca - swiatlo w scenie idzie
+   z gory niezaleznie od tego, jak strzalka akurat stoi. */
+.oddech-strzalka{
+  display:block; line-height:0;
+  filter:drop-shadow(0 2px 0 rgba(35,62,102,.22)) drop-shadow(0 4px 5px rgba(20,40,70,.18));
 }
-.oddech-slowo--wydech .oddech-znak{
-  border-width:14px 10px 0 10px; border-color:#4a3d86 transparent transparent transparent;
+
+.oddech-strzalka svg{
+  width:34px; height:34px; display:block;
+  transition:rotate 1.1s cubic-bezier(.4,0,.25,1);
 }
-.oddech-slowo--wstrzymaj .oddech-znak{
-  width:26px; height:6px; border:none; border-radius:3px; background:#9a6a12;
+
+/* Zaokraglenie rogow bez rysowania lukow: gruby obrys w tym samym kolorze,
+   ze zlaczeniami `round`, rozdyma sylwetke i zaokragla KAZDY rog naraz.
+   `paint-order` kaze narysowac obrys pod wypelnieniem, wiec kolor zostaje
+   plaski, a nie ciemniejszy na brzegach. */
+.oddech-strzalka-ksztalt{
+  fill:currentColor; stroke:currentColor; stroke-width:5.5;
+  stroke-linejoin:round; stroke-linecap:round;
+  paint-order:stroke fill;
 }
+
+/* Ta sama sciezka drugi raz, w tym samym rozdeciu - inaczej swiatlo lezaloby
+   w srodku plaskiej strzalki i nie siegalo jej krawedzi. */
+.oddech-strzalka-swiatlo{
+  stroke:url(#oddech-strzalka-swiatlo); stroke-width:5.5;
+  stroke-linejoin:round; stroke-linecap:round;
+  paint-order:stroke fill;
+}
+
+/* Napisy jeden na drugim: siatka z jedna komorka. Plytka bierze szerokosc
+   najszerszego z nich, wiec przestaje skakac przy kazdym slowie. */
+/* `text-align:center` NIE jest ozdoba: napisy leza jeden na drugim w komorce
+   szerokiej jak najdluzszy z nich, wiec bez tego krotsze slowa ("wdech")
+   trzymalyby sie lewej krawedzi i skakaly w bok wzgledem dluzszych. */
+.oddech-napisy{ display:grid; text-align:center; justify-items:center; }
+.oddech-napis{
+  grid-area:1 / 1;
+  opacity:0; transform:translateY(4px) scale(.94);
+  transition:opacity .45s ease, transform .45s ease;
+}
+.oddech-napis.jest-teraz{ opacity:1; transform:none; }
+/* Napisy nieaktywne zostaja w siatce (dzieki temu plytka ma stala szerokosc),
+   ale odliczanie jest OSOBNYM przypadkiem: cyfry ida 46 px, wiec gdyby slowa
+   lezaly pod nimi, plytka na starcie mialaby szerokosc slowa „wstrzymaj"
+   w tym rozmiarze - polowe ekranu. Na czas odliczania slowa znikaja z ukladu,
+   a potem znika z niego cyfra. */
+.oddech-slowo--odliczanie .oddech-napis:not(.oddech-napis--licznik){ display:none; }
+.oddech-slowo:not(.oddech-slowo--odliczanie) .oddech-napis--licznik{ display:none; }
+
+/* Na koniec seansu plytka schodzi razem z ostatnim wydechem - pusta biala
+   ramka ze strzalka nie ma juz nic do powiedzenia. */
+.oddech-slowo--koniec{ opacity:0; }
+
+.oddech-ekran.bez-ruchu .oddech-strzalka svg,
+.oddech-ekran.bez-ruchu .oddech-napis,
+.oddech-ekran.bez-ruchu .oddech-slowo{ transition:none; }
 
 /* Sznurki rysuje SVG rozpiete na calej scenie (`EkranOddechu.jsx`) — punkty
    zaczepienia licza sie z pomiaru lapek i wezelka, wiec trzymaja sie siebie na
@@ -1884,6 +2332,7 @@
 .oddech-ekran.bez-ruchu .oddech-iskra,
 .oddech-ekran.bez-ruchu .oddech-poswiata,
 .oddech-ekran.bez-ruchu .oddech-pufy span{ animation:none; }
+.oddech-ekran.bez-ruchu{ transition:none; }
 
 .oddech-zamknij{
   position:absolute; top:calc(14px + env(safe-area-inset-top,0px)); right:14px; z-index:3;
@@ -2135,3 +2584,5 @@
   .reflektor-postac{ animation:none }
   .reflektor-obrecz{ animation:none; box-shadow:0 0 0 4px rgba(255,224,140,.3), 0 0 22px 6px rgba(255,206,90,.5) }
 }
+
+/* hub.css — pelny plik, 2426 linii (odswiezenie dla watchera Vite) */

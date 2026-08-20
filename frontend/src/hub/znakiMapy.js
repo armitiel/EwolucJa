@@ -46,10 +46,29 @@ export function znakiGotowe(scena) {
 }
 
 /**
- * Zdejmuje znak z mapy natychmiast i na stałe (do czasu `pokazZnakNaMapie`).
- * Bez animacji i bez dźwięku — to nie jest zebranie znaku, tylko jego brak.
+ * Identyfikatory znaków o wspólnym przedrostku, np. wszystkie „gwiazda-".
+ * Czytamy je ze SCENY, a nie z listy w kodzie: gwiazdki stoją w `mapa.json`
+ * i dopisanie jedenastej nie może wymagać poprawki w trzech plikach naraz.
  */
-export function schowajZnakZMapy(scena, znak) {
+export function znakiZPrefiksem(scena, prefiks) {
+  return markery(scena)
+    .map((m) => m?.id)
+    .filter((id) => typeof id === "string" && id.startsWith(prefiks));
+}
+
+/**
+ * Wyłącza POWRÓT znaku, nie ruszając tego, co właśnie widać na mapie.
+ *
+ * Tym różni się od `schowajZnakZMapy`, że gwiazdka ma się normalnie wchłonąć
+ * — z iskrami i dźwiękiem, bo to jest cała nagroda za bieg — a dopiero potem
+ * NIE odrosnąć. Wymuszenie stanu „gone" w tej samej klatce ucięłoby animację
+ * wchłaniania i wyglądałoby, jakby gwiazdka zniknęła przed dotknięciem.
+ *
+ * Oryginalne czasy zapamiętujemy TYLKO przy pierwszym wyłączeniu — drugie
+ * wywołanie zapisałoby nieskończoność jako „oryginał" i znak nie wróciłby
+ * nigdy, także po skończeniu zadania.
+ */
+export function wstrzymajPowrotZnaku(scena, znak) {
   const m = znajdz(scena, znak);
   if (!m) return false;
   try {
@@ -59,10 +78,50 @@ export function schowajZnakZMapy(scena, znak) {
         respawnPierwszy: m.def?.respawnPierwszy,
       });
     }
-    // Publiczne API tam, gdzie istnieje: `false` = „nie wracaj" (respawn ∞).
     if (typeof scena.ustawPowrotZnaku === "function") scena.ustawPowrotZnaku(znak, false);
     else if (m.def) m.def.respawn = Infinity;
     if (m.def && m.def.respawnPierwszy !== undefined) m.def.respawnPierwszy = Infinity;
+    return true;
+  } catch (err) {
+    console.warn("[znakiMapy] nie udało się wstrzymać powrotu znaku", znak, err);
+    return false;
+  }
+}
+
+/**
+ * Oddaje znakowi normalny cykl powrotów. Nie stawia go na mapie — to robi
+ * `pokazZnakNaMapie`; tutaj chodzi tylko o to, żeby znak, który akurat jest
+ * wchłonięty, mógł znów odrosnąć sam z siebie.
+ */
+export function wznowPowrotZnaku(scena, znak) {
+  const m = znajdz(scena, znak);
+  if (!m) return false;
+  try {
+    const zapamietany = powrotOryginalny.get(znak);
+    const powrot = zapamietany ? zapamietany.respawn : m.def?.respawn;
+    const wartosc = Number.isFinite(powrot) ? powrot : 3.2;
+    if (typeof scena.ustawPowrotZnaku === "function") scena.ustawPowrotZnaku(znak, wartosc);
+    else if (m.def) m.def.respawn = wartosc;
+    if (m.def && zapamietany && zapamietany.respawnPierwszy !== undefined) {
+      m.def.respawnPierwszy = zapamietany.respawnPierwszy;
+    }
+    return true;
+  } catch (err) {
+    console.warn("[znakiMapy] nie udało się wznowić powrotu znaku", znak, err);
+    return false;
+  }
+}
+
+/**
+ * Zdejmuje znak z mapy natychmiast i na stałe (do czasu `pokazZnakNaMapie`).
+ * Bez animacji i bez dźwięku — to nie jest zebranie znaku, tylko jego brak.
+ */
+export function schowajZnakZMapy(scena, znak) {
+  const m = znajdz(scena, znak);
+  if (!m) return false;
+  // Najpierw powrót (to samo, co przy zbieraniu), potem twarde zgaszenie.
+  if (!wstrzymajPowrotZnaku(scena, znak)) return false;
+  try {
     m.state = "gone";
     m.phase = 0;
     m.setVisible?.(false);
@@ -81,15 +140,8 @@ export function schowajZnakZMapy(scena, znak) {
 export function pokazZnakNaMapie(scena, znak) {
   const m = znajdz(scena, znak);
   if (!m) return false;
+  if (!wznowPowrotZnaku(scena, znak)) return false;
   try {
-    const zapamietany = powrotOryginalny.get(znak);
-    const powrot = zapamietany ? zapamietany.respawn : m.def?.respawn;
-    const wartosc = Number.isFinite(powrot) ? powrot : 3.2;
-    if (typeof scena.ustawPowrotZnaku === "function") scena.ustawPowrotZnaku(znak, wartosc);
-    else if (m.def) m.def.respawn = wartosc;
-    if (m.def && zapamietany && zapamietany.respawnPierwszy !== undefined) {
-      m.def.respawnPierwszy = zapamietany.respawnPierwszy;
-    }
     if (typeof scena.pokazZnak === "function") scena.pokazZnak(znak);
     else if (m.state === "gone") { m.state = "appear"; m.phase = 0; m.setVisible?.(true); }
     return true;

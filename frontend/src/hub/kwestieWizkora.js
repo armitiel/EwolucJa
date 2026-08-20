@@ -13,6 +13,7 @@
  * — hub i pulpit pytają je o to samo.
  */
 import { CEL_DOMYSLNY, NAGRODA_MONET } from "./zadanieGwiazdek.js";
+import { stanZadania as stanZadaniaWizkora, zadanieDoZlecenia } from "./zadanieWizkora.js";
 
 /**
  * Czarodziej na mapie: identyfikator jego znaku w module sceny (`xf`
@@ -48,6 +49,8 @@ export const ZNAK_CZARODZIEJA = "czarodziej";
  *   "nagroda"         → otwórz ekran wygranej za gwiazdki
  *   "zlec:<id gry>"   → ujawnij misję: znak tej gry wchodzi na mapę
  *   "naplac:<id gry>" → otwórz ekran wygranej za rozegraną partię
+ *   "zlecReal:<id>"   → zleć zadanie do zrobienia poza ekranem (ląduje w zwoju)
+ *   "otworzZadanie"   → otwórz zakładkę z tym zadaniem
  *   null              → sam przycisk zamykający, nic się nie dzieje
  *
  * ZADANIA IDĄ PO KOLEI, nie równolegle. Wizkor zaczyna mówić o grach dopiero
@@ -62,6 +65,62 @@ export function powitanieCzarodzieja(z, misja) {
   if (z.wyplacone) {
     // ── ŁAŃCUCH MISJI Z GRAMI ─────────────────────────────────────────
     if (!misja) {
+      // ── ZADANIE POZA EKRANEM ────────────────────────────────────────
+      // Wchodzi dopiero, gdy gry są rozliczone. Kolejność jest tu tak samo
+      // twarda jak wyżej: dziecko ma jeden cel naraz, a to jest jedyny cel,
+      // którego nie da się osiągnąć klikaniem — więc nie może się kłócić
+      // o uwagę z niczym na mapie.
+      const real = stanZadaniaWizkora();
+
+      if (real.doOdbioru) {
+        return {
+          ...baza,
+          tekst:
+            `Mentor przeczytał to, co mu wysłałeś. Przyjął. ` +
+            `Należy ci się ${real.def.nagroda} monet — bierz.`,
+          wyroznienie: `${real.def.nagroda} monet`,
+          przycisk: "Odbieram nagrodę!",
+          akcja: "otworzZadanie",
+        };
+      }
+
+      if (real.czeka) {
+        return {
+          ...baza,
+          tekst:
+            "Twoje zadanie jest u Mentora. Nie musisz nad nim stać — " +
+            "zajrzyj do wiadomości później.",
+          wyroznienie: "u Mentora",
+          przycisk: "Dobrze!",
+          akcja: null,
+        };
+      }
+
+      if (real.doZrobienia) {
+        return {
+          ...baza,
+          tekst:
+            `Pamiętasz o zadaniu? „${real.def.tytul}" czeka w twoich wiadomościach. ` +
+            "Tego nie zrobisz tutaj — to trzeba zrobić naprawdę.",
+          wyroznienie: real.def.tytul,
+          przycisk: "Otwieram zadanie",
+          akcja: "otworzZadanie",
+        };
+      }
+
+      const nowe = zadanieDoZlecenia();
+      if (nowe) {
+        return {
+          ...baza,
+          tekst:
+            `Mapę już znasz, wędrowcze. Teraz coś trudniejszego: ${nowe.cel} ` +
+            `Zapiszę ci to w wiadomościach, a Mentor sprawdzi. ${nowe.nagroda} monet.`,
+          wyroznienie: `${nowe.nagroda} monet`,
+          przycisk: "Zrobię to!",
+          akcja: `zlecReal:${nowe.id}`,
+        };
+      }
+
       return {
         ...baza,
         tekst:

@@ -13,10 +13,25 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAdventureDane } from "../adventure/engine/useAdventure.js";
-import { kiedyTekst, oznaczPrzeczytana, wpisZadania, zbierzWiadomosci } from "./wiadomosci.js";
+import { kiedyTekst, oznaczPrzeczytana, wpisZadania, wpisZadaniaWizkora, zbierzWiadomosci } from "./wiadomosci.js";
 
 const MIN_WYSOKOSC = 360;
 const MAX_WYSOKOSC = 530;
+
+/**
+ * JEDNO ZADANIE W REALU NA EKRANIE, nie dwa.
+ *
+ * Misje przygody (`adventure/`) są dziś MOCKUPEM — dane demo z
+ * `mapa-iskier.v1.json`, bez Mentora i bez własnego ekranu. W zwoju stawały
+ * obok prawdziwego zadania Wizkora, więc dziecko widziało dwa zadania,
+ * z których jedno prowadziło donikąd — a cała ta gra stoi na jednym celu
+ * naraz. Zwój pokazuje więc wyłącznie zadanie Wizkora.
+ *
+ * Zostawiam to jako STAŁĄ, nie jako skasowany kod: gdy przygoda dostanie
+ * prawdziwe misje, wystarczy `true` i wpis wraca na swoje miejsce pod
+ * zadaniem Wizkora.
+ */
+const POKAZ_MISJE_PRZYGODY = false;
 
 export default function MessageScroll({ open, onClose, onZmiana }) {
   const navigate = useNavigate();
@@ -32,8 +47,18 @@ export default function MessageScroll({ open, onClose, onZmiana }) {
 
   // Zadanie w realu stoi na górze i nie miesza się z wieściami — ma inny
   // status (trwa) niż one (przyszły, przeczytane, koniec).
-  const zadanie = useMemo(() => wpisZadania(adventure, state, nextStep), [adventure, state, nextStep]);
-  const pozycje = useMemo(() => (zadanie ? [zadanie, ...wiesci] : wiesci), [zadanie, wiesci]);
+  const zadanie = useMemo(
+    () => (POKAZ_MISJE_PRZYGODY ? wpisZadania(adventure, state, nextStep) : null),
+    [adventure, state, nextStep]
+  );
+  // Drugie przypięte: zadanie od Wizkora do zrobienia poza ekranem. Stoi NAD
+  // misją przygody, bo to ono pali plakietkę na zakładce — dziecko, które
+  // otwiera zwój z powodu „1", ma je zobaczyć pierwsze.
+  const zadanieWizkora = useMemo(() => (open ? wpisZadaniaWizkora() : null), [open]);
+  const pozycje = useMemo(
+    () => [zadanieWizkora, zadanie, ...wiesci].filter(Boolean),
+    [zadanieWizkora, zadanie, wiesci]
+  );
 
   /* ── pomiar: pergamin rośnie do treści ───────────────────────────────── */
   const przelicz = useCallback((animowane) => {
@@ -117,7 +142,20 @@ export default function MessageScroll({ open, onClose, onZmiana }) {
                 <p className="message-scroll-note">Na razie cisza. To też jest w porządku.</p>
               ) : (
                 pozycje.map((pozycja) => {
-                  const otwarta = rozwinieta === pozycja.klucz;
+                  /**
+                   * ZADANIE JEST ZAWSZE OTWARTE. Wieść trzeba rozwinąć, bo
+                   * jest ich wiele i lista ma dać się przejrzeć jednym rzutem
+                   * oka. Zadanie jest jedno i po to się tu przyszło —
+                   * kazanie dziecku klikać, żeby zobaczyło, co ma zrobić,
+                   * dokładało krok przed każdą treścią i robiło z jednej
+                   * rzeczy dwie wersje tego samego wpisu.
+                   */
+                  const przypieta = !!pozycja.przypieta;
+                  const otwarta = przypieta || rozwinieta === pozycja.klucz;
+                  // Rozwinięte zadanie nie jest przełącznikiem, więc nie jest
+                  // też przyciskiem — czytnik ekranu ma czytać nagłówek, a nie
+                  // proponować kliknięcie, które nic nie robi.
+                  const Naglowek = przypieta ? "div" : "button";
                   // „Zobacz" ma sens tylko wtedy, gdy prowadzi GDZIE INDZIEJ.
                   // Wieść o rozjaśnieniu świata pokazuje się w tym samym świecie,
                   // po którym dziecko właśnie chodzi — przycisk kazałby mu
@@ -132,29 +170,58 @@ export default function MessageScroll({ open, onClose, onZmiana }) {
                         pozycja.przypieta ? " is-quest" : ""
                       }`}
                     >
-                      <button
+                      <Naglowek
                         className="scroll-message-head"
-                        type="button"
-                        aria-expanded={otwarta}
-                        onClick={() => przelaczPozycje(pozycja)}
+                        {...(przypieta
+                          ? {}
+                          : {
+                              type: "button",
+                              "aria-expanded": otwarta,
+                              onClick: () => przelaczPozycje(pozycja),
+                            })}
                       >
                         <span className="scroll-message-avatar">
                           <img src={pozycja.ikona} alt="" aria-hidden="true" draggable="false" />
                         </span>
                         <span className="scroll-message-copy">
                           <strong>{pozycja.tytul}</strong>
-                          <small>{otwarta ? "" : pozycja.tresc}</small>
+                          {/* Zajawka tylko w wierszu zwiniętym. Otwarty wpis ma
+                              tę samą treść niżej, w pełnym rozmiarze — dwa razy
+                              to samo zdanie, raz drobne, raz duże, czytało się
+                              jak dwa różne. */}
+                          {otwarta ? null : <small>{pozycja.tresc}</small>}
                         </span>
                         <span className="scroll-message-meta">
-                          {pozycja.przypieta ? pozycja.etykieta : kiedyTekst(pozycja.kiedy)}
-                          {pozycja.nieprzeczytana ? <i /> : null}
+                          {/* Zadanie dostaje PLAKIETKĘ ze stanem, wieść — datę.
+                              To dwie różne rzeczy: „jest co zrobić" kontra
+                              „przyszło wtedy a wtedy".
+
+                              Kropka „jest co zrobić" siedzi W PLAKIETCE, a nie
+                              obok niej: osobno były to dwa znaczki mówiące to
+                              samo, w dwóch miejscach i w dwóch kolorach. */}
+                          {pozycja.przypieta ? (
+                            <b className="scroll-message-tag">
+                              {pozycja.etykieta}
+                              {pozycja.nieprzeczytana ? <i /> : null}
+                            </b>
+                          ) : (
+                            <>
+                              {kiedyTekst(pozycja.kiedy)}
+                              {pozycja.nieprzeczytana ? <i /> : null}
+                            </>
+                          )}
                         </span>
-                      </button>
+                      </Naglowek>
 
                       <div className="scroll-message-body" hidden={!otwarta}>
                         {pozycja.autor ? <span>od {pozycja.autor}</span> : null}
+                        {/* W zwoju stoi TYLKO cel: „na czym to polega". Zdanie
+                            „jak to zrobić" jest instrukcją do wykonania, a nie
+                            do przeczytania w skrzynce — ma swoje miejsce
+                            w panelu zadania, gdzie dziecko za chwilę coś kliknie,
+                            i Wizkor czyta je tam na głos. Tutaj rozcieńczało
+                            jedno zdanie, które naprawdę trzeba zrozumieć. */}
                         <p>{pozycja.tresc}</p>
-                        {pozycja.jak ? <p className="scroll-message-how">{pozycja.jak}</p> : null}
                         {pozycja.notatka ? <p className="scroll-message-note">„{pozycja.notatka}”</p> : null}
                         {celObcy ? (
                           <button

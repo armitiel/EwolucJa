@@ -44,6 +44,11 @@ const PUSTE = {
   aktywne: false,
   cel: CEL_DOMYSLNY,
   zebrane: 0,
+  // Identyfikatory gwiazdek już zabranych z mapy („gwiazda-3"…). Trzymamy je
+  // W ZAPISIE, a nie w pamięci sceny, bo mapa buduje się od nowa przy każdym
+  // wejściu do świata: bez tej listy dziecko wracałoby po przerwie do lasu
+  // pełnego gwiazdek, mając na liczniku 7 z 10.
+  zebraneZnaki: [],
   spelnione: false,
   wyplacone: false,
 };
@@ -55,8 +60,14 @@ function czytaj() {
     const cel = Number(surowe.cel) || CEL_DOMYSLNY;
     const zebrane = Math.max(0, Math.min(cel, Number(surowe.zebrane) || 0));
     const wyplacone = !!surowe.wyplacone;
+    // Zapisy sprzed tej zmiany nie mają listy — wtedy pusta, a nie brak pola:
+    // wołający ma dostać tablicę i nie sprawdzać jej istnienia za każdym razem.
+    const zebraneZnaki = Array.isArray(surowe.zebraneZnaki)
+      ? surowe.zebraneZnaki.filter((z) => typeof z === "string")
+      : [];
     return {
       istnieje: true,
+      zebraneZnaki,
       // „Aktywne" = licznik ma się pokazywać. Po odebraniu nagrody zadanie
       // jest skończone, więc kafelek schodzi z HUD-u, ale wpis ZOSTAJE —
       // inaczej kolejna rozmowa z czarodziejem zaczynałaby je od nowa.
@@ -75,7 +86,12 @@ function zapisz(stan) {
   try {
     localStorage.setItem(
       KLUCZ,
-      JSON.stringify({ cel: stan.cel, zebrane: stan.zebrane, wyplacone: stan.wyplacone })
+      JSON.stringify({
+        cel: stan.cel,
+        zebrane: stan.zebrane,
+        zebraneZnaki: stan.zebraneZnaki || [],
+        wyplacone: stan.wyplacone,
+      })
     );
   } catch {}
 }
@@ -94,7 +110,8 @@ export function rozpocznijZadanie(cel = CEL_DOMYSLNY) {
   const teraz = czytaj();
   if (teraz) return teraz;
   const nowe = {
-    istnieje: true, aktywne: true, cel, zebrane: 0, spelnione: false, wyplacone: false,
+    istnieje: true, aktywne: true, cel, zebrane: 0, zebraneZnaki: [],
+    spelnione: false, wyplacone: false,
   };
   zapisz(nowe);
   return nowe;
@@ -105,11 +122,37 @@ export function rozpocznijZadanie(cel = CEL_DOMYSLNY) {
  * liczyć (zadania nie ma, jest spełnione albo rozliczone) — dzięki temu
  * wywołujący wie, czy pokazać jakąkolwiek reakcję.
  */
-export function dolicz() {
+export function dolicz(znak) {
   const teraz = czytaj();
   if (!teraz || teraz.spelnione || teraz.wyplacone) return null;
   const zebrane = Math.min(teraz.cel, teraz.zebrane + 1);
-  const nowe = { ...teraz, zebrane, spelnione: zebrane >= teraz.cel };
+  // Ta sama gwiazdka nie może wejść na listę dwa razy — po awaryjnym
+  // przywróceniu mapy (patrz `MAPA_PUSTA` w `Swiat.jsx`) dziecko zbiera te
+  // same znaki po raz drugi, a lista ma zostać listą, nie workiem powtórzeń.
+  const zebraneZnaki = teraz.zebraneZnaki || [];
+  const nowe = {
+    ...teraz,
+    zebrane,
+    zebraneZnaki:
+      typeof znak === "string" && !zebraneZnaki.includes(znak)
+        ? [...zebraneZnaki, znak]
+        : zebraneZnaki,
+    spelnione: zebrane >= teraz.cel,
+  };
+  zapisz(nowe);
+  return nowe;
+}
+
+/**
+ * Czyści listę zabranych gwiazdek, zostawiając licznik. Ratunek na sytuację,
+ * w której na mapie nie ma już czego zbierać, a zadanie wciąż trwa — patrz
+ * `MAPA_PUSTA` w `Swiat.jsx`. Bez tego zadanie dałoby się zablokować na
+ * amen, a dziecko biegałoby po pustym lesie.
+ */
+export function przywrocGwiazdkiNaMape() {
+  const teraz = czytaj();
+  if (!teraz) return PUSTE;
+  const nowe = { ...teraz, zebraneZnaki: [] };
   zapisz(nowe);
   return nowe;
 }

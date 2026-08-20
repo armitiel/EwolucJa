@@ -9,6 +9,7 @@
  */
 import { listNotifications, markRead } from "../adventure/engine/notifications.js";
 import { api, session } from "../services/api.js";
+import { stanZadania as stanZadaniaWizkora } from "./zadanieWizkora.js";
 
 const ETYKIETY_MENTORA = { hint: "Podpowiedź", artifact: "Artefakt", message: "Wiadomość" };
 
@@ -70,6 +71,11 @@ export async function zbierzWiadomosci() {
 }
 
 export async function oznaczPrzeczytana(pozycja) {
+  // Wpisy przypięte (zadania) nie są wieściami do odebrania — ich „nieprzeczytane"
+  // znaczy „jest co zrobić" i gaśnie dopiero, gdy dziecko to zrobi. Bez tego
+  // wyjścia rozwinięcie zadania w zwoju leciałoby do `markHintViewed`
+  // z identyfikatorem, którego baza nie zna.
+  if (pozycja.przypieta || pozycja.zrodlo === "zadanie-wizkora") return;
   if (pozycja.zrodlo === "swiat") {
     markRead(pozycja.id);
     return;
@@ -121,4 +127,45 @@ export function wpisZadania(adventure, state, nextStep) {
     autor: null,
     ikona: "/plecak.png",
   };
+}
+
+
+/**
+ * Zadanie od Wizkora do zrobienia POZA ekranem — jako wpis skrzynki.
+ *
+ * Różni się od wpisu przygody jedną rzeczą i to jest cała decyzja: dopóki jest
+ * co zrobić, wpis liczy się jako NIEPRZECZYTANY. Dzięki temu na zakładce
+ * wiadomości pali się „1" i dziecko widzi, że coś na nie czeka, nawet jeśli
+ * rozmowę z Wizkorem zamknęło pięć minut temu i zdążyło o niej zapomnieć.
+ * Wpis od Mentora, który wrócił z werdyktem, jest osobną wieścią — tu
+ * pokazujemy sam stan zadania, żeby nie liczyć tego samego dwa razy.
+ */
+export function wpisZadaniaWizkora() {
+  const stan = stanZadaniaWizkora();
+  if (!stan.istnieje || stan.wyplacone) return null;
+  return {
+    klucz: "zadanie-wizkora",
+    zrodlo: "zadanie-wizkora",
+    id: stan.id,
+    tytul: stan.def.tytul,
+    tresc: stan.def.cel,
+    jak: stan.def.jak || null,
+    notatka: stan.notatka || null,
+    kiedy: stan.zleconeAt,
+    etykieta: stan.etykieta,
+    cta: stan.cta,
+    // Do zrobienia albo do odebrania = coś czeka. „U Mentora" nie pali
+    // plakietki: dziecko nie ma wtedy nic do zrobienia i ponaglanie go
+    // byłoby tylko hałasem.
+    nieprzeczytana: stan.doZrobienia || stan.doOdbioru,
+    przypieta: true,
+    to: "/swiat?panel=zadanie",
+    autor: null,
+    ikona: "/wizPop.webp",
+  };
+}
+
+/** Ile pozycji ma się doliczyć do plakietki na zakładce wiadomości. */
+export function nieprzeczytaneZadaniaWizkora() {
+  return wpisZadaniaWizkora()?.nieprzeczytana ? 1 : 0;
 }

@@ -55,7 +55,17 @@ export const MISJE = [
     tytul: "Pamięć Mędrca",
     szukaj: "kartę Mędrca",
     ikona: "/assets/karty/rewers-3d.png",
-    nagroda: 40,
+    // Ksztalt ikony w HUD-zie: karta to prostokat 2:3 (dostaje wezsze
+    // pudelko i zaokraglone rogi), zeton to kwadrat. Bez tego HUD musialby
+    // zgadywac proporcje z nazwy pliku.
+    ksztaltIkony: "karta",
+    /* NAGRODA JEST ROZBITA NA DWIE. Znalezienie znaku na mapie to osobne
+       osiagniecie i od teraz ma wlasny ekran wygranej - dziecko biega po
+       polanie przez kilka minut i to bieganie musi sie oplacic samo w sobie,
+       niezaleznie od tego, czy zaraz zagra. Druga czesc placi Wizkor za
+       rozegrana partie. Suma zostaje ta sama, co przed rozbiciem (40). */
+    nagrodaZnalezienie: 15,
+    nagroda: 25,
     zlecenie: {
       tekst:
         "Masz oko do gwiazdek, wędrowcze. Teraz coś trudniejszego: " +
@@ -85,9 +95,13 @@ export const MISJE = [
       wyroznienie: "{nagroda} monet",
       przycisk: "Odbieram nagrodę!",
     },
+    nagrodaEkranZnalezienie: {
+      title: "Karta znaleziona!",
+      subtitle: "Rewers Mędrca leżał w trawie. Od teraz czeka w skrzyni z grami.",
+    },
     nagrodaEkran: {
       title: "Pamięć jak sowa!",
-      subtitle: "Znalazłeś kartę Mędrca i dobrałeś wszystkie pary.",
+      subtitle: "Dobrałeś wszystkie pary z karty Mędrca.",
     },
   },
   {
@@ -96,7 +110,11 @@ export const MISJE = [
     tytul: "Sekret pod puchem",
     szukaj: "złote piórko",
     ikona: "/assets/piorka/piorko-zlote.png",
-    nagroda: 50,
+    ksztaltIkony: "zeton",
+    /* Ten sam podzial co przy karcie — jedna zasada dla calego lancucha.
+       Suma bez zmian (50). */
+    nagrodaZnalezienie: 20,
+    nagroda: 30,
     zlecenie: {
       tekst:
         "Zostało jeszcze jedno. W trawie leży złote piórko, a pod nim " +
@@ -126,9 +144,13 @@ export const MISJE = [
       wyroznienie: "{nagroda} monet",
       przycisk: "Odbieram nagrodę!",
     },
+    nagrodaEkranZnalezienie: {
+      title: "Złote piórko!",
+      subtitle: "Leżało w trawie, a pod nim kopiec puchu. Gra czeka w skrzyni.",
+    },
     nagrodaEkran: {
       title: "Bystre oko!",
-      subtitle: "Znalazłeś złote piórko i odgadłeś sekret pod puchem.",
+      subtitle: "Odgadłeś sekret, który spał pod puchem.",
     },
   },
 ];
@@ -162,6 +184,7 @@ function zStanu(def, wpis) {
   const znaleziona = !!wpis?.znaleziona;
   const wygrana = !!wpis?.wygrana;
   const wyplacona = !!wpis?.wyplacona;
+  const wyplaconaZnalezienie = !!wpis?.wyplaconaZnalezienie;
   return {
     id: def.id,
     def,
@@ -169,10 +192,27 @@ function zStanu(def, wpis) {
     znaleziona,
     wygrana,
     wyplacona,
+    /** Czy zaplacilismy juz za SAMO znalezienie znaku na mapie. */
+    wyplaconaZnalezienie,
+    /** Znak znaleziony, a nagroda za znalezienie jeszcze nieodebrana. */
+    doNagrodyZaZnalezienie: znaleziona && !wyplaconaZnalezienie,
     /** Kafelek w HUD ma stać, dopóki misja nie jest rozliczona. */
     aktywna: ujawniona && !wyplacona,
-    /** Znak ma być na mapie od zlecenia i zostaje tam już na zawsze. */
-    naMapie: ujawniona || znaleziona,
+    /**
+     * Znak stoi na mapie WYŁĄCZNIE przez czas swojej misji: od zlecenia
+     * Wizkora do jej rozliczenia.
+     *
+     * Wcześniej zostawał tam na zawsze („skrót do gry"), więc przy drugiej
+     * misji dziecko miało na polanie dwa znaki naraz: piórko, którego szuka,
+     * i kartę, która już nic nie znaczy. Mapa przestawała wtedy mówić „tego
+     * szukasz" i zaczynała mówić „tu coś jest" — a cała ta gra stoi na jednym
+     * celu na ekranie. Gry i tak zostają w zakładce minigier na stałe
+     * (`wZakladce`), więc znika skrót, a nie dostęp.
+     *
+     * Misje idą po kolei i Wizkor zleca dopiero po rozliczeniu poprzedniej,
+     * więc ten warunek daje na mapie zawsze najwyżej JEDEN znak misji.
+     */
+    naMapie: ujawniona && !wyplacona,
     /** Gra siedzi w zakładce dopiero od znalezienia — i tam zostaje. */
     wZakladce: znaleziona,
   };
@@ -221,7 +261,8 @@ function zmien(id, latka) {
   const nowy = { ...teraz, ...latka };
   // Bez zmiany nie ma zapisu i nie ma zdarzenia — inaczej każde wejście
   // w znaleziony już znak przerysowywałoby hub bez powodu.
-  if (["ujawniona", "znaleziona", "wygrana", "wyplacona"].every((k) => !!teraz[k] === !!nowy[k])) {
+  const KLUCZE = ["ujawniona", "znaleziona", "wygrana", "wyplacona", "wyplaconaZnalezienie"];
+  if (KLUCZE.every((k) => !!teraz[k] === !!nowy[k])) {
     return zStanu(def, teraz);
   }
   zapis[id] = nowy;
@@ -243,6 +284,27 @@ export function odkryj(id) {
   const teraz = stanGry(id);
   if (!teraz || !teraz.ujawniona) return null;   // znaku i tak nie ma na mapie
   return zmien(id, { znaleziona: true });
+}
+
+/**
+ * Wypłata za SAMO ZNALEZIENIE znaku. Osobna od wypłaty za partię, bo to dwa
+ * różne wysiłki: bieganie po polanie i rozegranie gry. Dziecko dostaje za
+ * każdy z nich własny ekran wygranej, w chwili, w której naprawdę coś
+ * zrobiło — czekanie z całą nagrodą do końca partii znaczyło, że kilka minut
+ * szukania nie miało na ekranie żadnego śladu.
+ *
+ * Idempotentna, dokładnie jak `odbierzNagrode`: powrót do znalezionego już
+ * znaku ani podwójne kliknięcie w ekranie nagrody nie płacą drugi raz.
+ */
+export function odbierzNagrodeZnalezienia(id) {
+  const teraz = stanGry(id);
+  if (!teraz || !teraz.znaleziona || teraz.wyplaconaZnalezienie) {
+    return { stan: teraz, dodane: 0 };
+  }
+  const stan = zmien(id, { wyplaconaZnalezienie: true });
+  const ile = teraz.def.nagrodaZnalezienie || 0;
+  if (ile) dodajMonety(ile, `misja:${id}:znalezienie`);
+  return { stan, dodane: ile };
 }
 
 /**

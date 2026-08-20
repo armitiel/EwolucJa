@@ -67,10 +67,27 @@ function odswiezStareWpisy(wpis) {
   };
 }
 
+/**
+ * RODZAJE WIESCI, KTORYCH NIE UZYWAMY.
+ *
+ * `map_ready` („Świat się rozjaśnił — Las Szeptów czeka na ciebie") rodzi się
+ * w silniku przygody przy odblokowaniu krainy. Przygoda jest dziś mockupem
+ * (patrz `POKAZ_MISJE_PRZYGODY` w `hub/MessageScroll.jsx`), więc ta wieść
+ * mówiła dziecku o krainie, do której nie ma jak pójść — i stała w zwoju
+ * pod jedynym prawdziwym zadaniem, rozcieńczając je.
+ *
+ * Filtrujemy przy ODCZYCIE, nie migracją: skrzynka żyje w localStorage, więc
+ * wpisy zapisane wcześniej siedzą już na urządzeniach dzieci. `notify` odmawia
+ * ich zapisania, a `markRead` (który przepisuje listę) sprząta stare przy
+ * pierwszej okazji.
+ */
+const UKRYTE_RODZAJE = new Set(["map_ready"]);
+
 export function listNotifications() {
   try {
     const zapisane = JSON.parse(localStorage.getItem(INBOX_KEY) || "[]");
-    return Array.isArray(zapisane) ? zapisane.map(odswiezStareWpisy) : [];
+    if (!Array.isArray(zapisane)) return [];
+    return zapisane.filter((w) => !UKRYTE_RODZAJE.has(w?.kind)).map(odswiezStareWpisy);
   } catch {
     return [];
   }
@@ -79,6 +96,7 @@ export function listNotifications() {
 /** Dodaje powiadomienie, o ile rodzic dopuścił ten rodzaj. Deduplikuje po `id`. */
 export function notify({ id, kind, title, body, to }) {
   if (!KINDS[kind]) return false;
+  if (UKRYTE_RODZAJE.has(kind)) return false;
   if (!getPrefs()[kind]) return false;
   try {
     const list = listNotifications();

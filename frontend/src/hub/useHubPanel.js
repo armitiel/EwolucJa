@@ -13,7 +13,7 @@
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-export const PANELE = ["gry", "profil", "czat", "wiadomosci", "porada"];
+export const PANELE = ["gry", "profil", "czat", "wiadomosci", "porada", "zadanie"];
 
 export function useHubPanel() {
   const navigate = useNavigate();

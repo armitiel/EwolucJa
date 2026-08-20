@@ -16,7 +16,7 @@
        o klatke za pozno, wiec HUD zdazy sie narysowac bez stylow - ikony w swoim
        naturalnym rozmiarze (kilkaset px), rozjechany uklad - i dopiero potem
        wskakuje na miejsce. To jest to "rozskalowanie", ktore widac przy starcie. -->
-  <link rel="stylesheet" href="/scena-3d/hud.css?v=5" />
+  <link rel="stylesheet" href="/scena-3d/hud.css?v=16" />
 
   <!-- Ikony HUD-u pobierane rownolegle z bundlem: bez tego pojawiaja sie jedna
        po drugiej juz po pierwszym malowaniu i kafelki drgaja. -->
@@ -35,6 +35,10 @@
   <link rel="preload" as="image" href="/zwoj-gora.svg" fetchpriority="high" />
   <link rel="preload" as="image" href="/zwoj-papier.svg" fetchpriority="high" />
   <link rel="prefetch" as="image" href="/lis.svg" />
+  <!-- Postacie z okien popup: maja stac na swoim miejscu juz w pierwszej
+       klatce animacji wejscia, a nie doczytywac sie w jej trakcie. -->
+  <link rel="prefetch" as="image" href="/wizPop.webp" />
+  <link rel="prefetch" as="image" href="/lisPop.webp" />
   <link rel="prefetch" as="image" href="/zolw.svg" />
   <link rel="prefetch" as="image" href="/sowa.svg" />
   <link rel="prefetch" as="image" href="/panda.svg" />

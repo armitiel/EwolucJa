@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "note": "Zadania Wizkora wykonywane POZA ekranem. Dowod idzie do Mentora istniejacym torem weryfikacji (seedMission -> submit -> verify). `miejsca` to podpowiedzi, gdzie takie zadanie sie miesci w ciagu dnia. TEKSTY TRZYMAMY KROTKIE: to czyta dziecko 6-12 lat, a panel ma sie miescic bez przewijania sciany tekstu - jedno zdanie na pole. `dowod` mowi, CO zrobic po zadaniu - stoi przy przycisku zdjecia, a nie w karcie zadania, bo dziecko potrzebuje go dopiero na dole ekranu.",
+  "zadania": [
+    {
+      "id": "ciche-dobro",
+      "tytul": "Ciche dobro",
+      "cel": "Zrób dziś coś dobrego dla kogoś z domu. Po cichu.",
+      "jak": "Wybierz jedną rzecz i zrób ją tak, żeby nikt nie zauważył.",
+      "dowod": "Potem zrób zdjęcie albo napisz Mentorowi, co to było.",
+      "przyklad": "Nakryłem do stołu, zanim mama weszła. Nic nie mówiłem.",
+      "nagroda": 300,
+      "minuty": 15,
+      "competency_focus": [
+        "EM",
+        "MD"
+      ],
+      "miejsca": [
+        {
+          "id": "kuchnia",
+          "emoji": "🍽️",
+          "nazwa": "W kuchni",
+          "opis": "Nakryj do stołu, zanim ktoś poprosi."
+        },
+        {
+          "id": "pokoj",
+          "emoji": "🛏️",
+          "nazwa": "W swoim pokoju",
+          "opis": "Posprzątaj coś, czego nikt Ci nie kazał."
+        },
+        {
+          "id": "przedpokoj",
+          "emoji": "🧦",
+          "nazwa": "W przedpokoju",
+          "opis": "Ustaw buty równo. Powieś czyjąś kurtkę."
+        },
+        {
+          "id": "dwor",
+          "emoji": "🌳",
+          "nazwa": "Na dworze",
+          "opis": "Przytrzymaj drzwi. Pomóż nieść siatkę."
+        }
+      ]
+    }
+  ]
+}

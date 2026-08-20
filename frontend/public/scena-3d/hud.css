@@ -250,7 +250,16 @@
   transform: translate(-50%, 8px);
   opacity: 0;
   pointer-events: none;
+  /* Zwykly blok, NIE flex. Flexem ikona monety ustawiala sie obok calego
+     dwulinijkowego napisu jak odznaka przyklejona do prawej krawedzi.
+     W przeplywie tekstu plynie razem z ostatnim slowem - czyli tak, jak
+     czyta sie zdanie „ZBIERZ 10 [moneta]". */
   padding: 7px 15px;
+  /* Szerokosc ograniczona, zeby zdanie lamalo sie na dwie WYSRODKOWANE linijki
+     zamiast ciagnac sie przez caly ekran. Bez tego `text-align` nic nie robi,
+     bo pojedyncza linijka wypelnia kafelek co do piksela. */
+  max-width: min(80vw, 330px);
+  box-sizing: border-box;
   border: 2px solid #e6a832;
   border-radius: 999px;
   background: linear-gradient(180deg, #466f68, #294d4b);
@@ -259,9 +268,25 @@
   font-size: 12px;
   font-weight: 900;
   letter-spacing: .6px;
+  line-height: 1.25;
+  text-align: center;
+  text-wrap: balance;
   text-transform: uppercase;
   text-shadow: 0 1px 0 #203d3a;
   transition: opacity .18s ease, transform .18s ease;
+}
+
+/* Ikona wchodzi W MIEJSCE slowa („ZBIERZ 10 [moneta]"), wiec musi byc mniej
+   wiecej wielkosci wersalika, a nie osobnym guzikiem obok napisu. */
+.game-hud-toast-ikona {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  /* Wersaliki nie maja podcieni, wiec srodek monety trzeba podniesc recznie —
+     na baseline moneta „spadala" pod linie pisma. */
+  vertical-align: -0.32em;
+  margin-left: 5px;
+  filter: drop-shadow(0 1px 1px rgba(32, 61, 58, .45));
 }
 
 .game-hud-toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
@@ -642,6 +667,110 @@
 @keyframes scroll-message-open {
   from { opacity: 0; transform: translateY(-5px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Zadanie w realu: JEDEN wpis, ktory ma sie rzucac w oczy --- */
+/* Zwoj miesza dwie rzeczy: wiesci (przyszly, przeczytane, koniec) i ZADANIE,
+   ktore trwa, dopoki go nie zrobisz. Wpis zadania wygladal dokladnie jak
+   wiesc, wiec dziecko, ktore otwieralo zwoj z powodu plakietki "1", musialo
+   go najpierw wyszukac wzrokiem posrod identycznych ramek.
+
+   Teraz jest karta w FIOLECIE - w tej grze to barwa Wizkora i magii, ta sama
+   co wstega z imieniem w oknie postaci. Dziecko nie musi czytac, zeby wiedziec,
+   ktory wiersz jest zadaniem. */
+.scroll-message.is-quest {
+  border: 2.5px solid transparent;
+  border-radius: 19px;
+  background:
+    linear-gradient(180deg, rgba(255,253,241,.99), rgba(251,238,203,.99)) padding-box,
+    linear-gradient(180deg, #c7a2f0, #7A4DC2 58%, #5a3499) border-box;
+  box-shadow: 0 4px 0 rgba(90,52,153,.32), 0 9px 18px rgba(58,34,96,.2);
+}
+
+/* UKLAD KARTY ZADANIA. Zadanie jest ZAWSZE rozwiniete (patrz `MessageScroll`),
+   wiec naglowek to jedna linia: ilustracja, tytul, plakietka stanu. Cala tresc
+   siedzi nizej, w `-body`, i ma dla siebie pelna szerokosc karty.
+
+   Odstep ilustracji od liter urosl z 9 do 15 px - czarodziej siedzial wczesniej
+   tuz przy tekscie. */
+/* NAGLOWEK NA BELCE. Ilustracja, tytul i status to jedna informacja: „to jest
+   zadanie i jest do zrobienia". Tresc pod spodem to druga: „a polega na tym".
+   Bez podzialu ukladaly sie w jeden ciag i oko musialo je rozdzielac samo.
+   Belka jest LEKKA - delikatny fiolet (barwa Wizkora, ta sama co obwodka karty
+   i plakietka) plus jedna kreska. Ma oddzielac, a nie krzyczec.
+
+   Bez wlasnego `border-radius`: karta ma `overflow:hidden`, wiec belka jest
+   przycinana do jej gornych rogow sama z siebie i zawsze idealnie. */
+.scroll-message.is-quest .scroll-message-head {
+  grid-template-columns: 56px minmax(0,1fr) auto;
+  align-items: center;
+  column-gap: 15px;
+  padding: 11px 13px 10px;
+  background: linear-gradient(180deg, rgba(122,77,194,.13), rgba(122,77,194,.05));
+  border-bottom: 1.5px solid rgba(122,77,194,.26);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.55);
+}
+.scroll-message.is-quest .scroll-message-avatar { width: 56px; height: 56px; }
+.scroll-message.is-quest .scroll-message-avatar img { width: 62px; height: 62px; }
+
+/* Tytul zadania jest o klase wiekszy od tytulu wiesci. */
+.scroll-message.is-quest .scroll-message-copy strong { font-size: 17px; line-height: 1.15; }
+.scroll-message.is-quest .scroll-message-meta { align-self: center; }
+
+/* TRESC: JEDNO zdanie, duze. W zwoju stoi tylko cel zadania (patrz
+   `MessageScroll`), wiec ten akapit nie konkuruje juz z niczym i moze wziac
+   caly stopien, na jaki go stac.
+   - 16 px zamiast pierwotnych 12.5: to czyta szesciolatek, a nie stopka
+     regulaminu.
+   - Wciecie z lewej schodzi z 82 do 18 px - tekst przestaje sie lamac po
+     trzech slowach w kolumnie obok ilustracji. */
+.scroll-message.is-quest .scroll-message-body {
+  padding: 12px 16px 15px 18px;
+  font-size: 16px;
+  line-height: 1.45;
+  color: #6b5233;
+}
+.scroll-message.is-quest .scroll-message-body p {
+  margin: 0;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* CTA odbija sie od tresci. Bez tego przycisk kleil sie do ostatniego wiersza
+   i wygladal jak jego dalszy ciag, a nie jak decyzja. */
+.scroll-message.is-quest .scroll-message-body .hub-btn {
+  width: 100%;
+  margin-top: 16px;
+}
+
+/* Plakietka stanu ("Do zrobienia", "Nagroda czeka") zamiast daty. Kropka
+   "jest co zrobic" siedzi W SRODKU: osobno, obok plakietki, byly to dwa
+   znaczki mowiace dokladnie to samo. Obwodka robi jej kontrast na fiolecie -
+   sam czerwony na fiolecie robi sie brudny. */
+.scroll-message-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px 5px 10px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #9a75da, #6b3fb4);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 2px 0 rgba(66,38,116,.75);
+  color: #fff4cd;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.scroll-message-tag i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff5b5b;
+  box-shadow: 0 0 0 1.6px rgba(255,244,205,.75);
 }
 
 @keyframes message-scroll-close-press {
@@ -1154,7 +1283,8 @@
    wiecej niz kreska w jednej trzeciej, a na waskim ekranie oszczedza miejsce
    licznikowi monet, ktory paska naprawde potrzebuje (cel to 100).
    Wchodzi na ekran dopiero po przyjeciu zadania - stad brak stanu "pustego". */
-.game-hud-counter--gwiazdki {
+.game-hud-counter--gwiazdki,
+.game-hud-counter--misja {
   min-width: 0;
   padding: 3px 13px 3px 4px;
   gap: 3px;
@@ -1162,21 +1292,26 @@
   font-weight: 900;
 }
 
-.game-hud-counter--gwiazdki img {
-  width: 34px;
-  height: 34px;
+.game-hud-counter--gwiazdki img,
+.game-hud-counter--misja img {
+  width: 31px;
+  height: 31px;
   flex: none;
   object-fit: contain;
-  /* Gwiazdka ma cztery cienkie ramiona i optycznie ginie obok pelnego krazka
-     monety - stad nieco wiekszy rozmiar przy tej samej wysokosci kafelka. */
+  /* 31 px, nie 34: gwiazdka z gry (`/star.png`) jest pelna i ciezka optycznie,
+     wiec przy rozmiarze monety zaczynala nad nia dominowac. Wczesniej stala tu
+     `iskra.png` - czteroramienny klejnot z cienkimi ramionami, ktory dla
+     rownowagi potrzebowal wiecej miejsca. */
   filter: drop-shadow(0 1.5px 1px rgba(73, 39, 12, .28));
 }
 
-.game-hud-counter--gwiazdki strong { text-shadow: 0 1px 0 rgba(255, 255, 255, .9); }
+.game-hud-counter--gwiazdki strong,
+.game-hud-counter--misja strong { text-shadow: 0 1px 0 rgba(255, 255, 255, .9); }
 
 /* Cel jest mniejszy i ciemniejszy: liczy sie to, ile dziecko MA, a nie ile
    zostalo. "3" ma byc pierwsza rzecza, ktora widac. */
-.game-hud-counter--gwiazdki em {
+.game-hud-counter--gwiazdki em,
+.game-hud-counter--misja em {
   font-style: normal;
   font-size: 12.5px;
   font-weight: 800;
@@ -1185,7 +1320,8 @@
 }
 
 /* Komplet: kafelek swieci tym samym zlotem co pelny pasek monet. */
-.game-hud-counter--gwiazdki.jest-spelnione {
+.game-hud-counter--gwiazdki.jest-spelnione,
+.game-hud-counter--misja.jest-spelnione {
   background:
     linear-gradient(180deg, rgba(255, 252, 227, .98), rgba(255, 226, 150, .98)) padding-box,
     linear-gradient(180deg, var(--hud-gold-light), var(--hud-gold) 52%, var(--hud-gold-deep)) border-box;
@@ -1195,11 +1331,76 @@
     0 0 14px rgba(255, 214, 105, .85);
 }
 
-.game-hud-counter--gwiazdki.jest-spelnione em { opacity: .8; }
+.game-hud-counter--gwiazdki.jest-spelnione em,
+.game-hud-counter--misja.jest-spelnione em { opacity: .8; }
+
+/* Dolot iskry: kafelek podskakuje razem ze zmiana liczby. Krotko i tylko raz
+   — to ma byc potwierdzenie, ze cos wpadlo, a nie osobna atrakcja. Skala idzie
+   z `transform`, wiec animacja siedzi na kompozytorze i nie rusza ukladu
+   pozostalych kafelkow w pasku. */
+@keyframes hud-podbicie {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.16); }
+  55%  { transform: scale(.98); }
+  100% { transform: scale(1); }
+}
+
+.game-hud-counter.jest-podbite {
+  animation: hud-podbicie .46s cubic-bezier(.3, 1.4, .5, 1);
+}
+
+.game-hud-counter.jest-podbite img {
+  animation: hud-podbicie .46s .04s cubic-bezier(.3, 1.6, .5, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-hud-counter.jest-podbite,
+  .game-hud-counter.jest-podbite img { animation: none; }
+}
+
+/* --- Licznik drugiego zadania: karta Medrca --- */
+/* Ten sam kafelek co licznik gwiazdek (selektory wyzej sa wspolne) — rozni
+   sie tylko KSZTALTEM ikony.
+
+   ODDECH DO KRAWEDZI. Gwiazdka i moneta maja przezroczyste rogi, wiec przy
+   34 px optycznie i tak nie dotykaly obwodki. Ikona misji jest PELNYM
+   prostokatem - przy tej samej wysokosci siadala na zlotej ramce i kafelek
+   wygladal, jakby zawartosc z niego wychodzila. Rachunek: kafelek ma 43 px
+   wysokosci, minus 2x2 px obwodki i 2x3 px paddingu zostaje 33 px na tresc.
+   30 px ikony daje ~4.5 px realnego marginesu do ramki z gory i z dolu.
+   Zerujemy tez odziedziczony ujemny margines z `.game-hud-counter img` - on
+   celowo WYPYCHA moneta poza kafelek, a tutaj chcemy dokladnie odwrotnie. */
+.game-hud-counter--misja img {
+  width: 30px;
+  height: 30px;
+  margin: 0;
+  border-radius: 6px;
+}
+
+/* Rewers karty (`/assets/karty/rewers-3d.png`) ma 512x768, czyli rowno 2:3.
+   Wczesniej lezal w pudelku 26x34: `object-fit:contain` wpisywal go wiec
+   w 22.7x34 i zostawial po bokach puste pole, a `border-radius` zaokraglal
+   PUDELKO, nie karte - rogi zostawaly ostre, mimo ze promien byl ustawiony.
+   Pudelko 20x30 ma ten sam stosunek co plik, wiec nie ma juz czego wpisywac
+   i promien tnie prawdziwa krawedz karty. */
+.game-hud-counter--misja img[data-ksztalt="karta"] {
+  width: 20px;
+  height: 30px;
+  border-radius: 5px;
+}
+
+/* IKONA JEST OD RAZU W PELNYM KOLORZE. Stalo tu wygaszenie do szarosci na
+   czas, gdy znak nie byl jeszcze znaleziony - mialo znaczyc "jeszcze nie wiesz,
+   czego szukasz", a czytalo sie jak zepsuty albo zablokowany kafelek. Dziecko
+   ma widziec NAGRODE, po ktora idzie; slad odkrycia niesie licznik (0/1)
+   i zlota poswiata po wygranej. */
 
 @media (max-width: 380px) {
-  .game-hud-counter--gwiazdki { padding: 3px 10px 3px 3px; font-size: 15px; }
-  .game-hud-counter--gwiazdki img { width: 30px; height: 30px; }
+  .game-hud-counter--gwiazdki,
+  .game-hud-counter--misja { padding: 3px 10px 3px 3px; font-size: 15px; }
+  .game-hud-counter--gwiazdki img { width: 28px; height: 28px; }
+  /* Ikona misji zostaje 30 px - kafelek ma tu te sama wysokosc (43 px),
+     wiec oddech do ramki jest ten sam. Zwezal sie tylko padding poziomy. */
 }
 
 

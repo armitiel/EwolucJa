@@ -1,39 +1,166 @@
 {
-  "version": 1,
-  "note": "ATRAPA. Treść na czas decyzji: czat z postacią (dialogi z danych / AI) czy dwustronny czat dziecko ↔ Mentor (tabela, moderacja, zgoda rodzica). Nic tu nie idzie do sieci.",
-  "watki": [
+  "version": 2,
+  "note": "ATRAPA. Nic tu nie idzie do sieci. Trzy kanaly: Forum (wspolny czat wszystkich + kto jest teraz w grze), Prywatne (rozmowy jeden na jeden), Mentor (zablokowany do zgody rodzica). Jezyk prosty, teksty duze - dzieci 6-12 lat, czesto czytaja jeszcze wolno.",
+  "ja": {
+    "id": "ja",
+    "imie": "Ty",
+    "emoji": "🙂"
+  },
+  "gracze": [
     {
-      "id": "opiekun",
-      "kto": "Opiekun Mapy",
-      "emoji": "🧭",
-      "zablokowany": false,
-      "wiadomosci": [
-        { "od": "on", "tekst": "Wróciłeś. Las Szeptów świeci od wczoraj — czujesz to?" },
-        { "od": "ja", "tekst": "Tak! Szeptun mnie usłyszał." },
-        { "od": "on", "tekst": "Iskra wróciła, bo zrobiłeś coś w prawdziwym świecie. Mapa to pamięta." },
-        { "od": "on", "tekst": "Dolina Dźwięków jest już otwarta. Nie musisz iść dziś." }
-      ],
-      "odpowiedzi": ["Co jest w Dolinie?", "Opowiedz o Iskrach", "Idę tam teraz"]
+      "id": "zosia",
+      "imie": "Zosia",
+      "emoji": "🦊",
+      "gdzie": "Dolina Dźwięków",
+      "wStatusie": "gra"
     },
     {
-      "id": "szeptun",
-      "kto": "Szeptun",
-      "emoji": "🌲",
-      "zablokowany": false,
-      "wiadomosci": [
-        { "od": "on", "tekst": "Słyszę cię lepiej, odkąd Iskra wróciła." },
-        { "od": "on", "tekst": "W Dolinie gubi się melodia. Nie spiesz się — mgła nie ucieknie." },
-        { "od": "ja", "tekst": "Poszukam jej." }
-      ],
-      "odpowiedzi": ["Jaka to melodia?", "Kto ją zgubił?", "Wrócę później"]
+      "id": "kuba",
+      "imie": "Kuba",
+      "emoji": "🐻",
+      "gdzie": "Wyspa Talentów",
+      "wStatusie": "gra"
     },
     {
-      "id": "mentor",
-      "kto": "Mentor",
-      "emoji": "🧑‍🏫",
-      "zablokowany": true,
-      "wiadomosci": [],
-      "odpowiedzi": []
+      "id": "lena",
+      "imie": "Lena",
+      "emoji": "🦉",
+      "gdzie": "Las Pytań",
+      "wStatusie": "misja"
+    },
+    {
+      "id": "antek",
+      "imie": "Antek",
+      "emoji": "🐢",
+      "gdzie": "Przystań Współpracy",
+      "wStatusie": "gra"
+    },
+    {
+      "id": "nina",
+      "imie": "Nina",
+      "emoji": "🐰",
+      "gdzie": "",
+      "wStatusie": "offline"
     }
-  ]
+  ],
+  "forum": {
+    "tytul": "Wspólny czat",
+    "podtytul": "Piszą tu wszyscy, którzy teraz grają",
+    "wiadomosci": [
+      {
+        "id": "f1",
+        "kto": "zosia",
+        "tekst": "Cześć! Kto idzie ze mną do Doliny Dźwięków?",
+        "kiedy": "14:02",
+        "brawa": 4
+      },
+      {
+        "id": "f2",
+        "kto": "kuba",
+        "tekst": "Ja! Tylko skończę grę w Memory.",
+        "kiedy": "14:03",
+        "brawa": 2
+      },
+      {
+        "id": "f3",
+        "kto": "lena",
+        "tekst": "Znalazłam ukryte przejście za wodospadem!",
+        "kiedy": "14:05",
+        "brawa": 7
+      },
+      {
+        "id": "f4",
+        "kto": "antek",
+        "tekst": "Ale super! Pokażesz mi je?",
+        "kiedy": "14:06",
+        "brawa": 1
+      },
+      {
+        "id": "f5",
+        "kto": "zosia",
+        "tekst": "Czekam przy moście. Machajcie, jak dojdziecie 👋",
+        "kiedy": "14:08",
+        "brawa": 3
+      }
+    ],
+    "odpowiedzi": [
+      "Cześć! 👋",
+      "Idę do Was!",
+      "Brawo! 👏",
+      "Pomogę Ci",
+      "Zaczekajcie na mnie"
+    ]
+  },
+  "prywatne": {
+    "rozmowy": [
+      {
+        "id": "p-zosia",
+        "ktoId": "zosia",
+        "nowe": true,
+        "zajawka": "Idziesz ze mną do Doliny Dźwięków?",
+        "wiadomosci": [
+          {
+            "od": "on",
+            "tekst": "Cześć! Idziesz ze mną do Doliny Dźwięków?"
+          },
+          {
+            "od": "on",
+            "tekst": "Podobno zgubił się tam jeden dźwięk. We dwoje szybciej."
+          }
+        ],
+        "odpowiedzi": [
+          "Jasne, idziemy!",
+          "Co tam robimy?",
+          "Może później"
+        ]
+      },
+      {
+        "id": "p-kuba",
+        "ktoId": "kuba",
+        "nowe": false,
+        "zajawka": "Wygrałem Memory! A Ty próbowałeś?",
+        "wiadomosci": [
+          {
+            "od": "on",
+            "tekst": "Wygrałem Memory! A Ty próbowałeś?"
+          },
+          {
+            "od": "ja",
+            "tekst": "Jeszcze nie."
+          },
+          {
+            "od": "on",
+            "tekst": "To zagraj. Karty z lisem są najłatwiejsze."
+          }
+        ],
+        "odpowiedzi": [
+          "Gratulacje! 👏",
+          "Zagramy razem?",
+          "Spróbuję dziś"
+        ]
+      },
+      {
+        "id": "p-antek",
+        "ktoId": "antek",
+        "nowe": false,
+        "zajawka": "Dzięki za pomoc wczoraj!",
+        "wiadomosci": [
+          {
+            "od": "on",
+            "tekst": "Dzięki za pomoc wczoraj!"
+          }
+        ],
+        "odpowiedzi": [
+          "Nie ma sprawy 🙂",
+          "Kiedy znowu gramy?",
+          "Do zobaczenia!"
+        ]
+      }
+    ]
+  },
+  "mentor": {
+    "zablokowany": true,
+    "naglowek": "Rozmowa z Mentorem",
+    "tekst": "Tu porozmawiasz ze swoim Mentorem o misjach. Kanał otworzy się, gdy rodzic go włączy w ustawieniach."
+  }
 }

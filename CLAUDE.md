@@ -107,6 +107,72 @@ oparte o upływ czasu trzeba sprawdzać w prawdziwej przeglądarce. Bezgłowo
 weryfikuj tylko stan po wczytaniu, pozycje, geometrię i to, czy model się
 wczytał.
 
+## Misje z grami — gry są znaleziskiem, nie spisem
+
+Łańcuch zadań Wizkora i odkrywanie minigier siedzą w jednym module:
+`frontend/src/hub/misjeGier.js`. Cztery stany jednej gry:
+
+```
+ukryta → ujawniona (Wizkor zlecił: znak wchodzi na mapę)
+       → znaleziona (wbiegnięcie w znak: gra w zakładce NA STAŁE)
+       → wygrana → wyplacona
+```
+
+Konsekwencje, o które łatwo się potknąć:
+
+- **`zaliczWygrana` nie ruszy gry nieznalezionej.** To jest cała zasada
+  „najpierw znajdź na mapie" — nie ma żadnej ulotnej flagi „wszedłem z mapy".
+- **Znaki nieujawnionych gier są zdejmowane ze sceny w locie**
+  (`hub/znakiMapy.js`), bo `mapa.json` czyta się raz, przy montowaniu WebGL-a.
+  To jedyne miejsce sięgające do wnętrza bundla (`_app.markers`). Pętla sceny
+  liczy próg powrotu jako `powroty ? def.respawn : (def.respawnPierwszy ??
+  def.respawn)` — wygaszenie samego `respawn` NIE wystarcza.
+- **Zakładka minigier filtruje po `gryWZakladce()`.** Gra spoza łańcucha misji
+  zachowuje się po staremu (kłódka + kraina z przygody).
+- Dopisanie kolejnej gry = jeden wpis w `MISJE` (teksty Wizkora, ikona,
+  nagroda, id znaku) + wywołanie `zaliczWygrana("<id>")` w samej grze.
+
+## Wskazówki (chmurka Wizkora nad ikoną)
+
+`frontend/src/hub/Reflektor.jsx` + treści i rytm w `frontend/src/hub/wskazowki.js`.
+Ilustracja: `frontend/public/wizTip.webp` (Wizkor z uniesionym palcem).
+
+Dwa tryby: `"dymek"` (komiksowa chmurka z dzióbkiem, świat chodzi dalej,
+schodzi sama) i `"reflektor"` (świat ciemnieje, w świetle zostaje jeden
+przycisk — gotowy, dziś nieużywany).
+
+Decyzje, których nie wolno cofnąć bez powodu:
+
+- **Nie w trakcie misji.** `misjaWToku` w `Swiat.jsx` blokuje chmurkę i ZERUJE
+  zegar. Odliczanie w tle podczas zadania kończyłoby się chmurką w sekundzie,
+  w której dziecko właśnie skończyło misję.
+- **Nie na wejściu.** Pierwsza chmurka po `poCzasie` (75 s) wolnego chodzenia,
+  potem co `powtorkaCo` (3,5 min), najwyżej `maksNaSesje` razy.
+- **Zamknięcie ≠ „już wiem".** Pamięć (`oznaczPoznana`) zapisuje się dopiero,
+  gdy dziecko otworzy wskazany panel (`panelCelu`) — obojętnie czy z chmurki,
+  czy samo.
+- **`obszar` w definicji** mówi, co w elemencie jest NAPRAWDĘ widoczne.
+  Przycisk doku to komórka ~107×73, a widać z niego złote koło 68×68 przy
+  dolnej krawędzi; bez tego dzióbek celuje w powietrze nad ikoną.
+
+## Pulpit testowy (DEV)
+
+`frontend/src/hub/DevRezyserka.jsx`, włącznik w `services/dev.js`.
+
+- Na dev-serwerze Vite jest **domyślnie włączony** — pinezka „DEV" przy lewej
+  krawędzi `/swiat`. Na produkcji trzeba dopisać `?dev=1`.
+- `Ctrl+Shift+D` wyłącza i przeładowuje (podgląd świata bez narzędzi).
+- Skraca: gwiazdki do kompletu, zlecenie/znalezienie/zaliczenie każdej misji,
+  przywołanie Wizkora (inaczej ~95 s czekania), skok do znaku, wygranie
+  otwartej gry przez uchwyt `window.__devGra` rejestrowany przez samą grę.
+- **Katalog zdarzeń** (`zdarzeniaDev` w `Swiat.jsx`) daje na żądanie wszystko,
+  co normalnie przychodzi samo i rzadko: każdą kwestię Wizkora (na podstawionych
+  stanach, więc bez zapisu do postępu), zaproszenia liska, ekrany nagród, toast,
+  lot gwiazdki do licznika. Lista mieszka w hubie — pulpit tylko rysuje przyciski,
+  więc nowe okno dopisuje się w jednym miejscu.
+- **Pulpit nie ma własnej logiki stanu** — woła te same funkcje co gra. Skróty
+  chodzące własną drogą testowałyby siebie, nie grę.
+
 ## Monety — dwa źródła, jedno bez backendu
 
 Backend przyznaje monety **wyłącznie** przy weryfikacji misji przez Mentora;

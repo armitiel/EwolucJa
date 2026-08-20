@@ -1121,8 +1121,8 @@
       "label": "Sekret pod puchem",
       "toast": "PiĂłrko â€” sekret pod puchem",
       "pos": [
-        2.36,
-        -4.44
+        -4.01,
+        -7.53
       ],
       "scale": 1.4,
       "height": 1.55,
@@ -1370,6 +1370,32 @@
       "pos": [
         6.83,
         0.94
+      ]
+    },
+    {
+      "id": "gwiazda-10",
+      "file": "gwiazda",
+      "label": "ZĹ‚ota gwiazdka",
+      "toast": "ZĹ‚ota gwiazdka â€” zĹ‚apana!",
+      "scale": 0.78,
+      "height": 0.95,
+      "glow": 16765514,
+      "barwa": 16763215,
+      "jasnosc": 1.32,
+      "metalness": 0.3,
+      "roughness": 0.7,
+      "haloOpacity": 0.1,
+      "haloScale": 0.9,
+      "ringOpacity": 0,
+      "lightBase": 0,
+      "absorb": true,
+      "absorbLift": 1.5,
+      "respawn": 12,
+      "iskry": 26,
+      "iskrySila": 1.6,
+      "pos": [
+        8.09,
+        -5.59
       ]
     }
   ],
