@@ -669,6 +669,67 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* --- ZDJECIE DOWODU: polaroid polozony na pergaminie --- */
+/* Zdjecie, ktore dziecko wyslalo Mentorowi, wraca do niego w zwoju. Wpuszczone
+   w papier jako sam prostokat wygladalo jak wklejka z innego programu - a to
+   jest pamiatka po tym, co naprawde zrobilo, i ma sie tak niesc.
+
+   Polaroid robia trzy rzeczy naraz i zadnej nie da sie odpuscic: biala ramka
+   SZERSZA U DOLU (bez tego jest to ramka, a nie polaroid), lekki skos i cien
+   POD spodem, ktory odkleja zdjecie od papieru. Zero grafik - kadr, ramka
+   i cien to trzy wlasciwosci CSS.
+
+   Pole zdjecia jest KWADRATOWE, jak w prawdziwym polaroidzie (79x79 mm przy
+   dolnej ramce 2x szerszej od bocznych). Zdjecia z telefonu sa pionowe albo
+   poziome, wiec `object-fit: cover` przycina je do srodka - w zwoju to i tak
+   jest miniatura, a rowny kwadrat trzyma rytm listy. */
+.scroll-photo {
+  box-sizing: border-box;
+  width: 190px;
+  /* -12 px, nie 100%: `max-width` liczy pudelko PRZED obrotem, a obrocone
+     wystaje po ~5 px z kazdej strony. Przy wpisie wiesci (tresc ma 62 px
+     wciecia na ilustracje) bez tego zapasu ramka podchodzi pod sama krawedz
+     ciecia. */
+  max-width: calc(100% - 12px);
+  /* Lewy margines nie jest ozdoba: `.message-scroll-content` tnie w poziomie
+     (`overflow: hidden auto`), a skos wypycha naroznik ramki o ~5 px poza
+     wlasne pudelko. Bez tych 5 px zwoj scinal dolny lewy rog polaroidu. */
+  margin: 13px 0 6px 5px;
+  padding: 8px 8px 25px;
+  border-radius: 3px;
+  background: linear-gradient(178deg, #fffdf7, #fbf4e4);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.95),
+    0 1px 2px rgba(83,51,20,.3),
+    0 7px 15px rgba(83,51,20,.26);
+  /* Papier zwoju ma wlasny kolor, wiec czysta biel bylaby tu sina. Ten
+     odcien jest bialy WZGLEDEM pergaminu i o to chodzi. */
+  transform: rotate(2.6deg);
+}
+
+/* Skos w lewo albo w prawo bierze sie z POZYCJI wpisu, nie z losowania:
+   zdjecie, ktore przy kazdym otwarciu zwoju przechyla sie w inna strone,
+   czyta sie jak usterka, a nie jak rzecz polozona na papierze. Zadanie stoi
+   przypiete na gorze (nieparzyste), wiesci ida za nim - kolejne zdjecia
+   przechylaja sie wiec raz w lewo, raz w prawo. */
+.scroll-message:nth-child(odd) .scroll-photo { transform: rotate(-2.2deg); }
+
+.scroll-photo img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 1px;
+  /* Cienki cien W SRODKU krawedzi - bez niego jasne zdjecie zlewa sie
+     z ramka i polaroid rozpada sie na plame. */
+  box-shadow: 0 0 0 1px rgba(70,44,17,.14), inset 0 1px 3px rgba(0,0,0,.18);
+  background: rgba(120,96,62,.14);
+}
+
+@media (max-width: 340px) {
+  .scroll-photo { width: 164px; padding: 7px 7px 21px; }
+}
+
 /* --- Zadanie w realu: TRESC WPISANA W ZWOJ, a nie kartka na nim polozona --- */
 /* Zwoj miesza dwie rzeczy: wiesci (przyszly, przeczytane, koniec) i ZADANIE,
    ktore trwa, dopoki go nie zrobisz. Wiesci zostaja kartami, bo jest ich wiele

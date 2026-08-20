@@ -222,6 +222,20 @@ export default function MessageScroll({ open, onClose, onZmiana }) {
                             i Wizkor czyta je tam na głos. Tutaj rozcieńczało
                             jedno zdanie, które naprawdę trzeba zrozumieć. */}
                         <p>{pozycja.tresc}</p>
+                        {/* Zdjęcie dowodu leży na pergaminie jak POLAROID:
+                            biała ramka, grubsza u dołu, lekki skos i cień.
+                            Prostokąt zdjęcia wpuszczony wprost w papier
+                            wyglądał jak wklejka z innego programu — a to jest
+                            pamiątka po tym, co dziecko naprawdę zrobiło,
+                            i ma się tak nieść. Skos idzie z pozycji wpisu
+                            (`:nth-child`), nie z losowania: zdjęcie, które
+                            przy każdym otwarciu przechyla się w inną stronę,
+                            czyta się jak usterka, a nie jak rzecz położona. */}
+                        {pozycja.zdjecie ? (
+                          <figure className="scroll-photo">
+                            <img src={pozycja.zdjecie} alt="Twoje zdjęcie" loading="lazy" draggable="false" />
+                          </figure>
+                        ) : null}
                         {pozycja.notatka ? <p className="scroll-message-note">„{pozycja.notatka}”</p> : null}
                         {celObcy ? (
                           <button
