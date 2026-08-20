@@ -214,18 +214,53 @@
   transform: translateX(-50%);
   min-width: 58px;
   padding: 3px 7px 2px;
-  border: 2px solid #fff0c4;
+  /* Obrys jest z RODZINY samej plakietki, nie kremowy. Kremowa obwodka
+     powtarzala kolor zlotego kola pod spodem i podpis odrywal sie od tla,
+     jakby byl osobna naklejka doklejona do ikony. Fiolet o dwa tony jasniejszy
+     od gorki gradientu wystarczy, zeby pigulka miala krawedz, a nie ramke. */
+  border: 2px solid #a582cc;
   border-radius: 999px;
   background: linear-gradient(180deg, #76569c, #503867);
   box-shadow: 0 2px 0 #35243d, 0 4px 7px rgba(45, 28, 52, .24);
   color: #fff3bd;
   font-family: "Nunito", system-ui, sans-serif;
-  font-size: 10px;
+  /* +15% wzgledem 10 px - podpis ma sie czytac w biegu, jednym rzutem oka. */
+  font-size: 11.5px;
   font-weight: 900;
   line-height: 1;
   white-space: nowrap;
   text-shadow: 0 1px 0 #35243d;
   pointer-events: none;
+  /* Ten sam czas, co ruch przycisku (.16s) - kompensacja musi isc
+     dokladnie z nim, inaczej podpis szarpnalby sie w polowie animacji. */
+  transition: transform .16s ease;
+}
+
+/* PODPIS STOI W MIEJSCU - podnosi sie sama ikonka.
+   Przycisk na wybranej zakladce jedzie do gory (translateY), a pigulka z nazwa
+   jest jego dzieckiem, wiec jechala razem z nim. Zeby zostala przyklejona do
+   belki, dostaje przesuniecie ODWROTNE o dokladnie tyle samo. Wartosci sa dwie,
+   bo dok ma dwa tryby: na mapie unosi sie o 5 px, pod wysunieta szuflada o 4.
+   `translateX(-50%)` musi byc powtorzone w kazdej deklaracji - transform nie
+   sklada sie z regula bazowa, tylko ja nadpisuje.
+   Przy wcisnieciu dochodzi jeszcze skala przycisku (.96 / .97), wiec podpis
+   dostaje jej odwrotnosc - inaczej na moment kurczylby sie razem z klockiem. */
+.game-hud-dock button:hover .game-hud-label,
+.game-hud-dock button.is-active .game-hud-label {
+  transform: translateX(-50%) translateY(5px);
+}
+
+.game-hud-dock button:active .game-hud-label {
+  transform: translateX(-50%) translateY(1px) scale(1.0417);
+}
+
+.game-hud.is-shelf .game-hud-dock button:hover .game-hud-label,
+.game-hud.is-shelf .game-hud-dock button.is-active .game-hud-label {
+  transform: translateX(-50%) translateY(4px);
+}
+
+.game-hud.is-shelf .game-hud-dock button:active .game-hud-label {
+  transform: translateX(-50%) translateY(1px) scale(1.0309);
 }
 
 /* Plakietka z liczba. DWA RAZY WIEKSZA niz byla (20 px -> 40 px): przy 20 px
@@ -282,6 +317,13 @@
 
 .game-hud-dock button:hover,
 .game-hud-dock button.is-active { transform: translateY(-5px); }
+
+/* SAMA IKONA JEDZIE JESZCZE WYZEJ niz przycisk. Podpis zostaje przyklejony
+   do belki (patrz kompensacja przy `.game-hud-label`), wiec caly sygnal
+   „ta zakladka jest wybrana" musi uniesc ikona. Na mapie skok jest mniejszy,
+   bo ikona siedzi w zlotym kole i przy wiekszym z niego wychodzi. */
+.game-hud-dock button:hover img,
+.game-hud-dock button.is-active img { transform: translateY(-3px); }
 
 .game-hud-dock button:hover::before,
 .game-hud-dock button.is-active::before {
@@ -395,7 +437,7 @@
 
 .game-hud.is-shelf .game-hud-dock button:hover img,
 .game-hud.is-shelf .game-hud-dock button.is-active img {
-  transform: scale(1.05);
+  transform: translateY(-6px) scale(1.08);
   filter:
     drop-shadow(0 4px 1px rgba(79, 43, 12, .3))
     drop-shadow(0 0 9px rgba(255, 228, 88, .9));
@@ -939,7 +981,7 @@
   .game-hud-profile { width: 47px; padding-right: 1px; }
   .game-hud-dock button::before { width: 58px; height: 58px; }
   .game-hud-dock img { width: 51px; height: 51px; }
-  .game-hud-label { min-width: 52px; padding-inline: 5px; font-size: 9px; }
+  .game-hud-label { min-width: 52px; padding-inline: 5px; font-size: 10.5px; }
 }
 
 
