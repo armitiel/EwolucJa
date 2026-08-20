@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 112" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="papier" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffef5"/>
+      <stop offset="1" stop-color="#fff3cf"/>
+    </linearGradient>
+  </defs>
+  <path d="M45 104C23 104 8 91 13 70C3 52 15 32 35 30C41 11 65 5 82 17C97 4 119 4 135 18C153 3 179 3 196 18C214 3 241 5 255 21C275 8 299 17 305 37C326 33 346 48 344 69C350 90 331 104 309 104Z" fill="#b9852f"/>
+  <path d="M45 99C23 99 8 86 13 65C3 47 15 27 35 25C41 6 65 0 82 12C97-1 119-1 135 13C153-2 179-2 196 13C214-2 241 0 255 16C275 3 299 12 305 32C326 28 346 43 344 64C350 85 331 99 309 99Z" fill="url(#papier)" stroke="#edc96e" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M31 34C51 17 69 18 84 26C107 8 124 12 138 25C157 8 178 9 196 25C218 7 241 12 256 28C276 17 295 23 302 39" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".9"/>
+</svg>

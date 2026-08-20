@@ -18,19 +18,12 @@
  *   zatwierdzone— Mentor przyjął, nagroda czeka
  *   wyplacone   — monety dopisane
  *
- * ⚠ DŁUG DO ŚWIADOMEJ DECYZJI — monety liczą się w DWÓCH miejscach.
- * Nagroda 300 idzie lokalnie przez `dodajMonety` (jak każda nagroda od
- * Wizkora), a backend NIEZALEŻNIE dopisuje do bazy +5 przy wysłaniu dowodu
- * i 15–40 przy zatwierdzeniu przez Mentora (`api/mentor.js`, clamp
- * `Math.max(15, Math.min(40, points))`). Docelowo albo backend dostaje
- * końcówkę „wypłać nagrodę zadania", albo clamp idzie w górę i wtedy
- * `odbierzNagrode` przestaje płacić lokalnie. Do tego czasu dziecko dostanie
- * odrobinę więcej, niż obiecał Wizkor — i to jest mniejsze zło niż obietnica
- * bez pokrycia.
+ * Monety mają JEDNO źródło prawdy: backend przy decyzji Mentora. Frontend
+ * zapamiętuje `points_awarded`, pokazuje je dziecku i pozwala domknąć ekran,
+ * ale nie dopisuje drugiej lokalnej nagrody.
  */
 import DANE from "./data/zadania-wizkora.v1.json";
 import { api, session } from "../services/api.js";
-import { dodajMonety } from "../services/monety.js";
 
 const KLUCZ = "ewolucja.zadanie.wizkora";
 export const ZDARZENIE_ZMIANY = "ewolucja:zadanieWizkoraZmiana";
@@ -90,6 +83,7 @@ const PUSTE = {
   wyplacone: false,
   notatka: null,
   dowod: null,
+  nagroda: null,
   etykieta: null,
   cta: null,
 };
@@ -113,6 +107,9 @@ export function stanZadania() {
     wyplacone: status === "wyplacone",
     notatka: zapis.notatka || null,
     dowod: zapis.dowod || null,
+    nagroda: zapis.nagroda != null && Number.isFinite(Number(zapis.nagroda))
+      ? Number(zapis.nagroda)
+      : null,
     zleconeAt: zapis.zleconeAt || null,
     etykieta: opis.etykieta,
     cta: opis.cta,
@@ -194,7 +191,13 @@ export async function sprawdzMentora() {
   const werdykt = misja?.gm_verification || misja?.mission?.gm_verification || null;
 
   if (PRZYJETE.has(status)) {
-    return zapisz({ ...zapis, status: "zatwierdzone", notatka: werdykt?.comment_text || werdykt?.comment || null });
+    const nagroda = Number(werdykt?.points_awarded);
+    return zapisz({
+      ...zapis,
+      status: "zatwierdzone",
+      notatka: werdykt?.comment_text || werdykt?.comment || null,
+      nagroda: Number.isFinite(nagroda) ? nagroda : null,
+    });
   }
   if (DO_POPRAWKI.has(status)) {
     return zapisz({ ...zapis, status: "poprawka", notatka: werdykt?.comment_text || werdykt?.comment || null });
@@ -205,8 +208,6 @@ export async function sprawdzMentora() {
 export function odbierzNagrode() {
   const zapis = czytaj();
   if (!zapis || zapis.status !== "zatwierdzone") return stanZadania();
-  const def = definicjaZadania(zapis.id);
-  dodajMonety(def?.nagroda || 0, `zadanie-wizkora:${zapis.id}`);
   return zapisz({ ...zapis, status: "wyplacone" });
 }
 
@@ -218,5 +219,11 @@ export function skasujZadanie() {
 export function ustawStatus(status, notatka = null) {
   const zapis = czytaj();
   if (!zapis) return stanZadania();
-  return zapisz({ ...zapis, status, notatka });
+  const def = definicjaZadania(zapis.id);
+  return zapisz({
+    ...zapis,
+    status,
+    notatka,
+    nagroda: status === "zatwierdzone" ? (zapis.nagroda || def?.nagroda || 25) : zapis.nagroda,
+  });
 }

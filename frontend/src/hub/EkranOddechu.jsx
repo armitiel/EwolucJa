@@ -66,7 +66,7 @@ const SLOWA = { wdech: "wdech", wstrzymaj: "trzymaj", wydech: "wydech" };
  */
 const STRZALKA = "M16 5 27 16h-5.5v11h-11V16H5z";
 
-export default function EkranOddechu({ pora = "poludnie", onKoniec }) {
+export default function EkranOddechu({ pora = "poludnie", onKoniec, onUkonczone }) {
   const dlugosc = TEMPO[pora] || 4;
   const wstrzymanie = Math.min(1.6, dlugosc * 0.4);
   const [faza, setFaza] = useState("odliczanie"); // odliczanie | wdech | wstrzymaj | wydech | koniec
@@ -471,7 +471,11 @@ export default function EkranOddechu({ pora = "poludnie", onKoniec }) {
       {faza === "koniec" ? (
         <div className="oddech-koniec">
           <p>Czujesz? Tak właśnie działa.</p>
-          <button type="button" className="hub-btn hub-btn-primary" onClick={onKoniec}>
+          <button
+            type="button"
+            className="hub-btn hub-btn-primary"
+            onClick={() => { onUkonczone?.(); onKoniec?.(); }}
+          >
             Gotowe
           </button>
         </div>

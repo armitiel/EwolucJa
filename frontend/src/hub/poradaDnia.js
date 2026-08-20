@@ -13,7 +13,50 @@ import PORADY from "./data/porady.v1.json";
 
 const KLUCZ_DZIS = "ewolucja.porady.dzis";
 const KLUCZ_HISTORIA = "ewolucja.porady.historia";
+const KLUCZ_RYTUAL = "ewolucja.porady.rytual";
+const KLUCZ_SLADY = "ewolucja.porady.slady";
 const HISTORIA_MAX = 30;
+
+/**
+ * Trzy aktywności są małą biblioteką minigier, nie listą poleceń. Ilustracja
+ * niesie wybór tak samo jak w zakładce Minigry, a tekst dopowiada tylko, co
+ * wydarzy się po dotknięciu kafla.
+ *
+ * `zapowiedz` to zdanie, które LISEK mówi po wybraniu karty (`hub/glosLiska.js`).
+ * Pisane pod UCHO, nie pod oko: bez cyfr i skrótów, bo „5 oddechów" czyta się
+ * inaczej niż „pięć oddechów", a dziecko ma usłyszeć, na co się właśnie
+ * zgodziło, zanim zacznie. Jedno zdanie o tym, CO TO ZA ĆWICZENIE, i drugie
+ * krótkie — zaproszenie.
+ */
+export const KARTY_DNIA = [
+  {
+    id: "balon-spokoju",
+    tytul: "Balon spokoju",
+    opis: "5 oddechów z liskiem",
+    akcja: "oddech",
+    ilustracja: "/assets/porady/karta-oddech.png",
+    zapowiedz: "Pięć wolnych oddechów. Nadmuchujemy balon i patrzymy, jak rośnie. Robimy to razem?",
+    odzew: "Balon zabrał trochę pośpiechu. Widziałem, jak zwolniłeś.",
+  },
+  {
+    id: "zielony-trop",
+    tytul: "Zielony trop",
+    opis: "Znajdź 5 zielonych rzeczy",
+    akcja: "trop",
+    ilustracja: "/assets/porady/karta-trop.png",
+    zapowiedz: "Szukamy pięciu zielonych rzeczy dookoła siebie. Kto pierwszy zobaczy?",
+    odzew: "Masz bystre oczy. Pięć zielonych śladów już świeci na mapie.",
+  },
+  {
+    id: "strzasnij-napiecie",
+    tytul: "Strząśnij napięcie",
+    opis: "3 ruchy razem z liskiem",
+    akcja: "ruch",
+    ilustracja: "/assets/porady/karta-ruch.png",
+    zapowiedz: "Trzy ruchy: łapki, barki i głowa. Strząsamy z siebie napięcie. Gotowy?",
+    odzew: "Łapki, barki i głowa są już lżejsze. Dobra robota.",
+  },
+];
 
 /** Pory dnia w kolejności doby. Godziny są brzegami przedziałów [od, do). */
 export const PORY = [
@@ -37,6 +80,15 @@ function kluczDnia(data = new Date()) {
   return `${data.getFullYear()}-${data.getMonth() + 1}-${data.getDate()}`;
 }
 
+/** Kolejność kart obraca się codziennie, ale nie zmienia po odświeżeniu. */
+export function kartyDnia(data = new Date()) {
+  const dzien = kluczDnia(data);
+  let h = 0;
+  for (let i = 0; i < dzien.length; i += 1) h = (h * 31 + dzien.charCodeAt(i)) % 9973;
+  const start = h % KARTY_DNIA.length;
+  return [...KARTY_DNIA.slice(start), ...KARTY_DNIA.slice(0, start)];
+}
+
 function czytaj(klucz, zapas) {
   try {
     const s = localStorage.getItem(klucz);
@@ -50,6 +102,52 @@ function pisz(klucz, wartosc) {
   try {
     localStorage.setItem(klucz, JSON.stringify(wartosc));
   } catch {}
+}
+
+function pustyRytual(data = new Date()) {
+  return { dzien: kluczDnia(data), wybrana: null, ukonczona: null };
+}
+
+/** Wybór i wykonanie są rozdzielone: samo dotknięcie kafla niczego nie zalicza. */
+export function czytajRytual(data = new Date()) {
+  const dzien = kluczDnia(data);
+  const zapis = czytaj(KLUCZ_RYTUAL, null);
+  return zapis && zapis.dzien === dzien ? zapis : pustyRytual(data);
+}
+
+export function wybierzKarteDnia(id, data = new Date()) {
+  const karta = KARTY_DNIA.find((x) => x.id === id);
+  const stan = czytajRytual(data);
+  if (!karta) return stan;
+  // Wykonana wcześniej karta zostawia listek, ale nie zamyka całej zakładki.
+  // Dziecko może wrócić do listy i uruchomić inną krótką aktywność tego dnia.
+  const nowy = { ...stan, wybrana: id, ukonczona: null };
+  pisz(KLUCZ_RYTUAL, nowy);
+  return nowy;
+}
+
+export function anulujWyborKarty(data = new Date()) {
+  const stan = czytajRytual(data);
+  const nowy = { ...stan, wybrana: null, ukonczona: null };
+  pisz(KLUCZ_RYTUAL, nowy);
+  return nowy;
+}
+
+export function ukonczKarteDnia(id, data = new Date()) {
+  const karta = KARTY_DNIA.find((x) => x.id === id);
+  if (!karta) return czytajRytual(data);
+  const dzien = kluczDnia(data);
+  const nowy = { dzien, wybrana: id, ukonczona: id };
+  pisz(KLUCZ_RYTUAL, nowy);
+
+  const slady = czytajSlady().filter((x) => x.dzien !== dzien);
+  pisz(KLUCZ_SLADY, [{ dzien, id }, ...slady].slice(0, 7));
+  return nowy;
+}
+
+export function czytajSlady() {
+  const slady = czytaj(KLUCZ_SLADY, []);
+  return Array.isArray(slady) ? slady : [];
 }
 
 /** Porady pasujące do pory dnia; z podziałem na dwie półki. */
@@ -116,5 +214,7 @@ export function zresetujPorade() {
   try {
     localStorage.removeItem(KLUCZ_DZIS);
     localStorage.removeItem(KLUCZ_HISTORIA);
+    localStorage.removeItem(KLUCZ_RYTUAL);
+    localStorage.removeItem(KLUCZ_SLADY);
   } catch {}
 }

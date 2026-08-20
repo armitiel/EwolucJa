@@ -203,26 +203,81 @@
   transition: transform .16s ease, filter .16s ease;
 }
 
+/* Ikona zostaje pierwszym znakiem, ale dziecko nie musi zapamietywac, czy
+   dymki to rozmowy, a koperta to listy z zadaniami. Krotki podpis siedzi
+   wewnatrz kola i nie zwieksza wysokosci doku ani nie zabiera miejsca panelom. */
+.game-hud-label {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: -1px;
+  transform: translateX(-50%);
+  min-width: 58px;
+  padding: 3px 7px 2px;
+  border: 2px solid #fff0c4;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #76569c, #503867);
+  box-shadow: 0 2px 0 #35243d, 0 4px 7px rgba(45, 28, 52, .24);
+  color: #fff3bd;
+  font-family: "Nunito", system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  text-shadow: 0 1px 0 #35243d;
+  pointer-events: none;
+}
+
+/* Plakietka z liczba. DWA RAZY WIEKSZA niz byla (20 px -> 40 px): przy 20 px
+   cyferka na telefonie znikala w ikonie i dziecko po prostu jej nie zauwazalo,
+   a to jedyny sygnal "cos na Ciebie czeka" w calym HUD-zie.
+   Skalowane jest wszystko naraz - kolko, obrys, cien i pismo - zeby przy
+   podwojnym rozmiarze nie wyszla plaska naklejka. */
 .game-hud-badge {
   position: absolute;
   z-index: 3;
-  top: 1px;
-  right: 9px;
-  min-width: 20px;
-  height: 20px;
+  /* Wsuniete w glab ikony, a nie na jej krawedzi: przy 40 px plakietka
+     ostatniej sekcji wystawala poza zlota polke doku i wygladala na urwana. */
+  top: -2px;
+  right: 7px;
+  min-width: 40px;
+  height: 40px;
   box-sizing: border-box;
   display: grid;
   place-items: center;
-  padding: 0 5px;
-  border: 2px solid #fff0c4;
+  padding: 0 9px;
+  border: 3px solid #fff0c4;
   border-radius: 999px;
   background: linear-gradient(180deg, #ff665e, #d92e34);
-  box-shadow: 0 2px 0 #8e2528, 0 4px 7px rgba(72, 25, 21, .25);
+  box-shadow: 0 3px 0 #8e2528, 0 6px 11px rgba(72, 25, 21, .28);
   color: #fff7d0;
-  font-size: 11px;
+  font-size: 22px;
   font-weight: 900;
   line-height: 1;
-  text-shadow: 0 1px 0 #8e2528;
+  text-shadow: 0 2px 0 #8e2528;
+}
+
+/* Cyferka LEKKO DO GORY wewnatrz kolka. Pismo wyswietlane jest z odstepem pod
+   linia bazowa, wiec optycznie siedzi nizej niz srodek kolka; przy 40 px roznica
+   jest juz widoczna golym okiem. Dwa piksele w gore ustawiaja ja na srodku. */
+.game-hud-badge > span {
+  display: block;
+  transform: translateY(-2px);
+}
+
+/* Wariant KROPKA - bez liczby. Uzywamy go tam, gdzie liczba nic nie wnosi:
+   "pojawila sie nowa minigra" to jedna wiadomosc, nie ilosc do odhaczenia.
+   Zielona, bo to nie jest zaleglosc do nadrobienia (czerwone plakietki), tylko
+   cos nowego do obejrzenia. */
+.game-hud-badge.is-kropka {
+  min-width: 20px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  top: 1px;
+  right: 8px;
+  background: linear-gradient(180deg, #7ede76, #37a84a);
+  box-shadow: 0 2px 0 #1f7333, 0 4px 8px rgba(20, 66, 30, .28);
 }
 
 .game-hud-dock button:hover,
@@ -864,7 +919,10 @@
     padding: 4px 4px 6px;
   }
   .game-hud.is-shelf .game-hud-dock img { width: 58px; height: 58px; }
-  .game-hud-badge { right: 4px; }
+  /* Waski ekran: plakietka schodzi o wlos w glab ikony, zeby nie wystawala
+     poza dok. Rozmiaru NIE zmniejszamy - po to zostala powiekszona. */
+  .game-hud-badge { top: 0; right: 3px; min-width: 36px; height: 36px; font-size: 20px; }
+  .game-hud-badge.is-kropka { min-width: 18px; width: 18px; height: 18px; top: 2px; right: 6px; }
   .message-scroll { padding: 14px 8px calc(91px + env(safe-area-inset-bottom, 0px)); }
   .message-scroll-parchment { width: min(100%, 390px); }
   .message-scroll.is-open .message-scroll-parchment { height: min(var(--message-scroll-height), 70dvh, 530px); }
@@ -881,6 +939,7 @@
   .game-hud-profile { width: 47px; padding-right: 1px; }
   .game-hud-dock button::before { width: 58px; height: 58px; }
   .game-hud-dock img { width: 51px; height: 51px; }
+  .game-hud-label { min-width: 52px; padding-inline: 5px; font-size: 9px; }
 }
 
 

@@ -28,8 +28,14 @@ export const SlotNaglowka = createContext(null);
  * przejście z Gier na Czat skakało o 82 px. Wszystkie szuflady mają jedną
  * wysokość, a miejsce dla rozmowy bierze się z jej wnętrza.
  */
-export default function PanelSheet({ open, kicker = null, title, onClose, children, testId, wypelnia = false }) {
+export default function PanelSheet({ open, kicker = null, title, onClose, onPowrot = null, children, testId, wypelnia = false, powrot = false }) {
   const arkuszRef = useRef(null);
+  // `Swiat` zeruje aktywny panel od razu, a arkusz jeszcze przez moment zjeżdża.
+  // Zapamiętujemy więc ikonę otwartego panelu, żeby Porada podczas animacji
+  // zamykania nie mignęła krzyżykiem zamiast pozostać strzałką.
+  const ostatniTrybPowrotuRef = useRef(powrot);
+  if (open) ostatniTrybPowrotuRef.current = powrot;
+  const pokazPowrot = open ? powrot : ostatniTrybPowrotuRef.current;
   // Stan, nie ref: portal musi się przerysować, gdy węzeł już istnieje.
   const [slot, setSlot] = useState(null);
 
@@ -74,13 +80,21 @@ export default function PanelSheet({ open, kicker = null, title, onClose, childr
             {kicker ? <span className="hub-kicker">{kicker}</span> : null}
             <h2>{title}</h2>
           </div>
-          {/* Ten sam znak co na zwoju wiadomosci (`MessageScroll.jsx`): `×`
-              (U+00D7), a nie `✕` (U+2715). Dwa rozne krzyzyki w jednej grze
-              to dwie rozne grubosci kreski i dwa rozne ksztalty ramion —
-              widac to od razu, gdy dziecko zamyka zwoj, a chwile pozniej
-              szuflade. Wyglad jest sparowany w `hub.css`. */}
-          <button type="button" className="hub-sheet-close" onClick={onClose} aria-label="Zamknij" data-testid="hub-sheet-close">
-            ×
+          {/* Porada jest krótką ścieżką wyboru, więc wraca strzałką. Pozostałe
+              szuflady nadal zamykają się krzyżykiem. Przycisk zachowuje tę samą
+              czerwoną oprawę — zmienia się tylko biały znak i jego znaczenie. */}
+          <button
+            type="button"
+            className={`hub-sheet-close${pokazPowrot ? " is-back" : ""}`}
+            onClick={pokazPowrot ? (onPowrot || onClose) : onClose}
+            aria-label={pokazPowrot ? "Wróć" : "Zamknij"}
+            data-testid="hub-sheet-close"
+          >
+            {pokazPowrot ? (
+              <svg viewBox="0 0 32 28" aria-hidden="true" focusable="false">
+                <path d="M13 3.7 2.7 14 13 24.3l3-3-5.2-5.1H29v-4.4H10.8L16 6.7z" />
+              </svg>
+            ) : "×"}
           </button>
         </header>
         {/* Slot stoi POD belką tytułową, na całą szerokość arkusza — nie

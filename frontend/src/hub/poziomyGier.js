@@ -25,6 +25,10 @@ export const POZIOMY_GIER = {
     // Pięć rund po najwyżej 5 monet — patrz `RUND` i `NAGRODY` w `PiorkaGame`.
     { id: "jeden", monetyMax: 25 },
   ],
+  "lot-liska": [
+    // Trzy obręcze; kolejne pudła obniżają nagrodę, ale nie blokują gry.
+    { id: "jeden", monetyMax: 20 },
+  ],
 };
 
 /** Poziomy danej gry (pusta tablica dla gry spoza listy). */

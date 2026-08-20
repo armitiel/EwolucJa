@@ -47,7 +47,7 @@ export function useHubPanel() {
  * `/swiat`. To te same `id`, co w `hub/data/minigry.v1.json` — jedno słownictwo
  * dla katalogu, dla znaków na mapie i dla adresu.
  */
-export const GRY_W_HUBIE = ["pamiec-medrca", "sekret-pod-puchem"];
+export const GRY_W_HUBIE = ["pamiec-medrca", "sekret-pod-puchem", "lot-liska"];
 
 /**
  * useHubGra — otwarta minigra trzymana w adresie (`/swiat?gra=pamiec-medrca`).

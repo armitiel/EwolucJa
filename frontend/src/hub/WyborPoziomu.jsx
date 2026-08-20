@@ -33,6 +33,7 @@ export default function WyborPoziomu({ poziomy = [], wybrany, onWybor, rozmiarMo
           aria-label={p.nazwa ? `${p.nazwa}, do ${p.monetyMax} monet` : `Do ${p.monetyMax} monet`}
           disabled={jeden}
         >
+          {!jeden && p.id === wybrany ? <span className="start-gry-poziom-check" aria-hidden="true">✓</span> : null}
           {p.nazwa ? <span className="start-gry-poziom-nazwa">{p.nazwa}</span> : null}
           <span className="start-gry-poziom-monety">
             <Coin size={rozmiarMonety} />

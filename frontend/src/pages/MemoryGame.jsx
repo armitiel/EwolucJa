@@ -418,35 +418,30 @@ export default function MemoryGame({ osadzona = false, poziom = null, onWyjscie 
       </div>
 
       <div className="gra-scroll screen-scroll">
-        {/* Splash także tutaj — żeby wejście w każdą minigrę wyglądało tak samo.
-            Ta gra nie dociąga plików, więc `gotowe` zostaje domyślnie prawdą
-            i ekran schodzi po samym minimalnym czasie. */}
-        {phase === "splash" ? (
-          <SplashGry
-            tytul="Pamięć Mędrca"
-            podpis="Tasuję symbole…"
-            /* Zamiast emoji lecą prawdziwe symbole z talii — ten sam widok,
-               który za chwilę zobaczysz na kartach. */
-            obrazy={[GAME_SYMS[5], GAME_SYMS[1], GAME_SYMS[7], GAME_SYMS[3]].map((s) => s.plik)}
-            onKoniec={() => setPhase(zPominieciemIntro ? "playing" : "intro")}
-          />
-        ) : null}
-
         <div style={{ position: "absolute", top: 80, right: -20, animation: "float-slow 6s ease-in-out infinite", zIndex: 0, pointerEvents: "none" }}><Cloud size={100} opacity={0.5} /></div>
         <div style={{ position: "absolute", bottom: 120, left: -30, animation: "float-mid 7s ease-in-out infinite", zIndex: 0, pointerEvents: "none" }}><Cloud size={80} opacity={0.4} /></div>
 
-        {/* INTRO */}
-        {phase === "intro" && (
-          <EkranStartuGry
-            ilustracja="/assets/karty/wizkor-karty.png"
-            tytul="Pamięć Mędrca"
-            poziomy={poziomyGry(GRA)}
-            wybrany={diff}
-            onWybor={setDiff}
-            cta="Zagraj"
-            onGraj={() => restart()}
-          />
-        )}
+        {/* Jeden ekran na wejście: ta sama scena najpierw tasuje karty, potem
+            odsłania poziomy i CTA. Nie ma już przeskoku splash → intro. */}
+        {phase === "splash" || phase === "intro" ? (
+          <SplashGry onKoniec={() => setPhase(zPominieciemIntro ? "playing" : "intro")}>
+            {({ laduje }) => (
+              <EkranStartuGry
+                ilustracja="/assets/karty/wizkor-karty.png"
+                tytul="Pamięć Mędrca"
+                haslo="Odkryj wszystkie pary!"
+                wariant="pamiec"
+                laduje={laduje}
+                tekstLadowania="Tasuję karty…"
+                poziomy={poziomyGry(GRA)}
+                wybrany={diff}
+                onWybor={setDiff}
+                cta="Zagraj!"
+                onGraj={() => restart()}
+              />
+            )}
+          </SplashGry>
+        ) : null}
 
         {/* PLAYING — grid. Zostaje na ekranie także po wygranej: pod kartą
             wyniku widać wtedy WŁASNY, skończony stół z odkrytymi parami,

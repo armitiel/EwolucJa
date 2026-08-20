@@ -73,12 +73,13 @@ export function powitanieCzarodzieja(z, misja) {
       const real = stanZadaniaWizkora();
 
       if (real.doOdbioru) {
+        const nagroda = real.nagroda || real.def.nagroda || 25;
         return {
           ...baza,
           tekst:
             `Mentor przeczytał to, co mu wysłałeś. Przyjął. ` +
-            `Należy ci się ${real.def.nagroda} monet — bierz.`,
-          wyroznienie: `${real.def.nagroda} monet`,
+            `Mentor przyznał ci ${nagroda} monet — bierz.`,
+          wyroznienie: `${nagroda} monet`,
           przycisk: "Odbieram nagrodę!",
           akcja: "otworzZadanie",
         };
@@ -89,7 +90,7 @@ export function powitanieCzarodzieja(z, misja) {
           ...baza,
           tekst:
             "Twoje zadanie jest u Mentora. Nie musisz nad nim stać — " +
-            "zajrzyj do wiadomości później.",
+            "zajrzyj do Listów później.",
           wyroznienie: "u Mentora",
           przycisk: "Dobrze!",
           akcja: null,
@@ -100,7 +101,7 @@ export function powitanieCzarodzieja(z, misja) {
         return {
           ...baza,
           tekst:
-            `Pamiętasz o zadaniu? „${real.def.tytul}" czeka w twoich wiadomościach. ` +
+            `Pamiętasz o zadaniu? „${real.def.tytul}" czeka w twoich Listach. ` +
             "Tego nie zrobisz tutaj — to trzeba zrobić naprawdę.",
           wyroznienie: real.def.tytul,
           przycisk: "Otwieram zadanie",
@@ -114,8 +115,8 @@ export function powitanieCzarodzieja(z, misja) {
           ...baza,
           tekst:
             `Mapę już znasz, wędrowcze. Teraz coś trudniejszego: ${nowe.cel} ` +
-            `Zapiszę ci to w wiadomościach, a Mentor sprawdzi. ${nowe.nagroda} monet.`,
-          wyroznienie: `${nowe.nagroda} monet`,
+            "Zapiszę ci to w Listach, a Mentor sprawdzi i przyzna nagrodę.",
+          wyroznienie: "nagrodę od Mentora",
           przycisk: "Zrobię to!",
           akcja: `zlecReal:${nowe.id}`,
         };

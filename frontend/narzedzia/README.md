@@ -20,6 +20,7 @@ python3 narzedzia/czarodziej-strojenie.py public/scena-3d/scena3d.js public/scen
 |---|---|---|
 | `czarodziej-lata-modul.py` | Dokłada czarodzieja: mikser animacji dla znaków, cykl znikania po czasie, losowe miejsce przy powrocie, własny promień zasięgu, dotknięcie raz na podejście, API `schowajZnak`. | **nie** — druga próba zgłosi 0 trafień i przerwie |
 | `czarodziej-strojenie.py` | Podmienia całą definicję znaku czarodzieja (skala, jasność, lewitacja, rytm) i uzależnia promień uzbrojenia od definicji. | tak — nadpisuje poprzednie wartości |
+| `cien-pod-nogi.py` | Przesuwa cień bohatera do przodu, w stronę patrzenia (`heading`), zamiast trzymać go pod środkiem modelu. | tak — wzorzec łapie też wartość już ustawioną, więc da się stroić |
 
 Po każdej zmianie w bundlu **podbij `WERSJA_SCENY`** w
 `src/components/Scena3D.jsx`. Pliki w `public/` nie mają hasha w nazwie, więc

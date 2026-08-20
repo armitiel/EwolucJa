@@ -1,36 +1,31 @@
 /**
- * SplashGry — ekran, który stoi między dotknięciem kafelka a grą.
+ * SplashGry — sterownik gotowości wspólnego ekranu startowego gry.
  *
- * Po co on jest: minigry wczytują własną grafikę (Sekret pod puchem prawie
- * megabajt) i bez tego ekranu dziecko patrzy przez ten czas na puste tło,
- * a to wygląda jak zawieszona aplikacja. Splash daje temu oczekiwaniu twarz.
+ * Minigry wczytują własną grafikę, ale nie pokazujemy już osobnego splasha.
+ * Ten komponent pilnuje minimalnego czasu oraz realnej gotowości zasobów,
+ * a dziecko cały czas widzi TEN SAM ekran: najpierw z loaderem, potem z CTA.
  *
  * Dwie zasady, które trzymają go przy życiu:
  *
- * 1. NIE MIGA. `minCzas` trzyma go na ekranie chwilę nawet wtedy, gdy grafiki
- *    są już w cache i wczytują się w 30 ms. Splash, który mignął i zniknął,
- *    czyta się jak usterka, nie jak wejście do gry.
+ * 1. NIE MIGA. `minCzas` trzyma loader chwilę nawet wtedy, gdy grafiki są już
+ *    w cache i wczytują się w 30 ms.
  *
- * 2. NIE KŁAMIE. Znika dopiero, gdy `gotowe` jest prawdą — czyli gdy gra
- *    naprawdę ma czym rysować. Gra bez `gotowe` (jak Pamięć Mędrca, która nie
- *    dociąga plików) po prostu zostawia domyślne `true` i splash odlicza sam.
+ * 2. NIE KŁAMIE. CTA pojawia się dopiero, gdy `gotowe` jest prawdą — czyli
+ *    gdy gra naprawdę ma czym rysować.
  *
- * Użycie:
- *   <SplashGry tytul="Sekret pod puchem" obrazy={[...]} gotowe={zaladowane}
- *              onKoniec={() => setFaza("intro")} />
+ * `children` jest funkcją i dostaje `{ laduje }`. Dzięki temu sterownik nie ma
+ * własnego UI i nie tworzy drugiego ekranu.
  */
 import React, { useEffect, useRef, useState } from "react";
 
 export default function SplashGry({
-  tytul,
-  podpis = "Chwileczkę…",
-  obrazy = [],
-  emoji = null,
   gotowe = true,
   minCzas = 1100,
   onKoniec,
+  children,
 }) {
   const start = useRef(Date.now());
+  const zakonczono = useRef(false);
   const [minieloMin, setMinieloMin] = useState(false);
 
   useEffect(() => {
@@ -40,21 +35,11 @@ export default function SplashGry({
   }, [minCzas]);
 
   useEffect(() => {
-    if (minieloMin && gotowe) onKoniec?.();
+    if (!minieloMin || !gotowe || zakonczono.current) return;
+    zakonczono.current = true;
+    onKoniec?.();
   }, [minieloMin, gotowe, onKoniec]);
 
-  return (
-    <div className="splash-gry" data-testid="splash-gry">
-      <div className="splash-gry-art" aria-hidden="true">
-        {obrazy.length
-          ? obrazy.map((src, i) => <img key={src + i} src={src} alt="" style={{ "--nr": i }} />)
-          : <span className="splash-gry-emoji" style={{ "--nr": 0 }}>{emoji || "✦"}</span>}
-      </div>
-      <h1>{tytul}</h1>
-      <p>{podpis}</p>
-      {/* Pasek zamiast samego napisu: dwa ekrany z tym samym tekstem i bez
-          ruchu czytaja sie jak zawieszona aplikacja. */}
-      <span className="splash-gry-pasek" aria-hidden="true"><i /></span>
-    </div>
-  );
+  const laduje = !minieloMin || !gotowe;
+  return typeof children === "function" ? children({ laduje }) : null;
 }

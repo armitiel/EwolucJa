@@ -18,6 +18,14 @@ const VOICES = {
   // Głos Mentora (rodzic/nauczyciel) — odróżnialny od narratora.
   // Fallback do narratora, jeśli nie ustawiony.
   mentor:   (process.env.ELEVENLABS_MENTOR_VOICE_ID || "").trim() || (process.env.ELEVENLABS_VOICE_ID || "").trim() || "XrYxa2QP5oFX1cg3JPdt",
+  /**
+   * Lisek — bohater, którym gra dziecko. Mówi tylko tam, gdzie zaprasza do
+   * wspólnego działania (dziś: Porada dnia), więc NIE ma fallbacku do
+   * narratora: gdyby jego głos zniknął z konta, lepiej żeby zabrakło mowy,
+   * niż żeby lisek nagle przemówił głosem narratorki i dziecko usłyszało,
+   * że to jednak nie on.
+   */
+  lisek:    (process.env.ELEVENLABS_LISEK_VOICE_ID || "").trim() || "pXmYPDwdEllwGVxpqLZr",
 };
 
 const LAND_VOICES = {
@@ -31,6 +39,9 @@ const LAND_VOICES = {
   wezwanie_kroniki:    "mystical",
   // Mentor (osobny ton)
   mentor:              "mentor",
+  // Lisek — nie kraina, tylko postać; klucz działa tak samo, bo frontend
+  // podaje `land` jako „kto to mówi", a nie „gdzie to się dzieje".
+  lisek:               "lisek",
 };
 
 // ── Serwis TTS ───────────────────────────────────────────────────────
@@ -47,6 +58,10 @@ const TONE_PRESETS = {
   celebration: { stability: 0.35, similarity_boost: 0.75, style: 0.70, speed: 1.05, pauseBefore: 250,  pauseAfter: 100 },
   whisper:     { stability: 0.70, similarity_boost: 0.82, style: 0.20, speed: 0.90, pauseBefore: 200,  pauseAfter: 250 },
   calm:        { stability: 0.75, similarity_boost: 0.78, style: 0.10, speed: 0.95, pauseBefore: 100,  pauseAfter: 150 },
+  // Lisek zapraszający do zabawy: żywo, ekspresyjnie i odrobinę szybciej niż
+  // narrator — to kolega, który już się zerwał do biegu, a nie ktoś, kto
+  // opowiada bajkę. Krótka pauza po zdaniu zostawia miejsce na decyzję.
+  zabawa:      { stability: 0.40, similarity_boost: 0.75, style: 0.60, speed: 1.03, pauseBefore: 80,   pauseAfter: 180 },
 };
 
 /**

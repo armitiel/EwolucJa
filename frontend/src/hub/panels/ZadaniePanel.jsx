@@ -18,6 +18,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { upload } from "@vercel/blob/client";
 import { API_BASE } from "../../config.js";
+import { useAppData } from "../../contexts/AppData.jsx";
 import { GameIcon } from "../../adventure/components/icons.jsx";
 import bgMusic from "../../services/bgMusic.js";
 import { ttsPlayer } from "../../services/ttsPlayer.js";
@@ -30,7 +31,9 @@ import {
 } from "../zadanieWizkora.js";
 
 export default function ZadaniePanel({ onKomunikat, onZamknij }) {
+  const { refreshPlayer } = useAppData();
   const [stan, setStan] = useState(() => stanZadania());
+  const [etap, setEtap] = useState("plan");
   const [miejsce, setMiejsce] = useState(null);
   const [opis, setOpis] = useState("");
   const [zdjecieUrl, setZdjecieUrl] = useState(null);
@@ -51,6 +54,19 @@ export default function ZadaniePanel({ onKomunikat, onZamknij }) {
 
   const def = stan.def;
 
+  useEffect(() => { setEtap("plan"); }, [def?.id, stan.status]);
+
+  const czytajZadanie = useCallback(() => {
+    if (!def || !stan.doZrobienia) return;
+    try {
+      ttsPlayer.speak([def.cel, def.jak].filter(Boolean).join(" "), {
+        land: "las_decyzji",
+        tone: "mystery",
+        interrupt: true,
+      });
+    } catch {}
+  }, [def, stan.doZrobienia]);
+
   /**
    * WIZKOR CZYTA ZADANIE NA GŁOS, raz, zaraz po otwarciu panelu.
    *
@@ -65,7 +81,9 @@ export default function ZadaniePanel({ onKomunikat, onZamknij }) {
    *    a nie „ciszej, ale głos i tak wejdzie";
    *  • zamknięcie panelu ucina mowę w pół słowa.
    *
-   * Mówi TYLKO o zadaniu do zrobienia. Ekrany „u Mentora", „nagroda czeka"
+   * Mówi TYLKO o zadaniu do zrobienia. Dowód ma osobny, drugi krok, więc nie
+   * czytamy jego instrukcji, zanim dziecko zdecyduje, że już skończyło.
+   * Ekrany „u Mentora", „nagroda czeka"
    * i „zrobione" to stany, nie polecenia — czytanie ich na głos przy każdym
    * zajrzeniu do panelu byłoby gadaniem, nie pomocą.
    *
@@ -77,15 +95,9 @@ export default function ZadaniePanel({ onKomunikat, onZamknij }) {
   useEffect(() => {
     if (!def || !stan.doZrobienia) return undefined;
     if (!bgMusic.isEnabled()) return undefined;
-    try {
-      ttsPlayer.speak([def.cel, def.jak, def.dowod].filter(Boolean).join(" "), {
-        land: "las_decyzji",
-        tone: "mystery",
-        interrupt: true,
-      });
-    } catch {}
+    czytajZadanie();
     return () => { try { ttsPlayer.stop(); } catch {} };
-  }, [def?.id, stan.doZrobienia]);
+  }, [czytajZadanie, stan.doZrobienia]);
 
   const dodajZdjecie = useCallback(async (zdarzenie) => {
     const plik = zdarzenie.target.files?.[0];
@@ -162,10 +174,11 @@ export default function ZadaniePanel({ onKomunikat, onZamknij }) {
     return () => { porzucone = true; };
   }, [stan.czeka]);
 
-  function odbierz() {
+  async function odbierz() {
     const nowy = odbierzNagrode();
     setStan(nowy);
-    onKomunikat?.(`+${def?.nagroda || 0} monet`);
+    await refreshPlayer();
+    onKomunikat?.(stan.nagroda ? `+${stan.nagroda} monet od Mentora` : "Nagroda odebrana");
   }
 
   /* ── brak zadania ──────────────────────────────────────────────────── */
@@ -201,7 +214,7 @@ export default function ZadaniePanel({ onKomunikat, onZamknij }) {
           <GameIcon name="gift" size={40} />
           <h3 className="czat-naglowek">Mentor przyjął Twoje zadanie</h3>
           {stan.notatka ? <p className="zadanie-notatka">„{stan.notatka}”</p> : null}
-          <p className="zadanie-kwota">+{def.nagroda} monet</p>
+          {stan.nagroda ? <p className="zadanie-kwota">+{stan.nagroda} monet</p> : null}
           <button type="button" className="hub-btn hub-btn-primary" onClick={odbierz}>
             Odbieram nagrodę!
           </button>
@@ -235,7 +248,7 @@ export default function ZadaniePanel({ onKomunikat, onZamknij }) {
             draggable="false"
           />
           <h3 className="czat-naglowek">Twoje zadanie jest sprawdzane</h3>
-          <p>Wizkor zaniósł je Mentorowi i właśnie ogląda Twoją odpowiedź. Zajrzyj tu za chwilę.</p>
+          <p>Wizkor zaniósł Twoją odpowiedź Mentorowi. Mentor właśnie ją ogląda. Zajrzyj tu później.</p>
           {stan.dowod?.zdjecieUrl ? (
             <img className="zadanie-podglad" src={stan.dowod.zdjecieUrl} alt="Twoje zdjęcie" />
           ) : null}
@@ -245,25 +258,82 @@ export default function ZadaniePanel({ onKomunikat, onZamknij }) {
     );
   }
 
-  /* ── do zrobienia (albo poprawka) ──────────────────────────────────── */
+  /* ── dowód: osobny, krótki drugi krok ───────────────────────────────── */
+  if (etap === "dowod") {
+    return (
+      <div className="hub-pane" data-testid="hub-pane-zadanie-dowod">
+        <button type="button" className="zadanie-powrot" onClick={() => setEtap("plan")}>
+          <span aria-hidden="true">←</span> Wróć do zadania
+        </button>
+        <h3 className="czat-naglowek czat-naglowek--pisz">Pokaż Mentorowi</h3>
+        {def.dowod ? <p className="zadanie-dowod">{def.dowod}</p> : null}
+
+        <button
+          type="button"
+          className="zadanie-zdjecie"
+          onClick={() => plikRef.current?.click()}
+          disabled={wgrywanie}
+        >
+          {podglad ? (
+            <img src={podglad} alt="Twoje zdjęcie" />
+          ) : (
+            <>
+              <GameIcon name="camera" size={30} />
+              <strong>{wgrywanie ? "Wysyłam zdjęcie…" : "Dodaj zdjęcie"}</strong>
+            </>
+          )}
+        </button>
+        <input
+          ref={plikRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={dodajZdjecie}
+          style={{ display: "none" }}
+          data-testid="zadanie-plik"
+        />
+
+        <textarea
+          className="zadanie-opis"
+          value={opis}
+          onChange={(zdarzenie) => setOpis(zdarzenie.target.value)}
+          placeholder="Napisz, co zrobiłeś…"
+          maxLength={600}
+          rows={4}
+        />
+        {def.przyklad ? (
+          <p className="zadanie-przyklad">
+            <b>Na przykład:</b>
+            <span>{def.przyklad}</span>
+          </p>
+        ) : null}
+
+        {blad ? <p className="zadanie-blad">{blad}</p> : null}
+        <div className="hub-actions">
+          <button
+            type="button"
+            className="hub-btn hub-btn-primary"
+            onClick={wyslij}
+            disabled={wysylka || wgrywanie}
+          >
+            {wysylka ? "Wysyłam…" : "Wyślij do Mentora"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── plan: jedno zadanie, opcjonalne miejsce, jeden następny krok ───── */
   return (
     <div className="hub-pane" data-testid="hub-pane-zadanie">
-      {/* Karta zadania: JEDNO zdanie celu i jedno zdanie „jak". Nagroda idzie
-          w róg, a nie w osobny wiersz pod tekstem — dziecko ma ją widzieć,
-          nie czytać.
-
-          Bez nadtytułu „Zadanie od Wizkora": dokładnie to samo zdanie stoi
-          w belce szuflady, tuż nad kartą. Dwa razy ta sama informacja
-          w odległości dwóch centymetrów to dla dziecka nie podkreślenie,
-          tylko wiersz do pominięcia. */}
       <div className="zadanie-karta">
-        <span className="hub-coin hub-coin--duza zadanie-moneta">
-          <img src="/assets/hub-nav/moneta.png" alt="" aria-hidden="true" draggable="false" />
-          +{def.nagroda}
-        </span>
         <h3 className="zadanie-tytul">{def.tytul}</h3>
         <p className="zadanie-cel">{def.cel}</p>
         {def.jak ? <p className="zadanie-jak">{def.jak}</p> : null}
+        <button type="button" className="zadanie-glos" onClick={czytajZadanie}>
+          <GameIcon name="sound" size={20} />
+          Posłuchaj jeszcze raz
+        </button>
       </div>
 
       {stan.status === "poprawka" && stan.notatka ? (
@@ -273,10 +343,7 @@ export default function ZadaniePanel({ onKomunikat, onZamknij }) {
         </p>
       ) : null}
 
-      {/* Gdzie to zrobisz — karteczki, nie lista wymagań. Po wyborze JEDNA
-          zostaje wyraźna, reszta przygasa: dziecko ma przed sobą to jedno
-          miejsce, w którym zaraz coś zrobi, a nie cztery możliwości naraz. */}
-      <h3 className="czat-naglowek">Gdzie to zrobisz?</h3>
+      <h3 className="czat-naglowek">Gdzie możesz to zrobić?</h3>
       <div className={`zadanie-miejsca${miejsce ? " ma-wybor" : ""}`}>
         {(def.miejsca || []).map((m) => (
           <button
@@ -288,79 +355,14 @@ export default function ZadaniePanel({ onKomunikat, onZamknij }) {
             <span className="zadanie-pinezka" aria-hidden="true" />
             <span className="zadanie-miejsce-emoji" aria-hidden="true">{m.emoji}</span>
             <strong>{m.nazwa}</strong>
-            {/* Opis dopiero PO WYBORZE. Cztery karteczki, każda z ikoną, nazwą
-                i zdaniem, to dwanaście linijek do przeczytania, zanim dziecko
-                w ogóle podejmie decyzję — a decyduje i tak po ikonie i nazwie.
-                Zwinięte są listą do przejrzenia; wybrana rozwija zdanie, które
-                mówi, co dokładnie tam zrobić. */}
             {miejsce === m.id ? <small>{m.opis}</small> : null}
           </button>
         ))}
       </div>
 
-      {/* Dowód dla Mentora. Zdanie o tym, CO ZROBIĆ PO ZADANIU, stoi tutaj,
-          a nie w karcie na górze: tam byłoby trzecim poleceniem do
-          przeczytania, zanim dziecko cokolwiek zrobi. Tu trafia dokładnie
-          w moment, w którym jest potrzebne — tuż nad przyciskiem zdjęcia.
-          Wizkor czyta je na głos razem z resztą zadania przy otwarciu panelu,
-          więc dziecko zna całość od pierwszej sekundy. */}
-      <h3 className="czat-naglowek czat-naglowek--pisz">Pokaż Mentorowi</h3>
-      {def.dowod ? <p className="zadanie-dowod">{def.dowod}</p> : null}
-
-      <button
-        type="button"
-        className="zadanie-zdjecie"
-        onClick={() => plikRef.current?.click()}
-        disabled={wgrywanie}
-      >
-        {podglad ? (
-          <img src={podglad} alt="Twoje zdjęcie" />
-        ) : (
-          <>
-            <GameIcon name="camera" size={30} />
-            <strong>{wgrywanie ? "Wysyłam zdjęcie…" : "Dodaj zdjęcie"}</strong>
-          </>
-        )}
-      </button>
-      <input
-        ref={plikRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        onChange={dodajZdjecie}
-        style={{ display: "none" }}
-        data-testid="zadanie-plik"
-      />
-
-      <textarea
-        className="zadanie-opis"
-        value={opis}
-        onChange={(zdarzenie) => setOpis(zdarzenie.target.value)}
-        placeholder="Napisz, co zrobiłeś…"
-        maxLength={600}
-        rows={4}
-      />
-      {/* Podpowiedź dla dziecka, które patrzy w puste pole i nie wie, od czego
-          zacząć. Wcześniej było to jedno zdanie pisanką pod polem — ginęło.
-          Teraz ma własną karteczkę z podpisem, więc widać, że to WZÓR, a nie
-          kolejne polecenie. */}
-      {def.przyklad ? (
-        <p className="zadanie-przyklad">
-          <b>Na przykład:</b>
-          <span>{def.przyklad}</span>
-        </p>
-      ) : null}
-
-      {blad ? <p className="zadanie-blad">{blad}</p> : null}
-
       <div className="hub-actions">
-        <button
-          type="button"
-          className="hub-btn hub-btn-primary"
-          onClick={wyslij}
-          disabled={wysylka || wgrywanie}
-        >
-          {wysylka ? "Wysyłam…" : "Wyślij do Mentora"}
+        <button type="button" className="hub-btn hub-btn-primary" onClick={() => setEtap("dowod")}>
+          Zrobiłem — pokażę Mentorowi
         </button>
       </div>
     </div>

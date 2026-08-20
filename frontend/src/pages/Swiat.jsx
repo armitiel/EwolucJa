@@ -86,7 +86,15 @@ import PoradaPanel from "../hub/panels/PoradaPanel.jsx";
 import ZadaniePanel from "../hub/panels/ZadaniePanel.jsx";
 import { GameIcon } from "../adventure/components/icons.jsx";
 import { unreadCount } from "../adventure/engine/notifications.js";
+import {
+  kasujNowosci,
+  nowychPorad,
+  nowychWCzacie,
+  saNoweMinigry,
+  ZDARZENIE_ZMIANY as NOWOSCI_ZMIANA,
+} from "../hub/nowosci.js";
 import { nieprzeczytaneZadaniaWizkora } from "../hub/wiadomosci.js";
+import { uruchomKroki } from "../hub/krokiBohatera.js";
 import { useAppData } from "../contexts/AppData.jsx";
 import { api, session } from "../services/api.js";
 import bgMusic from "../services/bgMusic.js";
@@ -180,6 +188,7 @@ const Reflektor = lazy(() => import("../hub/Reflektor.jsx"));
 const GRY_OSADZONE = {
   "pamiec-medrca": lazy(() => import("./MemoryGame.jsx")),
   "sekret-pod-puchem": lazy(() => import("./PiorkaGame.jsx")),
+  "lot-liska": lazy(() => import("./ChoinkaLaunchGame.jsx")),
 };
 
 /**
@@ -270,7 +279,7 @@ function EkranPrzejscia({ id, onWyjscie }) {
 const NAGLOWKI = {
   gry: "Minigry",
   profil: "Twój profil",
-  czat: "Czat",
+  czat: "Rozmowy",
   porada: "Porada dnia",
   zadanie: "Zadanie od Wizkora",
 };
@@ -406,6 +415,17 @@ export default function Swiat() {
   const [bonus, setBonus] = useState(() => bonusMonet());
   const [komunikat, setKomunikat] = useState(null);
   const [nieprzeczytane, setNieprzeczytane] = useState(0);
+  // Plakietki pozostałych sekcji doku. Osobno od `nieprzeczytane`, bo tamto
+  // czeka na odpowiedź z sieci (podpowiedzi Mentora), a te trzy liczą się
+  // z lokalnego zapisu i mają być na ekranie od razu.
+  const [nowosci, setNowosci] = useState(() => ({ gry: false, czat: 0, porada: 0 }));
+  // Gdy Porady pokazują wybraną kartę albo podsumowanie, strzałka w nagłówku
+  // cofa najpierw do listy kart. `null` oznacza, że jesteśmy już na liście i
+  // kolejny powrót może zamknąć szufladę do świata.
+  const [powrotPorady, setPowrotPorady] = useState(null);
+  const zarejestrujPowrotPorady = useCallback((akcja) => {
+    setPowrotPorady(() => akcja || null);
+  }, []);
   // Podpowiedź sterowania pokazujemy do pierwszego dotknięcia i nigdy więcej —
   // dziecko, które już wie, jak chodzić, nie potrzebuje przypomnienia co wejście.
   const [pokazPodpowiedz, setPokazPodpowiedz] = useState(() => {
@@ -490,6 +510,37 @@ export default function Swiat() {
   }, []);
 
   useEffect(() => { przeliczNieprzeczytane(); }, [przeliczNieprzeczytane]);
+
+  /* ── plakietki minigier, czatu i porad ───────────────────────────────── */
+  const przeliczNowosci = useCallback(() => {
+    setNowosci({
+      gry: (() => { try { return saNoweMinigry(); } catch { return false; } })(),
+      czat: (() => { try { return nowychWCzacie(); } catch { return 0; } })(),
+      porada: (() => { try { return nowychPorad(); } catch { return 0; } })(),
+    });
+  }, []);
+
+  /**
+   * Trzy powody, dla których liczba może się zmienić, i każdy przychodzi
+   * z innej strony: panel odznaczył swoje (`NOWOSCI_ZMIANA`), Wizkor zlecił
+   * misję i w zakładce przybyła gra (`MISJE_ZMIANA`), albo minęła pora dnia
+   * i wjechały nowe porady — tego nikt nie ogłasza, więc pytamy co minutę.
+   * Minuta, bo to jedyny licznik, który potrafi odżyć sam z siebie.
+   */
+  useEffect(() => {
+    przeliczNowosci();
+    window.addEventListener(NOWOSCI_ZMIANA, przeliczNowosci);
+    window.addEventListener(MISJE_ZMIANA, przeliczNowosci);
+    const zegar = window.setInterval(przeliczNowosci, 60_000);
+    return () => {
+      window.removeEventListener(NOWOSCI_ZMIANA, przeliczNowosci);
+      window.removeEventListener(MISJE_ZMIANA, przeliczNowosci);
+      window.clearInterval(zegar);
+    };
+  }, [przeliczNowosci]);
+
+  // Zamknięcie zakładki to moment, w którym panel zdążył już odznaczyć swoje.
+  useEffect(() => { przeliczNowosci(); }, [panel, przeliczNowosci]);
   useEffect(() => { if (!panel) przeliczNieprzeczytane(); }, [panel, przeliczNieprzeczytane]);
   // Zadanie zmienia stan także spoza panelu (wysyłka, werdykt Mentora,
   // odebranie nagrody) — plakietka ma za tym nadążać bez przeładowania.
@@ -603,6 +654,12 @@ export default function Swiat() {
     } catch {}
     return () => { delete window.popupPostaci; };
   }, []);
+
+  /* ── kroki bohatera ──────────────────────────────────────────────────── */
+  /* Pętla czyta fazę odtwarzanej animacji chodu i syntezuje tupnięcie w chwili
+     kontaktu stopy z ziemią. Startuje raz, na całe życie sceny: sama zauważy,
+     że scena jeszcze się montuje albo że stoi na pauzie. */
+  useEffect(() => uruchomKroki(() => scenaRef.current), []);
 
   /* ── scena reaguje na panele ─────────────────────────────────────────── */
   // Powitanie zatrzymuje świat tak samo jak szuflada: postać mówi, a lisek
@@ -904,7 +961,7 @@ export default function Swiat() {
       przeliczNieprzeczytane();
       // Komunikat mówi, GDZIE tego szukać. Zadania poza ekranem nie widać
       // na mapie, więc bez tego zdania dziecko wychodzi z rozmowy z niczym.
-      pokazKomunikat("Zadanie czeka w wiadomościach");
+      pokazKomunikat("Zadanie czeka w Listach");
       return;
     }
     if (akcja === "otworzZadanie") {
@@ -970,8 +1027,18 @@ export default function Swiat() {
       stan: () => stanMisji().map(({ def, ...reszta }) => reszta),
       nagroda: (id) => setNagroda(id),
     };
-    return () => { delete window.zadanieGwiazdek; delete window.misjeGier; delete window.zadanieWizkora; };
-  }, [odswiezZnakiMisji, odswiezGwiazdkiNaMapie]);
+    // Plakietki doku: czekanie na nową minigrę albo na zmianę pory dnia,
+    // zeby sprawdzic jedno kolko, byloby absurdem.
+    //   window.nowosci.stan() / .kasuj()  (kasuj = zapal wszystkie od nowa)
+    window.nowosci = {
+      stan: () => ({ ...nowosci, wiadomosci: nieprzeczytane }),
+      kasuj: () => { kasujNowosci(); przeliczNowosci(); },
+    };
+    return () => {
+      delete window.zadanieGwiazdek; delete window.misjeGier;
+      delete window.zadanieWizkora; delete window.nowosci;
+    };
+  }, [odswiezZnakiMisji, odswiezGwiazdkiNaMapie, przeliczNowosci, nowosci, nieprzeczytane]);
 
   /**
    * KATALOG ZDARZEŃ dla pulpitu testowego.
@@ -1571,7 +1638,16 @@ export default function Swiat() {
           {!panel && pokazPodpowiedz && !scenaMartwa ? (
             <span className="hub-hint">Przesuń palcem, by iść w dowolną stronę</span>
           ) : null}
-          <HubDock aktywny={panel} onWybor={przelacz} nieprzeczytane={nieprzeczytane} />
+          <HubDock
+            aktywny={panel}
+            onWybor={przelacz}
+            plakietki={{
+              gry: nowosci.gry,
+              czat: nowosci.czat,
+              porada: nowosci.porada,
+              wiadomosci: nieprzeczytane,
+            }}
+          />
         </div>
       </div>
 
@@ -1681,7 +1757,9 @@ export default function Swiat() {
         open={!!naglowek}
         title={naglowek}
         onClose={zamknij}
+        onPowrot={panel === "porada" ? powrotPorady : null}
         testId="hub-sheet"
+        powrot={panel === "porada" && !!powrotPorady}
         /* Czat sam dzieli sobie wysokość (strumień przewija się, pole pisania
            stoi na dole). Reszta paneli to listy — te przewijają się w całości. */
         wypelnia={panel === "czat"}
@@ -1695,7 +1773,7 @@ export default function Swiat() {
         ) : null}
         {panel === "profil" ? <ProfilPanel /> : null}
         {panel === "czat" ? <CzatPanel /> : null}
-        {panel === "porada" ? <PoradaPanel onZamknij={zamknij} /> : null}
+        {panel === "porada" ? <PoradaPanel onPowrot={zarejestrujPowrotPorady} /> : null}
         {panel === "zadanie" ? (
           <ZadaniePanel onKomunikat={pokazKomunikat} onZamknij={zamknij} />
         ) : null}

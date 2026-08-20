@@ -23,6 +23,17 @@
       "ikona": "/assets/minigry/piorko.png"
     },
     {
+      "id": "lot-liska",
+      "tytul": "Lot Liska",
+      "opis": "Naciągnij choinkę i traf do celu",
+      "monety": 20,
+      "trasa": "/games/lot-liska",
+      "wejscieFabularne": "sprężysta choinka na polanie",
+      "wymaga": null,
+      "ikona": "/assets/piorka/lis-skok.webp",
+      "emoji": "🌲"
+    },
+    {
       "id": "echo-melodii",
       "tytul": "Echo Melodii",
       "opis": "Powtórz dźwięk Szeptuna",

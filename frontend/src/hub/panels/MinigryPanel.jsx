@@ -23,6 +23,7 @@ import { GameIcon } from "../../adventure/components/icons.jsx";
 import { useAdventureDane } from "../../adventure/engine/useAdventure.js";
 import KATALOG from "../data/minigry.v1.json";
 import { gryWZakladce, MISJE, ZDARZENIE_ZMIANY as MISJE_ZMIANA } from "../misjeGier.js";
+import { oznaczMinigryObejrzane } from "../nowosci.js";
 
 /**
  * Gry z łańcucha misji (`hub/misjeGier.js`) są ZNALEZISKIEM, nie pozycją
@@ -44,6 +45,14 @@ export default function MinigryPanel({ onGra, onZamknij, onKomunikat }) {
     window.addEventListener(MISJE_ZMIANA, odswiez);
     return () => window.removeEventListener(MISJE_ZMIANA, odswiez);
   }, []);
+
+  /**
+   * Zielona kropka na doku gaśnie, gdy dziecko TU zajrzy. Zależność od
+   * `odkryte` jest celowa: jeśli gra wejdzie do zakładki przy otwartym
+   * panelu, jest od razu obejrzana — kropka po zamknięciu zapaliłaby się
+   * wtedy dla czegoś, co dziecko właśnie widziało na ekranie.
+   */
+  useEffect(() => { oznaczMinigryObejrzane(); }, [odkryte]);
 
   const gry = useMemo(
     () =>

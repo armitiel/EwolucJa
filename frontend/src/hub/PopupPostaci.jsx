@@ -160,9 +160,12 @@ export default function PopupPostaci({
           onClick={() => onZamknij?.()}
           aria-label="Zamknij"
         >
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M6.4 6.4l11.2 11.2M17.6 6.4L6.4 17.6" />
-          </svg>
+          {/* Znak „×" pisany LITERĄ, nie rysowany SVG. Guzik ma wyglądać
+              dokładnie jak ten w belce szuflady, a tam krzyżyk jest tekstem
+              (`font:900 32px`) — kreska SVG w tej samej grubości nominalnej
+              wychodzi cieńsza niż glif w wadze 900 i różnicę widać od razu,
+              gdy oba stoją w jednej aplikacji. */}
+          ×
         </button>
 
         <p className="popup-postaci-wstega" id="popup-postaci-imie">

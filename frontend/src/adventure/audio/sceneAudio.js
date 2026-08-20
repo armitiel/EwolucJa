@@ -66,6 +66,23 @@ function ensureCtx() {
   return ctx;
 }
 
+/**
+ * Wspólne wyjście audio dla warstw, które syntezują własny dźwięk (kroki
+ * bohatera). Zwraca `{ ctx, master }` albo `null`, gdy dźwięk jest wyłączony
+ * lub przeglądarka nie daje WebAudio.
+ *
+ * Dlaczego wspólne, a nie własny AudioContext na warstwę: przeglądarki liczą
+ * konteksty (Safari potrafi odmówić kolejnego), a przede wszystkim jeden
+ * `master` znaczy jedną gałkę głośności i jedno miejsce, w którym cisza jest
+ * naprawdę ciszą. Osobny kontekst przeżyłby wyłączenie dźwięku w ustawieniach.
+ */
+export function audioWyjscie() {
+  if (!prefersSound()) return null;
+  const c = ensureCtx();
+  if (!c || !master) return null;
+  return { ctx: c, master };
+}
+
 /** Odblokowanie audio przy pierwszym geście — wymagane przez politykę autoplay. */
 export function unlockAudio() {
   if (unlocked) return;

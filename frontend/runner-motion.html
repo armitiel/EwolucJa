@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>EwolucJA — bieg przez Las Szeptów</title>
+    <style>
+      :root { color-scheme: dark; }
+      * { box-sizing: border-box; }
+      body { margin: 0; min-height: 100dvh; display: grid; place-items: center; background: #17142d; font-family: ui-rounded, system-ui, sans-serif; overflow: hidden; }
+      .game { position: relative; width: min(100vw, 430px); height: 100dvh; min-height: 620px; overflow: hidden; isolation: isolate; background: #4f7c67; touch-action: manipulation; }
+      .forest { position: absolute; inset: -3% -8%; background: url('/concepts/runner-forest-concept.png') center / cover no-repeat; transform: scale(1.08); animation: forest-drift 6s linear infinite; filter: saturate(.93) contrast(.96); }
+      .mist { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(14,18,45,.34), transparent 29%, transparent 68%, rgba(10,9,28,.55)), radial-gradient(ellipse at 50% 60%, transparent 35%, rgba(24,11,44,.19)); }
+      .run-lines { position: absolute; z-index: 1; inset: 31% 0 0; overflow: hidden; opacity: .44; pointer-events: none; }
+      .run-lines i { position: absolute; display:block; width: 8px; height: 70px; border-radius: 99px; background: linear-gradient(180deg, transparent, #fff5bd, transparent); filter: blur(1px); animation: streak .78s linear infinite; }
+      .run-lines i:nth-child(1){left:25%;animation-delay:-.1s}.run-lines i:nth-child(2){left:69%;animation-delay:-.42s;height:105px}.run-lines i:nth-child(3){left:47%;animation-delay:-.65s;height:46px}.run-lines i:nth-child(4){left:84%;animation-delay:-.27s;height:88px}
+      .top { position:absolute; z-index:5; inset: max(16px,env(safe-area-inset-top)) 18px auto; display:flex; align-items:center; justify-content:space-between; width:calc(100% - 36px); }
+      .tag { padding:8px 11px; border:1px solid rgba(255,255,255,.25); border-radius:999px; color:#fff9e5; background:rgba(26,22,62,.48); box-shadow:0 8px 24px rgba(0,0,0,.18); font-size:10px; font-weight:900; letter-spacing:1.3px; backdrop-filter:blur(12px); }
+      .spark-count { display:flex; align-items:center; gap:6px; padding:8px 11px; border-radius:999px; color:#fff5d1; background:rgba(26,22,62,.48); font-size:12px; font-weight:900; backdrop-filter:blur(12px); }
+      .spark { color:#ffe06f; text-shadow:0 0 11px #ffe06f; }
+      .avatar { position:absolute; z-index:4; left:50%; bottom:9%; width:126px; height:188px; transform:translateX(-50%); filter:drop-shadow(0 20px 16px rgba(11,7,27,.5)); }
+      .avatar .head { position:absolute; z-index:4; left:41px; top:4px; width:48px; height:52px; border:3px solid #463154; border-radius:48% 48% 44% 44%; background:radial-gradient(circle at 52% 62%,#ffc9a6 0 37%,transparent 38%),linear-gradient(130deg,#482e2e 0 43%,#ffcfac 44%); }
+      .avatar .cape { position:absolute; z-index:2; left:20px; top:49px; width:88px; height:108px; border-radius:44% 42% 26% 40%; background:linear-gradient(135deg,#68ded3,#2c9eb8 58%,#1f6596); transform-origin:top center; animation:cape .34s ease-in-out infinite alternate; box-shadow:inset 5px 0 0 rgba(255,255,255,.12); }
+      .avatar .body { position:absolute; z-index:3; left:40px; top:48px; width:48px; height:72px; border-radius:18px 18px 14px 14px; background:linear-gradient(90deg,#e7c99d,#ffdcb3 48%,#ad7859); }
+      .limb { position:absolute; z-index:1; width:15px; height:73px; border-radius:16px; background:linear-gradient(90deg,#f0cb98,#a96f4e); transform-origin:50% 8px; }
+      .arm.left { left:25px; top:57px; animation:arm-l .34s ease-in-out infinite alternate; }.arm.right { right:24px; top:57px; animation:arm-r .34s ease-in-out infinite alternate; }
+      .leg.left { left:42px; top:108px; animation:leg-l .34s ease-in-out infinite alternate; }.leg.right { right:40px; top:108px; animation:leg-r .34s ease-in-out infinite alternate; }
+      .shoe { position:absolute; bottom:-5px; left:-6px; width:29px; height:18px; border-radius:50% 55% 32% 43%; background:#49335b; box-shadow:inset 0 -4px 0 #231b38; }
+      .leg .shoe{ transform:rotate(5deg); }.leg.right .shoe{ transform:rotate(-5deg); }
+      .root { position:absolute; z-index:3; left:50%; bottom:20%; width:144px; height:42px; transform:translateX(-50%) rotate(-2deg); border-radius:55% 47% 45% 54%; background:linear-gradient(15deg,#3a1e1b,#866043 45%,#3f291d); box-shadow:0 10px 10px rgba(13,8,18,.45); animation:root-in 2.4s linear infinite; }
+      .collectible { position:absolute; z-index:3; left:61%; top:50%; width:28px; height:28px; border:3px solid #fff8b9; border-radius:50%; background:radial-gradient(circle,#fffbe6 0 16%,#72e9ff 17% 39%,#d3a7ff 40% 65%,transparent 66%); box-shadow:0 0 22px 7px rgba(111,232,255,.75); animation:collect 1.25s ease-in-out infinite alternate; }
+      .prompt { position:absolute; z-index:6; right:50%; bottom:calc(24px + env(safe-area-inset-bottom)); transform:translateX(50%); display:flex; align-items:center; gap:8px; width:max-content; max-width:calc(100% - 32px); padding:12px 18px; border:1px solid rgba(255,255,255,.42); border-radius:999px; color:#fffaf0; background:rgba(39,29,79,.77); font-size:13px; font-weight:900; box-shadow:0 12px 28px rgba(15,8,40,.35); backdrop-filter:blur(16px); animation:prompt-breathe 1.4s ease-in-out infinite; }
+      .prompt b{display:grid;place-items:center;width:25px;height:25px;border-radius:50%;color:#43305f;background:#ffe594;box-shadow:0 2px 0 #b47e2d;font-size:17px}
+      .game.jumping .avatar { animation:jump .6s cubic-bezier(.22,.87,.37,1) both; }.game.jumping .root{ animation-play-state:paused; opacity:.25; transition:opacity .25s ease; }.game.jumping .collectible{ animation:pickup .5s ease-out both; }
+      .game.paused .forest,.game.paused .run-lines i,.game.paused .avatar *,.game.paused .root,.game.paused .collectible{ animation-play-state:paused; }
+      .hint { position:absolute; z-index:6; right:12px; top:76px; border:0; border-radius:999px; padding:8px 11px; color:#fff8df; background:rgba(26,22,62,.45); font-size:11px; font-weight:800; backdrop-filter:blur(8px); }
+      @keyframes forest-drift { to { transform:scale(1.14) translateY(1%); } } @keyframes streak { from{transform:translateY(-110px);opacity:0} 18%{opacity:1} to{transform:translateY(550px);opacity:0} } @keyframes cape{to{transform:rotate(-8deg) skewY(-6deg)}} @keyframes arm-l{to{transform:rotate(42deg)}} @keyframes arm-r{to{transform:rotate(-42deg)}} @keyframes leg-l{to{transform:rotate(42deg)}} @keyframes leg-r{to{transform:rotate(-42deg)}} @keyframes root-in{from{transform:translate(-50%,-500px) scale(.55);opacity:.1} 70%{opacity:1} to{transform:translate(-50%,150px) scale(1.28);opacity:.2}} @keyframes collect{to{transform:translateY(-12px) scale(1.13);filter:hue-rotate(25deg)}} @keyframes prompt-breathe{50%{transform:translateX(50%) translateY(-4px)}} @keyframes jump{0%{transform:translateX(-50%) translateY(0) rotate(0)}48%{transform:translateX(-50%) translateY(-155px) rotate(-7deg)}100%{transform:translateX(-50%) translateY(0) rotate(0)}} @keyframes pickup{to{transform:translate(0,-115px) scale(.1);opacity:0}}
+      @media (prefers-reduced-motion: reduce){*{animation-duration:.001ms!important;animation-iteration-count:1!important}}
+    </style>
+  </head>
+  <body>
+    <main class="game" id="game" aria-label="Mockup biegu przez Las Szeptów">
+      <div class="forest"></div><div class="mist"></div><div class="run-lines"><i></i><i></i><i></i><i></i></div>
+      <header class="top"><span class="tag">LAS SZEPTÓW</span><span class="spark-count"><b class="spark">✦</b><span id="count">0</span></span></header>
+      <button class="hint" id="pause" type="button">Pauza</button>
+      <div class="collectible" aria-hidden="true"></div><div class="root" aria-hidden="true"></div>
+      <div class="avatar" aria-label="Biegnący awatar"><i class="limb arm left"></i><i class="limb arm right"></i><i class="limb leg left"><b class="shoe"></b></i><i class="limb leg right"><b class="shoe"></b></i><i class="cape"></i><i class="body"></i><i class="head"></i></div>
+      <div class="prompt" id="prompt"><b>↑</b> Dotknij, żeby skoczyć</div>
+    </main>
+    <script>
+      const game = document.querySelector('#game'); const prompt = document.querySelector('#prompt'); const count = document.querySelector('#count'); const pause = document.querySelector('#pause'); let jumping = false; let sparks = 0;
+      const jump = () => { if (jumping || game.classList.contains('paused')) return; jumping = true; game.classList.add('jumping'); sparks += 1; count.textContent = sparks; prompt.innerHTML = '<b>✦</b> Iskra uratowana!'; setTimeout(() => { game.classList.remove('jumping'); jumping = false; prompt.innerHTML = '<b>↑</b> Dotknij, żeby skoczyć'; }, 850); };
+      game.addEventListener('pointerdown', (event) => { if (!event.target.closest('#pause')) jump(); });
+      pause.addEventListener('click', () => { game.classList.toggle('paused'); pause.textContent = game.classList.contains('paused') ? 'Wznów' : 'Pauza'; });
+    </script>
+  </body>
+</html>

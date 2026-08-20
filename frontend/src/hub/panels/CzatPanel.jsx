@@ -1,5 +1,5 @@
 /**
- * CzatPanel — trzy kanały jednego miejsca kontaktu. Treść z
+ * CzatPanel — dwa kanały kontaktu z innymi graczami. Treść z
  * `data/czat.mock.json`, zero sieci.
  *
  * UWAGA DLA ZESPOŁU (nie dla dziecka — w interfejsie tego nie piszemy):
@@ -13,12 +13,15 @@
  *               wiadomości bezpośrednie i nic poza nimi. Postaci z gry TU
  *               NIE MA (mówią przez chmurkę Wizkora i misje) — czat jest
  *               miejscem kontaktu z ludźmi.
- *   MENTOR    — zablokowany do czasu zgody rodzica.
+ * Mentor nie jest kanałem czatu: to realny dorosły, który odpowiada na
+ * zadania przez Listy. Pokazywanie tu zamkniętego kafla tworzyło drugą,
+ * pozorną drogę do tej samej osoby.
  *
- * UKŁAD (2026-08-20, druga tura). Panel wygląda jak zwykły komunikator:
- *   - kanały to PAS POD BELKĄ TYTUŁOWĄ, na całą szerokość szuflady (portal
- *     przez `SlotNaglowka`). Nie trzy kafle w treści i nie wkładka wciśnięta
- *     w ciemną belkę — wybór miejsca to nawigacja, nie treść i nie ozdoba;
+ * UKŁAD (2026-08-20). Ekran wejściowy mówi tym samym językiem co Minigry:
+ *   - kanały są dużymi, wyraźnie oddzielonymi kaflami z ikoną i krótkim
+ *     statusem. Forum i Prywatne są obok siebie;
+ *   - po wybraniu kanału kafle znikają. Zostaje mały nagłówek z powrotem
+ *     i właściwa rozmowa, więc wybór nie konkuruje z wiadomościami;
  *   - forum to JEDNA kolumna na całą szerokość. SPISU OBECNYCH NIE MA NIGDZIE
  *     (2026-08-20): najpierw jako pionowa szyna zabierał 92 z 375 px i robił
  *     z rozmowy wąski pasek obok listy ludzi, potem jako zwijany pasek
@@ -42,20 +45,16 @@
  *   wyjść na produkcję — do zrobienia razem z warstwą danych.
  * - Brak wskaźnika „pisze…" i brak LICZNIKA nieprzeczytanych. Kropka „nowe"
  *   wystarcza; liczba rosnąca w tle jest zaproszeniem do ciągłego wracania.
- * - Kanał Mentora jest widoczny, choć zamknięty. Dziecko ma wiedzieć, że
- *   dorosły jest w zasięgu, nawet zanim rodzic to włączy.
  */
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { GameIcon } from "../../adventure/components/icons.jsx";
-import { SlotNaglowka } from "../PanelSheet.jsx";
 import IkonaKanalu from "../IkonyCzatu.jsx";
+import { oznaczRozmoweCzytana } from "../nowosci.js";
 import DANE from "../data/czat.mock.json";
 
 const KANALY = [
-  { id: "forum", nazwa: "Forum" },
-  { id: "prywatne", nazwa: "Prywatne" },
-  { id: "mentor", nazwa: "Mentor" },
+  { id: "forum", nazwa: "Forum", opis: "Rozmawiajcie razem", status: "4 osoby" },
+  { id: "prywatne", nazwa: "Prywatne", opis: "Wiadomości od znajomych", status: "1 nowa" },
 ];
 
 /** Dymek z trzema kropkami — znak „gotowe zdania". */
@@ -150,7 +149,9 @@ function DolRozmowy({ zdania, onWyslij, placeholder }) {
 }
 
 export default function CzatPanel() {
-  const [kanal, setKanal] = useState("forum");
+  // Ekran startowy jest prostym wyborem miejsca, tak jak siatka Minigier.
+  // Dopiero po wybraniu dużego kafla pokazujemy właściwą rozmowę.
+  const [kanal, setKanal] = useState(null);
   // Rozmowa otwarta w kanale Prywatne. null = lista rozmów.
   const [rozmowaId, setRozmowaId] = useState(null);
   // Wszystko, co dziecko doda w tej sesji, żyje tylko w pamięci panelu —
@@ -158,7 +159,6 @@ export default function CzatPanel() {
   const [mojeWpisy, setMojeWpisy] = useState([]);
   const [mojeOdpowiedzi, setMojeOdpowiedzi] = useState({});
   const [brawa, setBrawa] = useState({});
-  const slotNaglowka = useContext(SlotNaglowka);
   const feedRef = useRef(null);
 
   const gracze = DANE.gracze || [];
@@ -168,8 +168,6 @@ export default function CzatPanel() {
   );
   const rozmowy = DANE.prywatne?.rozmowy || [];
   const rozmowa = rozmowy.find((r) => r.id === rozmowaId) || null;
-  const mentorZamkniety = !!DANE.mentor?.zablokowany;
-
   const wiadomosciForum = useMemo(
     () => [...(DANE.forum?.wiadomosci || []), ...mojeWpisy],
     [mojeWpisy]
@@ -211,39 +209,66 @@ export default function CzatPanel() {
     if (feed) feed.scrollTop = feed.scrollHeight;
   }, [kanal, rozmowaId, wiadomosciForum.length, wiadomosci.length]);
 
-  /** Pasek kanałów. Ląduje w nagłówku szuflady, nie w treści panelu. */
-  const zakladki = (
-    <nav className="czat-zakladki" role="tablist" aria-label="Kanały czatu">
-      {KANALY.map((k) => {
-        const zamkniety = k.id === "mentor" && mentorZamkniety;
-        return (
-          <button
-            key={k.id}
-            type="button"
-            role="tab"
-            aria-selected={k.id === kanal}
-            className={`czat-zakladka${k.id === kanal ? " is-active" : ""}${zamkniety ? " is-locked" : ""}`}
-            onClick={() => { setKanal(k.id); setRozmowaId(null); }}
-          >
-            <IkonaKanalu kanal={k.id} />
-            <span>{k.nazwa}</span>
-            {zamkniety ? (
-              <i className="czat-zakladka-klodka"><GameIcon name="lock" size={12} /></i>
-            ) : null}
-            {k.id === "prywatne" && rozmowy.some((r) => r.nowe) ? (
-              <i className="czat-kropka" aria-label="nowe wiadomości" />
-            ) : null}
-          </button>
-        );
-      })}
-    </nav>
-  );
-
   return (
     <div className="hub-pane hub-pane--czat" data-testid="hub-pane-czat">
-      {slotNaglowka ? createPortal(zakladki, slotNaglowka) : null}
+      {!kanal ? (
+        <div className="czat-wybor" aria-label="Wybierz rodzaj rozmowy">
+          <p className="czat-wybor-wstep">Z kim chcesz porozmawiać?</p>
+          <div className="czat-kafelki">
+            {KANALY.map((k) => {
+              const nowe = k.id === "prywatne" && rozmowy.some((r) => r.nowe);
+              return (
+                <button
+                  key={k.id}
+                  type="button"
+                  className="czat-kafelek"
+                  onClick={() => { setKanal(k.id); setRozmowaId(null); }}
+                  aria-label={`${k.nazwa}. ${k.opis}. ${k.status}`}
+                >
+                  <span className="czat-kafelek-ikona" aria-hidden="true">
+                    <IkonaKanalu kanal={k.id} size={54} />
+                    {nowe ? <b className="czat-kafelek-nowe">1</b> : null}
+                  </span>
+                  <strong>{k.nazwa}</strong>
+                  <small>{k.opis}</small>
+                  <span className="czat-kafelek-status">
+                    {k.status}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
+        <div className="czat-kanal-head">
+          <button
+            type="button"
+            className="czat-kanal-powrot"
+            onClick={() => {
+              if (kanal === "prywatne" && rozmowaId) {
+                setRozmowaId(null);
+                return;
+              }
+              setKanal(null);
+              setRozmowaId(null);
+            }}
+            aria-label={kanal === "prywatne" && rozmowaId
+              ? "Wróć do wszystkich rozmów"
+              : "Wróć do wyboru rozmowy"}
+          >
+            <svg viewBox="0 0 64 44" aria-hidden="true" focusable="false">
+              <path
+                className="czat-strzalka-wklesla"
+                d="M24 4.8a4 4 0 0 1 6.8 2.9v5.1H54a5 5 0 0 1 5 5v8.4a5 5 0 0 1-5 5H30.8v5.1a4 4 0 0 1-6.8 2.9L6.2 24.9a3.8 3.8 0 0 1 0-5.8L24 4.8Z"
+              />
+            </svg>
+          </button>
+          <span className="czat-kanal-znak" aria-hidden="true"><IkonaKanalu kanal={kanal} size={28} /></span>
+          <strong>{KANALY.find((k) => k.id === kanal)?.nazwa}</strong>
+        </div>
+      )}
 
-      {/* ── FORUM: zwijany pasek obecnych nad wspólną rozmową ── */}
+      {/* ── FORUM: wspólna rozmowa ── */}
       {kanal === "forum" ? (
         <div className="czat-rozmowa czat-rozmowa--forum">
           {/* Na forum nie ma NIC poza rozmową i paskiem pisania — ani spisu
@@ -308,7 +333,14 @@ export default function CzatPanel() {
             const kto = graczById[r.ktoId] || {};
             return (
               <div key={r.id} className={`hub-msg${r.nowe ? " is-unread" : ""}`}>
-                <button type="button" className="hub-msg-head" onClick={() => setRozmowaId(r.id)}>
+                {/* Wejście w rozmowę gasi ją na plakietce doku. Pojedynczo,
+                    nie hurtem przy otwarciu zakładki: samo zajrzenie do
+                    skrzynki nie znaczy, że dziecko przeczytało wiadomość. */}
+                <button
+                  type="button"
+                  className="hub-msg-head"
+                  onClick={() => { oznaczRozmoweCzytana(r.id); setRozmowaId(r.id); }}
+                >
                   <span className="hub-msg-av" aria-hidden="true">{kto.emoji || "🙂"}</span>
                   <span className="hub-msg-copy">
                     <strong>{kto.imie || "Gracz"}{r.nowe ? <i className="czat-kropka" /> : null}</strong>
@@ -328,9 +360,6 @@ export default function CzatPanel() {
 
       {kanal === "prywatne" && rozmowa ? (
         <div className="czat-rozmowa czat-rozmowa--watek">
-          <button type="button" className="czat-powrot" onClick={() => setRozmowaId(null)}>
-            <span aria-hidden="true">←</span> Wszystkie rozmowy
-          </button>
           <div className="hub-bubbles czat-feed" ref={feedRef}>
             {wiadomosci.map((wiadomosc, indeks) => (
               <div key={indeks} className={`hub-bubble ${wiadomosc.od === "ja" ? "is-me" : "is-them"}`}>
@@ -347,15 +376,6 @@ export default function CzatPanel() {
             onWyslij={odpowiedz}
             placeholder={`Napisz do: ${graczById[rozmowa.ktoId]?.imie || "Gracz"}…`}
           />
-        </div>
-      ) : null}
-
-      {/* ── MENTOR ── */}
-      {kanal === "mentor" ? (
-        <div className="hub-empty czat-mentor">
-          <GameIcon name="lock" size={34} />
-          <h3 className="hub-card-title" style={{ margin: 0 }}>{DANE.mentor?.naglowek}</h3>
-          <p>{DANE.mentor?.tekst}</p>
         </div>
       ) : null}
     </div>

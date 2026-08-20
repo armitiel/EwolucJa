@@ -424,18 +424,6 @@ export default function PiorkaGame({ osadzona = false, poziom = null, onWyjscie 
       </div>
 
       <div className="gra-scroll">
-        {faza === "splash" ? (
-          <SplashGry
-            tytul="Sekret pod puchem"
-            podpis="Zbieram piórka…"
-            obrazy={[...PIORKA.slice(0, 2), ZLOTE, ...PIORKA.slice(2)].map((n) => SCIEZKA + n + ".png")}
-            gotowe={zaladowane}
-            /* Z mapy wchodzimy prosto w rundę: pytanie „zaczynamy?" padło
-               już w oknie liska, razem z kwotą. */
-            onKoniec={() => (zPominieciemIntro ? start() : setFaza("intro"))}
-          />
-        ) : null}
-
         {faza === "blad" ? (
           <div className="puch-srodek">
             <p className="hub-muted">Nie udało się wczytać piórek.</p>
@@ -443,17 +431,27 @@ export default function PiorkaGame({ osadzona = false, poziom = null, onWyjscie 
           </div>
         ) : null}
 
-        {faza === "intro" ? (
-          <EkranStartuGry
-            ilustracja={SCIEZKA + "lis-skok.webp"}
-            tytul="Sekret pod puchem"
-            /* Kwota z `hub/poziomyGier.js` — tę samą obiecuje okno liska
-               na mapie, więc nie ma jej gdzie policzyć dwa razy. */
-            poziomy={poziomyGry(GRA)}
-            wybrany="jeden"
-            cta="Zaczynamy"
-            onGraj={start}
-          />
+        {/* Jedna scena czeka na prawdziwe grafiki piórek, a gdy są gotowe,
+            płynnie zamienia loader na nagrodę i CTA. */}
+        {faza === "splash" || faza === "intro" ? (
+          <SplashGry gotowe={zaladowane} onKoniec={() => (zPominieciemIntro ? start() : setFaza("intro"))}>
+            {({ laduje }) => (
+              <EkranStartuGry
+                ilustracja={SCIEZKA + "lis-skok.webp"}
+                tytul="Sekret pod puchem"
+                haslo="Znajdź ukryte piórko!"
+                wariant="puch"
+                laduje={laduje}
+                tekstLadowania="Układam piórka…"
+                /* Kwota z `hub/poziomyGier.js` — tę samą obiecuje okno liska
+                   na mapie, więc nie ma jej gdzie policzyć dwa razy. */
+                poziomy={poziomyGry(GRA)}
+                wybrany="jeden"
+                cta="Zaczynamy!"
+                onGraj={start}
+              />
+            )}
+          </SplashGry>
         ) : null}
 
         {faza === "gra" ? (

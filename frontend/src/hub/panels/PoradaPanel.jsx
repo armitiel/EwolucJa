@@ -1,172 +1,195 @@
 /**
- * PoradaPanel — jedna karteczka na dziś, a pod nią tablica.
+ * PoradaPanel — trzy małe aktywności zamiast jednej karteczki z poleceniem.
  *
- * Trzy decyzje, które warto znać przed zmianą:
- *
- * 1. JEDNO KRÓTKIE ZDANIE. Wcześniej stał tu akapit z podpisem postaci —
- *    dziecko w wieku 6-12 lat takiego bloku nie czyta, tylko go przewija.
- *    Porada ma być do wykonania, nie do przeczytania: „Wypij szklankę wody",
- *    a nie wykład o nawodnieniu.
- *
- * 2. BEZ NADAWCY. Nikt tego nie mówi. Podpis („od Szeptuna") kazał dziecku
- *    pamiętać jeszcze jedną postać i zamieniał zdanie w cytat, czyli w coś,
- *    co się czyta, zamiast w polecenie, które się robi.
- *
- * 3. DWA WYJŚCIA, OBA W PORZĄDKU. Zielony kciuk = zrobione. Krzyżyk = odkładam.
- *    Karteczka schodzi tak samo w obu przypadkach i ląduje na tablicy pod
- *    spodem. Nic nie jest liczone, nic nie przepada — odłożenie to nie porażka
- *    i nie może wyglądać jak kara.
- *
- * Po zdjęciu karteczki zostaje zegar i dwie półki z poradami na aktualną porę
- * dnia. Dzień się nie kończy pustym ekranem.
+ * Przepływ jest celowo taki sam jak w Minigrach: najpierw wybór dużym
+ * obrazkiem, potem krótka aktywność i dopiero na końcu reakcja świata. Samo
+ * dotknięcie kafla niczego nie zalicza.
  */
-import React, { useEffect, useMemo, useState } from "react";
-import ZegarKlasyczny from "../ZegarKlasyczny.jsx";
-import PrzyciskOddechu from "../PrzyciskOddechu.jsx";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import EkranOddechu from "../EkranOddechu.jsx";
+import PoradaAkcja from "../PoradaAkcja.jsx";
 import {
-  czytajHistorie,
-  poradaDnia,
-  poradyNaPore,
+  anulujWyborKarty,
+  czytajRytual,
+  czytajSlady,
+  kartyDnia,
   poraDnia,
-  zdejmijPorade,
+  ukonczKarteDnia,
+  wybierzKarteDnia,
   zresetujPorade,
 } from "../poradaDnia.js";
+import { oznaczPoradyObejrzane } from "../nowosci.js";
+import { powiedzJakLisek, uciszLiska, zachetaDoKarty, zachetaDoWyboru } from "../glosLiska.js";
 
-/** Kciuk i krzyżyk rysowane wektorem — biorą kolor z CSS i nie mażą się przy skalowaniu. */
-function IkonaKciuk() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path d="M7 10.5v9H4.5a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1H7zm2.4 0 3.3-6.7a1.4 1.4 0 0 1 2.6.9l-.7 4h4.1a1.9 1.9 0 0 1 1.85 2.34l-1.3 6A2 2 0 0 1 17.3 19H9.4v-8.5z" />
-    </svg>
-  );
-}
+export default function PoradaPanel({ onPowrot }) {
+  const [stan, setStan] = useState(() => czytajRytual());
+  const [slady, setSlady] = useState(() => czytajSlady());
+  const [akcja, setAkcja] = useState(false);
+  const [karty] = useState(kartyDnia);
+  const [pora] = useState(poraDnia);
+  const wybrana = karty.find((k) => k.id === stan.wybrana) || null;
+  const ukonczona = karty.find((k) => k.id === stan.ukonczona) || null;
 
-function IkonaKrzyzyk() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path d="M7 7l10 10M17 7L7 17" />
-    </svg>
-  );
-}
+  /** Samo zajrzenie gasi plakietkę. Wybór ani wykonanie nie są wymuszane. */
+  useEffect(() => { oznaczPoradyObejrzane(); }, []);
 
-export default function PoradaPanel() {
-  const [porada, setPorada] = useState(() => poradaDnia());
-  const [historia, setHistoria] = useState(() => czytajHistorie());
-  const [znika, setZnika] = useState(null);
-  const [oddech, setOddech] = useState(false);
+  /**
+   * GŁOS LISKA. Karty dnia to „5 oddechów z liskiem" i „3 ruchy razem z
+   * liskiem" — więc to on zaprasza, a nie narratorka. Odzywa się w dwóch
+   * momentach i w żadnym innym: przy wyborze („zrobimy to razem") i zaraz
+   * po dotknięciu karty („wchodzimy w to").
+   *
+   * Zdanie jest ZAPISANE NA EKRANIE, a mowa tylko je powtarza. Dziecko
+   * z wyciszonym telefonem, z zepsutym TTS-em albo takie, które nie
+   * dosłyszało, ma dostać dokładnie tę samą treść.
+   */
+  const zachetaWyboru = useMemo(() => zachetaDoWyboru(), []);
+  const [zachetaKarty, setZachetaKarty] = useState(null);
 
-  const pora = useMemo(() => poraDnia(), []);
-  // Karteczka dnia WYPADA z półek pod spodem. Bez tego to samo zdanie stało na
-  // ekranie dwa razy w odstępie dwóch centymetrów i karteczka przestawała być
-  // wyróżniona — była po prostu tą samą pozycją, tylko większą.
-  const polki = useMemo(() => {
-    const p = poradyNaPore(pora.id);
-    if (!porada) return p;
-    return {
-      zdrowie: p.zdrowie.filter((x) => x.id !== porada.id),
-      samopoczucie: p.samopoczucie.filter((x) => x.id !== porada.id),
-    };
-  }, [pora.id, porada]);
+  // Cisza przy wyjściu z panelu — inaczej lisek dokańcza zdanie już nad mapą.
+  useEffect(() => () => uciszLiska(), []);
 
-  // Uchwyt do konsoli — czekanie do jutra przy każdej poprawce byłoby absurdem:
-  //   window.poradaDnia.reset()
+  // Uchwyt dla testów i reżyserki: resetuje stary i nowy zapis porad.
   useEffect(() => {
     window.poradaDnia = {
-      reset: () => { zresetujPorade(); setPorada(poradaDnia()); setHistoria([]); },
+      reset: () => {
+        zresetujPorade();
+        setStan(czytajRytual());
+        setSlady([]);
+        setAkcja(false);
+      },
     };
     return () => { delete window.poradaDnia; };
   }, []);
 
-  /**
-   * Zdjęcie karteczki. Najpierw animacja (klasa `znika`), dopiero po niej
-   * zamiana stanu — inaczej karteczka nie odlatuje, tylko gaśnie w miejscu.
-   */
-  function zdejmij(akcja) {
-    if (!porada || znika) return;
-    setZnika(akcja);
-    window.setTimeout(() => {
-      setHistoria(zdejmijPorade(porada, akcja));
-      setPorada(null);
-      setZnika(null);
-    }, akcja === "odlozona" ? 460 : 380);
+  function wybierz(karta) {
+    setStan(wybierzKarteDnia(karta.id));
+    const zdanie = zachetaDoKarty(karta);
+    setZachetaKarty(zdanie);
+    powiedzJakLisek(zdanie);
+  }
+
+  const wybierzInna = useCallback(() => {
+    setStan(anulujWyborKarty());
+    setAkcja(false);
+    setZachetaKarty(null);
+    uciszLiska();
+  }, []);
+
+  // Strzałka w belce ma dwa poziomy: szczegół/podsumowanie → lista kart,
+  // a dopiero z listy kart → świat. Panel przekazuje rodzicowi wyłącznie
+  // pierwszy krok; brak funkcji oznacza, że rodzic ma zamknąć szufladę.
+  useEffect(() => {
+    const maWidokWewnetrzny = Boolean(wybrana || ukonczona);
+    onPowrot?.(maWidokWewnetrzny ? wybierzInna : null);
+    return () => onPowrot?.(null);
+  }, [onPowrot, wybierzInna, wybrana, ukonczona]);
+
+  function uruchom() {
+    if (wybrana) setAkcja(true);
+  }
+
+  function ukoncz() {
+    if (!wybrana) return;
+    setStan(ukonczKarteDnia(wybrana.id));
+    setSlady(czytajSlady());
+    setAkcja(false);
   }
 
   return (
-    <div className="hub-pane" data-testid="hub-pane-porada">
-      {oddech ? <EkranOddechu pora={pora.id} onKoniec={() => setOddech(false)} /> : null}
-      {porada ? (
-        <div
-          className={`porada-karta${znika ? ` porada-karta--${znika}` : ""}`}
-          data-testid="porada-karta"
-        >
-          <span className="porada-pinezka" aria-hidden="true" />
-          <p className="porada-tekst">{porada.tekst}</p>
-          <div className="porada-akcje">
+    <div className="hub-pane porada-nowa" data-testid="hub-pane-porada">
+      {akcja && wybrana?.akcja === "oddech" ? (
+        <EkranOddechu
+          pora={pora.id}
+          onKoniec={() => setAkcja(false)}
+          onUkonczone={ukoncz}
+        />
+      ) : null}
+      {akcja && wybrana?.akcja !== "oddech" ? (
+        <PoradaAkcja karta={wybrana} onZamknij={() => setAkcja(false)} onUkonczone={ukoncz} />
+      ) : null}
+
+      {ukonczona ? (
+        <section className="porada-odzew" data-testid="porada-odzew">
+          <span className="porada-odzew-portret" aria-hidden="true">
+            <img src={ukonczona.ilustracja} alt="" draggable="false" />
+          </span>
+          <h3>{ukonczona.tytul}</h3>
+          <p>{ukonczona.odzew}</p>
+        </section>
+      ) : wybrana ? (
+        <section className="porada-wybrana" data-testid="porada-wybrana">
+          <span className="porada-wybrana-obraz" aria-hidden="true">
+            <img src={wybrana.ilustracja} alt="" draggable="false" />
+          </span>
+          <h3>{wybrana.tytul}</h3>
+          {zachetaKarty ? (
             <button
               type="button"
-              className="porada-ikona porada-ikona--tak"
-              onClick={() => zdejmij("wzieta")}
-              aria-label="Zrobione"
-              title="Zrobione"
-              data-testid="porada-tak"
+              className="porada-lisek porada-lisek--wybor"
+              onClick={() => powiedzJakLisek(zachetaKarty)}
+              data-testid="porada-lisek-wybor"
             >
-              <IkonaKciuk />
+              <img src="/lisPop.webp" alt="" aria-hidden="true" draggable="false" />
+              <span>{zachetaKarty}</span>
             </button>
-            <button
-              type="button"
-              className="porada-ikona porada-ikona--nie"
-              onClick={() => zdejmij("odlozona")}
-              aria-label="Odłóż na potem"
-              title="Odłóż na potem"
-              data-testid="porada-nie"
-            >
-              <IkonaKrzyzyk />
-            </button>
-          </div>
-        </div>
+          ) : null}
+          <button type="button" className="hub-btn hub-btn-primary" onClick={uruchom}>
+            Zrób to ze mną
+          </button>
+          <button type="button" className="porada-zmien" onClick={wybierzInna}>
+            Wybierz inną kartę
+          </button>
+        </section>
       ) : (
-        <div className="porada-zegar-blok" data-testid="porada-zegar">
-          <ZegarKlasyczny size={112} etykieta={pora.nazwa} />
-          {/* Oddech stoi na wierzchu, zawsze w tym samym miejscu - to jedyna
-              rzecz w panelu, ktora dziecko ma robic z wlasnej woli. */}
-          <PrzyciskOddechu onStart={() => setOddech(true)} />
-        </div>
+        <>
+          <header className="porada-wstep">
+            <h3>Wybierz zabawę</h3>
+            {/* Zdanie liska: napisane i powiedziane jego głosem. Dotknięcie
+                powtarza mowę — dziecko, które nie dosłyszało, nie musi
+                zamykać i otwierać szuflady. */}
+            <button
+              type="button"
+              className="porada-lisek"
+              onClick={() => powiedzJakLisek(zachetaWyboru)}
+              data-testid="porada-lisek"
+            >
+              <img src="/lisPop.webp" alt="" aria-hidden="true" draggable="false" />
+              <span>{zachetaWyboru}</span>
+            </button>
+          </header>
+          <div className="porada-wybor" data-testid="porada-wybor">
+            {karty.map((karta) => (
+              <button
+                key={karta.id}
+                type="button"
+                className="porada-kafelek"
+                onClick={() => wybierz(karta)}
+                aria-label={`${karta.tytul}. ${karta.opis}`}
+                data-testid={`porada-karta-${karta.id}`}
+              >
+                <span className="porada-kafelek-in">
+                  <span className="porada-kafelek-obraz">
+                    <img src={karta.ilustracja} alt="" aria-hidden="true" draggable="false" />
+                  </span>
+                  <strong>{karta.tytul}</strong>
+                </span>
+              </button>
+            ))}
+          </div>
+        </>
       )}
 
-      <div className="porada-polka">
-        <h3>Ciało</h3>
-        <ul>
-          {polki.zdrowie.map((p) => (
-            <li key={p.id}>{p.tekst}</li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="porada-polka porada-polka--dusza">
-        <h3>Głowa</h3>
-        <ul>
-          {polki.samopoczucie.map((p) => (
-            <li key={p.id}>{p.tekst}</li>
-          ))}
-        </ul>
-      </div>
-
-      {historia.length ? (
-        <div className="porada-historia" data-testid="porada-historia">
-          <h3>Wcześniejsze karteczki</h3>
-          <ul>
-            {historia.map((h) => (
-              <li key={`${h.dzien}-${h.id}`} className={`porada-historia--${h.akcja}`}>
-                <span className="porada-historia-znak" aria-hidden="true">
-                  {h.akcja === "wzieta" ? <IkonaKciuk /> : <IkonaKrzyzyk />}
-                </span>
-                <span>{h.tekst}</span>
-              </li>
-            ))}
-          </ul>
+      <section className="porada-slady" aria-label="Ślady z ostatnich siedmiu dni">
+        <div>
+          <h3>Twoje listki</h3>
         </div>
-      ) : null}
+        <div className="porada-slady-listki" aria-label={`${slady.length} z 7 listków`}>
+          {Array.from({ length: 7 }, (_, i) => (
+            <span key={i} className={i < slady.length ? "jest-pelny" : undefined} aria-hidden="true" />
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

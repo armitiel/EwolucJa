@@ -156,3 +156,32 @@ mapa.json** i podmień plik w `public/scena-3d/`.
 
 Czego edytor NIE ruszy: trawy, kwiatków i płyt ścieżki malowanych na teksturze
 terenu (powstają z ziarna losowego w środku modułu) ani samych modeli GLB.
+
+## Gibanie drzew (łatka na bundlu)
+
+Drzewa uginają się, gdy bohater w nie wbiegnie. Kod **nie pochodzi ze źródeł
+sceny** — jest dopisany bezpośrednio w `scena3d.js` i `scena3d.esm.js`
+(kopie sprzed łatki: `*.bak-przed-gibaniem`). Przy następnym przebudowaniu
+bundla trzeba go nałożyć ponownie.
+
+Model fizyczny: odwrócone wahadło na sprężynie z tłumieniem.
+
+- `_uderzDrzewa(hx,hz,dx,dz)` — wołane z `moveWithCollision` **przed** ruchem,
+  czyli gdy bohater stoi jeszcze przy pniu. Dokłada prędkości kątowej w stronę
+  „od bohatera", proporcjonalnie do tempa biegu, bliskości pnia i odwrotnie do
+  skali drzewa. Pomija drzewa, które bohater mija bokiem (iloczyn skalarny ≤ 0).
+- `_gibDrzew(dt)` — wołane raz na klatkę z `tick`. Całkuje sprężynę
+  (`K = 46 / skala`, tłumienie `T = 4.8`, czyli ζ ≈ 0,35) i wygasza drgania
+  poniżej progu, żeby drzewo nie dygotało w nieskończoność o 0,0002 rad.
+- Wychylenie jest ograniczone do `0.15 / skala` rad (~8,6° dla drzewa skali 1).
+  Bieg pełną prędkością daje ~7,7°, po puszczeniu dwa–trzy wahnięcia w ~1 s.
+
+Obrót idzie po `rotation.x` / `rotation.z` **grupy** drzewa, której środek leży
+na ziemi (części modelu są nad nim), więc pień gnie się od podstawy. Drzewa nie
+mają własnego `obrot` w `mapa.json`, więc osie x/z pokrywają się ze światem —
+gdyby kiedyś dostały obrót Y, trzeba będzie przeliczyć kierunek impulsu do
+układu lokalnego drzewa albo owinąć je w pustą grupę-pivot.
+
+Stan wisi na `blockers`: wpisy drzew dostały pola `drzewo` (referencja do grupy)
+i `skalaDrzewa`. Przy `prefers-reduced-motion` (`ustawSpokojnyRuch(true)`)
+impulsy w ogóle nie powstają.

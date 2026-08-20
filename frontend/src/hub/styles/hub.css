@@ -380,6 +380,11 @@
   transition:transform .14s ease, box-shadow .14s ease, filter .14s ease;
 }
 .hub-sheet-close:hover{ filter:brightness(1.08); }
+.hub-sheet-close.is-back{ padding:0; }
+.hub-sheet-close.is-back svg{
+  width:28px; height:25px; display:block; overflow:visible;
+  fill:#fff; filter:drop-shadow(0 2px 0 #8d2a27);
+}
 /* `-50%` musi zostac w kazdym stanie — bez niego wcisniety krzyzyk zeskakuje
    o pol swojej wysokosci w dol, bo to ten sam `transform`, ktory go srodkuje. */
 .hub-sheet-close:active{
@@ -679,6 +684,93 @@
   padding-bottom:calc(96px + env(safe-area-inset-bottom,0px));
 }
 .hub-pane--czat{ flex:1; min-height:0; display:flex; flex-direction:column; }
+
+/* Ekran wejściowy czatu korzysta z tego samego języka co Minigry: duże,
+   osobne pola, ikona w wypukłej oprawie i krótki status w kapsułce. */
+.czat-wybor{ flex:1; min-height:0; overflow-y:auto; padding:0 0 12px; }
+.czat-wybor-wstep{
+  margin:2px 2px 12px; text-align:center;
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  font-size:18px; font-weight:800; color:#5d4b78;
+}
+.czat-kafelki{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.czat-kafelek{
+  position:relative; min-height:190px; padding:14px 9px 12px;
+  display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+  border:1.5px solid #efbf58; border-radius:19px; cursor:pointer;
+  background:linear-gradient(180deg,rgba(255,249,222,.96),rgba(247,218,149,.96));
+  color:#594776; font-family:inherit;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 3px 0 rgba(164,111,31,.34),0 7px 13px rgba(91,65,27,.12);
+  transition:transform .12s ease,filter .12s ease;
+}
+.czat-kafelek:active{ transform:translateY(2px); filter:brightness(.98); }
+.czat-kafelek-ikona{
+  position:relative; width:86px; height:86px; flex:none; margin-bottom:8px;
+  display:grid; place-items:center; color:#7440bd;
+  border:2px solid #9f793c; border-radius:25px;
+  background:linear-gradient(180deg,#fff9df,#e9d8aa);
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.9),0 5px 0 #9f8559,0 8px 12px rgba(78,55,25,.26);
+}
+.czat-kafelek-ikona i{
+  position:absolute; inset:0; display:grid; place-items:center; color:#8f8b83;
+  background:rgba(250,246,231,.78); border-radius:23px;
+}
+.czat-kafelek-nowe{
+  position:absolute; top:-8px; right:-8px; width:28px; height:28px;
+  display:grid; place-items:center; border-radius:50%; color:#fff; background:#e95145;
+  border:3px solid #fff7d8; box-shadow:0 2px 0 #a6312d; font-size:14px;
+}
+.czat-kafelek strong{
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  font-size:20px; line-height:1.1; font-weight:800;
+}
+.czat-kafelek small{ min-height:34px; margin-top:3px; font-size:12.5px; line-height:1.3; font-weight:700; }
+.czat-kafelek-status{
+  min-height:28px; margin-top:auto; padding:4px 11px; display:inline-flex; align-items:center; gap:5px;
+  border:2px solid rgba(194,139,43,.38); border-radius:999px; background:#fffdf2;
+  color:#8a5b19; font-size:12.5px; line-height:1; font-weight:900;
+  box-shadow:0 2px 0 rgba(145,99,24,.16);
+}
+.czat-kafelek.is-locked{
+  border-color:#cbc4b4; background:linear-gradient(180deg,#f2efe5,#dedbd0); color:#8c887f;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 3px 0 #b8af9e,0 7px 13px rgba(70,62,48,.1);
+}
+.czat-kafelek.is-locked .czat-kafelek-ikona{ color:#97938b; border-color:#aaa392; background:linear-gradient(180deg,#faf7e9,#dcd6c4); }
+.czat-kafelek.is-locked .czat-kafelek-status{ color:#817d74; border-color:#cec7b7; }
+.czat-kanal-head{
+  position:relative; flex:none; min-height:66px; margin:-2px 0 12px; padding:0 0 11px;
+  display:flex; align-items:center; gap:10px; color:#614a7f;
+}
+.czat-kanal-head::after{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:2px;
+  border-radius:999px; background:rgba(188,137,43,.24);
+}
+.czat-kanal-head strong{
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  font-size:19px; font-weight:800;
+}
+.czat-kanal-powrot{
+  width:54px; height:52px; flex:none; display:grid; place-items:center; padding:0; cursor:pointer;
+  border:1.5px solid #d1a44b; border-radius:15px;
+  background:linear-gradient(145deg,#f5e5b8,#e3c47f 72%);
+  box-shadow:inset 1px 1px 0 rgba(255,250,218,.82),0 3px 0 #a97931,0 5px 8px rgba(92,61,22,.16);
+  -webkit-tap-highlight-color:transparent;
+}
+.czat-kanal-powrot svg{
+  width:35px; height:25px; overflow:visible;
+  transition:transform .1s ease,filter .1s ease;
+}
+.czat-strzalka-wklesla{
+  fill:#c7a463; stroke:#aa7e3d; stroke-width:1.4;
+  stroke-linejoin:round;
+  filter:drop-shadow(-1.2px -1.2px 1px rgba(111,73,25,.52)) drop-shadow(1.2px 1.2px 0 rgba(255,246,207,.88));
+}
+.czat-kanal-powrot:active{
+  transform:translateY(2px);
+  background:linear-gradient(145deg,#ead39b,#d9b66b 72%);
+  box-shadow:inset 2px 2px 4px rgba(123,82,28,.24),0 1px 0 #956628;
+}
+.czat-kanal-znak{ width:34px; height:34px; display:grid; place-items:center; color:#7a4dc2; }
 /* Lista rozmów i ekran Mentora dalej są listą — przewijają się u siebie. */
 .czat-lista{ flex:1; min-height:0; overflow-y:auto; }
 /* `min-height:0` NIE JEST OZDOBĄ: bez niego element flex nie zejdzie poniżej
@@ -807,12 +899,18 @@
    stoi PÓŹNIEJ i przy równej wadze wygrywałaby kolejnością. */
 .hub-pane--czat .czat-dol .hub-composer{ flex:none; margin:0 0 8px; }
 .hub-pane--czat .czat-dol .hub-composer button{ width:46px; height:46px; font-size:17px; }
-.czat-rozmowa .czat-powrot{ flex:none; }
 
 /* Wąski telefon: dymki i zakładki oddają kilka pikseli. */
 @media (max-width:400px){
   .czat-rozmowa--forum .czat-wpis-tresc{ max-width:86%; }
   .czat-zakladka{ font-size:12px; }
+  .czat-kafelki{ gap:8px; }
+  .czat-kafelek{ min-height:178px; padding-inline:7px; }
+  .czat-kafelek-ikona{ width:76px; height:76px; }
+  .czat-kafelek-ikona svg{ width:47px; height:47px; }
+  .czat-kafelek strong{ font-size:18px; }
+  .czat-kafelek:last-child{ min-height:116px; grid-template-columns:76px minmax(0,1fr); padding-inline:14px; }
+  .czat-kafelek:last-child .czat-kafelek-ikona{ width:68px; height:68px; }
 }
 
 /* ── NISKI EKRAN ──────────────────────────────────────────────────────────
@@ -827,6 +925,12 @@
   .czat-zakladka svg{ width:22px; height:22px; }
   .czat-zakladka-klodka{ top:4px; }
   .czat-zakladka .czat-kropka{ top:4px; }
+  .czat-kafelek{ min-height:158px; padding-top:10px; }
+  .czat-kafelek-ikona{ width:68px; height:68px; border-radius:21px; }
+  .czat-kafelek-ikona svg{ width:42px; height:42px; }
+  .czat-kafelek small{ min-height:30px; font-size:11.5px; }
+  .czat-kafelek:last-child{ min-height:104px; }
+  .czat-kafelek:last-child small{ min-height:0; }
 }
 
 .hub-pane .hub-sec-title h3{ font-size:21px; }
@@ -882,14 +986,6 @@
 .czat-brawa.is-dane{
   background:linear-gradient(180deg,#FFE6A8,#F4C95D); border-color:transparent; color:#4A2A0E;
   cursor:default;
-}
-
-.czat-powrot{
-  display:inline-flex; align-items:center; gap:7px; margin:0 0 12px; cursor:pointer;
-  border:2px solid rgba(120,90,30,.22); background:rgba(255,255,255,.7);
-  border-radius:var(--r-pill,999px); padding:10px 18px; min-height:48px;
-  font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
-  font-weight:800; font-size:15px; color:var(--p-ink-soft,#5A4F77);
 }
 
 /* Powiększenia elementów współdzielonych — tylko wewnątrz czatu. */
@@ -957,13 +1053,10 @@
    16 px. Karteczki miejsc są zbudowane jak karteczka Porady dnia — papier,
    pinezka, jedno zdanie — bo to ten sam gest: „weź jedną i zrób". */
 .zadanie-karta{
-  /* Miejsce w prawym górnym rogu jest zarezerwowane dla monety, więc nagłówek
-     i tekst mają własny padding od tej strony — inaczej tytuł wchodziłby pod
-     plakietkę przy dłuższej nazwie zadania. */
   position:relative; border:2px solid rgba(255,223,130,.9); border-radius:var(--r-card,22px);
   background:linear-gradient(180deg,rgba(255,252,232,.96),rgba(245,228,181,.96));
   box-shadow:inset 0 1.5px 0 rgba(255,255,255,.82),0 3px 0 rgba(125,73,25,.5),0 8px 15px rgba(72,53,26,.14);
-  padding:16px 84px 15px 16px; margin-bottom:14px;
+  padding:16px; margin-bottom:14px;
 }
 .zadanie-moneta{ position:absolute; top:12px; right:12px; }
 /* Tytuł jest pierwszym wierszem karty (nadtytuł wyleciał — powtarzał belkę
@@ -1014,6 +1107,21 @@
    i atramentowy kolor tresci. */
 .zadanie-cel{ margin:0 0 7px; padding-right:0; font-size:18.5px; font-weight:700; line-height:1.38; color:var(--p-ink,#4e4d76); }
 .zadanie-jak{ margin:0; font-size:14.5px; line-height:1.4; color:var(--p-ink-soft,#5A4F77); }
+.zadanie-glos,
+.zadanie-powrot{
+  display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+  border:0; font-family:inherit; font-weight:900;
+  color:var(--p-magic-dk,#7A4DC2); background:transparent;
+}
+.zadanie-glos{
+  margin:13px 0 0; padding:7px 10px 7px 8px;
+  border:1.5px solid rgba(122,77,194,.28); border-radius:999px;
+  background:rgba(255,255,255,.58);
+}
+.zadanie-powrot{ margin:0 0 8px; padding:6px 2px; font-size:14px; }
+.zadanie-powrot span{ font-size:20px; line-height:1; }
+.zadanie-glos:focus-visible,
+.zadanie-powrot:focus-visible{ outline:3px solid rgba(122,77,194,.38); outline-offset:3px; }
 /* Zdanie o dowodzie: ten sam glos co `jak`, tylko odrobine wieksze - stoi
    samo pod naglowkiem sekcji, wiec nie ma sie o co oprzec wzrokiem. */
 .zadanie-dowod{ margin:-4px 2px 12px; font-size:15px; line-height:1.42; color:var(--p-ink-soft,#5A4F77); }
@@ -1591,22 +1699,44 @@
 /* Krzyzyk siedzi W ROGU KARTY, nie poza nia: przy karcie szerokiej na caly
    ekran (a taka jest na telefonie) wszystko wystajace poza jej krawedz laduje
    pod krawedzia ekranu i sie przycina. Miejsce robi mu wezsza wstega. */
+/* Krzyzyk zamykania: TEN SAM guzik, co w belce szuflady (`.hub-sheet-close`).
+   Wczesniej byl tu krazek w kolorach karty - zloto na kremie - i przez to
+   zlewal sie z ramka okna: dziecko widzialo ozdobe rogu, a nie przycisk.
+   Czerwony jest w tej grze jedynym kolorem, ktory znaczy „zamknij", wiec
+   powtarzamy go wszedzie, gdzie cos sie zamyka.
+
+   Zrodlem prawdy zostaje `.hub-sheet-close` (szuflada) - tam sa oryginalne
+   wartosci. Tutaj sa przepisane, a nie wspoldzielone selektorem, bo guzik
+   w oknie postaci ma inny rozmiar i inne kotwiczenie; sklejenie ich w jedna
+   regule konczyloby sie zestawem nadpisan w obie strony. Przy zmianie koloru
+   popraw OBA miejsca. */
 .popup-postaci-zamknij{
-  position:absolute; z-index:3; top:8px; right:8px;
-  width:30px; height:30px; padding:0;
+  position:absolute; z-index:3; top:6px; right:6px;
+  /* DOKLADNIE ten sam rozmiar co w szufladzie (46 px), a nie „podobny".
+     Przy 38 px glif musial zejsc do 27 px i kreska wychodzila ciensza o piata
+     czesc - proporcje sie zgadzaly, ale oko porownuje GRUBOSC, nie proporcje,
+     bo oba guziki widzi w tej samej aplikacji. */
+  width:46px; height:46px;
   display:grid; place-items:center;
-  border:2px solid transparent; border-radius:50%;
-  background:
-    linear-gradient(180deg,rgba(255,251,224,.97),rgba(243,224,171,.97)) padding-box,
-    linear-gradient(180deg,#fff3a8,#e5aa32 62%,#a46418) border-box;
-  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.8),0 2px 0 #925118,0 5px 10px rgba(40,26,70,.35);
-  cursor:pointer;
+  border:2px solid #8f2d27; border-radius:50%;
+  background:linear-gradient(180deg,#ff6a5e,#d53537);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 3px 0 #8d2a27,0 6px 9px rgba(77,35,22,.2);
+  cursor:pointer; color:#fff4c9;
+  /* Ta sama typografia co w szufladzie, co do wartosci: waga 900, 32 px,
+     ten sam cien. Krzyzyk byl wczesniej rysowany SVG-iem i przy tej samej
+     grubosci nominalnej wychodzil chudszy niz glif w wadze 900.
+     `padding-bottom` centruje glif optycznie - „x" ma w kroju wiecej
+     powietrza u dolu niz u gory. */
+  font:900 32px/1 system-ui, sans-serif;
+  text-shadow:0 2px 0 #8d2a27;
+  padding:0 0 4px;
+  transition:transform .14s ease, box-shadow .14s ease, filter .14s ease;
 }
-.popup-postaci-zamknij svg{
-  width:15px; height:15px;
-  stroke:#7a4a12; stroke-width:2.6; stroke-linecap:round; fill:none;
+.popup-postaci-zamknij:hover{ filter:brightness(1.08); }
+.popup-postaci-zamknij:active{
+  transform:translateY(2px) scale(.94);
+  box-shadow:inset 0 3px 4px rgba(111,24,24,.3),0 1px 0 #8d2a27,0 2px 4px rgba(77,35,22,.18);
 }
-.popup-postaci-zamknij:active{ transform:translateY(1px); }
 
 @keyframes popup-postaci-zaslona{
   from{ opacity:0; }
@@ -1795,66 +1925,6 @@
 .puch-intro .gra-btn-duzy{ max-width:320px; }
 
 
-/* ── Splash gry (wspolny dla wszystkich minigier) ──────────────────────── */
-/* Nie ozdoba: gry dociagaja wlasna grafike (Sekret pod puchem blisko megabajta)
-   i bez tego ekranu dziecko patrzy w tym czasie na puste tlo. Elementy opadaja
-   jedno po drugim (`--nr` steruje opoznieniem), wiec czekanie samo cos pokazuje. */
-/* Splash zajmuje CALY kadr gry, a nie miejsce w przewijanej kolumnie. Wczesniej
-   byl zwyklym dzieckiem `.gra-scroll` i przy wysokim ekranie zawartosc ladowala
-   w dwoch trzecich wysokosci, z ogromna pusta plama nad soba — przez to
-   czekanie wygladalo jak zawieszona aplikacja, a nie jak wejscie do gry. */
-.splash-gry{
-  position:absolute; inset:0; z-index:2;
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:12px; padding:24px; text-align:center;
-  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif; color:var(--p-ink,#4e4d76);
-}
-.splash-gry h1{ margin:0; font-size:32px; line-height:1.1; }
-.splash-gry p{ margin:0; font-size:16px; font-weight:600; opacity:.72; }
-
-.splash-gry-art{ display:flex; align-items:flex-end; gap:8px; height:110px; margin-bottom:4px; }
-.splash-gry-art img{
-  width:58px; height:58px; object-fit:contain;
-  filter:drop-shadow(0 4px 6px rgba(78,77,118,.22));
-}
-.splash-gry-emoji{ font-size:72px; line-height:1; filter:drop-shadow(0 4px 6px rgba(78,77,118,.22)); }
-
-/* Pasek postepu. Nie pokazuje PRAWDZIWEGO postepu (przegladarka nie mowi nam,
-   ile z paczki gry juz przyszlo) — pokazuje, ze cos sie dzieje. To wystarczy,
-   zeby ekran przestal wygladac na zawieszony, a nie oszukuje zadna liczba. */
-.splash-gry-pasek{
-  width:min(200px,60%); height:8px; margin-top:6px;
-  border-radius:99px; overflow:hidden;
-  background:rgba(78,77,118,.14);
-}
-.splash-gry-pasek i{
-  display:block; width:40%; height:100%; border-radius:99px;
-  background:linear-gradient(90deg,#7A4DC2,#B85AD9);
-  animation:splash-gry-suwak 1.15s ease-in-out infinite;
-}
-@keyframes splash-gry-suwak{
-  0%   { transform:translateX(-110%); }
-  100% { transform:translateX(260%); }
-}
-@media (prefers-reduced-motion:reduce){
-  .splash-gry-pasek i{ animation:none; width:100%; opacity:.55; }
-}
-.splash-gry-art img,
-.splash-gry-emoji{
-  animation:splash-gry-opada 1.9s ease-in-out infinite;
-  animation-delay:calc(var(--nr) * .16s);
-}
-
-@keyframes splash-gry-opada{
-  0%   { transform:translateY(-26px) rotate(-14deg); opacity:.25; }
-  45%  { transform:translateY(0) rotate(6deg); opacity:1; }
-  100% { transform:translateY(-26px) rotate(-14deg); opacity:.25; }
-}
-
-@media (prefers-reduced-motion:reduce){
-  .splash-gry-art img,.splash-gry-emoji{ animation:none; opacity:1; }
-}
-
 /* ── Stół Pamięci Mędrca ──────────────────────────────────────────────────
    Scena złożona z czterech osobnych elementów: trawa (kafelkowane tło), blat,
    Wizkor u góry i lisek na dole. Osobne pliki, a nie jedna ilustracja, bo tylko
@@ -1917,61 +1987,216 @@
 
    Typografia i przyciski z ekranu glownego (`hub-btn`, `--font-display`). */
 .start-gry{
-  position:relative; z-index:1; flex:1; min-height:0;
+  --start-tlo:none; --start-atrament:#4e317a; --start-panel:rgba(255,249,229,.94);
+  position:relative; z-index:1; isolation:isolate; flex:1 0 auto; width:100%;
+  min-height:100svh; box-sizing:border-box;
   display:flex; flex-direction:column; align-items:center;
-  gap:12px; padding:6px 22px calc(20px + env(safe-area-inset-bottom,0px));
+  padding:0 18px calc(18px + env(safe-area-inset-bottom,0px)); overflow:hidden;
   text-align:center; font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
 }
+.start-gry--pamiec{ --start-tlo:url('/assets/minigry/start-pamiec-scena-v2.webp'); --start-atrament:#572590; --start-haslo:#54286f; --start-panel:rgba(250,242,255,.95); }
+.start-gry--puch{ --start-tlo:url('/assets/minigry/start-puch-scena-v2.webp'); --start-atrament:#73349c; --start-haslo:#633081; --start-panel:rgba(255,250,229,.95); }
+.start-gry--lot{ --start-tlo:url('/assets/minigry/start-lot-scena-v2.webp'); --start-atrament:#28753b; --start-haslo:#216a34; --start-panel:rgba(255,251,224,.95); }
+.start-gry::before{
+  content:""; position:absolute; z-index:-3; inset:-68px -18px 0;
+  background-image:var(--start-tlo); background-size:cover; background-position:center top;
+  transform:scale(1.025); animation:start-gry-tlo 12s ease-in-out infinite alternate;
+}
+.start-gry::after{
+  content:""; position:absolute; z-index:-2; inset:22% -18px 0;
+  background:linear-gradient(180deg,transparent 0%,rgba(255,244,218,.2) 38%,rgba(255,231,190,.86) 67%,#ffd3a8 100%);
+  pointer-events:none;
+}
+.start-gry--pamiec::after{ background:linear-gradient(180deg,transparent 0%,rgba(42,19,91,.06) 28%,rgba(80,43,128,.82) 66%,#2b174e 100%); }
+.start-gry--lot::after{ background:linear-gradient(180deg,transparent 0%,rgba(255,235,154,.08) 38%,rgba(91,119,48,.73) 70%,#244b34 100%); }
+.start-gry-scena{
+  position:relative; z-index:1; flex:none; width:min(100%,430px); height:clamp(316px,43svh,400px);
+  pointer-events:none;
+}
+.start-gry-postac{
+  position:absolute; z-index:2; inset:4px 0 0; display:grid; place-items:center;
+  animation:start-gry-wejscie .64s cubic-bezier(.2,.92,.28,1.18) both;
+}
 .start-gry-art{
-  width:min(70%,250px); height:auto; margin-top:2px;
-  filter:drop-shadow(0 14px 22px rgba(78,77,118,.34));
-  animation:float-mid 4s ease-in-out infinite;
+  width:min(72vw,305px); max-height:96%; object-fit:contain;
+  filter:drop-shadow(0 15px 20px rgba(45,33,63,.3));
+  animation:start-gry-plywanie 3.8s ease-in-out .65s infinite; transform-origin:50% 75%;
 }
-.start-gry-tytul{
-  margin:0; font-size:clamp(30px,9vw,40px); line-height:1.05;
-  text-shadow:0 2px 0 rgba(255,255,255,.55);
+.start-gry--pamiec .start-gry-art{ width:min(70vw,300px); max-height:98%; }
+.start-gry--puch .start-gry-art{ width:min(72vw,310px); }
+.start-gry--lot .start-gry-postac{ transform:rotate(-4deg); }
+.start-gry--lot .start-gry-art{ width:min(67vw,290px); animation-name:start-gry-lot; }
+.start-gry-efekty{ position:absolute; z-index:3; inset:0; }
+.start-gry-karta,.start-gry-piorko{ position:absolute; object-fit:contain; filter:drop-shadow(0 6px 7px rgba(51,26,76,.25)); }
+.start-gry-karta{ width:44px; }
+.start-gry-karta--1{ left:5%; top:21%; transform:rotate(-14deg); animation:start-karta-1 4.6s ease-in-out infinite; }
+.start-gry-karta--2{ right:4%; top:12%; transform:rotate(13deg); animation:start-karta-2 4.1s ease-in-out -.8s infinite; }
+.start-gry-karta--3{ right:12%; bottom:14%; width:36px; transform:rotate(20deg); animation:start-karta-1 5.2s ease-in-out -1.5s infinite reverse; }
+.start-gry-piorko{ width:52px; }
+.start-gry-piorko--1{ left:2%; top:38%; transform:rotate(-26deg); animation:start-piorko-1 5.2s ease-in-out infinite; }
+.start-gry-piorko--2{ right:1%; top:26%; transform:rotate(20deg); animation:start-piorko-2 4.5s ease-in-out -.7s infinite; }
+.start-gry-piorko--3{ right:13%; bottom:7%; width:42px; transform:rotate(72deg); animation:start-piorko-1 5.8s ease-in-out -2s infinite reverse; }
+.start-gry-lisc{
+  position:absolute; width:27px; height:15px; border-radius:100% 0 100% 0;
+  background:linear-gradient(135deg,#d9f05b,#4b9c23 60%,#22691e);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 5px 8px rgba(37,80,24,.25);
 }
-
-.start-gry-poziomy{
-  display:grid; grid-template-columns:1fr 1fr; gap:12px;
-  width:100%; max-width:380px; margin-top:2px;
+.start-gry-lisc::after{ content:""; position:absolute; width:18px; height:1.5px; left:4px; top:7px; background:rgba(32,91,31,.55); transform:rotate(-17deg); }
+.start-gry-lisc--1{ left:4%; top:30%; transform:rotate(26deg); animation:start-lisc 5s ease-in-out infinite; }
+.start-gry-lisc--2{ right:5%; top:17%; transform:rotate(-18deg); animation:start-lisc 4.4s ease-in-out -1.2s infinite reverse; }
+.start-gry-lisc--3{ right:11%; bottom:10%; transform:rotate(80deg); animation:start-lisc 5.4s ease-in-out -2s infinite; }
+.start-gry-iskra{
+  position:absolute; width:9px; height:9px; border-radius:50%; background:#fff7a8;
+  box-shadow:0 0 0 4px rgba(255,237,112,.18),0 0 16px 5px rgba(255,226,63,.75);
+  animation:start-iskra 2.3s ease-in-out infinite;
 }
-.start-gry-poziomy.jeden{ grid-template-columns:1fr; max-width:300px; }
-
+.start-gry-iskra--1{ left:18%; top:12%; }
+.start-gry-iskra--2{ right:18%; top:45%; animation-delay:-.9s; }
+.start-gry-iskra--3{ left:12%; bottom:12%; animation-delay:-1.6s; }
+.start-gry-panel{
+  position:relative; z-index:4; flex:none; width:min(100%,410px); margin-top:-22px;
+  display:grid; grid-template-rows:auto auto auto; justify-items:center; gap:11px;
+  animation:start-panel-wejscie .5s cubic-bezier(.2,.85,.25,1.08) .18s both;
+}
+.start-gry-tabliczka{
+  position:relative; width:100%; min-height:104px; padding:18px 34px 15px;
+  border:0; border-radius:0; background:url('/assets/minigry/start-title-cloud.svg') center/100% 100% no-repeat;
+  color:var(--start-atrament); filter:drop-shadow(0 10px 12px rgba(70,50,39,.2));
+}
+.start-gry--pamiec .start-gry-tabliczka{ filter:drop-shadow(0 11px 13px rgba(20,8,50,.34)); }
+.start-gry-tabliczka .start-gry-tytul{
+  position:relative; z-index:1; margin:0; color:inherit;
+  font-size:clamp(31px,9vw,41px); font-weight:800; line-height:1.01; letter-spacing:-.9px;
+  -webkit-text-stroke:1px currentColor; paint-order:stroke fill;
+  text-shadow:0 2px 0 #fff,0 4px 7px rgba(94,65,35,.16);
+  transform:translateY(4px);
+}
+.start-gry--puch .start-gry-tytul{ font-size:clamp(28px,7.7vw,34px); letter-spacing:-.65px; white-space:nowrap; }
+.start-gry-haslo{ margin:8px 0 0; color:var(--start-haslo,var(--start-atrament)); font-size:clamp(17px,4.8vw,21px); line-height:1.08; font-weight:850; transform:translateY(4px); }
+.start-gry-akcje{ width:100%; min-height:152px; display:grid; justify-items:center; align-items:start; }
+.start-gry-gotowe{
+  width:100%; display:grid; justify-items:center; gap:11px;
+  animation:start-gotowe-wejscie .42s cubic-bezier(.2,.9,.28,1.15) both;
+}
+.start-gry-loader{
+  position:relative; overflow:hidden; width:min(100%,238px); min-height:136px; padding:17px 18px 14px;
+  display:grid; align-content:center; justify-items:center; gap:12px;
+  border:4px solid transparent; border-radius:30px;
+  background:linear-gradient(180deg,#fff9da 0%,#f1d28d 100%) padding-box,linear-gradient(180deg,#fff3a9 0%,#e5ae3f 48%,#a86717 100%) border-box;
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.84),0 6px 0 #9d6417,0 14px 23px rgba(83,52,14,.28);
+  color:var(--start-atrament); font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+}
+.start-gry-loader::after{
+  content:""; position:absolute; inset:-30% auto -30% -42%; width:30%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.62),transparent);
+  transform:skewX(-18deg); animation:start-loader-polysk 2.6s ease-in-out infinite;
+}
+.start-gry-loader-fiolka{
+  position:relative; z-index:1; display:block; overflow:hidden; width:188px; height:58px;
+  border:4px solid rgba(255,255,255,.88); border-radius:25px;
+  background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(235,238,220,.58));
+  box-shadow:inset 0 5px 8px rgba(74,82,56,.2),inset 0 -4px 7px rgba(255,255,255,.72),0 4px 0 rgba(123,89,27,.34),0 8px 12px rgba(79,57,18,.16);
+}
+.start-gry-loader-plyn{
+  position:absolute; inset:4px auto 4px 4px; width:92%; overflow:visible; border-radius:17px 12px 12px 17px;
+  background:linear-gradient(180deg,#c8f75d 0%,#67cf2d 42%,#279220 100%);
+  box-shadow:inset 0 5px 0 rgba(245,255,180,.52),inset 0 -5px 6px rgba(20,100,25,.24),0 0 13px rgba(104,218,42,.52);
+  transform-origin:left center; animation:start-loader-napelnianie 1.5s cubic-bezier(.18,.78,.2,1) both;
+}
+.start-gry-loader-plyn::after{
+  content:""; position:absolute; top:-2px; right:-8px; width:18px; height:46px; border-radius:48% 55% 45% 52%;
+  background:linear-gradient(90deg,#55bf27,#a9ed4a 68%,#72d332); filter:drop-shadow(3px 0 3px rgba(48,139,26,.25));
+  animation:start-loader-fala .8s ease-in-out infinite alternate;
+}
+.start-gry-loader-plyn i{
+  position:absolute; z-index:1; width:8px; height:8px; border:2px solid rgba(245,255,202,.78); border-radius:50%;
+  background:rgba(255,255,255,.23); animation:start-loader-babelek 1.35s ease-in infinite;
+}
+.start-gry-loader-plyn i:nth-child(1){ left:23%; bottom:5px; }
+.start-gry-loader-plyn i:nth-child(2){ left:52%; bottom:10px; width:11px; height:11px; animation-delay:-.5s; }
+.start-gry-loader-plyn i:nth-child(3){ left:76%; bottom:4px; width:6px; height:6px; animation-delay:-.9s; }
+.start-gry-loader-szklo{
+  position:absolute; z-index:2; inset:5px 12px auto 15px; height:15px; border-radius:50%;
+  background:linear-gradient(180deg,rgba(255,255,255,.78),rgba(255,255,255,0)); pointer-events:none;
+}
+.start-gry-loader strong{ position:relative; z-index:1; font-size:18px; font-weight:800; line-height:1.05; }
+.start-gry-poziomy{ display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; max-width:340px; margin-top:0; }
+.start-gry-poziomy.jeden{ grid-template-columns:1fr; max-width:176px; }
 .start-gry-poziom{
-  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
-  min-height:104px; padding:14px 12px; cursor:pointer;
-  border:3px solid transparent; border-radius:20px;
-  background:
-    linear-gradient(180deg,rgba(255,251,224,.98),rgba(243,224,171,.98)) padding-box,
-    linear-gradient(180deg,#fff3c9,#d9b775 65%,#b08c46) border-box;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.7), 0 4px 0 rgba(150,110,45,.55);
+  position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+  min-height:76px; padding:8px 9px; cursor:pointer; border:3px solid transparent; border-radius:20px;
+  background:linear-gradient(180deg,#fff8d7 0%,#f2d798 100%) padding-box,linear-gradient(180deg,#fff2a8 0%,#e8b64c 48%,#aa6d19 100%) border-box;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.82),0 4px 0 #aa711e,0 9px 16px rgba(107,72,20,.22);
   font-family:inherit; color:var(--p-ink,#4e4d76);
 }
 .start-gry-poziom.wybrany{
-  background:
-    linear-gradient(180deg,#F1E4FC,#DBC4F6) padding-box,
-    linear-gradient(180deg,#e6cfff,#7A4DC2 70%,#4a2c77) border-box;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.6), 0 4px 0 #4a2c77, 0 10px 16px rgba(74,45,128,.25);
+  background:linear-gradient(180deg,#fff8d7 0%,#f2d798 100%) padding-box,linear-gradient(180deg,#fff2a8 0%,#e8b64c 48%,#aa6d19 100%) border-box;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.82),0 4px 0 #aa711e,0 0 0 4px rgba(168,78,212,.42),0 11px 18px rgba(74,45,128,.24);
+}
+.start-gry-poziom-check{
+  position:absolute; top:-10px; right:-7px; width:36px; height:36px; display:grid; place-items:center;
+  border:3px solid #fff; border-radius:50%; background:linear-gradient(180deg,#c868f0,#8242c5);
+  box-shadow:0 4px 0 #57308a,0 7px 12px rgba(67,34,111,.28); color:#fff; font:900 24px/1 system-ui,sans-serif;
 }
 .start-gry-poziom:disabled{ cursor:default; }
 .start-gry-poziom:not(:disabled):active{ transform:translateY(2px); }
-
-.start-gry-poziom-nazwa{ font-size:24px; font-weight:900; line-height:1; }
-/* Liczba monet ma byc najwieksza rzecza na przycisku — to ona odpowiada na
-   pytanie „ile dostane”, a nie nazwa poziomu. */
-.start-gry-poziom-monety{
-  display:inline-flex; align-items:center; gap:8px;
-  font-size:30px; font-weight:900; line-height:1; color:#7A4D10;
-  text-shadow:0 2px 0 rgba(255,255,255,.6);
-}
+.start-gry-poziom-nazwa{ font-size:22px; font-weight:900; line-height:1; }
+.start-gry-poziom-monety{ display:inline-flex; align-items:center; gap:8px; font-size:28px; font-weight:900; line-height:1; color:#7A4D10; text-shadow:0 2px 0 rgba(255,255,255,.6); }
 .start-gry-poziom.wybrany .start-gry-poziom-monety{ color:#4a2c77; }
-
-.start-gry-luz{ flex:1; min-height:10px; }
-.start-gry-cta{
-  width:100%; max-width:380px; min-height:64px;
-  font-size:22px; letter-spacing:.6px;
+.start-gry .start-gry-cta{
+  position:relative; overflow:hidden; width:100%; max-width:380px; min-height:62px; margin-top:1px;
+  border:3px solid #b4e858; border-radius:20px;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.55),0 5px 0 #287714,0 11px 19px rgba(36,101,19,.28);
+  align-self:start; margin-top:3px; font-size:23px; letter-spacing:.6px; animation:start-cta-oddech 2.4s ease-in-out 1s infinite;
 }
+.start-gry-cta span{ position:relative; z-index:2; }
+.start-gry-cta::after{
+  content:""; position:absolute; z-index:1; top:-25%; bottom:-25%; left:-38%; width:24%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.65),transparent);
+  transform:skewX(-18deg); animation:start-cta-polysk 3.6s ease-in-out 1.4s infinite;
+}
+@keyframes start-gry-tlo{ from{ transform:scale(1.025) translate3d(0,0,0); } to{ transform:scale(1.065) translate3d(0,-5px,0); } }
+@keyframes start-gry-wejscie{ from{ opacity:0; transform:translate3d(0,34px,0) scale(.86) rotate(-3deg); } to{ opacity:1; transform:translate3d(0,0,0) scale(1) rotate(0); } }
+@keyframes start-gry-plywanie{ 0%,100%{ transform:translate3d(0,0,0) rotate(-1deg); } 50%{ transform:translate3d(0,-9px,0) rotate(1deg); } }
+@keyframes start-gry-lot{ 0%,100%{ transform:translate3d(-3px,3px,0) rotate(-3deg); } 50%{ transform:translate3d(7px,-10px,0) rotate(2deg); } }
+@keyframes start-panel-wejscie{ from{ opacity:0; transform:translate3d(0,25px,0) scale(.96); } to{ opacity:1; transform:none; } }
+@keyframes start-karta-1{ 0%,100%{ translate:0 0; rotate:-4deg; } 50%{ translate:5px -13px; rotate:6deg; } }
+@keyframes start-karta-2{ 0%,100%{ translate:0 2px; rotate:4deg; } 50%{ translate:-6px -11px; rotate:-7deg; } }
+@keyframes start-piorko-1{ 0%,100%{ translate:0 0; rotate:-5deg; } 50%{ translate:9px -14px; rotate:9deg; } }
+@keyframes start-piorko-2{ 0%,100%{ translate:0 1px; rotate:4deg; } 50%{ translate:-10px -13px; rotate:-10deg; } }
+@keyframes start-lisc{ 0%,100%{ translate:0 0; rotate:-8deg; } 50%{ translate:9px -12px; rotate:15deg; } }
+@keyframes start-iskra{ 0%,100%{ opacity:.35; transform:scale(.55); } 50%{ opacity:1; transform:scale(1); } }
+@keyframes start-cta-oddech{ 0%,100%{ filter:brightness(1); } 50%{ filter:brightness(1.08); } }
+@keyframes start-cta-polysk{ 0%,62%{ left:-38%; } 86%,100%{ left:120%; } }
+@keyframes start-loader-napelnianie{ 0%{ transform:scaleX(.05); } 72%{ transform:scaleX(.82); } 100%{ transform:scaleX(1); } }
+@keyframes start-loader-fala{ from{ transform:scaleY(.88) skewY(-5deg); } to{ transform:scaleY(1.06) skewY(5deg); } }
+@keyframes start-loader-babelek{ 0%{ transform:translateY(7px) scale(.65); opacity:0; } 25%{ opacity:.9; } 100%{ transform:translateY(-30px) scale(1.12); opacity:0; } }
+@keyframes start-loader-polysk{ 0%,58%{ left:-42%; } 88%,100%{ left:125%; } }
+@keyframes start-gotowe-wejscie{ from{ opacity:0; transform:translateY(8px) scale(.97); } to{ opacity:1; transform:none; } }
+@media (max-height:740px){
+  .start-gry-scena{ height:clamp(270px,39svh,310px); }
+  .start-gry-panel{ margin-top:-18px; gap:8px; }
+  .start-gry-tabliczka{ padding:9px 15px 8px; }
+  .start-gry-tabliczka .start-gry-tytul{ font-size:clamp(27px,7.8vw,35px); }
+  .start-gry-haslo{ margin-top:3px; font-size:16px; }
+  .start-gry-poziom{ min-height:74px; padding:8px 10px; }
+  .start-gry-poziom-nazwa{ font-size:20px; }
+  .start-gry-poziom-monety{ font-size:25px; }
+  .start-gry .start-gry-cta{ min-height:54px; font-size:21px; }
+}
+@media (prefers-reduced-motion:reduce){
+  .start-gry::before,.start-gry-postac,.start-gry-art,.start-gry-panel,.start-gry-karta,.start-gry-piorko,.start-gry-lisc,.start-gry-iskra,.start-gry-cta,.start-gry-cta::after,.start-gry-loader::after,.start-gry-loader-plyn,.start-gry-loader-plyn::after,.start-gry-loader-plyn i,.start-gry-gotowe{ animation:none !important; }
+  .start-gry-loader-plyn{ transform:scaleX(.86); }
+}
+
+.gra-root:has(.start-gry--pamiec){ background:#17112d; }
+.gra-root:has(.start-gry--puch){ background:#78cff6; }
+.gra-root:has(.start-gry--lot){ background:#5c944f; }
+.gra-root:has(.start-gry) > .gra-pasek{
+  position:absolute; z-index:10; inset:0 0 auto; pointer-events:none;
+}
+.gra-root:has(.start-gry) > .gra-pasek .gra-x{ pointer-events:auto; }
+.gra-scroll:has(> .start-gry){ padding:0; }
 
 /* Wynik: jedna waluta, duży licznik — ta sama tabliczka co na starcie gry. */
 .wynik-nagroda{
@@ -2585,6 +2810,164 @@
 }
 .porada-historia--odlozona{ opacity:.72; }
 
+/* ── Porada dnia v2: wybór jak w Minigrach ───────────────────────────────
+   Obraz jest główną treścią kafla, a tekst tylko podpisem. Te same złote
+   płytki, ranty i głębokość co `.hub-tile-in` sprawiają, że dziecko od razu
+   rozumie: to da się uruchomić, a nie tylko przeczytać. */
+.porada-nowa{ padding-bottom:14px; }
+.porada-wstep{ margin:4px 2px 14px; text-align:center; }
+.porada-wstep h3,.porada-slady h3{
+  margin:3px 0 2px; color:var(--p-ink,#4e4d76);
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  font-size:23px; line-height:1.15; font-weight:900;
+}
+.porada-wybor{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; }
+.porada-kafelek{ border:0; padding:0; background:transparent; color:inherit; cursor:pointer; font-family:inherit; }
+.porada-kafelek-in{
+  position:relative; min-height:208px; padding:12px 8px 11px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  border:2px solid rgba(255,214,110,.95); border-radius:var(--r-card,22px);
+  background:linear-gradient(180deg,#FFF3CE,#F6D98F);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.8),0 4px 0 rgba(134,81,27,.5),0 8px 15px rgba(61,47,25,.16);
+  transition:transform .14s ease,filter .14s ease,box-shadow .14s ease;
+}
+.porada-kafelek:active .porada-kafelek-in{
+  transform:translateY(3px); filter:brightness(.98);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 1px 0 rgba(134,81,27,.55),0 4px 8px rgba(61,47,25,.14);
+}
+.porada-kafelek-obraz{
+  width:132px; height:132px; display:grid; place-items:center; flex:none;
+  background:url("/assets/minigry/kafel.png") center/contain no-repeat;
+}
+.porada-kafelek-obraz img{
+  width:108px; height:108px; display:block; object-fit:contain;
+  filter:drop-shadow(0 3px 4px rgba(80,60,20,.24));
+}
+.porada-kafelek strong{
+  margin-top:4px; font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  color:#5b421d; font-size:17px; line-height:1.05; font-weight:900;
+}
+.porada-kafelek:last-child{ grid-column:1 / -1; }
+.porada-kafelek:last-child .porada-kafelek-in{
+  min-height:152px; padding:9px 18px;
+  display:grid; grid-template-columns:136px minmax(0,1fr);
+  justify-items:start; align-items:center; column-gap:12px; text-align:left;
+}
+.porada-kafelek:last-child .porada-kafelek-obraz{ width:132px; height:132px; }
+.porada-kafelek:last-child strong{ margin:0; font-size:21px; }
+
+/* Wybrany kafel rośnie w jeden ekran decyzji, ale zachowuje tę samą płytkę. */
+.porada-wybrana,.porada-odzew{
+  margin:4px 0 14px; padding:18px 18px 16px; text-align:center;
+  border:2px solid rgba(255,214,110,.95); border-radius:24px;
+  background:linear-gradient(180deg,#FFF3CE,#F6D98F);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.82),0 4px 0 rgba(134,81,27,.48),0 9px 17px rgba(61,47,25,.15);
+}
+.porada-wybrana-obraz,.porada-odzew-portret{
+  width:180px; height:180px; margin:0 auto 6px; display:grid; place-items:center;
+  background:url("/assets/minigry/kafel.png") center/contain no-repeat;
+}
+.porada-wybrana-obraz img,.porada-odzew-portret img{ width:150px; height:150px; object-fit:contain; display:block; }
+.porada-wybrana h3,.porada-odzew h3{
+  margin:4px 0 14px; color:#523c1a; font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  font-size:25px; line-height:1.08; font-weight:900;
+}
+.porada-odzew h3{ margin-bottom:5px; }
+.porada-odzew p{ margin:0 auto 2px; max-width:330px; color:#655334; font-size:15px; line-height:1.4; }
+.porada-wybrana .hub-btn{ width:100%; min-height:52px; font-size:18px; }
+.porada-zmien{
+  min-height:42px; margin:8px auto -6px; padding:6px 12px; border:0; background:transparent;
+  color:#765a30; cursor:pointer; font:800 13px/1.2 var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  text-decoration:underline; text-decoration-color:rgba(118,90,48,.38); text-underline-offset:3px;
+}
+.porada-odzew{ background:linear-gradient(180deg,#f3f7d8,#ddebaf); border-color:#b8d873; }
+.porada-odzew-portret{ width:158px; height:158px; }
+.porada-odzew-portret img{ width:132px; height:132px; }
+
+/* Ślad nie jest serią. Puste listki są ledwo widoczne, a opis mówi wprost,
+   że niczego nie trzeba nadrabiać. */
+.porada-slady{
+  margin:18px 0 2px; padding:14px 15px 12px; border-radius:20px;
+  background:rgba(255,253,235,.72); box-shadow:inset 0 0 0 1.5px rgba(177,139,59,.24);
+}
+.porada-slady h3{ font-size:18px; }
+.porada-slady-listki{ display:flex; justify-content:center; gap:10px; margin:12px 0 8px; }
+.porada-slady-listki span,.porada-trop-listki button span{
+  width:23px; height:31px; display:block; border-radius:100% 0 100% 0;
+  rotate:-34deg; background:#e8e0c8; box-shadow:inset 0 0 0 1.5px rgba(104,95,68,.12);
+}
+.porada-slady-listki span.jest-pelny{
+  background:linear-gradient(135deg,#a6d75f,#54a83b); box-shadow:inset 2px 2px 0 rgba(255,255,255,.35),0 2px 4px rgba(46,97,31,.24);
+}
+
+/* Ekrany aktywności: pełny ekran usuwa dok i półki z pola widzenia, tak jak
+   istniejąca gra oddechowa. */
+.porada-akcja-ekran{
+  position:fixed; inset:0; z-index:92; display:grid; place-items:center; padding:22px;
+  background:
+    radial-gradient(circle at 50% 34%,rgba(84,176,209,.24),transparent 38%),
+    linear-gradient(160deg,#232347,#3d2d65 58%,#21203f);
+  color:#fff; overflow:auto;
+}
+.porada-akcja-zamknij{
+  position:fixed; top:max(16px,env(safe-area-inset-top)); right:16px; z-index:2;
+  width:44px; height:44px; display:grid; place-items:center; padding:0;
+  border:2px solid rgba(255,255,255,.34); border-radius:50%; background:rgba(23,21,51,.28);
+  color:#fff; cursor:pointer; font:400 30px/1 system-ui,sans-serif;
+}
+.porada-akcja-scena{ width:min(100%,420px); text-align:center; }
+.porada-akcja-obraz{
+  width:190px; height:190px; margin:0 auto 8px; display:grid; place-items:center;
+  background:url("/assets/minigry/kafel.png") center/contain no-repeat;
+  filter:drop-shadow(0 12px 22px rgba(0,0,0,.28));
+}
+.porada-akcja-obraz img{ width:154px; height:154px; object-fit:contain; display:block; }
+.porada-akcja-scena h2{
+  margin:4px 0 8px; color:#fff4c7; font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  font-size:30px; line-height:1.1; font-weight:900; text-shadow:0 3px 0 rgba(0,0,0,.24);
+}
+.porada-akcja-instrukcja{ margin:0 auto 16px; max-width:360px; color:#f3edf9; font-size:16px; line-height:1.45; font-weight:700; }
+.porada-trop-listki{ display:flex; justify-content:center; gap:12px; margin:16px 0 12px; }
+.porada-trop-listki button{
+  width:48px; height:58px; display:grid; place-items:center; padding:0; border:0; border-radius:18px;
+  background:rgba(255,255,255,.1); cursor:pointer; box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.14);
+}
+.porada-trop-listki button span{ width:25px; height:34px; background:#cac4d5; }
+.porada-trop-listki button.jest-znaleziony{ background:rgba(112,192,68,.18); }
+.porada-trop-listki button.jest-znaleziony span{
+  background:linear-gradient(135deg,#c5ed72,#57b83c); box-shadow:0 0 16px rgba(145,225,85,.64),inset 2px 2px 0 rgba(255,255,255,.36);
+}
+.porada-akcja-licznik{ margin:0; color:#d9d0e9; font-size:13px; font-weight:800; }
+.porada-akcja-gotowe{ width:min(100%,300px); min-height:52px; margin-top:5px; font-size:18px; }
+.porada-ruch-kropki{ display:flex; justify-content:center; gap:10px; margin:12px 0 20px; }
+.porada-ruch-kropki span{ width:14px; height:14px; border:2px solid rgba(255,255,255,.5); border-radius:50%; }
+.porada-ruch-kropki span.jest-pelna{ background:#f6cd54; border-color:#fff1a7; box-shadow:0 0 12px rgba(246,205,84,.62); }
+.porada-ruch-polecenie{
+  min-height:48px; margin:0 auto 8px; color:#fff4cf; font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  font-size:23px; line-height:1.2; font-weight:900;
+}
+.porada-ruch-czas{
+  width:66px; height:66px; margin:8px auto 0; display:grid; place-items:center;
+  border:3px solid #f6cd54; border-radius:50%; color:#fff8d8; background:rgba(28,25,58,.52);
+  box-shadow:0 0 0 7px rgba(246,205,84,.1); font:900 28px/1 var(--font-display,'Baloo 2'),system-ui,sans-serif;
+}
+
+@media (max-width:380px){
+  .porada-wybor{ gap:8px; }
+  .porada-kafelek-in{ min-height:190px; }
+  .porada-kafelek-obraz{ width:116px; height:116px; }
+  .porada-kafelek-obraz img{ width:94px; height:94px; }
+  .porada-kafelek strong{ font-size:15.5px; }
+  .porada-kafelek:last-child .porada-kafelek-in{ grid-template-columns:120px minmax(0,1fr); min-height:136px; padding-inline:12px; }
+  .porada-kafelek:last-child .porada-kafelek-obraz{ width:116px; height:116px; }
+  .porada-slady-listki{ gap:7px; }
+  .porada-trop-listki{ gap:7px; }
+  .porada-trop-listki button{ width:42px; }
+}
+@media (prefers-reduced-motion:reduce){
+  .porada-kafelek-in{ transition:none; }
+}
+
 /* ═══════════════════════════════════════════════════════════════════════
    REFLEKTOR — podpowiedź celująca w jeden element HUD-u.
    Komponent: `hub/Reflektor.jsx`, treści i rytm: `hub/wskazowki.js`.
@@ -2735,3 +3118,28 @@
 }
 
 /* hub.css — pelny plik, 2426 linii (odswiezenie dla watchera Vite) */
+
+/* ── Zdanie liska w Poradzie dnia ────────────────────────────────────────
+   Lisek zaprasza do wspolnego cwiczenia: tekst + jego portret, calosc
+   klikalna, bo dotkniecie POWTARZA mowe (`hub/glosLiska.js`). Wyglada jak
+   dymek, a nie jak przycisk akcji - to nie jest droga dalej, tylko glos,
+   ktory mozna odtworzyc jeszcze raz. Dlatego brak zlotej obwodki i cienia
+   „do wcisniecia", ktore w tej grze znacza „tedy sie idzie". */
+.porada-lisek{
+  display:flex; align-items:center; gap:9px;
+  width:100%; margin:6px 0 2px; padding:7px 12px 7px 7px;
+  border:2px dashed rgba(226,163,46,.55); border-radius:16px;
+  background:rgba(255,252,238,.72);
+  color:var(--p-ink,#4e4d76); text-align:left; cursor:pointer;
+  font-family:"Nunito",system-ui,sans-serif; font-size:14.5px; line-height:1.35;
+}
+.porada-lisek img{
+  width:38px; height:38px; flex:none; object-fit:contain; object-position:top center;
+  filter:drop-shadow(0 2px 3px rgba(60,40,20,.28));
+}
+.porada-lisek:active{ background:rgba(255,247,214,.9); }
+.porada-lisek--wybor{ justify-content:center; text-align:center; border-style:solid; }
+
+@media (prefers-reduced-motion:reduce){
+  .porada-lisek{ transition:none }
+}

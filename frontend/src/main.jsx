@@ -47,6 +47,7 @@ import PoradyPage from "./pages/PoradyPage.jsx";
 // grafie importow, a nie po tym, jak komponent jest uzyty.
 const MemoryGame = lazy(() => import("./pages/MemoryGame.jsx"));
 const PiorkaGame = lazy(() => import("./pages/PiorkaGame.jsx"));
+const ChoinkaLaunchGame = lazy(() => import("./pages/ChoinkaLaunchGame.jsx"));
 import LoginAsStudent from "./pages/LoginAsStudent.jsx";
 import LoginByCode from "./pages/LoginByCode.jsx";
 import DevTools from "./components/DevTools.jsx";
@@ -93,6 +94,10 @@ function AppRoutes() {
       <Route
         path="/games/piorka"
         element={<Suspense fallback={<Loading text="Otwieram grę…" />}><PiorkaGame /></Suspense>}
+      />
+      <Route
+        path="/games/lot-liska"
+        element={<Suspense fallback={<Loading text="Otwieram grę 3D…" />}><ChoinkaLaunchGame /></Suspense>}
       />
       <Route path="/backpack" element={<Backpack />} />
       <Route path="/profile" element={<Profile />} />
