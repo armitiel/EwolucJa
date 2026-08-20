@@ -47,7 +47,10 @@ export const ZADANIA = DANE.zadania || [];
 export const OPIS_STANU = {
   zlecone: { etykieta: "Do zrobienia", cta: "Otwórz" },
   poprawka: { etykieta: "Mentor prosi o poprawkę", cta: "Popraw" },
-  wyslane: { etykieta: "U Mentora", cta: "Sprawdź, czy odpisał" },
+  // „Sprawdzane" zamiast „U Mentora": plakietka ma mowic, CO SIE DZIEJE
+  // z odpowiedzia dziecka, a nie gdzie lezy teczka. CTA prowadzi do panelu,
+  // wiec zaprasza („Zajrzyj"), zamiast obiecywac werdykt od razu.
+  wyslane: { etykieta: "Sprawdzane", cta: "Zajrzyj" },
   zatwierdzone: { etykieta: "Nagroda czeka", cta: "Odbierz nagrodę" },
   wyplacone: { etykieta: "Zrobione", cta: "Zobacz" },
 };

@@ -193,19 +193,37 @@ export default function ZadaniePanel({ onKomunikat, onZamknij }) {
   }
 
   /* ── dowód u Mentora ───────────────────────────────────────────────── */
+  /* KLEPSYDRA POSZLA (2026-08-20). Kreskowa klepsydra z zestawu ikon znaczy
+     „system pracuje, czekaj" w każdej aplikacji świata — dziecko zna ten znak
+     z aktualizacji i z wolnego internetu. Tutaj nic się nie ładuje: ktoś żywy
+     ogląda to, co dziecko zrobiło naprawdę. Stąd ilustracja Wizkora z lupą nad
+     zwojem (`/wizSprawdza.webp`, robiona img2img z `wizPop.webp` — patrz
+     `narzedzia/ilustracja-zadanie-sprawdzane.py`): ten sam bohater, który
+     zadanie zlecił, teraz przy nim siedzi.
+
+     TEKST mówi, co się dzieje, i zaprasza z powrotem. Poprzedni („Nie musisz
+     tu siedzieć i czekać") odprawiał dziecko od ekranu, na który samo weszło
+     sprawdzić, jak poszło — a przy okazji nie mówił ani słowa o tym, że jego
+     odpowiedź jest właśnie oglądana. */
   if (stan.czeka) {
     return (
       <div className="hub-pane" data-testid="hub-pane-zadanie">
         <div className="zadanie-czekanie">
-          <GameIcon name="hourglass" size={38} />
-          <h3 className="czat-naglowek">Twoje zadanie jest u Mentora</h3>
-          <p>Nie musisz tu siedzieć i czekać. Zajrzyj później — nic nie ucieknie.</p>
+          <img
+            className="zadanie-sprawdzanie"
+            src="/wizSprawdza.webp"
+            alt=""
+            aria-hidden="true"
+            draggable="false"
+          />
+          <h3 className="czat-naglowek">Twoje zadanie jest sprawdzane</h3>
+          <p>Wizkor zaniósł je Mentorowi i właśnie ogląda Twoją odpowiedź. Zajrzyj tu za chwilę.</p>
           {stan.dowod?.zdjecieUrl ? (
             <img className="zadanie-podglad" src={stan.dowod.zdjecieUrl} alt="Twoje zdjęcie" />
           ) : null}
           {stan.dowod?.opis ? <p className="zadanie-notatka">„{stan.dowod.opis}”</p> : null}
           <button type="button" className="hub-btn" onClick={sprawdz} disabled={wysylka}>
-            {wysylka ? "Pytam…" : "Sprawdź, czy odpisał"}
+            {wysylka ? "Zaglądam…" : "Zobacz, czy już sprawdzone"}
           </button>
           {blad ? <p className="zadanie-blad">{blad}</p> : null}
         </div>

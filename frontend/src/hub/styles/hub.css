@@ -1123,6 +1123,28 @@
 .zadanie-czekanie p,
 .zadanie-nagroda p{ margin:0; font-size:16px; line-height:1.5; color:var(--p-ink,#4e4d76); }
 .zadanie-czekanie .hub-btn{ margin-top:6px; }
+
+/* Ilustracja "zadanie jest sprawdzane" — Wizkor z lupa nad zwojem.
+   Zastapila kreskowa klepsydre (patrz `ZadaniePanel`). Rozmiar 148 px: to
+   mniej wiecej tyle, co chmurka Wizkora nad ikona, wiec postac czyta sie jako
+   TA SAMA, a nie jako nowy bohater.
+
+   Ruch jest celowo minimalny — powolny oddech co 4,2 s. Spinner krecacy sie
+   bez konca mowi "aplikacja pracuje"; tu nic sie nie laduje, tylko ktos zywy
+   oglada prace dziecka, wiec obrazek ma zyc, a nie mielic. Przy
+   `prefers-reduced-motion` stoi zupelnie. */
+.zadanie-sprawdzanie{
+  width:148px; max-width:62%; height:auto; display:block;
+  filter:drop-shadow(0 6px 10px rgba(90,51,17,.22));
+  animation:zadanie-sprawdzanie-oddech 4.2s ease-in-out infinite;
+}
+@keyframes zadanie-sprawdzanie-oddech{
+  0%,100%{ transform:translateY(0) rotate(0deg); }
+  50%{ transform:translateY(-4px) rotate(-1.2deg); }
+}
+@media (prefers-reduced-motion: reduce){
+  .zadanie-sprawdzanie{ animation:none; }
+}
 .zadanie-notatka{
   font-family:'Caveat', var(--font-display,'Baloo 2'), cursive; font-size:20px; line-height:1.35;
   color:var(--p-magic-dk,#7A4DC2);

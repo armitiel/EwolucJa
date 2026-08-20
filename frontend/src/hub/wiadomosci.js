@@ -154,14 +154,17 @@ export function wpisZadaniaWizkora() {
     kiedy: stan.zleconeAt,
     etykieta: stan.etykieta,
     cta: stan.cta,
-    // Do zrobienia albo do odebrania = coś czeka. „U Mentora" nie pali
+    // Do zrobienia albo do odebrania = coś czeka. „Sprawdzane" nie pali
     // plakietki: dziecko nie ma wtedy nic do zrobienia i ponaglanie go
     // byłoby tylko hałasem.
     nieprzeczytana: stan.doZrobienia || stan.doOdbioru,
     przypieta: true,
     to: "/swiat?panel=zadanie",
     autor: null,
-    ikona: "/wizPop.webp",
+    // Gdy odpowiedz jest sprawdzana, wpis w zwoju pokazuje Wizkora z lupa nad
+    // zwojem — ten sam obrazek, ktory dziecko zobaczy po otwarciu panelu.
+    // Stan widac wiec juz na liscie, bez czytania plakietki.
+    ikona: stan.czeka ? "/wizSprawdza.webp" : "/wizPop.webp",
   };
 }
 
