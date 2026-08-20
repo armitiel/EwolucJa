@@ -278,15 +278,30 @@
   background:
     linear-gradient(180deg,#fff8dd 0%,#f4e1ac 100%) padding-box,
     linear-gradient(180deg,#fff09a 0%,#eaaa2f 48%,#a46219 100%) border-box;
+  /* Gorna krawedz arkusza. WCZESNIEJ byly tu dwa twarde pasy cienia
+     (0 -4px brazowy + 0 -9px pomaranczowy na 42% krycia) rzucane na
+     przezroczystosc. Nad zielenia swiata 3D polprzezroczysty pomaranczowy
+     mieszal sie w brudne, brazowo-zielone halo nad okienkiem. Teraz:
+     jeden PELNY, nieprzezroczysty obrys okienka (spread 0 0 0 3px, idealnie
+     obchodzi zaokraglone rogi) + miekki, neutralny cien glebi. Zero
+     mieszania kolorow z tlem. */
   box-shadow:
-    0 -4px 0 #7d4518,
-    0 -9px 0 rgba(216,139,32,.42),
-    0 -24px 48px rgba(30,20,10,.34),
+    0 0 0 3px #7d4518,
+    0 -10px 22px rgba(26,16,8,.26),
+    0 -26px 54px rgba(26,16,8,.20),
     inset 0 2px 0 rgba(255,255,255,.76);
   transform:translateY(103%); transition:transform .28s cubic-bezier(.2,.8,.25,1);
   outline:none; overflow:hidden;
 }
 .hub-sheet.is-open{ transform:translateY(0); }
+/* Zloty wlos tuz przy wewnetrznej krawedzi - domyka obrys od srodka i klada
+   sie takze na fioletowym naglowku (inset-owy highlight arkusza chowa sie pod
+   naglowkiem, bo to dziecko). Dzieki temu okno ma ciagly, czysty kontur. */
+.hub-sheet::before{
+  content:""; position:absolute; inset:0; z-index:6; pointer-events:none;
+  border:2px solid rgba(255,226,150,.5); border-bottom:none;
+  border-radius:27px 27px 0 0;
+}
 .hub-sheet-grip{ display:none; }
 /* Naglowek to PAS przez caly arkusz, nie pigulka w srodku. Wczesniej tonal w
    tym samym pergaminie, co tresc pod nim - dziecko nie mialo sie czego zlapac
@@ -417,23 +432,31 @@
      trescia, a nie ozdoba przy tekscie, wiec dostaje wiekszosc wysokosci. */
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:10px; text-align:center;
-  min-height:150px; padding:16px 10px 13px; border-radius:var(--r-card,22px);
+  min-height:158px; padding:14px 10px 13px; border-radius:var(--r-card,22px);
   border:1.7px solid rgba(255,223,130,.88);
   box-shadow:inset 0 1.5px 0 rgba(255,255,255,.72),0 3px 0 rgba(134,81,27,.4),0 7px 13px rgba(61,47,25,.13);
-  position:relative; overflow:hidden; background:rgba(255,255,255,.7);
+  position:relative; overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,250,226,.96),rgba(250,232,186,.96));
 }
-.hub-tile.is-locked .hub-tile-in{ background:rgba(78,77,118,.10); filter:grayscale(.55); opacity:.75; }
+/* Zamknieta gra: ta sama plytka, tylko wyprana z koloru. Kafel ma wygladac
+   na uspiony, a nie na uszkodzony. */
+.hub-tile.is-locked .hub-tile-in{
+  background:linear-gradient(180deg,rgba(240,236,222,.92),rgba(226,220,203,.92));
+  filter:grayscale(.55); opacity:.78;
+}
+/* Plytka pod ikona jest OBRAZKIEM, nie prostokatem z CSS: ma zloty rant i
+   wypuklosc, ktorych borderem i cieniem nie da sie udac tak, zeby pasowaly do
+   rysowanych ikon. Jedna plytka dla wszystkich gier trzyma siatke w rytmie. */
 .hub-tile-ikona{
-  width:86px; height:86px; border-radius:24px; background:rgba(255,255,255,.86);
-  display:grid; place-items:center; color:var(--p-ink-soft,#5A4F77);
-  box-shadow:inset 0 0 0 2px rgba(255,255,255,.9);
+  width:102px; height:102px; display:grid; place-items:center;
+  background:url("/assets/minigry/kafel.png") center/contain no-repeat;
+  color:var(--p-ink-soft,#5A4F77);
 }
 .hub-tile-ikona img{
-  width:76px; height:76px; object-fit:contain; display:block;
-  filter:drop-shadow(0 2px 3px rgba(80,60,20,.22));
+  width:68px; height:68px; object-fit:contain; display:block;
+  filter:drop-shadow(0 3px 4px rgba(80,60,20,.28));
 }
-/* Emoji zostaje tylko dla gry bez wlasnej ikony - stad ten zapas. */
-.hub-tile-emoji{ font-size:38px; line-height:1; }
+
 .hub-tile small{ font-size:10.5px; color:#6b5c3c; line-height:1.3; }
 .hub-coin{
   display:inline-flex; align-items:center; gap:2px; background:rgba(255,255,255,.92);
@@ -522,6 +545,82 @@
 .hub-composer button{
   width:44px; height:44px; border-radius:50%; border:none; cursor:not-allowed;
   background:linear-gradient(180deg,#C8A0F0,#7A4DC2); color:#fff; font-size:16px;
+}
+
+/* ── czat: kanały, kto jest teraz w grze, feed aktywności ── */
+/* Trzy kanały muszą zmieścić się w jednym rzędzie na 360 px — stąd ciaśniejsza
+   pigułka niż domyślna .hub-tab. Rozjazd do dwóch rzędów zjada widok feedu. */
+.hub-tabs--czat{ gap:5px; }
+.hub-tabs--czat .hub-tab{ padding:8px 11px; gap:5px; font-size:11.5px; }
+
+/* Kropka „nowe" zamiast liczby nieprzeczytanych — patrz komentarz w
+   CzatPanel.jsx. Liczba rosnąca w tle popycha do ciągłego wracania. */
+.czat-kropka{
+  display:inline-block; width:8px; height:8px; border-radius:50%; margin-left:6px;
+  background:#E89A3D; box-shadow:0 0 0 2px rgba(255,255,255,.8);
+}
+.hub-tab.is-active .czat-kropka{ box-shadow:0 0 0 2px rgba(122,77,194,.55); }
+
+/* Pasek obecnych. Przewija się w bok, bo lista ma rosnąć, a panel nie. */
+.czat-online{
+  display:flex; gap:10px; overflow-x:auto; padding:2px 2px 8px;
+  scrollbar-width:none; -webkit-overflow-scrolling:touch;
+}
+.czat-online::-webkit-scrollbar{ display:none; }
+.czat-osoba{
+  flex:none; width:74px; display:grid; justify-items:center; gap:3px; text-align:center;
+}
+.czat-osoba.is-off{ opacity:.5; }
+.czat-avatar{
+  position:relative; width:46px; height:46px; border-radius:16px; display:grid; place-items:center;
+  font-size:24px; line-height:1; background:rgba(255,255,255,.86);
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.9),0 2px 0 rgba(134,81,27,.28),0 5px 10px rgba(61,47,25,.12);
+}
+.czat-lampka{
+  position:absolute; right:-2px; bottom:-2px; width:12px; height:12px; border-radius:50%;
+  border:2px solid #fdf3d6; background:#9aa0b5;
+}
+.czat-lampka.is-gra{ background:#5FBF6A; }
+.czat-lampka.is-misja{ background:#E89A3D; }
+.czat-osoba strong{ font-size:11.5px; line-height:1.2; }
+.czat-osoba small{ font-size:9.5px; line-height:1.2; color:var(--p-ink-soft,#5A4F77); }
+
+/* Feed — to jest ekran startowy czatu: co się wydarzyło, bez pisania. */
+.czat-feed{ display:flex; flex-direction:column; gap:8px; }
+.czat-wpis{
+  display:flex; gap:9px; align-items:flex-start; padding:10px 11px;
+  background:rgba(255,255,255,.74); border:1.5px solid rgba(255,255,255,.85);
+  border-radius:18px; box-shadow:var(--shadow-md);
+}
+.czat-wpis.is-swiat{
+  background:rgba(122,77,194,.10); border-color:rgba(122,77,194,.28);
+}
+.czat-wpis-av{
+  width:34px; height:34px; flex:none; border-radius:12px; display:grid; place-items:center;
+  font-size:19px; line-height:1; background:rgba(255,255,255,.9); color:var(--p-magic-dk,#7A4DC2);
+}
+.czat-wpis-tresc{ flex:1; min-width:0; }
+.czat-wpis-tresc p{ margin:0; font-size:13px; line-height:1.4; }
+.czat-wpis-tresc strong{ font-weight:800; }
+.czat-wpis-tresc small{
+  display:block; margin-top:3px; font-size:10.5px; color:var(--p-ink-soft,#5A4F77);
+}
+.czat-brawa{
+  flex:none; align-self:center; cursor:pointer; font-family:inherit; font-weight:800; font-size:11.5px;
+  display:inline-flex; align-items:center; gap:4px; min-height:32px; padding:5px 10px;
+  border:1.5px solid rgba(122,77,194,.3); border-radius:var(--r-pill,999px);
+  background:rgba(255,255,255,.8); color:var(--p-magic-dk,#7A4DC2);
+}
+.czat-brawa.is-dane{
+  background:linear-gradient(180deg,#FFE6A8,#F4C95D); border-color:transparent; color:#4A2A0E;
+  cursor:default;
+}
+
+.czat-powrot{
+  display:inline-flex; align-items:center; gap:6px; margin:0 0 10px; cursor:pointer;
+  border:1.5px solid rgba(120,90,30,.2); background:rgba(255,255,255,.62);
+  border-radius:var(--r-pill,999px); padding:8px 14px; min-height:40px;
+  font-family:inherit; font-weight:800; font-size:12px; color:var(--p-ink-soft,#5A4F77);
 }
 
 /* ── wiadomości ── */
@@ -792,9 +891,22 @@
    ma staly stosunek 560:599, wiec jedna zmienna skaluje cala kompozycje. */
 .popup-postaci-bohater{
   position:absolute;
-  left:50%; bottom:calc(100% - var(--popup-bohater) * .044);
+  /* SRODEK LICZONY Z PUDELKA, NIE Z SZEROKOSCI OBRAZKA. Wczesniej bylo
+     `left:50% + translateX(-50%)`. Przy wariantach sterowanych WYSOKOSCIA
+     (lisek w zaproszeniu, czarodziej w "zagadac?") szerokosc jest `auto`,
+     wiec do momentu zdekodowania pliku wynosi 0 - `-50%` z zera to zero
+     i grafika stala lewa krawedzia na srodku karty, czyli za bardzo w prawo.
+     Po doczytaniu obrazka skakala na swoje miejsce, co w trakcie animacji
+     wejscia czytalo sie jak wjazd z prawej. `left:0/right:0` + auto-marginesy
+     centruja pudelko niezaleznie od tego, czy plik juz jest. */
+  left:0; right:0; margin-left:auto; margin-right:auto;
+  bottom:calc(100% - var(--popup-bohater) * .044);
   width:var(--popup-bohater); height:auto;
-  transform:translateX(-50%);
+  /* Stosunek bokow wizPop.webp (560x599) - przegladarka zna wymiary ZANIM
+     plik doleci, wiec nie ma tez przeskoku w pionie. `contain` jest
+     bezpiecznikiem: gdyby ktos podal inna grafike, zostanie wpisana
+     w kadr zamiast rozciagnieta. */
+  aspect-ratio:560 / 599; object-fit:contain;
   filter:drop-shadow(0 8px 14px rgba(40,26,70,.42));
   user-select:none; -webkit-user-drag:none; pointer-events:none;
   animation:popup-postaci-bohater .52s cubic-bezier(.2,.9,.3,1.3) .06s both;
@@ -902,6 +1014,9 @@
 .popup-postaci--lis .popup-postaci-zaslona{ animation-duration:.4s; }
 .popup-postaci--lis .popup-postaci-bohater{
   width:auto; height:var(--popup-postac);
+  /* lisPop.webp ma 653x900 - z podanym stosunkiem szerokosc jest znana od
+     pierwszej klatki, wiec lisek od razu stoi na srodku karty. */
+  aspect-ratio:653 / 900;
   /* Lapy schodza pod wstege z imieniem - u czarodzieja robi to plaskie
      ciecie grafiki, tutaj samo przesuniecie. Liczone z WYSOKOSCI, bo to ona
      jest teraz miara postaci. */
@@ -943,9 +1058,13 @@
 }
 /* Czarodziej wchodzi CHWILE po karcie i troche mocniej - dzieki temu czyta sie
    to jako "wyskoczyl zza karty", a nie "obrazek pojawil sie razem z tlem". */
+/* Bez `translateX(-50%)` - centrowanie robia teraz auto-marginesy, a klatka
+   ma tylko unosic i skalowac. Trzymanie centrowania w transformie znaczylo,
+   ze KAZDA klatka przeliczala -50% z aktualnej (czyt. jeszcze zerowej)
+   szerokosci obrazka. */
 @keyframes popup-postaci-bohater{
-  from{ opacity:0; transform:translate(-50%,34px) scale(.82); }
-  to{ opacity:1; transform:translateX(-50%); }
+  from{ opacity:0; transform:translateY(34px) scale(.82); }
+  to{ opacity:1; transform:none; }
 }
 
 /* Nizsze telefony: karta z czarodziejem u gory potrafi nie zmiescic sie
@@ -1485,10 +1604,12 @@
    Animacja siedzi na obrazku i poswiacie, a NIE na przycisku: transform
    przycisku nalezy do wcisniecia i odbicia, a dwie animacje na jednej
    wlasciwosci wykluczaja sie nawzajem. */
+/* Poswiata musi wychodzic WYRAZNIE poza medalion (18 px), inaczej cala chowa
+   sie pod nieprzezroczystym obrazkiem i po animacji zostaje samo skalowanie. */
 .oddech-guzik::before{
-  content:""; position:absolute; inset:-8px; z-index:0;
+  content:""; position:absolute; inset:-18px; z-index:0;
   border-radius:50%; pointer-events:none;
-  background:radial-gradient(circle,rgba(126,201,232,.5) 0%,rgba(126,201,232,0) 68%);
+  background:radial-gradient(circle,rgba(112,196,232,.55) 42%,rgba(112,196,232,0) 72%);
   animation:oddech-aura 6s ease-in-out infinite;
 }
 .oddech-guzik img{ animation:oddech-spokojny 6s ease-in-out infinite; }
@@ -1557,7 +1678,7 @@
 /* Balon skaluje sie od WEZELKA, nie od srodka - inaczej przy kazdym wdechu
    odjezdzalby od sznurka i lisek trzymalby powietrze. */
 .oddech-balon{
-  position:absolute; left:50%; bottom:min(30vh,210px);
+  position:absolute; left:50%; bottom:min(30vh,210px); z-index:1;
   width:min(54vw,196px); translate:-50% 0;
   transform-origin:50% 100%; transform:scale(.9);
   transition-property:transform; transition-timing-function:ease-in-out;
@@ -1606,15 +1727,17 @@
   width:26px; height:6px; border:none; border-radius:3px; background:#9a6a12;
 }
 
-.oddech-sznurek{
-  position:absolute; left:50%; bottom:min(19vh,132px);
-  width:2px; height:min(11vh,80px); translate:-50% 0;
-  background:linear-gradient(180deg,rgba(230,180,60,.95),rgba(230,180,60,.35));
-  border-radius:2px;
+/* Sznurki rysuje SVG rozpiete na calej scenie (`EkranOddechu.jsx`) — punkty
+   zaczepienia licza sie z pomiaru lapek i wezelka, wiec trzymaja sie siebie na
+   kazdym ekranie. Warstwa 0: nad tlem, pod balonem i pod liskiem, zeby koncowki
+   ginely pod nimi zamiast lezec na wierzchu kreska. */
+.oddech-sznurki{
+  position:absolute; left:0; top:0; z-index:0;
+  pointer-events:none; overflow:visible;
 }
 
 .oddech-lisek{
-  position:absolute; left:50%; bottom:0; translate:-50% 0;
+  position:absolute; left:50%; bottom:0; translate:-50% 0; z-index:1;
   width:min(50vw,186px); height:auto; display:block;
   filter:drop-shadow(0 6px 10px rgba(20,12,40,.45));
 }

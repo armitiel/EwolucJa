@@ -11,8 +11,9 @@
  * gry, gdzie ma miejsce i sens.
  *
  * Ikony są PLIKAMI, nie emoji. Emoji rysuje system operacyjny — na każdym
- * telefonie wygląda inaczej i nigdy nie pasuje do reszty. `emoji` z katalogu
- * zostaje tylko jako zapas dla gry, która nie ma jeszcze swojej ikony.
+ * telefonie wygląda inaczej i nigdy nie pasuje do reszty. Wszystkie siedzą na
+ * jednej wspólnej płytce (`assets/minigry/kafel.png`), więc pięć gier obok
+ * siebie ma jeden rytm, a różni je tylko ilustracja.
  *
  * Powód blokady pokazujemy dopiero po dotknięciu kafla, jako krótki komunikat.
  */
@@ -50,19 +51,23 @@ export default function MinigryPanel({ onGra, onZamknij, onKomunikat }) {
         .filter((gra) => !ID_MISJI.has(gra.id) || odkryte.includes(gra.id))
         .map((gra) => ({
           ...gra,
-          otwarta: !gra.wymaga || (state.unlocked || []).includes(gra.wymaga),
+          // Gra bez trasy jeszcze nie istnieje - i ma tak wygladac. Wczesniej
+          // liczylo sie samo odblokowanie krainy, wiec kafel zapalal sie na
+          // pelny kolor, a dotkniecie konczylo sie suchym "Wkrotce". Kafel
+          // obiecywal cos, czego nie ma.
+          otwarta: Boolean(gra.trasa) && (!gra.wymaga || (state.unlocked || []).includes(gra.wymaga)),
           kraina: gra.wymaga ? adventure.locations?.[gra.wymaga]?.name || gra.wymaga : null,
         })),
     [adventure, state.unlocked, odkryte]
   );
 
   function uruchom(gra) {
-    if (!gra.otwarta) {
-      onKomunikat?.(`${gra.tytul} otworzy się w krainie: ${gra.kraina}`);
+    if (!gra.trasa) {
+      onKomunikat?.(`${gra.tytul} jeszcze powstaje`);
       return;
     }
-    if (!gra.trasa) {
-      onKomunikat?.("Wkrótce");
+    if (!gra.otwarta) {
+      onKomunikat?.(`${gra.tytul} otworzy się w krainie: ${gra.kraina}`);
       return;
     }
     // Zakładki NIE zamykamy. Gra rysuje się nad hubem, a otwarta zakładka pod
@@ -86,14 +91,16 @@ export default function MinigryPanel({ onGra, onZamknij, onKomunikat }) {
             aria-label={`${gra.tytul}, ${gra.monety} monet`}
             data-testid={`hub-gra-${gra.id}`}
           >
-            <span className="hub-tile-in" style={{ background: gra.otwarta ? gra.tlo : undefined }}>
+            {/* Wspolne tlo dla wszystkich gier: kazdy kafel mial wczesniej
+                wlasny gradient z katalogu i piec roznych kolorow obok siebie
+                bilo sie z piecioma ikonami. Kolor niesie teraz jedna rzecz -
+                czy gra jest otwarta - a rozroznia je ilustracja. */}
+            <span className="hub-tile-in">
               <span className="hub-tile-ikona">
-                {!gra.otwarta ? (
-                  <GameIcon name="lock" size={38} />
-                ) : gra.ikona ? (
+                {gra.otwarta && gra.ikona ? (
                   <img src={gra.ikona} alt="" aria-hidden="true" draggable="false" />
                 ) : (
-                  <span className="hub-tile-emoji">{gra.emoji}</span>
+                  <GameIcon name="lock" size={38} />
                 )}
               </span>
               <span className="hub-coin hub-coin--duza">

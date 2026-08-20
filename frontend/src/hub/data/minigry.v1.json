@@ -6,60 +6,50 @@
       "id": "pamiec-medrca",
       "tytul": "Pamięć Mędrca",
       "opis": "Pary symboli ze zwoju",
-      "emoji": "🧠",
       "monety": 10,
       "trasa": "/games/memory",
       "wejscieFabularne": "medal w Przystani",
       "wymaga": null,
-      "tlo": "linear-gradient(135deg,#FFE0B5,#FFD269)",
       "ikona": "/assets/minigry/karty.png"
     },
     {
       "id": "sekret-pod-puchem",
       "tytul": "Sekret pod puchem",
       "opis": "Rozgarnij piórka i zgadnij",
-      "emoji": "🪶",
       "monety": 25,
       "trasa": "/games/piorka",
       "wejscieFabularne": "kopiec piór przy gnieździe",
       "wymaga": null,
-      "tlo": "linear-gradient(135deg,#FBF1D6,#F4C95D)",
       "ikona": "/assets/minigry/piorko.png"
     },
     {
       "id": "echo-melodii",
       "tytul": "Echo Melodii",
       "opis": "Powtórz dźwięk Szeptuna",
-      "emoji": "🎵",
       "monety": 14,
       "trasa": null,
       "wejscieFabularne": "misja Szeptuna w Dolinie Dźwięków",
       "wymaga": "dolina-dzwiekow",
-      "tlo": "linear-gradient(135deg,#CDEBFF,#9BC9F0)",
       "ikona": "/assets/minigry/nuta.png"
     },
     {
       "id": "trop-tropiciela",
       "tytul": "Trop Tropiciela",
       "opis": "Znak na rozdrożu",
-      "emoji": "🔍",
       "monety": 12,
       "trasa": null,
       "wejscieFabularne": "rozdroże w Lesie Szeptów",
       "wymaga": "las-szeptow",
-      "tlo": "linear-gradient(135deg,#E6D6FA,#C8A0F0)",
       "ikona": "/assets/minigry/lupa.png"
     },
     {
       "id": "zwoj-znakow",
       "tytul": "Zwój Znaków",
       "opis": "Odczytaj, co mówi zwój",
-      "emoji": "📜",
       "monety": 16,
       "trasa": null,
       "wejscieFabularne": "pulpit w Pracowni Gwiazd",
       "wymaga": "pracownia-gwiazd",
-      "tlo": "linear-gradient(135deg,#FFE3C6,#F0B98A)",
       "ikona": "/assets/minigry/zwoj.png"
     }
   ]
