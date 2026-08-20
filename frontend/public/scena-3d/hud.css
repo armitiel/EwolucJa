@@ -669,46 +669,48 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- Zadanie w realu: JEDEN wpis, ktory ma sie rzucac w oczy --- */
+/* --- Zadanie w realu: TRESC WPISANA W ZWOJ, a nie kartka na nim polozona --- */
 /* Zwoj miesza dwie rzeczy: wiesci (przyszly, przeczytane, koniec) i ZADANIE,
-   ktore trwa, dopoki go nie zrobisz. Wpis zadania wygladal dokladnie jak
-   wiesc, wiec dziecko, ktore otwieralo zwoj z powodu plakietki "1", musialo
-   go najpierw wyszukac wzrokiem posrod identycznych ramek.
+   ktore trwa, dopoki go nie zrobisz. Wiesci zostaja kartami, bo jest ich wiele
+   i lista ma sie dac przejrzec jednym rzutem oka.
 
-   Teraz jest karta w FIOLECIE - w tej grze to barwa Wizkora i magii, ta sama
-   co wstega z imieniem w oknie postaci. Dziecko nie musi czytac, zeby wiedziec,
-   ktory wiersz jest zadaniem. */
+   Zadanie jest JEDNO i po nie sie tu przychodzi, wiec przestalo byc kartka
+   POLOZONA na pergaminie - jest tym, co na pergaminie NAPISANO: bez tla, bez
+   ramki, bez cienia. Karta w karcie (papier zwoju + prostokat wpisu) czytala sie
+   jak wydruk przypiety do zwoju, a nie jak wiadomosc od czarodzieja.
+
+   Wyroznia je teraz sama tresc - wieksza ilustracja, wiekszy tytul, wieksze
+   pismo - plus CIENKA KRESKA, ktora wsiaka w papier na obu koncach (fiolet
+   Wizkora, ta sama barwa co plakietka). Kreska niczego nie zamyka, wiec oko
+   bierze ja za podkreslenie w rekopisie, a nie za brzeg kartki. */
 .scroll-message.is-quest {
-  border: 2.5px solid transparent;
-  border-radius: 19px;
-  background:
-    linear-gradient(180deg, rgba(255,253,241,.99), rgba(251,238,203,.99)) padding-box,
-    linear-gradient(180deg, #c7a2f0, #7A4DC2 58%, #5a3499) border-box;
-  box-shadow: 0 4px 0 rgba(90,52,153,.32), 0 9px 18px rgba(58,34,96,.2);
+  overflow: visible;
+  margin: 2px 0 4px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
 }
 
-/* UKLAD KARTY ZADANIA. Zadanie jest ZAWSZE rozwiniete (patrz `MessageScroll`),
-   wiec naglowek to jedna linia: ilustracja, tytul, plakietka stanu. Cala tresc
-   siedzi nizej, w `-body`, i ma dla siebie pelna szerokosc karty.
+/* UKLAD. Zadanie jest ZAWSZE rozwiniete (patrz `MessageScroll`), wiec naglowek
+   to jedna linia: ilustracja, tytul, plakietka stanu. Tresc siedzi nizej i ma
+   dla siebie pelna szerokosc zwoju.
 
-   Odstep ilustracji od liter urosl z 9 do 15 px - czarodziej siedzial wczesniej
-   tuz przy tekscie. */
-/* NAGLOWEK NA BELCE. Ilustracja, tytul i status to jedna informacja: „to jest
-   zadanie i jest do zrobienia". Tresc pod spodem to druga: „a polega na tym".
-   Bez podzialu ukladaly sie w jeden ciag i oko musialo je rozdzielac samo.
-   Belka jest LEKKA - delikatny fiolet (barwa Wizkora, ta sama co obwodka karty
-   i plakietka) plus jedna kreska. Ma oddzielac, a nie krzyczec.
-
-   Bez wlasnego `border-radius`: karta ma `overflow:hidden`, wiec belka jest
-   przycinana do jej gornych rogow sama z siebie i zawsze idealnie. */
+   Wciecia poziome zeszly do zera: papier ma juz swoj margines
+   (`.message-scroll-content`), a drugi, wewnetrzny, odtwarzalby kartke, ktora
+   wlasnie znika. Zostaje 1 px, zeby obrys liter nie dotykal krawedzi. */
 .scroll-message.is-quest .scroll-message-head {
   grid-template-columns: 56px minmax(0,1fr) auto;
   align-items: center;
   column-gap: 15px;
-  padding: 11px 13px 10px;
-  background: linear-gradient(180deg, rgba(122,77,194,.13), rgba(122,77,194,.05));
-  border-bottom: 1.5px solid rgba(122,77,194,.26);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.55);
+  padding: 0 1px 9px;
+  border-bottom: 0;
+  box-shadow: none;
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(122,77,194,.34) 14%,
+      rgba(122,77,194,.34) 86%,
+      transparent) bottom left / 100% 1.5px no-repeat;
 }
 .scroll-message.is-quest .scroll-message-avatar { width: 56px; height: 56px; }
 .scroll-message.is-quest .scroll-message-avatar img { width: 62px; height: 62px; }
@@ -722,13 +724,25 @@
    caly stopien, na jaki go stac.
    - 16 px zamiast pierwotnych 12.5: to czyta szesciolatek, a nie stopka
      regulaminu.
-   - Wciecie z lewej schodzi z 82 do 18 px - tekst przestaje sie lamac po
-     trzech slowach w kolumnie obok ilustracji. */
+   - Wciecia boczne rowne zeru, tak jak w naglowku - tekst zaczyna sie w tej
+     samej pionowej linii co ilustracja i lezy wprost na papierze. */
 .scroll-message.is-quest .scroll-message-body {
-  padding: 12px 16px 15px 18px;
+  padding: 11px 1px 0;
   font-size: 16px;
   line-height: 1.45;
-  color: #6b5233;
+  /* Ciemniej niz na karcie (#6b5233). Kartka miala tlo prawie biale, pergamin
+     jest zloty (#f5cb7f-#f9deb0) - ten sam braz czytal sie na nim o polowe
+     slabiej. Ta wartosc daje ~6:1 na najciemniejszym miejscu papieru. */
+  color: #5b4327;
+}
+
+/* Uwaga Mentora ("prosze poprawic") tez schodzi ciemniej i zostawia sobie
+   pionowa kreske - to jedyny fragment zadania, ktory jest CUDZYM glosem. */
+.scroll-message.is-quest .scroll-message-note {
+  margin-top: 10px;
+  border-left-color: rgba(122,77,194,.42);
+  color: #614326;
+  font-size: 13px;
 }
 .scroll-message.is-quest .scroll-message-body p {
   margin: 0;
@@ -736,6 +750,19 @@
   font-family: inherit;
   font-size: inherit;
   line-height: inherit;
+}
+
+/* Koniec zadania, poczatek wiesci. Bez ramki akapit na golym papierze zlewalby
+   sie z pierwsza kartka listy. Ta sama kreska co pod naglowkiem, bledsza, i tez
+   znikajaca na koncach. Gdy zadanie jest jedynym wpisem - nie ma czego dzielic,
+   wiec kreski nie ma. */
+.scroll-message.is-quest:not(:last-child) {
+  padding-bottom: 14px;
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(122,77,194,.2) 14%,
+      rgba(122,77,194,.2) 86%,
+      transparent) bottom left / 100% 1.5px no-repeat;
 }
 
 /* CTA odbija sie od tresci. Bez tego przycisk kleil sie do ostatniego wiersza
@@ -1118,21 +1145,11 @@
 }
 
 
-/* --- Zadanie w realu: przypiete na gorze zwoju --- */
-/* Wyroznione, bo to jedyny wpis, ktory NIE jest wiescia: reszta przyszla
-   i sie skonczyla, a zadanie trwa. Zlota lewa krawedz zamiast kropki
-   nieprzeczytanego - kropka znika po otwarciu, a to ma zostac. */
-.scroll-message.is-quest {
-  border-left: 4px solid #e6a832;
-  background: linear-gradient(180deg, rgba(255, 246, 208, .95), rgba(252, 235, 183, .9));
-}
-
-.scroll-message.is-quest .scroll-message-meta {
-  color: #8a5a15;
-  font-weight: 900;
-  text-align: right;
-}
-
+/* --- Wpisy zwoju: reszta drobiazgow --- */
+/* Stara oprawa zadania (zlota lewa krawedz + zolte tlo) zniknela stad razem
+   z kartka: zadanie jest teraz WPISANE w pergamin, a caly jego wyglad stoi
+   wyzej, przy .scroll-message.is-quest. Dwie definicje tego samego wpisu
+   w jednym pliku znaczyly tylko tyle, ze wygrywala ta nizsza. */
 .scroll-message-how {
   margin: 6px 0 0;
   color: #6f5540;
