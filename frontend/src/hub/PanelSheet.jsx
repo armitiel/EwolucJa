@@ -74,8 +74,13 @@ export default function PanelSheet({ open, kicker = null, title, onClose, childr
             {kicker ? <span className="hub-kicker">{kicker}</span> : null}
             <h2>{title}</h2>
           </div>
+          {/* Ten sam znak co na zwoju wiadomosci (`MessageScroll.jsx`): `×`
+              (U+00D7), a nie `✕` (U+2715). Dwa rozne krzyzyki w jednej grze
+              to dwie rozne grubosci kreski i dwa rozne ksztalty ramion —
+              widac to od razu, gdy dziecko zamyka zwoj, a chwile pozniej
+              szuflade. Wyglad jest sparowany w `hub.css`. */}
           <button type="button" className="hub-sheet-close" onClick={onClose} aria-label="Zamknij" data-testid="hub-sheet-close">
-            ✕
+            ×
           </button>
         </header>
         {/* Slot stoi POD belką tytułową, na całą szerokość arkusza — nie

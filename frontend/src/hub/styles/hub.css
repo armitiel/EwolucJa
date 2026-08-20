@@ -353,19 +353,39 @@
    wiec w naglowku stoi juz tylko tytul. Srodkowanie samo sie dopasowuje, gdy
    naglowek niznieje na niskim ekranie — przy stalym `top` 40-px kolko
    wystawalo ponizej belki i kladlo sie na zakladce. */
+/* KRZYZYK JEST TEN SAM, CO NA ZWOJU WIADOMOSCI. Wartosci przepisane
+   1:1 z `.message-scroll-close` (public/scena-3d/hud.css): 46 px, obrys
+   #8f2d27, ta sama czerwien, ten sam cien i ten sam znak `×` w JSX.
+   Wczesniej szuflada miala wlasny krzyzyk — 43 px, obrys z gradientu
+   border-box, obrys tekstu (`-webkit-text-stroke`) i inny glif — wiec dwa
+   miejsca, ktore dziecko zamyka jedno po drugim, wygladaly na dwie rozne gry.
+   Zmieniajac cokolwiek tutaj, zmien tam.
+
+   `place-items:center` PLUS 4 px paddingu od dolu: `×` siedzi wysoko
+   w kratce czcionki, wiec samo wysrodkowanie pudelka zostawia go optycznie
+   nad srodkiem kolka. To ta sama korekta, co na zwoju.
+
+   `right:14px`, nie 8: przy 8 px kolko niemal dotykalo krawedzi arkusza
+   i wygladalo na doklejone z zewnatrz. */
 .hub-sheet-close{
-  position:absolute; right:8px; top:50%; transform:translateY(-50%);
-  flex:none; width:43px; height:43px; border-radius:50%;
-  border:2px solid transparent;
-  background:
-    linear-gradient(180deg,#f26b55 0%,#cb3d38 68%,#a52e30 100%) padding-box,
-    linear-gradient(180deg,#ffb36e,#d95738 60%,#7c282b) border-box;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.28),0 4px 0 #79272c,0 7px 10px rgba(55,27,31,.28);
-  cursor:pointer; font-size:22px; font-weight:900; color:#fff1b2;
-  -webkit-text-stroke:1px #6f292c; paint-order:stroke fill;
-  text-shadow:0 2px 0 #6f292c;
+  position:absolute; right:14px; top:50%; transform:translateY(-50%);
+  z-index:5; flex:none; width:46px; height:46px;
+  display:grid; place-items:center; padding:0 0 4px;
+  border:2px solid #8f2d27; border-radius:50%;
+  background:linear-gradient(180deg,#ff6a5e,#d53537);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 3px 0 #8d2a27,0 6px 9px rgba(77,35,22,.2);
+  cursor:pointer; color:#fff4c9;
+  font:900 32px/1 system-ui, sans-serif;
+  text-shadow:0 2px 0 #8d2a27;
+  transition:transform .14s ease, box-shadow .14s ease, filter .14s ease;
 }
-.hub-sheet-close:active{ transform:translateY(calc(-50% + 2px)); box-shadow:inset 0 2px 0 rgba(255,255,255,.22),0 2px 0 #79272c; }
+.hub-sheet-close:hover{ filter:brightness(1.08); }
+/* `-50%` musi zostac w kazdym stanie — bez niego wcisniety krzyzyk zeskakuje
+   o pol swojej wysokosci w dol, bo to ten sam `transform`, ktory go srodkuje. */
+.hub-sheet-close:active{
+  transform:translateY(calc(-50% + 3px)) scale(.93);
+  box-shadow:inset 0 3px 4px rgba(111,24,24,.3),0 1px 0 #8d2a27,0 2px 4px rgba(77,35,22,.18);
+}
 .hub-sheet-body.screen-scroll{
   flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
   overscroll-behavior-y:contain;
