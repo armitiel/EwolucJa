@@ -45,3 +45,6 @@ frontend/audio-zrodla/
 *.glb.oryginal
 *.glb.bak-*
 *.przed-czarodziejem 
+
+# logi pomocnicze narzedzi
+frontend/.codex-hints-*.log
