@@ -66,6 +66,24 @@ export const WSKAZOWKI = [
     /** Sama schodzi po tylu ms — to zaproszenie, nie okno do zamknięcia. */
     czasNaEkranie: 9000,
   },
+  {
+    id: "minigry-liska",
+    tryb: "dymek",
+    cel: '[data-testid="hub-dock-gry"]',
+    obszar: { szer: 68, wys: 68, kotwica: "dol", przesuniecie: 1 },
+    promien: "50%",
+    panelCelu: "gry",
+    postac: "/lisPop.webp",
+    imie: "Lisek",
+    tytul: "Pobawimy się?",
+    tekst: "Tutaj czekają minigry. Wybierzemy jedną razem!",
+    /** Głos jest dodatkiem. Reflektor zawsze pokazuje to samo zdanie tekstem. */
+    glos: "lisek",
+    poCzasie: 90000,
+    powtorkaCo: 240000,
+    maksNaSesje: 3,
+    czasNaEkranie: 10000,
+  },
 ];
 
 export function wskazowkaPoId(id) {

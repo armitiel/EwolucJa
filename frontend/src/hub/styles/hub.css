@@ -1147,14 +1147,14 @@
 }
 
 /* Miejsca — karteczki, nie lista do odhaczenia. Wybór niczego nie blokuje. */
-.zadanie-miejsca{ display:grid; gap:10px; margin-bottom:6px; }
+.zadanie-miejsca{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-bottom:6px; }
 /* ZWINIETA = IKONA + NAZWA. Opis dochodzi dopiero po wybraniu (patrz
    `ZadaniePanel`), wiec karteczka w spoczynku jest niska i cztery mieszcza sie
    na ekranie bez przewijania. */
 .zadanie-miejsce{
   position:relative; display:grid; grid-template-columns:auto 1fr; gap:4px 12px; align-items:center;
   text-align:left; cursor:pointer; font-family:inherit; color:var(--p-ink,#4e4d76);
-  padding:12px 14px; border:none; border-radius:16px;
+  min-height:68px; padding:10px 11px; border:none; border-radius:16px;
   background:linear-gradient(180deg,#FFF6C9,#FFEFAE);
   box-shadow:0 2px 0 rgba(150,105,30,.28),0 7px 14px rgba(72,53,26,.14);
   transform:rotate(-.7deg);
@@ -1172,7 +1172,7 @@
   transform:rotate(0deg) scale(1.03);
 }
 .zadanie-miejsca.ma-wybor .zadanie-miejsce.is-wybrane{ opacity:1; filter:none; }
-.zadanie-miejsce.is-wybrane{ padding:14px 14px 15px; }
+.zadanie-miejsce.is-wybrane{ padding:12px 11px 13px; }
 .zadanie-miejsce.is-wybrane strong{ font-size:18px; }
 /* Opis wjezdza z gory, zeby bylo widac, ze WYROSL z tej karteczki, a nie ze
    lista przeskoczyla. */
@@ -1190,8 +1190,8 @@
   background:radial-gradient(circle at 35% 30%,#ff8f8f,#c0392b 70%);
   box-shadow:0 2px 3px rgba(80,40,10,.35);
 }
-.zadanie-miejsce-emoji{ grid-row:1 / span 2; font-size:30px; line-height:1; }
-.zadanie-miejsce strong{ font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif; font-size:17px; }
+.zadanie-miejsce-emoji{ grid-row:1 / span 2; font-size:26px; line-height:1; }
+.zadanie-miejsce strong{ font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif; font-size:15px; line-height:1.15; }
 .zadanie-miejsce small{ font-size:14px; line-height:1.4; color:#6b5c3c; }
 
 /* Dowód dla Mentora */
@@ -1364,13 +1364,13 @@
    go odsunac. Warstwa jest przezroczysta dla dotkniec, klika sie tylko sama
    karta, wiec chodzenie po swiecie dziala pod spodem bez zmian. */
 .medrzec-podpowiedz{
-  position:fixed; left:12px; right:12px; z-index:40;
+  position:fixed; left:50%; z-index:40;
   bottom:calc(env(safe-area-inset-bottom,0px) + 104px);
-  margin:0 auto; max-width:520px;
+  width:min(calc(100% - 24px),390px);
   pointer-events:none;
   animation:medrzec-wejscie .42s cubic-bezier(.2,.9,.3,1.2) both;
 }
-.medrzec-podpowiedz > *{ pointer-events:auto; cursor:pointer; }
+.medrzec-podpowiedz > *{ pointer-events:auto; }
 
 /* JEDEN ksztalt. Glowa Medrca jest grafika NA karcie i wystaje poza jej gorna
    krawedz - tak samo jak moneta wystaje z kafelka w HUD-zie. Wczesniej siedziala
@@ -1380,12 +1380,12 @@
    "magic" to w tym projekcie barwy Mentora (tak samo ustawiony jest domyslny
    ton `MentorBubble`), a nie zloto HUD-u, ktore oznacza zasoby gracza. */
 .medrzec-karta{
-  display:flex; align-items:center; gap:13px;
-  padding:13px 20px 13px 10px;
-  border:2px solid var(--p-magic,#B886E8);
-  border-radius:var(--r-card,22px);
-  background:linear-gradient(180deg,var(--p-paper,#FBF1D6),var(--p-paper-2,#F4E3B8));
-  box-shadow:var(--shadow-md,0 3px 0 rgba(78,77,118,.10),0 10px 24px rgba(78,77,118,.14));
+  position:relative; display:grid; grid-template-columns:68px minmax(0,1fr) auto; align-items:center; gap:10px;
+  min-height:82px; padding:11px 9px 11px 7px;
+  border:3px solid #5f438a;
+  border-radius:25px;
+  background:linear-gradient(180deg,#fffdf4 0%,#f8e8bd 100%);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.9),0 5px 0 rgba(73,49,108,.3),0 13px 26px rgba(37,25,61,.28);
   /* Krój tytułowy gry (Baloo 2), a nie krok z arkusza HUD-u: HUD ma wlasny
      ("Arial Rounded"), bo musi dzialac takze w podgladzie bez Google Fonts.
      Tekst Medrca to zdanie do przeczytania, wiec idzie typografia aplikacji. */
@@ -1394,28 +1394,45 @@
 }
 
 .medrzec-glowa{
-  width:66px; height:66px; flex:none; object-fit:contain;
-  /* Ujemne marginesy w pionie: glowa jest wyzsza niz karta i z niej wychodzi. */
-  margin:-16px 0 -16px 0;
+  width:78px; height:78px; object-fit:contain;
+  /* Głowa wychyla się z jednego dymka, ale nie zmienia jego mierzonej szerokości. */
+  margin:-22px 0 -15px -10px;
   filter:drop-shadow(0 3px 3px var(--p-shadow,rgba(78,77,118,.18)));
   user-select:none; -webkit-user-drag:none;
 }
 
+.medrzec-tresc{ min-width:0; padding:1px 0; }
+.medrzec-etykieta{
+  display:block; margin-bottom:2px;
+  color:#8a5cc0; font:800 11px/1.1 "Nunito",system-ui,sans-serif;
+  letter-spacing:.8px; text-transform:uppercase;
+}
 .medrzec-tekst{
   margin:0; min-width:0;
-  font-size:16px; font-weight:700; line-height:1.32;
+  font-size:15.5px; font-weight:800; line-height:1.25;
   color:var(--p-ink,#4e4d76);
 }
+.medrzec-akcje{ display:grid; gap:6px; }
+.medrzec-akcje button{
+  width:32px; height:32px; display:grid; place-items:center; padding:0;
+  border:2px solid rgba(95,67,138,.45); border-radius:50%;
+  background:#fffaf0; color:#5f438a; cursor:pointer;
+  box-shadow:0 2px 0 rgba(95,67,138,.2);
+  font:900 18px/1 "Baloo 2",system-ui,sans-serif;
+}
+.medrzec-akcje button:active{ transform:translateY(2px); box-shadow:none; }
+.medrzec-akcje button:focus-visible{ outline:3px solid #ffd269; outline-offset:2px; }
 
 @keyframes medrzec-wejscie{
-  from{ opacity:0; transform:translateY(14px) scale(.96); }
-  to{ opacity:1; transform:none; }
+  from{ opacity:0; transform:translate(-50%,18px) scale(.94); }
+  to{ opacity:1; transform:translateX(-50%); }
 }
 
 @media (max-width:340px){
-  .medrzec-karta{ gap:10px; padding:11px 15px 11px 8px; }
-  .medrzec-glowa{ width:56px; height:56px; margin:-13px 0 -13px 0; }
-  .medrzec-tekst{ font-size:14.5px; }
+  .medrzec-karta{ grid-template-columns:58px minmax(0,1fr) auto; gap:7px; padding-left:6px; }
+  .medrzec-glowa{ width:68px; height:68px; margin-left:-9px; }
+  .medrzec-tekst{ font-size:14px; }
+  .medrzec-akcje button{ width:29px; height:29px; }
 }
 
 @media (prefers-reduced-motion:reduce){
@@ -3068,6 +3085,10 @@
   pointer-events:none;
   animation:reflektor-wizkor .5s .12s cubic-bezier(.2,1.4,.4,1) both;
 }
+.reflektor-postac.jest-liskiem{
+  width:76px;
+  margin:-28px 0 0 -5px;
+}
 
 @keyframes reflektor-wizkor{
   from{ opacity:0; transform:translateY(10px) rotate(-8deg) }
@@ -3075,6 +3096,16 @@
 }
 
 .reflektor-tresc{ min-width:0 }
+
+.reflektor-glos{
+  width:34px; height:34px; flex:none; display:grid; place-items:center; padding:0;
+  border:2px solid rgba(95,67,138,.5); border-radius:50%;
+  background:#fffaf0; color:#5f438a; cursor:pointer;
+  box-shadow:0 2px 0 rgba(95,67,138,.22);
+  font:900 19px/1 "Baloo 2",system-ui,sans-serif;
+}
+.reflektor-glos:active{ transform:translateY(2px); box-shadow:none; }
+.reflektor-glos:focus-visible{ outline:3px solid #ffd269; outline-offset:2px; }
 
 .reflektor-imie{
   display:block; margin-bottom:-3px;
@@ -3104,9 +3135,11 @@
 
 @media (max-width:360px){
   .reflektor-postac{ width:74px; margin-top:-32px }
+  .reflektor-postac.jest-liskiem{ width:66px; margin-left:-4px; }
   .reflektor-wnetrze{ padding:11px 13px 11px 9px }
   .reflektor-karta h2{ font-size:17px }
   .reflektor-karta p{ font-size:13px }
+  .reflektor-glos{ width:31px; height:31px; }
 }
 
 @media (prefers-reduced-motion:reduce){

@@ -8,10 +8,9 @@
  * a przy trzeciej postaci nikt by już nie wiedział, która wygrywa.
  *
  * GDZIE LISEK SIĘ ODZYWA. Tylko tam, gdzie ZAPRASZA DO WSPÓLNEGO DZIAŁANIA —
- * dziś w Poradzie dnia, przy kartach typu „5 oddechów z liskiem" i „3 ruchy
- * razem z liskiem". To jego jedyna rola w mowie: nie opowiada świata (od tego
- * jest narratorka) i nie zleca zadań (od tego jest Wizkor). Mówi „zrobimy to
- * razem" i tyle.
+ * w Poradzie dnia oraz w lekkiej wskazówce prowadzącej do Minigier. To jego
+ * jedyna rola w mowie: nie opowiada świata (od tego jest narratorka) i nie
+ * zleca zadań (od tego jest Wizkor). Mówi „zrobimy to razem" i tyle.
  *
  * ZDANIA SĄ KRÓTKIE Z PREMEDYTACJĄ. Dziecko ma je usłyszeć w biegu, przy
  * otwartej szufladzie, często z włączoną muzyką. Dłuższe zdanie w tym miejscu

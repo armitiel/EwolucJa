@@ -20,7 +20,7 @@ const VOICES = {
   mentor:   (process.env.ELEVENLABS_MENTOR_VOICE_ID || "").trim() || (process.env.ELEVENLABS_VOICE_ID || "").trim() || "XrYxa2QP5oFX1cg3JPdt",
   /**
    * Lisek — bohater, którym gra dziecko. Mówi tylko tam, gdzie zaprasza do
-   * wspólnego działania (dziś: Porada dnia), więc NIE ma fallbacku do
+   * wspólnego działania (Porada dnia i zaproszenie do Minigier), więc NIE ma fallbacku do
    * narratora: gdyby jego głos zniknął z konta, lepiej żeby zabrakło mowy,
    * niż żeby lisek nagle przemówił głosem narratorki i dziecko usłyszało,
    * że to jednak nie on.

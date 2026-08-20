@@ -42,6 +42,7 @@ export default function ZadaniePanel({ onKomunikat, onZamknij }) {
   const [wgrywanie, setWgrywanie] = useState(false);
   const [blad, setBlad] = useState(null);
   const plikRef = useRef(null);
+  const panelRef = useRef(null);
 
   useEffect(() => {
     const odswiez = () => setStan(stanZadania());
@@ -55,6 +56,13 @@ export default function ZadaniePanel({ onKomunikat, onZamknij }) {
   const def = stan.def;
 
   useEffect(() => { setEtap("plan"); }, [def?.id, stan.status]);
+
+  // Drugi krok zaczyna się zawsze od nagłówka, niezależnie od tego, jak daleko
+  // dziecko przewinęło listę podpowiedzi w pierwszym kroku.
+  useEffect(() => {
+    const przewijanyPanel = panelRef.current?.closest(".hub-sheet-body");
+    if (przewijanyPanel) przewijanyPanel.scrollTop = 0;
+  }, [etap]);
 
   const czytajZadanie = useCallback(() => {
     if (!def || !stan.doZrobienia) return;
@@ -261,7 +269,7 @@ export default function ZadaniePanel({ onKomunikat, onZamknij }) {
   /* ── dowód: osobny, krótki drugi krok ───────────────────────────────── */
   if (etap === "dowod") {
     return (
-      <div className="hub-pane" data-testid="hub-pane-zadanie-dowod">
+      <div ref={panelRef} className="hub-pane" data-testid="hub-pane-zadanie-dowod">
         <button type="button" className="zadanie-powrot" onClick={() => setEtap("plan")}>
           <span aria-hidden="true">←</span> Wróć do zadania
         </button>
@@ -325,7 +333,7 @@ export default function ZadaniePanel({ onKomunikat, onZamknij }) {
 
   /* ── plan: jedno zadanie, opcjonalne miejsce, jeden następny krok ───── */
   return (
-    <div className="hub-pane" data-testid="hub-pane-zadanie">
+    <div ref={panelRef} className="hub-pane" data-testid="hub-pane-zadanie">
       <div className="zadanie-karta">
         <h3 className="zadanie-tytul">{def.tytul}</h3>
         <p className="zadanie-cel">{def.cel}</p>
@@ -342,6 +350,12 @@ export default function ZadaniePanel({ onKomunikat, onZamknij }) {
           Mentor pisze: „{stan.notatka}”
         </p>
       ) : null}
+
+      <div className="hub-actions">
+        <button type="button" className="hub-btn hub-btn-primary" onClick={() => setEtap("dowod")}>
+          Już zrobione — pokażę Mentorowi
+        </button>
+      </div>
 
       <h3 className="czat-naglowek">Gdzie możesz to zrobić?</h3>
       <div className={`zadanie-miejsca${miejsce ? " ma-wybor" : ""}`}>
@@ -360,11 +374,6 @@ export default function ZadaniePanel({ onKomunikat, onZamknij }) {
         ))}
       </div>
 
-      <div className="hub-actions">
-        <button type="button" className="hub-btn hub-btn-primary" onClick={() => setEtap("dowod")}>
-          Zrobiłem — pokażę Mentorowi
-        </button>
-      </div>
     </div>
   );
 }

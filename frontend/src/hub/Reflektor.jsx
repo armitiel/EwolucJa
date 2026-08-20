@@ -27,10 +27,12 @@
  */
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { OGON_DLUGOSC, sciezkaChmurki } from "./ksztaltChmurki.js";
+import bgMusic from "../services/bgMusic.js";
+import { powiedzJakLisek, uciszLiska } from "./glosLiska.js";
 
 const ODSTEP = 10;          // ile światła/obręczy zostaje wokół celu
 const PRZERWA = 9;          // odstęp chmurki od obręczy — dzióbek ma jej DOTYKAĆ
-const SZER_DYMKA = 300;     // szerokość chmurki (przycinana do ekranu)
+const SZER_DYMKA = 326;     // szerokość chmurki (przycinana do ekranu)
 const MARGINES = 12;        // ile chmurka ma trzymać się od krawędzi ekranu
 
 /**
@@ -129,6 +131,23 @@ export default function Reflektor({ wskazowka, onZamknij }) {
   }, [wskazowka]);
 
   const zamknij = useCallback((powod) => onZamknij?.(powod), [onZamknij]);
+
+  const powtorzGlos = useCallback(() => {
+    if (wskazowka?.glos !== "lisek" || !wskazowka.tekst || !bgMusic.isEnabled()) return;
+    powiedzJakLisek(wskazowka.tekst);
+  }, [wskazowka]);
+
+  // Lisek odzywa się chwilę po wjeździe chmurki, aby głos i animacja nie
+  // startowały w tej samej klatce. Tekst pozostaje pełnym odpowiednikiem mowy,
+  // a przycisk nutki pozwala ją powtórzyć. Brak dźwięku niczego nie blokuje.
+  useEffect(() => {
+    if (wskazowka?.glos !== "lisek") return undefined;
+    const zegar = window.setTimeout(powtorzGlos, 420);
+    return () => {
+      window.clearTimeout(zegar);
+      uciszLiska();
+    };
+  }, [wskazowka?.id, wskazowka?.glos, powtorzGlos]);
 
   /**
    * Chmurka schodzi SAMA. To zaproszenie w trakcie zabawy, a nie okno do
@@ -292,12 +311,28 @@ export default function Reflektor({ wskazowka, onZamknij }) {
           </button>
 
           <div className="reflektor-wnetrze" ref={wnetrzeRef}>
-            <img className="reflektor-postac" src={wskazowka.postac} alt="" aria-hidden="true" draggable="false" />
+            <img
+              className={`reflektor-postac${wskazowka.glos === "lisek" ? " jest-liskiem" : ""}`}
+              src={wskazowka.postac}
+              alt=""
+              aria-hidden="true"
+              draggable="false"
+            />
             <div className="reflektor-tresc">
               {wskazowka.imie ? <span className="reflektor-imie">{wskazowka.imie}</span> : null}
               <h2>{wskazowka.tytul}</h2>
               <p>{wskazowka.tekst}</p>
             </div>
+            {wskazowka.glos === "lisek" ? (
+              <button
+                type="button"
+                className="reflektor-glos"
+                onClick={(e) => { e.stopPropagation(); powtorzGlos(); }}
+                aria-label="Posłuchaj liska jeszcze raz"
+              >
+                <span aria-hidden="true">♪</span>
+              </button>
+            ) : null}
           </div>
         </div>
       </div>

@@ -52,36 +52,60 @@ export default function PodpowiedzMedrca({ aktywna = true }) {
   const licznik = useRef(0);
   const timerPokazu = useRef(null);
   const timerUkrycia = useRef(null);
+  const mowi = useRef(false);
+  const wymuszone = useRef(false);
+
+  const powtorz = useCallback((tekst) => {
+    if (!tekst || !bgMusic.isEnabled()) return;
+    mowi.current = true;
+    try {
+      Promise.resolve(ttsPlayer.speak(tekst, {
+        land: "mentor",
+        tone: "calm",
+        interrupt: true,
+      })).finally(() => { mowi.current = false; });
+    } catch {
+      mowi.current = false;
+    }
+  }, []);
 
   const schowaj = useCallback(() => {
     window.clearTimeout(timerUkrycia.current);
+    wymuszone.current = false;
+    if (mowi.current) {
+      try { ttsPlayer.stop(); } catch {}
+      mowi.current = false;
+    }
     setPorada(null);
   }, []);
 
   const pokaz = useCallback((id) => {
+    if (!id && licznik.current >= MAX_NA_SESJE) return;
     const wybrana = id
       ? (DANE.porady || []).find((p) => p.id === id) || wybierzPorade()
       : wybierzPorade();
     if (!wybrana) return;
+    window.clearTimeout(timerUkrycia.current);
     licznik.current += 1;
     setPorada(wybrana);
     try { localStorage.setItem(KLUCZ_OSTATNIA, String(Date.now())); } catch {}
-    if (bgMusic.isEnabled()) {
-      // `interrupt: false` — jeśli akurat mówi narrator, Mędrzec czeka na swoją
-      // kolej zamiast wchodzić mu w słowo.
-      try { ttsPlayer.speak(wybrana.tekst, { land: "mentor", tone: "calm", interrupt: false }); } catch {}
-    }
-    timerUkrycia.current = window.setTimeout(() => setPorada(null), WIDOCZNA);
-  }, []);
+    powtorz(wybrana.tekst);
+    timerUkrycia.current = window.setTimeout(schowaj, WIDOCZNA);
+  }, [powtorz, schowaj]);
 
   useEffect(() => {
-    if (!aktywna) {
+    if (!aktywna && !wymuszone.current) {
       // Panel przykrył hub: chowamy dymek i wstrzymujemy zegar, ale NIE zerujemy
       // licznika — inaczej wchodzenie w zakładki resetowałoby limit na sesję.
       window.clearTimeout(timerPokazu.current);
       schowaj();
       return undefined;
     }
+    // Dopóki karta jest widoczna, nie istnieje drugi zegar wejścia. Wcześniej
+    // zmiana `porada` uruchamiała efekt ponownie i w tle zaczynało się kolejne
+    // odliczanie — przy szybkich zmianach widoków komunikaty potrafiły się
+    // przez to składać lub znikać w złym momencie.
+    if (porada) return undefined;
     if (licznik.current >= MAX_NA_SESJE) return undefined;
 
     let ostatnia = 0;
@@ -107,10 +131,14 @@ export default function PodpowiedzMedrca({ aktywna = true }) {
   //   window.medrzec.lista()        - id wszystkich porad
   useEffect(() => {
     window.medrzec = {
-      pokaz: (id) => pokaz(id),
+      pokaz: (id) => {
+        wymuszone.current = true;
+        pokaz(id);
+      },
       schowaj,
       reset: () => {
         licznik.current = 0;
+        wymuszone.current = false;
         try {
           localStorage.removeItem(KLUCZ_OSTATNIA);
           localStorage.removeItem(KLUCZ_HISTORIA);
@@ -121,6 +149,25 @@ export default function PodpowiedzMedrca({ aktywna = true }) {
     };
     return () => { delete window.medrzec; };
   }, [pokaz, schowaj]);
+
+  // Lokalny podgląd wizualny: `/swiat?medrzec=woda`. Działa wyłącznie w
+  // buildzie developerskim, więc nie tworzy ukrytego wejścia w produkcji.
+  useEffect(() => {
+    if (!import.meta.env.DEV) return undefined;
+    let id = null;
+    try { id = new URLSearchParams(window.location.search).get("medrzec"); } catch {}
+    if (!id) return undefined;
+    const start = Date.now();
+    const pokazGdyWidacSwiat = () => {
+      if (window.__chmuryWisza && Date.now() - start < 12000) return;
+      window.clearInterval(zegar);
+      wymuszone.current = true;
+      pokaz(id);
+    };
+    const zegar = window.setInterval(pokazGdyWidacSwiat, 250);
+    pokazGdyWidacSwiat();
+    return () => window.clearInterval(zegar);
+  }, [pokaz]);
 
   useEffect(() => () => {
     window.clearTimeout(timerPokazu.current);
@@ -133,7 +180,7 @@ export default function PodpowiedzMedrca({ aktywna = true }) {
     <div
       className="medrzec-podpowiedz"
       role="status"
-      onClick={schowaj}
+      aria-live="polite"
       data-testid="medrzec-podpowiedz"
     >
       {/* JEDEN kształt, nie dwa. Wcześniej był tu `MentorBubble`: głowa w osobnym
@@ -143,7 +190,18 @@ export default function PodpowiedzMedrca({ aktywna = true }) {
           z kafelka w HUD-zie. Ta sama rodzina kształtów co reszta gry. */}
       <div className="medrzec-karta">
         <img className="medrzec-glowa" src="/wizhead.svg" alt="" aria-hidden="true" draggable="false" />
-        <p className="medrzec-tekst">{porada.tekst}</p>
+        <div className="medrzec-tresc">
+          <span className="medrzec-etykieta">Chwila dla ciała</span>
+          <p className="medrzec-tekst">{porada.tekst}</p>
+        </div>
+        <div className="medrzec-akcje">
+          <button type="button" onClick={() => powtorz(porada.tekst)} aria-label="Posłuchaj jeszcze raz">
+            <span aria-hidden="true">♪</span>
+          </button>
+          <button type="button" onClick={schowaj} aria-label="Zamknij podpowiedź">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
       </div>
     </div>
   );
