@@ -86,6 +86,45 @@ Trzy rzeczy, które kosztowały czas przy tej ścieżce:
 Kadr dla splash screenu: popiersie ucięte płasko dolną krawędzią kadru, postać
 wyśrodkowana, tło przezroczyste, nic poza bohaterem.
 
+### 2c. Gdy konto OpenAI nie ma środków — edycja zamiast generacji
+
+Ścieżka z 2b wymaga działającego konta API OpenAI. Gdy zwraca ono
+`429 credit_balance_exhausted` (klucz poprawny, brak środków — patrz CLAUDE.md,
+„ChatGPT Plus ≠ API"), zastępnikiem jest **fal.ai `flux-pro/kontext`**. To model
+EDYCJI: dostaje gotową ilustrację i polecenie, a przerysowuje tylko to, co
+polecenie wskazało. Twarz, obrys, fiolet, złota lamówka i gwiazdki zostają
+z pliku — czyli dokładnie to, czego nie umiemy opisać słowami.
+
+```python
+fal("fal-ai/flux-pro/kontext", {
+    "prompt": "Keep this exact character, art style, thick dark outlines, purple and gold "
+              "colours, gold stars on the robe, shading and glossy highlights. Plain flat "
+              "white background... Change only what he holds: ...",
+    "image_url": "https://ewolucja-azure.vercel.app/wizTip.webp",  # wzór musi być publiczny
+    "guidance_scale": 3.5, "output_format": "png",
+})
+```
+
+Trzy rzeczy, które kosztowały czas na tej ścieżce:
+
+- **`flux/dev/image-to-image` to NIE jest to samo**, choć CLAUDE.md poleca go do
+  zadań „w stylu istniejącej grafiki". img2img przepisuje cały obraz z szumu
+  i pilnuje tylko podobieństwa: przy `strength` 0,62–0,78 oddawał wzór bez zmian,
+  przy 0,88 dokładał rekwizyt, ale gubił lamówkę i rysy twarzy, a przy 0,95
+  rozjeżdżał się tak, że `bria` zwracała czarną plamę zamiast postaci.
+  **Podmiana rekwizytu w istniejącej postaci → kontext. Rzecz, której jeszcze
+  nie ma → img2img albo txt2img.**
+- **Polecenie zaczyna się od tego, CO MA ZOSTAĆ**, a dopiero potem mówi, co
+  zmienić. Bez zdania „change only what he holds" model poprawia przy okazji
+  twarz i złocenia.
+- **Kontext nie umie w przezroczystość** — leci osobny przebieg
+  `bria/background/remove`. Dlatego polecenie prosi o PŁASKIE BIAŁE tło: bokeh,
+  który model dorzucał sam z siebie, zostawiał po sobie ciemną otoczkę na
+  włosach brody.
+
+Przykład użycia w repo: `frontend/narzedzia/ilustracja-zadanie-sprawdzane.py`
+(Wizkor z lupą nad zwojem, ekran „zadanie jest sprawdzane").
+
 ---
 
 ## 3. Parametry API i prompty, które działają
