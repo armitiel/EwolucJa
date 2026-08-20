@@ -11,7 +11,8 @@
       "trasa": "/games/memory",
       "wejscieFabularne": "medal w Przystani",
       "wymaga": null,
-      "tlo": "linear-gradient(135deg,#FFE0B5,#FFD269)"
+      "tlo": "linear-gradient(135deg,#FFE0B5,#FFD269)",
+      "ikona": "/assets/minigry/karty.png"
     },
     {
       "id": "sekret-pod-puchem",
@@ -22,7 +23,8 @@
       "trasa": "/games/piorka",
       "wejscieFabularne": "kopiec piór przy gnieździe",
       "wymaga": null,
-      "tlo": "linear-gradient(135deg,#FBF1D6,#F4C95D)"
+      "tlo": "linear-gradient(135deg,#FBF1D6,#F4C95D)",
+      "ikona": "/assets/minigry/piorko.png"
     },
     {
       "id": "echo-melodii",
@@ -33,7 +35,8 @@
       "trasa": null,
       "wejscieFabularne": "misja Szeptuna w Dolinie Dźwięków",
       "wymaga": "dolina-dzwiekow",
-      "tlo": "linear-gradient(135deg,#CDEBFF,#9BC9F0)"
+      "tlo": "linear-gradient(135deg,#CDEBFF,#9BC9F0)",
+      "ikona": "/assets/minigry/nuta.png"
     },
     {
       "id": "trop-tropiciela",
@@ -44,7 +47,8 @@
       "trasa": null,
       "wejscieFabularne": "rozdroże w Lesie Szeptów",
       "wymaga": "las-szeptow",
-      "tlo": "linear-gradient(135deg,#E6D6FA,#C8A0F0)"
+      "tlo": "linear-gradient(135deg,#E6D6FA,#C8A0F0)",
+      "ikona": "/assets/minigry/lupa.png"
     },
     {
       "id": "zwoj-znakow",
@@ -55,7 +59,8 @@
       "trasa": null,
       "wejscieFabularne": "pulpit w Pracowni Gwiazd",
       "wymaga": "pracownia-gwiazd",
-      "tlo": "linear-gradient(135deg,#FFE3C6,#F0B98A)"
+      "tlo": "linear-gradient(135deg,#FFE3C6,#F0B98A)",
+      "ikona": "/assets/minigry/zwoj.png"
     }
   ]
 }

@@ -413,26 +413,27 @@
 .hub-grid{ display:grid; grid-template-columns:1fr 1fr; gap:11px; }
 .hub-tile{ border:none; padding:0; background:transparent; cursor:pointer; font-family:inherit; }
 .hub-tile-in{
-  /* Kafel ma juz tylko obrazek, nazwe i nagrode - bez opisu. Bez wysrodkowania
-     w pionie te trzy elementy wisialyby przy gornej krawedzi, a pod nimi
-     zostawalaby dziura po zdjetym tekscie. */
+  /* Na kaflu zostal OBRAZEK i nagroda - nazwa gry zeszla. Ikona jest tu
+     trescia, a nie ozdoba przy tekscie, wiec dostaje wiekszosc wysokosci. */
   display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:9px; text-align:center;
-  min-height:142px; padding:14px 10px 12px; border-radius:var(--r-card,22px);
+  gap:10px; text-align:center;
+  min-height:150px; padding:16px 10px 13px; border-radius:var(--r-card,22px);
   border:1.7px solid rgba(255,223,130,.88);
   box-shadow:inset 0 1.5px 0 rgba(255,255,255,.72),0 3px 0 rgba(134,81,27,.4),0 7px 13px rgba(61,47,25,.13);
   position:relative; overflow:hidden; background:rgba(255,255,255,.7);
 }
 .hub-tile.is-locked .hub-tile-in{ background:rgba(78,77,118,.10); filter:grayscale(.55); opacity:.75; }
-.hub-tile-emoji{
-  width:64px; height:64px; border-radius:20px; background:rgba(255,255,255,.86);
-  display:grid; place-items:center; font-size:32px; color:var(--p-ink-soft,#5A4F77);
+.hub-tile-ikona{
+  width:86px; height:86px; border-radius:24px; background:rgba(255,255,255,.86);
+  display:grid; place-items:center; color:var(--p-ink-soft,#5A4F77);
   box-shadow:inset 0 0 0 2px rgba(255,255,255,.9);
 }
-.hub-tile-title{
-  font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
-  font-size:14.5px; font-weight:700; line-height:1.15; color:var(--p-ink,#4e4d76);
+.hub-tile-ikona img{
+  width:76px; height:76px; object-fit:contain; display:block;
+  filter:drop-shadow(0 2px 3px rgba(80,60,20,.22));
 }
+/* Emoji zostaje tylko dla gry bez wlasnej ikony - stad ten zapas. */
+.hub-tile-emoji{ font-size:38px; line-height:1; }
 .hub-tile small{ font-size:10.5px; color:#6b5c3c; line-height:1.3; }
 .hub-coin{
   display:inline-flex; align-items:center; gap:2px; background:rgba(255,255,255,.92);
@@ -443,6 +444,15 @@
   width:19px; height:19px; object-fit:contain; display:block; margin:-4px 0 -4px -5px;
   filter:drop-shadow(0 1px 0 rgba(101,57,12,.24));
 }
+/* Nagroda na kaflu gry: to ona ma przyciagac wzrok po ikonie, wiec moneta
+   rosnie razem z liczba - w wersji bazowej pigulka jest podpisem, tu jest
+   obietnica. */
+.hub-coin--duza{
+  font-size:17px; padding:5px 14px 5px 10px; gap:4px;
+  font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
+  box-shadow:inset 0 0 0 1.6px #E1B66A,0 2px 0 rgba(150,105,30,.28);
+}
+.hub-coin--duza img{ width:30px; height:30px; margin:-6px 0 -6px -4px; }
 .hub-flag{
   position:absolute; top:8px; left:8px; font-size:9px; font-weight:800; letter-spacing:.8px;
   text-transform:uppercase; background:rgba(122,77,194,.9); color:#fff;
@@ -1398,42 +1408,61 @@
    Wczesniej zegar wisial na pergaminie, a kacik mial wlasna ramke - wygladalo
    to jak pudelko obok niczego. Teraz ramka jest wspolna (ta sama rodzina, co
    .hub-card), a kacik w srodku jest juz tylko trescia. */
+/* DWIE ROWNE POLOWY, nie "tyle, ile zajmie zegar". Przy `auto 1fr` kolumna
+   zegara mierzyla dokladnie tarcze, a kacik dostawal cala reszte - kreska
+   miedzy nimi stala nie na srodku karty, tylko tam, gdzie skonczyl sie zegar,
+   i cala gora panelu wygladala na przesunieta w lewo.
+
+   `gap:0` jest tu celowe: separatorem jest kreskowana krawedz kacika, wiec
+   przy jakimkolwiek odstepie stalaby o pol odstepu od srodka. Teraz granica
+   kolumn i kreska to jedno i to samo miejsce - dokladnie 50%. */
 .porada-zegar-blok{
-  display:grid; grid-template-columns:auto 1fr; align-items:center;
-  gap:12px; margin:16px 0 20px; padding:14px 14px 12px;
+  display:grid; grid-template-columns:1fr 1fr; align-items:stretch;
+  gap:0; margin:16px 0 20px; padding:14px 14px 12px;
   border:1.8px solid transparent; border-radius:24px;
   background:
     linear-gradient(180deg,rgba(255,252,232,.95),rgba(245,228,181,.95)) padding-box,
     linear-gradient(180deg,#fff0a1,#dba13a 62%,#9c6321) border-box;
   box-shadow:inset 0 1.5px 0 rgba(255,255,255,.82),0 3px 0 rgba(125,73,25,.55),0 8px 15px rgba(72,53,26,.14);
 }
+/* Zegar ma sztywna szerokosc (inline `width:size`), wiec bez `justify-self`
+   przykleilby sie do lewej krawedzi swojej polowy zamiast stanac na jej srodku.
+   `align-content` centruje oba kafle w pionie, skoro kolumny sie rozciagaja. */
+.porada-zegar-blok > .zegar{ justify-self:center; align-content:center; }
+
 @media (max-width:330px){
-  .porada-zegar-blok{ grid-template-columns:1fr; justify-items:center; }
+  .porada-zegar-blok{ grid-template-columns:1fr; justify-items:center; gap:12px; }
 }
 
 /* ── Oddech: guzik przy zegarze ── */
 .kacik-oddech{
-  display:grid; justify-items:center; gap:6px; padding:2px;
+  display:grid; justify-items:center; align-content:center; gap:6px; padding:2px;
   border-left:2px dashed rgba(160,124,52,.35);
 }
 @media (max-width:330px){
   .kacik-oddech{ border-left:none; border-top:2px dashed rgba(160,124,52,.35); padding-top:10px; }
 }
+/* Te same metryki co `.zegar-etykieta` - dwa podpisy stoja obok siebie w jednej
+   linii, wiec rozne stopnie pisma bylo widac jak przekrzywiona polke. */
 .kacik-tytul{
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
-  font-size:19px; font-weight:800; letter-spacing:.3px; color:#7a5a1e;
+  font-size:18px; font-weight:800; line-height:1.1; letter-spacing:.3px; color:#7a5a1e;
 }
 
 /* Guzik ma sie prosic o dotkniecie: duzy, okragly, z cieniem pod spodem, ktory
    znika przy wcisnieciu. Odbicie (skala 1.07) jest po puszczeniu, nie w
    trakcie - dzieki temu ruch czyta sie jak sprezyna, a nie jak drganie. */
+/* 112 px, czyli DOKLADNIE tarcza zegara obok (`ZegarKlasyczny size={112}`).
+   Przy 104 px oba podpisy schodzily sie o 8 px i "Rano" stalo nizej niz
+   "Oddech", choc lezaly w jednym rzedzie. */
 .oddech-guzik{
-  width:104px; height:104px; padding:0; border:none; background:none;
+  position:relative;
+  width:112px; height:112px; padding:0; border:none; background:none;
   cursor:pointer; line-height:0;
   filter:drop-shadow(0 5px 6px rgba(90,70,25,.35));
   transition:transform .12s ease, filter .12s ease;
 }
-.oddech-guzik img{ width:100%; height:100%; display:block; }
+.oddech-guzik img{ position:relative; z-index:1; width:100%; height:100%; display:block; }
 .oddech-guzik:active{ transform:translateY(3px) scale(.95); filter:drop-shadow(0 2px 3px rgba(90,70,25,.4)); }
 .oddech-guzik.jest-klik{ animation:oddech-odbicie .26s cubic-bezier(.3,1.5,.5,1); }
 @keyframes oddech-odbicie{
@@ -1441,8 +1470,49 @@
   55%{ transform:scale(1.07) translateY(-3px); }
   100%{ transform:scale(1) translateY(0); }
 }
+
+/* GUZIK ODDYCHA SAM Z SIEBIE.
+   Nie jest to ozdoba: to jedyna rzecz w panelu, po ktora dziecko ma siegnac
+   z wlasnej woli, a nieruchoma ikonka niczym sie nie rozni od naglowka obok.
+   Ruch mowi, co jest w srodku, zanim ktokolwiek przeczyta slowo "Oddech".
+
+   Rytm jest TEN SAM, co na ekranie oddechu (`EkranOddechu`): wdech, krotkie
+   zatrzymanie rowne 40% wdechu, wydech tej samej dlugosci co wdech - czyli
+   42% / 16% / 42% cyklu. Petla jest szybsza (6 s zamiast ~9), bo zaproszenie
+   nie ma prowadzic seansu, tylko go zapowiadac; proporcje zostaja, wiec
+   dziecko wchodzi w ekran z rytmem, ktory juz widzialo.
+
+   Animacja siedzi na obrazku i poswiacie, a NIE na przycisku: transform
+   przycisku nalezy do wcisniecia i odbicia, a dwie animacje na jednej
+   wlasciwosci wykluczaja sie nawzajem. */
+.oddech-guzik::before{
+  content:""; position:absolute; inset:-8px; z-index:0;
+  border-radius:50%; pointer-events:none;
+  background:radial-gradient(circle,rgba(126,201,232,.5) 0%,rgba(126,201,232,0) 68%);
+  animation:oddech-aura 6s ease-in-out infinite;
+}
+.oddech-guzik img{ animation:oddech-spokojny 6s ease-in-out infinite; }
+@keyframes oddech-spokojny{
+  0%{ transform:scale(1); }
+  42%{ transform:scale(1.07); }
+  58%{ transform:scale(1.07); }   /* zatrzymanie - balon stoi w gorze */
+  100%{ transform:scale(1); }
+}
+@keyframes oddech-aura{
+  0%{ transform:scale(.82); opacity:0; }
+  42%{ transform:scale(1.04); opacity:1; }
+  58%{ transform:scale(1.04); opacity:1; }
+  100%{ transform:scale(.82); opacity:0; }
+}
+/* W trakcie wcisniecia spokojny oddech ustepuje odbiciu - inaczej dziecko
+   widzi dwa ruchy naraz i zaden nie czyta sie jako odpowiedz na dotkniecie. */
+.oddech-guzik.jest-klik img,
+.oddech-guzik.jest-klik::before{ animation:none; }
+
 @media (prefers-reduced-motion:reduce){
-  .oddech-guzik,.oddech-guzik.jest-klik{ animation:none; transition:none; }
+  .oddech-guzik,.oddech-guzik.jest-klik,
+  .oddech-guzik img,.oddech-guzik::before{ animation:none; transition:none; }
+  .oddech-guzik::before{ opacity:.55; transform:scale(1); }
 }
 
 /* ── Oddech: ekran ── */
