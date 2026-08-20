@@ -17,6 +17,12 @@ export const SlotNaglowka = createContext(null);
  * `wypelnia` = treść sama zarządza przewijaniem (czat: strumień przewija się,
  * pole pisania stoi). Domyślnie przewija się CAŁY arkusz i tak zostaje dla
  * paneli, które są listą.
+ *
+ * Taki arkusz dostaje też WIĘCEJ WYSOKOŚCI (`hub-sheet--wypelnia` w `hub.css`).
+ * Panel-lista kończy się tam, gdzie kończy się lista, więc 78 % ekranu mu
+ * wystarcza. Czat nie kończy się nigdy — a że pasek pisania i zwijany pasek
+ * obecnych zjadają stałe ~150 px, przy 78 % na sam strumień zostawały trzy
+ * wiadomości.
  */
 export default function PanelSheet({ open, kicker = null, title, onClose, children, testId, wypelnia = false }) {
   const arkuszRef = useRef(null);
@@ -48,7 +54,7 @@ export default function PanelSheet({ open, kicker = null, title, onClose, childr
       />
       <section
         ref={arkuszRef}
-        className={`hub-sheet${open ? " is-open" : ""}`}
+        className={`hub-sheet${open ? " is-open" : ""}${wypelnia ? " hub-sheet--wypelnia" : ""}`}
         role="dialog"
         aria-modal="false"
         aria-label={title}

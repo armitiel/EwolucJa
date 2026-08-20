@@ -6,26 +6,35 @@
  * warstwa danych jeszcze nie istnieje. Ten panel jest atrapą pod decyzję,
  * ale rozkład kanałów jest już docelowy:
  *
- *   FORUM     — wspólny czat wszystkich, którzy teraz grają, plus szyna
- *               „kto teraz gra". To ekran startowy: dziecko od razu widzi
- *               ludzi i ich wiadomości, a nie suchą listę zdarzeń.
+ *   FORUM     — wspólny czat wszystkich, którzy teraz grają, plus zwijana
+ *               informacja „kto teraz gra". To ekran startowy: dziecko od
+ *               razu widzi rozmowę, a nie spis obecnych.
  *   PRYWATNE  — rozmowy jeden na jeden z innymi dziećmi. Lista rozmów →
  *               wątek. Postaci z gry TU NIE MA (mówią przez chmurkę Wizkora
  *               i misje) — czat jest miejscem kontaktu z ludźmi.
  *   MENTOR    — zablokowany do czasu zgody rodzica.
  *
- * UKŁAD (zmiana z 2026-08-20, decyzja właściciela: „za dużo elementów, które
- * wyglądają jak przyciski"). Panel wygląda teraz jak zwykły komunikator:
+ * UKŁAD (2026-08-20, druga tura). Panel wygląda jak zwykły komunikator:
  *   - kanały siedzą w NAGŁÓWKU szuflady (portal przez `SlotNaglowka`), a nie
  *     jako trzy duże kafle w treści — wybór miejsca to nie jest treść;
- *   - forum to dwie kolumny: po lewej kto gra, po prawej rozmowa;
- *   - strumień wiadomości przewija się SAM, pole pisania stoi na dole.
+ *   - forum to JEDNA kolumna na całą szerokość. Pionowa szyna obecnych
+ *     (kolumna oprawionych awatarów z lampkami) czytała się jak pasek
+ *     aktywnych umiejętności z gry RPG i zabierała 92 z 375 px szerokości.
+ *     Zastąpił ją jeden zwijany pasek nad rozmową: „4 osoby teraz grają"
+ *     + nakładające się buźki. Rozwija się na żądanie, domyślnie zwinięty;
+ *   - strumień to DYMKI, tak samo jak w rozmowie prywatnej: cudze po lewej
+ *     z buźką, własne po prawej, bez buźki. Jeden język w obu kanałach
+ *     zamiast dwóch różnych rysunków wiadomości;
+ *   - strumień przewija się SAM, a gotowe zdania i pole pisania stoją razem
+ *     w jednym nieprzezroczystym pasku przyklejonym do dołu szuflady.
  * Stąd `hub-pane--czat` i `wypelnia` na arkuszu: panel bierze całą wysokość
- * i sam rozdziela ją między listę a rozmowę.
+ * i sam rozdziela ją między strumień a pasek pisania.
  *
  * Świadome decyzje projektowe, których nie cofamy bez powodu:
  * - Dziecko PISZE z klawiatury (decyzja właściciela z 2026-08-20). Gotowe
- *   zdania zostają nad polem jako skróty, nie jako jedyne wyjście.
+ *   zdania zostają nad polem jako skróty, nie jako jedyne wyjście, i CHOWAJĄ
+ *   SIĘ, gdy tylko dziecko zacznie pisać — skrót przestaje być skrótem
+ *   w chwili, w której ktoś układa własne zdanie.
  *   UWAGA DLA ZESPOŁU: to przenosi całą moderację na serwer. Wolny tekst na
  *   forum publicznym bez filtra i bez człowieka po drugiej stronie NIE MOŻE
  *   wyjść na produkcję — do zrobienia razem z warstwą danych.
@@ -49,8 +58,79 @@ const KANALY = [
 
 const STATUS_OPIS = { gra: "w grze", misja: "w misji", offline: "poza grą" };
 
-/** Pole do pisania. Enter wysyła, pusty tekst nie idzie nigdzie. */
-function Pisanie({ onWyslij, placeholder }) {
+/**
+ * Polska odmiana po liczbie. „4 osoby grają" i „5 osób gra" to nie jest
+ * detal — pasek czyta dziecko, które uczy się języka, i błędna forma
+ * w interfejsie jest widoczna od razu.
+ */
+function opisObecnych(ile) {
+  if (ile === 1) return "1 osoba teraz gra";
+  const koncowka = ile % 10;
+  const setka = ile % 100;
+  const mnoga = koncowka >= 2 && koncowka <= 4 && (setka < 12 || setka > 14);
+  return mnoga ? `${ile} osoby teraz grają` : `${ile} osób teraz gra`;
+}
+
+/**
+ * Pasek obecnych — jeden wiersz zamiast pionowej szyny kafelków.
+ *
+ * Zwinięty pokazuje TYLKO liczbę i nakładające się buźki: to informacja
+ * („nie jesteś tu sam"), a nie lista do przeglądania. Rozwinięty daje imiona
+ * i miejsca, bo wtedy dziecko naprawdę o to poprosiło. Osoby poza grą są
+ * dopiero w rozwinięciu — w zwiniętym pasku „kto teraz gra" nie ma miejsca
+ * na tych, których nie ma.
+ */
+function Obecni({ gracze }) {
+  const [rozwiniete, setRozwiniete] = useState(false);
+  const wGrze = gracze.filter((g) => g.wStatusie !== "offline");
+  if (!gracze.length) return null;
+
+  return (
+    <div className={`czat-obecni${rozwiniete ? " is-otwarte" : ""}`}>
+      <button
+        type="button"
+        className="czat-obecni-pasek"
+        onClick={() => setRozwiniete((czy) => !czy)}
+        aria-expanded={rozwiniete}
+      >
+        <span className="czat-obecni-buzki" aria-hidden="true">
+          {wGrze.slice(0, 4).map((g) => (
+            <i key={g.id}>{g.emoji}</i>
+          ))}
+        </span>
+        <span className="czat-obecni-opis">{opisObecnych(wGrze.length)}</span>
+        <span className="czat-obecni-strzalka" aria-hidden="true">▾</span>
+      </button>
+
+      {rozwiniete ? (
+        <ul className="czat-obecni-lista">
+          {gracze.map((g) => (
+            <li key={g.id} className={g.wStatusie === "offline" ? "is-off" : ""}>
+              <span className="czat-avatar" aria-hidden="true">
+                {g.emoji}
+                <i className={`czat-lampka is-${g.wStatusie}`} />
+              </span>
+              <strong>{g.imie}</strong>
+              <small>{g.gdzie || STATUS_OPIS[g.wStatusie]}</small>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * Dół rozmowy — gotowe zdania i pole pisania w JEDNYM pasku.
+ *
+ * Razem, bo razem stoją na nieprzezroczystym tle: pasek jest granicą między
+ * przewijającą się rozmową a tym, co dziecko robi teraz. Osobno wyglądały
+ * jak dwie warstwy pływające nad pergaminem.
+ *
+ * Skróty znikają, gdy w polu jest choć jeden znak — dlatego stan tekstu
+ * siedzi TUTAJ, a nie w samym polu.
+ */
+function DolRozmowy({ zdania, onWyslij, placeholder }) {
   const [tekst, setTekst] = useState("");
   const gotowe = tekst.trim();
 
@@ -62,27 +142,27 @@ function Pisanie({ onWyslij, placeholder }) {
   }
 
   return (
-    <form className="hub-composer" onSubmit={wyslij}>
-      <input
-        value={tekst}
-        onChange={(zdarzenie) => setTekst(zdarzenie.target.value)}
-        placeholder={placeholder}
-        maxLength={200}
-        autoComplete="off"
-      />
-      <button type="submit" disabled={!gotowe} aria-label="Wyślij">➤</button>
-    </form>
-  );
-}
+    <div className="czat-dol">
+      {zdania?.length && !gotowe ? (
+        <div className="czat-skroty">
+          {zdania.map((zdanie) => (
+            <button key={zdanie} type="button" onClick={() => onWyslij(zdanie)}>
+              {zdanie}
+            </button>
+          ))}
+        </div>
+      ) : null}
 
-/** Gotowe zdania — JEDEN pasek przewijany w bok, nie kilka rzędów pigułek. */
-function Skroty({ zdania, onWybor }) {
-  if (!zdania?.length) return null;
-  return (
-    <div className="czat-skroty">
-      {zdania.map((tekst) => (
-        <button key={tekst} type="button" onClick={() => onWybor(tekst)}>{tekst}</button>
-      ))}
+      <form className="hub-composer" onSubmit={wyslij}>
+        <input
+          value={tekst}
+          onChange={(zdarzenie) => setTekst(zdarzenie.target.value)}
+          placeholder={placeholder}
+          maxLength={200}
+          autoComplete="off"
+        />
+        <button type="submit" disabled={!gotowe} aria-label="Wyślij">➤</button>
+      </form>
     </div>
   );
 }
@@ -181,46 +261,38 @@ export default function CzatPanel() {
     <div className="hub-pane hub-pane--czat" data-testid="hub-pane-czat">
       {slotNaglowka ? createPortal(zakladki, slotNaglowka) : null}
 
-      {/* ── FORUM: kto teraz gra | wspólny czat ── */}
+      {/* ── FORUM: zwijany pasek obecnych nad wspólną rozmową ── */}
       {kanal === "forum" ? (
-        <div className="czat-forum">
-          <aside className="czat-rail">
-            <h3 className="czat-rail-tytul">W grze</h3>
-            <ul className="czat-rail-lista">
-              {gracze.map((g) => (
-                <li
-                  key={g.id}
-                  className={`czat-rail-osoba${g.wStatusie === "offline" ? " is-off" : ""}`}
-                  title={g.gdzie || STATUS_OPIS[g.wStatusie]}
-                >
-                  <span className="czat-avatar" aria-hidden="true">
-                    {g.emoji}
-                    <i className={`czat-lampka is-${g.wStatusie}`} />
-                  </span>
-                  <strong>{g.imie}</strong>
-                </li>
-              ))}
-            </ul>
-          </aside>
+        <div className="czat-rozmowa czat-rozmowa--forum">
+          <Obecni gracze={gracze} />
 
-          <div className="czat-rozmowa">
-            <div className="czat-feed" ref={feedRef}>
-              {wiadomosciForum.map((wpis) => {
-                const autor = wpis.kto === "ja" ? DANE.ja : graczById[wpis.kto];
-                const licznik = (wpis.brawa || 0) + (brawa[wpis.id] || 0);
-                const moja = wpis.kto === "ja";
-                return (
-                  <div key={wpis.id} className={`czat-wpis${moja ? " is-moja" : ""}`}>
+          <div className="czat-feed" ref={feedRef}>
+            {wiadomosciForum.map((wpis) => {
+              const autor = wpis.kto === "ja" ? DANE.ja : graczById[wpis.kto];
+              const licznik = (wpis.brawa || 0) + (brawa[wpis.id] || 0);
+              const moja = wpis.kto === "ja";
+              return (
+                <div key={wpis.id} className={`czat-wpis${moja ? " is-moja" : ""}`}>
+                  {/* Przy własnej wiadomości buźki nie ma: dymek po prawej
+                      stronie już mówi, kto to napisał, a druga buźka tylko
+                      zabierałaby szerokość tekstowi. */}
+                  {moja ? null : (
                     <span className="czat-wpis-av" aria-hidden="true">{autor?.emoji || "🙂"}</span>
-                    <div className="czat-wpis-tresc">
-                      <span className="czat-wpis-kto">{moja ? "Ty" : autor?.imie || "Gracz"}</span>
-                      <p>{wpis.tekst}</p>
-                      {/* „👏" siedzi POD tekstem, w tej samej kolumnie, i jest
-                          znakiem, nie guzikiem: ramka przy każdej wiadomości
-                          robiła z rozmowy stos kafelków z przyciskami.
-                          Pod własną wiadomością go nie ma — „👏 0" przy swoim
-                          wpisie wygląda jak wynik, a nie jak zaproszenie. */}
-                      {moja ? null : (
+                  )}
+                  <div className="czat-wpis-tresc">
+                    {/* Imię i „👏" w JEDNYM wierszu nad tekstem. Brawa stały
+                        wcześniej osobną linijką pod wiadomością i kosztowały
+                        24 px na każdy dymek — na telefonie 320×568 to była
+                        różnica między półtorej a dwiema i pół wiadomości na
+                        ekranie. Sam znak zostaje bez ramki i bez tła: własna
+                        ramka przy każdej wiadomości robiła z rozmowy stos
+                        kafelków z przyciskami.
+                        Przy własnym wpisie nie ma ani imienia, ani braw —
+                        „👏 0" pod swoją wiadomością wygląda jak wynik,
+                        a nie jak zaproszenie. */}
+                    {moja ? null : (
+                      <span className="czat-wpis-meta">
+                        <span className="czat-wpis-kto">{autor?.imie || "Gracz"}</span>
                         <button
                           type="button"
                           className={`czat-brawa${brawa[wpis.id] ? " is-dane" : ""}`}
@@ -229,16 +301,20 @@ export default function CzatPanel() {
                         >
                           <span aria-hidden="true">👏</span> {licznik}
                         </button>
-                      )}
-                    </div>
+                      </span>
+                    )}
+                    <p>{wpis.tekst}</p>
                   </div>
-                );
-              })}
-            </div>
-
-            <Skroty zdania={DANE.forum?.odpowiedzi} onWybor={dodajWpis} />
-            <Pisanie onWyslij={dodajWpis} placeholder="Napisz coś do wszystkich…" />
+                </div>
+              );
+            })}
           </div>
+
+          <DolRozmowy
+            zdania={DANE.forum?.odpowiedzi}
+            onWyslij={dodajWpis}
+            placeholder="Napisz coś do wszystkich…"
+          />
         </div>
       ) : null}
 
@@ -283,8 +359,8 @@ export default function CzatPanel() {
             ))}
           </div>
 
-          <Skroty zdania={rozmowa.odpowiedzi} onWybor={odpowiedz} />
-          <Pisanie
+          <DolRozmowy
+            zdania={rozmowa.odpowiedzi}
             onWyslij={odpowiedz}
             placeholder={`Napisz do: ${graczById[rozmowa.ktoId]?.imie || "Gracz"}…`}
           />

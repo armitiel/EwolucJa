@@ -294,6 +294,11 @@
   outline:none; overflow:hidden;
 }
 .hub-sheet.is-open{ transform:translateY(0); }
+/* Arkusz, ktory sam zarzadza przewijaniem (dzis: czat) dostaje wiecej ekranu.
+   78 % wystarcza panelowi-liscie, bo lista sie konczy. Czat sie nie konczy,
+   a pasek pisania i zwijany pasek obecnych zjadaja stale ~150 px — przy 78 %
+   na sam strumien zostawaly trzy wiadomosci. */
+.hub-sheet--wypelnia{ height:88%; max-height:88%; }
 /* Zloty wlos tuz przy wewnetrznej krawedzi - domyka obrys od srodka i klada
    sie takze na fioletowym naglowku (inset-owy highlight arkusza chowa sie pod
    naglowkiem, bo to dziecko). Dzieki temu okno ma ciagly, czysty kontur. */
@@ -614,107 +619,190 @@
 
 /* ── czat wypełnia szufladę ──────────────────────────────────────────────
    Ciało szuflady przestaje przewijać się jako całość: przewija się sam
-   strumień wiadomości, a pole pisania stoi na dole. To jest cała różnica
+   strumień wiadomości, a pasek pisania stoi na dole. To jest cała różnica
    między „listą wpisów" a czatem. */
 .hub-sheet-body.is-wypelnia{
   overflow:hidden; display:flex; flex-direction:column;
-  /* 156 px odstępu na dole ma sens przy LIŚCIE, która się kończy. Tutaj pole
-     pisania odjeżdżałoby pół ekranu nad dok — zostaje tyle, ile dok zjada. */
-  padding-bottom:calc(102px + env(safe-area-inset-bottom,0px));
+  /* 156 px odstępu na dole ma sens przy LIŚCIE, która się kończy. Tutaj pasek
+     pisania odjeżdżałby pół ekranu nad dok — zostaje tyle, ile dok naprawdę
+     zajmuje, plus prześwit.
+     TA LICZBA JEST SPRZĘŻONA Z `hud.css`. Dok stoi 85 px nad dolną krawędzią
+     ekranu (12 px marginesu HUD + 73 px wysokości), a jego rozjaśniacz zaczyna
+     się 22 px wyżej, czyli 107 px nad krawędzią. 122 px zostawia paskowi
+     pisania 15 px czystego pergaminu nad tą granicą. Zmniejszając tę wartość
+     albo podnosząc `top` rozjaśniacza wsadzasz pole do pisania z powrotem
+     pod mgłę — to był błąd naprawiany 2026-08-20. */
+  padding-bottom:calc(122px + env(safe-area-inset-bottom,0px));
 }
 .hub-pane--czat{ flex:1; min-height:0; display:flex; flex-direction:column; }
 /* Lista rozmów i ekran Mentora dalej są listą — przewijają się u siebie. */
 .czat-lista{ flex:1; min-height:0; overflow-y:auto; }
 .czat-mentor{ flex:1; }
 
-.czat-forum{
-  flex:1; min-height:0; display:grid; gap:12px;
-  grid-template-columns:92px minmax(0,1fr);
-  /* Wiersz musi mieć WYMIAR, nie „auto": bez `minmax(0,1fr)` kolumna rozmowy
-     dostaje wysokość swojej treści i strumień kończy się w połowie panelu,
-     zamiast sięgać do pola pisania. */
-  grid-template-rows:minmax(0,1fr);
-}
-.czat-rozmowa{ min-width:0; min-height:0; display:flex; flex-direction:column; }
-.czat-rozmowa--watek{ flex:1; }
+.czat-rozmowa{ flex:1; min-width:0; min-height:0; display:flex; flex-direction:column; }
 
-/* Lewa szyna: pionowa lista obecnych. Poziomy pasek nad rozmową zabierał całą
-   szerokość i spychał wiadomości poniżej krawędzi ekranu. */
-.czat-rail{
-  min-height:0; display:flex; flex-direction:column;
-  border-right:2px solid rgba(160,120,45,.22); padding-right:10px;
+/* ── kto teraz gra: JEDEN wiersz, nie pionowa szyna ──────────────────────
+   USUNIĘTE 2026-08-20: `.czat-forum` (dwie kolumny) i cała rodzina
+   `.czat-rail*`. Kolumna oprawionych awatarów z lampkami przy lewej krawędzi
+   czytała się jak pasek aktywnych umiejętności z gry RPG — pięć kafelków,
+   które wyglądają na klikalne, choć nic nie otwierają — i zabierała 92 z 375
+   px szerokości, więc wiadomości łamały się po trzy słowa.
+   Teraz to informacja („nie jesteś tu sam"), a nie spis: zwinięty pasek
+   z liczbą i buźkami, rozwijany dopiero na żądanie. */
+.czat-obecni{ flex:none; margin:0 0 8px; }
+.czat-obecni-pasek{
+  display:flex; align-items:center; gap:9px; width:100%; cursor:pointer;
+  border:none; border-radius:var(--r-pill,999px); padding:5px 12px 5px 6px;
+  background:rgba(255,255,255,.5); font-family:inherit; text-align:left;
 }
-.czat-rail-tytul{
-  margin:0 0 8px; font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
-  font-size:12px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase;
-  color:var(--p-ink-soft,#5A4F77); opacity:.75;
+.czat-obecni-buzki{ display:flex; flex:none; }
+.czat-obecni-buzki i{
+  width:26px; height:26px; margin-right:-8px; border-radius:50%;
+  display:grid; place-items:center; font-size:14px; font-style:normal;
+  background:linear-gradient(180deg,#fff6d8,#f2dca6);
+  box-shadow:0 0 0 2px rgba(255,252,236,.95);
 }
-.czat-rail-lista{
-  list-style:none; margin:0; padding:0 0 8px; overflow-y:auto; min-height:0;
-  display:flex; flex-direction:column; gap:9px; scrollbar-width:none;
+.czat-obecni-buzki i:last-child{ margin-right:0; }
+.czat-obecni-opis{
+  flex:1; min-width:0; font-size:13px; font-weight:800;
+  color:var(--p-ink-soft,#5A4F77); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
-.czat-rail-lista::-webkit-scrollbar{ display:none; }
-/* To NIE jest przycisk — nic nie otwiera. Bez ramki i bez tła, żeby nie
-   dokładać kolejnych klikalnie wyglądających kafelków. */
-.czat-rail-osoba{ display:grid; justify-items:center; gap:3px; text-align:center; }
-.czat-rail-osoba.is-off{ opacity:.42; }
-.czat-rail-osoba strong{ font-size:12.5px; font-weight:700; line-height:1.15; }
-.czat-rail .czat-avatar{ width:46px; height:46px; border-radius:16px; font-size:25px; }
-.czat-rail .czat-lampka{ width:13px; height:13px; border-width:2.5px; }
+.czat-obecni-strzalka{
+  flex:none; font-size:12px; color:var(--p-ink-soft,#5A4F77); opacity:.7;
+  transition:transform .18s ease;
+}
+.czat-obecni.is-otwarte .czat-obecni-strzalka{ transform:rotate(180deg); }
+/* Rozwinięcie: poziomy pasek przewijany w bok. Pionowa lista zjadałaby
+   rozmowę, o którą w tym panelu chodzi. */
+.czat-obecni-lista{
+  list-style:none; display:flex; gap:12px; margin:9px 0 0; padding:0 2px 4px;
+  overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch;
+}
+.czat-obecni-lista::-webkit-scrollbar{ display:none; }
+.czat-obecni-lista li{
+  flex:none; width:66px; display:grid; justify-items:center; gap:2px; text-align:center;
+}
+.czat-obecni-lista li.is-off{ opacity:.45; }
+.czat-obecni-lista strong{ font-size:12px; font-weight:800; line-height:1.15; }
+.czat-obecni-lista small{ font-size:10.5px; line-height:1.2; color:var(--p-ink-soft,#5A4F77); opacity:.8; }
+.czat-obecni-lista .czat-avatar{ width:42px; height:42px; border-radius:15px; font-size:23px; }
+.czat-obecni-lista .czat-lampka{ width:12px; height:12px; border-width:2.5px; }
 
 /* Strumień: to jedyne miejsce w panelu, które się przewija. */
 .czat-rozmowa .czat-feed,
 .czat-rozmowa .hub-bubbles{
-  flex:1; min-height:0; overflow-y:auto; gap:7px;
-  padding:2px 4px 8px 0; scrollbar-width:thin;
+  flex:1; min-height:0; overflow-y:auto; gap:9px;
+  padding:2px 4px 10px 0; scrollbar-width:thin;
 }
-/* Wiadomość bez własnej ramki i cienia: rozmowa ma być ciągiem wypowiedzi,
-   a nie stosem kart. Ramka zostaje tylko przy własnych wpisach, żeby dziecko
-   od razu widziało, co napisało samo. */
-.czat-forum .czat-wpis{ background:transparent; border:none; box-shadow:none; border-radius:0; padding:4px 0; }
-.czat-forum .czat-wpis.is-moja{
-  background:linear-gradient(180deg,rgba(255,240,196,.9),rgba(247,223,164,.9));
-  border-radius:16px; padding:8px 11px;
-}
-.czat-forum .czat-wpis-av{ width:34px; height:34px; border-radius:12px; font-size:19px; }
-/* Brawa: znak, nie guzik. Ramka i tło robiły z każdej wiadomości kafelek
-   z przyciskiem — pięć wiadomości to było pięć przycisków na ekranie. */
-.czat-forum .czat-brawa{
-  border:none; background:transparent; box-shadow:none;
-  min-height:0; padding:2px 0; margin:4px 0 0 auto; font-size:12.5px; opacity:.72;
-}
-.czat-forum .czat-brawa.is-dane{ opacity:1; color:#8A5A18; background:transparent; }
 
+/* Wiadomość forum to DYMEK, dokładnie jak w rozmowie prywatnej: cudzy po
+   lewej z buźką, własny po prawej bez buźki. Wcześniej forum rysowało
+   wiadomości po swojemu (buźka + imię + goły tekst w rzędzie), więc dwa
+   kanały tego samego panelu wyglądały jak dwie różne aplikacje. */
+.czat-rozmowa--forum .czat-wpis{
+  display:flex; align-items:flex-end; gap:7px;
+  background:none; border:none; box-shadow:none; border-radius:0; padding:0;
+}
+.czat-rozmowa--forum .czat-wpis.is-moja{ justify-content:flex-end; }
+.czat-rozmowa--forum .czat-wpis-av{
+  flex:none; width:32px; height:32px; border-radius:11px; font-size:18px;
+  margin-bottom:2px;
+}
+.czat-rozmowa--forum .czat-wpis-tresc{
+  flex:0 1 auto; max-width:82%; min-width:0;
+  padding:9px 13px 8px; border-radius:18px 18px 18px 6px;
+  background:rgba(255,255,255,.9);
+  box-shadow:0 2px 0 rgba(140,100,40,.13);
+}
+.czat-rozmowa--forum .czat-wpis.is-moja .czat-wpis-tresc{
+  border-radius:18px 18px 6px 18px;
+  background:linear-gradient(180deg,#FFE6A8,#F4C95D);
+  box-shadow:0 2px 0 rgba(160,110,30,.22);
+}
+.czat-rozmowa--forum .czat-wpis-tresc p{ margin:0; }
+/* Imię i brawa w jednym wierszu — patrz komentarz w `CzatPanel.jsx`. */
+.czat-rozmowa--forum .czat-wpis-meta{ display:flex; align-items:center; gap:10px; margin-bottom:1px; }
+.czat-rozmowa--forum .czat-wpis-kto{
+  flex:1; min-width:0; margin:0;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+/* Brawa: znak, nie guzik. Ramka i tło robiły z każdej wiadomości kafelek
+   z przyciskiem — pięć wiadomości to było pięć przycisków na ekranie.
+   POLE DOTYKU JEST WIĘKSZE NIŻ ZNAK i wyprowadzone w `::after`, a nie
+   w `padding`: padding rozpycha wiersz imienia, a ten wiersz jest w każdym
+   dymku, więc każde 4 px kosztuje 4 px razy liczba wiadomości na ekranie.
+   Pseudoelement daje palcowi ~40×39 px, nie ruszając układu. */
+.czat-rozmowa--forum .czat-brawa{
+  position:relative; flex:none; border:none; background:transparent; box-shadow:none;
+  min-height:0; padding:2px 2px 2px 8px; margin:0; font-size:12.5px; opacity:.7;
+}
+.czat-rozmowa--forum .czat-brawa::after{ content:""; position:absolute; inset:-9px -8px; }
+.czat-rozmowa--forum .czat-brawa.is-dane{ opacity:1; color:#8A5A18; background:transparent; }
+
+/* ── dół rozmowy: gotowe zdania + pole pisania w JEDNYM pasku ────────────
+   Pasek jest NIEPRZEZROCZYSTY i idzie od krawędzi do krawędzi szuflady
+   (ujemne marginesy kasują 18 px paddingu ciała arkusza). Dwa powody:
+   granica między przewijającą się rozmową a tym, co dziecko robi teraz,
+   oraz czyste tło pod polem — patrz komentarz przy `.hub-pane .hub-composer`
+   niżej i przy rozjaśniaczu doku w `public/scena-3d/hud.css`. */
+.czat-dol{
+  flex:none; margin:0 -18px -0px; padding:8px 18px 0;
+  background:linear-gradient(180deg,rgba(246,232,193,0) 0%,#f6e8c1 34%,#f3e2b2 100%);
+  border-top:2px solid rgba(160,120,45,.26);
+  box-shadow:0 -6px 12px rgba(120,84,30,.10);
+}
 /* Gotowe zdania: JEDEN pasek przewijany w bok. Zawijane w kilka rzędów
-   zajmowały pół ekranu tuż nad polem pisania. */
+   zajmowały pół ekranu tuż nad polem pisania. Znikają, gdy dziecko zacznie
+   pisać własne zdanie (logika w `DolRozmowy`). */
 .czat-skroty{
-  display:flex; flex:none; gap:6px; overflow-x:auto; padding:8px 0 2px; margin:0;
+  display:flex; flex:none; gap:6px; overflow-x:auto; padding:0 0 8px; margin:0;
   scrollbar-width:none; -webkit-overflow-scrolling:touch;
 }
 .czat-skroty::-webkit-scrollbar{ display:none; }
 .czat-skroty button{
   flex:none; cursor:pointer; font-family:inherit; font-weight:700; font-size:12.5px;
-  border:1.5px solid rgba(122,77,194,.28); background:rgba(255,255,255,.7);
+  border:1.5px solid rgba(122,77,194,.28); background:rgba(255,255,255,.8);
   border-radius:var(--r-pill,999px); padding:7px 12px; min-height:34px;
   color:var(--p-magic-dk,#7A4DC2); white-space:nowrap;
 }
-/* `margin:12px 0 88px` z `.hub-pane .hub-composer` (niżej w pliku) robiło
-   miejsce na dok, gdy panel przewijał się w całości. Tu dok obchodzi `padding`
-   ciała szuflady, a ten margines zostawiał 88 px pustego pergaminu pod polem
-   pisania. Trzy klasy w selektorze, bo tamta reguła stoi PÓŹNIEJ i przy równej
-   wadze wygrywałaby kolejnością. */
-.hub-pane--czat .czat-rozmowa .hub-composer{ flex:none; margin:6px 0 0; }
-.hub-pane--czat .czat-rozmowa .hub-composer button{ width:46px; height:46px; font-size:17px; }
+/* `margin:12px 0 18px` z `.hub-pane .hub-composer` (niżej w pliku) jest
+   odstępem dla paneli, które przewijają się w całości. Tu pole siedzi już
+   w pasku z własnym paddingiem. Trzy klasy w selektorze, bo tamta reguła
+   stoi PÓŹNIEJ i przy równej wadze wygrywałaby kolejnością. */
+.hub-pane--czat .czat-dol .hub-composer{ flex:none; margin:0 0 8px; }
+.hub-pane--czat .czat-dol .hub-composer button{ width:46px; height:46px; font-size:17px; }
 .czat-rozmowa .czat-powrot{ flex:none; }
 
-/* Wąski telefon: szyna schodzi do samych awatarów. */
+/* Wąski telefon: pasek obecnych i dymki oddają kilka pikseli. */
 @media (max-width:400px){
-  .czat-forum{ grid-template-columns:60px minmax(0,1fr); gap:9px; }
-  .czat-rail{ padding-right:7px; }
-  .czat-rail .czat-avatar{ width:40px; height:40px; border-radius:14px; font-size:21px; }
-  .czat-rail-tytul{ font-size:10px; letter-spacing:.8px; }
-  .czat-rail-osoba strong{ font-size:11px; }
+  .czat-obecni-opis{ font-size:12px; }
+  .czat-rozmowa--forum .czat-wpis-tresc{ max-width:86%; }
   .czat-zakladka{ font-size:12px; }
+}
+
+/* ── NISKI EKRAN: belka tytułowa oddaje miejsce rozmowie ──────────────────
+   Koszty stałe czatu (nagłówek, pasek obecnych, pasek pisania, 122 px pod dok)
+   są w pikselach, więc na 667 px wysokości zjadały tyle, że na sam strumień
+   zostawało 165 px — dwie wiadomości. Reguła dotyczy TYLKO arkusza, który sam
+   zarządza przewijaniem: panel-lista i tak przewija się w całości, więc niższy
+   nagłówek nic by mu nie dał, a tytuł jest tam jedyną etykietą.
+   W czacie tytuł „Czat" jest zapasowy — pod nim stoją trzy zakładki z nazwami
+   kanałów, a w doku świeci ikona otwartego panelu. */
+@media (max-height:700px){
+  .hub-sheet--wypelnia{ height:93%; max-height:93%; }
+  .hub-sheet--wypelnia .hub-sheet-head{ min-height:0; padding:8px 56px 10px; }
+  .hub-sheet--wypelnia .hub-sheet-head h2{ font-size:23px; text-shadow:0 2px 0 #35243d; }
+  .hub-sheet--wypelnia .hub-sheet-close{ top:8px; width:40px; height:40px; font-size:20px; }
+  /* GÓRNY margines paska kanałów jest liczony od krzyżyka, nie od tytułu:
+     krzyżyk stoi na stałej wysokości od góry (8 px + 40 px = 48 px), a tytuł
+     kończy się wyżej. Przy mniejszym marginesie czerwone kółko wchodziło
+     rogiem na zakładkę „Mentor".
+     DOLNY ujemny margines MUSI odpowiadać paddingowi nagłówka — inaczej pasek
+     albo odkleja się od dolnej krawędzi, albo za nią wychodzi. */
+  .hub-sheet--wypelnia .czat-zakladki{ margin:14px -40px -10px; }
+  .hub-sheet--wypelnia .czat-zakladka{ min-height:47px; padding:5px 4px 6px; gap:0; }
+  .hub-sheet--wypelnia .czat-zakladka svg{ width:22px; height:22px; }
+  .hub-sheet--wypelnia .czat-obecni{ margin-bottom:6px; }
 }
 
 .hub-pane .hub-sec-title h3{ font-size:21px; }
@@ -728,10 +816,11 @@
 }
 .czat-naglowek--pisz{ margin-top:20px; color:var(--p-magic-dk,#7A4DC2); }
 
-/* Awatar osoby. Wspólny dla szyny obecnych i dla wszystkiego, co jeszcze
-   pokaże czyjąś twarz. USUNIĘTE 2026-08-20: `.czat-online` / `.czat-osoba`
-   (poziomy pasek nad rozmową — zastąpiła go pionowa szyna) oraz `.czat-kanaly`
-   / `.czat-kanal` (trzy kafle kanałów — wjechały do nagłówka szuflady). */
+/* Awatar osoby. Wspólny dla rozwiniętego paska obecnych i dla wszystkiego,
+   co jeszcze pokaże czyjąś twarz. USUNIĘTE 2026-08-20: `.czat-online` /
+   `.czat-osoba`, `.czat-kanaly` / `.czat-kanal` (trzy kafle kanałów — wjechały
+   do nagłówka szuflady) oraz `.czat-rail*` (pionowa szyna obecnych — patrz
+   komentarz przy `.czat-obecni` wyżej). */
 .czat-avatar{
   position:relative; width:58px; height:58px; border-radius:20px; display:grid; place-items:center;
   font-size:31px; line-height:1; background:rgba(255,255,255,.88);
@@ -743,8 +832,9 @@
 }
 .czat-lampka.is-gra{ background:#5FBF6A; }
 .czat-lampka.is-misja{ background:#E89A3D; }
-/* Pod awatarem zostaje SAMO imię. Kraina wisi w atrybucie title — w szynie
-   obecnych byłaby trzecią linijką mikroskopijnego tekstu na osobę. */
+/* W ROZWINIĘTYM pasku obecnych pod awatarem jest imię i kraina — dziecko
+   samo o tę listę poprosiło, więc może dostać komplet. W zwiniętym nie ma ani
+   jednego, ani drugiego: tam liczy się sama liczba. */
 
 /* Wspólny czat — to są WIADOMOŚCI od dzieci, nie dziennik zdarzeń. */
 .czat-feed{ display:flex; flex-direction:column; gap:8px; }
@@ -813,18 +903,19 @@
    tam i wychodziło spod tego gradientu wyblakłe — wyglądało na wyłączone.
    Teraz siedzi NAD nim, na pełnej bieli, więc jest widać, że da się w nie
    kliknąć. Gradient dalej działa dla treści, która pod nie podjeżdża. */
-/* MARGINES U DOŁU NIE JEST ODDECHEM, TYLKO NAPRAWĄ.
-   Nad dokiem leży rozjaśniacz `.game-hud-bottom::before` (public/scena-3d/hud.css):
-   przy wysuniętej szufladzie sięga 118 px NAD dok i dochodzi tam prawie do
-   pełnego krycia, żeby ikony doku zostały czytelne na gęstej treści panelu.
-   Pole do pisania kończyło się ~46 px pod jego górną krawędzią — biało-kremowa
-   mgła kładła się na polu i na okrągłym ➤, przez co wyglądały jak wyłączone.
-   Z-INDEX TEGO NIE NAPRAWI: HUD to osobna, wyższa warstwa (`.game-hud`,
-   z-index 20) niż arkusz panelu (z-index 5). Jedyne wyjście, które nie psuje
-   czytelności doku, to skończyć pole NAD rozjaśniaczem. */
-.hub-pane .hub-composer{ position:relative; z-index:6; margin:12px 0 88px; }
+/* MARGINES U DOŁU BYŁ NAPRAWĄ, DZIŚ JEST ODDECHEM — 88 px zeszło do 18 px.
+   Nad dokiem leży rozjaśniacz `.game-hud-bottom::before` (public/scena-3d/hud.css).
+   Przy wysuniętej szufladzie sięgał 118 px NAD dok, czyli dokładnie na
+   wysokość, na której stoi pole do pisania: biało-kremowa mgła kładła się na
+   polu i na okrągłym ➤, przez co wyglądały jak wyłączone. Z-INDEX TEGO NIE
+   NAPRAWI — HUD to osobna, wyższa warstwa (`.game-hud`, z-index 20) niż arkusz
+   panelu (z-index 5) — więc obchodziliśmy to 88 px pustego pergaminu pod polem.
+   2026-08-20 naprawa poszła do źródła: pod otwartą szufladą rozjaśniacz zaczyna
+   się tuż nad dokiem, bo treść panelu i tak kończy się nad nim. Odstęp nie musi
+   już niczego omijać. */
+.hub-pane .hub-composer{ position:relative; z-index:6; margin:12px 0 18px; }
 /* Ten sam powód: zielony „Wyślij do Mentora" stał dokładnie tam co pole czatu. */
-[data-testid="hub-pane-zadanie"] .hub-actions{ margin-bottom:88px; }
+[data-testid="hub-pane-zadanie"] .hub-actions{ margin-bottom:18px; }
 .hub-pane .hub-composer input{
   font-size:16px; min-height:52px; padding:13px 18px;
   border:2px solid rgba(120,90,30,.3); background:#fff; color:var(--p-ink,#4e4d76);

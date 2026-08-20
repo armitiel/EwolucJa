@@ -1229,21 +1229,35 @@
 
 /* --- Mocniejszy podklad, gdy szuflada jest wysunieta --- */
 /* Pod otwartym arkuszem ikony leza na gestej tresci: wpisy czatu, pole
-   tekstowe, przyciski wyboru. Podklad musi tam siegac wyzej i szybciej
-   dochodzic do pelnego krycia niz na samej mapie.
+   tekstowe, przyciski wyboru. Podklad musi tam dochodzic do pelnego krycia
+   szybciej niz na samej mapie.
    Nie dotyczy zwoju wiadomosci - komponent nie dodaje wtedy tej klasy,
    bo pergamin sam przykrywa ekran i drugie tlo pod dokiem tylko by z nim
    konkurowalo. */
+/* ILE MA SIEGAC W GORE - policzone, nie zgadniete (2026-08-20).
+   Bylo `top: -118px`, czyli podklad zaczynal sie 118 px NAD dokiem i juz
+   40 px wyzej mial ~0,5 krycia. Tyle, ze tresc otwartej szuflady i tak nigdy
+   tam nie dochodzi: cialo arkusza ma na dole 110-156 px paddingu, wiec
+   ostatni element konczy sie NAD gorna krawedzia doku. Jedyne, co te 118 px
+   naprawde przykrywalo, to pasek pisania czatu (mierzone na 375x812: pole
+   leżało pod 53-86% kremowej mgly i wygladalo na wylaczone) oraz zielony
+   "Wyslij do Mentora" w panelu zadania - stad 88 px pustego pergaminu, ktorym
+   oba te elementy obchodzilo sie w `hub.css`.
+   Teraz podklad zaczyna sie 17 px nad dokiem i dochodzi do pelnego krycia
+   w tych 17 px. Tresc przewijana POD dok dalej ma czym sie wygaszac: nizej
+   dokłada sie `.hub-sheet::after` (74 px kremowego gradientu przy dolnej
+   krawedzi arkusza). Zmieniajac te liczbe sprawdz, czy nie wchodzi na pasek
+   pisania czatu - to jedyny element, ktory stoi tuz nad dokiem. */
 .game-hud.ma-szuflade .game-hud-bottom::before {
-  top: -118px;
+  top: -22px;
   left: -16vw; right: -16vw;
   background: linear-gradient(
     180deg,
     rgba(255, 248, 226, 0) 0%,
-    rgba(255, 247, 219, .5) 18%,
-    rgba(255, 245, 210, .84) 38%,
-    rgba(255, 243, 202, .97) 58%,
-    rgba(255, 242, 198, 1) 74%
+    rgba(255, 246, 216, .40) 7%,
+    rgba(255, 245, 210, .78) 12%,
+    rgba(255, 243, 202, .95) 16%,
+    rgba(255, 242, 198, 1) 24%
   );
 }
 
