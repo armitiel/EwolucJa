@@ -179,9 +179,12 @@ const PRZYJETE = new Set(["verified", "highlighted"]);
 const DO_POPRAWKI = new Set(["rejected", "needs_followup"]);
 
 /**
- * Sprawdzenie werdyktu NA KLIKNIĘCIE, bez pollingu — tak samo jak w torze
- * przygody. Odpytywanie w tle o coś, co dzieje się raz na dobę, to tylko
- * transfer i bateria.
+ * Sprawdzenie werdyktu PRZY OTWARCIU PANELU zadania, bez pollingu. Odpytywanie
+ * w tle o coś, co dzieje się raz na dobę, to tylko transfer i bateria.
+ *
+ * Wcześniej wołał to przycisk „Sprawdź, czy odpisał" — czyli dziecko musiało
+ * poprosić o rzecz, po którą właśnie przyszło. Jedno zapytanie na jedno
+ * wejście do panelu (`ZadaniePanel`) daje to samo, nie pytając o zgodę.
  */
 export async function sprawdzMentora() {
   const zapis = czytaj();

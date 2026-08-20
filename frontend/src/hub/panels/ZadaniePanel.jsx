@@ -130,19 +130,37 @@ export default function ZadaniePanel({ onKomunikat, onZamknij }) {
     }
   }
 
-  async function sprawdz() {
-    setBlad(null);
-    setWysylka(true);
-    try {
-      const nowy = await sprawdzMentora();
-      setStan(nowy);
-      if (nowy.czeka) onKomunikat?.("Mentor jeszcze patrzy");
-    } catch {
-      setBlad("Nie mogę teraz zapytać Mentora. Spróbuj później.");
-    } finally {
-      setWysylka(false);
-    }
-  }
+  /**
+   * WERDYKT SPRAWDZA SIĘ SAM, PRZY OTWARCIU PANELU.
+   *
+   * Wcześniej robił to przycisk „Sprawdź, czy odpisał" pod ekranem czekania.
+   * Przycisk kazał dziecku poprosić o rzecz, po którą właśnie przyszło —
+   * weszło do zadania, żeby zobaczyć, czy Mentor odpowiedział, i dostawało
+   * do kliknięcia pytanie „chcesz zobaczyć, czy Mentor odpowiedział?".
+   *
+   * To DALEJ NIE JEST POLLING (patrz `sprawdzMentora`): jedno zapytanie na
+   * jedno wejście do panelu, nic w tle, nic na zegarze. Mentor decyduje raz
+   * na dobę — odpytywanie co minutę byłoby samym transferem i baterią.
+   *
+   * Efekt zależy od `stan.czeka`, nie od `stan`: `sprawdzMentora` przy braku
+   * werdyktu zwraca nowy obiekt stanu o tej samej treści, więc zależność od
+   * całego `stan` zapętliłaby zapytania.
+   */
+  useEffect(() => {
+    if (!stan.czeka) return undefined;
+    let porzucone = false;
+    (async () => {
+      try {
+        const nowy = await sprawdzMentora();
+        if (!porzucone) setStan(nowy);
+      } catch {
+        // Cicho: dziecko i tak nie ma tu nic do zrobienia, a komunikat o
+        // błędzie sieci pod ekranem czekania byłby zmartwieniem bez wyjścia.
+        // Następne otwarcie panelu zapyta jeszcze raz.
+      }
+    })();
+    return () => { porzucone = true; };
+  }, [stan.czeka]);
 
   function odbierz() {
     const nowy = odbierzNagrode();
@@ -222,10 +240,6 @@ export default function ZadaniePanel({ onKomunikat, onZamknij }) {
             <img className="zadanie-podglad" src={stan.dowod.zdjecieUrl} alt="Twoje zdjęcie" />
           ) : null}
           {stan.dowod?.opis ? <p className="zadanie-notatka">„{stan.dowod.opis}”</p> : null}
-          <button type="button" className="hub-btn" onClick={sprawdz} disabled={wysylka}>
-            {wysylka ? "Zaglądam…" : "Zobacz, czy już sprawdzone"}
-          </button>
-          {blad ? <p className="zadanie-blad">{blad}</p> : null}
         </div>
       </div>
     );

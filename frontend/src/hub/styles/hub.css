@@ -1122,7 +1122,6 @@
 }
 .zadanie-czekanie p,
 .zadanie-nagroda p{ margin:0; font-size:16px; line-height:1.5; color:var(--p-ink,#4e4d76); }
-.zadanie-czekanie .hub-btn{ margin-top:6px; }
 
 /* Ilustracja "zadanie jest sprawdzane" — Wizkor z lupa nad zwojem.
    Zastapila kreskowa klepsydre (patrz `ZadaniePanel`). Rozmiar 148 px: to
