@@ -153,6 +153,134 @@ export const MISJE = [
       subtitle: "Odgadłeś sekret, który spał pod puchem.",
     },
   },
+  {
+    id: "lot-liska",
+    /* Znak tej misji to DRZEWO, nie leżący przedmiot. Sosna widać z drugiego
+       końca polany, więc dziecko nie szuka jej po trawie — idzie prosto do
+       niej. To celowe: trzecia misja z rzędu polegająca na wypatrywaniu
+       drobiazgu w trawie byłaby tym samym zadaniem trzeci raz.
+       Sam znak jest budowany z generatora sceny (`file: "drzewo"` w mapa.json),
+       bo pliku `drzewo.glb` nie ma — patrz patch `loadGLB` w bundlu. */
+    znak: "drzewo-lotu",
+    /* Sosna miała tu kiedyś `zostajeNaMapie: true` — była JEDYNYM znakiem,
+       który przeżywał rozliczenie misji, bo jako drzewo nie czytała się jako
+       „zbierz mnie". Flaga zniknęła, gdy zasada stała się ogólna: po
+       rozliczeniu WSZYSTKICH misji na polanę wracają wszystkie zdobyte znaki
+       (patrz `naMapie`), a w trakcie polowania chowają się wszystkie, łącznie
+       z sosną. Jeden wyjątek mniej. */
+    /* Bez kafelka „0/1" w HUD. Przy karcie i piórku licznik ma sens: znak
+       leży gdzieś w trawie i kafelek przypomina, ŻE się go szuka. Sosnę widać
+       z drugiego końca polany i wystarczy do niej podbiec — licznik nie niesie
+       wtedy żadnej informacji, tylko zajmuje górę ekranu. */
+    bezLicznikaHud: true,
+    tytul: "Lot Liska",
+    szukaj: "wysoką sosnę",
+    // Ikona zadania to CHOINKA, a nie lisek: kafelek w HUD ma 30 px i mowi,
+    // CZEGO SIE SZUKA na mapie ("wysoka sosne"), a nie kto szuka. Lisek w tym
+    // rozmiarze byl pomaranczowa plamka - kazde zadanie wygladalo tak samo.
+    ikona: "/assets/minigry/choinka.png",
+    ksztaltIkony: "zeton",
+    /* Ten sam podział co wyżej, suma 55 — lot jest ostatnią i najdłuższą
+       z trzech gier, więc dostaje odrobinę więcej niż piórko. */
+    nagrodaZnalezienie: 20,
+    nagroda: 35,
+    zlecenie: {
+      tekst:
+        "Widzisz tę wysoką sosnę na polanie? Z jej czubka widać cały las. " +
+        "Wespnij się na nią, a potem skocz — zobaczymy, jak daleko dolecisz.",
+      wyroznienie: "wysoką sosnę",
+      przycisk: "Wchodzę na sosnę!",
+    },
+    szukanie: {
+      tekst:
+        "Sosna jest najwyższa na polanie, nie da się jej przeoczyć. " +
+        "Podbiegnij do niej, a reszta pójdzie sama.",
+      wyroznienie: "najwyższa na polanie",
+      przycisk: "Już biegnę!",
+    },
+    granie: {
+      tekst:
+        "Jesteś na górze. Odbij się w dobrym momencie i łap wiatr — " +
+        "im dłużej lecisz, tym więcej po drodze zbierzesz.",
+      wyroznienie: "łap wiatr",
+      przycisk: "Lecę!",
+    },
+    wyplata: {
+      tekst:
+        "Widziałem ten lot z ziemi, wędrowcze. Kawał drogi. " +
+        "{nagroda} monet — należą ci się.",
+      wyroznienie: "{nagroda} monet",
+      przycisk: "Odbieram nagrodę!",
+    },
+    nagrodaEkranZnalezienie: {
+      title: "Sosna znaleziona!",
+      subtitle: "Najwyższa na polanie. Od teraz startujesz z niej, kiedy chcesz.",
+    },
+    nagrodaEkran: {
+      title: "Ale lot!",
+      subtitle: "Złapałeś wiatr i poleciałeś dalej, niż sięga polana.",
+    },
+  },
+  {
+    id: "bieg-liska",
+    /* Znak tej misji to BUCIK (`assets/but.glb`) — zgubiony but do biegania,
+       leżący w trawie. Wracamy więc do schematu karty i piórka: przedmiot,
+       który się ZNAJDUJE i podnosi, a nie miejsce, do którego się podchodzi.
+       Dzięki temu i wchłanianie, i ekran znalezienia działają tu tak samo jak
+       w dwóch pierwszych misjach — bez wyjątków w kodzie sceny. */
+    znak: "bucik",
+    tytul: "Bieg Liska",
+    szukaj: "zgubiony bucik",
+    /* Ikona wyrenderowana z TEGO SAMEGO modelu, który leży na mapie
+       (`scripts` w `tmp/ikona` — three.js + GLTFLoader, jedna klatka). Kafelek
+       ma 30 px i mówi, CZEGO SIĘ SZUKA, więc musi to być ta sama rzecz i ten
+       sam kolor, co w trawie. */
+    ikona: "/assets/minigry/but.png",
+    ksztaltIkony: "zeton",
+    /* Ten sam podział co w reszcie łańcucha. Suma 65 — bieg jest ostatni
+       i najdłuższy (pięć zadań na trasie), więc płaci najwięcej.
+       Za samo znalezienie bucika płacimy najhojniej z całego łańcucha (25):
+       jest najmniejszy ze wszystkich znaków, więc i szuka się go najdłużej. */
+    nagrodaZnalezienie: 25,
+    nagroda: 40,
+    zlecenie: {
+      tekst:
+        "Zostało ostatnie, wędrowcze. Ktoś zgubił na polanie bucik do " +
+        "biegania — mały, żółty, łatwo go przeoczyć. Znajdź go, a pokażę ci " +
+        "trasę, na której liczy się w biegu.",
+      wyroznienie: "bucik do biegania",
+      przycisk: "Szukam bucika!",
+    },
+    szukanie: {
+      tekst:
+        "Bucik jest mniejszy niż karta i niż piórko — leży gdzieś nisko " +
+        "w trawie. Szukaj żółtej plamki i wbiegnij prosto w nią.",
+      wyroznienie: "żółtej plamki",
+      przycisk: "Szukam dalej!",
+    },
+    granie: {
+      tekst:
+        "Bucik masz, więc trasa stoi otworem. Biegnij i licz w biegu — " +
+        "bramki nie czekają, aż się zastanowisz.",
+      wyroznienie: "licz w biegu",
+      przycisk: "Biegnę!",
+    },
+    wyplata: {
+      tekst:
+        "Przebiegłeś całą trasę i jeszcze liczyłeś po drodze. Głowa i nogi " +
+        "naraz — to rzadkie. {nagroda} monet jest twoje.",
+      wyroznienie: "{nagroda} monet",
+      przycisk: "Odbieram nagrodę!",
+    },
+    nagrodaEkranZnalezienie: {
+      title: "Bucik znaleziony!",
+      subtitle: "Leżał w trawie, mały i żółty. Trasa czeka w skrzyni z grami.",
+    },
+    nagrodaEkran: {
+      title: "Głowa i nogi!",
+      subtitle: "Przebiegłeś całą trasę, licząc na każdej bramce.",
+    },
+  },
 ];
 
 /** Definicja misji po id gry albo po identyfikatorze znaku w scenie. */
@@ -179,7 +307,19 @@ function zapisz(zapis) {
   } catch {}
 }
 
-function zStanu(def, wpis) {
+/**
+ * Czy trwa POLOWANIE: jest misja zlecona i jeszcze nierozliczona, czyli
+ * dziecko szuka teraz nowej gry albo dopiero ma ją przejść pierwszy raz.
+ * To jedyny stan, w którym mapa musi mówić o JEDNEJ rzeczy.
+ */
+function czyPolowanie(zapis) {
+  return MISJE.some((def) => {
+    const w = zapis[def.id];
+    return !!w?.ujawniona && !w?.wyplacona;
+  });
+}
+
+function zStanu(def, wpis, polowanie) {
   const ujawniona = !!wpis?.ujawniona;
   const znaleziona = !!wpis?.znaleziona;
   const wygrana = !!wpis?.wygrana;
@@ -199,20 +339,25 @@ function zStanu(def, wpis) {
     /** Kafelek w HUD ma stać, dopóki misja nie jest rozliczona. */
     aktywna: ujawniona && !wyplacona,
     /**
-     * Znak stoi na mapie WYŁĄCZNIE przez czas swojej misji: od zlecenia
-     * Wizkora do jej rozliczenia.
+     * CO STOI NA MAPIE — zależy od tego, czy trwa polowanie.
      *
-     * Wcześniej zostawał tam na zawsze („skrót do gry"), więc przy drugiej
-     * misji dziecko miało na polanie dwa znaki naraz: piórko, którego szuka,
-     * i kartę, która już nic nie znaczy. Mapa przestawała wtedy mówić „tego
-     * szukasz" i zaczynała mówić „tu coś jest" — a cała ta gra stoi na jednym
-     * celu na ekranie. Gry i tak zostają w zakładce minigier na stałe
-     * (`wZakladce`), więc znika skrót, a nie dostęp.
+     *   polowanie (misja zlecona, gra jeszcze nieprzeszła):
+     *       na mapie stoi TYLKO jej znak, reszta skrótów się chowa,
+     *   spokój (wszystko rozliczone):
+     *       wracają WSZYSTKIE zdobyte znaki jako stałe skróty do gier.
      *
-     * Misje idą po kolei i Wizkor zleca dopiero po rozliczeniu poprzedniej,
-     * więc ten warunek daje na mapie zawsze najwyżej JEDEN znak misji.
+     * Dwie zasady w jednym warunku, bo to jedna decyzja. Kiedy dziecko czegoś
+     * szuka, mapa ma mówić o jednej rzeczy — inaczej przestaje znaczyć „tego
+     * szukasz", a zaczyna „tu coś jest", i cel ginie wśród pamiątek. Kiedy nie
+     * szuka niczego, nie ma czego chronić: polana może być wtedy tym, czym
+     * powinna — miejscem, z którego wchodzi się do każdej zdobytej gry.
+     *
+     * Wcześniej znak znikał po rozliczeniu NA ZAWSZE (poza wyjątkiem
+     * `zostajeNaMapie` dla sosny). Skrót do przejętej gry przepadał, choć nic
+     * już nie zaciemniał — bo w spokoju nie ma celu, z którym mógłby
+     * konkurować. Wyjątek zniknął razem z regułą, która go wymuszała.
      */
-    naMapie: ujawniona && !wyplacona,
+    naMapie: ujawniona && (polowanie ? !wyplacona : true),
     /** Gra siedzi w zakładce dopiero od znalezienia — i tam zostaje. */
     wZakladce: znaleziona,
   };
@@ -221,13 +366,19 @@ function zStanu(def, wpis) {
 /** Stany wszystkich misji, w kolejności z `MISJE`. */
 export function stanMisji() {
   const zapis = czytaj();
-  return MISJE.map((def) => zStanu(def, zapis[def.id]));
+  // `polowanie` liczymy RAZ, z całego zapisu: `naMapie` jednej misji zależy od
+  // tego, czy któraś INNA jest w toku, więc nie da się go policzyć z samego
+  // wpisu. To jedyne pole w tym module, które patrzy poza swoją misję.
+  const polowanie = czyPolowanie(zapis);
+  return MISJE.map((def) => zStanu(def, zapis[def.id], polowanie));
 }
 
 /** Stan jednej misji (albo `null`, gdy takiej gry nie ma w łańcuchu). */
 export function stanGry(id) {
   const def = misjaGry(id);
-  return def ? zStanu(def, czytaj()[id]) : null;
+  if (!def) return null;
+  const zapis = czytaj();
+  return zStanu(def, zapis[id], czyPolowanie(zapis));
 }
 
 /**

@@ -1,0 +1,65 @@
+/* Bieg Liska — warstwa HUD nad płótnem 3D.
+   Pytanie wisi U GÓRY na środku jak toast z mapy (ten sam język: kremowa
+   pigułka, gruby brąz), bo dziecko czyta je W BIEGU — musi być duże i w
+   jednym, przewidywalnym miejscu. */
+
+.bieg-gra{ background:#8ecbee; }
+
+.bieg-scena{ position:absolute; inset:0; }
+.bieg-canvas{ width:100%; height:100%; display:block; touch-action:none; }
+
+.bieg-pasek{ z-index:3; }
+.bieg-postep{
+  display:inline-flex; align-items:baseline; gap:4px; padding:6px 14px;
+  border-radius:999px; background:rgba(255,249,216,.92);
+  border:2px solid #e6a832; box-shadow:0 2px 0 #a2621c;
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif; color:#5c3a12;
+}
+.bieg-postep b{ font-size:20px; }
+.bieg-postep span{ font-size:13px; font-weight:800; opacity:.75; }
+
+/* Zadanie — duża pigułka na górze, zawsze w tym samym miejscu. */
+.bieg-pytanie{
+  position:absolute; top:14px; left:50%; transform:translateX(-50%);
+  z-index:2; padding:10px 26px; white-space:nowrap;
+  border:3px solid #e6a832; border-radius:999px;
+  background:linear-gradient(180deg,#fff8dd,#f4e1ac);
+  box-shadow:0 3px 0 #a2621c, 0 8px 16px rgba(38,31,18,.25);
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  font-size:clamp(24px,5.5vw,34px); font-weight:800; color:#4a2f10;
+  animation:bieg-pytanie-wjazd .35s cubic-bezier(.2,.9,.3,1.25);
+}
+.bieg-pytanie.is-cicha{ font-size:17px; opacity:.85; }
+@keyframes bieg-pytanie-wjazd{
+  from{ transform:translateX(-50%) translateY(-16px) scale(.85); opacity:0; }
+  to{ transform:translateX(-50%) translateY(0) scale(1); opacity:1; }
+}
+
+/* Reakcja pod pytaniem: zielona na brawo, bursztyn na pomyłkę.
+   Czerwieni tu nie ma — pomyłka w liczeniu to nie alarm. */
+.bieg-reakcja{
+  position:absolute; top:76px; left:50%; transform:translateX(-50%);
+  z-index:2; padding:7px 18px; white-space:nowrap;
+  border-radius:999px; border:2px solid transparent;
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  font-size:16px; font-weight:800;
+  animation:bieg-pytanie-wjazd .3s ease;
+}
+.bieg-reakcja.is-dobrze{ background:#e2f6d9; border-color:#7dbb5e; color:#2c5e1f; }
+.bieg-reakcja.is-zle{ background:#fdeed2; border-color:#e0a94f; color:#7c5514; }
+.bieg-reakcja.is-mimo{ background:#f2e9f9; border-color:#b18ad6; color:#5b3a80; }
+
+/* Podpowiedź gestu — jak w Locie Liska, na dole, nie łapie dotknięć. */
+.bieg-podpowiedz{
+  position:absolute; bottom:calc(18px + env(safe-area-inset-bottom,0px)); left:50%;
+  transform:translateX(-50%); z-index:2; pointer-events:none;
+  display:flex; align-items:center; gap:8px; padding:8px 16px;
+  border-radius:999px; background:rgba(24,15,33,.42); color:#fff3bd;
+  font-size:13px; font-weight:800; letter-spacing:.4px;
+}
+.bieg-palec{ font-size:18px; animation:bieg-palec-hop 1.4s ease-in-out infinite; }
+@keyframes bieg-palec-hop{ 0%,100%{ transform:translateY(0); } 40%{ transform:translateY(-6px); } }
+
+/* Tło POD splashem w kolorze nieba sceny — bez tego przy wolnym wczytaniu
+   ilustracji przez ekran przelatuje mleczna biel. */
+.gra-root:has(.start-gry--bieg){ background:#4da4d4; }

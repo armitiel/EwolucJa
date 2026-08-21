@@ -17,7 +17,9 @@ import EkranStartuGry from "../hub/EkranStartuGry.jsx";
 import SplashGry from "../hub/SplashGry.jsx";
 import RewardScreen from "../components/RewardScreen.jsx";
 import { dodajMonety } from "../services/monety.js";
+import { rozliczPartie } from "../hub/misjeGier.js";
 import { poziomyGry } from "../hub/poziomyGier.js";
+import { czyDev } from "../services/dev.js";
 import { fx } from "../services/soundFx.js";
 import "../hub/styles/hub.css";
 import "../styles/choinka-launch.css";
@@ -34,6 +36,39 @@ const CELE = [
   new THREE.Vector3(-7.8, 3.0, -13),
 ];
 const ILE_CELÓW = CELE.length;
+
+/**
+ * Promień obręczy — i zarazem promień zaliczenia. Był 0,68; przy tej wielkości
+ * dziecko musiało trafić niemal w środek, a przelot obok krawędzi wyglądał jak
+ * trafienie i tak (stary test liczył samą ODLEGŁOŚĆ od środka, w kuli 1,48).
+ * 1,15 daje bramkę, przez którą widać, że się przeleciało.
+ */
+const PROMIEN_OBRECZY = 1.15;
+
+/** Skala spoczynkowa obręczy — stała, żeby nie tworzyć wektora w każdej klatce. */
+const JEDNOSTKOWA = new THREE.Vector3(1, 1, 1);
+
+/**
+ * POZIOM „brama”: DWIE obręcze stoją NARAZ i obie trzeba przelecieć
+ * w jednym locie. Pozycje nie są wymyślone — leżą na jednym, realnym torze
+ * lotu, policzonym z tego samego modelu, którego używa gra (`predkoscZNaciagu`
+ * + grawitacja 7,3). Dzięki temu istnieje siła naciągu, przy której lisek
+ * przechodzi przez obie.
+ *
+ * Druga brama stoi DALEJ (11,7 zamiast 10,7 metra od czubka) i — co ważne —
+ * NIE na prostej: jest odsunięta ok. 0,9 m w bok od linii łączącej czubek
+ * z pierwszą bramą, w tę samą stronę, w którą wygina się tor łatwego poziomu.
+ * Tor lotu jest w poziomie prostą (balistyka bez skrętu), więc „łuk” bierze
+ * się stąd, że dziecko musi wycelować MIĘDZY bramy: przy skręcie ok. −0,17
+ * lisek mija środek każdej z nich o ~0,4 m — mieści się w obręczy (promień
+ * 1,15), ale nie ma już marginesu na strzelanie „prosto przed siebie”.
+ * Sprawdzone symulacją całego zakresu naciągu: najlepszy przelot mija środki
+ * o 0,51 m, czyli zostaje ok. 0,6 m zapasu.
+ */
+const BRAMY = [
+  new THREE.Vector3(-3.78, 4.26, -7.27),
+  new THREE.Vector3(-6.2, 2.4, -9.97),
+];
 
 const ogranicz = (n, min, max) => Math.max(min, Math.min(max, n));
 
@@ -151,10 +186,19 @@ function dodajTlo(scena) {
   }
 }
 
+/**
+ * Obręcz to BRAMKA, przez którą się przelatuje — nie tarcza, w którą się trafia.
+ * Stąd dwie grupy zamiast jednej: `grupa` trzyma pozycję i USTAWIENIE obręczy
+ * (obraca się przodem do choinki), a `kolo` w środku tylko się kołysze. Gdyby
+ * kołysanie siedziało na `grupa.rotation.z`, nadpisywałoby kąt ustawiony przez
+ * `lookAt` i płaszczyzna, którą sprawdzamy w locie, powoli by się przekręcała.
+ */
 function stworzCel(scena) {
   const grupa = new THREE.Group();
+  const kolo = new THREE.Group();
+  grupa.add(kolo);
   const obrecz = new THREE.Mesh(
-    new THREE.TorusGeometry(0.68, 0.13, 12, 40),
+    new THREE.TorusGeometry(PROMIEN_OBRECZY, 0.155, 12, 44),
     new THREE.MeshStandardMaterial({
       color: 0xf6b93b,
       emissive: 0x8a4c12,
@@ -164,14 +208,15 @@ function stworzCel(scena) {
     })
   );
   obrecz.castShadow = true;
-  grupa.add(obrecz);
+  kolo.add(obrecz);
   const srodek = new THREE.Mesh(
-    new THREE.CircleGeometry(0.53, 32),
+    new THREE.CircleGeometry(PROMIEN_OBRECZY - 0.13, 32),
     new THREE.MeshBasicMaterial({ color: 0xffe39a, transparent: true, opacity: 0.16, side: THREE.DoubleSide })
   );
   srodek.position.z = -0.03;
-  grupa.add(srodek);
+  kolo.add(srodek);
   scena.add(grupa);
+  grupa.kolo = kolo;
   return grupa;
 }
 
@@ -180,11 +225,19 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
   const canvasRef = useRef(null);
   const graRef = useRef({ sterowanie: null });
   const wyplaconoRef = useRef(false);
+  /* Wybrany poziom żyje w stanie, a nie tylko w propsie: z mapy gra wchodzi
+     od razu z poziomem, ale z biblioteki dziecko wybiera go na ekranie startu
+     — i wtedy scena musi się przebudować pod nowy układ obręczy. */
+  const [wybranyPoziom, setWybranyPoziom] = useState(poziom || "jeden");
+  const brama = wybranyPoziom === "brama";
   const [faza, setFaza] = useState(poziom ? "gra" : "splash");
   const [trafienia, setTrafienia] = useState(0);
   const [strzaly, setStrzaly] = useState(0);
   const [monety, setMonety] = useState(0);
   const [komunikat, setKomunikat] = useState("Dotknij liska i przeciągnij w dół");
+  // Nagroda Wizkora za domkniętą misję — 0, gdy misji nie ma albo sosna nie
+  // została jeszcze znaleziona na mapie.
+  const [nagrodaMisji, setNagrodaMisji] = useState(0);
 
   const wrocDoHuba = useCallback(() => {
     if (onWyjscie) onWyjscie();
@@ -196,15 +249,42 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
     setStrzaly(0);
     setMonety(0);
     setKomunikat("Dotknij liska i przeciągnij w dół");
+    setNagrodaMisji(0);
     wyplaconoRef.current = false;
     setFaza("gra");
   }, []);
 
+  /* Misja Wizkora zamyka się TUTAJ — dokładnie tak samo jak w `MemoryGame`
+     i `PiorkaGame`. Bez tego partia kończyła się, a `wygrana` w łańcuchu
+     zostawała na `false`: kafelek w HUD wisiał na „0/1" po przelocie przez
+     obręcze i nagrody od Wizkora nie było. Ta gra powstała, zanim łańcuch
+     dostał swoje trzecie i czwarte zadanie. */
   useEffect(() => {
     if (faza !== "koniec" || wyplaconoRef.current) return;
     wyplaconoRef.current = true;
     if (monety > 0) dodajMonety(monety, "minigra:lot-liska");
+    try {
+      const { dodane } = rozliczPartie(GRA);
+      setNagrodaMisji(dodane || 0);
+    } catch { setNagrodaMisji(0); }
   }, [faza, monety]);
+
+  /* Uchwyt dla pulpitu testowego — ten sam wzorzec, co w pozostałych grach.
+     Tylko w trybie dev. Kończy partię tak, jak kończy ją dziecko: komplet
+     trafień i pełna stawka, więc idzie tą samą drogą (wypłata, domknięcie
+     misji, ekran nagrody). */
+  useEffect(() => {
+    if (!czyDev()) return undefined;
+    window.__devGra = {
+      id: GRA,
+      wygraj: () => {
+        setTrafienia(brama ? BRAMY.length : ILE_CELÓW);
+        setMonety(poziomyGry(GRA).find((p) => p.id === wybranyPoziom)?.monetyMax || 0);
+        setFaza("koniec");
+      },
+    };
+    return () => { if (window.__devGra?.id === GRA) delete window.__devGra; };
+  }, [brama, wybranyPoziom]);
 
   useEffect(() => {
     if (faza !== "gra") return undefined;
@@ -239,9 +319,21 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
 
     dodajTlo(scena);
     const choinka = dodajChoinke(scena);
-    const cel = stworzCel(scena);
-    cel.position.copy(CELE[0]);
-    cel.lookAt(0, cel.position.y, 0);
+    /* Na łatwym poziomie obręcz jest jedna i wędruje po trafieniu. Na „bramie"
+       stoją obie naraz — dziecko musi ZOBACZYĆ tor, zanim wystrzeli,
+       bo celuje nie w punkt, tylko w korytarz. */
+    const cele = (brama ? BRAMY : [CELE[0]]).map((poz) => {
+      const c = stworzCel(scena);
+      c.position.copy(poz);
+      c.lookAt(0, c.position.y, 0);
+      return c;
+    });
+    const cel = cele[0];
+    /* Kamera i kadrowanie mają patrzeć na obręcz, która jest teraz CELEM.
+       Na łatwym poziomie jest tylko jedna; na bramie „teraz" zmienia się
+       w trakcie lotu, a kamera pokazująca pierwszą bramę po jej przelocie
+       zostawiałaby liska poza kadrem. */
+    const celTeraz = () => cele[Math.min(stan.bramaIndex, cele.length - 1)];
 
     const lis = new THREE.Group();
     const zastepczy = stworzLiskaZastepczego();
@@ -298,6 +390,17 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
       celIndex: 0,
       trafienia: 0,
       strzaly: 0,
+      /* Do wykrycia PRZELOTU: po której stronie płaszczyzny obręczy był lisek
+         w poprzedniej klatce i gdzie dokładnie stał. Bez tego nie da się
+         znaleźć punktu przecięcia — przy 60 klatkach na sekundę i szybkim
+         locie lisek potrafi przeskoczyć obręcz w całości między klatkami. */
+      stronaObreczy: null,
+      poprzedniaPozycja: new THREE.Vector3(),
+      /* Poziom „brama": indeks obręczy, przez którą lisek ma przelecieć jako
+         następną. Kolejność jest istotna — bramy stoją jedna za drugą, więc
+         sprawdzamy zawsze tylko TĘ jedną. */
+      bramaIndex: 0,
+      stronaBramy: null,
     };
     const tmpTip = new THREE.Vector3();
     const tmpKamera = new THREE.Vector3();
@@ -306,6 +409,8 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
     const kameraFokus = new THREE.Vector3();
     const kameraFokusNaciagu = new THREE.Vector3();
     const tmpKierunek = new THREE.Vector3();
+    const tmpNormalna = new THREE.Vector3();
+    const tmpPrzeciecie = new THREE.Vector3();
     const tmpLisEkran = new THREE.Vector3();
     const tmpPrawoKamery = new THREE.Vector3();
     const tmpGoraKamery = new THREE.Vector3();
@@ -421,9 +526,24 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
       stan.naciagX = 0;
       stan.naciagY = 0;
       stan.czasLotu = 0;
+      // Pamięć o stronie obręczy musi zniknąć razem z lotem — inaczej pierwsza
+      // klatka nowego strzału porównywałaby się z poprzednim i mogła zaliczyć
+      // przelot, którego nie było.
+      stan.stronaObreczy = null;
+      /* Na bramie każdy strzał zaczyna liczenie od zera: „dwie z trzech"
+         z poprzedniego lotu nie przenosi się na następny, bo cała trudność
+         tego poziomu polega na przejściu wszystkich JEDNYM lotem. */
+      stan.stronaBramy = null;
+      if (brama) {
+        stan.bramaIndex = 0;
+        stan.trafienia = 0;
+        setTrafienia(0);
+        cele.forEach((c) => c.scale.setScalar(1));
+      }
       ustawChoinke(0, 0);
       choinka.czubek.getWorldPosition(tmpTip);
       lis.position.copy(tmpTip);
+      stan.poprzedniaPozycja.copy(tmpTip);
       lis.rotation.set(0, 0, 0);
       stan.czasPodgladu = 0;
       przeliczKadry();
@@ -435,21 +555,28 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
       stan.czasTrafienia = 0;
       tmpKierunek.copy(stan.predkosc);
       if (tmpKierunek.lengthSq() < 0.001) tmpKierunek.copy(KIERUNEK_LOTU);
-      tmpKierunek.normalize();
 
-      // Obręcz jest fizyczną przeszkodą: lis zatrzymuje się przed jej
-      // płaszczyzną i odbija do gracza, zamiast przelecieć na drugą stronę.
-      lis.position.copy(cel.position).addScaledVector(tmpKierunek, -1.02);
-      stan.predkoscOdbicia.copy(tmpKierunek).multiplyScalar(-1.35);
-      stan.predkoscOdbicia.y = 0.9;
+      /* LIS PRZELATUJE NA DRUGĄ STRONĘ. Wcześniej obręcz była fizyczną
+         przeszkodą: lisek zatrzymywał się przed jej płaszczyzną i odbijał do
+         gracza. Czytało się to jak uderzenie w tarczę, a nie jak przelot przez
+         bramkę — i kłóciło się z tym, co dziecko właśnie zrobiło.
+         Zostaje mu jego własny pęd, tylko przygaszony, żeby lot za obręczą
+         trwał chwilę dłużej i dało się go zobaczyć. */
+      stan.predkoscOdbicia.copy(tmpKierunek).multiplyScalar(0.62);
+      stan.predkoscOdbicia.y = Math.max(0.4, stan.predkoscOdbicia.y);
       stan.predkosc.set(0, 0, 0);
-      stan.trafienia += 1;
+      stan.trafienia = brama ? cele.length : stan.trafienia + 1;
       setTrafienia(stan.trafienia);
-      setKomunikat("Bęc! Trafione! ✦");
+      setKomunikat(brama ? "Obie bramy! ✦" : "Przelot! ✦");
       try { fx?.sukces?.(); } catch {}
-      cel.scale.setScalar(1.28);
-      if (stan.trafienia >= ILE_CELÓW) {
-        const nagroda = Math.max(8, 20 - Math.max(0, stan.strzaly - ILE_CELÓW) * 2);
+      if (!brama) cel.scale.setScalar(1.28);
+      /* Na „bramie" koniec przychodzi po JEDNYM udanym locie — nagroda jest
+         wyższa, bo trzeba było trafić trzy razy z rzędu bez poprawki. */
+      if (brama || stan.trafienia >= ILE_CELÓW) {
+        const nadmiar = Math.max(0, stan.strzaly - (brama ? 1 : ILE_CELÓW));
+        const nagroda = brama
+          ? Math.max(12, 30 - nadmiar * 3)
+          : Math.max(8, 20 - nadmiar * 2);
         setMonety(nagroda);
         zakonczTimer = window.setTimeout(() => setFaza("koniec"), 1150);
         return;
@@ -466,7 +593,11 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
 
     const pudlo = () => {
       stan.tryb = "pudlo";
-      setKomunikat("Prawie! Spróbuj jeszcze raz");
+      setKomunikat(
+        brama && stan.bramaIndex > 0
+          ? `Prawie! ${stan.bramaIndex} z ${BRAMY.length} — leć jeszcze raz`
+          : "Prawie! Spróbuj jeszcze raz"
+      );
       try { fx?.blad?.(); } catch {}
       window.setTimeout(() => { if (zywe) resetDoNaciagu(true); }, 680);
     };
@@ -593,7 +724,7 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
         lis.rotation.x -= dt * 3.8;
         lis.rotation.z -= dt * 1.7;
         // Kamera lekko podąża za lotem, ale nie gubi ani choinki, ani celu.
-        tmpKamera.copy(lis.position).lerp(cel.position, 0.38);
+        tmpKamera.copy(lis.position).lerp(celTeraz().position, 0.38);
         kameraCel.lerp(tmpKamera, 1 - Math.exp(-2.4 * dt));
         tmpKierunekKamery.lerp(KIERUNEK_KAMERY, 1 - Math.exp(-2.8 * dt));
         kamera.zoom += (0.88 - kamera.zoom) * (1 - Math.exp(-3.4 * dt));
@@ -601,8 +732,62 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
         kamera.position.copy(kameraCel).add(tmpKierunekKamery);
         kamera.lookAt(kameraCel);
         utrzymajLiskaWKadrze();
-        const d = lis.position.distanceTo(cel.position);
-        if (d < 1.48) trafienie();
+        /* PRZELOT PRZEZ OBRĘCZ, nie trafienie w nią.
+           Liczymy, po której stronie płaszczyzny obręczy jest lisek. Gdy w tej
+           klatce przeszedł na drugą stronę, wyliczamy PUNKT PRZECIĘCIA (liniowo
+           między poprzednią a obecną pozycją) i sprawdzamy, jak daleko od środka
+           przeszedł. Bliżej niż promień obręczy — przelot. Dalej — leci sobie
+           dalej i spada, tak jak powinien.
+           Sprawdzanie samej odległości od środka (jak było) zaliczało też
+           przelot OBOK krawędzi i nie odróżniało „przez" od „koło". */
+        /* `sprawdzObrecz` zwraca:
+             null  — lisek jeszcze nie doszedł do płaszczyzny tej obręczy,
+             true  — przeszedł PRZEZ nią,
+             false — przeszedł obok (minął płaszczyznę poza pierścieniem).
+           Pamięć strony trzymamy osobno dla trybu łatwego i dla bramy, bo na
+           bramie sprawdzana obręcz zmienia się w trakcie lotu. */
+        const sprawdzObrecz = (obrecz, klucz) => {
+          obrecz.getWorldDirection(tmpNormalna);
+          const strona = tmpPrzeciecie.copy(lis.position).sub(obrecz.position).dot(tmpNormalna);
+          let wynik = null;
+          if (stan[klucz] !== null && stan[klucz] > 0 && strona <= 0) {
+            const t = stan[klucz] / (stan[klucz] - strona || 1);
+            tmpPrzeciecie.copy(stan.poprzedniaPozycja).lerp(lis.position, t).sub(obrecz.position);
+            tmpPrzeciecie.addScaledVector(tmpNormalna, -tmpPrzeciecie.dot(tmpNormalna));
+            wynik = tmpPrzeciecie.length() <= PROMIEN_OBRECZY;
+          }
+          stan[klucz] = strona;
+          return wynik;
+        };
+
+        let przelot = false;
+        let chybione = false;
+        if (brama) {
+          const nastepna = cele[stan.bramaIndex];
+          const wynik = nastepna ? sprawdzObrecz(nastepna, "stronaBramy") : null;
+          if (wynik === true) {
+            nastepna.scale.setScalar(1.3);
+            stan.bramaIndex += 1;
+            stan.stronaBramy = null;
+            setTrafienia(stan.bramaIndex);
+            if (stan.bramaIndex >= cele.length) przelot = true;
+            else {
+              setKomunikat(`Brama ${stan.bramaIndex}! Lecisz dalej…`);
+              try { fx?.gentleMagical?.(0.5); } catch {}
+            }
+          } else if (wynik === false) {
+            // Pominięta brama kończy próbę OD RAZU. Lot za nią nie ma już
+            // znaczenia, a czekanie na upadek tylko przedłuża rozczarowanie.
+            chybione = true;
+          }
+        } else {
+          przelot = sprawdzObrecz(cel, "stronaObreczy") === true;
+        }
+        stan.poprzedniaPozycja.copy(lis.position);
+        /* Bez `return` — na końcu `klatka` stoi `requestAnimationFrame`,
+           więc wyjście stąd zatrzymałoby całą animację gry. */
+        if (przelot) trafienie();
+        else if (chybione) pudlo();
         else if (lis.position.y < -0.35 || Math.abs(lis.position.x) > 8 || lis.position.z < -14 || stan.czasLotu > 3.4) pudlo();
       } else if (stan.tryb === "trafienie") {
         stan.czasTrafienia += dt;
@@ -612,8 +797,10 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
           lis.rotation.x += dt * 2.4;
         }
         lis.rotation.y += dt * 7;
-        cel.rotation.z += dt * 4;
-        kameraCel.lerp(cel.position, 1 - Math.exp(-3 * dt));
+        cele.forEach((c) => { c.kolo.rotation.z += dt * 4; });
+        // Po wygranej kamera siada na TEJ obręczy, przez którą lisek właśnie
+        // przeleciał — na bramie jest to ostatnia z trzech, nie pierwsza.
+        kameraCel.lerp(celTeraz().position, 1 - Math.exp(-3 * dt));
         tmpKierunekKamery.lerp(KIERUNEK_KAMERY, 1 - Math.exp(-3 * dt));
         kamera.zoom += (1 - kamera.zoom) * (1 - Math.exp(-3 * dt));
         kamera.updateProjectionMatrix();
@@ -622,8 +809,10 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
         utrzymajLiskaWKadrze();
       }
 
-      if (stan.tryb !== "trafienie") cel.rotation.z = Math.sin(czas * 1.8) * 0.08;
-      cel.scale.lerp(new THREE.Vector3(1, 1, 1), dt * 4);
+      cele.forEach((c, i) => {
+        if (stan.tryb !== "trafienie") c.kolo.rotation.z = Math.sin(czas * 1.8 + i * 0.9) * 0.08;
+        c.scale.lerp(JEDNOSTKOWA, dt * 4);
+      });
       renderer.render(scena, kamera);
       raf = requestAnimationFrame(klatka);
     };
@@ -645,7 +834,7 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
         }
       });
     };
-  }, [faza]);
+  }, [faza, brama]);
 
   const przekaz = (nazwa) => (e) => {
     e.preventDefault();
@@ -656,8 +845,11 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
     <main className={`gra-root choinka-gra${osadzona ? " gra-osadzona" : ""}`} data-testid="gra-lot-liska">
       <div className="gra-pasek choinka-pasek">
         {faza === "gra" ? (
-          <span className="choinka-wynik" aria-label={`${trafienia} z ${ILE_CELÓW} celów`}>
-            <b>{trafienia}</b><span>/ {ILE_CELÓW}</span>
+          <span
+            className="choinka-wynik"
+            aria-label={brama ? `${trafienia} z ${BRAMY.length} bram w tym locie` : `${trafienia} z ${ILE_CELÓW} celów`}
+          >
+            <b>{trafienia}</b><span>/ {brama ? BRAMY.length : ILE_CELÓW}</span>
           </span>
         ) : null}
         <button type="button" className="gra-x" onClick={wrocDoHuba} aria-label="Zamknij grę">×</button>
@@ -675,7 +867,8 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
                 laduje={laduje}
                 tekstLadowania="Wyznaczam lot…"
                 poziomy={poziomyGry(GRA)}
-                wybrany="jeden"
+                wybrany={wybranyPoziom}
+                onWybor={setWybranyPoziom}
                 cta="Lecimy!"
                 onGraj={start}
               />
@@ -707,12 +900,28 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
       {faza === "koniec" ? (
         <RewardScreen
           eyebrow="LOT LISKA"
-          title={strzaly <= 4 ? "Ale lot!" : "Wszystkie obręcze trafione!"}
-          subtitle="Choinka wystrzeliła liska przez trzy złote cele."
-          coins={monety}
-          gwiazdki={strzaly <= 4 ? 3 : strzaly <= 6 ? 2 : 1}
+          title={brama ? "Przez obie bramy!" : strzaly <= 4 ? "Ale lot!" : "Wszystkie obręcze trafione!"}
+          subtitle={
+            brama
+              ? `Jeden lot, ${BRAMY.length} bramy — i ani razu obok.`
+              : "Choinka wystrzeliła liska przez trzy złote cele."
+          }
+          coins={monety + nagrodaMisji}
+          /* Rozbicie wchodzi tylko przy dwóch źródłach nagrody — patrz
+             `RewardScreen`. Bez misji zostaje sama liczba za lot. */
+          rozbicie={[
+            { etykieta: "Za lot", monety },
+            { etykieta: "Od Wizkora za misję", monety: nagrodaMisji },
+          ]}
+          gwiazdki={
+            brama
+              ? (strzaly <= 2 ? 3 : strzaly <= 5 ? 2 : 1)
+              : (strzaly <= 4 ? 3 : strzaly <= 6 ? 2 : 1)
+          }
           kafelki={[
-            { wartosc: `${ILE_CELÓW}/${ILE_CELÓW}`, etykieta: "cele" },
+            brama
+              ? { wartosc: `${BRAMY.length}/${BRAMY.length}`, etykieta: "bramy" }
+              : { wartosc: `${ILE_CELÓW}/${ILE_CELÓW}`, etykieta: "cele" },
             { wartosc: strzaly, etykieta: "strzały" },
           ]}
           akcje={[
