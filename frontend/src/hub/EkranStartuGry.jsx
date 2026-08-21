@@ -23,7 +23,7 @@
  *     cta="Zagraj" onGraj={() => restart()}
  *   />
  */
-import React from "react";
+import React, { useEffect, useState } from "react";
 import WyborPoziomu from "./WyborPoziomu.jsx";
 
 export default function EkranStartuGry({
@@ -39,6 +39,27 @@ export default function EkranStartuGry({
   cta = "Zagraj",
   onGraj,
 }) {
+  /* Ilustracja wchodzi animacją dopiero, gdy plik JEST wczytany. Wcześniej
+     animacja startowała razem z komponentem, obrazek dochodził w losowym
+     momencie i wskakiwał w środku ruchu — z zewnątrz wyglądało to jak
+     restart animacji. */
+  const [artGotowy, setArtGotowy] = useState(false);
+  useEffect(() => {
+    let aktualne = true;
+    setArtGotowy(false);
+    if (!ilustracja) return undefined;
+    const odslon = () => { if (aktualne) setArtGotowy(true); };
+    const obraz = new Image();
+    obraz.src = ilustracja;
+    // `decode()` czeka nie tylko na pobranie, ale i na gotową bitmapę —
+    // dzięki temu pierwsza klatka animacji ma już co narysować.
+    // Kiedy się nie uda (stara przeglądarka, błąd pliku), i tak odsłaniamy,
+    // żeby ilustracja nigdy nie została niewidzialna na zawsze.
+    if (typeof obraz.decode === "function") obraz.decode().then(odslon, odslon);
+    else { obraz.onload = odslon; obraz.onerror = odslon; }
+    return () => { aktualne = false; };
+  }, [ilustracja]);
+
   return (
     <div className={`start-gry start-gry--${wariant}${laduje ? " is-loading" : " is-ready"}`} aria-busy={laduje || undefined}>
       <div className="start-gry-scena" aria-hidden="true">
@@ -64,13 +85,20 @@ export default function EkranStartuGry({
               <i className="start-gry-lisc start-gry-lisc--3" />
             </>
           ) : null}
+          {wariant === "bieg" ? (
+            <>
+              <i className="start-gry-chmurka start-gry-chmurka--1" />
+              <i className="start-gry-chmurka start-gry-chmurka--2" />
+              <i className="start-gry-chmurka start-gry-chmurka--3" />
+            </>
+          ) : null}
           <i className="start-gry-iskra start-gry-iskra--1" />
           <i className="start-gry-iskra start-gry-iskra--2" />
           <i className="start-gry-iskra start-gry-iskra--3" />
         </div>
 
         {ilustracja ? (
-          <div className="start-gry-postac">
+          <div className={`start-gry-postac${artGotowy ? " ma-art" : ""}`}>
             <img className="start-gry-art" src={ilustracja} alt="" draggable="false" />
           </div>
         ) : null}

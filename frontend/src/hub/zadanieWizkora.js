@@ -25,6 +25,7 @@
 import DANE from "./data/zadania-wizkora.v1.json";
 import { api, session } from "../services/api.js";
 
+
 const KLUCZ = "ewolucja.zadanie.wizkora";
 export const ZDARZENIE_ZMIANY = "ewolucja:zadanieWizkoraZmiana";
 
@@ -172,6 +173,17 @@ export async function wyslijDowod({ opis, zdjecieUrl }) {
   });
 }
 
+/**
+ * WERDYKT BEZ OSOBNEJ WIEŚCI W SKRZYNCE.
+ *
+ * Była tu funkcja `ogloszZatwierdzenie`, która przy przyjęciu zadania
+ * wrzucala do zwoju wpis „Mentor przyjął Twoje zadanie!". USUNIĘTA
+ * (2026-08-22, decyzja właściciela): przypięta karta zadania i tak zmienia
+ * się wtedy na „Nagroda czeka" — z kwotą i przyciskiem odbioru — więc wieść
+ * mówiła to samo drugi raz, dwa centymetry niżej. Plakietkę na zakładce
+ * „Listy" pali sam przypięty wpis (patrz `wpisZadaniaWizkora` w
+ * `wiadomosci.js`), więc sygnał „coś na Ciebie czeka" nie znika.
+ */
 const PRZYJETE = new Set(["verified", "highlighted"]);
 const DO_POPRAWKI = new Set(["rejected", "needs_followup"]);
 
@@ -205,6 +217,40 @@ export async function sprawdzMentora() {
   return stanZadania();
 }
 
+/* ── SPRAWDZENIE W TLE ────────────────────────────────────────────────────
+   Panel pyta o werdykt przy otwarciu, ale dziecko nie ma powodu tam zagladac,
+   dopoki nie wie, ze cos sie zmienilo. Zeby wiesc o zatwierdzeniu trafila do
+   skrzynki SAMA, swiat pyta raz przy wejsciu i raz przy powrocie do karty.
+
+   To wciaz nie jest polling: dlawik przepuszcza jedno zapytanie na 10 minut,
+   a pytamy wylacznie wtedy, gdy naprawde czekamy na Mentora. Znacznik siedzi
+   w localStorage, wiec przeladowanie strony w kolko tez nie zamieni tego
+   w petle zapytan. */
+const KLUCZ_PYTANIA = "ewolucja.zadanie.wizkora.ostatniePytanie";
+const ODSTEP_MS = 10 * 60 * 1000;
+
+function wolnoPytac() {
+  try {
+    const kiedy = Number(localStorage.getItem(KLUCZ_PYTANIA) || 0);
+    return !Number.isFinite(kiedy) || Date.now() - kiedy > ODSTEP_MS;
+  } catch {
+    return true;
+  }
+}
+
+/** Ciche sprawdzenie werdyktu poza panelem. Bledy sieci sa tu bez znaczenia. */
+export async function sprawdzMentoraWTle() {
+  const stan = stanZadania();
+  if (!stan.czeka || !stan.missionId) return stan;
+  if (!wolnoPytac()) return stan;
+  try { localStorage.setItem(KLUCZ_PYTANIA, String(Date.now())); } catch {}
+  try {
+    return await sprawdzMentora();
+  } catch {
+    return stan;
+  }
+}
+
 export function odbierzNagrode() {
   const zapis = czytaj();
   if (!zapis || zapis.status !== "zatwierdzone") return stanZadania();
@@ -214,6 +260,31 @@ export function odbierzNagrode() {
 /** Do pulpitu testowego i konsoli — czekanie na Mentora byłoby nie do zniesienia. */
 export function skasujZadanie() {
   return zapisz(null);
+}
+
+/**
+ * DEV: wysłanie dowodu BEZ sieci. Zapisuje dokładnie ten sam kształt stanu,
+ * który zostawia prawdziwe `wyslijDowod` (status `wyslane` + `dowod` ze
+ * zdjęciem i opisem) — pomija tylko backend. Dzięki temu panel zadania,
+ * zwój i kwestie Wizkora po dev-owej wysyłce wyglądają IDENTYCZNIE jak po
+ * prawdziwej; różni się jedno: brak `missionId`, więc „sprawdź werdykt"
+ * nie ma o co pytać — werdykt w tym trybie ustawia się też skrótem
+ * (`ustawStatus`). Pulpit próbuje najpierw prawdziwej drogi i schodzi tu
+ * dopiero, gdy sieci albo gracza nie ma.
+ */
+export function wyslijDowodDev({ opis, zdjecieUrl } = {}) {
+  const zapis = czytaj();
+  if (!zapis) return stanZadania();
+  return zapisz({
+    ...zapis,
+    status: "wyslane",
+    notatka: null,
+    dowod: {
+      opis: opis || "",
+      zdjecieUrl: zdjecieUrl || null,
+      wyslaneAt: new Date().toISOString(),
+    },
+  });
 }
 
 export function ustawStatus(status, notatka = null) {

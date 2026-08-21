@@ -5,7 +5,8 @@
     {
       "id": "ciche-dobro",
       "tytul": "Ciche dobro",
-      "cel": "Zrób dziś coś dobrego dla kogoś z domu. Po cichu.",
+      "cel": "Zrób dziś coś dobrego dla kogoś z domu.\nPo cichu.",
+      "szept": "Po cichu.",
       "jak": "Wybierz jedną rzecz i zrób ją tak, żeby nikt nie zauważył.",
       "dowod": "Potem zrób zdjęcie albo napisz Mentorowi, co to było.",
       "przyklad": "Nakryłem do stołu, zanim mama weszła. Nic nie mówiłem.",

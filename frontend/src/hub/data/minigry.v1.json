@@ -30,8 +30,18 @@
       "trasa": "/games/lot-liska",
       "wejscieFabularne": "sprężysta choinka na polanie",
       "wymaga": null,
-      "ikona": "/assets/piorka/lis-skok.webp",
-      "emoji": "🌲"
+      "ikona": "/assets/minigry/lot-liska.png"
+    },
+    {
+      "id": "bieg-liska",
+      "tytul": "Bieg Liska",
+      "opis": "Licz w biegu, skacz po wynik",
+      "monety": 20,
+      "trasa": "/games/bieg-liska",
+      "wejscieFabularne": "serpentyna nad przepaścią",
+      "wymaga": null,
+      "ikona": "/assets/minigry/lis-bieg.webp",
+      "emoji": "🧮"
     },
     {
       "id": "echo-melodii",

@@ -47,6 +47,18 @@ import {
   zlamanaKolejnosc,
 } from "./etapyMisji.js";
 import { powitanieCzarodzieja, ZNAK_CZARODZIEJA } from "./kwestieWizkora.js";
+import {
+  odbierzNagrode as odbierzNagrodeReala,
+  skasujZadanie as skasujZadanieReala,
+  sprawdzMentora,
+  stanZadania as stanReala,
+  ustawStatus as ustawStatusReala,
+  wyslijDowod,
+  wyslijDowodDev,
+  zadanieDoZlecenia,
+  ZADANIA as ZADANIA_REALNE,
+  zlecZadanie as zlecZadanieReala,
+} from "./zadanieWizkora.js";
 import { pokazZnakNaMapie } from "./znakiMapy.js";
 import { bonusMonet, dodajMonety, wyzerujBonus } from "../services/monety.js";
 import { czyLokalnie } from "../services/dev.js";
@@ -81,7 +93,7 @@ function Guzik({ children, onClick, ton = "" }) {
 }
 
 export default function DevRezyserka({
-  scenaRef, onZmiana, onOtworzGre, onKomunikat, onPokazWskazowke, onWylacz, zdarzenia = [],
+  scenaRef, onZmiana, onOtworzGre, onOtworzPanel, onKomunikat, onPokazWskazowke, onWylacz, zdarzenia = [],
 }) {
   const [otwarty, setOtwarty] = useState(false);
   const [, przerysuj] = useState(0);
@@ -201,6 +213,52 @@ export default function DevRezyserka({
     odswiez("DEV: znaki wracają szybciej");
   }
 
+  /* ── zadanie w realu ──────────────────────────────────────────────────
+     Cały obieg zadania POZA EKRANEM, krok po kroku: zlecenie → Listy →
+     wysyłka zdjęcia z opisem → werdykt Mentora → nagroda. Bez tych skrótów
+     przetestowanie jednej zmiany w panelu zadania znaczyło: zagadać Wizkora,
+     zrobić zdjęcie, zalogować się jako Mentor i klikać werdykt. */
+  const real = stanReala();
+
+  // Przykładowy dowód — mały PNG z projektu, żeby podgląd zdjęcia w panelu
+  // i u Mentora miał co pokazać bez sięgania po aparat.
+  const DOWOD_PRZYKLAD = {
+    opis: "Pomogłem bratu poskładać klocki, po cichu.",
+    zdjecieUrl: "/assets/porady/lis-oddech.png",
+  };
+
+  function realZlec() {
+    const nastepne = zadanieDoZlecenia() || ZADANIA_REALNE[0];
+    if (!nastepne) { onKomunikat?.("DEV: katalog zadań pusty"); return; }
+    zlecZadanieReala(nastepne.id);
+    odswiez(`DEV: zlecone „${nastepne.tytul}"`);
+  }
+
+  /**
+   * Wysyłka idzie NAJPIERW prawdziwą drogą (`wyslijDowod` → seed misji
+   * u Mentora + dowód przez API), bo wtedy testuje się także backend
+   * i panel Mentora. Bez sieci albo bez gracza schodzi na `wyslijDowodDev`,
+   * który zostawia identyczny stan lokalny — patrz komentarz w module.
+   */
+  async function realWyslij() {
+    try {
+      await wyslijDowod(DOWOD_PRZYKLAD);
+      odswiez("DEV: dowód poszedł do Mentora (API)");
+    } catch {
+      wyslijDowodDev(DOWOD_PRZYKLAD);
+      odswiez("DEV: dowód zapisany lokalnie (bez API)");
+    }
+  }
+
+  async function realWerdykt() {
+    try {
+      await sprawdzMentora();
+      odswiez("DEV: werdykt sprawdzony");
+    } catch {
+      onKomunikat?.("DEV: nie udało się zapytać Mentora");
+    }
+  }
+
   /* ── gry ──────────────────────────────────────────────────────────── */
   function wygrajOtwartaGre() {
     const uchwyt = window.__devGra;
@@ -313,6 +371,34 @@ export default function DevRezyserka({
               <Guzik onClick={() => onOtworzGre?.(m.id)}>Otwórz grę</Guzik>
             </Grupa>
           ))}
+
+          {/* Kolejność guzików = kolejność prawdziwego obiegu. Stan w tytule
+              mówi, który krok jest „teraz" — klikanie po kolei przechodzi
+              całe zadanie od zlecenia do wypłaty. */}
+          <Grupa
+            tytul={`Zadanie w realu — ${
+              !real.istnieje ? "brak"
+              : real.wyplacone ? "rozliczone"
+              : real.doOdbioru ? "nagroda czeka"
+              : real.czeka ? "u Mentora"
+              : real.status === "poprawka" ? "poprawka"
+              : "do zrobienia"
+            }${real.istnieje ? ` („${real.def?.tytul}")` : ""}`}
+          >
+            <Guzik onClick={realZlec}>Zleć</Guzik>
+            <Guzik onClick={() => onOtworzPanel?.("wiadomosci")}>Otwórz Listy</Guzik>
+            <Guzik onClick={() => onOtworzPanel?.("zadanie")}>Otwórz zadanie</Guzik>
+            <Guzik onClick={realWyslij}>Wyślij zdjęcie + tekst</Guzik>
+            <Guzik onClick={() => { ustawStatusReala("zatwierdzone"); odswiez("DEV: Mentor przyjął"); }}>
+              Mentor: przyjmij
+            </Guzik>
+            <Guzik onClick={() => { ustawStatusReala("poprawka", "Dopisz, komu pomogłeś."); odswiez("DEV: Mentor prosi o poprawkę"); }}>
+              Mentor: poprawka
+            </Guzik>
+            <Guzik onClick={realWerdykt}>Sprawdź werdykt (API)</Guzik>
+            <Guzik onClick={() => { odbierzNagrodeReala(); odswiez("DEV: nagroda odebrana"); }}>Odbierz nagrodę</Guzik>
+            <Guzik onClick={() => { skasujZadanieReala(); odswiez("DEV: zadanie skasowane"); }}>Reset</Guzik>
+          </Grupa>
 
           <Grupa tytul="Świat">
             <Guzik onClick={przywolajWizkora}>Przywołaj Wizkora</Guzik>

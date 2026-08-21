@@ -80,9 +80,13 @@ export default function PanelSheet({ open, kicker = null, title, onClose, onPowr
             {kicker ? <span className="hub-kicker">{kicker}</span> : null}
             <h2>{title}</h2>
           </div>
-          {/* Porada jest krótką ścieżką wyboru, więc wraca strzałką. Pozostałe
-              szuflady nadal zamykają się krzyżykiem. Przycisk zachowuje tę samą
-              czerwoną oprawę — zmienia się tylko biały znak i jego znaczenie. */}
+          {/* Panel z krokami w środku (Porady, Zadanie od Wizkora) zgłasza
+              przez `onPowrot`, że ma dokąd cofnąć — wtedy ten sam przycisk
+              wraca strzałką zamiast zamykać. Panele bez kroków zamykają się
+              krzyżykiem jak dotąd. Przycisk zachowuje tę samą czerwoną oprawę
+              — zmienia się tylko biały znak i jego znaczenie. Dzięki temu
+              w oknie jest JEDNO miejsce, które cofa, i żaden panel nie musi
+              rysować własnego linku „wróć" nad treścią. */}
           <button
             type="button"
             className={`hub-sheet-close${pokazPowrot ? " is-back" : ""}`}

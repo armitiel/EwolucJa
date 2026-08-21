@@ -55,7 +55,11 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      "/api": "http://localhost:3001",
+      // 127.0.0.1, NIE localhost. Node 18+ rozwiazuje `localhost` na ::1, a backend
+      // (Express) slucha tylko na IPv4 — proxy leci wiec w pustke i kazde
+      // wywolanie /api konczy sie `ECONNREFUSED ::1:3001`. Objaw w grze: HUD
+      // pokazuje „Wedrowiec" i 0 monet, choc oba serwery dzialaja.
+      "/api": "http://127.0.0.1:3001",
     },
   },
 });

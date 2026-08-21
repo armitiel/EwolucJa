@@ -450,12 +450,21 @@ export default function Swiat() {
   // czeka na odpowiedź z sieci (podpowiedzi Mentora), a te trzy liczą się
   // z lokalnego zapisu i mają być na ekranie od razu.
   const [nowosci, setNowosci] = useState(() => ({ gry: false, czat: 0, porada: 0 }));
-  // Gdy Porady pokazują wybraną kartę albo podsumowanie, strzałka w nagłówku
-  // cofa najpierw do listy kart. `null` oznacza, że jesteśmy już na liście i
-  // kolejny powrót może zamknąć szufladę do świata.
-  const [powrotPorady, setPowrotPorady] = useState(null);
-  const zarejestrujPowrotPorady = useCallback((akcja) => {
-    setPowrotPorady(() => akcja || null);
+  /*
+   * KRZYŻYK BELKI JAKO „WSTECZ" — wspólny dla wszystkich paneli z krokami.
+   *
+   * Panel, który ma w środku własny widok (Porady: wybrana karta albo
+   * podsumowanie; Zadanie: krok „pokaż Mentorowi"), rejestruje tu funkcję
+   * cofnięcia o JEDEN krok. Belka zamienia wtedy „×" na strzałkę. `null`
+   * znaczy „jesteśmy na pierwszym ekranie panelu" — wtedy przycisk znów
+   * zamyka szufladę do świata.
+   *
+   * Jedno miejsce dla wszystkich paneli, bo panel wychodzący czyści wpis
+   * w swoim sprzątaniu, a React robi to przed efektami panelu wchodzącego.
+   */
+  const [powrotPanelu, setPowrotPanelu] = useState(null);
+  const zarejestrujPowrot = useCallback((akcja) => {
+    setPowrotPanelu(() => akcja || null);
   }, []);
   // Podpowiedź sterowania pokazujemy do pierwszego dotknięcia i nigdy więcej —
   // dziecko, które już wie, jak chodzić, nie potrzebuje przypomnienia co wejście.
@@ -1904,9 +1913,9 @@ export default function Swiat() {
         open={!!naglowek}
         title={naglowek}
         onClose={zamknij}
-        onPowrot={panel === "porada" ? powrotPorady : null}
+        onPowrot={powrotPanelu}
         testId="hub-sheet"
-        powrot={panel === "porada" && !!powrotPorady}
+        powrot={!!powrotPanelu}
         /* Czat sam dzieli sobie wysokość (strumień przewija się, pole pisania
            stoi na dole). Reszta paneli to listy — te przewijają się w całości. */
         wypelnia={panel === "czat"}
@@ -1919,10 +1928,10 @@ export default function Swiat() {
           <MinigryPanel onGra={uruchomGre} onZamknij={zamknij} onKomunikat={pokazKomunikat} />
         ) : null}
         {panel === "profil" ? <ProfilPanel /> : null}
-        {panel === "czat" ? <CzatPanel /> : null}
-        {panel === "porada" ? <PoradaPanel onPowrot={zarejestrujPowrotPorady} /> : null}
+        {panel === "czat" ? <CzatPanel onPowrot={zarejestrujPowrot} /> : null}
+        {panel === "porada" ? <PoradaPanel onPowrot={zarejestrujPowrot} /> : null}
         {panel === "zadanie" ? (
-          <ZadaniePanel onKomunikat={pokazKomunikat} onZamknij={zamknij} />
+          <ZadaniePanel onKomunikat={pokazKomunikat} onZamknij={zamknij} onPowrot={zarejestrujPowrot} />
         ) : null}
       </PanelSheet>
 

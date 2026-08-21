@@ -22,7 +22,12 @@ const SEKCJE = [
  * Liczba mówi ILE, kropka mówi tylko ŻE — i to jest cała różnica: przy nowej
  * minigrze liczba niczego nie wnosi, bo nie ma czego odhaczać.
  */
-export default function HubDock({ aktywny, onWybor, plakietki = {} }) {
+/**
+ * `migajaca` = id sekcji, której ikona ma przez chwilę mrugać (klasa
+ * `is-miga`). Steruje tym świat — np. po słowach Wizkora „czeka w twoich
+ * Listach" mruga koperta, żeby słowo skleiło się z przyciskiem.
+ */
+export default function HubDock({ aktywny, onWybor, plakietki = {}, migajaca = null }) {
   return (
     <nav className="game-hud-dock" aria-label="Sekcje świata">
       {SEKCJE.map((sekcja) => {
@@ -39,7 +44,11 @@ export default function HubDock({ aktywny, onWybor, plakietki = {} }) {
           <button
             key={sekcja.id}
             type="button"
-            className={czyAktywny ? "is-active" : undefined}
+            className={
+              [czyAktywny && "is-active", migajaca === sekcja.id && "is-miga"]
+                .filter(Boolean)
+                .join(" ") || undefined
+            }
             data-section={sekcja.id}
             aria-pressed={czyAktywny}
             aria-label={opis}

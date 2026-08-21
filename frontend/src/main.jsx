@@ -48,6 +48,7 @@ import PoradyPage from "./pages/PoradyPage.jsx";
 const MemoryGame = lazy(() => import("./pages/MemoryGame.jsx"));
 const PiorkaGame = lazy(() => import("./pages/PiorkaGame.jsx"));
 const ChoinkaLaunchGame = lazy(() => import("./pages/ChoinkaLaunchGame.jsx"));
+const BiegLiskaGame = lazy(() => import("./pages/BiegLiskaGame.jsx"));
 import LoginAsStudent from "./pages/LoginAsStudent.jsx";
 import LoginByCode from "./pages/LoginByCode.jsx";
 import DevTools from "./components/DevTools.jsx";
@@ -98,6 +99,10 @@ function AppRoutes() {
       <Route
         path="/games/lot-liska"
         element={<Suspense fallback={<Loading text="Otwieram grę 3D…" />}><ChoinkaLaunchGame /></Suspense>}
+      />
+      <Route
+        path="/games/bieg-liska"
+        element={<Suspense fallback={<Loading text="Otwieram grę 3D…" />}><BiegLiskaGame /></Suspense>}
       />
       <Route path="/backpack" element={<Backpack />} />
       <Route path="/profile" element={<Profile />} />

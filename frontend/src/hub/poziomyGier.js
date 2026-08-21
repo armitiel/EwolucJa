@@ -26,8 +26,17 @@ export const POZIOMY_GIER = {
     { id: "jeden", monetyMax: 25 },
   ],
   "lot-liska": [
-    // Trzy obręcze; kolejne pudła obniżają nagrodę, ale nie blokują gry.
-    { id: "jeden", monetyMax: 20 },
+    // Trzy obręcze PO KOLEI, każda na osobny strzał. Kolejne pudła obniżają
+    // nagrodę, ale nie blokują gry.
+    { id: "jeden", nazwa: "Łatwy", opis: "Obręcz po obręczy", monetyMax: 20 },
+    // Dwie obręcze NARAZ, ustawione na jednym torze: liczy się przelot przez
+    // obie w JEDNYM locie. Pudło przy którejkolwiek kończy próbę.
+    { id: "brama", nazwa: "Trudny", opis: "Dwie naraz, jednym lotem", monetyMax: 30 },
+  ],
+  "bieg-liska": [
+    // Pięć zadań; każda dobra odpowiedź płaci maks/5 — patrz `stawka` w grze.
+    { id: "easy", nazwa: "Do 10", monetyMax: 20 },
+    { id: "hard", nazwa: "Do 20", monetyMax: 30 },
   ],
 };
 

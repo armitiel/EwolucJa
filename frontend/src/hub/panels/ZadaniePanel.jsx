@@ -30,7 +30,7 @@ import {
   ZDARZENIE_ZMIANY,
 } from "../zadanieWizkora.js";
 
-export default function ZadaniePanel({ onKomunikat, onZamknij }) {
+export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
   const { refreshPlayer } = useAppData();
   const [stan, setStan] = useState(() => stanZadania());
   const [etap, setEtap] = useState("plan");
@@ -56,6 +56,20 @@ export default function ZadaniePanel({ onKomunikat, onZamknij }) {
   const def = stan.def;
 
   useEffect(() => { setEtap("plan"); }, [def?.id, stan.status]);
+
+  /*
+   * Powrót z drugiego kroku siedzi w KRZYŻYKU belki, dokładnie tak jak
+   * w Poradach: dopóki jesteśmy w „dowodzie", przycisk arkusza zmienia się
+   * w strzałkę i cofa do zadania; z zadania zamyka szufladę do świata.
+   * Dzięki temu w oknie jest JEDNO miejsce, które cofa — osobny link
+   * „← Wróć do zadania" nad treścią mówił to samo drugi raz i przesuwał
+   * nagłówek w dół.
+   */
+  const wrocDoPlanu = useCallback(() => setEtap("plan"), []);
+  useEffect(() => {
+    onPowrot?.(etap === "dowod" ? wrocDoPlanu : null);
+    return () => onPowrot?.(null);
+  }, [onPowrot, etap, wrocDoPlanu]);
 
   // Drugi krok zaczyna się zawsze od nagłówka, niezależnie od tego, jak daleko
   // dziecko przewinęło listę podpowiedzi w pierwszym kroku.
@@ -270,9 +284,6 @@ export default function ZadaniePanel({ onKomunikat, onZamknij }) {
   if (etap === "dowod") {
     return (
       <div ref={panelRef} className="hub-pane" data-testid="hub-pane-zadanie-dowod">
-        <button type="button" className="zadanie-powrot" onClick={() => setEtap("plan")}>
-          <span aria-hidden="true">←</span> Wróć do zadania
-        </button>
         <h3 className="czat-naglowek czat-naglowek--pisz">Pokaż Mentorowi</h3>
         {def.dowod ? <p className="zadanie-dowod">{def.dowod}</p> : null}
 
@@ -353,7 +364,7 @@ export default function ZadaniePanel({ onKomunikat, onZamknij }) {
 
       <div className="hub-actions">
         <button type="button" className="hub-btn hub-btn-primary" onClick={() => setEtap("dowod")}>
-          Już zrobione — pokażę Mentorowi
+          Już zrobione!
         </button>
       </div>
 

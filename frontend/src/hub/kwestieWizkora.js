@@ -86,11 +86,13 @@ export function powitanieCzarodzieja(z, misja) {
       }
 
       if (real.czeka) {
+        // Ten sam ton co niżej: bez „nie musisz" — zamiast tego, co WOLNO
+        // robić w międzyczasie. Czekanie ma być spokojne, nie pilnowane.
         return {
           ...baza,
           tekst:
-            "Twoje zadanie jest u Mentora. Nie musisz nad nim stać — " +
-            "zajrzyj do Listów później.",
+            "Twoje zadanie jest u Mentora.\n" +
+            "Baw się dalej — zajrzyj do Listów za jakiś czas.",
           wyroznienie: "u Mentora",
           przycisk: "Dobrze!",
           akcja: null,
@@ -98,11 +100,20 @@ export function powitanieCzarodzieja(z, misja) {
       }
 
       if (real.doZrobienia) {
+        /**
+         * TYLKO przypomnienie — trzy krótkie wiersze, każdy z osobną myślą:
+         * pytanie / tytuł / gdzie leży. Tytuł stoi SAM w środkowym wierszu,
+         * bo to on jest tu najważniejszy (`\n` + pre-line w oknie postaci).
+         *
+         * BEZ dopisków w stylu „zrób naprawdę" i bez zakazów „tego nie
+         * zrobisz tutaj" (obie wersje tu były i obie wyleciały): pouczenie
+         * brzmi jak nieufność, a zakaz jak przyłapanie na oszustwie, którego
+         * nikt nie planował. Wizkor przypomina i wierzy — jak zadanie ma się
+         * odbywać, mówi samo zadanie w Listach.
+         */
         return {
           ...baza,
-          tekst:
-            `Pamiętasz o zadaniu? „${real.def.tytul}" czeka w twoich Listach. ` +
-            "Tego nie zrobisz tutaj — to trzeba zrobić naprawdę.",
+          tekst: `Pamiętasz o zadaniu?\n„${real.def.tytul}"\nczeka w twoich Listach.`,
           wyroznienie: real.def.tytul,
           przycisk: "Otwieram zadanie",
           akcja: "otworzZadanie",

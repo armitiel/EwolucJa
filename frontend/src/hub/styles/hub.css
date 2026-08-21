@@ -787,28 +787,16 @@
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-size:19px; font-weight:800;
 }
-.czat-kanal-powrot{
-  width:54px; height:52px; flex:none; display:grid; place-items:center; padding:0; cursor:pointer;
-  border:1.5px solid #d1a44b; border-radius:15px;
-  background:linear-gradient(145deg,#f5e5b8,#e3c47f 72%);
-  box-shadow:inset 1px 1px 0 rgba(255,250,218,.82),0 3px 0 #a97931,0 5px 8px rgba(92,61,22,.16);
-  -webkit-tap-highlight-color:transparent;
-}
-.czat-kanal-powrot svg{
-  width:35px; height:25px; overflow:visible;
-  transition:transform .1s ease,filter .1s ease;
-}
-.czat-strzalka-wklesla{
-  fill:#c7a463; stroke:#aa7e3d; stroke-width:1.4;
-  stroke-linejoin:round;
-  filter:drop-shadow(-1.2px -1.2px 1px rgba(111,73,25,.52)) drop-shadow(1.2px 1.2px 0 rgba(255,246,207,.88));
-}
-.czat-kanal-powrot:active{
-  transform:translateY(2px);
-  background:linear-gradient(145deg,#ead39b,#d9b66b 72%);
-  box-shadow:inset 2px 2px 4px rgba(123,82,28,.24),0 1px 0 #956628;
-}
+/* Zloty przycisk cofania zniknal z naglowka kanalu — cofa krzyzyk belki
+   arkusza (patrz `PanelSheet`), tak samo jak w Poradach i w Zadaniu. */
 .czat-kanal-znak{ width:34px; height:34px; display:grid; place-items:center; color:#7a4dc2; }
+/* W otwartym watku znakiem kanalu jest AVATAR rozmowcy — ta sama emotka,
+   co na liscie rozmow, zeby belka i lista mowily o tej samej osobie. */
+.czat-kanal-avatar{
+  width:34px; height:34px; display:grid; place-items:center;
+  font-size:21px; font-style:normal; line-height:1;
+  border-radius:50%; background:rgba(122,77,194,.12);
+}
 /* Lista rozmów i ekran Mentora dalej są listą — przewijają się u siebie. */
 .czat-lista{ flex:1; min-height:0; overflow-y:auto; }
 /* `min-height:0` NIE JEST OZDOBĄ: bez niego element flex nie zejdzie poniżej
@@ -1143,23 +1131,18 @@
 /* Cel zostaje najgrubszym ZDANIEM karty, ale juz nie konkuruje z tytulem:
    tamten ma teraz wlasny kolor i ornament, wiec tu wystarczy waga 700
    i atramentowy kolor tresci. */
-.zadanie-cel{ margin:0 0 7px; padding-right:0; font-size:18.5px; font-weight:700; line-height:1.38; color:var(--p-ink,#4e4d76); }
+.zadanie-cel{ margin:0 0 7px; padding-right:0; font-size:18.5px; font-weight:700; line-height:1.38; color:var(--p-ink,#4e4d76); white-space:pre-line; }
 .zadanie-jak{ margin:0; font-size:14.5px; line-height:1.4; color:var(--p-ink-soft,#5A4F77); }
-.zadanie-glos,
-.zadanie-powrot{
-  display:inline-flex; align-items:center; gap:8px; cursor:pointer;
-  border:0; font-family:inherit; font-weight:900;
-  color:var(--p-magic-dk,#7A4DC2); background:transparent;
-}
+/* Powrotu z drugiego kroku NIE MA juz w tresci - cofa krzyzyk w belce
+   arkusza (patrz `PanelSheet`), tak samo jak w Poradach. */
 .zadanie-glos{
+  display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+  font-family:inherit; font-weight:900; color:var(--p-magic-dk,#7A4DC2);
   margin:13px 0 0; padding:7px 10px 7px 8px;
   border:1.5px solid rgba(122,77,194,.28); border-radius:999px;
   background:rgba(255,255,255,.58);
 }
-.zadanie-powrot{ margin:0 0 8px; padding:6px 2px; font-size:14px; }
-.zadanie-powrot span{ font-size:20px; line-height:1; }
-.zadanie-glos:focus-visible,
-.zadanie-powrot:focus-visible{ outline:3px solid rgba(122,77,194,.38); outline-offset:3px; }
+.zadanie-glos:focus-visible{ outline:3px solid rgba(122,77,194,.38); outline-offset:3px; }
 /* Zdanie o dowodzie: ten sam glos co `jak`, tylko odrobine wieksze - stoi
    samo pod naglowkiem sekcji, wiec nie ma sie o co oprzec wzrokiem. */
 .zadanie-dowod{ margin:-4px 2px 12px; font-size:15px; line-height:1.42; color:var(--p-ink-soft,#5A4F77); }
@@ -1675,8 +1658,15 @@
      zamkniecia siedzi 8 px od brzegu i ma 30 px, wiec pierwszy wiersz musi
      zaczynac sie dalej niz 38 px - inaczej wchodzi mu pod spod. */
   margin:0; padding:0 26px;
-  font-size:16.5px; font-weight:600; line-height:1.44;
+  /* 18.5 px, nie 16.5: to zdanie mowi dziecku, po co w ogole jest to okno,
+     a czyta je szesciolatek na telefonie trzymanym w biegu. */
+  font-size:18.5px; font-weight:600; line-height:1.4;
   color:var(--p-ink,#4e4d76);
+  /* `\n` w tekscie postaci to ŚWIADOME zlamanie wiersza (patrz ZAPROSZENIA
+     w Swiat.jsx): kazda linijka konczy sie tam, gdzie konczy sie mysl,
+     a nie tam, gdzie skonczyla sie szerokosc okna. Teksty bez \n wygladaja
+     jak dotad - pre-line nie rusza zwyklego zawijania. */
+  white-space:pre-line;
 }
 
 /* Wyroznik zamalowany "od polowy w gore" - to zakreslacz, a nie inny kolor
@@ -1824,7 +1814,7 @@
     padding:28px 18px 20px;
   }
   .popup-postaci-wstega{ margin-top:-50px; font-size:18px; }
-  .popup-postaci-tekst{ font-size:15.5px; }
+  .popup-postaci-tekst{ font-size:17px; }
   .popup-postaci-przerywnik{ margin-top:11px; }
   .popup-postaci-akcja{ min-height:50px; font-size:16.5px; }
 }
@@ -1832,7 +1822,7 @@
 @media (max-width:340px){
   .popup-postaci-karta{ padding:30px 16px 20px; }
   .popup-postaci-wstega{ font-size:18px; padding:7px 14px; gap:7px; }
-  .popup-postaci-tekst{ font-size:15.5px; }
+  .popup-postaci-tekst{ font-size:16.5px; }
 }
 
 @media (prefers-reduced-motion:reduce){
@@ -1867,7 +1857,7 @@
 /* Boczny oddech liczony z krzyzyka: 8 px odstepu + 30 px przycisku minus
    18 px paddingu karty. Bez tego pierwszy wiersz wchodzi pod "x". */
 .popup-pytanie-tekst{
-  font-size:16px; line-height:1.4;
+  font-size:17.5px; line-height:1.4;
   padding:0 22px;
 }
 
@@ -1902,15 +1892,24 @@
 
 .popup-postaci-dodatek .start-gry-poziomy{ gap:9px; margin-top:0; }
 
+/* JEDEN POZIOM = PASEK NA CALA SZEROKOSC. Na ekranie startowym gry kafelki
+   stoja w dwoch kolumnach i waski `max-width:176px` trzyma je w ryzach.
+   W oknie postaci przy jednym poziomie zostawal z tego waski prostokat
+   dosuniety do lewej krawedzi karty - obietnica nagrody wygladala jak
+   przypadkowo wciety fragment. Tu rozciagamy go na cala szerokosc: to nie
+   jest wybor, tylko jedno zdanie powiedziane liczba. */
+.popup-postaci-dodatek .start-gry-poziomy.jeden{ max-width:none; }
+
 .popup-postaci-dodatek .start-gry-poziom{
   min-height:78px; padding:9px 8px; gap:3px; border-width:2.5px; border-radius:16px;
 }
 
-.popup-postaci-dodatek .start-gry-poziom-monety{ font-size:24px; gap:6px; }
+/* Skoro kafelek jest szerszy, liczba moze urosnac do rozmiaru z ekranu gry. */
+.popup-postaci-dodatek .start-gry-poziom-monety{ font-size:28px; gap:8px; }
 
 @media (max-height:680px){
   .popup-postaci-dodatek .start-gry-poziom{ min-height:66px; padding:7px 6px; }
-  .popup-postaci-dodatek .start-gry-poziom-monety{ font-size:21px; }
+  .popup-postaci-dodatek .start-gry-poziom-monety{ font-size:24px; }
 }
 
 
@@ -2052,6 +2051,9 @@
 .start-gry--pamiec{ --start-tlo:url('/assets/minigry/start-pamiec-scena-v2.webp'); --start-atrament:#572590; --start-haslo:#54286f; --start-panel:rgba(250,242,255,.95); }
 .start-gry--puch{ --start-tlo:url('/assets/minigry/start-puch-scena-v2.webp'); --start-atrament:#73349c; --start-haslo:#633081; --start-panel:rgba(255,250,229,.95); }
 .start-gry--lot{ --start-tlo:url('/assets/minigry/start-lot-scena-v2.webp'); --start-atrament:#28753b; --start-haslo:#216a34; --start-panel:rgba(255,251,224,.95); }
+/* Bieg Liska: serpentyna nad chmurami — atrament w kolorze nieba znad klifu,
+   panel w tym samym kremie, co reszta serii. */
+.start-gry--bieg{ --start-tlo:url('/assets/minigry/start-bieg-scena.webp'); --start-atrament:#1c6a9c; --start-haslo:#1d5f88; --start-panel:rgba(255,251,224,.95); }
 .start-gry::before{
   content:""; position:absolute; z-index:-3; inset:-68px -18px 0;
   background-image:var(--start-tlo); background-size:cover; background-position:center top;
@@ -2064,23 +2066,46 @@
 }
 .start-gry--pamiec::after{ background:linear-gradient(180deg,transparent 0%,rgba(42,19,91,.06) 28%,rgba(80,43,128,.82) 66%,#2b174e 100%); }
 .start-gry--lot::after{ background:linear-gradient(180deg,transparent 0%,rgba(255,235,154,.08) 38%,rgba(91,119,48,.73) 70%,#244b34 100%); }
+/* Bieg: dol sceny to piaskowa sciezka na brazowej skale (#70452c przy 97%
+   wysokosci), a bazowy gradient jest kremowo-pomaranczowy. Ten sam zabieg co
+   przy Locie: schodzimy w kolor, ktory na obrazie JUZ jest. */
+.start-gry--bieg::after{ background:linear-gradient(180deg,transparent 0%,rgba(255,231,178,.1) 38%,rgba(163,110,72,.78) 70%,#6d3d31 100%); }
+/* Dół tła Biegu to piaskowy klif — panel wtapia się w ten sam ciepły brąz. */
 .start-gry-scena{
   position:relative; z-index:1; flex:none; width:min(100%,430px); height:clamp(316px,43svh,400px);
   pointer-events:none;
 }
+/* Postac czeka niewidoczna, dopoki ilustracja SIE NIE WCZYTA (`ma-art`).
+   Bez tego animacja wejscia leciala na pustym miejscu, a obrazek wskakiwal
+   w losowym momencie — i to wlasnie wygladalo jak przeskok / restart. */
 .start-gry-postac{
   position:absolute; z-index:2; inset:4px 0 0; display:grid; place-items:center;
+  opacity:0;
+}
+.start-gry-postac.ma-art{
   animation:start-gry-wejscie .64s cubic-bezier(.2,.92,.28,1.18) both;
 }
 .start-gry-art{
+  --plyw:start-gry-plywanie;
   width:min(72vw,305px); max-height:96%; object-fit:contain;
   filter:drop-shadow(0 15px 20px rgba(45,33,63,.3));
-  animation:start-gry-plywanie 3.8s ease-in-out .65s infinite; transform-origin:50% 75%;
+  transform-origin:50% 75%;
+}
+/* Kolysanie rusza dopiero razem z wejsciem — inaczej oba zegary chodzilyby
+   wzgledem innych momentow i przejscie wejscie→kolysanie znowu by skakalo. */
+.start-gry-postac.ma-art .start-gry-art{
+  animation:var(--plyw) 3.8s ease-in-out .65s infinite;
 }
 .start-gry--pamiec .start-gry-art{ width:min(70vw,300px); max-height:98%; }
 .start-gry--puch .start-gry-art{ width:min(72vw,310px); }
-.start-gry--lot .start-gry-postac{ transform:rotate(-4deg); }
-.start-gry--lot .start-gry-art{ width:min(67vw,290px); animation-name:start-gry-lot; }
+/* Przechylenie wariantu siedzi na `rotate`, a NIE na `transform`: `transform`
+   nalezy do animacji wejscia (fill-mode: both), wiec statyczny transform i tak
+   nigdy by sie nie pokazal. Wlasciwosci indywidualne skladaja sie z nim. */
+.start-gry--lot .start-gry-postac{ rotate:-4deg; }
+.start-gry--lot .start-gry-art{ width:min(67vw,290px); --plyw:start-gry-lot; }
+/* Lisek z rozpędu wpada lekko przechylony w kadr, tym samym „lotem" co obok. */
+.start-gry--bieg .start-gry-postac{ rotate:3deg; }
+.start-gry--bieg .start-gry-art{ width:min(66vw,285px); --plyw:start-gry-lot; }
 .start-gry-efekty{ position:absolute; z-index:3; inset:0; }
 .start-gry-karta,.start-gry-piorko{ position:absolute; object-fit:contain; filter:drop-shadow(0 6px 7px rgba(51,26,76,.25)); }
 .start-gry-karta{ width:44px; }
@@ -2100,6 +2125,23 @@
 .start-gry-lisc--1{ left:4%; top:30%; transform:rotate(26deg); animation:start-lisc 5s ease-in-out infinite; }
 .start-gry-lisc--2{ right:5%; top:17%; transform:rotate(-18deg); animation:start-lisc 4.4s ease-in-out -1.2s infinite reverse; }
 .start-gry-lisc--3{ right:11%; bottom:10%; transform:rotate(80deg); animation:start-lisc 5.4s ease-in-out -2s infinite; }
+/* Chmurki Biegu Liska: dwa nakładające się owale, dryfują w poprzek sceny —
+   lisek biegnie NAD chmurami i splash ma to mówić, zanim ruszy gra. */
+.start-gry-chmurka{
+  position:absolute; width:64px; height:22px; border-radius:999px; background:#fff;
+  opacity:.92; box-shadow:0 6px 10px rgba(38,84,120,.18);
+}
+.start-gry-chmurka::after{
+  content:""; position:absolute; width:34px; height:24px; border-radius:50%;
+  background:#fff; left:14px; top:-13px;
+}
+.start-gry-chmurka--1{ left:2%; top:26%; animation:start-chmurka 7s ease-in-out infinite; }
+.start-gry-chmurka--2{ right:3%; top:14%; transform:scale(.72); animation:start-chmurka 6s ease-in-out -2.2s infinite reverse; }
+.start-gry-chmurka--3{ right:8%; bottom:9%; transform:scale(.85); animation:start-chmurka 8s ease-in-out -4s infinite; }
+@keyframes start-chmurka{
+  0%,100%{ translate:0 0; }
+  50%{ translate:14px -7px; }
+}
 .start-gry-iskra{
   position:absolute; width:9px; height:9px; border-radius:50%; background:#fff7a8;
   box-shadow:0 0 0 4px rgba(255,237,112,.18),0 0 16px 5px rgba(255,226,63,.75);
@@ -2175,7 +2217,9 @@
   background:linear-gradient(180deg,rgba(255,255,255,.78),rgba(255,255,255,0)); pointer-events:none;
 }
 .start-gry-loader strong{ position:relative; z-index:1; font-size:18px; font-weight:800; line-height:1.05; }
-.start-gry-poziomy{ display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; max-width:340px; margin-top:0; }
+/* `margin-inline:auto` - siatka ma `max-width`, wiec bez tego kladla sie
+   przy lewej krawedzi rodzica zamiast na jego srodku. */
+.start-gry-poziomy{ display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; max-width:340px; margin:0 auto; }
 .start-gry-poziomy.jeden{ grid-template-columns:1fr; max-width:176px; }
 .start-gry-poziom{
   position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
@@ -2212,8 +2256,22 @@
 }
 @keyframes start-gry-tlo{ from{ transform:scale(1.025) translate3d(0,0,0); } to{ transform:scale(1.065) translate3d(0,-5px,0); } }
 @keyframes start-gry-wejscie{ from{ opacity:0; transform:translate3d(0,34px,0) scale(.86) rotate(-3deg); } to{ opacity:1; transform:translate3d(0,0,0) scale(1) rotate(0); } }
-@keyframes start-gry-plywanie{ 0%,100%{ transform:translate3d(0,0,0) rotate(-1deg); } 50%{ transform:translate3d(0,-9px,0) rotate(1deg); } }
-@keyframes start-gry-lot{ 0%,100%{ transform:translate3d(-3px,3px,0) rotate(-3deg); } 50%{ transform:translate3d(7px,-10px,0) rotate(2deg); } }
+/* Klatka 0% = pozycja spoczynkowa (zero), bo animacja ma .65s opoznienia
+   i przez ten czas element stoi wlasnie w zerze. Kolysanie jest rozlozone
+   na cwiartki, zeby mimo tego zamknac pelny cykl gora-dol i lewo-prawo. */
+@keyframes start-gry-plywanie{
+  0%,100%{ translate:0 0; rotate:0deg; }
+  25%{ translate:0 -5px; rotate:-1.2deg; }
+  50%{ translate:0 -9px; rotate:0deg; }
+  75%{ translate:0 -5px; rotate:1.2deg; }
+}
+/* To samo co wyzej, tylko po skosie: 0% w zerze, potem opad w lewo-dol
+   i dlugi wznos w prawo-gore. Zakres ruchu zostal ten sam co poprzednio. */
+@keyframes start-gry-lot{
+  0%,100%{ translate:0 0; rotate:0deg; }
+  25%{ translate:-5px 5px; rotate:-2.6deg; }
+  75%{ translate:5px -7px; rotate:2.6deg; }
+}
 @keyframes start-panel-wejscie{ from{ opacity:0; transform:translate3d(0,25px,0) scale(.96); } to{ opacity:1; transform:none; } }
 @keyframes start-karta-1{ 0%,100%{ translate:0 0; rotate:-4deg; } 50%{ translate:5px -13px; rotate:6deg; } }
 @keyframes start-karta-2{ 0%,100%{ translate:0 2px; rotate:4deg; } 50%{ translate:-6px -11px; rotate:-7deg; } }
@@ -2242,6 +2300,9 @@
 @media (prefers-reduced-motion:reduce){
   .start-gry::before,.start-gry-postac,.start-gry-art,.start-gry-panel,.start-gry-karta,.start-gry-piorko,.start-gry-lisc,.start-gry-iskra,.start-gry-cta,.start-gry-cta::after,.start-gry-loader::after,.start-gry-loader-plyn,.start-gry-loader-plyn::after,.start-gry-loader-plyn i,.start-gry-gotowe{ animation:none !important; }
   .start-gry-loader-plyn{ transform:scaleX(.86); }
+  /* Postac jest domyslnie przezroczysta i odslania ja dopiero animacja
+     wejscia — przy wylaczonym ruchu animacji nie ma, wiec odslaniamy recznie. */
+  .start-gry-postac{ opacity:1 !important; }
 }
 
 .gra-root:has(.start-gry--pamiec){ background:#17112d; }
@@ -2876,11 +2937,17 @@
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-size:23px; line-height:1.15; font-weight:900;
 }
-.porada-wybor{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; }
+/* JEDNA KOLUMNA, SZEROKIE KAFLE. Wczesniej dwa pierwsze kafle staly obok
+   siebie i byly wysokie, a trzeci - bo nie mial pary - rozciagal sie na cala
+   szerokosc. Wychodzily z tego dwa rozne wyglady tej samej rzeczy i to trzeci,
+   przypadkowy, czytal sie najlepiej: ilustracja z lewej, nazwa duza obok niej,
+   wszystko w jednej linii wzroku. Teraz kazda porada wyglada tak samo. */
+.porada-wybor{ display:grid; grid-template-columns:1fr; gap:11px; }
 .porada-kafelek{ border:0; padding:0; background:transparent; color:inherit; cursor:pointer; font-family:inherit; }
 .porada-kafelek-in{
-  position:relative; min-height:208px; padding:12px 8px 11px;
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  position:relative; min-height:152px; padding:9px 18px 9px 9px;
+  display:grid; grid-template-columns:136px minmax(0,1fr);
+  justify-items:start; align-items:center; column-gap:12px; text-align:left;
   border:2px solid rgba(255,214,110,.95); border-radius:var(--r-card,22px);
   background:linear-gradient(180deg,#FFF3CE,#F6D98F);
   box-shadow:inset 0 1.5px 0 rgba(255,255,255,.8),0 4px 0 rgba(134,81,27,.5),0 8px 15px rgba(61,47,25,.16);
@@ -2899,17 +2966,9 @@
   filter:drop-shadow(0 3px 4px rgba(80,60,20,.24));
 }
 .porada-kafelek strong{
-  margin-top:4px; font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
-  color:#5b421d; font-size:17px; line-height:1.05; font-weight:900;
+  margin:0; font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  color:#5b421d; font-size:21px; line-height:1.08; font-weight:900;
 }
-.porada-kafelek:last-child{ grid-column:1 / -1; }
-.porada-kafelek:last-child .porada-kafelek-in{
-  min-height:152px; padding:9px 18px;
-  display:grid; grid-template-columns:136px minmax(0,1fr);
-  justify-items:start; align-items:center; column-gap:12px; text-align:left;
-}
-.porada-kafelek:last-child .porada-kafelek-obraz{ width:132px; height:132px; }
-.porada-kafelek:last-child strong{ margin:0; font-size:21px; }
 
 /* Wybrany kafel rośnie w jeden ekran decyzji, ale zachowuje tę samą płytkę. */
 .porada-wybrana,.porada-odzew{
@@ -3009,12 +3068,10 @@
 
 @media (max-width:380px){
   .porada-wybor{ gap:8px; }
-  .porada-kafelek-in{ min-height:190px; }
+  .porada-kafelek-in{ grid-template-columns:120px minmax(0,1fr); min-height:136px; padding:8px 12px 8px 8px; }
   .porada-kafelek-obraz{ width:116px; height:116px; }
   .porada-kafelek-obraz img{ width:94px; height:94px; }
-  .porada-kafelek strong{ font-size:15.5px; }
-  .porada-kafelek:last-child .porada-kafelek-in{ grid-template-columns:120px minmax(0,1fr); min-height:136px; padding-inline:12px; }
-  .porada-kafelek:last-child .porada-kafelek-obraz{ width:116px; height:116px; }
+  .porada-kafelek strong{ font-size:18.5px; }
   .porada-slady-listki{ gap:7px; }
   .porada-trop-listki{ gap:7px; }
   .porada-trop-listki button{ width:42px; }

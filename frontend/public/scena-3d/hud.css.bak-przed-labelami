@@ -210,59 +210,22 @@
   position: absolute;
   z-index: 4;
   left: 50%;
-  /* -4 px zamiast -1: podpis siedzi o 3 px nizej, blizej dolnej krawedzi
-     kola - inaczej wchodzil optycznie na ikone. */
-  bottom: -4px;
+  bottom: -1px;
   transform: translateX(-50%);
   min-width: 58px;
   padding: 3px 7px 2px;
-  /* Obrys jest z RODZINY samej plakietki, nie kremowy. Kremowa obwodka
-     powtarzala kolor zlotego kola pod spodem i podpis odrywal sie od tla,
-     jakby byl osobna naklejka doklejona do ikony. Fiolet o dwa tony jasniejszy
-     od gorki gradientu wystarczy, zeby pigulka miala krawedz, a nie ramke. */
-  border: 2px solid #a582cc;
+  border: 2px solid #fff0c4;
   border-radius: 999px;
   background: linear-gradient(180deg, #76569c, #503867);
   box-shadow: 0 2px 0 #35243d, 0 4px 7px rgba(45, 28, 52, .24);
   color: #fff3bd;
   font-family: "Nunito", system-ui, sans-serif;
-  /* +15% wzgledem 10 px - podpis ma sie czytac w biegu, jednym rzutem oka. */
-  font-size: 11.5px;
+  font-size: 10px;
   font-weight: 900;
   line-height: 1;
   white-space: nowrap;
   text-shadow: 0 1px 0 #35243d;
   pointer-events: none;
-  /* Ten sam czas, co ruch przycisku (.16s) - kompensacja musi isc
-     dokladnie z nim, inaczej podpis szarpnalby sie w polowie animacji. */
-  transition: transform .16s ease;
-}
-
-/* PODPIS STOI W MIEJSCU - podnosi sie sama ikonka.
-   Przycisk na wybranej zakladce jedzie do gory (translateY), a pigulka z nazwa
-   jest jego dzieckiem, wiec jechala razem z nim. Zeby zostala przyklejona do
-   belki, dostaje przesuniecie ODWROTNE o dokladnie tyle samo. Wartosci sa dwie,
-   bo dok ma dwa tryby: na mapie unosi sie o 5 px, pod wysunieta szuflada o 4.
-   `translateX(-50%)` musi byc powtorzone w kazdej deklaracji - transform nie
-   sklada sie z regula bazowa, tylko ja nadpisuje.
-   Przy wcisnieciu dochodzi jeszcze skala przycisku (.96 / .97), wiec podpis
-   dostaje jej odwrotnosc - inaczej na moment kurczylby sie razem z klockiem. */
-.game-hud-dock button:hover .game-hud-label,
-.game-hud-dock button.is-active .game-hud-label {
-  transform: translateX(-50%) translateY(5px);
-}
-
-.game-hud-dock button:active .game-hud-label {
-  transform: translateX(-50%) translateY(1px) scale(1.0417);
-}
-
-.game-hud.is-shelf .game-hud-dock button:hover .game-hud-label,
-.game-hud.is-shelf .game-hud-dock button.is-active .game-hud-label {
-  transform: translateX(-50%) translateY(4px);
-}
-
-.game-hud.is-shelf .game-hud-dock button:active .game-hud-label {
-  transform: translateX(-50%) translateY(1px) scale(1.0309);
 }
 
 /* Plakietka z liczba. DWA RAZY WIEKSZA niz byla (20 px -> 40 px): przy 20 px
@@ -319,30 +282,6 @@
 
 .game-hud-dock button:hover,
 .game-hud-dock button.is-active { transform: translateY(-5px); }
-
-/* Mrugniecie przycisku doku - swiat zapala je na ~3,5 s, gdy postac wlasnie
-   powiedziala, DOKAD isc ("czeka w twoich Listach" -> mruga koperta).
-   Podskok + rozblysk, 5 powtorzen i koniec: to wskazowka, nie alarm. */
-.game-hud-dock button.is-miga img {
-  animation: dock-mig .62s ease-in-out 5;
-}
-@keyframes dock-mig {
-  0%, 100% { transform: translateY(0) scale(1); filter: drop-shadow(0 3px 1px rgba(79, 43, 12, .26)); }
-  50% {
-    transform: translateY(-7px) scale(1.12);
-    filter: drop-shadow(0 3px 1px rgba(79, 43, 12, .26)) drop-shadow(0 0 13px rgba(255, 221, 85, .95)) brightness(1.22);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .game-hud-dock button.is-miga img { animation: none; filter: drop-shadow(0 0 13px rgba(255, 221, 85, .95)); }
-}
-
-/* SAMA IKONA JEDZIE JESZCZE WYZEJ niz przycisk. Podpis zostaje przyklejony
-   do belki (patrz kompensacja przy `.game-hud-label`), wiec caly sygnal
-   „ta zakladka jest wybrana" musi uniesc ikona. Na mapie skok jest mniejszy,
-   bo ikona siedzi w zlotym kole i przy wiekszym z niego wychodzi. */
-.game-hud-dock button:hover img,
-.game-hud-dock button.is-active img { transform: translateY(-3px); }
 
 .game-hud-dock button:hover::before,
 .game-hud-dock button.is-active::before {
@@ -456,7 +395,7 @@
 
 .game-hud.is-shelf .game-hud-dock button:hover img,
 .game-hud.is-shelf .game-hud-dock button.is-active img {
-  transform: translateY(-6px) scale(1.08);
+  transform: scale(1.05);
   filter:
     drop-shadow(0 4px 1px rgba(79, 43, 12, .3))
     drop-shadow(0 0 9px rgba(255, 228, 88, .9));
@@ -519,7 +458,7 @@
 }
 
 .message-scroll.is-open .message-scroll-parchment {
-  height: min(var(--message-scroll-height), 72dvh, 560px);
+  height: min(var(--message-scroll-height), 64dvh, 530px);
   transform: translateY(0) scale(1);
   opacity: 1;
 }
@@ -562,12 +501,7 @@
 
 .message-scroll-content {
   position: absolute;
-  /* Oddech gora/dol wiekszy niz na oko potrzeba: tresc konczy sie przy
-     ZWINIETEJ krawedzi papieru, a rolka rzuca na nia cien - bez zapasu
-     przycisk wyglada, jakby wchodzil pod rolke. Powiekszenie TYCH procentow
-     wymaga powiekszenia zapasu w pomiarze zwoju (MessageScroll.jsx, +96)
-     i sufitow wysokosci - inaczej tresc dostaje scroll zamiast miejsca. */
-  inset: 11% 6% 10.5%;
+  inset: 8% 6% 7%;
   display: flex;
   flex-direction: column;
   justify-content: safe center;
@@ -813,46 +747,50 @@
   box-shadow: none;
 }
 
-/* Nagłówek zadania odtwarza hierarchię mockupu: duży Wizkor po lewej, tytuł
-   jako główny napis i status bezpośrednio pod nim. Cienki ornament oddziela
-   nagłówek od polecenia, ale nie tworzy kolejnej „karty na zwoju". */
+/* UKLAD. Zadanie jest ZAWSZE rozwiniete (patrz `MessageScroll`), wiec naglowek
+   nie musi sie miescic w jednej linii. Tresc siedzi nizej i ma dla siebie
+   pelna szerokosc zwoju.
+
+   DWA WIERSZE, nie trzy kolumny (2026-08-20). Plakietka stanu ("Do zrobienia",
+   "Nagroda czeka") stala wczesniej w trzeciej kolumnie i zabierala tytulowi
+   tyle szerokosci, ile sama miala - a ma jej duzo, bo to slowa, nie data przy
+   wiesci. Tytul zadania lamal sie wiec na dwie-trzy linijki w waskiej rynience
+   obok ilustracji. Teraz:
+
+     [ilustracja]  TYTUL ZADANIA NA CALA SZEROKOSC
+     [ilustracja]  [plakietka stanu]
+
+   Plakietka schodzi POD tytul, do lewej krawedzi tekstu - czyta sie jak
+   stempel przybity pod naglowkiem, a tytul dostaje cala szerokosc pergaminu
+   pomniejszona tylko o ilustracje. Ilustracja obejmuje oba wiersze, wiec nadal
+   stoi na wysokosci srodka calego naglowka.
+
+   Wciecia poziome zeszly do zera: papier ma juz swoj margines
+   (`.message-scroll-content`), a drugi, wewnetrzny, odtwarzalby kartke, ktora
+   wlasnie znika. Zostaje 1 px, zeby obrys liter nie dotykal krawedzi. */
 .scroll-message.is-quest .scroll-message-head {
-  grid-template-columns: 104px minmax(0,1fr);
+  grid-template-columns: 56px minmax(0,1fr);
   grid-template-rows: auto auto;
   align-items: center;
-  column-gap: 10px;
-  row-gap: 8px;
-  min-height: 112px;
-  padding: 0 8px 15px 0;
+  column-gap: 15px;
+  row-gap: 7px;
+  padding: 0 1px 9px;
   border-bottom: 0;
   box-shadow: none;
   background: linear-gradient(90deg,
       transparent,
-      rgba(181,116,31,.48) 14%,
-      rgba(181,116,31,.48) 45%,
-      transparent 45%, transparent 55%,
-      rgba(181,116,31,.48) 55%,
-      rgba(181,116,31,.48) 86%,
+      rgba(122,77,194,.34) 14%,
+      rgba(122,77,194,.34) 86%,
       transparent) bottom left / 100% 1.5px no-repeat;
 }
 .scroll-message.is-quest .scroll-message-avatar {
-  width: 104px;
-  height: 104px;
+  width: 56px;
+  height: 56px;
   grid-column: 1;
   grid-row: 1 / span 2;
   align-self: center;
-  overflow: hidden;
-  border: 3px solid #bd7b2b;
-  border-radius: 48% 48% 42% 42%;
-  background: radial-gradient(circle at 50% 42%, #8f51c8 0 42%, #6b329e 70%, #4d246f 100%);
-  box-shadow: inset 0 0 0 3px rgba(255,232,154,.58), 0 4px 0 rgba(111,64,19,.34), 0 8px 14px rgba(80,44,19,.18);
 }
-.scroll-message.is-quest .scroll-message-avatar img {
-  width: 116px;
-  height: 116px;
-  object-fit: contain;
-  transform: translate(-6px, 3px) scale(1.08);
-}
+.scroll-message.is-quest .scroll-message-avatar img { width: 62px; height: 62px; }
 
 /* Tytul zadania jest o klase wiekszy od tytulu wiesci i nie ma juz z czym
    dzielic wiersza - stad 18 px i pelna szerokosc drugiej kolumny. */
@@ -861,13 +799,7 @@
   grid-row: 1;
   align-self: end;
 }
-.scroll-message.is-quest .scroll-message-copy strong {
-  color:#573113;
-  font-size: 29px;
-  line-height: 1.02;
-  letter-spacing: .2px;
-  text-shadow: 0 2px 0 rgba(255,246,205,.72);
-}
+.scroll-message.is-quest .scroll-message-copy strong { font-size: 18px; line-height: 1.18; }
 
 /* Plakietka w drugim wierszu, przy LEWEJ krawedzi tekstu (dziedziczone
    `justify-items: end` zepchneloby ja pod prawy brzeg, daleko od tytulu,
@@ -887,11 +819,8 @@
    - Wciecia boczne rowne zeru, tak jak w naglowku - tekst zaczyna sie w tej
      samej pionowej linii co ilustracja i lezy wprost na papierze. */
 .scroll-message.is-quest .scroll-message-body {
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  padding: 18px 1px 0;
-  font-size: 18px;
+  padding: 11px 1px 0;
+  font-size: 16px;
   line-height: 1.45;
   /* Ciemniej niz na karcie (#6b5233). Kartka miala tlo prawie biale, pergamin
      jest zloty (#f5cb7f-#f9deb0) - ten sam braz czytal sie na nim o polowe
@@ -915,61 +844,6 @@
   line-height: inherit;
 }
 
-/* Główne polecenie jest jedyną jasną płytą wewnątrz pergaminu. Obramowanie
-   jest lekkie i ozdobne jak w mockupie; nie wraca efekt „karty na karcie",
-   bo blok nie ma ciężkiego cienia ani osobnej belki nagłówka. */
-.scroll-message-task-copy{
-  width:100%;
-  box-sizing:border-box;
-  padding:18px 20px 15px;
-  border:1.5px solid rgba(185,122,38,.44);
-  border-radius:20px;
-  background:rgba(255,246,209,.42);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.58);
-  text-align:center;
-}
-.scroll-message.is-quest .scroll-message-task-copy > p:first-child{
-  color:#563116;
-  font-size:21px;
-  font-weight:900;
-  line-height:1.28;
-}
-.scroll-message.is-quest .scroll-message-whisper{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:12px;
-  margin-top:10px;
-  color:#92704a;
-  font-size:16px;
-  font-weight:900;
-}
-.scroll-message-whisper i{
-  width:26px;
-  height:1.5px;
-  background:linear-gradient(90deg,transparent,#c6954d);
-}
-.scroll-message-whisper i:last-child{ transform:scaleX(-1); }
-
-.scroll-message-reward{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  min-width:118px;
-  min-height:43px;
-  box-sizing:border-box;
-  margin-top:-1px;
-  padding:5px 16px 6px 10px;
-  border:2px solid #c48a31;
-  border-radius:999px;
-  background:linear-gradient(180deg,#fff1bd,#f4d38c);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.7),0 3px 0 rgba(137,82,24,.35);
-  color:#613416;
-}
-.scroll-message-reward img{ width:34px; height:34px; object-fit:contain; filter:drop-shadow(0 2px 1px rgba(91,51,15,.25)); }
-.scroll-message-reward strong{ font-size:24px; line-height:1; }
-
 /* Koniec zadania, poczatek wiesci. Bez ramki akapit na golym papierze zlewalby
    sie z pierwsza kartka listy. Ta sama kreska co pod naglowkiem, bledsza, i tez
    znikajaca na koncach. Gdy zadanie jest jedynym wpisem - nie ma czego dzielic,
@@ -984,18 +858,10 @@
 }
 
 /* CTA odbija sie od tresci. Bez tego przycisk kleil sie do ostatniego wiersza
-   i wygladal jak jego dalszy ciag, a nie jak decyzja.
-   Margines POD przyciskiem, bo to on jest ostatnim elementem karty zadania:
-   bez niego zielen konczyla sie tuz przy krawedzi pergaminu i dolnej rolce.
-   Pomiar zwoju liczy wysokosc z scrollHeight listy, wiec ten margines
-   powieksza tez sam pergamin - przycisk dostaje oddech, a nie scisk. */
+   i wygladal jak jego dalszy ciag, a nie jak decyzja. */
 .scroll-message.is-quest .scroll-message-body .hub-btn {
   width: 100%;
-  min-height:56px;
-  margin-top: 12px;
-  margin-bottom: 18px;
-  font-size:22px;
-  letter-spacing:.5px;
+  margin-top: 16px;
 }
 
 /* Plakietka stanu ("Do zrobienia", "Nagroda czeka") zamiast daty. Kropka
@@ -1006,12 +872,12 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 14px 8px;
+  padding: 4px 9px 5px 10px;
   border-radius: 999px;
   background: linear-gradient(180deg, #9a75da, #6b3fb4);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 2px 0 rgba(66,38,116,.75);
   color: #fff4cd;
-  font-size: 12px;
+  font-size: 9px;
   font-weight: 900;
   letter-spacing: .5px;
   text-transform: uppercase;
@@ -1019,9 +885,8 @@
 }
 
 .scroll-message-tag i {
-  order:-1;
-  width: 11px;
-  height: 11px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: #ff5b5b;
   box-shadow: 0 0 0 1.6px rgba(255,244,205,.75);
@@ -1060,7 +925,7 @@
   .game-hud-badge.is-kropka { min-width: 18px; width: 18px; height: 18px; top: 2px; right: 6px; }
   .message-scroll { padding: 14px 8px calc(91px + env(safe-area-inset-bottom, 0px)); }
   .message-scroll-parchment { width: min(100%, 390px); }
-  .message-scroll.is-open .message-scroll-parchment { height: min(var(--message-scroll-height), 72dvh, 560px); }
+  .message-scroll.is-open .message-scroll-parchment { height: min(var(--message-scroll-height), 70dvh, 530px); }
   .message-scroll-content { inset: 8% 5% 7%; }
   .message-scroll-header h2 { font-size: 27px; }
   .scroll-message-head { grid-template-columns: 40px minmax(0,1fr) auto; gap: 7px; padding: 8px; }
@@ -1074,7 +939,7 @@
   .game-hud-profile { width: 47px; padding-right: 1px; }
   .game-hud-dock button::before { width: 58px; height: 58px; }
   .game-hud-dock img { width: 51px; height: 51px; }
-  .game-hud-label { min-width: 52px; padding-inline: 5px; font-size: 10.5px; }
+  .game-hud-label { min-width: 52px; padding-inline: 5px; font-size: 9px; }
 }
 
 

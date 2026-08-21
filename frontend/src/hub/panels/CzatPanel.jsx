@@ -46,7 +46,7 @@
  * - Brak wskaźnika „pisze…" i brak LICZNIKA nieprzeczytanych. Kropka „nowe"
  *   wystarcza; liczba rosnąca w tle jest zaproszeniem do ciągłego wracania.
  */
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { GameIcon } from "../../adventure/components/icons.jsx";
 import IkonaKanalu from "../IkonyCzatu.jsx";
 import { oznaczRozmoweCzytana } from "../nowosci.js";
@@ -148,7 +148,7 @@ function DolRozmowy({ zdania, onWyslij, placeholder }) {
   );
 }
 
-export default function CzatPanel() {
+export default function CzatPanel({ onPowrot }) {
   // Ekran startowy jest prostym wyborem miejsca, tak jak siatka Minigier.
   // Dopiero po wybraniu dużego kafla pokazujemy właściwą rozmowę.
   const [kanal, setKanal] = useState(null);
@@ -209,6 +209,26 @@ export default function CzatPanel() {
     if (feed) feed.scrollTop = feed.scrollHeight;
   }, [kanal, rozmowaId, wiadomosciForum.length, wiadomosci.length]);
 
+  /*
+   * POWRÓT SIEDZI W KRZYŻYKU BELKI — tak samo jak w Poradach i w Zadaniu.
+   *
+   * Czat ma dwa poziomy w głąb (wybór kanału → kanał → wątek w Prywatnych),
+   * więc cofa o JEDEN krok naraz: z wątku na listę rozmów, z kanału na wybór
+   * kanału, a z samego wyboru (`null`) krzyżyk znów zamyka szufladę. Wcześniej
+   * ten sam ruch robił osobny złoty przycisk w nagłówku kanału — dziecko
+   * miało wtedy w oknie DWA przyciski cofania, każdy w innym miejscu
+   * i o innym wyglądzie.
+   */
+  const cofnij = useCallback(() => {
+    if (kanal === "prywatne" && rozmowaId) { setRozmowaId(null); return; }
+    setKanal(null);
+    setRozmowaId(null);
+  }, [kanal, rozmowaId]);
+  useEffect(() => {
+    onPowrot?.(kanal ? cofnij : null);
+    return () => onPowrot?.(null);
+  }, [onPowrot, kanal, cofnij]);
+
   return (
     <div className="hub-pane hub-pane--czat" data-testid="hub-pane-czat">
       {!kanal ? (
@@ -240,31 +260,21 @@ export default function CzatPanel() {
           </div>
         </div>
       ) : (
+        /* Belka mówi, GDZIE dziecko jest — a w otwartym wątku to nie jest
+           „Prywatne", tylko konkretna osoba. Ma to teraz znaczenie: cofanie
+           przeniosło się do krzyżyka arkusza, więc nagłówek został jedynym
+           miejscem, z którego widać poziom rozmowy. */
         <div className="czat-kanal-head">
-          <button
-            type="button"
-            className="czat-kanal-powrot"
-            onClick={() => {
-              if (kanal === "prywatne" && rozmowaId) {
-                setRozmowaId(null);
-                return;
-              }
-              setKanal(null);
-              setRozmowaId(null);
-            }}
-            aria-label={kanal === "prywatne" && rozmowaId
-              ? "Wróć do wszystkich rozmów"
-              : "Wróć do wyboru rozmowy"}
-          >
-            <svg viewBox="0 0 64 44" aria-hidden="true" focusable="false">
-              <path
-                className="czat-strzalka-wklesla"
-                d="M24 4.8a4 4 0 0 1 6.8 2.9v5.1H54a5 5 0 0 1 5 5v8.4a5 5 0 0 1-5 5H30.8v5.1a4 4 0 0 1-6.8 2.9L6.2 24.9a3.8 3.8 0 0 1 0-5.8L24 4.8Z"
-              />
-            </svg>
-          </button>
-          <span className="czat-kanal-znak" aria-hidden="true"><IkonaKanalu kanal={kanal} size={28} /></span>
-          <strong>{KANALY.find((k) => k.id === kanal)?.nazwa}</strong>
+          <span className="czat-kanal-znak" aria-hidden="true">
+            {rozmowa
+              ? <b className="czat-kanal-avatar">{graczById[rozmowa.ktoId]?.emoji || "🙂"}</b>
+              : <IkonaKanalu kanal={kanal} size={28} />}
+          </span>
+          <strong>
+            {rozmowa
+              ? (graczById[rozmowa.ktoId]?.imie || "Gracz")
+              : KANALY.find((k) => k.id === kanal)?.nazwa}
+          </strong>
         </div>
       )}
 

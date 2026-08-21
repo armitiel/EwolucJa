@@ -32,7 +32,13 @@ export function kiedyTekst(wartosc) {
 }
 
 export async function zbierzWiadomosci() {
-  const swiat = listNotifications().map((wpis) => ({
+  const swiat = listNotifications()
+    /* Wieści „Mentor przyjął Twoje zadanie" już nie powstają (patrz
+       zadanieWizkora.js) — przypięta karta mówi wtedy to samo dwa centymetry
+       wyżej. Filtr zdejmuje z listy także wpisy zapisane PRZED tą zmianą,
+       które inaczej wisiałyby w zwoju do końca świata. */
+    .filter((wpis) => !String(wpis.id || "").startsWith("zadanie-wizkora:"))
+    .map((wpis) => ({
     klucz: `swiat-${wpis.id}`,
     zrodlo: "swiat",
     id: wpis.id,
@@ -137,23 +143,30 @@ export function wpisZadania(adventure, state, nextStep) {
  * co zrobić, wpis liczy się jako NIEPRZECZYTANY. Dzięki temu na zakładce
  * wiadomości pali się „1" i dziecko widzi, że coś na nie czeka, nawet jeśli
  * rozmowę z Wizkorem zamknęło pięć minut temu i zdążyło o niej zapomnieć.
- * Wpis od Mentora, który wrócił z werdyktem, jest osobną wieścią — tu
- * pokazujemy sam stan zadania, żeby nie liczyć tego samego dwa razy.
+ * Werdykt Mentora NIE MA osobnej wieści — zatwierdzenie widać tu, w tej
+ * samej karcie („Nagroda czeka" + kwota), więc jedno zdarzenie to jeden
+ * wpis i jedna jedynka na plakietce.
  */
 export function wpisZadaniaWizkora() {
   const stan = stanZadaniaWizkora();
   if (!stan.istnieje || stan.wyplacone) return null;
+  const szept = stan.def.szept || null;
+  const tresc = szept && stan.def.cel.endsWith(szept)
+    ? stan.def.cel.slice(0, -szept.length).trim()
+    : stan.def.cel;
   return {
     klucz: "zadanie-wizkora",
     zrodlo: "zadanie-wizkora",
     id: stan.id,
     tytul: stan.def.tytul,
-    tresc: stan.def.cel,
+    tresc,
+    szept,
     jak: stan.def.jak || null,
     notatka: stan.notatka || null,
     kiedy: stan.zleconeAt,
     etykieta: stan.etykieta,
     cta: stan.cta,
+    nagroda: stan.nagroda ?? stan.def.nagroda ?? null,
     // Do zrobienia albo do odebrania = coś czeka. „Sprawdzane" nie pali
     // plakietki: dziecko nie ma wtedy nic do zrobienia i ponaglanie go
     // byłoby tylko hałasem.

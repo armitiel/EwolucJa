@@ -7,7 +7,7 @@
  *
  * Wzór wysokości przeniesiony 1:1 z podglądu:
  *   (scrollHeight listy + 56) / 0.85 + pionowe marginesy papieru,
- * przycięty do 360–530 px. 0.85 to skala papieru wewnątrz rolek, 56 to zapas
+ * przycięty do 360–560 px. 0.85 to skala papieru wewnątrz rolek, 56 to zapas
  * na nagłówek; bez tego zapasu ostatnia wiadomość chowa się pod dolną rolką.
  */
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
@@ -16,7 +16,7 @@ import { useAdventureDane } from "../adventure/engine/useAdventure.js";
 import { kiedyTekst, oznaczPrzeczytana, wpisZadania, wpisZadaniaWizkora, zbierzWiadomosci } from "./wiadomosci.js";
 
 const MIN_WYSOKOSC = 360;
-const MAX_WYSOKOSC = 530;
+const MAX_WYSOKOSC = 560;
 
 /**
  * JEDNO ZADANIE W REALU NA EKRANIE, nie dwa.
@@ -69,12 +69,19 @@ export default function MessageScroll({ open, onClose, onZmiana }) {
 
     const style = window.getComputedStyle(papier);
     const obudowa = (parseFloat(style.top) || 0) + (parseFloat(style.bottom) || 0);
-    const docelowa = Math.ceil((lista.scrollHeight + 56) / 0.85 + obudowa);
+    // Zapas 96 px, nie 56: oddech treści od rolek urósł w CSS
+    // (`.message-scroll-content`, inset 11%/10.5%) i pomiar musi go pokryć,
+    // inaczej powiększanie marginesów kończy się scrollem, a nie miejscem.
+    const docelowa = Math.ceil((lista.scrollHeight + 96) / 0.85 + obudowa);
+    // Pojedyncze zadanie jest bohaterem zwoju, nie krótkim wpisem skrzynki.
+    // Mockup zostawia mu pełną kompozycję: postać, tytuł, polecenie, nagrodę
+    // i CTA. Minimalna wysokość zapobiega ściśnięciu tych pięter w cienki pasek.
+    const minimalna = lista.querySelector(".scroll-message.is-quest") ? 520 : MIN_WYSOKOSC;
 
     if (animowane) pergamin.classList.add("is-resizing");
     pergamin.style.setProperty(
       "--message-scroll-height",
-      `${Math.max(MIN_WYSOKOSC, Math.min(MAX_WYSOKOSC, docelowa))}px`
+      `${Math.max(minimalna, Math.min(MAX_WYSOKOSC, docelowa))}px`
     );
     window.clearTimeout(czasomierzRef.current);
     czasomierzRef.current = window.setTimeout(() => {
@@ -221,8 +228,25 @@ export default function MessageScroll({ open, onClose, onZmiana }) {
                             w panelu zadania, gdzie dziecko za chwilę coś kliknie,
                             i Wizkor czyta je tam na głos. Tutaj rozcieńczało
                             jedno zdanie, które naprawdę trzeba zrozumieć. */}
-                        <p>{pozycja.tresc}</p>
+                        {przypieta ? (
+                          <div className="scroll-message-task-copy">
+                            <p>{pozycja.tresc}</p>
+                            {pozycja.szept ? (
+                              <p className="scroll-message-whisper">
+                                <i aria-hidden="true" />
+                                {pozycja.szept}
+                                <i aria-hidden="true" />
+                              </p>
+                            ) : null}
+                          </div>
+                        ) : <p>{pozycja.tresc}</p>}
                         {pozycja.notatka ? <p className="scroll-message-note">„{pozycja.notatka}”</p> : null}
+                        {przypieta && pozycja.nagroda ? (
+                          <div className="scroll-message-reward" aria-label={`Nagroda: ${pozycja.nagroda} monet`}>
+                            <img src="/assets/hub-nav/moneta.png" alt="" aria-hidden="true" />
+                            <strong>+{pozycja.nagroda}</strong>
+                          </div>
+                        ) : null}
                         {celObcy ? (
                           <button
                             type="button"

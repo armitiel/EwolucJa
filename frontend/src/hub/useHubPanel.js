@@ -46,8 +46,16 @@ export function useHubPanel() {
  * Identyfikatory minigier, które hub potrafi otworzyć NAD sceną, bez opuszczania
  * `/swiat`. To te same `id`, co w `hub/data/minigry.v1.json` — jedno słownictwo
  * dla katalogu, dla znaków na mapie i dla adresu.
+ *
+ * ⚠ TA LISTA MUSI ISC W PARZE Z `GRY_OSADZONE` w `pages/Swiat.jsx`. Dopisanie
+ * gry tylko tam, a nie tutaj, kończy się kafelkiem, który po dotknięciu NIC
+ * NIE ROBI: hub wybiera drogę „nad sceną", a `otworzGre` odrzuca adres jako
+ * spoza białej listy i wychodzi bez słowa. Tak zniknął `bieg-liska`.
+ * `uruchomGre` w `Swiat.jsx` ma od teraz zabezpieczenie, które w takim
+ * wypadku otwiera grę na jej własnym adresie — ale kafelek traci wtedy
+ * wszystko, co daje otwarcie nad hubem (żywa scena, natychmiastowy powrót).
  */
-export const GRY_W_HUBIE = ["pamiec-medrca", "sekret-pod-puchem", "lot-liska"];
+export const GRY_W_HUBIE = ["pamiec-medrca", "sekret-pod-puchem", "lot-liska", "bieg-liska"];
 
 /**
  * useHubGra — otwarta minigra trzymana w adresie (`/swiat?gra=pamiec-medrca`).
