@@ -53,6 +53,14 @@ const ILE_CELÓW = CELE.length;
  */
 const PROMIEN_OBRECZY = 1.15;
 
+/**
+ * Wysokość środka liska, gdy stoi on na ziemi. Model jest wyśrodkowany w swojej
+ * grupie i po normalizacji ma ok. 1 m, więc jego środek siada mniej więcej pół
+ * ciała nad murawą (ziemia leży na y = −0,04). Stąd bierze się moment zetknięcia
+ * przy lądowaniu po chybionym strzale.
+ */
+const POZIOM_LADOWANIA = 0.3;
+
 /** Skala spoczynkowa obręczy — stała, żeby nie tworzyć wektora w każdej klatce. */
 const JEDNOSTKOWA = new THREE.Vector3(1, 1, 1);
 
@@ -161,8 +169,14 @@ function dodajChoinke(scena) {
 }
 
 function dodajTlo(scena) {
+  /* Polana siega DALEJ niz najdalsza obrecz (najdalszy cel lezy ok. 20 m od
+     choinki). Wczesniej promien 13 konczyl ziemie przed celami, wiec chybiony
+     lisek spadal w pustke - a odkad po pudle widac cale ladowanie, musi byc
+     na czym wyladowac. Promien 32 to nie zapas na oko: symulacja calego
+     zakresu naciagu daje najdalsze ladowanie ok. 26 m od choinki, a lisek
+     odbija sie po nim jeszcze dwa razy. */
   const ziemia = new THREE.Mesh(
-    new THREE.CircleGeometry(13, 48),
+    new THREE.CircleGeometry(32, 72),
     new THREE.MeshStandardMaterial({ color: 0x315d45, roughness: 1 })
   );
   ziemia.rotation.x = -Math.PI / 2;
@@ -477,6 +491,13 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
          sprawdzamy zawsze tylko TĘ jedną. */
       bramaIndex: 0,
       stronaBramy: null,
+      /* LOT PO PUDLE. Chybiony strzał nie zamraża liska w powietrzu — lisek
+         leci dalej własnym pędem, odbija się od ziemi i dopiero gdy się
+         zatrzyma, gra wraca do naciągu. Te cztery pola prowadzą tę scenę. */
+      czasPudla: 0,
+      odbicia: 0,
+      wSpoczynku: false,
+      czasSpoczynku: 0,
     };
     const tmpTip = new THREE.Vector3();
     const tmpKamera = new THREE.Vector3();
@@ -685,6 +706,11 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
       stan.naciagX = 0;
       stan.naciagY = 0;
       stan.czasLotu = 0;
+      stan.czasPudla = 0;
+      stan.odbicia = 0;
+      stan.wSpoczynku = false;
+      stan.czasSpoczynku = 0;
+      stan.predkosc.set(0, 0, 0);
       // Pamięć o stronie obręczy musi zniknąć razem z lotem — inaczej pierwsza
       // klatka nowego strzału porównywałaby się z poprzednim i mogła zaliczyć
       // przelot, którego nie było.
@@ -750,15 +776,31 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
       }, 1150);
     };
 
+    /**
+     * PUDŁO NIE ZATRZYMUJE LOTU. Wcześniej chybiony strzał od razu przełączał
+     * tryb na „pudlo", dla którego pętla klatek nie miała żadnej gałęzi —
+     * lisek zawisał w powietrzu w połowie łuku, kamera stawała, a po 680 ms
+     * scena skakała z powrotem do choinki. Dziecko nie widziało więc TEGO,
+     * czego właśnie potrzebuje najbardziej: gdzie jego lot poleciał dalej
+     * i jak daleko minął obręcz.
+     *
+     * Teraz „pudlo" jest normalną fazą lotu: lisek leci dalej swoim pędem,
+     * spada, odbija się od murawy i dopiero gdy naprawdę się zatrzyma, gra
+     * wraca do naciągu. Powrót prowadzi pętla klatek, nie zegar.
+     */
     const pudlo = () => {
+      if (stan.tryb === "pudlo") return;
       stan.tryb = "pudlo";
+      stan.czasPudla = 0;
+      stan.odbicia = 0;
+      stan.wSpoczynku = false;
+      stan.czasSpoczynku = 0;
       setKomunikat(
         brama && stan.bramaIndex > 0
           ? `Prawie! ${stan.bramaIndex} z ${BRAMY.length} — leć jeszcze raz`
           : "Prawie! Spróbuj jeszcze raz"
       );
       try { fx?.blad?.(); } catch {}
-      window.setTimeout(() => { if (zywe) resetDoNaciagu(true); }, 680);
     };
 
     const pozycjaZdarzenia = (e) => ({ x: e.clientX, y: e.clientY });
@@ -835,7 +877,13 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
           const t = ogranicz((stan.czasPodgladu - 1.42) / 0.78, 0, 1);
           udzial = 1 - t * t * (3 - 2 * t);
         }
-        kameraCel.copy(kameraNaciag).lerp(kameraFokus, udzial);
+        tmpKamera.copy(kameraNaciag).lerp(kameraFokus, udzial);
+        /* Powrót po chybionym locie zaczyna się TAM, gdzie lisek wylądował —
+           bywa to 25 metrów od choinki. Twarde `copy` cięło wtedy obraz jak
+           montaż w środku zdania; płynne dojście zachowuje ciągłość sceny,
+           a po ułamku sekundy kamera i tak jedzie już dokładnie po
+           zaplanowanej ścieżce podglądu. */
+        kameraCel.lerp(tmpKamera, 1 - Math.exp(-7 * dt));
         tmpKierunekKamery.copy(KIERUNEK_KAMERY);
         kamera.zoom += (1 - kamera.zoom) * (1 - Math.exp(-8 * dt));
         kamera.updateProjectionMatrix();
@@ -942,19 +990,95 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
               try { fx?.gentleMagical?.(0.5); } catch {}
             }
           } else if (wynik === false) {
-            // Pominięta brama kończy próbę OD RAZU. Lot za nią nie ma już
-            // znaczenia, a czekanie na upadek tylko przedłuża rozczarowanie.
+            // Pominięta brama przesądza o próbie od razu — ale nie ucina lotu:
+            // lisek leci dalej i ląduje na oczach dziecka, żeby było widać,
+            // KTÓRĘDY przeszedł obok bramy.
             chybione = true;
           }
         } else {
-          przelot = sprawdzObrecz(cel, "stronaObreczy") === true;
+          /* Wynik `false` to minięcie płaszczyzny obręczy poza pierścieniem,
+             czyli pudło rozpoznane W CHWILI, w której naprawdę zapadło —
+             wcześniej czekaliśmy, aż lisek wyleci poza sztywne granice sceny,
+             a te leżały bliżej niż najdalszy cel (z = −14 przy obręczy na
+             z = −16,9), więc dobry, daleki strzał bywał ucinany przed metą. */
+          const wynik = sprawdzObrecz(cel, "stronaObreczy");
+          if (wynik === true) przelot = true;
+          else if (wynik === false) chybione = true;
         }
         stan.poprzedniaPozycja.copy(lis.position);
         /* Bez `return` — na końcu `klatka` stoi `requestAnimationFrame`,
            więc wyjście stąd zatrzymałoby całą animację gry. */
         if (przelot) trafienie();
         else if (chybione) pudlo();
-        else if (lis.position.y < -0.35 || Math.abs(lis.position.x) > 8 || lis.position.z < -14 || stan.czasLotu > 3.4) pudlo();
+        /* Strzał za słaby: lisek dotyka murawy, zanim w ogóle doleci do
+           płaszczyzny obręczy. To też pudło — a faza „pudlo" odbije go od
+           ziemi, zamiast urwać animację. */
+        else if (lis.position.y <= POZIOM_LADOWANIA) pudlo();
+        /* Bezpiecznik na wypadek toru, który nie przecina niczego (np. strzał
+           pionowo w górę przy dziwnym gescie). Hojny, bo normalny lot kończy
+           się teraz na obręczy albo na ziemi, a nie na stoperze. */
+        else if (stan.czasLotu > 6) pudlo();
+      } else if (stan.tryb === "pudlo") {
+        /* DALSZY CIĄG LOTU PO PUDLE — najważniejsza klatka nauki w tej grze.
+           Lisek nie znika i nie zastyga: leci dalej dokładnie tym pędem, jaki
+           dostał od choinki, spada, uderza w murawę i odbija się coraz niżej,
+           aż stanie. Dopiero wtedy gra wraca do naciągu. Dziecko widzi więc
+           CAŁY tor swojego strzału i samo odczytuje poprawkę: za nisko,
+           za krótko, za bardzo w bok. */
+        stan.czasPudla += dt;
+
+        if (!stan.wSpoczynku) {
+          stan.predkosc.y -= 7.3 * dt;
+          lis.position.addScaledVector(stan.predkosc, dt);
+          // Koziołkowanie gaśnie razem z prędkością — lisek, który już się
+          // toczy po ziemi, nie ma się od czego kręcić w powietrzu.
+          const rozped = ogranicz(stan.predkosc.length() / 6, 0, 1);
+          lis.rotation.x -= dt * 3.4 * rozped;
+          lis.rotation.z -= dt * 1.5 * rozped;
+
+          if (lis.position.y <= POZIOM_LADOWANIA) {
+            lis.position.y = POZIOM_LADOWANIA;
+            const uderzenie = Math.abs(stan.predkosc.y);
+            stan.odbicia += 1;
+            /* Dwa odbicia wystarczają, żeby lądowanie miało wagę, a trzecie
+               tylko przeciąga powrót do gry. Po nich lisek zostaje na murawie. */
+            if (stan.odbicia <= 2 && uderzenie > 1.4) {
+              stan.predkosc.y = uderzenie * 0.42;
+              stan.predkosc.x *= 0.58;
+              stan.predkosc.z *= 0.58;
+            } else {
+              stan.predkosc.set(0, 0, 0);
+              stan.wSpoczynku = true;
+              stan.czasSpoczynku = 0;
+            }
+          }
+        } else {
+          stan.czasSpoczynku += dt;
+          // Lisek prostuje się na łapy — bez tego kończyłby scenę zaryty
+          // nosem w ziemi pod przypadkowym kątem.
+          const prostowanie = 1 - Math.exp(-9 * dt);
+          lis.rotation.x += (0 - lis.rotation.x) * prostowanie;
+          lis.rotation.z += (0 - lis.rotation.z) * prostowanie;
+        }
+
+        // Kamera leci z liskiem do samego końca i odjeżdża, żeby w kadrze
+        // zmieściło się i miejsce upadku, i obręcz, której nie trafił.
+        tmpKamera.copy(lis.position).lerp(celTeraz().position, 0.3);
+        tmpKamera.y += 0.5;
+        kameraCel.lerp(tmpKamera, 1 - Math.exp(-2.6 * dt));
+        tmpKierunekKamery.lerp(KIERUNEK_KAMERY, 1 - Math.exp(-2.6 * dt));
+        kamera.zoom += (0.7 - kamera.zoom) * (1 - Math.exp(-3 * dt));
+        kamera.updateProjectionMatrix();
+        kamera.position.copy(kameraCel).add(tmpKierunekKamery);
+        kamera.lookAt(kameraCel);
+        utrzymajLiskaWKadrze();
+
+        /* Powrót prowadzi sam lot, nie zegar ustawiony w chwili pudła: chwila
+           na oddech po wylądowaniu, a bezpiecznik czasowy łapie tor, który z
+           jakiegoś powodu nigdy nie dotknął ziemi. */
+        if ((stan.wSpoczynku && stan.czasSpoczynku > 0.6) || stan.czasPudla > 5) {
+          if (zywe) resetDoNaciagu(true);
+        }
       } else if (stan.tryb === "trafienie") {
         stan.czasTrafienia += dt;
         if (stan.czasTrafienia < 0.52) {
