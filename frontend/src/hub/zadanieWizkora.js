@@ -24,6 +24,7 @@
  */
 import DANE from "./data/zadania-wizkora.v1.json";
 import { api, session } from "../services/api.js";
+import { dodajMonety } from "../services/monety.js";
 
 
 const KLUCZ = "ewolucja.zadanie.wizkora";
@@ -184,6 +185,51 @@ export async function wyslijDowod({ opis, zdjecieUrl }) {
  * „Listy" pali sam przypięty wpis (patrz `wpisZadaniaWizkora` w
  * `wiadomosci.js`), więc sygnał „coś na Ciebie czeka" nie znika.
  */
+/* ── DEMO: WERDYKT PRZYCHODZI SAM ─────────────────────────────────────────
+   JAK JEST BEZ TEGO. Dowód leci do bazy i misja dostaje status `submitted`.
+   Na `verified` przestawia ją WYŁĄCZNIE prawdziwy Mentor ze swojego panelu
+   (`backend/src/api/mentor.js` → `decision: "approve"`); w kodzie nie ma
+   niczego, co zrobiłoby to samo automatycznie. W wersji demo, gdzie po
+   drugiej stronie nie ma nikogo, zadanie zostawało więc na zawsze
+   w „Sprawdzane", a nagroda nie dochodziła nigdy.
+
+   CO ROBI PRZEŁĄCZNIK. Po `DEMO_OPOZNIENIE_MS` od wysłania dowodu werdykt
+   przychodzi sam: karta zadania zmienia się na „Nagroda czeka", plakietka
+   zapala się na „Listach", a monety dopisują się przy odbiorze nagrody.
+
+   DLACZEGO NIE NATYCHMIAST. „Wysłane do Mentora", po którym nagroda pojawia
+   się w tej samej sekundzie, mówi dziecku wprost, że po drugiej stronie
+   nikogo nie ma. Minuta wystarczy, żeby werdykt trafił do niego w trakcie
+   biegania po mapie — jako coś, co przyszło, a nie jako część kliknięcia.
+
+   GDY POWSTANIE PANEL MENTORA: `DEMO_SAM_ZATWIERDZA = false` i tyle. Reszta
+   toru — sprawdzanie, karta w zwoju, ekran nagrody — jest wspólna dla obu
+   dróg i nie zauważy różnicy. */
+const DEMO_SAM_ZATWIERDZA = true;
+const DEMO_OPOZNIENIE_MS = 60_000;
+const DEMO_NOTATKA = "Widziałem, co zrobiłeś. Właśnie tak wygląda ciche dobro.";
+
+function demoWerdyktGotowy(zapis) {
+  if (!DEMO_SAM_ZATWIERDZA) return false;
+  if (!zapis || zapis.status !== "wyslane") return false;
+  const wyslane = new Date(zapis.dowod?.wyslaneAt || 0).getTime();
+  // Zapis bez znacznika (starsza wersja gry) nie ma czekać w nieskończoność.
+  if (!wyslane || Number.isNaN(wyslane)) return true;
+  return Date.now() - wyslane >= DEMO_OPOZNIENIE_MS;
+}
+
+/** `demo: true` w zapisie znaczy „tych monet NIE ma w bazie" — patrz `odbierzNagrode`. */
+function zatwierdzDemo(zapis) {
+  const def = definicjaZadania(zapis.id);
+  return zapisz({
+    ...zapis,
+    status: "zatwierdzone",
+    notatka: DEMO_NOTATKA,
+    nagroda: zapis.nagroda ?? def?.nagroda ?? 25,
+    demo: true,
+  });
+}
+
 const PRZYJETE = new Set(["verified", "highlighted"]);
 const DO_POPRAWKI = new Set(["rejected", "needs_followup"]);
 
@@ -197,6 +243,10 @@ const DO_POPRAWKI = new Set(["rejected", "needs_followup"]);
  */
 export async function sprawdzMentora() {
   const zapis = czytaj();
+  // Demo odpowiada zamiast Mentora i nie potrzebuje do tego ani sieci, ani
+  // `missionId`: dowód wysłany skrótem z pulpitu (`wyslijDowodDev`) też ma
+  // doczekać się werdyktu.
+  if (demoWerdyktGotowy(zapis)) return zatwierdzDemo(zapis);
   if (!zapis?.missionId) return stanZadania();
   const misja = await api.getMissionById(zapis.missionId);
   const status = misja?.status || misja?.mission?.status;
@@ -241,7 +291,14 @@ function wolnoPytac() {
 /** Ciche sprawdzenie werdyktu poza panelem. Bledy sieci sa tu bez znaczenia. */
 export async function sprawdzMentoraWTle() {
   const stan = stanZadania();
-  if (!stan.czeka || !stan.missionId) return stan;
+  if (!stan.czeka) return stan;
+  // Werdykt demo jest lokalny, więc idzie PRZED dławikiem — ten pilnuje
+  // zapytań do serwera, a tutaj żadnego nie ma. Inaczej nagroda w demie
+  // potrafiłaby spóźnić się o dziesięć minut z powodu ochrony przed
+  // odpytywaniem czegoś, o co i tak nie pytamy.
+  const zapis = czytaj();
+  if (demoWerdyktGotowy(zapis)) return zatwierdzDemo(zapis);
+  if (!stan.missionId) return stan;
   if (!wolnoPytac()) return stan;
   try { localStorage.setItem(KLUCZ_PYTANIA, String(Date.now())); } catch {}
   try {
@@ -254,6 +311,19 @@ export async function sprawdzMentoraWTle() {
 export function odbierzNagrode() {
   const zapis = czytaj();
   if (!zapis || zapis.status !== "zatwierdzone") return stanZadania();
+  /**
+   * JEDNO ŹRÓDŁO MONET NA JEDNĄ DROGĘ, nigdy dwa naraz.
+   *
+   * Prawdziwy werdykt Mentora zapisuje monety w bazie (`points_awarded`) —
+   * wchodzą do HUD-u przy najbliższym odświeżeniu gracza, a dopisanie ich tu
+   * jeszcze raz byłoby podwójnym liczeniem (patrz `services/monety.js`).
+   * Werdykt demo nie ma ich skąd wziąć, więc lecą torem lokalnym — tym samym,
+   * co nagrody za minigry. Rozstrzyga o tym `demo` w zapisie.
+   */
+  if (zapis.demo) {
+    const def = definicjaZadania(zapis.id);
+    dodajMonety(zapis.nagroda ?? def?.nagroda ?? 25, "zadanie w realu (demo)");
+  }
   return zapisz({ ...zapis, status: "wyplacone" });
 }
 
@@ -293,6 +363,9 @@ export function ustawStatus(status, notatka = null) {
   const def = definicjaZadania(zapis.id);
   return zapisz({
     ...zapis,
+    // Skrót z pulpitu nie jest werdyktem z bazy, więc monety muszą pójść
+    // torem lokalnym — inaczej „Odbierz nagrodę" nie dołożyłoby ani grosza.
+    demo: status === "zatwierdzone" ? true : zapis.demo,
     status,
     notatka,
     nagroda: status === "zatwierdzone" ? (zapis.nagroda || def?.nagroda || 25) : zapis.nagroda,

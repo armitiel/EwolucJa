@@ -107,6 +107,22 @@ export default function PiorkaGame({ osadzona = false, poziom = null, onWyjscie 
   const scena = useRef({ w: 0, h: 0, obiekt: { x: 0, y: 0, r: 0 }, faza: "kopiec" });
   const petla = useRef(0);
   const ostatniPunkt = useRef(null);
+  /**
+   * Odliczanie od trafionej odpowiedzi do następnej rundy.
+   *
+   * MUSI mieć uchwyt. Wcześniej `setTimeout` leciał bez niego i przeżywał
+   * wszystko: wyjście krzyżykiem w trakcie wybuchu, restart z „Jeszcze raz",
+   * odmontowanie gry nad hubem. Zaległe odliczenie z poprzedniej partii
+   * wchodziło potem w świeżo zaczętą — przestawiało numer rundy albo, jeśli
+   * padło na ostatniej, od razu kończyło grę i wypłacało monety za partię,
+   * której dziecko nie rozegrało. Z zewnątrz wygląda to jak zawieszony ekran:
+   * plansza znika, wchodzi ekran wyniku, którego nikt się nie spodziewał.
+   *
+   * `sesjaRef` to drugi zamek: numer bieżącej partii. Odliczenie sprawdza go
+   * przy odpaleniu i milczy, jeśli partia jest już inna.
+   */
+  const zegarRundyRef = useRef(0);
+  const sesjaRef = useRef(0);
 
   const [faza, setFaza] = useState("splash");   // splash|wczytywanie|intro|gra|koniec|blad
   const [runda, setRunda] = useState(0);
@@ -144,11 +160,29 @@ export default function PiorkaGame({ osadzona = false, poziom = null, onWyjscie 
   const zasyp = useCallback(() => {
     const { w, h, obiekt } = scena.current;
     const lista = [];
-    const ile = Math.round((w * h) / 1500);
-    for (let i = 0; i < ile; i++) {
+    /* GĘSTOŚĆ, NIE LICZBA. Wcześniej stało tu `ile = w*h/1500`, czyli liczba
+       piórek rosła z polem CAŁEGO płótna, a rozgarnia się tylko kopiec nad
+       obiektem — pole mniej więcej `min(w,h)²`. Na tablecie i na laptopie
+       wychodziło z tego 550-700 piórek na kopcu wielkości telefonowego:
+       dziecko grzebało i grzebało, licznik odsłonięcia nie ruszał się z zera,
+       kafelki z odpowiedziami nigdy nie wchodziły i ekran wyglądał na zawieszony.
+
+       Teraz obie porcje są skalowane tak, żeby gęstość PRZY OBIEKCIE była ta
+       sama na każdym ekranie: kopiec liczony z `min(w,h)²`, tło z pola płótna
+       skorygowanego o ten sam czynnik. `LIMIT` to bezpiecznik wydajności —
+       każde piórko to `drawImage` w każdej klatce. */
+    const m = Math.min(w, h);
+    const LIMIT = 800;
+    let nad = Math.round((m * m) / 2300);
+    let wokol = Math.round(((w * h) / 2600) * (390 / m) * (390 / m));
+    if (nad + wokol > LIMIT) {
+      const k = LIMIT / (nad + wokol);
+      nad = Math.round(nad * k); wokol = Math.round(wokol * k);
+    }
+    for (let i = 0; i < nad + wokol; i++) {
       // Nad obiektem sypiemy GĘŚCIEJ — inaczej start bywa już częściowo
       // odsłonięty i pierwsza runda rozdaje pełną nagrodę za nic.
-      const nadObiektem = Math.random() < 0.42;
+      const nadObiektem = i < nad;
       let x, y;
       if (nadObiektem) {
         const kat = Math.random() * Math.PI * 2;
@@ -205,15 +239,39 @@ export default function PiorkaGame({ osadzona = false, poziom = null, onWyjscie 
     window.addEventListener("resize", wymiary);
 
     const KOL = 12, WIE = 12;
+    /* Ile z szerokości piórka liczymy jako realnie zakryte. 0.30 dobrane tak,
+       żeby pełny kopiec dawał ~0.01, a mocno rozgarnięty ~0.6. */
+    const KRYCIE = 0.30;
+    /**
+     * Komórka jest ZAKRYTA, gdy leży pod piórkiem — nie gdy trafił w nią jego
+     * ŚRODEK.
+     *
+     * Poprzednia wersja stemplowała same środki, a piórko ma ~70 px przy
+     * komórce ~12 px. Kopiec wyglądał więc na pełny, a licznik pokazywał
+     * 0.17-0.66 JUŻ NA STARCIE. Dwa skutki, oba widoczne w grze: kafelki
+     * z odpowiedziami (próg 0.12) były odsłonięte od pierwszej klatki, więc
+     * „rozgarnij, zanim zgadniesz" nie działało wcale; i `NAGRODY` zawsze
+     * trafiały w ostatni próg, czyli JEDNA moneta za rundę zamiast pięciu —
+     * gra nie potrafiła wypłacić obiecanych 25.
+     */
     const policz = () => {
       const { obiekt } = scena.current;
       const bok = obiekt.r * 2.1;
       const x0 = obiekt.x - bok / 2, y0 = obiekt.y - bok / 2;
+      const kw = bok / KOL, kh = bok / WIE;
       const siatka = new Uint8Array(KOL * WIE);
       for (const p of piorka.current) {
-        const kx = Math.floor((p.x - x0) / (bok / KOL));
-        const ky = Math.floor((p.y - y0) / (bok / WIE));
-        if (kx >= 0 && kx < KOL && ky >= 0 && ky < WIE) siatka[ky * KOL + kx] = 1;
+        const R = 300 * p.skala * KRYCIE;
+        const kx0 = Math.max(0, Math.floor((p.x - R - x0) / kw));
+        const kx1 = Math.min(KOL - 1, Math.floor((p.x + R - x0) / kw));
+        const ky0 = Math.max(0, Math.floor((p.y - R - y0) / kh));
+        const ky1 = Math.min(WIE - 1, Math.floor((p.y + R - y0) / kh));
+        for (let ky = ky0; ky <= ky1; ky++) {
+          for (let kx = kx0; kx <= kx1; kx++) {
+            const cx = x0 + (kx + 0.5) * kw, cy = y0 + (ky + 0.5) * kh;
+            if ((cx - p.x) ** 2 + (cy - p.y) ** 2 <= R * R) siatka[ky * KOL + kx] = 1;
+          }
+        }
       }
       let puste = 0;
       for (let i = 0; i < siatka.length; i++) if (!siatka[i]) puste++;
@@ -342,7 +400,11 @@ export default function PiorkaGame({ osadzona = false, poziom = null, onWyjscie 
     if (kara === 0) setBezPudla((n) => n + 1);
     scena.current.faza = "wybuch";
     try { fx?.sukces?.(); } catch {}
-    window.setTimeout(() => {
+    const sesja = sesjaRef.current;
+    window.clearTimeout(zegarRundyRef.current);
+    zegarRundyRef.current = window.setTimeout(() => {
+      zegarRundyRef.current = 0;
+      if (sesja !== sesjaRef.current) return;   // partia już inna — nie ruszaj jej
       if (runda + 1 >= RUND) {
         // Sama zmiana fazy. Wypłata i domknięcie misji siedzą w efekcie niżej,
         // żeby dev-owe „wygraj partię" szło DOKŁADNIE tą samą drogą.
@@ -391,16 +453,31 @@ export default function PiorkaGame({ osadzona = false, poziom = null, onWyjscie 
   }, [faza, monety]);
 
   function start() {
+    // Nowa partia unieważnia wszystko, co zostało po poprzedniej: zaległe
+    // odliczenie rundy i stan sceny. `faza: "wybuch"` zostawał tu po wygranej
+    // ostatniej rundzie, a dopóki wisi, `zamiec` i `odpowiedz` wychodzą na
+    // wejściu — plansza nie reaguje ani na palec, ani na kafelki.
+    window.clearTimeout(zegarRundyRef.current);
+    zegarRundyRef.current = 0;
+    sesjaRef.current += 1;
+    scena.current.faza = "kopiec";
     setRunda(0); setMonety(0); setBezPudla(0); setNagrodaMisji(0);
     wyplaconoRef.current = false;
     nowaRunda();
     setFaza("gra");
   }
 
+  // Wyjście z gry w trakcie wybuchu zostawiało wiszące odliczenie, które
+  // odpalało się już po odmontowaniu komponentu.
+  useEffect(() => () => window.clearTimeout(zegarRundyRef.current), []);
+
   // Przy wejsciu z mapy ekranu startowego NIE MA, wiec krzyzyk wychodzi wprost
   // do swiata — cofanie na ekran, ktorego dziecko nigdy nie widzialo, byloby
   // pojawieniem sie z niczego. To samo rozwiazanie, co w `MemoryGame`.
   const wyjdz = () => {
+    window.clearTimeout(zegarRundyRef.current);
+    zegarRundyRef.current = 0;
+    sesjaRef.current += 1;
     if (faza === "gra" && !zPominieciemIntro) { setFaza("intro"); return; }
     wrocDoHuba();
   };

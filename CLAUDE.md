@@ -188,3 +188,20 @@ Konsekwencje: dorobek nie przechodzi na inne urządzenie i ginie po
 wyczyszczeniu danych strony. To świadomy dług — `dodajMonety` jest jednym
 miejscem, przez które to później pójdzie na serwer. **Nie dopisuj tędy monet
 za misje Mentora** — one już są w bazie, policzyłyby się podwójnie.
+
+## Zadanie w realu — w demie Mentor odpowiada sam
+
+Dowód dziecka leci do bazy i misja dostaje status `submitted`. Na `verified`
+przestawia ją **wyłącznie** prawdziwy Mentor ze swojego panelu
+(`backend/src/api/mentor.js`) — nic nie robi tego automatycznie. Bez Mentora
+po drugiej stronie zadanie zostawało więc na zawsze w „Sprawdzane".
+
+Na czas dema działa przełącznik `DEMO_SAM_ZATWIERDZA` w
+`frontend/src/hub/zadanieWizkora.js`: minutę po wysłaniu dowodu werdykt
+przychodzi sam, karta zmienia się na „Nagroda czeka", a monety idą **torem
+lokalnym** (`dodajMonety`), bo w bazie ich nie ma. Rozstrzyga o tym `demo`
+w zapisie zadania — przy prawdziwym werdykcie flagi nie ma i monety liczy
+tylko baza.
+
+Gdy panel Mentora ruszy: `DEMO_SAM_ZATWIERDZA = false` i tyle. Reszta toru
+(sprawdzanie, karta w zwoju, ekran nagrody) jest wspólna dla obu dróg.

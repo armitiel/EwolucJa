@@ -316,9 +316,11 @@
   margin-top: 16px;
 }
 
-.nagroda-akcje .hub-btn { width: 100%; min-height: 54px; font-size: 17.5px; }
+/* Wysokosc i litery bierze skala `--cta-*` z `ewolucja.css` - ekran nagrody nie
+   ma juz wlasnego rozmiaru przycisku. Tu zostaje tylko szerokosc i odstepy. */
+.nagroda-akcje .hub-btn { width: 100%; }
 
-.nagroda-cta { margin-top: 16px; width: 100%; min-height: 54px; font-size: 17.5px; }
+.nagroda-cta { margin-top: 16px; width: 100%; }
 
 @media (max-height: 680px) {
   .nagroda-karta { padding: 28px 18px 18px; }
@@ -326,7 +328,9 @@
   .nagroda-tytul { font-size: 24px; }
   .nagroda-pigulka { margin-top: 14px; padding: 12px 22px; font-size: 30px; }
   .nagroda-przerywnik { margin-top: 12px; }
-  .nagroda-cta { min-height: 50px; font-size: 16.5px; }
+  /* Na niskim ekranie zmniejszamy CALA skale CTA w obrebie karty nagrody -
+     jedna zmienna zamiast osobnej wysokosci przy kazdym przycisku. */
+  .nagroda { --cta-h: 50px; --cta-fs: 18px; --cta-sec-h: 44px; --cta-sec-fs: 15px; }
   /* Wynik partii schodzi o klasę: gwiazdki i kafelki to informacja dodatkowa,
      więc to one ustępują miejsca, a nie liczba monet i przyciski. */
   .nagroda-gwiazdki { min-height: 46px; margin-bottom: 4px; }
@@ -336,7 +340,6 @@
   .nagroda-kafel { padding: 7px 4px; }
   .nagroda-kafel b { font-size: 17px; }
   .nagroda-akcje { margin-top: 12px; gap: 7px; }
-  .nagroda-akcje .hub-btn { min-height: 50px; font-size: 16.5px; }
 }
 
 @media (max-width: 340px) {

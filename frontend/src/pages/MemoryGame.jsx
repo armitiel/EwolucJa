@@ -19,6 +19,8 @@ import { Sparkle, Cloud } from "../components/art.jsx";
 import { fx } from "../services/soundFx.js";
 import RewardScreen from "../components/RewardScreen.jsx";
 import SplashGry from "../hub/SplashGry.jsx";
+import TutorialGry from "../hub/TutorialGry.jsx";
+import { oznaczTutorial, tutorialWidziany, zapomnijTutoriale, zasadyGry } from "../hub/zasadyGier.js";
 import EkranStartuGry from "../hub/EkranStartuGry.jsx";
 import { dodajMonety } from "../services/monety.js";
 import { rozliczPartie } from "../hub/misjeGier.js";
@@ -244,6 +246,16 @@ export default function MemoryGame({ osadzona = false, poziom = null, onWyjscie 
   const wrocDoHuba = () => (onWyjscie ? onWyjscie() : navigate("/swiat?panel=gry"));
   const zPominieciemIntro = poziomIstnieje(GRA, poziom);
   const [phase, setPhase] = useState("splash"); // intro | playing | done
+  /**
+   * Ekran zasad. NIE jest fazą gry, tylko warstwą nad nią — dzięki temu
+   * otwarcie go w trakcie partii („?" w pasku) niczego nie resetuje: plansza
+   * czeka pod spodem taka, jaka była.
+   *
+   *   "przed"    → wszedł sam przed pierwszą partią; CTA startuje grę
+   *   "wtrakcie" → dziecko samo go otworzyło; CTA tylko go zamyka
+   */
+  const [tutorial, setTutorial] = useState(null);
+  const zasady = zasadyGry(GRA);
   const [diff, setDiff] = useState(zPominieciemIntro ? poziom : "easy");
   const pairs = diff === "easy" ? 6 : 8;
   const cols = 3;
@@ -378,6 +390,29 @@ export default function MemoryGame({ osadzona = false, poziom = null, onWyjscie 
     setPhase("playing");
   };
 
+  /**
+   * „Zagraj!" nie wchodzi prosto w partię, dopóki dziecko nie zna zasad.
+   * Raz na grę i na urządzenie — potem ta droga jest przezroczysta.
+   */
+  const zagraj = () => {
+    if (zasady && !tutorialWidziany(GRA)) { setTutorial("przed"); return; }
+    restart();
+  };
+
+  const zamknijTutorial = () => {
+    const przed = tutorial === "przed";
+    oznaczTutorial(GRA);
+    setTutorial(null);
+    if (przed) restart();
+  };
+
+  // Uchwyt do konsoli — inaczej sprawdzenie tutoriala wymaga czyszczenia
+  // pamięci przeglądarki: `window.zasadyGier.zapomnij()`.
+  useEffect(() => {
+    window.zasadyGier = { zapomnij: () => { zapomnijTutoriale(); return "tutoriale wrócą przy następnym wejściu"; } };
+    return () => { delete window.zasadyGier; };
+  }, []);
+
   const progress = matched.size / (pairs * 2);
   const cardSize = useMemo(() => Math.floor((342 - (cols - 1) * 10) / cols), []);
 
@@ -399,6 +434,20 @@ export default function MemoryGame({ osadzona = false, poziom = null, onWyjscie 
       <div className="gra-pasek">
         {/* Tytul gry stoi juz w tresci ekranu startowego - powtarzanie go w pasku
             bylo drugim takim samym napisem na jednym ekranie. */}
+        {phase === "playing" && zasady ? (
+          <button
+            type="button"
+            className="gra-ikona"
+            onClick={() => setTutorial("wtrakcie")}
+            title="Jak grać?"
+            aria-label="Jak grać?"
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M9.2 9a2.9 2.9 0 1 1 3.9 2.7c-.8.3-1.1 1-1.1 1.8v.4" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+              <circle cx="12" cy="17.6" r="1.25" fill="currentColor" />
+            </svg>
+          </button>
+        ) : null}
         {phase === "playing" ? (
           <button type="button" className="gra-ikona" onClick={() => restart()} title="Zagraj od nowa" aria-label="Zagraj od nowa">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -437,7 +486,7 @@ export default function MemoryGame({ osadzona = false, poziom = null, onWyjscie 
                 wybrany={diff}
                 onWybor={setDiff}
                 cta="Zagraj!"
-                onGraj={() => restart()}
+                onGraj={zagraj}
               />
             )}
           </SplashGry>
@@ -503,6 +552,17 @@ export default function MemoryGame({ osadzona = false, poziom = null, onWyjscie 
           Dziecko przeklikiwało to samo dwa razy, a nagroda Wizkora za misję
           dokładała po powrocie na mapę trzeci. Teraz wszystko jest tutaj:
           ocena, statystyki, obie nagrody i oba wyjścia. */}
+      {tutorial && zasady ? (
+        <TutorialGry
+          kroki={zasady.kroki}
+          stopka={zasady.stopka}
+          wariant="pamiec"
+          cta={tutorial === "przed" ? "Gram!" : "Rozumiem!"}
+          onStart={zamknijTutorial}
+          onZamknij={tutorial === "wtrakcie" ? zamknijTutorial : null}
+        />
+      ) : null}
+
       {phase === "done" && (
         <RewardScreen
           /* Sama nazwa gry — „· UKOŃCZONA" nie mieściło się na wstędze

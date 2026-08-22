@@ -11,9 +11,33 @@
   --font-body: 'Nunito', system-ui, sans-serif;
 
   --r-card:22px; --r-pill:999px;
+
+  /* ─── SKALA CTA (jedno zrodlo prawdy dla WSZYSTKICH przyciskow akcji) ───
+     Wzorcem jest zielony przycisk ze zwoju zadania ("OTWORZ"): 56 px wysokosci,
+     21 px liter, na cala szerokosc karty. Kazdy glowny przycisk w grze ma
+     wygladac DOKLADNIE tak samo - dziecko uczy sie jednego ksztaltu "tu sie
+     klika", zamiast zgadywac przy kazdym ekranie.
+     Wczesniej kazdy ekran ustawial sobie wlasna wysokosc (47 / 50 / 52 / 54 /
+     56 / 62 px) i CTA w zakladce zadania bylo zauwazalnie mniejsze od tego na
+     zwoju. Teraz kazdy ekran siega po te zmienne; jesli gdzies trzeba inaczej,
+     nadpisuje sie ZMIENNA w kontenerze, a nie wysokosc pojedynczego guzika.
+
+     --cta-*      = przycisk glowny (zielony, „zrob to")
+     --cta-sec-*  = przycisk drugorzedny / odmowa („nie teraz", „wroc") */
+  --cta-h:56px; --cta-fs:21px; --cta-pad:12px 20px; --cta-r:18px;
+  --cta-sec-h:48px; --cta-sec-fs:16px;
+
   --shadow-sm: 0 2px 0 rgba(78,77,118,.08), 0 4px 14px rgba(78,77,118,.10);
   --shadow-md: 0 3px 0 rgba(78,77,118,.10), 0 10px 24px rgba(78,77,118,.14);
   --shadow-lg: 0 6px 0 rgba(78,77,118,.10), 0 20px 40px rgba(78,77,118,.20);
+}
+
+/* Niski ekran (telefon w poziomie, male okno) i bardzo waski telefon: cala
+   skala CTA schodzi RAZEM, w jednym miejscu. Wczesniej kazdy ekran mial wlasny
+   media query z wlasnymi liczbami i po zmniejszeniu okna przyciski przestawaly
+   byc rowne. */
+@media (max-height:600px), (max-width:360px){
+  :root{ --cta-h:50px; --cta-fs:18px; --cta-pad:10px 16px; --cta-sec-h:44px; --cta-sec-fs:15px; }
 }
 
 *{box-sizing:border-box}
@@ -153,7 +177,12 @@ h3.title{ font-size: 22px; margin:0; }
   backdrop-filter: blur(8px);
   box-shadow: inset 0 0 0 1.5px rgba(78,77,118,.12), 0 1px 0 rgba(78,77,118,.05);
 }
-.btn-block{ width:100%; padding:16px 22px; font-size:17px; }
+/* CTA rodziny `.btn-*` (ekrany tekstowe: Landing, logowanie, onboarding, mentor)
+   ma te sama wysokosc i ten sam rozmiar liter, co CTA w hubie - inaczej ta sama
+   aplikacja mierzy „przycisk do klikniecia" dwiema roznymi miarami.
+   Litery sa o 3 px mniejsze niz w hubie, bo ta rodzina NIE pisze wersalikami -
+   przy tym samym `font-size` male litery wygladalyby wyraznie wieksze. */
+.btn-block{ width:100%; min-height:var(--cta-h,56px); padding:var(--cta-pad,12px 20px); font-size:calc(var(--cta-fs,21px) - 3px); }
 .btn-sm{ padding:10px 16px; font-size:14px; }
 
 /* ─── Przyciski „grubego" UI gry (dawniej tylko hub) ─────────────────────
@@ -163,13 +192,26 @@ h3.title{ font-size: 22px; margin:0; }
    ktorego polowa ekranow nie importuje.
    `.btn-*` wyzej zostaje: to lzejsza, wczesniejsza rodzina z ekranow tekstowych
    (Landing, onboarding). Nie mieszaj ich w jednym widoku. */
+/* ROZMIAR PRZYCISKU BIERZE SIE ZE ZMIENNYCH `--cta-*` (patrz `:root` na gorze).
+   `.hub-btn` samo w sobie to guzik DRUGORZEDNY (odmowa, powrot, wybor w rzedzie),
+   a `.hub-btn-primary` urasta do pelnego CTA. Nie dopisuj `min-height` ani
+   `font-size` przy pojedynczych ekranach - jesli gdzies ma byc inaczej, nadpisz
+   `--cta-h` / `--cta-fs` w kontenerze tego ekranu. */
 .hub-btn{
-  border:2px solid transparent; cursor:pointer; border-radius:17px; padding:11px 16px;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  border:2px solid transparent; cursor:pointer; border-radius:var(--cta-r,18px);
+  padding:var(--cta-pad,12px 20px);
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
-  font-weight:800; font-size:16px; letter-spacing:.35px; line-height:1; min-height:47px;
+  font-weight:800; font-size:var(--cta-sec-fs,16px); letter-spacing:.35px; line-height:1;
+  min-height:var(--cta-sec-h,48px);
   text-transform:uppercase;
 }
 .hub-btn-primary{
+  /* `min(..., 5.4vw)` to bezpiecznik na waskie telefony: przy 390 px szerokosci
+     wychodzi dokladnie --cta-fs, a ponizej litery same schodza, zamiast lamac
+     dluzszy napis na dwie linie i podwajac wysokosc przycisku. Wysokosc zostaje
+     ta sama zawsze - to ona ma byc wspolna miara. */
+  min-height:var(--cta-h,56px); font-size:min(var(--cta-fs,21px), 5.4vw);
   color:#fff5b8;
   background:
     linear-gradient(180deg,#9bd33e 0%,#64a727 62%,#478519 100%) padding-box,
@@ -635,17 +677,16 @@ h3.title{ font-size: 22px; margin:0; }
 }
 .start-cta{ width:100%; max-width:360px; margin-top:14px; display:flex; flex-direction:column; gap:10px; }
 /* `hub-btn` nie ma wariantu „na cala szerokosc" — w hubie siedzi w siatkach
-   i w rzedach. Tutaj ma byc jednym, szerokim celem dla palca, wiec rozmiar
-   nadajemy na miejscu, zamiast dokladac kolejnej klasy do rodziny. */
-.start-cta .hub-btn{
-  width:100%; min-height:56px; padding:14px 18px;
-  display:inline-flex; align-items:center; justify-content:center; gap:10px;
-  font-size:17px;
-}
+   i w rzedach. Tutaj ma byc jednym, szerokim celem dla palca, wiec dokladamy
+   TYLKO szerokosc; wysokosc i litery ida ze skali `--cta-*`, zeby ekran startu
+   nie mial wlasnego rozmiaru przycisku. Guzik drugorzedny („Mam juz konto")
+   dostaje tu te sama wysokosc, co glowny, bo stoja jeden pod drugim i roznica
+   czytalaby sie jako blad, a nie jako hierarchia. */
+.start-cta .hub-btn{ width:100%; min-height:var(--cta-h,56px); gap:10px; }
 /* „START" to jedno slowo wersalikami — bez rozstrzelenia T i A zlewaja sie
    w jeden ksztalt. `text-indent` oddaje z powrotem odstep, ktory
    `letter-spacing` dokleja za ostatnia litera, zeby napis stal w osi. */
-.start-cta .hub-btn-primary{ font-size:20px; letter-spacing:.16em; text-indent:.16em; }
+.start-cta .hub-btn-primary{ letter-spacing:.16em; text-indent:.16em; }
 /* Ikonki w przyciskach to te same pliki, co w grze (gwiazdka z Pamieci Medrca,
    klucz z ekranu logowania) — dziecko widzi ten sam przedmiot, nie emoji. */
 .start-ikona{ width:24px; height:24px; object-fit:contain; display:block; filter:drop-shadow(0 2px 2px rgba(120,80,20,.32)); }

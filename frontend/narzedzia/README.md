@@ -25,3 +25,33 @@ python3 narzedzia/czarodziej-strojenie.py public/scena-3d/scena3d.js public/scen
 Po każdej zmianie w bundlu **podbij `WERSJA_SCENY`** w
 `src/components/Scena3D.jsx`. Pliki w `public/` nie mają hasha w nazwie, więc
 bez tego przeglądarka poda z cache starą scenę. Numer ma tylko rosnąć.
+
+## `przemaluj-piorko.py` — złota barwa piórka na mapie
+
+Piórko (`public/scena-3d/assets/lisc.glb`, znak `leaf`) przychodziło
+z generatora z beżowo-szarą teksturą — na mapie czytało się jako
+„za delikatne", a misja obiecuje **złote** piórko. Skrypt mapuje luminancję
+tekstury na rampę złota (cień → środek → światło), więc rysunek i cieniowanie
+zostają, zmienia się wyłącznie barwa.
+
+```bash
+python narzedzia/przemaluj-piorko.py                    # przemaluj model
+python narzedzia/przemaluj-piorko.py --podglad out.png  # tylko podgląd tekstury
+python narzedzia/przemaluj-piorko.py --kontrast 1.3     # mocniejsze kontrasty
+```
+
+Dwie rzeczy, o które skrypt dba sam i o których łatwo zapomnieć przy ręcznej
+podmianie:
+
+* **format tekstury.** Model deklaruje WEBP przez `EXT_texture_webp` —
+  wstawienie w to miejsce PNG-a zostawiłoby `mimeType` niezgodny z zawartością
+  i tekstura nie wczytałaby się wcale.
+* **offsety.** Nowy obrazek prawie nigdy nie ma tej samej długości, więc bufor
+  składany jest od nowa (z wyrównaniem do 4 bajtów), a `bufferView` dostają
+  przepisane offsety. Kopia oryginału ląduje obok, jako `.bak-przed-zlotem`.
+
+Rozmiar i poświata piórka siedzą w `public/scena-3d/mapa.json` (znak `leaf`):
+`scale`, `height`, `glow`, `ringColor`, `haloOpacity`, `haloScale`. Mapa jest
+pobierana `no-cache`, więc zmiany w niej widać po odświeżeniu — ale sam
+`.glb` idzie zwykłym cache'em przeglądarki i po przemalowaniu bywa potrzebne
+twarde odświeżenie (Ctrl+Shift+R).

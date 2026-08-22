@@ -989,12 +989,16 @@
    bez niego zielen konczyla sie tuz przy krawedzi pergaminu i dolnej rolce.
    Pomiar zwoju liczy wysokosc z scrollHeight listy, wiec ten margines
    powieksza tez sam pergamin - przycisk dostaje oddech, a nie scisk. */
+/* WZORZEC ROZMIARU CTA: 56 px wysokosci, ~21 px liter, na cala szerokosc.
+   Ten przycisk ("OTWORZ") jest miara dla wszystkich pozostalych - liczby
+   siedza w zmiennych `--cta-*` w `ewolucja.css`, tu tylko po nie siegamy,
+   zeby zwoj i reszta gry nie rozjechaly sie przy nastepnej zmianie. */
 .scroll-message.is-quest .scroll-message-body .hub-btn {
   width: 100%;
-  min-height:56px;
+  min-height:var(--cta-h,56px);
   margin-top: 12px;
   margin-bottom: 18px;
-  font-size:22px;
+  font-size:var(--cta-fs,21px);
   letter-spacing:.5px;
 }
 

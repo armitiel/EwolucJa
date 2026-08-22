@@ -171,6 +171,12 @@ export default function BiegLiskaGame({ osadzona = false, poziom = null, onWyjsc
   // Nagroda Wizkora za domkniętą misję. Ekran wyniku pisze o niej tylko wtedy,
   // gdy naprawdę była — patrz `misjeGier.rozliczPartie`.
   const [nagrodaMisji, setNagrodaMisji] = useState(0);
+  /**
+   * Scena 3D nie wstała albo padła w trakcie. Osobny stan, a nie faza:
+   * może się zdarzyć w KAŻDEJ fazie i musi przykryć wszystko, bo pod spodem
+   * zostaje martwe płótno.
+   */
+  const [bladSceny, setBladSceny] = useState(null);
 
   const wrocDoHuba = useCallback(() => {
     if (onWyjscie) onWyjscie();
@@ -239,11 +245,45 @@ export default function BiegLiskaGame({ osadzona = false, poziom = null, onWyjsc
     scena.fog = new THREE.Fog(0x8ecbee, 14, 46);
 
     const kamera = new THREE.PerspectiveCamera(58, 1, 0.1, 200);
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
+    /**
+     * `alpha: true` NIE jest kosmetyką — to jest zawór bezpieczeństwa.
+     *
+     * Bez niego płótno WebGL jest NIEPRZEZROCZYSTE i dopóki nie pójdzie
+     * pierwsza klatka, świeci czystą czernią (0,0,0). Gra leży nad hubem
+     * z `z-index: 70`, więc czerń zakrywa HUD, dok i mapę — dziecko dostaje
+     * pełnoekranową czarną planszę bez wyjścia. Dokładnie to zgłosił gracz.
+     * Z przezroczystością spod spodu widać tło `.gra-root` i pasek z krzyżykiem,
+     * więc najgorszy przypadek to brzydki ekran, z którego DA SIĘ wyjść.
+     * `ChoinkaLaunchGame` miał to od początku — tutaj zabrakło.
+     *
+     * Samo `new WebGLRenderer` potrafi RZUCIĆ: hub trzyma własny kontekst
+     * WebGL żywy (scena tylko pauzuje), więc gra otwiera drugi, a na telefonie
+     * po kilku grach sterownik potrafi odmówić. Wcześniej ten wyjątek przerywał
+     * efekt w połowie i zostawiał puste płótno bez śladu w interfejsie.
+     */
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
+    } catch (e) {
+      console.error("[bieg-liska] nie udało się utworzyć kontekstu WebGL", e);
+      setBladSceny("start");
+      return undefined;
+    }
     renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    /* Kontekst potrafi zniknąć w trakcie — telefon odbiera pamięć GPU przy
+       przełączeniu apki albo przy drugiej grze 3D. Bez `preventDefault`
+       przeglądarka nawet nie próbuje go przywrócić, a my i tak zdejmujemy
+       dziecko z martwego płótna na ekran z przyciskiem. */
+    const naUtracieKontekstu = (e) => {
+      e.preventDefault();
+      console.warn("[bieg-liska] utracony kontekst WebGL");
+      setBladSceny("utracony");
+    };
+    canvas.addEventListener("webglcontextlost", naUtracieKontekstu);
 
     const dopasuj = () => {
       const w = canvas.clientWidth || 1;
@@ -372,6 +412,8 @@ export default function BiegLiskaGame({ osadzona = false, poziom = null, onWyjsc
 
     let mixer = null;
     let biegAkcja = null;
+    /* Zastępczy lisek stoi już na torze, więc brak modelu NIE zatrzymuje gry —
+       ale ma zostawić ślad w konsoli, a nie zniknąć po cichu. */
     new GLTFLoader().load(
       "/fox.glb",
       (gltf) => {
@@ -401,7 +443,12 @@ export default function BiegLiskaGame({ osadzona = false, poziom = null, onWyjsc
         }
       },
       undefined,
-      () => { /* zastępczy lisek zostaje — gra działa offline */ }
+      (e) => {
+        /* Zastępczy lisek zostaje — gra działa offline. Ale zostawiamy ślad:
+           cicha porażka wczytania modelu wyglądała w zgłoszeniach tak samo
+           jak martwa scena, a to dwie różne awarie. */
+        console.warn("[bieg-liska] nie wczytano /fox.glb — gram na zastępczym lisku", e);
+      }
     );
 
     /* ─── Stan biegu i zadań (poza Reactem — to jest pętla klatek) ──────── */
@@ -608,6 +655,7 @@ export default function BiegLiskaGame({ osadzona = false, poziom = null, onWyjsc
     return () => {
       zywe = false;
       cancelAnimationFrame(raf);
+      canvas.removeEventListener("webglcontextlost", naUtracieKontekstu);
       window.removeEventListener("resize", dopasuj);
       window.removeEventListener("keydown", naKlawisz);
       skokRef.current = null;
@@ -632,6 +680,24 @@ export default function BiegLiskaGame({ osadzona = false, poziom = null, onWyjsc
         ) : null}
         <button type="button" className="gra-x" onClick={wrocDoHuba} aria-label="Zamknij grę">×</button>
       </div>
+
+      {/* Scena 3D nie wstała albo padła. Bez tego dziecko zostawało na czarnym
+          płótnie rozciągniętym nad całym hubem — bez HUD-u, bez mapy i bez
+          żadnego przycisku. Jedno zdanie i wyjście wystarczą; nie udajemy,
+          że gra działa. */}
+      {bladSceny ? (
+        <div className="bieg-blad" role="alert">
+          <p>Bieg nie chce się dziś uruchomić.</p>
+          <p className="hub-muted">
+            {bladSceny === "utracony"
+              ? "Telefon potrzebował pamięci na coś innego."
+              : "Spróbuj jeszcze raz za chwilę."}
+          </p>
+          <button type="button" className="hub-btn hub-btn-primary" onClick={wrocDoHuba}>
+            Wracam na mapę
+          </button>
+        </div>
+      ) : null}
 
       {faza === "splash" || faza === "intro" ? (
         <div className="gra-scroll">

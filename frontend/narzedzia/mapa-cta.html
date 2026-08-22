@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>EwolucJA - mapa CTA</title>
+<!-- Podglad wszystkich CTA w jednym miejscu. Otworz ten plik w przegladarce
+     (dwuklik) po kazdej zmianie w przyciskach: kazdy blok pokazuje zmierzona
+     wysokosc i mowi wprost, czy zgadza sie ze skala `--cta-*` z ewolucja.css. -->
+<link rel="stylesheet" href="../src/styles/ewolucja.css">
+<link rel="stylesheet" href="../src/styles/nagroda.css">
+<link rel="stylesheet" href="../src/hub/styles/hub.css">
+<style>
+  body{ background:#f4eede; padding:24px; font-family:system-ui,sans-serif; }
+  h1{ font-size:22px; margin:0 0 4px; }
+  p.lead{ margin:0 0 22px; color:#5A4F77; font-size:14px; max-width:640px; }
+  section{ background:#fff; border-radius:16px; padding:16px 18px 20px; margin:0 0 14px;
+           box-shadow:0 2px 0 rgba(78,77,118,.08), 0 8px 20px rgba(78,77,118,.10); max-width:420px; }
+  section h2{ font-size:14px; margin:0 0 2px; color:#4e4d76; }
+  section .gdzie{ font-size:12px; color:#7d769b; margin:0 0 12px; }
+  .pomiar{ font:12px/1.4 ui-monospace,Consolas,monospace; color:#2f6d1a; margin-top:8px; }
+  .pomiar.zle{ color:#b3261e; font-weight:700; }
+</style>
+</head>
+<body>
+<h1>Mapa CTA — EwolucJA</h1>
+<p class="lead">Każdy blok to jedno miejsce w aplikacji, w którym stoi przycisk akcji.
+Wszystkie główne CTA mają być tej samej wysokości (zmienna <code>--cta-h</code>),
+wszystkie drugorzędne — <code>--cta-sec-h</code>. Liczba pod przyciskiem to zmierzona wysokość.</p>
+
+<section data-oczekiwana="cta">
+  <h2>Zwój zadania — „OTWÓRZ" (wzorzec)</h2>
+  <p class="gdzie">scena-3d/hud.css · .scroll-message.is-quest .hub-btn</p>
+  <button class="hub-btn hub-btn-primary" style="width:100%">Otwórz</button>
+</section>
+
+<section data-oczekiwana="cta">
+  <h2>Zadanie od Wizkora — „Już zrobione"</h2>
+  <p class="gdzie">ZadaniePanel.jsx · .hub-actions .hub-btn.hub-btn-primary</p>
+  <div class="hub-actions"><button class="hub-btn hub-btn-primary">Już zrobione!</button></div>
+</section>
+
+<section data-oczekiwana="cta">
+  <h2>Zadanie od Wizkora — „Wyślij do Mentora"</h2>
+  <p class="gdzie">ZadaniePanel.jsx · .hub-actions .hub-btn.hub-btn-primary</p>
+  <div class="hub-actions"><button class="hub-btn hub-btn-primary">Wyślij do Mentora</button></div>
+</section>
+
+<section data-oczekiwana="cta">
+  <h2>Listy — „Zobacz"</h2>
+  <p class="gdzie">WiadomosciPanel.jsx · .hub-msg-body .hub-btn</p>
+  <div class="hub-msg-body"><button class="hub-btn hub-btn-primary">Zobacz</button></div>
+</section>
+
+<section data-oczekiwana="cta">
+  <h2>Porada dnia — „Zrób to ze mną"</h2>
+  <p class="gdzie">PoradaPanel.jsx · .porada-wybrana .hub-btn</p>
+  <div class="porada-wybrana"><button class="hub-btn hub-btn-primary">Zrób to ze mną</button></div>
+</section>
+
+<section data-oczekiwana="cta">
+  <h2>Porada dnia — „Mam wszystkie!"</h2>
+  <p class="gdzie">PoradaAkcja.jsx · .porada-akcja-gotowe</p>
+  <button class="hub-btn hub-btn-primary porada-akcja-gotowe">Mam wszystkie!</button>
+</section>
+
+<section data-oczekiwana="cta">
+  <h2>Okno postaci — zgoda</h2>
+  <p class="gdzie">PopupPostaci.jsx · .popup-postaci-akcja</p>
+  <div class="popup-postaci"><button class="hub-btn hub-btn-primary popup-postaci-akcja">Start</button></div>
+</section>
+
+<section data-oczekiwana="sec">
+  <h2>Okno postaci — odmowa (drugorzędny)</h2>
+  <p class="gdzie">PopupPostaci.jsx · .popup-postaci-akcja-drugi</p>
+  <div class="popup-postaci"><button class="hub-btn hub-btn-ghost popup-postaci-akcja-drugi">Nie teraz</button></div>
+</section>
+
+<section data-oczekiwana="cta">
+  <h2>Ekran nagrody — „Wracam"</h2>
+  <p class="gdzie">nagroda.css · .nagroda-akcje .hub-btn</p>
+  <div class="nagroda"><div class="nagroda-akcje"><button class="hub-btn hub-btn-primary">Wracam na mapę</button></div></div>
+</section>
+
+<section data-oczekiwana="cta">
+  <h2>Ekran startu gry — „START"</h2>
+  <p class="gdzie">hub.css · .start-gry .start-gry-cta</p>
+  <div class="start-gry"><button class="hub-btn hub-btn-primary start-gry-cta"><span>Start</span></button></div>
+</section>
+
+<section data-oczekiwana="cta">
+  <h2>Ekran startu aplikacji — „GRAM!"</h2>
+  <p class="gdzie">ewolucja.css · .start-cta .hub-btn</p>
+  <div class="start-cta"><button class="hub-btn hub-btn-primary">Gram!</button></div>
+</section>
+
+<section data-oczekiwana="cta">
+  <h2>Ekrany tekstowe (logowanie, onboarding)</h2>
+  <p class="gdzie">ewolucja.css · .btn.btn-magic.btn-block</p>
+  <button class="btn btn-magic btn-block">Otwórz Kronikę</button>
+</section>
+
+<script>
+  const root = getComputedStyle(document.documentElement);
+  const cel = { cta: parseFloat(root.getPropertyValue("--cta-h")), sec: parseFloat(root.getPropertyValue("--cta-sec-h")) };
+  const wynik = [];
+  document.querySelectorAll("section").forEach((s) => {
+    const b = s.querySelector("button");
+    const h = Math.round(b.getBoundingClientRect().height);
+    const oczek = cel[s.dataset.oczekiwana];
+    const ok = Math.abs(h - oczek) <= 1;
+    const p = document.createElement("p");
+    p.className = "pomiar" + (ok ? "" : " zle");
+    p.textContent = `wysokosc: ${h}px  (oczekiwane ${oczek}px)  ${ok ? "OK" : "ROZNI SIE"}`;
+    s.appendChild(p);
+    wynik.push({ nazwa: s.querySelector("h2").textContent, h, oczek, ok });
+  });
+  window.__wynikCTA = wynik;
+  console.log(JSON.stringify(wynik));
+</script>
+</body>
+</html>

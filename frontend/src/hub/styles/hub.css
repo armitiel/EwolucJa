@@ -1696,16 +1696,19 @@
 }
 .popup-postaci-iskra--duza{ width:16px; height:16px; fill:var(--p-amber,#F4C95D); }
 
+/* Rozmiar ze skali `--cta-*` (`ewolucja.css`) - okno postaci nie ma juz
+   wlasnej wysokosci przycisku. */
 .popup-postaci-akcja{
   margin-top:14px; width:100%;
-  min-height:54px; font-size:17.5px;
 }
 
 /* Odmowa jest lzejsza i nizsza od zgody - dokladnie te same proporcje, co
-   "nie teraz" w oknie "zagadac?". Dziecko uczy sie jednego ukladu. */
+   "nie teraz" w oknie "zagadac?". Dziecko uczy sie jednego ukladu.
+   Ta roznica jest CELOWA i opisana skala `--cta-sec-*`: przycisk drugorzedny
+   ma wszedzie te sama, nizsza miare. */
 .popup-postaci-akcja-drugi{
   margin-top:9px; width:100%;
-  min-height:44px; font-size:15px;
+  min-height:var(--cta-sec-h,48px); font-size:var(--cta-sec-fs,16px);
 }
 
 /* ── Wariant: lisek ────────────────────────────────────────────────────── */
@@ -1816,7 +1819,8 @@
   .popup-postaci-wstega{ margin-top:-50px; font-size:18px; }
   .popup-postaci-tekst{ font-size:17px; }
   .popup-postaci-przerywnik{ margin-top:11px; }
-  .popup-postaci-akcja{ min-height:50px; font-size:16.5px; }
+  /* Skala CTA schodzi cala naraz — patrz `--cta-*` w `ewolucja.css`. */
+  .popup-postaci{ --cta-h:50px; --cta-fs:18px; --cta-sec-h:44px; --cta-sec-fs:15px; }
 }
 
 @media (max-width:340px){
@@ -2242,11 +2246,15 @@
 .start-gry-poziom-nazwa{ font-size:22px; font-weight:900; line-height:1; }
 .start-gry-poziom-monety{ display:inline-flex; align-items:center; gap:8px; font-size:28px; font-weight:900; line-height:1; color:#7A4D10; text-shadow:0 2px 0 rgba(255,255,255,.6); }
 .start-gry-poziom.wybrany .start-gry-poziom-monety{ color:#4a2c77; }
+/* START gry ma ten sam ROZMIAR, co kazde inne CTA (skala `--cta-*`) - wyroznia
+   go grubszy kant, polysk i oddech, a nie wieksza wysokosc. Wczesniej byl
+   o 6 px wyzszy i o 2 px wiekszy w literach od reszty i przez to caly zestaw
+   przyciskow w grze wygladal na przypadkowy. */
 .start-gry .start-gry-cta{
-  position:relative; overflow:hidden; width:100%; max-width:380px; min-height:62px; margin-top:1px;
+  position:relative; overflow:hidden; width:100%; max-width:380px; min-height:var(--cta-h,56px);
   border:3px solid #b4e858; border-radius:20px;
   box-shadow:inset 0 2px 0 rgba(255,255,255,.55),0 5px 0 #287714,0 11px 19px rgba(36,101,19,.28);
-  align-self:start; margin-top:3px; font-size:23px; letter-spacing:.6px; animation:start-cta-oddech 2.4s ease-in-out 1s infinite;
+  align-self:start; margin-top:3px; font-size:var(--cta-fs,21px); letter-spacing:.6px; animation:start-cta-oddech 2.4s ease-in-out 1s infinite;
 }
 .start-gry-cta span{ position:relative; z-index:2; }
 .start-gry-cta::after{
@@ -2295,7 +2303,8 @@
   .start-gry-poziom{ min-height:74px; padding:8px 10px; }
   .start-gry-poziom-nazwa{ font-size:20px; }
   .start-gry-poziom-monety{ font-size:25px; }
-  .start-gry .start-gry-cta{ min-height:54px; font-size:21px; }
+  /* Skala CTA schodzi cala naraz — patrz `--cta-*` w `ewolucja.css`. */
+  .start-gry{ --cta-h:50px; --cta-fs:18px; }
 }
 @media (prefers-reduced-motion:reduce){
   .start-gry::before,.start-gry-postac,.start-gry-art,.start-gry-panel,.start-gry-karta,.start-gry-piorko,.start-gry-lisc,.start-gry-iskra,.start-gry-cta,.start-gry-cta::after,.start-gry-loader::after,.start-gry-loader-plyn,.start-gry-loader-plyn::after,.start-gry-loader-plyn i,.start-gry-gotowe{ animation:none !important; }
@@ -2988,7 +2997,8 @@
 }
 .porada-odzew h3{ margin-bottom:5px; }
 .porada-odzew p{ margin:0 auto 2px; max-width:330px; color:#655334; font-size:15px; line-height:1.4; }
-.porada-wybrana .hub-btn{ width:100%; min-height:52px; font-size:18px; }
+/* Rozmiar ze skali `--cta-*` (`ewolucja.css`) - tu tylko szerokosc. */
+.porada-wybrana .hub-btn{ width:100%; }
 .porada-zmien{
   min-height:42px; margin:8px auto -6px; padding:6px 12px; border:0; background:transparent;
   color:#765a30; cursor:pointer; font:800 13px/1.2 var(--font-display,'Baloo 2'),system-ui,sans-serif;
@@ -3052,7 +3062,7 @@
   background:linear-gradient(135deg,#c5ed72,#57b83c); box-shadow:0 0 16px rgba(145,225,85,.64),inset 2px 2px 0 rgba(255,255,255,.36);
 }
 .porada-akcja-licznik{ margin:0; color:#d9d0e9; font-size:13px; font-weight:800; }
-.porada-akcja-gotowe{ width:min(100%,300px); min-height:52px; margin-top:5px; font-size:18px; }
+.porada-akcja-gotowe{ width:min(100%,300px); margin-top:5px; }
 .porada-ruch-kropki{ display:flex; justify-content:center; gap:10px; margin:12px 0 20px; }
 .porada-ruch-kropki span{ width:14px; height:14px; border:2px solid rgba(255,255,255,.5); border-radius:50%; }
 .porada-ruch-kropki span.jest-pelna{ background:#f6cd54; border-color:#fff1a7; box-shadow:0 0 12px rgba(246,205,84,.62); }

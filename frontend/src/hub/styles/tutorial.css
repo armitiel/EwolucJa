@@ -1,0 +1,165 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   TUTORIAL MINIGRY — ekran zasad między „Zagraj!" a partią.
+   Komponent: `hub/TutorialGry.jsx`, treści: `hub/zasadyGier.js`.
+
+   Osobny arkusz, a nie `hub.css`: tutorial jest samodzielnym klockiem
+   dokładanym do kolejnych gier, a `hub.css` ma już 160 kB i zmienia się
+   przy każdej innej robocie.
+
+   Układ kroku to ten sam wzór, co szerokie kafle Porady dnia: ilustracja
+   z lewej, zdanie obok, wszystko w jednej linii wzroku.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.tut-ekran{
+  position:absolute; inset:0; z-index:30;
+  display:flex; align-items:center; justify-content:center;
+  padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));
+  background:rgba(30,20,52,.55);
+  backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px);
+  animation:tut-wejscie .22s ease both;
+}
+@keyframes tut-wejscie{ from{ opacity:0 } to{ opacity:1 } }
+
+.tut-panel{
+  width:min(100%,390px); max-height:100%; overflow-y:auto;
+  box-sizing:border-box; padding:18px 18px 16px;
+  border:3px solid transparent; border-radius:28px;
+  background:
+    linear-gradient(180deg,var(--p-paper,#FBF1D6) 0%,var(--p-paper-2,#F4E3B8) 100%) padding-box,
+    linear-gradient(180deg,#fff0a1 0%,#e9b436 55%,#a4671b 100%) border-box;
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.75),0 6px 0 rgba(122,77,194,.28),0 22px 46px rgba(40,26,70,.45);
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  color:var(--p-ink,#4e4d76); text-align:center;
+}
+
+.tut-tytul{
+  margin:2px 0 14px; font-size:26px; font-weight:900; line-height:1.1;
+  color:#523c1a;
+}
+
+.tut-kroki{ list-style:none; margin:0; padding:0; display:grid; gap:10px; }
+
+/* Krok: scena z lewej, zdanie z prawej. Numeracja jest zbędna — kolejność
+   niesie sam układ, a cyfry przy trzech pozycjach to szum. */
+.tut-krok{
+  display:grid; grid-template-columns:96px minmax(0,1fr);
+  align-items:center; column-gap:13px;
+  padding:9px 12px 9px 9px; border-radius:18px;
+  background:rgba(255,255,255,.55);
+  box-shadow:inset 0 0 0 1.5px rgba(196,146,44,.28);
+  text-align:left;
+}
+.tut-tekst{ font-size:17px; font-weight:800; line-height:1.25; color:#5b421d; }
+
+/* ── Scena miniatury ─────────────────────────────────────────────────── */
+.tut-scena{
+  position:relative; display:flex; gap:8px; align-items:center; justify-content:center;
+  width:96px; height:74px;
+}
+
+/* Karta 3D: dwie ścianki na wspólnej osi Y. `preserve-3d` + `backface` robi
+   prawdziwe odwrócenie, a nie podmianę obrazka. */
+.tut-karta{
+  position:relative; width:34px; height:48px; flex:none;
+  transform-style:preserve-3d;
+  animation-duration:4s; animation-iteration-count:infinite; animation-timing-function:ease-in-out;
+}
+.tut-karta-rewers,.tut-karta-lice{
+  position:absolute; inset:0; border-radius:7px; overflow:hidden;
+  display:grid; place-items:center;
+  backface-visibility:hidden; -webkit-backface-visibility:hidden;
+}
+.tut-karta-rewers img{ width:100%; height:100%; object-fit:cover; display:block; }
+.tut-karta-lice{
+  transform:rotateY(180deg);
+  background:linear-gradient(180deg,#fffbe0,#f3e0ab);
+  box-shadow:inset 0 0 0 1.5px #d59a31;
+}
+.tut-karta-lice svg{ width:20px; height:20px; display:block; }
+
+/* Krok 1 — odkryj: karta odwraca się i zostaje odwrócona przez chwilę. */
+@keyframes tut-odkryj{
+  0%,8%    { transform:rotateY(0deg) }
+  26%,72%  { transform:rotateY(180deg) }
+  90%,100% { transform:rotateY(0deg) }
+}
+.tut-karta--odkryj{ animation-name:tut-odkryj; }
+
+/* Krok 2 — para: obie zostają odwrócone i dostają złoty oddech. */
+@keyframes tut-para{
+  0%,10%   { transform:rotateY(0deg) }
+  30%,100% { transform:rotateY(180deg) }
+}
+.tut-karta--para{ animation-name:tut-para; }
+@keyframes tut-blysk{
+  0%,30%   { box-shadow:inset 0 0 0 1.5px #d59a31 }
+  55%      { box-shadow:inset 0 0 0 2px #f0c14a, 0 0 12px 3px rgba(255,214,105,.9) }
+  100%     { box-shadow:inset 0 0 0 2px #f0c14a, 0 0 7px 2px rgba(255,214,105,.55) }
+}
+.tut-karta--para .tut-karta-lice{
+  animation:tut-blysk 4s ease-in-out infinite;
+  animation-delay:inherit;
+}
+
+/* Krok 3 — różne wracają: odwrót, chwila na zapamiętanie, powrót. */
+@keyframes tut-wracaja{
+  0%,10%   { transform:rotateY(0deg) }
+  28%,58%  { transform:rotateY(180deg) }
+  76%,100% { transform:rotateY(0deg) }
+}
+.tut-karta--wracaja{ animation-name:tut-wracaja; }
+
+/* Palec: puka w pierwszą kartę, potem w drugą — pokazuje, że to DOTYK
+   zaczyna ruch, a nie sama karta z siebie. */
+.tut-palec{
+  position:absolute; left:14px; bottom:6px;
+  width:15px; height:15px; border-radius:50%;
+  background:radial-gradient(circle at 35% 32%,#fff,rgba(255,255,255,.25) 60%,transparent 70%),
+             rgba(122,77,194,.55);
+  box-shadow:0 0 0 2px rgba(255,255,255,.7);
+  animation:tut-puk 4s ease-in-out infinite;
+}
+@keyframes tut-puk{
+  0%,4%    { transform:translate(0,0) scale(1); opacity:0 }
+  8%       { opacity:1 }
+  14%      { transform:translate(0,-4px) scale(.82); opacity:1 }
+  20%,44%  { transform:translate(0,0) scale(1); opacity:1 }
+  50%      { transform:translate(42px,0) scale(1); opacity:1 }
+  56%      { transform:translate(42px,-4px) scale(.82); opacity:1 }
+  64%,88%  { transform:translate(42px,0) scale(1); opacity:1 }
+  96%,100% { transform:translate(42px,0) scale(1); opacity:0 }
+}
+
+/* ── Stopka i przyciski ──────────────────────────────────────────────── */
+/* Zasada punktacji, nie zasada gry — drobniej i za kreską. */
+.tut-stopka{
+  margin:12px 6px 0; padding-top:10px;
+  border-top:2px dashed rgba(196,146,44,.4);
+  font-size:14.5px; font-weight:700; line-height:1.35;
+  color:var(--p-ink-soft,#5A4F77);
+}
+.tut-cta{ width:100%; margin-top:14px; min-height:54px; font-size:19px; }
+.tut-wroc{
+  min-height:42px; margin:6px auto -4px; padding:6px 12px; border:0; background:transparent;
+  color:#765a30; cursor:pointer; font:800 14px/1.2 var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  text-decoration:underline; text-decoration-color:rgba(118,90,48,.38); text-underline-offset:3px;
+}
+
+@media (max-height:680px){
+  .tut-tytul{ font-size:23px; margin-bottom:10px; }
+  .tut-krok{ grid-template-columns:84px minmax(0,1fr); padding:7px 10px 7px 7px; }
+  .tut-scena{ width:84px; height:64px; }
+  .tut-karta{ width:30px; height:42px; }
+  .tut-tekst{ font-size:16px; }
+  .tut-cta{ min-height:50px; font-size:18px; }
+}
+
+/* Dziecko z wyłączonym ruchem dostaje ZASADĘ, nie animację: karty stoją
+   odwrócone awersem, bo to ten stan niesie sens każdego kroku. */
+@media (prefers-reduced-motion:reduce){
+  .tut-ekran{ animation:none }
+  .tut-karta,.tut-karta--para .tut-karta-lice,.tut-palec{ animation:none }
+  .tut-karta{ transform:rotateY(180deg) }
+  .tut-karta--odkryj:first-child{ transform:rotateY(0deg) }
+  .tut-palec{ opacity:1 }
+}

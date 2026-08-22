@@ -614,6 +614,12 @@ export default function Swiat() {
    * gdy naprawdę czekamy), więc przeskakiwanie między kartami nie zamienia
    * tego w polling. `ZDARZENIE_ZADANIA_WIZKORA` wyżej dolicza plakietkę —
    * tu nie trzeba niczego przeliczać ręcznie.
+   *
+   * ZEGAR CO POŁ MINUTY nie jest pollingiem serwera: w wersji demo werdykt
+   * przychodzi LOKALNIE (`DEMO_SAM_ZATWIERDZA` w `zadanieWizkora.js`) i bez
+   * tykania dziecko zobaczyłoby go dopiero po przełączeniu karty — czyli
+   * zwykle wcale. Gdy nie ma na co czekać, `sprawdzMentoraWTle` wychodzi
+   * pierwszą linijką, a zapytania do sieci i tak pilnuje dławik.
    */
   useEffect(() => {
     const zapytaj = () => { sprawdzMentoraWTle().catch(() => {}); };
@@ -621,9 +627,11 @@ export default function Swiat() {
     const naWidocznosc = () => { if (!document.hidden) zapytaj(); };
     document.addEventListener("visibilitychange", naWidocznosc);
     window.addEventListener("focus", zapytaj);
+    const zegar = window.setInterval(zapytaj, 30_000);
     return () => {
       document.removeEventListener("visibilitychange", naWidocznosc);
       window.removeEventListener("focus", zapytaj);
+      window.clearInterval(zegar);
     };
   }, []);
 
