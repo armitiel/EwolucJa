@@ -300,11 +300,22 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
     if (!canvas) return undefined;
 
     const scena = new THREE.Scene();
-    scena.fog = new THREE.Fog(0x294b3f, 27, 43);
+    // Mgla odsunieta: obrecze stoja teraz do 20 metrow od choinki, czyli
+    // blisko 40 od kamery - przy dawnym zakresie (27-43) najdalsza tonela w
+    // mgle i nie bylo w co celowac. Dalej robi glebie, ale juz za celami.
+    scena.fog = new THREE.Fog(0x294b3f, 36, 76);
     // Dokładnie ten sam rzut i kąt co na głównej mapie: kamera ortograficzna
     // oraz kierunek (4.2, 11.5, 8). Gra wygląda dzięki temu jak fragment
     // polany, a nie osobna strzelnica widziana z boku.
-    const kamera = new THREE.OrthographicCamera(-3.4, 3.4, 5.8, -5.8, 0.1, 70);
+    /* Kamera PERSPEKTYWICZNA, ale waskokatna - jak teleobiektyw. Przy rzucie
+       ortograficznym (a taki byl tu wczesniej, dla zgodnosci z mapa) obrecz
+       stojaca 20 metrow dalej jest dokladnie tak samo duza jak ta o 5 metrow -
+       nic nie mowilo, ze cel jest DALEKO, a lot nie wygladal na lot w glab.
+       Waski kat (liczony w `dopasuj` tak, zeby kadr mial te sama wysokosc, co
+       przy starym rzucie) daje glebie, a mimo to nie rozjezdza sceny w
+       rybie oko - z daleka nadal czyta sie jak fragment polany z mapy. */
+    const ODLEGLOSC_ODNIESIENIA = 24;
+    const kamera = new THREE.PerspectiveCamera(30, 1, 0.1, 90);
     const kameraCel = CEL_KAMERY_START.clone();
     kamera.position.copy(kameraCel).add(KIERUNEK_KAMERY);
     kamera.lookAt(kameraCel);
@@ -527,7 +538,10 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
       if (n < 3) { schowajTor(); return; }
 
       const wysPlotna = canvas.clientHeight || 1;
-      const naPiksel = (kamera.top - kamera.bottom) / (kamera.zoom * wysPlotna);
+      // W perspektywie metr na piksel rosnie z odlegloscia - inaczej strzalka
+      // zwezalaby sie w glab kadru razem ze scena i po chwili znikala.
+      const stozek = (2 * Math.tan((kamera.fov * Math.PI) / 360)) / (kamera.zoom * wysPlotna);
+      const naPikselW = (punkt) => kamera.position.distanceTo(punkt) * stozek;
       kamera.getWorldDirection(tmpWidok);
 
       const poz = new Float32Array(n * 6 + 9);
@@ -542,7 +556,7 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
         // temu wstega zawsze stoi plaska strona do dziecka.
         tmpBok.crossVectors(tmpStyczna, tmpWidok).normalize();
         const u = i / (n - 1);
-        const polSzer = (SZER_OGON + (SZER_PRZOD - SZER_OGON) * u) * 0.5 * naPiksel;
+        const polSzer = (SZER_OGON + (SZER_PRZOD - SZER_OGON) * u) * 0.5 * naPikselW(p);
         const o = i * 6;
         poz[o] = p.x + tmpBok.x * polSzer;
         poz[o + 1] = p.y + tmpBok.y * polSzer;
@@ -562,8 +576,9 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
 
       // Grot: trojkat szerszy od wstegi, osadzony na jej koncu.
       const koniecLuku = tmpProbki[n - 1];
-      const polGrotu = GROT_POL * naPiksel;
-      const dlGrotu = GROT_DL * naPiksel;
+      const naPikselGrotu = naPikselW(koniecLuku);
+      const polGrotu = GROT_POL * naPikselGrotu;
+      const dlGrotu = GROT_DL * naPikselGrotu;
       const b = n * 6;
       poz[b] = koniecLuku.x + tmpBok.x * polGrotu;
       poz[b + 1] = koniecLuku.y + tmpBok.y * polGrotu;
@@ -605,8 +620,11 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
       kamera.updateMatrixWorld(true);
       tmpLisEkran.copy(lis.position).project(kamera);
 
-      const polSzerokosci = (kamera.right - kamera.left) / (2 * kamera.zoom);
-      const polWysokosci = (kamera.top - kamera.bottom) / (2 * kamera.zoom);
+      // W perspektywie polowa kadru zalezy od tego, JAK DALEKO jest lisek -
+      // przy stalej wartosci korekta byla raz za mala, raz przestrzelona.
+      const odleglosc = kamera.position.distanceTo(lis.position);
+      const polWysokosci = odleglosc * Math.tan((kamera.fov * Math.PI) / 360) / kamera.zoom;
+      const polSzerokosci = polWysokosci * kamera.aspect;
       const korektaX = tmpLisEkran.x < -0.72
         ? (tmpLisEkran.x + 0.72) * polSzerokosci
         : tmpLisEkran.x > 0.72
@@ -642,6 +660,10 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
       kameraFokusNaciagu.y -= 0.18 * miekkieT;
       kameraCel.lerp(kameraFokusNaciagu, szybkosc);
       tmpKierunekKamery.lerpVectors(KIERUNEK_KAMERY, KIERUNEK_KAMERY_NACIAG, miekkieT);
+      // Kamera przy mocnym naciagu ODJEZDZA (do 18% dalej). W perspektywie
+      // znaczy to, ze cel realnie sie oddala, a nie tylko przesuwa - dziecko
+      // widzi, ze mierzy w cos daleko, i mocniejszy naciag ma sens.
+      tmpKierunekKamery.multiplyScalar(1 + 0.18 * miekkieT);
 
       const ruchBoczny = ogranicz(Math.abs(stan.naciagX) / 145, 0, 1);
       const zoomNaciagu = 0.88 - ruchBoczny * 0.08;
@@ -786,10 +808,11 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
       const proporcja = w / h;
       const szerokosc = (proporcja < 1 ? 8.4 : 14) / 1.25;
       const wysokosc = szerokosc / proporcja;
-      kamera.left = -szerokosc / 2;
-      kamera.right = szerokosc / 2;
-      kamera.top = wysokosc / 2;
-      kamera.bottom = -wysokosc / 2;
+      // Kat dobrany tak, by w odleglosci odniesienia kadr byl tej samej
+      // wysokosci, co dawny rzut ortograficzny - kompozycja zostaje, dochodzi
+      // sama glebia.
+      kamera.aspect = proporcja;
+      kamera.fov = 2 * Math.atan((wysokosc / 2) / ODLEGLOSC_ODNIESIENIA) * (180 / Math.PI);
       kamera.updateProjectionMatrix();
     };
     dopasuj();
