@@ -25,6 +25,7 @@
 import DANE from "./data/zadania-wizkora.v1.json";
 import { api, session } from "../services/api.js";
 import { dodajMonety } from "../services/monety.js";
+import { wzmocnijCeche } from "../adventure/engine/adventureState.js";
 
 
 const KLUCZ = "ewolucja.zadanie.wizkora";
@@ -124,6 +125,21 @@ export function zadanieDoZlecenia() {
   if (stan.istnieje && !stan.wyplacone) return null;
   const zrobione = stan.istnieje ? [stan.id] : [];
   return ZADANIA.find((z) => !zrobione.includes(z.id)) || null;
+}
+
+/**
+ * Zadanie pod WYLOSOWANĄ CECHĘ (koło fortuny). Ta sama zasada dostępności
+ * co w `zadanieDoZlecenia` — nic nowego, póki bieżące niewypłacone. W cesze
+ * bierzemy pierwsze nierozliczone; gdy wszystkie z cechy już były, bierzemy
+ * pierwsze z cechy jeszcze raz (zadania w realu wolno powtarzać — „zrób
+ * dziś coś dobrego" nie zużywa się jak misja na mapie).
+ */
+export function zadanieDlaCechy(cecha) {
+  const stan = stanZadania();
+  if (stan.istnieje && !stan.wyplacone) return null;
+  const zrobione = stan.istnieje ? [stan.id] : [];
+  const wCesze = ZADANIA.filter((z) => z.cecha === cecha);
+  return wCesze.find((z) => !zrobione.includes(z.id)) || wCesze[0] || zadanieDoZlecenia();
 }
 
 export function zlecZadanie(id) {
@@ -324,6 +340,14 @@ export function odbierzNagrode() {
     const def = definicjaZadania(zapis.id);
     dodajMonety(zapis.nagroda ?? def?.nagroda ?? 25, "zadanie w realu (demo)");
   }
+  /**
+   * ZADANIE WZMACNIA CECHĘ, pod którą je wylosowano (koło fortuny).
+   * Podbicie idzie przy WYPŁACIE, nie przy wysłaniu dowodu — cecha rośnie
+   * za rzecz zrobioną i przyjętą przez Mentora, a wypłata jest idempotentna,
+   * więc i cecha nie urośnie dwa razy za jedno zadanie.
+   */
+  const cecha = definicjaZadania(zapis.id)?.cecha;
+  if (cecha) { try { wzmocnijCeche(cecha, 1); } catch {} }
   return zapisz({ ...zapis, status: "wyplacone" });
 }
 

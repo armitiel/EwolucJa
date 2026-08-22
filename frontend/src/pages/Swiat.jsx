@@ -52,6 +52,7 @@ import {
   sprawdzMentoraWTle,
   stanZadania as stanZadaniaWizkora,
   ustawStatus as ustawStatusZadaniaWizkora,
+  zadanieDlaCechy,
   zlecZadanie as zlecZadanieWizkora,
   ZDARZENIE_ZMIANY as ZDARZENIE_ZADANIA_WIZKORA,
   ZADANIA as ZADANIA_WIZKORA,
@@ -199,6 +200,12 @@ const Reflektor = lazy(() => import("../hub/Reflektor.jsx"));
  * na grę, przy pierwszym podejściu, i nie ma czego robić w paczce startowej.
  */
 const PuzzleBrama = lazy(() => import("../hub/PuzzleBrama.jsx"));
+
+/**
+ * Koło fortuny do zadań w realu: losuje cechę awatara, cecha wybiera
+ * zadanie. `lazy` z tego samego powodu, co układanka — wchodzi rzadko.
+ */
+const KoloFortuny = lazy(() => import("../hub/KoloFortuny.jsx"));
 
 const GRY_OSADZONE = {
   "pamiec-medrca": lazy(() => import("./MemoryGame.jsx")),
@@ -375,6 +382,9 @@ export default function Swiat() {
    * układa. Osobno od `zaproszenie` — układanka wchodzi też z biblioteki gier.
    */
   const [ukladanka, setUkladanka] = useState(null);
+  // Koło fortuny (zadania w realu) na ekranie? Samo `true/false` — koło
+  // wie o cechach wszystko, hub tylko je pokazuje i odbiera wynik.
+  const [koloFortuny, setKoloFortuny] = useState(false);
   /**
    * Etap puzzli do LICZNIKA w HUD: `null` poza etapem, inaczej stan
    * z `puzzleGier` (zebrane/cel/komplet). Trzymany w stanie Reacta, bo
@@ -1218,6 +1228,13 @@ export default function Swiat() {
       setUkladanka(akcja.slice(10));
       return;
     }
+    if (akcja === "koloFortuny") {
+      // „Kręcę kołem!" — okno Wizkora schodzi, wjeżdża koło przeznaczenia.
+      // Zadanie zlecamy dopiero PO losowaniu (onWybor przy kole, niżej).
+      setPowitanie(null);
+      setKoloFortuny(true);
+      return;
+    }
     if (typeof akcja === "string" && akcja.startsWith("zlecReal:")) {
       zlecZadanieWizkora(akcja.slice(9));
       rozstanie();
@@ -1469,6 +1486,11 @@ export default function Swiat() {
           zlecZadanieWizkora(ZADANIA_WIZKORA[0]?.id);
           pokazKomunikat("DEV: zadanie w realu zlecone");
         },
+      },
+      {
+        grupa: "Zadanie w realu",
+        etykieta: "Koło fortuny",
+        odpal: () => setKoloFortuny(true),
       },
       // Puzzle przed grami: zbieranie, komplet i sama układanka na żądanie.
       ...MISJE.map((def) => ({
@@ -2269,6 +2291,28 @@ export default function Swiat() {
 
       {/* UKŁADANKA — brama przed minigrą. Nad HUD-em i arkuszem, pod samą
           grą (nigdy nie stoją naraz: jedna otwiera drugą). */}
+      {/* KOŁO FORTUNY — losowanie cechy przed zadaniem w realu. Wynik
+          zleca zadanie dobrane do cechy i prowadzi wzrok do Listów,
+          dokładnie tak, jak robiło to stare `zlecReal` z okna Wizkora. */}
+      {koloFortuny ? (
+        <Suspense fallback={null}>
+          <KoloFortuny
+            onZamknij={() => setKoloFortuny(false)}
+            onWybor={(cecha) => {
+              setKoloFortuny(false);
+              const zadanieCechy = zadanieDlaCechy(cecha);
+              // Koło z pulpitu dev można otworzyć przy niedokończonym
+              // zadaniu — wtedy losowanie niczego nie zleca i mówi czemu.
+              if (!zadanieCechy) { pokazKomunikat("Najpierw dokończ obecne zadanie"); return; }
+              zlecZadanieWizkora(zadanieCechy.id);
+              przeliczNieprzeczytane();
+              pokazKomunikat("Zadanie czeka w Listach");
+              mrugnijListy();
+            }}
+          />
+        </Suspense>
+      ) : null}
+
       {ukladanka ? (
         <Suspense fallback={null}>
           <PuzzleBrama

@@ -54,6 +54,7 @@ export const ZNAK_CZARODZIEJA = "czarodziej";
  *   "ukladanka:<id>"  → otwórz układankę puzzli tej gry
  *   "naplac:<id gry>" → otwórz ekran wygranej za rozegraną partię
  *   "zlecReal:<id>"   → zleć zadanie do zrobienia poza ekranem (ląduje w zwoju)
+ *   "koloFortuny"     → otwórz koło fortuny: losuje cechę i zadanie w realu
  *   "otworzZadanie"   → otwórz zakładkę z tym zadaniem
  *   null              → sam przycisk zamykający, nic się nie dzieje
  *
@@ -126,14 +127,22 @@ export function powitanieCzarodzieja(z, misja) {
 
       const nowe = zadanieDoZlecenia();
       if (nowe) {
+        /**
+         * ZADANIA W REALU LOSUJE KOŁO FORTUNY (decyzja właściciela,
+         * 2026-08-22). Wizkor nie przydziela zadania — zaprasza do
+         * zakręcenia: koło wskazuje jedną z cech awatara, a cecha wybiera
+         * zadanie, które ją ćwiczy (`zadanieDlaCechy`). Samo zlecenie robi
+         * hub PO losowaniu, więc `zadanieDoZlecenia` zostaje tu tylko
+         * bramkarzem: mówi, czy w ogóle jest co losować.
+         */
         return {
           ...baza,
           tekst:
-            `Mapę już znasz, wędrowcze. Teraz coś trudniejszego: ${nowe.cel} ` +
-            "Zapiszę ci to w Listach, a Mentor sprawdzi i przyzna nagrodę.",
-          wyroznienie: "nagrodę od Mentora",
-          przycisk: "Zrobię to!",
-          akcja: `zlecReal:${nowe.id}`,
+            "Mapę już znasz, wędrowcze. Czas na zadanie poza ekranem.\n" +
+            "Zakręć kołem przeznaczenia — wskaże, którą siłę dziś ćwiczysz.",
+          wyroznienie: "kołem przeznaczenia",
+          przycisk: "Kręcę kołem!",
+          akcja: "koloFortuny",
         };
       }
 

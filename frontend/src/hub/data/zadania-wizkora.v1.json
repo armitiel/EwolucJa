@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "note": "Zadania Wizkora wykonywane POZA ekranem. Dowod idzie do Mentora istniejacym torem weryfikacji (seedMission -> submit -> verify). `miejsca` to podpowiedzi, gdzie takie zadanie sie miesci w ciagu dnia. TEKSTY TRZYMAMY KROTKIE: to czyta dziecko 6-12 lat, a panel ma sie miescic bez przewijania sciany tekstu - jedno zdanie na pole. `dowod` mowi, CO zrobic po zadaniu - stoi przy przycisku zdjecia, a nie w karcie zadania, bo dziecko potrzebuje go dopiero na dole ekranu.",
+  "note": "Zadania Wizkora wykonywane POZA ekranem. Dowod idzie do Mentora istniejacym torem weryfikacji (seedMission -> submit -> verify). `miejsca` to podpowiedzi, gdzie takie zadanie sie miesci w ciagu dnia. TEKSTY TRZYMAMY KROTKIE: to czyta dziecko 6-12 lat, a panel ma sie miescic bez przewijania sciany tekstu - jedno zdanie na pole. `dowod` mowi, CO zrobic po zadaniu - stoi przy przycisku zdjecia, a nie w karcie zadania, bo dziecko potrzebuje go dopiero na dole ekranu. `cecha` wiaze zadanie z cecha awatara (kolo fortuny losuje ceche, zadanie ja wzmacnia przy wyplacie nagrody).",
   "zadania": [
     {
       "id": "ciche-dobro",
@@ -40,6 +40,172 @@
           "emoji": "🌳",
           "nazwa": "Na dworze",
           "opis": "Przytrzymaj drzwi. Pomóż nieść siatkę."
+        }
+      ],
+      "cecha": "wspolpraca"
+    },
+    {
+      "id": "lowca-pytan",
+      "cecha": "ciekawosc",
+      "tytul": "Łowca pytań",
+      "cel": "Zapytaj dziś o coś, czego nie wiesz.\nI dowiedz się do końca.",
+      "szept": "Do końca.",
+      "jak": "Wybierz jedno pytanie, które Cię gryzie, i znajdź odpowiedź.",
+      "dowod": "Napisz Mentorowi, czego się dowiedziałeś, albo zrób zdjęcie.",
+      "przyklad": "Zapytałem taty, dlaczego niebo jest niebieskie. Już wiem!",
+      "nagroda": 25,
+      "minuty": 15,
+      "competency_focus": [
+        "MD"
+      ],
+      "miejsca": [
+        {
+          "id": "dom",
+          "emoji": "🏠",
+          "nazwa": "W domu",
+          "opis": "Zapytaj kogoś dorosłego o jego pracę."
+        },
+        {
+          "id": "ksiazka",
+          "emoji": "📚",
+          "nazwa": "W książce",
+          "opis": "Znajdź odpowiedź w książce albo atlasie."
+        },
+        {
+          "id": "spacer",
+          "emoji": "🌳",
+          "nazwa": "Na spacerze",
+          "opis": "Wypatrz coś dziwnego i sprawdź, co to."
+        },
+        {
+          "id": "kuchnia",
+          "emoji": "🍞",
+          "nazwa": "W kuchni",
+          "opis": "Zapytaj, jak powstaje Twoja ulubiona potrawa."
+        }
+      ]
+    },
+    {
+      "id": "cos-z-niczego",
+      "cecha": "tworzenie",
+      "tytul": "Coś z niczego",
+      "cel": "Zrób dziś coś własnymi rękami.\nOd początku do końca.",
+      "szept": "Własnymi rękami.",
+      "jak": "Wybierz jedną rzecz i zrób ją sam — po swojemu.",
+      "dowod": "Zrób zdjęcie tego, co powstało, albo opisz to Mentorowi.",
+      "przyklad": "Zbudowałem z klocków most, jakiego nie ma w instrukcji.",
+      "nagroda": 25,
+      "minuty": 20,
+      "competency_focus": [
+        "MD"
+      ],
+      "miejsca": [
+        {
+          "id": "stol",
+          "emoji": "🖍️",
+          "nazwa": "Przy stole",
+          "opis": "Narysuj coś, czego nikt jeszcze nie narysował."
+        },
+        {
+          "id": "klocki",
+          "emoji": "🧱",
+          "nazwa": "Na dywanie",
+          "opis": "Zbuduj coś bez instrukcji."
+        },
+        {
+          "id": "papier",
+          "emoji": "✈️",
+          "nazwa": "Z kartki",
+          "opis": "Złóż samolot albo łódkę i wypróbuj."
+        },
+        {
+          "id": "kuchnia",
+          "emoji": "🥪",
+          "nazwa": "W kuchni",
+          "opis": "Ułóż kanapkę-dzieło sztuki (z pomocą dorosłego)."
+        }
+      ]
+    },
+    {
+      "id": "jeden-krok-dalej",
+      "cecha": "odwaga",
+      "tytul": "Jeden krok dalej",
+      "cel": "Zrób dziś coś, czego trochę się wstydzisz.\nJeden mały krok.",
+      "szept": "Jeden mały krok.",
+      "jak": "Wybierz coś bezpiecznego, co odkładasz, i po prostu to zrób.",
+      "dowod": "Napisz Mentorowi, co to było i jak się czułeś, albo zrób zdjęcie.",
+      "przyklad": "Sam zapytałem panią w bibliotece o książkę o smokach.",
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "EM"
+      ],
+      "miejsca": [
+        {
+          "id": "dom",
+          "emoji": "🎤",
+          "nazwa": "W domu",
+          "opis": "Powiedz na głos wierszyk albo zaśpiewaj przy rodzinie."
+        },
+        {
+          "id": "sklep",
+          "emoji": "🛒",
+          "nazwa": "W sklepie",
+          "opis": "Sam zapytaj sprzedawcę, gdzie coś stoi (z dorosłym obok)."
+        },
+        {
+          "id": "podworko",
+          "emoji": "👋",
+          "nazwa": "Na podwórku",
+          "opis": "Zaproś kogoś do wspólnej zabawy."
+        },
+        {
+          "id": "stol",
+          "emoji": "🗣️",
+          "nazwa": "Przy stole",
+          "opis": "Opowiedz wszystkim, co dziś było najlepsze."
+        }
+      ]
+    },
+    {
+      "id": "do-samego-konca",
+      "cecha": "wytrwalosc",
+      "tytul": "Do samego końca",
+      "cel": "Dokończ dziś coś, co kiedyś przerwałeś.\nDo samego końca.",
+      "szept": "Do samego końca.",
+      "jak": "Znajdź jedną zaczętą rzecz i nie wstawaj, aż będzie skończona.",
+      "dowod": "Zrób zdjęcie skończonej rzeczy albo napisz Mentorowi, co to było.",
+      "przyklad": "Dokończyłem puzzle, które leżały od tygodnia.",
+      "nagroda": 25,
+      "minuty": 20,
+      "competency_focus": [
+        "EM",
+        "MD"
+      ],
+      "miejsca": [
+        {
+          "id": "pokoj",
+          "emoji": "🧩",
+          "nazwa": "W pokoju",
+          "opis": "Dokończ puzzle albo budowlę z klocków."
+        },
+        {
+          "id": "biurko",
+          "emoji": "📖",
+          "nazwa": "Przy biurku",
+          "opis": "Doczytaj rozdział, który zostawiłeś w połowie."
+        },
+        {
+          "id": "szafa",
+          "emoji": "🧸",
+          "nazwa": "Przy szafie",
+          "opis": "Dokończ porządek, który kiedyś zacząłeś."
+        },
+        {
+          "id": "dwor",
+          "emoji": "🚲",
+          "nazwa": "Na dworze",
+          "opis": "Dojedź rowerem trasę do samego końca."
         }
       ]
     }

@@ -82,6 +82,24 @@ export function saveState(state) {
   return next;
 }
 
+/**
+ * Wzmocnienie jednej cechy SPOZA przygody — np. za rozliczone zadanie
+ * w realu (koło fortuny losuje cechę, zadanie ją ćwiczy, wypłata nagrody
+ * ją podbija). Czyta i zapisuje ten sam stan, którego używa `useAdventure`,
+ * więc profil pokaże nową wartość przy najbliższym otwarciu. Zdarzenie —
+ * dla ekranów, które chcą odświeżyć się od razu.
+ */
+export function wzmocnijCeche(cecha, ile = 1) {
+  if (!TRAIT_LABELS[cecha]) return null;
+  const stan = loadState(null);
+  const traits = { ...stan.traits, [cecha]: (stan.traits?.[cecha] || 0) + ile };
+  const next = saveState({ ...stan, traits });
+  try {
+    window.dispatchEvent(new CustomEvent("ewolucja:cechaZmiana", { detail: { cecha, ile } }));
+  } catch {}
+  return next;
+}
+
 /** Przenosi zapis z klucza "anon" na klucz gracza (po utworzeniu konta w trakcie przygody). */
 export function adoptAnonState() {
   try {
