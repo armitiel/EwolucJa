@@ -971,8 +971,10 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
                 <stop offset="100%" stopColor="#fff0b0" />
               </linearGradient>
             </defs>
-            <path ref={torRef} d="" fill="url(#torGradient)" stroke="#7a4a12" strokeWidth="2"
-                  strokeLinejoin="round" style={{ opacity: 0 }} />
+            {/* Bez obrysu: ciemna kreska na wstedze rozbijala gradient i przy
+                cienkim ogonie zjadala prawie cala jego szerokosc. Sam ksztalt
+                odcina sie od sceny cieniem z filtra na .choinka-tor. */}
+            <path ref={torRef} d="" fill="url(#torGradient)" style={{ opacity: 0 }} />
           </svg>
 
           <div className="choinka-komunikat" role="status">{komunikat}</div>
