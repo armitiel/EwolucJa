@@ -913,14 +913,21 @@ export default function Swiat() {
   }, [nagroda]);
 
   /**
-   * Po rozmowie czarodziej odchodzi — w iskrach, tą samą animacją, którą
-   * znika po swoim czasie. Bez tego stałby dalej obok lisa i przy pierwszym
-   * odbiegnięciu i powrocie zapytałby o to samo jeszcze raz; a już
-   * odpowiedział. Wróci sam, w innym miejscu, po swojej przerwie.
+   * Koniec rozmowy = zamknięcie okna. I tyle.
+   *
+   * Wcześniej Wizkor po każdej rozmowie ZNIKAŁ w iskrach i wracał po swojej
+   * przerwie w innym z pięciu miejsc (`pozycje` + `cykl`/`respawn`
+   * w `mapa.json`). Dziecko uczyło się wtedy nie drogi do niego, tylko
+   * czekania — a wracając na polanę nie wiedziało, czy go w ogóle zastanie.
+   * Teraz stoi w jednym miejscu na stałe i jest punktem orientacyjnym mapy,
+   * jak sosna Lotu Liska.
+   *
+   * Powtórnemu zagadaniu zapobiega sama scena: znak ma `raz: true`, więc
+   * odzywa się RAZ na podejście i uzbraja się dopiero, gdy lis odbiegnie
+   * dalej niż `zbrojenie` (3,4). Nie potrzeba do tego znikania.
    */
   const rozstanie = useCallback(() => {
     setPowitanie(null);
-    try { scenaRef.current?.schowajZnak?.(ZNAK_CZARODZIEJA); } catch {}
   }, []);
 
   /**
@@ -959,10 +966,10 @@ export default function Swiat() {
   /**
    * Mapa pod bieżący stan ZADANIA GWIAZDEK.
    *
-   * ZASADA: gwiazdka raz zabrana nie wraca, dopóki zadanie trwa. Inaczej
-   * dziecko odkrywa, że najszybciej jest stać przy jednym krzaku i czekać na
-   * odrost — a zadanie miało je przeprowadzić przez cały las. Po rozliczeniu
-   * nagrody gwiazdki wracają: świat znów jest do biegania, nie do odhaczania.
+   * ZASADA: gwiazdka raz zabrana nie wraca — ani w trakcie zadania (inaczej
+   * najszybciej jest stać przy jednym krzaku i czekać na odrost), ani PO NIM.
+   * Rozliczenie nagrody zdejmuje z mapy cały komplet na stałe: pierwsza misja
+   * zbierania jest skończona i las nie obiecuje jej drugi raz.
    *
    * Ta funkcja robi TWARDE zgaszenie (`schowajZnakZMapy`), więc wolno ją wołać
    * tylko przy wejściu do świata i przy zmianie stanu zadania — NIE w chwili
@@ -982,7 +989,20 @@ export default function Swiat() {
     if (!wszystkie.length) return false;
 
     const z = stanZadania();
-    if (!z.istnieje || z.wyplacone) {
+    /**
+     * ZADANIE ROZLICZONE = GWIAZDKI ZNIKAJĄ NA STAŁE (decyzja właściciela,
+     * 2026-08-22). Wcześniej po wypłacie wracały „do biegania", ale wtedy
+     * las obiecywał zbieranie, za którym nie stoi już żadne zadanie —
+     * dziecko zbierało w próżnię. Skończone znaczy skończone: mapa idzie
+     * dalej, do misji z grami.
+     */
+    if (z.wyplacone) {
+      for (const znak of wszystkie) schowajZnakZMapy(scena, znak);
+      return true;
+    }
+    // Przed rozmową z Wizkorem gwiazdki STOJĄ na mapie — to zapowiedź
+    // zadania; zbieranie i tak liczy się dopiero po zleceniu.
+    if (!z.istnieje) {
       for (const znak of wszystkie) pokazZnakNaMapie(scena, znak);
       return true;
     }

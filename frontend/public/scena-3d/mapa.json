@@ -2,8 +2,8 @@
   "wersja": 1,
   "opis": "Mapa swiata EwolucJA. Edytowana w /scena-3d/edytor.html.",
   "swiat": {
-    "promien": 12.5,
-    "teren": 36
+    "promien": 14.0,
+    "teren": 40
   },
   "sciezka": [
     [
@@ -1053,32 +1053,10 @@
       "id": "czarodziej",
       "file": "wizard",
       "label": "Czarodziej",
-      "toast": "Czarodziej pojawiĹ‚ siÄ™ w lesie",
+      "toast": "Wizkor czeka na polanie",
       "pos": [
         -1.87,
         -0.3
-      ],
-      "pozycje": [
-        [
-          -3,
-          4
-        ],
-        [
-          -7,
-          -8
-        ],
-        [
-          4,
-          3.5
-        ],
-        [
-          4,
-          -8
-        ],
-        [
-          0.5,
-          9
-        ]
       ],
       "scale": 3.14,
       "height": 1.3,
@@ -1091,9 +1069,6 @@
       "zasieg": 1.9,
       "zbrojenie": 3.4,
       "margines": 1.8,
-      "cykl": 35,
-      "respawn": 60,
-      "respawnPierwszy": 12,
       "glow": 12093672,
       "ringColor": 14268159,
       "jasnosc": 1.6,

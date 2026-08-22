@@ -19,7 +19,7 @@ import { idPostaci } from "../utils/postac.js";
 // UWAGA: numer ma tylko ROSNĄĆ. Numery 3–13 zostały już wydane przeglądarce
 // z inną zawartością modułu (kolejne wersje znaków, gwiazdki, tempo ruchu),
 // więc cofnięcie go serwuje z cache starą scenę zamiast aktualnej.
-export const WERSJA_SCENY = "31";  // sosna-znak: raz na podejście, bez unoszenia, smuklejsza sylwetka
+export const WERSJA_SCENY = "33";  // kadr odsuniety mocniej, wiekszy promien chodzenia, Wizkor stoi na stale
 const ZASOBY = "/scena-3d/assets/";
 
 /**
@@ -67,7 +67,7 @@ export function webglDostepny() {
  * każdym `resize()`, dlatego da się ją stroić na żywo: ustaw `SCENA3D_ZOOM`
  * w konsoli i zmień rozmiar okna, albo wejdź z `?zoom=1.4` w adresie.
  */
-export const ZOOM_DOMYSLNY = 1.56;   // 1,25 podbite o 25% — bohater blizej kamery
+export const ZOOM_DOMYSLNY = 1.2;    // 1,56 -> 1,38 -> 1,20; kadr o 15% szerszy niz poprzednio
 
 /**
  * Cień bohatera — poprawka przeniesiona z podglądu `/scena-3d/index.html`.

@@ -19,10 +19,12 @@ import { stanZadania as stanZadaniaWizkora, zadanieDoZlecenia } from "./zadanieW
  * Czarodziej na mapie: identyfikator jego znaku w module sceny (`xf`
  * w `scena3d.js`).
  *
- * Rytm pojawiania się siedzi PO STRONIE SCENY, nie tutaj: znak ma `cykl: 30`
- * (tyle stoi) i `respawn: 60` (tyle go nie ma), a przy każdym powrocie staje
- * w losowym miejscu z listy `pozycje`. Zegar chodzi w pętli renderowania, więc
- * zatrzymuje się razem z nią — pod otwartym panelem czarodziej nie zniknie.
+ * STOI NA STAŁE, W JEDNYM MIEJSCU. Miał kiedyś rytm znikania i powrotów
+ * (`cykl`/`respawn` + losowanie z listy `pozycje` w `mapa.json`) — dziecko
+ * uczyło się wtedy czekania zamiast drogi do niego i wracając na polanę nie
+ * wiedziało, czy go zastanie. Dziś jest punktem orientacyjnym mapy, jak sosna
+ * Lotu Liska: `absorb: false` + `raz: true`, więc odzywa się raz na podejście
+ * i uzbraja dopiero, gdy lis odbiegnie dalej niż `zbrojenie`.
  */
 export const ZNAK_CZARODZIEJA = "czarodziej";
 
