@@ -191,6 +191,10 @@ function dodajTlo(scena) {
     const kamien = new THREE.Mesh(new THREE.DodecahedronGeometry(0.12 + (i % 2) * 0.05, 0), kamienMat);
     kamien.position.set(Math.cos(kat) * d, 0.08, Math.sin(kat) * d * 0.35);
     kamien.scale.y = 0.65;
+    // Odkąd kadr światła obejmuje całe boisko, warto, żeby drobiazgi u stóp
+    // choinki też miały cienie — to one przyklejają ją do murawy.
+    kamien.castShadow = true;
+    kamien.receiveShadow = true;
     scena.add(kamien);
   }
 
@@ -204,6 +208,7 @@ function dodajTlo(scena) {
       new THREE.MeshStandardMaterial({ color: i % 2 ? 0x214b3d : 0x285643, roughness: 1 })
     );
     daleka.position.set(x, 1.45, -3.4 - (i % 2) * 0.5);
+    daleka.castShadow = true;
     scena.add(daleka);
   }
 }
@@ -240,6 +245,131 @@ function stworzCel(scena) {
   scena.add(grupa);
   grupa.kolo = kolo;
   return grupa;
+}
+
+/* ── CZYTELNOŚĆ GŁĘBI: cień, słupki, mgła ────────────────────────────────
+   PROBLEM. W kadrze pod skosem nie da się odczytać ani wysokości lotu, ani
+   odległości celu. Lisek sześć metrów NAD murawą i lisek sześć metrów PRZED
+   nią rzutują się w to samo miejsce ekranu, a obręcz stojąca dwadzieścia
+   metrów dalej wygląda prawie jak ta o osiem — perspektywa daje trochę, ale
+   za mało, bo cała polana jest jednolicie zielona i nie ma po czym mierzyć.
+
+   Trzy warstwy, każda odpowiada na inne pytanie:
+
+     PLAMA CIENIA   „gdzie jestem nad ziemią" — zawsze DOKŁADNIE pod liskiem
+                    (nie tam, gdzie pada cień od słońca), rośnie i blednie
+                    z wysokością. Klasyka platformówek: czyta się bez słowa.
+     SŁUPEK         „jak wysoko" — kreskowana smuga od plamy do liska, JEDNA
+                    KRESKA NA METR. Wysokość przestaje być wrażeniem i staje
+                    się czymś, co da się policzyć wzrokiem.
+     ZNACZNIK CELU  „jak daleko" — pierścień na murawie pod obręczą i taki sam
+                    słupek w górę. Dziecko porównuje wtedy dwa ŚLADY NA ZIEMI,
+                    a nie dwie rzeczy wiszące w powietrzu.
+
+   Do tego MGŁA (`THREE.Fog`) wtapiająca dal w kolor tła. To jedyna warstwa
+   działająca na całą scenę i to ona sprawia, że najdalsza obręcz przestaje
+   wyglądać jak bliska.
+
+   Materiały wskaźników mają `fog: false`. Mgła jest efektem świata, a te trzy
+   rzeczy są PRZYRZĄDEM POMIAROWYM — muszą zostać czytelne właśnie tam, gdzie
+   mgła jest najgęstsza, czyli przy najdalszym celu. */
+
+/** Kolor mgły = środek gradientu tła z `choinka-launch.css` (#35644c/#274a3e). */
+const KOLOR_MGLY = 0x2d5443;
+/* Kamera stoi 26 jednostek od czubka choinki, a najdalsza obręcz leży jeszcze
+   20 m za nią — czyli ok. 40 od kamery. Przy tym zakresie choinka jest prawie
+   czysta (~0 % mgły), najdalsza obręcz dostaje ok. 30 %, a skraj polany (32 m
+   promienia) rozpływa się w tle. Zakres liczony z realnych odległości sceny,
+   nie na oko. */
+const MGLA_BLISKO = 26;
+const MGLA_DALEKO = 74;
+
+/** Wysokość śladów nad murawą (ziemia leży na −0,04) — tyle, by nie migotały. */
+const WYS_SLADU = -0.025;
+/** Grubość słupka w PIKSELACH — jak przy strzałce toru, żeby nie znikał w dali. */
+const SZER_SLUPKA = 7;
+/** Jedna kreska słupka na tyle metrów. Zmiana tej liczby zmienia „podziałkę". */
+const DLUGOSC_KRESKI = 0.7;
+
+/**
+ * Miękka plama cienia — gradient w TEKSTURZE, nie w geometrii. Pierścienie
+ * z siatki wychodziły kanciaste przy tej wielkości, a rozmycie cienia
+ * rzucanego przez słońce nie da się ustawić osobno dla jednego obiektu.
+ */
+function teksturaPlamy() {
+  const p = document.createElement("canvas");
+  p.width = p.height = 128;
+  const g = p.getContext("2d");
+  const grad = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  grad.addColorStop(0, "rgba(9,26,18,0.92)");
+  grad.addColorStop(0.5, "rgba(9,26,18,0.5)");
+  grad.addColorStop(1, "rgba(9,26,18,0)");
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 128, 128);
+  const t = new THREE.CanvasTexture(p);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+/**
+ * Kreskowany słupek. Tekstura ma JEDNĄ kreskę na całą wysokość i powtarza się
+ * w pionie (`repeat.y`), więc licznik kresek ustawia się jedną liczbą:
+ * `repeat.y = wysokość / DLUGOSC_KRESKI`. Każdy słupek dostaje własną
+ * teksturę, bo `repeat` siedzi na teksturze, nie na siatce — jedna wspólna
+ * przeliczałaby podziałkę liska na obręcz i odwrotnie.
+ *
+ * Kreska jest jaśniejsza u dołu: wzrok ma zjechać po słupku DO ZIEMI, bo tam
+ * leży odpowiedź (plama), a nie w górze, gdzie i tak widać liska.
+ */
+function teksturaSlupka() {
+  const p = document.createElement("canvas");
+  p.width = 8;
+  p.height = 64;
+  const g = p.getContext("2d");
+  // Dolne 58 % kadru to kreska, górne 42 % przerwa — stąd „kreskowany".
+  const grad = g.createLinearGradient(0, 64, 0, 0);
+  grad.addColorStop(0, "rgba(255,235,168,0.95)");
+  grad.addColorStop(1, "rgba(255,235,168,0.5)");
+  g.fillStyle = grad;
+  g.fillRect(0, 27, 8, 37);
+  const t = new THREE.CanvasTexture(p);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.wrapT = THREE.RepeatWrapping;
+  t.wrapS = THREE.ClampToEdgeWrapping;
+  return t;
+}
+
+/** Pionowa smuga: płaska plansza, billboard TYLKO w poziomie (zostaje pionem). */
+function stworzSlupek(scena, kolorMap) {
+  const slupek = new THREE.Mesh(
+    new THREE.PlaneGeometry(1, 1),
+    new THREE.MeshBasicMaterial({
+      map: kolorMap, transparent: true, depthWrite: false, fog: false,
+      side: THREE.DoubleSide, opacity: 0.72,
+    })
+  );
+  slupek.visible = false;
+  slupek.renderOrder = 1;
+  scena.add(slupek);
+  return slupek;
+}
+
+/** Ślad obręczy na murawie: pierścień w jej kolorze + słupek do niej. */
+function stworzZnacznikCelu(scena) {
+  const pierscien = new THREE.Mesh(
+    new THREE.RingGeometry(PROMIEN_OBRECZY * 0.58, PROMIEN_OBRECZY * 0.9, 40),
+    new THREE.MeshBasicMaterial({
+      color: 0xf6b93b, transparent: true, opacity: 0.46,
+      depthWrite: false, fog: false, side: THREE.DoubleSide,
+    })
+  );
+  pierscien.rotation.x = -Math.PI / 2;
+  // Nieco niżej niż plama liska: gdy lisek przelatuje nad znacznikiem, obie
+  // płaszczyzny leżą w tym samym miejscu i bez tej różnicy migotałyby.
+  pierscien.position.y = WYS_SLADU - 0.004;
+  pierscien.renderOrder = 1;
+  scena.add(pierscien);
+  return { pierscien, slupek: stworzSlupek(scena, teksturaSlupka()) };
 }
 
 export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onWyjscie }) {
@@ -340,11 +470,43 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
 
+    /* MGŁA POWIETRZNA — najtańszy sygnał głębi, jaki ta scena mogła dostać.
+       Nie zmienia ani jednej pozycji, a odległa obręcz przestaje wyglądać jak
+       bliska: kolory bledną w barwę tła, dokładnie tak jak w prawdziwym lesie
+       nad polaną. Patrz komentarz przy `KOLOR_MGLY`. */
+    scena.fog = new THREE.Fog(KOLOR_MGLY, MGLA_BLISKO, MGLA_DALEKO);
+
     scena.add(new THREE.HemisphereLight(0xfff4c7, 0x18382d, 2.15));
     const slonce = new THREE.DirectionalLight(0xffdf91, 3.2);
-    slonce.position.set(-4, 8, 6);
     slonce.castShadow = true;
-    slonce.shadow.mapSize.set(1024, 1024);
+    slonce.shadow.mapSize.set(2048, 2048);
+    /* KADR ŚWIATŁA MUSI OBJĄĆ CAŁE BOISKO — i do tej pory nie obejmował.
+       Domyślna kamera cienia światła kierunkowego to sześcian ±5 wokół punktu
+       (0,0,0), a gra rozgrywa się od choinki do obręczy dwadzieścia metrów
+       dalej. Cienie rzucały więc tylko choinka i kamienie u jej stóp; obręcze,
+       dalekie drzewa i lecący lisek nie miały ich wcale, co spłaszczało całą
+       głębię kadru. Światło celuje teraz w ŚRODEK boiska, a nie w środek
+       układu współrzędnych, i widzi 15 metrów w każdą stronę.
+       Kierunek promieni zostaje ten sam co wcześniej (ten sam wektor, tylko
+       przyczepiony do nowego celu), więc światło pada jak dotąd. */
+    const SRODEK_BOISKA = new THREE.Vector3(-4.5, 0, -8);
+    slonce.target.position.copy(SRODEK_BOISKA);
+    scena.add(slonce.target);
+    slonce.position.copy(SRODEK_BOISKA).add(new THREE.Vector3(-4, 8, 6).multiplyScalar(1.9));
+    const kadrCienia = slonce.shadow.camera;
+    kadrCienia.left = -15;
+    kadrCienia.right = 15;
+    kadrCienia.top = 15;
+    kadrCienia.bottom = -15;
+    kadrCienia.near = 1;
+    kadrCienia.far = 46;
+    kadrCienia.updateProjectionMatrix();
+    /* Przy kadrze 30 m i mapie 2048 wychodzi ok. 68 tekseli na metr. Bez
+       przesunięcia w głąb cienie na tak dużej powierzchni prążkują („shadow
+       acne"), a `normalBias` radzi z tym lepiej niż zwykły `bias`, bo nie
+       odkleja cienia od stóp obiektu. */
+    slonce.shadow.bias = -0.0005;
+    slonce.shadow.normalBias = 0.035;
     scena.add(slonce);
     const wypelnienie = new THREE.PointLight(0xb993ff, 1.8, 12);
     wypelnienie.position.set(4, 5, 4);
@@ -397,6 +559,77 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
       () => { /* Proceduralny lis pozostaje pełnoprawnym fallbackiem offline. */ }
     );
 
+    /* ── Ślady na murawie: cień liska, słupki, znaczniki celów ─────────────
+       CO i PO CO — patrz blok „CZYTELNOŚĆ GŁĘBI" nad komponentem. Tutaj tylko
+       rysowanie: trzy obiekty na liska i po dwa na każdą obręcz, wszystkie
+       przeliczane jednym wywołaniem na klatkę. */
+    const metrNaPiksel = (punkt) => {
+      // W perspektywie metr na piksel rosnie z odlegloscia - staly rozmiar
+      // w metrach zwezalby wskazniki w glab kadru razem ze scena, az do zniku.
+      const wysPlotna = canvas.clientHeight || 1;
+      const stozek = (2 * Math.tan((kamera.fov * Math.PI) / 360)) / (kamera.zoom * wysPlotna);
+      return kamera.position.distanceTo(punkt) * stozek;
+    };
+
+    const cienLiska = new THREE.Mesh(
+      new THREE.PlaneGeometry(1, 1),
+      new THREE.MeshBasicMaterial({
+        map: teksturaPlamy(), transparent: true, depthWrite: false, fog: false,
+      })
+    );
+    cienLiska.rotation.x = -Math.PI / 2;
+    cienLiska.position.y = WYS_SLADU;
+    cienLiska.renderOrder = 1;
+    scena.add(cienLiska);
+    const slupekLiska = stworzSlupek(scena, teksturaSlupka());
+    const znaczniki = cele.map(() => stworzZnacznikCelu(scena));
+    const tmpBillboard = new THREE.Vector3();
+
+    /**
+     * Jeden słupek: od śladu na murawie do punktu w powietrzu. Szerokość
+     * liczona w PIKSELACH (jak wstęga toru), podziałka — jedna kreska na
+     * `DLUGOSC_KRESKI` metra, billboard TYLKO w poziomie (celujemy w kamerę
+     * na wysokości własnego środka), więc smuga zostaje pionem i nigdy nie
+     * przewraca się na bok razem z kamerą.
+     */
+    const ustawSlupek = (slupek, x, z, doY) => {
+      const dol = WYS_SLADU + 0.01;
+      const wysokosc = doY - dol;
+      // Krótszy niż pół metra nie nosi już informacji, a przy samej ziemi
+      // wchodziłby w plamę cienia i tylko by ją brudził.
+      if (wysokosc < 0.5) { slupek.visible = false; return; }
+      slupek.visible = true;
+      slupek.position.set(x, dol + wysokosc / 2, z);
+      slupek.scale.set(SZER_SLUPKA * metrNaPiksel(slupek.position), wysokosc, 1);
+      slupek.material.map.repeat.set(1, wysokosc / DLUGOSC_KRESKI);
+      tmpBillboard.set(kamera.position.x, slupek.position.y, kamera.position.z);
+      slupek.lookAt(tmpBillboard);
+    };
+
+    /** Wszystkie ślady pod bieżący stan sceny — jedno wywołanie na klatkę. */
+    const aktualizujSlady = () => {
+      const wysokoscLotu = Math.max(0, lis.position.y - POZIOM_LADOWANIA);
+      /* Plama ROŚNIE I BLEDNIE z wysokością. To jedyny sygnał wysokości, który
+         czyta się bez porównywania z czymkolwiek: mała i ciemna znaczy
+         „jestem nisko", duża i blada — „jestem wysoko". Do tego zawsze leży
+         dokładnie POD liskiem, a nie tam, gdzie pada cień od słońca — cień
+         rzucany pod skosem mówi o kierunku światła, nie o wysokości. */
+      const rozmiar = 0.78 + wysokoscLotu * 0.14;
+      cienLiska.position.set(lis.position.x, WYS_SLADU, lis.position.z);
+      cienLiska.scale.set(rozmiar, rozmiar, 1);
+      cienLiska.material.opacity = ogranicz(0.6 - wysokoscLotu * 0.032, 0.16, 0.6);
+      ustawSlupek(slupekLiska, lis.position.x, lis.position.z, lis.position.y - 0.2);
+
+      cele.forEach((c, i) => {
+        const znacznik = znaczniki[i];
+        znacznik.pierscien.position.x = c.position.x;
+        znacznik.pierscien.position.z = c.position.z;
+        // Słupek kończy się PRZED obręczą, żeby nie przechodził przez jej
+        // środek — brama ma zostać otworem, a nie tarczą na patyku.
+        ustawSlupek(znacznik.slupek, c.position.x, c.position.z, c.position.y - PROMIEN_OBRECZY * 0.6);
+      });
+    };
+
     /* ── Podglad toru: STRZALKA W LUKU, w scenie 3D ────────────────────
        Trzy podejscia, kazde odrzucone z innego powodu:
 
@@ -436,6 +669,9 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
       new THREE.MeshBasicMaterial({
         vertexColors: true, transparent: true, opacity: 0.95,
         depthWrite: false, side: THREE.DoubleSide,
+        // Strzalka jest CELOWNIKIEM, nie czescia swiata - mgla nie ma prawa
+        // jej wyprac w dali, bo tam wlasnie jest najbardziej potrzebna.
+        fog: false,
       })
     );
     torLuk.visible = false;
@@ -450,7 +686,7 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
       torLuk.geometry,
       new THREE.MeshBasicMaterial({
         vertexColors: true, transparent: true, opacity: 0.26,
-        depthTest: false, depthWrite: false, side: THREE.DoubleSide,
+        depthTest: false, depthWrite: false, side: THREE.DoubleSide, fog: false,
       })
     );
     torDuch.visible = false;
@@ -558,11 +794,9 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
       const n = tmpProbki.length;
       if (n < 3) { schowajTor(); return; }
 
-      const wysPlotna = canvas.clientHeight || 1;
-      // W perspektywie metr na piksel rosnie z odlegloscia - inaczej strzalka
-      // zwezalaby sie w glab kadru razem ze scena i po chwili znikala.
-      const stozek = (2 * Math.tan((kamera.fov * Math.PI) / 360)) / (kamera.zoom * wysPlotna);
-      const naPikselW = (punkt) => kamera.position.distanceTo(punkt) * stozek;
+      // Przelicznik piksel–metr jest ten sam, którego używają słupki wysokości
+      // (`metrNaPiksel` wyżej) — jedna definicja, żeby strzałka i wskaźniki
+      // nigdy nie rozjechały się grubością.
       kamera.getWorldDirection(tmpWidok);
 
       const poz = new Float32Array(n * 6 + 9);
@@ -577,7 +811,7 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
         // temu wstega zawsze stoi plaska strona do dziecka.
         tmpBok.crossVectors(tmpStyczna, tmpWidok).normalize();
         const u = i / (n - 1);
-        const polSzer = (SZER_OGON + (SZER_PRZOD - SZER_OGON) * u) * 0.5 * naPikselW(p);
+        const polSzer = (SZER_OGON + (SZER_PRZOD - SZER_OGON) * u) * 0.5 * metrNaPiksel(p);
         const o = i * 6;
         poz[o] = p.x + tmpBok.x * polSzer;
         poz[o + 1] = p.y + tmpBok.y * polSzer;
@@ -597,7 +831,7 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
 
       // Grot: trojkat szerszy od wstegi, osadzony na jej koncu.
       const koniecLuku = tmpProbki[n - 1];
-      const naPikselGrotu = naPikselW(koniecLuku);
+      const naPikselGrotu = metrNaPiksel(koniecLuku);
       const polGrotu = GROT_POL * naPikselGrotu;
       const dlGrotu = GROT_DL * naPikselGrotu;
       const b = n * 6;
@@ -1103,6 +1337,12 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
         if (stan.tryb !== "trafienie") c.kolo.rotation.z = Math.sin(czas * 1.8 + i * 0.9) * 0.08;
         c.scale.lerp(JEDNOSTKOWA, dt * 4);
       });
+      /* Ślady na SAMYM KOŃCU klatki, po wszystkich trybach. Każdy z nich rusza
+         liskiem albo kamerą po swojemu, a cień i słupki muszą pasować do stanu,
+         który zaraz pójdzie do rysowania — nie do tego z poprzedniej klatki.
+         Liczone też przy pauzie w „gotowy": szerokość słupka zależy od kamery,
+         a ta płynie także wtedy, gdy lisek stoi. */
+      aktualizujSlady();
       renderer.render(scena, kamera);
       raf = requestAnimationFrame(klatka);
     };
@@ -1120,7 +1360,10 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
         if (o.geometry) o.geometry.dispose?.();
         if (o.material) {
           const materialy = Array.isArray(o.material) ? o.material : [o.material];
-          materialy.forEach((m) => m.dispose?.());
+          // `Material.dispose` NIE zwalnia tekstur, a plama cienia i każdy
+          // słupek mają własną, rysowaną w canvasie. Bez tej linijki każde
+          // wyjście i wejście do gry zostawiało w pamięci GPU kilka tekstur.
+          materialy.forEach((m) => { m.map?.dispose?.(); m.dispose?.(); });
         }
       });
     };
