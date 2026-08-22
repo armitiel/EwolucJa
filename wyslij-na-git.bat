@@ -104,6 +104,71 @@ if "!DO_WYSLANIA!"=="0" (
 )
 git log --oneline origin/!GALAZ!..HEAD
 echo.
+
+rem ---- 4. proba budowania DOKLADNIE tak, jak zrobi to Vercel ---------------
+rem Po co: Vercel klonuje repozytorium, wiec widzi TYLKO pliki zapisane w
+rem gicie. Plik lezacy na dysku, ale nieskomitowany (te z listy "NOWE PLIKI"
+rem wyzej), nie istnieje dla niego wcale. Zdarzylo sie juz dwa razy, ze
+rem komponent szedl w imporcie, a sam plik zostawal na dysku: lokalnie
+rem wszystko dzialalo, a deploy padal na "Could not resolve".
+rem Dlatego rozpakowujemy `git archive HEAD` (czyli czysta zawartosc gita)
+rem do katalogu tymczasowego, podpinamy istniejace node_modules zlaczem
+rem katalogow i budujemy tam. Trwa to kilkanascie sekund i wylapuje ten blad
+rem ZANIM cokolwiek pojdzie na serwer.
+set SPRAWDZ=%TEMP%\ewol-build
+if exist "!SPRAWDZ!\frontend\node_modules" rmdir "!SPRAWDZ!\frontend\node_modules" >nul 2>&1
+if exist "!SPRAWDZ!" rmdir /s /q "!SPRAWDZ!" >nul 2>&1
+
+if not exist "%cd%\frontend\node_modules" (
+  echo  [UWAGA] Brak frontend\node_modules - pomijam probe budowania.
+  goto :po_probie
+)
+
+echo  Probuje zbudowac projekt tak, jak zrobi to Vercel...
+mkdir "!SPRAWDZ!" >nul 2>&1
+git archive -o "!SPRAWDZ!\repo.tar" HEAD
+if errorlevel 1 (
+  echo  [UWAGA] Nie udalo sie zrobic archiwum gita - pomijam probe.
+  goto :po_probie
+)
+tar -x -f "!SPRAWDZ!\repo.tar" -C "!SPRAWDZ!"
+if errorlevel 1 (
+  echo  [UWAGA] Nie udalo sie rozpakowac archiwum - pomijam probe.
+  goto :po_probie
+)
+mklink /J "!SPRAWDZ!\frontend\node_modules" "%cd%\frontend\node_modules" >nul 2>&1
+
+pushd "!SPRAWDZ!\frontend"
+call npx vite build > "!SPRAWDZ!\build.log" 2>&1
+set BLAD_BUDOWANIA=!errorlevel!
+popd
+
+if not "!BLAD_BUDOWANIA!"=="0" (
+  echo.
+  echo  ================================================
+  echo    [STOP] Projekt NIE buduje sie z tego, co jest w gicie.
+  echo  ================================================
+  echo.
+  findstr /i /c:"Could not resolve" /c:"error" "!SPRAWDZ!\build.log"
+  echo.
+  echo  Najczestsza przyczyna: plik jest na dysku, ale nie zostal dodany
+  echo  do gita. Sprawdz liste "NOWE PLIKI" wyzej i dopisz brakujacy:
+  echo      git add sciezka/do/pliku
+  echo  Potem uruchom ten skrypt jeszcze raz.
+  echo.
+  echo  Pelny log: !SPRAWDZ!\build.log
+  echo  Nic nie zostalo wyslane.
+  goto :koniec
+)
+echo  Build przeszedl. Mozna wysylac.
+
+rem Sprzatanie: najpierw zlacze katalogow, potem reszta - inaczej `rmdir /s`
+rem poszloby po zlaczu i skasowalo prawdziwe node_modules.
+if exist "!SPRAWDZ!\frontend\node_modules" rmdir "!SPRAWDZ!\frontend\node_modules" >nul 2>&1
+rmdir /s /q "!SPRAWDZ!" >nul 2>&1
+
+:po_probie
+echo.
 set ODP=t
 set /p ODP="  Wyslac na git? (t/n, Enter = tak): "
 if /i not "!ODP!"=="t" (
