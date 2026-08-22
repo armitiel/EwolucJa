@@ -364,14 +364,36 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
       () => { /* Proceduralny lis pozostaje pełnoprawnym fallbackiem offline. */ }
     );
 
-    const punktyTor = [];
-    const materialPunktu = new THREE.MeshBasicMaterial({ color: 0xffe08a, transparent: true, opacity: 0.86 });
-    for (let i = 0; i < 15; i++) {
-      const p = new THREE.Mesh(new THREE.SphereGeometry(0.055 + i * 0.002, 8, 6), materialPunktu.clone());
-      p.visible = false;
-      scena.add(p);
-      punktyTor.push(p);
-    }
+    /* ── Podglad toru: STRZALKA W LUKU, nie sznur kropek ───────────────
+       Kropki mowily "gdzies tedy poleci", ale nie mowily NAJWAZNIEJSZEGO:
+       ktoredy tor idzie w GLAB sceny. Piętnascie jednakowych kulek w rzucie
+       perspektywicznym wyglada tak samo przy strzale w dal i przy strzale w
+       bok - dopiero grot na koncu pokazuje kierunek jednoznacznie.
+
+       Rurka jest budowana od nowa przy kazdej zmianie naciagu (kilkadziesiat
+       trojkatow, robota na ulamek milisekundy), bo TubeGeometry nie da sie
+       przeliczyc w miejscu. */
+    const MATERIAL_TORU = new THREE.MeshBasicMaterial({
+      color: 0xffd166, transparent: true, opacity: 0.85, depthWrite: false,
+    });
+    const torLuk = new THREE.Mesh(new THREE.BufferGeometry(), MATERIAL_TORU);
+    torLuk.visible = false;
+    torLuk.renderOrder = 2;
+    scena.add(torLuk);
+
+    const torGrot = new THREE.Mesh(
+      new THREE.ConeGeometry(0.26, 0.62, 14),
+      new THREE.MeshBasicMaterial({ color: 0xffe9a1, transparent: true, opacity: 0.95, depthWrite: false })
+    );
+    torGrot.visible = false;
+    torGrot.renderOrder = 3;
+    scena.add(torGrot);
+
+    const KROK_TORU = 0.075;       // sekundy miedzy probkami balistyki
+    const PROBEK_TORU = 22;
+    const tmpProbki = [];
+    const tmpGrotKierunek = new THREE.Vector3();
+    const tmpOsGrotu = new THREE.Vector3(0, 1, 0);
 
     const stan = {
       tryb: "gotowy",
@@ -443,19 +465,32 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
     const pokazTor = () => {
       choinka.czubek.getWorldPosition(tmpTip);
       const v = predkoscZNaciagu();
-      punktyTor.forEach((p, i) => {
-        const t = (i + 1) * 0.1;
-        p.position.set(
-          tmpTip.x + v.x * t,
-          tmpTip.y + v.y * t - 0.5 * 7.3 * t * t,
-          tmpTip.z + v.z * t
-        );
-        p.material.opacity = 0.92 - i * 0.045;
-        p.visible = true;
-      });
+      tmpProbki.length = 0;
+      for (let i = 0; i <= PROBEK_TORU; i++) {
+        const t = i * KROK_TORU;
+        const y = tmpTip.y + v.y * t - 0.5 * 7.3 * t * t;
+        // Luk urywamy nad ziemia: strzalka ma pokazywac LOT, a nie miejsce,
+        // w ktorym lisek zaorałby polane.
+        if (y < 0.35 && i > 2) break;
+        tmpProbki.push(new THREE.Vector3(tmpTip.x + v.x * t, y, tmpTip.z + v.z * t));
+      }
+      if (tmpProbki.length < 3) { schowajTor(); return; }
+
+      const krzywa = new THREE.CatmullRomCurve3(tmpProbki);
+      torLuk.geometry.dispose();
+      torLuk.geometry = new THREE.TubeGeometry(krzywa, tmpProbki.length * 2, 0.075, 8, false);
+      torLuk.visible = true;
+
+      // Grot siada na koncu luku i patrzy w strone lotu. Stozek w three.js
+      // stoi domyslnie wzdluz osi Y, stad obrot z (0,1,0) na kierunek.
+      const koniec = tmpProbki[tmpProbki.length - 1];
+      tmpGrotKierunek.copy(koniec).sub(tmpProbki[tmpProbki.length - 2]).normalize();
+      torGrot.position.copy(koniec).addScaledVector(tmpGrotKierunek, 0.24);
+      torGrot.quaternion.setFromUnitVectors(tmpOsGrotu, tmpGrotKierunek);
+      torGrot.visible = true;
     };
 
-    const schowajTor = () => punktyTor.forEach((p) => { p.visible = false; });
+    const schowajTor = () => { torLuk.visible = false; torGrot.visible = false; };
 
     const przeliczKadry = () => {
       kameraFokus.set(cel.position.x, cel.position.y - 0.65, cel.position.z);
