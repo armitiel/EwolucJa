@@ -8,7 +8,12 @@
 .bieg-scena{ position:absolute; inset:0; }
 .bieg-canvas{ width:100%; height:100%; display:block; touch-action:none; }
 
-.bieg-pasek{ z-index:3; }
+/* Pasek gry ma tu DWA KOŃCE, nie jeden: stan gracza po lewej, wyjście po
+   prawej. Bazowy `.gra-pasek` dosuwa wszystko do prawej (bo w innych grach
+   trzyma sam krzyżyk) — tutaj ta reguła sklejała serca, licznik i krzyżyk
+   w jeden zlepek pod prawą krawędzią. */
+.bieg-pasek{ z-index:3; justify-content:space-between; }
+.bieg-pasek-lewo{ display:flex; align-items:center; gap:8px; min-width:0; }
 .bieg-postep{
   display:inline-flex; align-items:baseline; gap:4px; padding:6px 14px;
   border-radius:999px; background:rgba(255,249,216,.92);
@@ -18,10 +23,21 @@
 .bieg-postep b{ font-size:20px; }
 .bieg-postep span{ font-size:13px; font-weight:800; opacity:.75; }
 
-/* Zadanie — duża pigułka na górze, zawsze w tym samym miejscu. */
+/* Kolumna informacyjna: zadanie, pod nim reakcja. Siedzi POD paskiem
+   sterowania, nie na nim — wysokość paska to bezpieczna strefa (46 px krzyżyka
+   + paddingi + wcięcie systemowe u góry), więc liczymy ją, zamiast zgadywać
+   jedną stałą. `pointer-events:none`, bo cały ekran jest przyciskiem skoku
+   i pigułka z zadaniem nie ma prawa połykać dotknięcia. */
+.bieg-info{
+  position:absolute; z-index:2; left:0; right:0;
+  top:calc(70px + env(safe-area-inset-top,0px));
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  padding:0 12px; pointer-events:none;
+}
+
+/* Zadanie — duża pigułka, zawsze w tym samym miejscu. */
 .bieg-pytanie{
-  position:absolute; top:14px; left:50%; transform:translateX(-50%);
-  z-index:2; padding:10px 26px; white-space:nowrap;
+  max-width:100%; padding:10px 26px; white-space:nowrap;
   border:3px solid #e6a832; border-radius:999px;
   background:linear-gradient(180deg,#fff8dd,#f4e1ac);
   box-shadow:0 3px 0 #a2621c, 0 8px 16px rgba(38,31,18,.25);
@@ -30,16 +46,17 @@
   animation:bieg-pytanie-wjazd .35s cubic-bezier(.2,.9,.3,1.25);
 }
 .bieg-pytanie.is-cicha{ font-size:17px; opacity:.85; }
+/* Bez `translateX(-50%)`: elementy nie są już kotwiczone do środka ekranu
+   przez transform, tylko wyśrodkowane przez kolumnę `.bieg-info`. */
 @keyframes bieg-pytanie-wjazd{
-  from{ transform:translateX(-50%) translateY(-16px) scale(.85); opacity:0; }
-  to{ transform:translateX(-50%) translateY(0) scale(1); opacity:1; }
+  from{ transform:translateY(-16px) scale(.85); opacity:0; }
+  to{ transform:translateY(0) scale(1); opacity:1; }
 }
 
 /* Reakcja pod pytaniem: zielona na brawo, bursztyn na pomyłkę.
    Czerwieni tu nie ma — pomyłka w liczeniu to nie alarm. */
 .bieg-reakcja{
-  position:absolute; top:76px; left:50%; transform:translateX(-50%);
-  z-index:2; padding:7px 18px; white-space:nowrap;
+  max-width:100%; padding:7px 18px; white-space:nowrap;
   border-radius:999px; border:2px solid transparent;
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-size:16px; font-weight:800;
@@ -49,16 +66,66 @@
 .bieg-reakcja.is-zle{ background:#fdeed2; border-color:#e0a94f; color:#7c5514; }
 .bieg-reakcja.is-mimo{ background:#f2e9f9; border-color:#b18ad6; color:#5b3a80; }
 
-/* Podpowiedź gestu — jak w Locie Liska, na dole, nie łapie dotknięć. */
-.bieg-podpowiedz{
-  position:absolute; bottom:calc(18px + env(safe-area-inset-bottom,0px)); left:50%;
-  transform:translateX(-50%); z-index:2; pointer-events:none;
-  display:flex; align-items:center; gap:8px; padding:8px 16px;
-  border-radius:999px; background:rgba(24,15,33,.42); color:#fff3bd;
-  font-size:13px; font-weight:800; letter-spacing:.4px;
+/* Serca — ile razy jeszcze można wpaść w wyrwę.
+   Puste serce ZOSTAJE na miejscu (przygaszone), zamiast znikać: rząd o stałej
+   długości od razu mówi, ile było na starcie i ile zostało. Znikające serca
+   dawały tylko „mam dwa", bez punktu odniesienia. */
+.bieg-zycia{
+  display:inline-flex; align-items:center; gap:3px; flex:none;
+  padding:5px 11px; border-radius:999px;
+  background:rgba(255,249,216,.92); border:2px solid #e6a832; box-shadow:0 2px 0 #a2621c;
+  line-height:1;
 }
-.bieg-palec{ font-size:18px; animation:bieg-palec-hop 1.4s ease-in-out infinite; }
-@keyframes bieg-palec-hop{ 0%,100%{ transform:translateY(0); } 40%{ transform:translateY(-6px); } }
+.bieg-zycia i{ font-style:normal; font-size:19px; line-height:1; }
+.bieg-zycia i.jest{ color:#dc4a3d; text-shadow:0 1px 0 rgba(255,255,255,.7); }
+.bieg-zycia i.puste{ color:#cbb79a; opacity:.65; }
+
+/* Podpowiedź gestu — jak w Locie Liska, na dole, nie łapie dotknięć.
+   DUŻA, bo to jedyne sterowanie w grze i dziecko czyta ją kątem oka w biegu.
+   Znika po kilku podskokach (patrz `BiegLiskaGame`), więc może sobie pozwolić
+   na rozmiar — nie będzie zasłaniać drogi przez całą partię. */
+.bieg-podpowiedz{
+  position:absolute; bottom:calc(22px + env(safe-area-inset-bottom,0px)); left:50%;
+  transform:translateX(-50%); z-index:2; pointer-events:none;
+  display:flex; align-items:center; gap:12px; padding:14px 26px;
+  border-radius:999px; background:rgba(24,15,33,.62); color:#fff3bd;
+  border:2.5px solid rgba(255,222,132,.55);
+  box-shadow:0 6px 18px rgba(18,10,26,.35);
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  font-size:clamp(19px,5vw,24px); font-weight:900; letter-spacing:.4px;
+  white-space:nowrap;
+  animation:bieg-podpowiedz-puls 2.6s ease-in-out infinite;
+}
+.bieg-palec{ font-size:30px; animation:bieg-palec-hop 1.4s ease-in-out infinite; }
+@keyframes bieg-palec-hop{ 0%,100%{ transform:translateY(0); } 40%{ transform:translateY(-8px); } }
+@keyframes bieg-podpowiedz-puls{ 0%,100%{ opacity:.94; } 50%{ opacity:.72; } }
+
+/* Gaśnie po nauce gestu: opadnięcie w dół zamiast zwykłego zniknięcia mówi
+   „zabieram się stąd", a nie „coś się zepsuło". `forwards` trzyma ją niewidoczną
+   przez tę jedną klatkę, zanim React zdejmie element. */
+.bieg-podpowiedz.is-gasnie{
+  animation:bieg-podpowiedz-znika .55s ease forwards;
+}
+@keyframes bieg-podpowiedz-znika{
+  from{ opacity:.94; transform:translateX(-50%) translateY(0) scale(1); }
+  to{ opacity:0; transform:translateX(-50%) translateY(18px) scale(.9); }
+}
+@media (prefers-reduced-motion:reduce){
+  .bieg-podpowiedz,.bieg-palec{ animation:none; }
+}
+
+/* Bardzo wąski telefon (iPhone SE i podobne). Pigułki mają `white-space:nowrap`,
+   bo zadanie złamane na dwie linie przestaje być czytelne w biegu — więc zamiast
+   pozwolić im się zawinąć, zbijamy tu rozmiary. Bez tego napis wychodziłby poza
+   pigułkę zamiast się zmieścić. */
+@media (max-width:344px){
+  .bieg-pytanie{ font-size:22px; padding:9px 18px; }
+  .bieg-reakcja{ font-size:14.5px; padding:6px 13px; }
+  .bieg-podpowiedz{ font-size:17px; padding:11px 18px; gap:9px; }
+  .bieg-palec{ font-size:24px; }
+  .bieg-zycia{ padding:5px 9px; }
+  .bieg-zycia i{ font-size:17px; }
+}
 
 /* Tło POD splashem w kolorze nieba sceny — bez tego przy wolnym wczytaniu
    ilustracji przez ekran przelatuje mleczna biel. */

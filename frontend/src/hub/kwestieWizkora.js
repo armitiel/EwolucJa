@@ -14,6 +14,7 @@
  */
 import { CEL_DOMYSLNY, NAGRODA_MONET } from "./zadanieGwiazdek.js";
 import { stanZadania as stanZadaniaWizkora, zadanieDoZlecenia } from "./zadanieWizkora.js";
+import { stanPuzzli } from "./puzzleGier.js";
 
 /**
  * Czarodziej na mapie: identyfikator jego znaku w module sceny (`xf`
@@ -49,7 +50,8 @@ export const ZNAK_CZARODZIEJA = "czarodziej";
  * `akcja` mówi hubowi, co zrobić po zielonym przycisku:
  *   "start"           → załóż zadanie gwiazdek i zapal licznik
  *   "nagroda"         → otwórz ekran wygranej za gwiazdki
- *   "zlec:<id gry>"   → ujawnij misję: znak tej gry wchodzi na mapę
+ *   "zlec:<id gry>"   → ujawnij misję: kawałki puzzli wchodzą na mapę
+ *   "ukladanka:<id>"  → otwórz układankę puzzli tej gry
  *   "naplac:<id gry>" → otwórz ekran wygranej za rozegraną partię
  *   "zlecReal:<id>"   → zleć zadanie do zrobienia poza ekranem (ląduje w zwoju)
  *   "otworzZadanie"   → otwórz zakładkę z tym zadaniem
@@ -162,7 +164,27 @@ export function powitanieCzarodzieja(z, misja) {
     // istnieć: dosięga ich `window.popupPostaci.pokaz()` i pulpit testowy,
     // a stan jest realny.
     if (misja.znaleziona) return { ...baza, ...def.granie, akcja: null };
-    if (misja.ujawniona) return { ...baza, ...def.szukanie, akcja: null };
+    if (misja.ujawniona) {
+      /**
+       * ETAP PUZZLI. Zlecona misja zaczyna się od kawałków obrazka: dopóki
+       * układanka nie jest ułożona, Wizkor mówi o kawałkach, nie o znaku —
+       * znaku i tak nie ma jeszcze na mapie (patrz `naMapie` w `misjeGier`).
+       * Z kompletem kwestia dostaje zielony przycisk „Układam!", który
+       * otwiera układankę prosto z rozmowy.
+       */
+      /* Pulpit dev podstawia `misja.puzzle`, żeby dało się obejrzeć kwestię
+         każdego pod-etapu bez grzebania w prawdziwym zapisie puzzli —
+         dokładnie tak, jak podstawia całe stany misji. Świat tego pola nie
+         ustawia nigdy, więc gra zawsze czyta stan prawdziwy. */
+      const puzzle = misja.puzzle || stanPuzzli(misja.def.id);
+      if (puzzle.brama && !puzzle.ulozona) {
+        if (puzzle.komplet) {
+          return { ...baza, ...(misja.def.ukladanie || misja.def.szukanie), akcja: `ukladanka:${misja.def.id}` };
+        }
+        return { ...baza, ...(misja.def.zbieranie || misja.def.szukanie), akcja: null };
+      }
+      return { ...baza, ...def.szukanie, akcja: null };
+    }
     return { ...baza, ...def.zlecenie, akcja: `zlec:${def.id}` };
   }
 

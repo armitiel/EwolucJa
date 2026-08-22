@@ -40,6 +40,14 @@ import {
   zaliczWygrana,
 } from "./misjeGier.js";
 import {
+  celPuzzli,
+  doliczPuzel,
+  rozpocznijZbieranie,
+  skasujPuzzle,
+  stanPuzzli,
+  zaliczUlozenie,
+} from "./puzzleGier.js";
+import {
   ETAPY,
   etapBiezacy,
   przesunEtap,
@@ -93,7 +101,7 @@ function Guzik({ children, onClick, ton = "" }) {
 }
 
 export default function DevRezyserka({
-  scenaRef, onZmiana, onOtworzGre, onOtworzPanel, onKomunikat, onPokazWskazowke, onWylacz, zdarzenia = [],
+  scenaRef, onZmiana, onOtworzGre, onOtworzPanel, onOtworzUkladanke, onKomunikat, onPokazWskazowke, onWylacz, zdarzenia = [],
 }) {
   const [otwarty, setOtwarty] = useState(false);
   const [, przerysuj] = useState(0);
@@ -123,13 +131,28 @@ export default function DevRezyserka({
   const oczekiwana = etap ? etap.akcja || null : null;
   const zgodne = (kwestia.akcja || null) === oczekiwana;
 
+  /**
+   * Etap „układanka" (`faza: "komplet"`) ma w grze własny EKRAN — samo
+   * ustawienie zapisu wyglądało z pulpitu jak nic: stan czekał, ekran nie
+   * wchodził, a otwarta szuflada i tak by go zasłoniła (z-index 95 nad 70).
+   * Wybranie tego momentu na osi chowa więc szufladę i otwiera układankę —
+   * dokładnie to, co w grze robi ostatni zebrany kawałek.
+   */
+  function otworzEkranEtapu(etap) {
+    if (etap?.faza !== "komplet") return;
+    setOtwarty(false);
+    onOtworzUkladanke?.(String(etap.id).split(":")[0]);
+  }
+
   function naEtap(nr) {
     const wybrany = zastosujEtap(nr);
+    otworzEkranEtapu(wybrany);
     odswiez(`DEV: etap ${nr + 1}/${ETAPY.length} — ${wybrany?.tytul || "?"}`);
   }
 
   function krok(o) {
     const wybrany = przesunEtap(o);
+    otworzEkranEtapu(wybrany);
     odswiez(`DEV: ${wybrany?.tytul || "koniec osi"}`);
   }
 
@@ -168,13 +191,24 @@ export default function DevRezyserka({
   function swiezyStart() {
     skasujGwiazdki();
     skasujMisje();
+    skasujPuzzle();
     wyzerujBonus();
     odswiez("DEV: świeży start");
   }
 
+  /* Puzzle jednej gry od zera do ułożenia — tą samą drogą, którą idzie
+     gra (rozpocznij → dolicz → ułóż), nie skrótem przez localStorage. */
+  function ulozPuzzle(id) {
+    rozpocznijZbieranie(id);
+    for (let i = 1; i <= 9; i += 1) doliczPuzel(`puzel-${i}`);
+    zaliczUlozenie(id);
+  }
+
   function wszystkoOdkryte() {
     gwiazdkiPoNagrodzie();
-    for (const def of MISJE) { ujawnij(def.id); odkryj(def.id); }
+    // Puzzle ułożone PRZED odkryciem — w grze znak nie ma prawa stanąć na
+    // mapie przed układanką, więc skrót nie może produkować innego zapisu.
+    for (const def of MISJE) { ujawnij(def.id); ulozPuzzle(def.id); odkryj(def.id); }
     odswiez("DEV: wszystkie gry odkryte");
   }
 
@@ -352,25 +386,37 @@ export default function DevRezyserka({
             <Guzik onClick={() => { skasujGwiazdki(); odswiez("DEV: gwiazdki skasowane"); }}>Reset</Guzik>
           </Grupa>
 
-          {misje.map((m) => (
+          {misje.map((m) => {
+            /* Stan puzzli czytany przy każdym rysowaniu, jak stan misji —
+               tytuł grupy ma mówić, w którym POD-etapie stoi brama. */
+            const puzzle = stanPuzzli(m.id);
+            const etapPuzzli = puzzle.brama && !puzzle.ulozona
+              ? (puzzle.komplet ? "kawałki zebrane, do ułożenia" : `kawałki ${puzzle.zebrane}/${puzzle.cel}`)
+              : null;
+            return (
             <Grupa
               key={m.id}
               tytul={`${m.def.tytul} — ${
                 m.wyplacona ? "rozliczona"
                 : m.wygrana ? "wygrana, do wypłaty"
                 : m.znaleziona ? "znaleziona"
-                : m.ujawniona ? "zlecona, do znalezienia"
+                : m.ujawniona ? (etapPuzzli ? `zlecona, ${etapPuzzli}` : "zlecona, do znalezienia")
                 : "ukryta"
               }`}
             >
-              <Guzik onClick={() => { ujawnij(m.id); odswiez(`DEV: zlecona ${m.def.tytul}`); }}>Zleć</Guzik>
+              <Guzik onClick={() => { ujawnij(m.id); rozpocznijZbieranie(m.id); odswiez(`DEV: zlecona ${m.def.tytul} — kawałki na mapie`); }}>Zleć</Guzik>
+              {/* Pod-etapy bramy z puzzli — między zleceniem a znalezieniem,
+                  w tej samej kolejności, co w grze. */}
+              <Guzik onClick={() => { rozpocznijZbieranie(m.id); for (let i = 1; i <= 9; i += 1) doliczPuzel(`puzel-${i}`); odswiez(`DEV: komplet kawałków (${celPuzzli(m.id)})`); }}>Komplet kawałków</Guzik>
+              <Guzik onClick={() => { ulozPuzzle(m.id); odswiez("DEV: układanka ułożona — znak na mapie"); }}>Ułóż</Guzik>
               <Guzik onClick={() => { odkryj(m.id); odswiez(`DEV: znaleziona ${m.def.tytul}`); }}>Znajdź</Guzik>
               <Guzik onClick={() => { zaliczWygrana(m.id); odswiez(`DEV: zaliczona ${m.def.tytul}`); }}>Zalicz partię</Guzik>
               <Guzik onClick={() => { odbierzNagrodeMisji(m.id); odswiez(`DEV: +${m.def.nagroda} monet`); }}>Wypłać</Guzik>
               <Guzik onClick={() => skoczDoZnaku(m.def.znak)}>Skocz do znaku</Guzik>
               <Guzik onClick={() => onOtworzGre?.(m.id)}>Otwórz grę</Guzik>
             </Grupa>
-          ))}
+            );
+          })}
 
           {/* Kolejność guzików = kolejność prawdziwego obiegu. Stan w tytule
               mówi, który krok jest „teraz" — klikanie po kolei przechodzi

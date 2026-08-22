@@ -46,7 +46,6 @@ import PoradyPage from "./pages/PoradyPage.jsx";
 // glownego pliku i lazy w `Swiat.jsx` nie dawaloby nic — Vite dzieli po
 // grafie importow, a nie po tym, jak komponent jest uzyty.
 const MemoryGame = lazy(() => import("./pages/MemoryGame.jsx"));
-const PiorkaGame = lazy(() => import("./pages/PiorkaGame.jsx"));
 const ChoinkaLaunchGame = lazy(() => import("./pages/ChoinkaLaunchGame.jsx"));
 const BiegLiskaGame = lazy(() => import("./pages/BiegLiskaGame.jsx"));
 import LoginAsStudent from "./pages/LoginAsStudent.jsx";
@@ -91,10 +90,6 @@ function AppRoutes() {
       <Route
         path="/games/memory"
         element={<Suspense fallback={<Loading text="Otwieram grę…" />}><MemoryGame /></Suspense>}
-      />
-      <Route
-        path="/games/piorka"
-        element={<Suspense fallback={<Loading text="Otwieram grę…" />}><PiorkaGame /></Suspense>}
       />
       <Route
         path="/games/lot-liska"

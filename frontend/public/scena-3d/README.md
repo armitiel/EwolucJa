@@ -154,8 +154,56 @@ Zmiany lądują w `localStorage` (klucz `scena3d.mapa`) i to je pokazuje podglą
 prawdziwa aplikacja czyta wyłącznie `mapa.json`. Żeby je utrwalić: **Pobierz
 mapa.json** i podmień plik w `public/scena-3d/`.
 
-Czego edytor NIE ruszy: trawy, kwiatków i płyt ścieżki malowanych na teksturze
-terenu (powstają z ziarna losowego w środku modułu) ani samych modeli GLB.
+Czego edytor NIE ruszy: trawy i drobnych plamek malowanych na teksturze terenu
+(powstają z ziarna losowego w środku modułu) ani wnętrza samych modeli GLB.
+
+#### Własne modele 3D
+
+Przycisk **„Wgraj model 3D…"** wysyła plik `.glb` na końcówkę `POST /__model`
+serwera deweloperskiego, a ta kładzie go w `public/scena-3d/assets/`. Lista
+modeli w edytorze czyta się z `GET /__modele`, czyli z prawdziwej zawartości
+katalogu — wgrany obiekt można postawić od razu, bez dopisywania czegokolwiek
+w kodzie. Scena ładuje modele po nazwie (`./assets/<nazwa>.glb`), więc działa
+i jako **budynek** (ma kolizję i wysokość w metrach), i jako **znak** minigry.
+
+Nazwa pliku jest sprowadzana do bezpiecznego sluga (bez ścieżek i znaków spoza
+`a-z0-9-`), plik musi być prawdziwym binarnym GLB (nagłówek `glTF`) i mieścić
+się w 25 MB. Obie końcówki żyją wyłącznie w `npm run dev` — na produkcji ich
+nie ma, więc nikt nie wgra pliku na Vercela przez HTTP.
+
+#### Poświata znaku a płaskie modele (kreska na puzelku)
+
+`haloOpacity` rysuje **sprite'a** — kwadrat zwrócony do kamery, ze świecącą
+plamą, dodawany addytywnie i wyśrodkowany na znaku (`height`). Sprite ma
+wyłączony zapis do bufora głębi, ale nie test głębi, więc przechodząc przez
+bryłę modelu zostaje przez nią ucięty — i tam, gdzie się urywa, widać **ostrą
+kreskę**.
+
+Przy modelach stojących (gwiazdka, piórko, Wizkor) sprite jest w większości
+przed bryłą i nic nie widać. Przy modelach **płaskich i szerokich** — jak
+puzelek — plama przecina górną ściankę w połowie: bliższa połowa zasłania
+sprite'a, dalsza go pokazuje, a granica jest prostą linią przez środek.
+
+Dlatego puzelki mają `haloOpacity: 0`. Świecenia nie tracą — zostają im iskry
+(`iskry`) i własna barwa. Gdyby ten sam artefakt wyszedł na innym płaskim
+znaku, lekarstwo jest to samo: zgasić poświatę, a nie zmniejszać `haloScale`
+(sprite i tak jest wyśrodkowany w bryle, więc mniejszy nadal ją przecina).
+
+#### Gałęzie ścieżki
+
+Narzędzie **„+ Gałąź"** dokłada odnogi od głównej ścieżki. Pierwszy klik zaczyna
+gałąź w najbliższym **węźle** ścieżki, każdy następny ją przedłuża; suwaki po
+prawej ustawiają łuk, gęstość i szerokość wstęgi.
+
+Gałąź trzyma **indeks węzła** (`od`), a nie współrzędne — przesunięcie ścieżki
+przeciąga odnogę razem z nią i nigdy nie zostawia jej wiszącej w powietrzu.
+W pliku ląduje jako `galezie[]` z węzłami (`punkty`) i wypaloną łamaną
+(`sciezka`) — tak samo, jak główna ścieżka, bo scena nie zna splajnów.
+
+Gałęzie są **rysunkiem na trawie**: trasa bohatera, latarnia i obrót mostu
+czytają wyłącznie główną `sciezka`, więc dorysowanie odnogi nie zmienia
+chodzenia ani kolizji. Malowanie ich w scenie to łatka na bundlu —
+`narzedzia/galezie-sciezki.py` (kopie sprzed: `*.bak-przed-galeziami`).
 
 ## Gibanie drzew (łatka na bundlu)
 

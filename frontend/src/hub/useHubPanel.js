@@ -55,7 +55,7 @@ export function useHubPanel() {
  * wypadku otwiera grę na jej własnym adresie — ale kafelek traci wtedy
  * wszystko, co daje otwarcie nad hubem (żywa scena, natychmiastowy powrót).
  */
-export const GRY_W_HUBIE = ["pamiec-medrca", "sekret-pod-puchem", "lot-liska", "bieg-liska"];
+export const GRY_W_HUBIE = ["pamiec-medrca", "lot-liska", "bieg-liska"];
 
 /**
  * useHubGra — otwarta minigra trzymana w adresie (`/swiat?gra=pamiec-medrca`).

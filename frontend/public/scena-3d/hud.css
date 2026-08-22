@@ -1694,3 +1694,22 @@
   .game-hud-resources.ma-zadanie .game-hud-progress { display: none; }
   .game-hud-resources.ma-zadanie .game-hud-counter--coins { padding-right: 14px; }
 }
+
+
+/* --- Licznik kawalkow puzzli --- */
+/* Ten sam kostium co kafelek misji (`--misja` w klasach), ale to PRZYCISK:
+   z kompletem kawalkow dotkniecie otwiera ukladanke. Bez kompletu nie robi
+   nic - kusic ma dopiero wtedy, gdy naprawde jest co otworzyc (swieci
+   wtedy przez `jest-spelnione`, jak spelniona misja). */
+button.game-hud-counter--puzzle {
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  cursor: pointer;
+}
+button.game-hud-counter--puzzle:active { transform: translateY(1px); }
+.game-hud-counter--puzzle img {
+  width: 27px;
+  height: 27px;
+  margin-left: 5px;
+}

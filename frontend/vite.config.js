@@ -50,8 +50,95 @@ function zapisMapy() {
   };
 }
 
+/**
+ * modeleMapy — własne modele 3D dla edytora mapy.
+ *
+ * `GET  /__modele`        → lista modeli, które scena umie postawić
+ * `POST /__model?nazwa=x` → wgranie pliku `.glb` do `public/scena-3d/assets/`
+ *
+ * PO CO. Edytor stawiał wyłącznie modele z listy wpisanej na sztywno w kodzie,
+ * więc dołożenie własnego domku znaczyło: skopiuj plik do `assets/`, otwórz
+ * `edytor.html`, dopisz nazwę do tablicy `MODELE`. Teraz plik idzie prosto
+ * z okna wyboru, a lista czyta się z dysku — mapę da się budować bez wracania
+ * do kodu.
+ *
+ * CZEGO PILNUJE. Nazwa jest sprowadzana do bezpiecznego sluga (bez ścieżek,
+ * bez kropek, bez znaków spoza `a-z0-9-`), plik musi zaczynać się magicznym
+ * `glTF` (czyli być prawdziwym binarnym GLB) i mieścić się w 25 MB. Wtyczka
+ * żyje TYLKO w serwerze deweloperskim (`apply: "serve"`), więc na produkcji
+ * nie ma żadnej z tych końcówek — nikt nie wgra pliku na Vercela przez HTTP.
+ *
+ * Modele „generatorowe" (drzewo, głaz, kwiat) nie są plikami — buduje je kod
+ * sceny — więc dopisujemy je do listy osobno, żeby edytor widział jeden zbiór.
+ */
+const MODELE_GENERATORA = ["drzewo", "drzewo-lisciaste"];
+
+function modeleMapy() {
+  const katalog = (serwer) => path.resolve(serwer.config.root, "public/scena-3d/assets");
+  const slug = (s) =>
+    String(s || "")
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/\.(glb|gltf)$/i, "")
+      .replace(/[^a-z0-9-]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 48);
+
+  return {
+    name: "ewolucja-modele-mapy",
+    apply: "serve",
+    configureServer(serwer) {
+      serwer.middlewares.use("/__modele", (req, res, next) => {
+        if (req.method !== "GET") return next();
+        let pliki = [];
+        try {
+          pliki = fs.readdirSync(katalog(serwer))
+            .filter((f) => f.toLowerCase().endsWith(".glb"))
+            .map((f) => f.replace(/\.glb$/i, ""));
+        } catch { /* brak katalogu = pusta lista, edytor ma swoje wbudowane */ }
+        const modele = [...new Set([...pliki, ...MODELE_GENERATORA])].sort();
+        res.setHeader("content-type", "application/json");
+        res.end(JSON.stringify({ ok: true, modele }));
+      });
+
+      serwer.middlewares.use("/__model", (req, res, next) => {
+        if (req.method !== "POST") return next();
+        const odpowiedz = (kod, dane) => {
+          res.statusCode = kod;
+          res.setHeader("content-type", "application/json");
+          res.end(JSON.stringify(dane));
+        };
+        const nazwa = slug(new URL(req.url, "http://x").searchParams.get("nazwa"));
+        if (!nazwa) return odpowiedz(400, { ok: false, blad: "pusta nazwa modelu" });
+
+        const kawalki = [];
+        let ile = 0;
+        req.on("data", (k) => {
+          ile += k.length;
+          if (ile > 25_000_000) { req.destroy(); return; }
+          kawalki.push(k);
+        });
+        req.on("end", () => {
+          try {
+            const dane = Buffer.concat(kawalki);
+            if (dane.length < 20 || dane.subarray(0, 4).toString("ascii") !== "glTF") {
+              throw new Error("to nie jest binarny .glb (brak nagłówka glTF)");
+            }
+            fs.mkdirSync(katalog(serwer), { recursive: true });
+            fs.writeFileSync(path.join(katalog(serwer), `${nazwa}.glb`), dane);
+            serwer.config.logger.info(`[modele] ${nazwa}.glb (${dane.length} B)`);
+            odpowiedz(200, { ok: true, nazwa });
+          } catch (e) {
+            odpowiedz(400, { ok: false, blad: String(e.message || e) });
+          }
+        });
+      });
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react(), zapisMapy()],
+  plugins: [react(), zapisMapy(), modeleMapy()],
   server: {
     port: 3000,
     proxy: {

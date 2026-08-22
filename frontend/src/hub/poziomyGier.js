@@ -12,7 +12,7 @@
  * Stąd wychodzi tylko sufit — `monetyMax` — którego gra używa i jako obietnicy,
  * i jako własnego ogranicznika, więc rozjazd nie ma jak powstać.
  *
- * `nazwa` jest opcjonalna: gra z jednym poziomem (Sekret pod puchem) nie ma
+ * `nazwa` jest opcjonalna: gra z jednym poziomem nie ma
  * czego nazywać, więc pokazuje samą kwotę i nie udaje wyboru.
  */
 
@@ -20,10 +20,6 @@ export const POZIOMY_GIER = {
   "pamiec-medrca": [
     { id: "easy", nazwa: "Łatwy", monetyMax: 15 },
     { id: "hard", nazwa: "Średni", monetyMax: 25 },
-  ],
-  "sekret-pod-puchem": [
-    // Pięć rund po najwyżej 5 monet — patrz `RUND` i `NAGRODY` w `PiorkaGame`.
-    { id: "jeden", monetyMax: 25 },
   ],
   "lot-liska": [
     // Trzy obręcze PO KOLEI, każda na osobny strzał. Kolejne pudła obniżają

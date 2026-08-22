@@ -55,3 +55,22 @@ Rozmiar i poświata piórka siedzą w `public/scena-3d/mapa.json` (znak `leaf`):
 pobierana `no-cache`, więc zmiany w niej widać po odświeżeniu — ale sam
 `.glb` idzie zwykłym cache'em przeglądarki i po przemalowaniu bywa potrzebne
 twarde odświeżenie (Ctrl+Shift+R).
+
+## `galezie-sciezki.py` — odnogi ścieżki w scenie 3D
+
+Scena zna dokładnie jedną ścieżkę: tablicę punktów z `mapa.json`. Edytor mapy
+potrafi teraz dokładać do niej gałęzie (`mapa.galezie`), ale zminifikowany
+bundle nic o nich nie wie — bez tej łatki odnogi widać tylko na planie
+w edytorze, a w grze trawa zostaje pusta.
+
+```bash
+python narzedzia/galezie-sciezki.py     # idempotentne, drugi raz nic nie zrobi
+```
+
+Łatka wstrzykuje się zaraz po namalowaniu głównej ścieżki i powtarza ten sam
+zestaw kroków (obrys → wypełnienie → płytki) dla każdej gałęzi, mnożąc grubość
+przez jej `szerokosc`. Trasa bohatera, latarnia i most czytają wyłącznie
+`sciezka`, więc gałąź niczego w rozgrywce nie zmienia.
+
+**Po każdej podmianie bundla trzeba ją nałożyć ponownie** i podbić
+`WERSJA_SCENY` w `src/components/Scena3D.jsx`.

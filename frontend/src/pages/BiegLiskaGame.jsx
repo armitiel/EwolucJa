@@ -57,6 +57,42 @@ const GRAWITACJA = 19;
 const WYSOKOSC_TABLICZKI = 1.55;
 const PROG_ZBIORU = 0.8;
 
+/* ─── Wyrwy w drodze ──────────────────────────────────────────────────────
+   Do tej pory podskok służył WYŁĄCZNIE do zbierania liczb — kto nie chciał
+   liczyć, mógł po prostu biec i nic mu się nie działo. Wyrwy dokładają drugi
+   powód, żeby skakać: dziura w serpentynie, przez którą trzeba przelecieć.
+
+   SZEROKOŚĆ 2.8 m przy prędkości 6.2 m/s i locie ~0.8 s (4.96 m w poziomie)
+   zostawia ponad dwa metry zapasu — wybicie w ostatniej chwili jeszcze
+   przechodzi, ale przebiegnięcie już nie. Wyrwy stoją co ~34 m, czyli mniej
+   więcej co 5 sekund biegu: dość rzadko, żeby liczenie zostało głównym
+   zajęciem, a skok pozostał wydarzeniem.
+
+   ŻYCIA, a nie koniec gry od razu: wpadnięcie kosztuje serce i cofa liska
+   TUŻ PRZED wyrwę, więc dziecko od razu próbuje ten sam skok jeszcze raz.
+   Trzy serca wystarczają na naukę rytmu; po ostatnim partia się kończy i
+   liczą się odpowiedzi zebrane do tej pory (monety zostają — patrz `zakonczPytanie`). */
+const SZEROKOSC_WYRWY = 2.8;
+const ODSTEP_WYRW = 34;
+const ZYCIA_START = 3;
+const CZAS_SPADANIA = 0.62;   // sekundy lotu w przepaść, zanim lisek wróci
+/**
+ * ŁASKA KRAWĘDZI („coyote time"). Skok trwa 0.8 s i niesie liska 4.96 m,
+ * a wyrwa ma 2.8 m — czyli na wybicie jest realnie ~0.35 s. Dla sześciolatka
+ * z palcem nad ekranem to za mało: dziecko widzi dziurę, dotyka pół kroku za
+ * późno i spada, choć „wiedziało".
+ *
+ * Przez te 0.18 s po wbiegnięciu na wyrwę lisek jeszcze NIE spada — dotknięcie
+ * w tym oknie ratuje sytuację i wybija go z krawędzi (przeleci resztę dziury
+ * z ogromnym zapasem). Ten trik jest standardem w platformówkach właśnie
+ * dlatego, że nie ułatwia gry, tylko usuwa karę za rzecz, której gracz nie
+ * jest w stanie zobaczyć: różnicę jednej klatki.
+ */
+const LASKA_KRAWEDZI = 0.18;
+/* Ile podskoków dziecko musi zrobić, zanim podpowiedź gestu zniknie.
+   Trzy = „umiem to", a nie „przypadkiem dotknąłem". */
+const SKOKI_BEZ_PODPOWIEDZI = 3;
+
 const ogranicz = (n, min, max) => Math.max(min, Math.min(max, n));
 const losowe = (n) => Math.floor(Math.random() * n);
 
@@ -168,6 +204,10 @@ export default function BiegLiskaGame({ osadzona = false, poziom = null, onWyjsc
   const [dobrze, setDobrze] = useState(0);
   const [monety, setMonety] = useState(0);
   const [reakcja, setReakcja] = useState(null);          // { ton, tekst }
+  const [zycia, setZycia] = useState(ZYCIA_START);       // serca — wyrwy w drodze
+  /* Ile razy dziecko już podskoczyło w tej partii. Po `SKOKI_BEZ_PODPOWIEDZI`
+     podpowiedź gestu znika — dalej tylko zasłania drogę. */
+  const [skokow, setSkokow] = useState(0);
   // Nagroda Wizkora za domkniętą misję. Ekran wyniku pisze o niej tylko wtedy,
   // gdy naprawdę była — patrz `misjeGier.rozliczPartie`.
   const [nagrodaMisji, setNagrodaMisji] = useState(0);
@@ -188,6 +228,8 @@ export default function BiegLiskaGame({ osadzona = false, poziom = null, onWyjsc
     setDobrze(0);
     setMonety(0);
     setReakcja(null);
+    setZycia(ZYCIA_START);
+    setSkokow(0);
     setNagrodaMisji(0);
     wyplaconoRef.current = false;
     setFaza("gra");
@@ -200,7 +242,7 @@ export default function BiegLiskaGame({ osadzona = false, poziom = null, onWyjsc
      monety, więc partia kończyła się, a `wygrana` w łańcuchu misji zostawała
      na `false`: kafelek w HUD wisiał na „0/1" po przejściu trasy, nagrody od
      Wizkora nie było, a bezpiecznik w hubie (`misjaDoZaplaty`) nie miał czego
-     złapać, bo szuka misji WYGRANEJ. To samo robi `MemoryGame` i `PiorkaGame`
+     złapać, bo szuka misji WYGRANEJ. To samo robi `MemoryGame` i `ChoinkaLaunchGame`
      — ta gra po prostu powstała, zanim łańcuch dostał swoją czwartą misję.
 
      Gdy misji nie ma albo bucik nie został znaleziony na mapie, `rozliczPartie`
@@ -320,6 +362,32 @@ export default function BiegLiskaGame({ osadzona = false, poziom = null, onWyjsc
     const DLUGOSC = krzywa.getLength();
     const up = new THREE.Vector3(0, 1, 0);
 
+    /* ─── Rozkład wyrw ────────────────────────────────────────────────────
+       Wyrwy są STAŁE na czas partii (wchodzą w geometrię drogi), losujemy je
+       raz, przy budowie sceny. Pierwsza dopiero od 30 m, żeby dziecko zdążyło
+       ruszyć i przeczytać podpowiedź o podskoku, zanim pojawi się dziura.
+       Zapas na końcu (`DLUGOSC - 8`) chroni przed wyrwą sklejoną z pierwszą
+       przez zawinięcie pętli — dwie dziury tuż obok siebie to nie zadanie,
+       tylko pułapka. */
+    const WYRWY = [];
+    {
+      const ile = Math.max(3, Math.round(DLUGOSC / ODSTEP_WYRW));
+      const odstep = DLUGOSC / ile;
+      for (let i = 0; i < ile; i++) {
+        const srodek = 30 + i * odstep + (Math.random() - 0.5) * odstep * 0.3;
+        const od = srodek - SZEROKOSC_WYRWY / 2;
+        const doK = srodek + SZEROKOSC_WYRWY / 2;
+        if (doK > DLUGOSC - 8) continue;
+        WYRWY.push({ od, do: doK, srodek });
+      }
+    }
+    /* Czy dany punkt trasy leży NAD przepaścią. Używa tego i budowa drogi
+       (pomija kwadraty), i pętla klatek (sprawdza, czy lisek ma pod sobą grunt). */
+    const wWyrwie = (d) => {
+      const x = ((d % DLUGOSC) + DLUGOSC) % DLUGOSC;
+      return WYRWY.find((w) => x > w.od && x < w.do) || null;
+    };
+
     /* Wstęga drogi + dwie ściany klifu w dół. Droga NIE ma barierek —
        z trasy i tak nie da się zejść, więc barierka kłamałaby, że próbowano. */
     {
@@ -338,8 +406,19 @@ export default function BiegLiskaGame({ osadzona = false, poziom = null, onWyjsc
         lewa.push(L.x, L.y, L.z, Ld.x, Ld.y, Ld.z);
         prawa.push(R.x, R.y, R.z, Rd.x, Rd.y, Rd.z);
       }
+      /* WYRWA = POMINIĘTY KWADRAT SIATKI, a nie osobny obiekt „dziura".
+         Wierzchołki zostają na miejscu (dzięki temu wszystkie trzy powierzchnie
+         mają wspólny indeks), po prostu nie łączymy ich w trójkąty tam, gdzie
+         ma być przepaść. Efekt: przez otwór widać niebo i skałki pod drogą,
+         a ściany klifu urywają się razem z nawierzchnią — bez tego dziura
+         wyglądałaby jak dziurka w dywanie zawieszonym w powietrzu. */
       const idx = [];
-      for (let i = 0; i < SEG; i++) { const a = i * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
+      for (let i = 0; i < SEG; i++) {
+        const dSeg = ((i + 0.5) / SEG) * DLUGOSC;
+        if (wWyrwie(dSeg)) continue;
+        const a = i * 2;
+        idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
+      }
       const mk = (pos, mat) => {
         const g = new THREE.BufferGeometry();
         g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
@@ -364,6 +443,10 @@ export default function BiegLiskaGame({ osadzona = false, poziom = null, onWyjsc
       let k = 0;
       for (let i = 0; i < ile; i++) {
         const u = i / ile;
+        // Nad wyrwą nie ma na czym położyć kamyczka - i dobrze: przerwa w
+        // rzedzie kamieni jest pierwszym sygnałem „uwaga, dziura", widocznym
+        // wcześniej niż sam otwór, bo kamienie są wyżej niż nawierzchnia.
+        if (wWyrwie(u * DLUGOSC)) continue;
         const p = krzywa.getPointAt(u);
         const t = krzywa.getTangentAt(u);
         const bok = new THREE.Vector3().crossVectors(t, up).normalize();
@@ -376,8 +459,41 @@ export default function BiegLiskaGame({ osadzona = false, poziom = null, onWyjsc
           inst.setMatrixAt(k++, m4);
         });
       }
+      /* Pominięte kamyczki (te nad wyrwami) zostawiłyby w buforze macierze
+         jednostkowe, czyli kulki zwalone na kupę w środku świata. Przycinamy
+         licznik do faktycznie wypełnionych instancji. */
+      inst.count = k;
       inst.castShadow = true;
       scena.add(inst);
+
+      /* Słupki ostrzegawcze po obu stronach każdej wyrwy. Sama dziura na
+         zakręcie serpentyny bywa widoczna dopiero z 5 m — czyli za późno na
+         wybicie. Dwa ciepłoczerwone paliki widać zza łuku i mówią „tu się
+         urywa" zanim jeszcze widać, że się urywa. Kolor jest ten sam, co
+         krzyżyk zamykania w grze: czerwień znaczy w tej grze „stop". */
+      if (WYRWY.length) {
+        const drewno = new THREE.MeshStandardMaterial({ color: 0xc2432f, roughness: 0.75 });
+        const slupki = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.09, 0.11, 0.62, 7), drewno, WYRWY.length * 4);
+        const mm = new THREE.Matrix4();
+        let s = 0;
+        WYRWY.forEach((w) => {
+          [w.od - 0.45, w.do + 0.45].forEach((d) => {
+            const p = krzywa.getPointAt((((d % DLUGOSC) + DLUGOSC) % DLUGOSC) / DLUGOSC);
+            const t = krzywa.getTangentAt((((d % DLUGOSC) + DLUGOSC) % DLUGOSC) / DLUGOSC);
+            const bok = new THREE.Vector3().crossVectors(t, up).normalize();
+            [-1, 1].forEach((strona) => {
+              const poz = p.clone().addScaledVector(bok, strona * 1.02);
+              poz.y += 0.31;
+              mm.identity();
+              mm.setPosition(poz);
+              slupki.setMatrixAt(s++, mm);
+            });
+          });
+        });
+        slupki.count = s;
+        slupki.castShadow = true;
+        scena.add(slupki);
+      }
     }
 
     // Chmury nad horyzontem i pod drogą + skałki w przepaści budują wysokość.
@@ -458,6 +574,9 @@ export default function BiegLiskaGame({ osadzona = false, poziom = null, onWyjsc
       d: 0, v: 6.2, y: 0, vy: 0, wSkoku: false,
       nrPytania: 0, aktywne: null, nastepneOd: 14,
       dobrze: 0, meta: null, squash: 0,
+      // wyrwy: ile serc zostało, czy lecimy w przepaść i ile jeszcze trwa
+      // łaska krawędzi nad wyrwą, na którą właśnie wbiegliśmy
+      zycia: ZYCIA_START, spadanie: 0, powrotNa: 0, laska: 0, laskaWyrwa: null,
     };
 
     const tabliczki = [];      // aktywne sprite'y odpowiedzi
@@ -519,10 +638,34 @@ export default function BiegLiskaGame({ osadzona = false, poziom = null, onWyjsc
       }
     };
 
+    /* Wpadnięcie w wyrwę. Nie kończy partii od razu: zabiera serce, przez
+       chwilę pokazuje lot w przepaść (czytelna informacja zwrotna — dziecko
+       widzi, ŻE spadło, a nie tylko że coś mrugnęło), po czym stawia liska
+       6 m przed tą samą wyrwą, żeby od razu spróbować jeszcze raz.
+       Pytanie w toku zostaje nietknięte — wyrwa karze za rytm, nie za liczenie. */
+    const wpadnij = (wyrwa) => {
+      if (stan.spadanie > 0) return;
+      stan.spadanie = CZAS_SPADANIA;
+      stan.wSkoku = false;
+      stan.vy = 0;
+      stan.laska = 0;
+      stan.laskaWyrwa = null;
+      stan.powrotNa = (((wyrwa.od - 6) % DLUGOSC) + DLUGOSC) % DLUGOSC;
+      stan.zycia -= 1;
+      setZycia(stan.zycia);
+      setReakcja({ ton: "zle", tekst: stan.zycia > 0 ? "Ups! Wyrwa w drodze…" : "Ostatnie serce…" });
+      if (biegAkcja) biegAkcja.timeScale = 0.35;
+      try { krokiStop(); } catch {}
+    };
+
     const skok = () => {
-      if (stan.wSkoku || stan.meta !== null) return;
+      if (stan.wSkoku || stan.meta !== null || stan.spadanie > 0) return;
       stan.wSkoku = true;
       stan.vy = WYBICIE;
+      // Wybicie z krawędzi w oknie łaski: dług wobec grawitacji umorzony.
+      stan.laska = 0;
+      stan.laskaWyrwa = null;
+      setSkokow((n) => n + 1);
       if (biegAkcja) biegAkcja.timeScale = 0.12;   // nogi „zamierają" w locie
       try { krokiStop(); } catch {}
     };
@@ -551,6 +694,40 @@ export default function BiegLiskaGame({ osadzona = false, poziom = null, onWyjsc
       const dt = Math.min(zegar.getDelta(), 0.05);
       const teraz = performance.now();
 
+      /* ─── Lot w przepaść ───────────────────────────────────────────────
+         Podczas spadania trasa stoi: lisek nie posuwa się naprzód, tylko leci
+         w dół. Wychodzimy z klatki wcześnie, żeby żadna inna zasada (zadania,
+         tabliczki, meta) nie zadziałała, kiedy liska formalnie nie ma na drodze. */
+      if (stan.spadanie > 0) {
+        stan.spadanie -= dt;
+        stan.y -= 16 * dt * (1 + (CZAS_SPADANIA - stan.spadanie) * 1.6);
+        cialo.rotation.x = -0.5;
+        if (stan.spadanie <= 0) {
+          if (stan.zycia <= 0) {
+            // Ostatnie serce — partia się kończy, zebrane odpowiedzi zostają.
+            stan.spadanie = 0;
+            stan.meta = null;
+            zywe && setFaza("koniec");
+            return;
+          }
+          stan.spadanie = 0;
+          stan.d = stan.powrotNa;
+          stan.y = 0;
+          stan.squash = 1;
+          cialo.rotation.x = 0;
+          if (biegAkcja) biegAkcja.timeScale = 1.15;
+          try { krokiGraj({ bieg: true }); } catch {}
+        }
+        const uS = stan.d / DLUGOSC;
+        const pS = krzywa.getPointAt(uS);
+        lis.position.set(pS.x, pS.y + stan.y, pS.z);
+        kamera.lookAt(lis.position);
+        if (mixer) mixer.update(dt);
+        renderer.render(scena, kamera);
+        raf = requestAnimationFrame(klatka);
+        return;
+      }
+
       stan.d = (stan.d + stan.v * dt) % DLUGOSC;
 
       // skok + lądowanie
@@ -566,6 +743,25 @@ export default function BiegLiskaGame({ osadzona = false, poziom = null, onWyjsc
         }
       }
       stan.squash = Math.max(0, stan.squash - dt * 6);
+
+      /* Grunt pod łapami. Sprawdzamy DOPIERO po policzeniu skoku, bo lisek
+         w powietrzu przelatuje nad wyrwą bez konsekwencji — o to w niej chodzi.
+         `stan.y <= 0.05` zamiast `=== 0` daje zapas na lądowanie tuż przy
+         krawędzi: przy dokładnie zerowej wysokości pojedyncza klatka na styku
+         potrafiła wpuścić liska w dziurę, w którą już dolatywał. */
+      if (!stan.wSkoku && stan.y <= 0.05 && stan.meta === null) {
+        const wyrwa = wWyrwie(stan.d);
+        if (wyrwa) {
+          // Łaska krawędzi liczy się OSOBNO dla każdej wyrwy — inaczej po
+          // wpadnięciu i powrocie zegar byłby już zużyty.
+          if (stan.laskaWyrwa !== wyrwa) { stan.laskaWyrwa = wyrwa; stan.laska = LASKA_KRAWEDZI; }
+          stan.laska -= dt;
+          if (stan.laska <= 0) wpadnij(wyrwa);
+        } else if (stan.laskaWyrwa) {
+          stan.laskaWyrwa = null;
+          stan.laska = 0;
+        }
+      }
 
       // zadania: aktywacja i rozstrzyganie
       if (!stan.aktywne && stan.meta === null && stan.nrPytania < ILE_PYTAN
@@ -673,11 +869,28 @@ export default function BiegLiskaGame({ osadzona = false, poziom = null, onWyjsc
   return (
     <main className={`gra-root bieg-gra${osadzona ? " gra-osadzona" : ""}`} data-testid="gra-bieg-liska">
       <div className="gra-pasek bieg-pasek">
-        {faza === "gra" && pytanie ? (
-          <span className="bieg-postep" aria-label={`Pytanie ${pytanie.nr} z ${ILE_PYTAN}`}>
-            <b>{pytanie.nr}</b><span>/ {ILE_PYTAN}</span>
-          </span>
-        ) : null}
+        {/* LEWY RÓG PASKA = STAN GRACZA (serca, potem postęp), PRAWY = wyjście.
+            Wcześniej wszystko było dosunięte do prawej, więc licznik pytań
+            wpadał pod czerwony krzyżyk, a pigułka z zadaniem — wyśrodkowana
+            osobno — nachodziła na jedno i drugie. Teraz pasek ma dwa stałe
+            końce, a zadanie mieszka POD nim (patrz `.bieg-info`), więc żaden
+            element nie zależy od tego, jak długi akurat jest sąsiad. */}
+        <div className="bieg-pasek-lewo">
+          {/* Puste serce zostaje na swoim miejscu — znikające serca gubią
+              informację, ILE ich było na starcie. */}
+          {faza === "gra" ? (
+            <span className="bieg-zycia" aria-label={`Życia: ${zycia} z ${ZYCIA_START}`}>
+              {Array.from({ length: ZYCIA_START }, (_, i) => (
+                <i key={i} className={i < zycia ? "jest" : "puste"} aria-hidden="true">♥</i>
+              ))}
+            </span>
+          ) : null}
+          {faza === "gra" && pytanie ? (
+            <span className="bieg-postep" aria-label={`Pytanie ${pytanie.nr} z ${ILE_PYTAN}`}>
+              <b>{pytanie.nr}</b><span>/ {ILE_PYTAN}</span>
+            </span>
+          ) : null}
+        </div>
         <button type="button" className="gra-x" onClick={wrocDoHuba} aria-label="Zamknij grę">×</button>
       </div>
 
@@ -729,28 +942,56 @@ export default function BiegLiskaGame({ osadzona = false, poziom = null, onWyjsc
             onPointerDown={(e) => { e.preventDefault(); skokRef.current?.(); }}
             aria-label="Scena biegu. Dotknij ekranu, żeby lisek podskoczył."
           />
-          {pytanie ? (
-            <div className="bieg-pytanie" role="status" key={pytanie.nr}>{pytanie.tekst}</div>
-          ) : (
-            <div className="bieg-pytanie is-cicha" role="status">Biegnij! Zaraz pierwsze zadanie…</div>
-          )}
-          {reakcja ? (
-            <div className={`bieg-reakcja is-${reakcja.ton}`} role="status" key={reakcja.tekst}>
-              {reakcja.tekst}
+          {/* Zadanie i reakcja stoją JEDNO POD DRUGIM w kolumnie, zamiast być
+              osobno kotwiczone do góry ekranu na sztywnych odległościach.
+              Dzięki temu długie zadanie („12 − 7 = ?") samo odsuwa reakcję
+              w dół, a nie wchodzi na nią. */}
+          <div className="bieg-info">
+            {pytanie ? (
+              <div className="bieg-pytanie" role="status" key={pytanie.nr}>{pytanie.tekst}</div>
+            ) : (
+              <div className="bieg-pytanie is-cicha" role="status">Biegnij! Zaraz pierwsze zadanie…</div>
+            )}
+            {reakcja ? (
+              <div className={`bieg-reakcja is-${reakcja.ton}`} role="status" key={reakcja.tekst}>
+                {reakcja.tekst}
+              </div>
+            ) : null}
+          </div>
+          {/* Podpowiedź gestu ZNIKA PO NAUCE. Wcześniej wisiała przez całą
+              partię — a to jedyny gest w tej grze, więc po trzecim podskoku
+              nie uczy już niczego, tylko zasłania dolny kawałek drogi, czyli
+              dokładnie ten, na którym widać nadchodzącą wyrwę.
+              Do tego momentu jest ZNACZNIE większa niż wcześniej: dziecko ma
+              ją przeczytać kątem oka w biegu, a nie szukać na dole ekranu. */}
+          {skokow <= SKOKI_BEZ_PODPOWIEDZI ? (
+            <div
+              className={`bieg-podpowiedz${skokow >= SKOKI_BEZ_PODPOWIEDZI ? " is-gasnie" : ""}`}
+              aria-hidden="true"
+            >
+              <span className="bieg-palec">☝</span>
+              <span>Dotknij — podskok</span>
             </div>
           ) : null}
-          <div className="bieg-podpowiedz" aria-hidden="true">
-            <span className="bieg-palec">☝</span>
-            <span>dotknij — podskok</span>
-          </div>
         </div>
       ) : null}
 
       {faza === "koniec" ? (
         <RewardScreen
           eyebrow="BIEG LISKA"
-          title={dobrze === ILE_PYTAN ? "Mistrz liczenia!" : dobrze >= 3 ? "Świetny bieg!" : "Dobiegłeś do mety!"}
-          subtitle={`Zebrane odpowiedzi: ${dobrze} z ${ILE_PYTAN}.`}
+          /* Koniec przez wyrwy dostaje własny tytuł — „Dobiegłeś do mety!"
+             po wpadnięciu w przepaść brzmiałoby jak kpina. Monety i tak
+             zostają, więc to nie jest przegrana, tylko krótszy bieg. */
+          title={
+            zycia <= 0
+              ? "Wyrwa Cię złapała!"
+              : dobrze === ILE_PYTAN ? "Mistrz liczenia!" : dobrze >= 3 ? "Świetny bieg!" : "Dobiegłeś do mety!"
+          }
+          subtitle={
+            zycia <= 0
+              ? `Serca się skończyły, ale odpowiedzi zostają: ${dobrze} z ${ILE_PYTAN}.`
+              : `Zebrane odpowiedzi: ${dobrze} z ${ILE_PYTAN}.`
+          }
           coins={monety + nagrodaMisji}
           gwiazdki={dobrze >= ILE_PYTAN ? 3 : dobrze >= 3 ? 2 : 1}
           /* Rozbicie wchodzi tylko wtedy, gdy nagroda ma dwa źródła — patrz
@@ -761,6 +1002,7 @@ export default function BiegLiskaGame({ osadzona = false, poziom = null, onWyjsc
           ]}
           kafelki={[
             { wartosc: `${dobrze}/${ILE_PYTAN}`, etykieta: "wyniki" },
+            { wartosc: `${zycia}/${ZYCIA_START}`, etykieta: "serca" },
             { wartosc: monety, etykieta: "monety" },
           ]}
           akcje={[

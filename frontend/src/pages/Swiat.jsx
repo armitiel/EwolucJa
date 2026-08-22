@@ -57,6 +57,18 @@ import {
   ZADANIA as ZADANIA_WIZKORA,
 } from "../hub/zadanieWizkora.js";
 import { poziomDomyslny, poziomyGry } from "../hub/poziomyGier.js";
+import {
+  aktywneZbieranie,
+  biezacePuzzle,
+  celPuzzli,
+  czyOdblokowana,
+  doliczPuzel as doliczKawalekPuzzli,
+  PREFIKS_PUZLA,
+  rozpocznijZbieranie,
+  skasujPuzzle,
+  stanPuzzli,
+  ZDARZENIE_ZMIANY as PUZZLE_ZMIANA,
+} from "../hub/puzzleGier.js";
 import WyborPoziomu from "../hub/WyborPoziomu.jsx";
 import {
   pokazZnakNaMapie,
@@ -140,10 +152,6 @@ const ZNAK_PANELU = {};
 
 /**
  * Znaki w scenie, które ODPALAJĄ MINIGRĘ zamiast otwierać panel huba.
- *
- * `leaf` to identyfikator historyczny — model pod nim to dziś PIÓRKO
- * (`assets/lisc.glb`), nie liść. Nie zmieniam id w scenie, bo siedzi w bundlu
- * i w zapisanych stanach; zmiana nazwy dałaby tylko nowe miejsca do pomyłki.
  */
 const ZNAK_GRY = Object.fromEntries(MISJE.map((m) => [m.znak, m.id]));
 
@@ -186,9 +194,14 @@ const DevRezyserka = lazy(() => import("../hub/DevRezyserka.jsx"));
  */
 const Reflektor = lazy(() => import("../hub/Reflektor.jsx"));
 
+/**
+ * Układanka odblokowująca minigrę (brama z puzzli). `lazy` — wchodzi raz
+ * na grę, przy pierwszym podejściu, i nie ma czego robić w paczce startowej.
+ */
+const PuzzleBrama = lazy(() => import("../hub/PuzzleBrama.jsx"));
+
 const GRY_OSADZONE = {
   "pamiec-medrca": lazy(() => import("./MemoryGame.jsx")),
-  "sekret-pod-puchem": lazy(() => import("./PiorkaGame.jsx")),
   "lot-liska": lazy(() => import("./ChoinkaLaunchGame.jsx")),
   "bieg-liska": lazy(() => import("./BiegLiskaGame.jsx")),
 };
@@ -234,10 +247,6 @@ const WYPRZEDZENIE_MS = 160;
  * czyta linijkami: wiersz musi kończyć się tam, gdzie kończy się myśl.
  */
 const ZAPROSZENIA = {
-  "sekret-pod-puchem": {
-    tekst: "Znalazłem złote piórko!\nTyle monet można wygrać:",
-    wyroznienie: "złote piórko",
-  },
   "pamiec-medrca": {
     tekst: "Znalazłem kartę Mędrca!\nWybierz, jak trudno gramy:",
     wyroznienie: "kartę Mędrca",
@@ -362,6 +371,29 @@ export default function Swiat() {
   // rozmowa. Do czarodzieja podchodzi się po coś.
   const [zaproszenie, setZaproszenie] = useState(null);
   /**
+   * Układanka na ekranie: `null` albo id gry, której puzzle właśnie się
+   * układa. Osobno od `zaproszenie` — układanka wchodzi też z biblioteki gier.
+   */
+  const [ukladanka, setUkladanka] = useState(null);
+  /**
+   * Etap puzzli do LICZNIKA w HUD: `null` poza etapem, inaczej stan
+   * z `puzzleGier` (zebrane/cel/komplet). Trzymany w stanie Reacta, bo
+   * zbieranie w biegu zmienia zapis poza Reactem — patrz nasłuch niżej.
+   */
+  const [puzzleHud, setPuzzleHud] = useState(() => biezacePuzzle());
+  /**
+   * Poziom wybrany w oknie liska, ZANIM brama z puzzli przejęła wejście —
+   * po ułożeniu gra ma ruszyć z tym wyborem, nie z domyślnym. Ref, bo
+   * między wyborem a startem stoi cały ekran układanki.
+   */
+  const poziomPoUkladanceRef = useRef(null);
+  /**
+   * Brama puzzli dla ścieżek zdefiniowanych WYŻEJ w pliku (kafelek
+   * biblioteki). Sama funkcja powstaje niżej — potrzebuje `pokazKomunikat`
+   * — więc wcześniejsze ścieżki dostają ją przez ref.
+   */
+  const bramaRef = useRef(() => false);
+  /**
    * ZNALEZIENIE ZNAKU JEST OSOBNĄ WYGRANĄ. Wbiegnięcie w kartę albo w piórko
    * kończy pierwszą połowę misji — dziecko szukało tego przez kilka minut
    * biegania po polanie i musi to zobaczyć NATYCHMIAST, a nie dopiero po
@@ -432,7 +464,10 @@ export default function Swiat() {
      `misjaHud`     — czy pokazać kafelek „0/1" u góry. Misja może go wyłączyć
        (`bezLicznikaHud`), a to nie znaczy, że przestała trwać. */
   const misjaAktywna = misje.find((m) => m.aktywna) || null;
-  const misjaHud = misje.find((m) => m.aktywna && !m.def.bezLicznikaHud) || null;
+  /* Kafelek „szukam znaku" czeka, aż puzzle będą ułożone — w etapie
+     kawałków dziecko szuka ICH, a nie znaku (postęp niesie toast i Wizkor). */
+  const misjaHud =
+    misje.find((m) => m.aktywna && !m.def.bezLicznikaHud && czyOdblokowana(m.id)) || null;
   const misjaDoZaplaty = misje.find((m) => m.wygrana && !m.wyplacona) || null;
   const misjaDoNagrodyZnalezienia = misje.find((m) => m.doNagrodyZaZnalezienie) || null;
   /**
@@ -518,6 +553,8 @@ export default function Swiat() {
    */
   const uruchomGre = useCallback(
     (pozycja) => {
+      // BRAMA Z PUZZLI: pierwsza partia wymaga zebrania i ułożenia obrazka.
+      if (bramaRef.current(pozycja.id, null)) return;
       if (GRY_OSADZONE[pozycja.id] && GRY_W_HUBIE.includes(pozycja.id)) {
         otworzGre(pozycja.id);
         return;
@@ -825,7 +862,7 @@ export default function Swiat() {
 
   /**
    * Misje domykają się W INNYCH komponentach: partię kończy `MemoryGame`
-   * albo `PiorkaGame`, rysowane nad hubem. Nasłuch zamiast odpytywania —
+   * albo `BiegLiskaGame`, rysowane nad hubem. Nasłuch zamiast odpytywania —
    * licznik ma podskoczyć w tej samej chwili, w której padła ostatnia para,
    * a nie dopiero po powrocie do świata.
    */
@@ -1036,6 +1073,71 @@ export default function Swiat() {
   }, []);
 
   /**
+   * Mapa pod bieżące ZBIERANIE PUZZLI. Kawałki stoją na polanie tylko wtedy,
+   * gdy jakaś gra właśnie czeka na komplet — poza polowaniem mapa nie obiecuje
+   * zbierania, za którym nic nie stoi (ta sama zasada co przy gwiazdkach).
+   * Gra 2×2 używa CZTERECH pierwszych znaków `puzel-*`, gry 3×3 — dziewięciu.
+   */
+  const odswiezPuzleNaMapie = useCallback((proby = 20) => {
+    const scena = scenaRef.current;
+    if (!scena) return false;
+    if (!znakiGotowe(scena)) {
+      if (proby > 0) setTimeout(() => odswiezPuzleNaMapie(proby - 1), 200);
+      return false;
+    }
+    const wszystkie = znakiZPrefiksem(scena, PREFIKS_PUZLA);
+    if (!wszystkie.length) return false;
+    const zbieranie = aktywneZbieranie();
+    if (!zbieranie) {
+      for (const znak of wszystkie) schowajZnakZMapy(scena, znak);
+      return true;
+    }
+    // Kolejność po numerze, nie po liście ze sceny — gra 2×2 ma dostawać
+    // ZAWSZE te same cztery kawałki, niezależnie od kolejności wczytania.
+    const kolejnosc = [...wszystkie].sort(
+      (a, b) => (parseInt(a.split("-")[1], 10) || 0) - (parseInt(b.split("-")[1], 10) || 0)
+    );
+    const zabrane = new Set(zbieranie.zebraneZnaki || []);
+    kolejnosc.forEach((znak, i) => {
+      if (i < zbieranie.cel && !zabrane.has(znak)) pokazZnakNaMapie(scena, znak);
+      else schowajZnakZMapy(scena, znak);
+    });
+    return true;
+  }, []);
+
+  /**
+   * BRAMA Z PUZZLI — jedno wejście dla obu ścieżek startu gry (okno liska
+   * i kafelek biblioteki). Gra bez ułożonej układanki nie startuje: komplet
+   * kawałków otwiera układankę, brak kompletu — zbieranie po mapie.
+   * Zwraca `true`, gdy brama przejęła wejście; ułożona brama jest
+   * przezroczysta na zawsze (`czyOdblokowana`).
+   */
+  const bramaPuzzli = useCallback(
+    (id, poziom) => {
+      if (czyOdblokowana(id)) return false;
+      const stan = stanPuzzli(id);
+      poziomPoUkladanceRef.current = poziom || null;
+      // Arkusz (biblioteka gier) schodzi — i układanka, i zbieranie dzieją
+      // się na mapie, nie pod otwartym panelem.
+      zamknij();
+      if (stan.komplet) {
+        setUkladanka(id);
+        return true;
+      }
+      rozpocznijZbieranie(id);
+      odswiezPuzleNaMapie();
+      // „4 kawałki" / „9 kawałków" — odmiana, nie szablon.
+      const ile = stan.cel === 4 ? "4 kawałki" : `${stan.cel} kawałków`;
+      pokazKomunikat(`Znajdź ${ile} obrazka`, {
+        opis: `Znajdź ${ile} obrazka na mapie`,
+      });
+      return true;
+    },
+    [zamknij, odswiezPuzleNaMapie, pokazKomunikat]
+  );
+  useEffect(() => { bramaRef.current = bramaPuzzli; }, [bramaPuzzli]);
+
+  /**
    * Zielony przycisk w oknie czarodzieja. Co robi, mówi `akcja` z kwestii —
    * bo ta sama postać w czterech stanach zadania proponuje cztery różne
    * rzeczy. Zamknięcie krzyżykiem albo dotknięciem obok NIGDY nie startuje
@@ -1063,19 +1165,33 @@ export default function Swiat() {
       const id = akcja.slice(5);
       const stan = ujawnijMisje(id);
       setMisje(stanMisji());
-      // ZNAK WCHODZI NA MAPĘ OD RAZU. Dziecko wychodzi z rozmowy prosto
-      // w las i musi mieć czego szukać — czekanie na kolejne wejście do
-      // świata byłoby dla niego po prostu brakiem zadania.
       try { odswiezZnakiMisji(); } catch {}
       rozstanie();
-      // Komunikat mówi CO zrobić, a nie „przyjęto zadanie": to jedyne zdanie,
-      // które zostaje dziecku na ekranie po zamknięciu okna.
-      if (stan) pokazKomunikat(`Znajdź ${stan.def.szukaj} na mapie`);
+      /* MISJA ZACZYNA SIĘ OD PUZZLI. Zlecenie rozsypuje kawałki obrazka po
+         mapie OD RAZU — dziecko wychodzi z rozmowy prosto w las i musi mieć
+         czego szukać. Znak gry wejdzie dopiero po ułożeniu układanki
+         (`naMapie` w misjeGier pilnuje tego samego warunku). Stara ścieżka
+         „znajdź znak" zostaje dla misji bez bramy i po ułożeniu. */
+      if (stan && !czyOdblokowana(id)) {
+        rozpocznijZbieranie(id);
+        odswiezPuzleNaMapie();
+        const cel = stanPuzzli(id).cel;
+        const ile = cel === 4 ? "4 kawałki" : `${cel} kawałków`;
+        pokazKomunikat(`Znajdź ${ile} obrazka`, { opis: `Znajdź ${ile} obrazka na mapie` });
+      } else if (stan) {
+        pokazKomunikat(`Znajdź ${stan.def.szukaj} na mapie`);
+      }
       return;
     }
     if (typeof akcja === "string" && akcja.startsWith("naplac:")) {
       setPowitanie(null);
       setNagroda(akcja.slice(7));
+      return;
+    }
+    if (typeof akcja === "string" && akcja.startsWith("ukladanka:")) {
+      // „Układam!" — okno Wizkora schodzi, na jego miejsce wchodzi układanka.
+      setPowitanie(null);
+      setUkladanka(akcja.slice(10));
       return;
     }
     if (typeof akcja === "string" && akcja.startsWith("zlecReal:")) {
@@ -1096,7 +1212,7 @@ export default function Swiat() {
       return;
     }
     rozstanie();
-  }, [powitanie, rozstanie, pokazKomunikat, odswiezZnakiMisji, otworz, przeliczNieprzeczytane, mrugnijListy]);
+  }, [powitanie, rozstanie, pokazKomunikat, odswiezZnakiMisji, odswiezPuzleNaMapie, otworz, przeliczNieprzeczytane, mrugnijListy]);
 
   // Uchwyt do konsoli — czekanie na dziesięć gwiazdek przy każdym sprawdzeniu
   // licznika byłoby nie do zniesienia:
@@ -1224,15 +1340,30 @@ export default function Swiat() {
       },
     ];
 
-    // Cztery kwestie na każdą misję — tyle, ile ma etapów.
+    // Sześć kwestii na każdą misję — tyle, ile ma etapów, ODKĄD misja
+    // zaczyna się od puzzli: zlecenie → kawałki → układanie → szukanie znaku
+    // → gra → wypłata. Stany puzzli są PODSTAWIONE (`puzzle` w stanie misji),
+    // więc podgląd nie zależy od prawdziwego zapisu i nic w nim nie zmienia.
     const poGwiazdkach = gwiazdkiStan({ spelnione: true, wyplacone: true, aktywne: false });
+    const puzzlePrzed = (def, nadpisz) => ({
+      brama: true, ulozona: false, komplet: false,
+      cel: celPuzzli(def.id), zebrane: 0, ...nadpisz,
+    });
     for (const def of MISJE) {
       const krotki = def.tytul.split(" ")[0];
       pozycje.push(
         { grupa: "Okno Wizkora", etykieta: `${krotki}: zlecenie`,
           odpal: () => okno(poGwiazdkach, misjaStan(def, { ujawniona: false })) },
+        { grupa: "Okno Wizkora", etykieta: `${krotki}: kawałki`,
+          odpal: () => okno(poGwiazdkach, misjaStan(def, { puzzle: puzzlePrzed(def) })) },
+        { grupa: "Okno Wizkora", etykieta: `${krotki}: układanie`,
+          odpal: () => okno(poGwiazdkach, misjaStan(def, {
+            puzzle: puzzlePrzed(def, { komplet: true, zebrane: celPuzzli(def.id) }),
+          })) },
         { grupa: "Okno Wizkora", etykieta: `${krotki}: szukanie`,
-          odpal: () => okno(poGwiazdkach, misjaStan(def)) },
+          // `ulozona: true` — kwestia szukania znaku, niezależnie od tego,
+          // czy prawdziwe puzzle są w tym zapisie ułożone.
+          odpal: () => okno(poGwiazdkach, misjaStan(def, { puzzle: { brama: true, ulozona: true } })) },
         { grupa: "Okno Wizkora", etykieta: `${krotki}: gra`,
           odpal: () => okno(poGwiazdkach, misjaStan(def, { znaleziona: true })) },
         { grupa: "Okno Wizkora", etykieta: `${krotki}: wypłata`,
@@ -1319,10 +1450,40 @@ export default function Swiat() {
           pokazKomunikat("DEV: zadanie w realu zlecone");
         },
       },
+      // Puzzle przed grami: zbieranie, komplet i sama układanka na żądanie.
+      ...MISJE.map((def) => ({
+        grupa: "Puzzle",
+        etykieta: `Zbieranie: ${def.tytul}`,
+        odpal: () => {
+          rozpocznijZbieranie(def.id);
+          odswiezPuzleNaMapie();
+          pokazKomunikat("DEV: kawałki czekają na mapie");
+        },
+      })),
+      ...MISJE.map((def) => ({
+        grupa: "Puzzle",
+        etykieta: `Układanka: ${def.tytul}`,
+        odpal: () => {
+          rozpocznijZbieranie(def.id);
+          for (let i = 1; i <= 9; i += 1) doliczKawalekPuzzli(`puzel-${i}`);
+          odswiezPuzleNaMapie();
+          setUkladanka(def.id);
+        },
+      })),
+      {
+        grupa: "Puzzle",
+        etykieta: "Reset puzzli",
+        odpal: () => {
+          skasujPuzzle();
+          setUkladanka(null);
+          odswiezPuzleNaMapie();
+          pokazKomunikat("DEV: puzzle skasowane");
+        },
+      },
     );
 
     return pozycje;
-  }, [dev, pokazKomunikat]);
+  }, [dev, pokazKomunikat, odswiezPuzleNaMapie]);
 
   const naZdarzenieSceny = useCallback(
     (nazwa, dane) => {
@@ -1372,12 +1533,24 @@ export default function Swiat() {
           // czego brakuje na tym etapie: szukać znaku czy dograć partię.
           const m = z.wyplacone ? aktualnaMisja() : null;
           if (m && m.ujawniona && !m.wygrana) {
-            pokazKomunikat(
-              m.znaleziona
-                ? `Wizkor czeka — zagraj w ${m.def.tytul}`
-                : `Wizkor czeka — znajdź ${m.def.szukaj} na mapie`
-            );
-            return;
+            /* Etap puzzli: w trakcie zbierania — krótki licznik jak przy
+               gwiazdkach. Z KOMPLETEM kawałków przypomnienia nie ma wcale:
+               przepuszczamy do okna niżej, bo kwestia „Masz wszystkie
+               kawałki!" niesie zielony przycisk otwierający układankę. */
+            const puzzle = !m.znaleziona ? stanPuzzli(m.id) : null;
+            const brama = !!puzzle && puzzle.brama && !puzzle.ulozona;
+            if (brama && !puzzle.komplet) {
+              pokazKomunikat(`Wizkor czeka — masz ${puzzle.zebrane} z ${puzzle.cel} kawałków`);
+              return;
+            }
+            if (!brama) {
+              pokazKomunikat(
+                m.znaleziona
+                  ? `Wizkor czeka — zagraj w ${m.def.tytul}`
+                  : `Wizkor czeka — znajdź ${m.def.szukaj} na mapie`
+              );
+              return;
+            }
           }
           // WPROST do kwestii — bez kroku „zagadać?". Stan czytamy jeszcze
           // raz ze źródła, tuż przed otwarciem: `z` powyżej dotyczy gwiazdek,
@@ -1431,7 +1604,27 @@ export default function Swiat() {
             });
           }
         }
-        // Znak minigry — piórko albo karty na mapie. NIE wrzucamy dziecka
+        /**
+         * Kawałek puzzli. Liczy się tylko w trakcie zbierania — poza nim
+         * znaków nie ma na mapie, a gdyby któryś mignął z animacji powrotu,
+         * dotknięcie nie może ruszyć zapisu (`doliczPuzel` to sprawdza).
+         * Ostatni kawałek otwiera układankę PO dograniu wchłaniania —
+         * z tego samego powodu, dla którego na swój moment czeka okno liska.
+         */
+        if (typeof dane?.znak === "string" && dane.znak.startsWith(PREFIKS_PUZLA)) {
+          const po = doliczKawalekPuzzli(dane.znak);
+          if (po) {
+            wstrzymajPowrotZnaku(scenaRef.current, dane.znak);
+            if (po.komplet) {
+              pokazKomunikat("Masz wszystkie kawałki!");
+              window.setTimeout(() => setUkladanka(po.id), WCHLANIANIE_MS);
+            } else {
+              pokazKomunikat(`Kawałek obrazka — masz ${po.zebrane} z ${po.cel}`);
+            }
+          }
+          return;
+        }
+        // Znak minigry — karta albo bucik na mapie. NIE wrzucamy dziecka
         // prosto w grę: bieg jest tu osobną przyjemnością i wpadnięcie w znak
         // bywa przypadkowe, więc najpierw pyta lisek, dokładnie tak jak
         // czarodziej pyta o rozmowę. Dopiero „Gramy!" otwiera grę — nad sceną,
@@ -1522,10 +1715,10 @@ export default function Swiat() {
   // Uchwyt do konsoli — bieganie po mapie w poszukiwaniu piórka przy każdej
   // poprawce w oknie zaproszenia byłoby nie do zniesienia. Ten sam wzorzec, co
   // `window.popupPostaci` i `window.zadanieGwiazdek`:
-  //   window.zaproszenieGry.pokaz("sekret-pod-puchem") / .schowaj()
+  //   window.zaproszenieGry.pokaz("pamiec-medrca") / .schowaj()
   useEffect(() => {
     window.zaproszenieGry = {
-      pokaz: (id = "sekret-pod-puchem") => setZaproszenie(id),
+      pokaz: (id = "pamiec-medrca") => setZaproszenie(id),
       schowaj: () => setZaproszenie(null),
     };
     return () => { delete window.zaproszenieGry; };
@@ -1558,6 +1751,47 @@ export default function Swiat() {
   }, [scenaGotowa, zadanie.istnieje, zadanie.wyplacone, odswiezGwiazdkiNaMapie]);
 
   /**
+   * To samo dla kawałków puzzli. `ukladanka` w zależnościach: jej zamknięcie
+   * (ułożona albo porzucona) to moment, w którym mapa ma przestać albo znów
+   * zacząć pokazywać kawałki — sam moment dotknięcia obsługuje zbieranie
+   * w biegu (`wstrzymajPowrotZnaku`), dokładnie jak przy gwiazdkach.
+   */
+  useEffect(() => {
+    if (!scenaGotowa) return;
+    odswiezPuzleNaMapie();
+  }, [scenaGotowa, ukladanka, odswiezPuzleNaMapie]);
+
+  /**
+   * BEZPIECZNIK ZAPISU: misja zlecona, etap puzzli, a zbieranie nierozpoczęte
+   * — tak wygląda zapis sprzed wprowadzenia bramy (i powrót na innym
+   * urządzeniu). Bez tego dziecko stałoby przed pustą polaną: znak gry już
+   * zdjęty (`naMapie`), kawałków jeszcze nikt nie rozsypał. Wejście do świata
+   * dokańcza więc zlecenie Wizkora.
+   */
+  useEffect(() => {
+    if (!scenaGotowa) return;
+    const m = misje.find((w) => w.ujawniona && !w.znaleziona && !w.wyplacona);
+    if (!m || czyOdblokowana(m.id)) return;
+    const stan = stanPuzzli(m.id);
+    if (!stan.zbieranie && !stan.komplet) {
+      rozpocznijZbieranie(m.id);
+      odswiezPuzleNaMapie();
+    }
+  }, [scenaGotowa, misje, odswiezPuzleNaMapie]);
+
+  /**
+   * Licznik kawałków w HUD słucha modułu puzzli: każde `zapisz` (zebrany
+   * kawałek, start zbierania, ułożenie, reset z pulpitu) ogłasza zmianę,
+   * a licznik czyta stan od nowa. Bez nasłuchu liczba stałaby w miejscu
+   * do najbliższego przerysowania z zupełnie innego powodu.
+   */
+  useEffect(() => {
+    const przelicz = () => setPuzzleHud(biezacePuzzle());
+    window.addEventListener(PUZZLE_ZMIANA, przelicz);
+    return () => window.removeEventListener(PUZZLE_ZMIANA, przelicz);
+  }, []);
+
+  /**
    * Każde nowe zaproszenie zaczyna od poziomu domyślnego — czyli tego
    * łatwiejszego. Bez tego drugie wejście w kartę pamiętałoby wybór sprzed
    * godziny, a dziecko nie ma jak skojarzyć, skąd on się wziął.
@@ -1576,8 +1810,12 @@ export default function Swiat() {
     const id = zaproszenie;
     const poziom = poziomZaproszenia;
     setZaproszenie(null);
-    if (id) otworzGre(id, { poziom });
-  }, [zaproszenie, poziomZaproszenia, otworzGre]);
+    if (!id) return;
+    // BRAMA Z PUZZLI: pierwsze „Gramy!" prowadzi najpierw po kawałki
+    // obrazka. Wybrany poziom czeka w refie i wraca przy starcie po ułożeniu.
+    if (bramaPuzzli(id, poziom)) return;
+    otworzGre(id, { poziom });
+  }, [zaproszenie, poziomZaproszenia, otworzGre, bramaPuzzli]);
 
   /**
    * Zasady „najpierw znajdź na mapie" nie pilnuje już żadna ulotna flaga:
@@ -1725,7 +1963,7 @@ export default function Swiat() {
           </button>
 
           <div
-            className={`game-hud-resources${zadanie.aktywne || misjaHud ? " ma-zadanie" : ""}`}
+            className={`game-hud-resources${zadanie.aktywne || misjaHud || puzzleHud ? " ma-zadanie" : ""}`}
           >
             {/* Licznik zadania pojawia się DOPIERO po jego przyjęciu i znika
                 razem z nim. Stały licznik „0/10" na ekranie dziecka, które nie
@@ -1781,6 +2019,36 @@ export default function Swiat() {
                 <strong>{misjaHud.wygrana ? "1" : "0"}</strong>
                 <em>/1</em>
               </span>
+            ) : null}
+
+            {/* Licznik KAWAŁKÓW PUZZLI — stoi przez cały etap puzzli (kafelek
+                misji czeka wtedy schowany, więc góra ekranu dalej mówi
+                o jednym celu). PRZYCISK, nie span: z kompletem dotknięcie
+                otwiera układankę i kafelek świeci jak spełniona misja. */}
+            {puzzleHud ? (
+              <button
+                type="button"
+                className={`game-hud-counter game-hud-counter--misja game-hud-counter--puzzle${puzzleHud.komplet ? " jest-spelnione" : ""}`}
+                aria-label={
+                  puzzleHud.komplet
+                    ? "Masz wszystkie kawałki — dotknij, żeby ułożyć obrazek"
+                    : `Kawałki obrazka: masz ${puzzleHud.zebrane} z ${puzzleHud.cel}`
+                }
+                data-testid="hub-puzzle-licznik"
+                onClick={() => {
+                  if (puzzleHud.komplet) setUkladanka(puzzleHud.id);
+                }}
+              >
+                <img
+                  data-ksztalt="zeton"
+                  src="/assets/puzzle/kawalek.svg"
+                  alt=""
+                  aria-hidden="true"
+                  draggable="false"
+                />
+                <strong>{puzzleHud.zebrane}</strong>
+                <em>/{puzzleHud.cel}</em>
+              </button>
             ) : null}
 
             <span
@@ -1983,6 +2251,36 @@ export default function Swiat() {
         </div>
       ) : null}
 
+      {/* UKŁADANKA — brama przed minigrą. Nad HUD-em i arkuszem, pod samą
+          grą (nigdy nie stoją naraz: jedna otwiera drugą). */}
+      {ukladanka ? (
+        <Suspense fallback={null}>
+          <PuzzleBrama
+            gra={ukladanka}
+            tytul={(KATALOG_GIER.gry || []).find((g) => g.id === ukladanka)?.tytul || "Układanka"}
+            onZamknij={() => setUkladanka(null)}
+            onUlozona={() => {
+              const id = ukladanka;
+              const poziom = poziomPoUkladanceRef.current;
+              poziomPoUkladanceRef.current = null;
+              setUkladanka(null);
+              const m = stanGry(id);
+              /* W TRAKCIE MISJI układanka ODSŁANIA znak gry na mapie — grę
+                 odpala dopiero wbiegnięcie w niego, tak jak obiecał Wizkor.
+                 Poza misją (skrót po rozliczeniu, stary zapis) dziecko
+                 kliknęło „Gramy!", więc gra rusza od razu. */
+              if (m && m.ujawniona && !m.znaleziona) {
+                setMisje(stanMisji());
+                try { odswiezZnakiMisji(); } catch {}
+                pokazKomunikat(`Znajdź ${m.def.szukaj} na mapie`);
+                return;
+              }
+              otworzGre(id, { poziom: poziom || poziomDomyslny(id) });
+            }}
+          />
+        </Suspense>
+      ) : null}
+
       {/* MINIGRA NAD ŚWIATEM — ostatnia w drzewie, żeby przykryła wszystko:
           HUD, dok, arkusz sekcji. Scena pod spodem zostaje zamontowana
           i zapauzowana, więc wyjście z gry nie kosztuje ani jednego pobrania
@@ -2023,6 +2321,8 @@ export default function Swiat() {
               // las, a skok na „zadanie trwa" — zabrać z niego to, co zapis
               // uważa za zebrane.
               try { odswiezGwiazdkiNaMapie(); } catch {}
+              // I dla puzzli — reset z pulpitu ma od razu zdjąć kawałki z mapy.
+              try { odswiezPuzleNaMapie(); } catch {}
               // Skok na inny etap unieważnia okno, które akurat stoi: kwestia
               // Wizkora sprzed skoku dotyczy już nieistniejącego stanu.
               setPowitanie(null);
@@ -2032,6 +2332,8 @@ export default function Swiat() {
             /* Panele huba (Listy, zadanie) — sekcja „Zadanie w realu" otwiera
                nimi zwój i kartę zadania bez biegania po mapie. */
             onOtworzPanel={otworz}
+            /* Oś etapów: moment „układanka" otwiera ekran układanki. */
+            onOtworzUkladanke={(id) => setUkladanka(id)}
             onKomunikat={pokazKomunikat}
             zdarzenia={zdarzeniaDev}
             onWylacz={() => setDev(ustawDev(false))}

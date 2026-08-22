@@ -98,7 +98,9 @@
   <button id="btn-zapisz" class="glowny">Zapisz w projekcie</button>
   <label class="auto"><input type="checkbox" id="auto"> auto</label>
   <button id="btn-pobierz">Pobierz plik</button>
+  <button id="btn-model" title="Wgraj własny model .glb do public/scena-3d/assets/">Wgraj model 3D…</button>
   <input type="file" id="plik" accept="application/json" hidden>
+  <input type="file" id="plik-model" accept=".glb" multiple hidden>
   <span class="info" id="info">—</span>
 </header>
 
@@ -142,10 +144,20 @@
    których edytor nie zna, przechodzą przez niego nietknięte.                  */
 
 const KLUCZ = 'scena3d.mapa';
-// `drzewo` i `drzewo-lisciaste` NIE sa plikami GLB — buduje je generator
-// sceny (patch `loadGLB` w bundlu). Stoja na liscie, bo z punktu widzenia
-// edytora to zwykly model do postawienia pod znakiem.
-const MODELE = ['karta','gwiazda','medal','lisc','wizard','drzewo','drzewo-lisciaste','hut2','hut','postac'];
+/**
+ * MODELE — co da się postawić na mapie.
+ *
+ * `drzewo` i `drzewo-lisciaste` NIE sa plikami GLB — buduje je generator
+ * sceny (patch `loadGLB` w bundlu). Stoja na liscie, bo z punktu widzenia
+ * edytora to zwykly model do postawienia pod znakiem.
+ *
+ * Lista wbudowana jest tylko AWARYJNA: przy `npm run dev` edytor czyta
+ * prawdziwą zawartość `public/scena-3d/assets/` z końcówki `/__modele`, więc
+ * własny model wgrany przyciskiem „Wgraj model 3D…" pojawia się tu od razu,
+ * bez dopisywania czegokolwiek w kodzie.
+ */
+const MODELE_WBUDOWANE = ['karta','gwiazda','medal','lisc','wizard','drzewo','drzewo-lisciaste','hut2','hut','postac'];
+let MODELE = [...MODELE_WBUDOWANE];
 
 let mapa = null;
 let wybor = null;            // { typ, idx }
@@ -164,6 +176,7 @@ const TRYBY = [
   { id:'glaz',    nazwa:'+ Głaz',    opis:'Głaz z generatora sceny. Kolizja rośnie ze skalą.' },
   { id:'kwiat',   nazwa:'+ Kwiat',   opis:'Kwiat z generatora sceny — pięć odmian koloru. Nie blokuje chodzenia i ugina się, gdy bohater go mija. Wzrost i przechył losuje się z numeru kwiatu, więc po przestawieniu wygląda inaczej.' },
   { id:'sciezka', nazwa:'Ścieżka',   opis:'Klik dokłada punkt na końcu ścieżki, klik w punkt zaznacza go, przeciąganie przesuwa. Ścieżka to trasa spaceru i rysunek na trawie — nie blokuje chodzenia.' },
+  { id:'galaz',   nazwa:'+ Gałąź',   opis:'Odnoga od głównej ścieżki. Pierwszy klik zaczyna gałąź w najbliższym węźle ścieżki, każdy następny ją przedłuża. Gałąź trzyma się swojego węzła — przesuniesz ścieżkę, przesunie się razem z nią. To sam rysunek na trawie: nie blokuje chodzenia i nie zmienia trasy bohatera.' },
 ];
 
 function rysujNarzedzia() {
@@ -319,25 +332,71 @@ function catmull(p0, p1, p2, p3, u, t) {
   return [prosto[0] + (splajn[0] - prosto[0]) * t, prosto[1] + (splajn[1] - prosto[1]) * t];
 }
 
+/** Węzły → gęsta łamana. Ta sama matematyka dla ścieżki i dla każdej gałęzi. */
+function wypal(P, gladkosc, probki) {
+  const n = Math.max(1, Math.round(probki || 1));
+  if (!P || P.length < 2) return (P || []).map((p) => [zaokr(p[0]), zaokr(p[1])]);
+  const wez = (i) => P[Math.max(0, Math.min(P.length - 1, i))];
+  const out = [];
+  for (let i = 0; i < P.length - 1; i++)
+    for (let s = 0; s < n; s++)
+      out.push(catmull(wez(i - 1), wez(i), wez(i + 1), wez(i + 2), s / n, gladkosc || 0));
+  out.push([...P[P.length - 1]]);
+  return out.map((p) => [zaokr(p[0]), zaokr(p[1])]);
+}
+
 function przeliczSciezke() {
   zapewnijWezly();
   const w = mapa.sciezkaWezly;
   const P = w.punkty;
   const probki = Math.max(1, Math.round(w.probki || 1));
-  if (P.length < 2) { mapa.sciezka = P.map((p) => [...p]); return; }
-  const wez = (i) => P[Math.max(0, Math.min(P.length - 1, i))];
-  const out = [];
-  for (let i = 0; i < P.length - 1; i++)
-    for (let s = 0; s < probki; s++)
-      out.push(catmull(wez(i - 1), wez(i), wez(i + 1), wez(i + 2), s / probki, w.gladkosc || 0));
-  out.push([...P[P.length - 1]]);
-  mapa.sciezka = out.map((p) => [zaokr(p[0]), zaokr(p[1])]);
+  if (P.length < 2) { mapa.sciezka = P.map((p) => [...p]); przeliczGalezie(); return; }
+  mapa.sciezka = wypal(P, w.gladkosc, probki);
+  przeliczGalezie();
 
   // Latarnia wskazuje INDEKS w wypalonej łamanej, więc po każdym przeliczeniu
   // trzeba go przeliczyć z numeru węzła — inaczej bohater szedłby w inne miejsce.
   if (mapa.latarnia)
     mapa.latarnia.punktSciezki = Math.min(mapa.sciezka.length - 1,
       Math.max(0, Math.round((w.wezelLatarni ?? 0) * probki)));
+}
+
+/* ── Gałęzie ścieżki ──────────────────────────────────────────────────────
+   Gałąź to odnoga rysowana na trawie: własne węzły, własny łuk, własna
+   szerokość. Trasa bohatera, latarnia i most czytają WYŁĄCZNIE główną
+   `sciezka` — gałęzie ich nie dotykają, więc dorysowanie odnogi nie może
+   zepsuć chodzenia ani ustawienia mostu.
+
+   PIERWSZY WĘZEŁ GAŁĘZI NIE JEST SWÓJ — to kopia węzła głównej ścieżki
+   (`od`). Trzymamy indeks, nie współrzędne: gdy przesuniesz ścieżkę, gałąź
+   idzie razem z nią i nigdy nie zostaje wisieć w powietrzu.
+
+   Scena dostaje wypaloną łamaną w `galezie[].sciezka` — tak samo, jak dostaje
+   `sciezka` — bo nie zna splajnów i nie da się jej tego nauczyć bez źródeł. */
+function zapewnijGalezie() {
+  if (!Array.isArray(mapa.galezie)) mapa.galezie = [];
+  return mapa.galezie;
+}
+
+/** Węzeł głównej ścieżki najbliższy punktowi (x, z) — początek nowej gałęzi. */
+function najblizszyWezel(x, z) {
+  const W = wezly();
+  let naj = 0, ile = Infinity;
+  W.forEach((p, i) => {
+    const d = (p[0] - x) ** 2 + (p[1] - z) ** 2;
+    if (d < ile) { ile = d; naj = i; }
+  });
+  return naj;
+}
+
+function przeliczGalezie() {
+  for (const g of zapewnijGalezie()) {
+    const W = wezly();
+    const kotwica = W[Math.max(0, Math.min(W.length - 1, g.od ?? 0))];
+    if (!Array.isArray(g.punkty) || !g.punkty.length) g.punkty = [[...(kotwica || [0, 0])]];
+    if (kotwica) g.punkty[0] = [...kotwica];
+    g.sciezka = wypal(g.punkty, g.gladkosc ?? .6, g.probki ?? 8);
+  }
 }
 
 /* ── Geometria ───────────────────────────────────────────────────────────── */
@@ -418,6 +477,25 @@ function rysuj() {
       stroke:'#7A4DC2', 'stroke-opacity':.35, 'stroke-width':.05, 'stroke-dasharray':'.25 .2' });
   W.forEach((p, i) => uchwyt('sciezka', i, el('circle', {
     cx:p[0], cy:p[1], r:.24, fill:'#B98F4A', stroke:'#fff', 'stroke-width':.07 })));
+
+  // Gałęzie: wypalona wstęga (to, co zobaczysz w scenie) + węzły do ciągnięcia.
+  // Kotwica (węzeł 0) jest KWADRATEM i nie ma uchwytu — siedzi na ścieżce
+  // i przesuwa się razem z nią, więc ciągnięcie jej osobno tylko myliłoby.
+  zapewnijGalezie().forEach((g, gi) => {
+    const linia = g.sciezka || [];
+    if (linia.length > 1) el('polyline', { points: linia.map((p) => p.join(',')).join(' '),
+      fill:'none', stroke:'#CDA96F', 'stroke-width': .55 * (g.szerokosc ?? .75),
+      'stroke-linecap':'round', 'stroke-linejoin':'round' });
+    (g.punkty || []).forEach((p, i) => {
+      if (i === 0) {
+        el('rect', { x:p[0] - .17, y:p[1] - .17, width:.34, height:.34, rx:.06,
+          fill:'#7A4DC2', stroke:'#fff', 'stroke-width':.06 });
+        return;
+      }
+      uchwyt('galaz', gi + ':' + i, el('circle', {
+        cx:p[0], cy:p[1], r:.2, fill:'#E0C08A', stroke:'#7A4DC2', 'stroke-width':.06 }));
+    });
+  });
 
   if (tryb === 'sciezka') {
     // plusik na środku każdego odcinka = wstaw wierzchołek, plusik za końcami = przedłuż
@@ -573,7 +651,8 @@ function promienRysunku(typ, o) {
 
 /* ── Lista obiektów ──────────────────────────────────────────────────────── */
 const KOLORY = { znak:'#FFD269', budynek:'#E2B98C', drzewo:'#4E8F5E', glaz:'#B9B3A6',
-                 latarnia:'#FFE08A', brama:'#B58A5B', most:'#C9A06A', kwiat:'#F08FB4' };
+                 latarnia:'#FFE08A', brama:'#B58A5B', most:'#C9A06A', kwiat:'#F08FB4',
+                 galaz:'#CDA96F' };
 
 // Te same pięć odmian, co w scenie (`scena3d.js`, tablica PALETA przy kwiatach).
 // Kolejność jest znacząca: `wariant` to indeks w tej tablicy.
@@ -604,6 +683,8 @@ function rysujListe() {
   (mapa.glazy || []).forEach((g, i) => dodaj('glaz', i, 'głaz ' + (i + 1)));
   (mapa.kwiaty || []).forEach((k, i) =>
     dodaj('kwiat', i, 'kwiat ' + (i + 1) + ' · ' + (KWIATY_ODMIANY[k.wariant ?? 0] || KWIATY_ODMIANY[0]).nazwa));
+  (mapa.galezie || []).forEach((g, i) =>
+    dodaj('galaz', i + ':1', 'gałąź ' + (i + 1) + ' · od węzła ' + (g.od ?? 0)));
   if (mapa.latarnia) dodaj('latarnia', 0, 'latarnia');
   if (mapa.brama) dodaj('brama', 0, 'brama');
   if (mapa.most) dodaj('most', 0, 'most');
@@ -622,6 +703,10 @@ function obiektWyboru() {
   if (typ === 'brama') return mapa.brama;
   if (typ === 'most') return mapa.most;
   if (typ === 'sciezka') return { pos: wezly()[idx] };
+  if (typ === 'galaz') {
+    const [gi, i] = String(idx).split(':').map(Number);
+    return { pos: mapa.galezie?.[gi]?.punkty?.[i] };
+  }
   if (typ === 'rzeka') { const [i, rola] = String(idx).split(':'); return { pos: mapa.rzeka.krzywe[i][rola] }; }
   return null;
 }
@@ -644,6 +729,13 @@ function poleTekst(rodzic, etykieta, wartosc, przy, typ = 'text') {
   i.oninput = () => przy(typ === 'number' ? Number(i.value) : i.value);
   w.appendChild(i);
 }
+/** Po ręcznej zmianie współrzędnych węzeł trzeba wypalić od nowa — inaczej
+ *  wstęga na planie zostaje tam, gdzie była, a plik zapisze się rozjechany. */
+function poRuchuWezla() {
+  if (wybor?.typ === 'sciezka') przeliczSciezke();
+  if (wybor?.typ === 'galaz') przeliczGalezie();
+}
+
 function polePara(rodzic, etykieta, para) {
   const w = pole(rodzic, etykieta);
   const box = document.createElement('div');
@@ -651,7 +743,7 @@ function polePara(rodzic, etykieta, para) {
   [0, 1].forEach((k) => {
     const i = document.createElement('input');
     i.type = 'number'; i.step = '0.1'; i.value = para[k];
-    i.oninput = () => { para[k] = Number(i.value); zapisz(); rysuj(); };
+    i.oninput = () => { para[k] = Number(i.value); poRuchuWezla(); zapisz(); rysuj(); };
     box.appendChild(i);
   });
   w.appendChild(box);
@@ -818,6 +910,35 @@ function rysujWlasciwosci() {
     ustawieniaLuku(box);
     podpowiedz(box, 'Punkt „po” dokłada się w połowie odcinka do następnego; na końcu ścieżki przedłuża ją w tym samym kierunku. Ten sam efekt da klik w plusik na odcinku w trybie Ścieżka.');
   }
+  if (wybor.typ === 'galaz') {
+    const [gi] = String(wybor.idx).split(':').map(Number);
+    const g = mapa.galezie[gi];
+    const przelicz = () => { przeliczGalezie(); zapisz(); rysuj(); };
+    poleSuwak(box, 'węzeł startowy', g.od ?? 0, { min:0, max: Math.max(0, wezly().length - 1), krok:1 },
+      (v) => { g.od = Math.round(v); przelicz(); });
+    poleSuwak(box, 'łuk', g.gladkosc ?? .6, { min:0, max:1, krok:.05 }, (v) => { g.gladkosc = v; przelicz(); });
+    poleSuwak(box, 'gęstość', g.probki ?? 8, { min:1, max:16, krok:1 }, (v) => { g.probki = Math.round(v); przelicz(); });
+    poleSuwak(box, 'szerokość', g.szerokosc ?? .75, { min:.3, max:1.6, krok:.05 }, (v) => { g.szerokosc = v; przelicz(); });
+
+    const rzad = document.createElement('div');
+    rzad.className = 'przyciski-rzad';
+    const przedluz = document.createElement('button');
+    przedluz.textContent = '+ punkt na końcu';
+    przedluz.onclick = () => {
+      const P = g.punkty;
+      const a = P[P.length - 2] || P[0], b = P[P.length - 1];
+      P.push([zaokr(b[0] + (b[0] - a[0])), zaokr(b[1] + (b[1] - a[1]))]);
+      wybor = { typ:'galaz', idx: gi + ':' + (P.length - 1) };
+      przelicz();
+    };
+    const kasujGalaz = document.createElement('button');
+    kasujGalaz.className = 'groza';
+    kasujGalaz.textContent = 'Usuń całą gałąź';
+    kasujGalaz.onclick = () => { mapa.galezie.splice(gi, 1); wybor = null; przelicz(); };
+    rzad.append(przedluz, kasujGalaz);
+    box.appendChild(rzad);
+    podpowiedz(box, 'Gałąź zaczyna się w wybranym węźle ścieżki i idzie za nią, gdy ścieżkę przesuniesz. Delete kasuje pojedynczy punkt (a przy dwóch — całą gałąź). W trybie „+ Gałąź” klik w puste miejsce przedłuża zaznaczoną odnogę.');
+  }
   if (wybor.typ === 'rzeka') {
     const [nr, rola] = String(wybor.idx).split(':');
     const k = mapa.rzeka.krzywe[nr];
@@ -855,7 +976,7 @@ function rysujWlasciwosci() {
   }
   if (wybor.typ === 'most') podpowiedz(box, 'Most obraca się sam wzdłuż drugiego odcinka ścieżki i tylko po nim da się przejść rzekę. Przesuwając most, przesuń też ścieżkę.');
 
-  if (['znak','budynek','drzewo','glaz','sciezka'].includes(wybor.typ)) {
+  if (['znak','budynek','drzewo','glaz','sciezka','kwiat'].includes(wybor.typ)) {
     const kasuj = document.createElement('button');
     kasuj.className = 'groza';
     kasuj.textContent = 'Usuń (Delete)';
@@ -895,6 +1016,27 @@ function dodajWPunkcie(x, z) {
     wezly().push([x, z]);
     wybor = { typ:'sciezka', idx: wezly().length - 1 };
     przeliczSciezke();
+  } else if (tryb === 'galaz') {
+    zapewnijWezly();
+    zapewnijGalezie();
+    // Klik przy zaznaczonym węźle gałęzi PRZEDŁUŻA tę gałąź; klik bez
+    // zaznaczenia (albo z zaznaczeniem czegoś innego) zaczyna nową odnogę
+    // w najbliższym węźle ścieżki. Jedno narzędzie, dwa naturalne odruchy.
+    if (wybor && wybor.typ === 'galaz') {
+      const gi = Number(String(wybor.idx).split(':')[0]);
+      const g = mapa.galezie[gi];
+      if (g) {
+        g.punkty.push([x, z]);
+        wybor = { typ:'galaz', idx: gi + ':' + (g.punkty.length - 1) };
+        przeliczGalezie();
+        zapisz(); rysuj();
+        return true;
+      }
+    }
+    const od = najblizszyWezel(x, z);
+    mapa.galezie.push({ od, punkty: [[...wezly()[od]], [x, z]], gladkosc:.6, probki:8, szerokosc:.75 });
+    wybor = { typ:'galaz', idx: (mapa.galezie.length - 1) + ':1' };
+    przeliczGalezie();
   } else {
     return false;
   }
@@ -937,6 +1079,18 @@ function usunWybor() {
     przeliczSciezke();
     zapisz();
     rysuj();
+    return;
+  }
+  if (wybor.typ === 'galaz') {
+    const [gi, i] = String(wybor.idx).split(':').map(Number);
+    const g = mapa.galezie?.[gi];
+    if (!g) return;
+    // Gałąź z samą kotwicą to kreska donikąd — kasujemy wtedy całą odnogę.
+    if (g.punkty.length <= 2) mapa.galezie.splice(gi, 1);
+    else g.punkty.splice(i, 1);
+    wybor = null;
+    przeliczGalezie();
+    zapisz(); rysuj();
     return;
   }
   const tablice = { znak:'znaki', budynek:'budynki', drzewo:'drzewa', glaz:'glazy', kwiat:'kwiaty' };
@@ -1033,6 +1187,7 @@ plan.addEventListener('pointermove', (ev) => {
   ciagniecie.pos[0] = zaokr(x + ciagniecie.dx);
   ciagniecie.pos[1] = zaokr(z + ciagniecie.dz);
   if (wybor && wybor.typ === 'sciezka') przeliczSciezke();
+  if (wybor && wybor.typ === 'galaz') przeliczGalezie();
   if (wybor && wybor.typ === 'rzeka') sklejRzeke(String(wybor.idx));
   rysuj();
 });
@@ -1141,12 +1296,65 @@ document.addEventListener('keydown', (ev) => {
     o.pos[0] = zaokr(o.pos[0] + ruch[0] * krok);
     o.pos[1] = zaokr(o.pos[1] + ruch[1] * krok);
     if (wybor.typ === 'sciezka') przeliczSciezke();
+    if (wybor.typ === 'galaz') przeliczGalezie();
     zapisz(); rysuj();
   }
 });
 
+/* ── Własne modele 3D ─────────────────────────────────────────────────────
+   Plik `.glb` idzie na końcówkę `/__model` serwera deweloperskiego, ta kładzie
+   go w `public/scena-3d/assets/`. Scena ładuje modele po nazwie
+   (`./assets/<nazwa>.glb`), więc od tej chwili wgrany obiekt można postawić
+   jak każdy inny — jako budynek (z kolizją) albo jako znak minigry.
+
+   Poza `npm run dev` końcówki nie ma i wgrywanie jest wyłączone — tak samo,
+   jak zapis mapy. Na produkcji nikt nie wrzuca plików przez HTTP. */
+async function odswiezModele(zaznacz) {
+  try {
+    const odp = await fetch('/__modele', { cache: 'no-cache' });
+    const dane = await odp.json();
+    if (dane?.ok && Array.isArray(dane.modele) && dane.modele.length)
+      MODELE = [...new Set([...dane.modele, ...MODELE_WBUDOWANE])].sort();
+  } catch { /* bez serwera dev zostaje lista wbudowana */ }
+  rysujModele(zaznacz);
+}
+
+function rysujModele(zaznacz) {
+  const wybrany = zaznacz || $('#model').value;
+  $('#model').innerHTML = MODELE.map((m) => `<option>${m}</option>`).join('');
+  if (MODELE.includes(wybrany)) $('#model').value = wybrany;
+  if (mapa) rysujWlasciwosci();
+}
+
+async function wgrajModele(pliki) {
+  const nazwy = [];
+  for (const f of pliki) {
+    const nazwa = f.name.replace(/\.glb$/i, '');
+    try {
+      const odp = await fetch('/__model?nazwa=' + encodeURIComponent(nazwa), {
+        method: 'POST',
+        headers: { 'content-type': 'application/octet-stream' },
+        body: await f.arrayBuffer(),
+      });
+      const dane = await odp.json();
+      if (!dane.ok) throw new Error(dane.blad);
+      nazwy.push(dane.nazwa);
+    } catch (e) {
+      $('#info').textContent = 'nie wgrałem „' + f.name + '”: ' +
+        (String(e.message || e).includes('Failed to fetch')
+          ? 'wgrywanie działa tylko przy npm run dev'
+          : String(e.message || e));
+      return;
+    }
+  }
+  await odswiezModele(nazwy[nazwy.length - 1]);
+  $('#info').textContent = nazwy.length === 1
+    ? 'wgrany model „' + nazwy[0] + '” — wybierz narzędzie + Budynek albo + Znak i kliknij na mapie'
+    : 'wgrane modele: ' + nazwy.join(', ');
+}
+
 /* ── Podpięcie interfejsu ────────────────────────────────────────────────── */
-$('#model').innerHTML = MODELE.map((m) => `<option>${m}</option>`).join('');
+rysujModele();
 $('#btn-pobierz').onclick = pobierz;
 $('#btn-zapisz').onclick = () => zapiszWProjekcie();
 $('#auto').onchange = () => { if ($('#auto').checked) zapiszWProjekcie({ cicho: true }); };
@@ -1155,6 +1363,13 @@ $('#btn-oryginal').onclick = () => wczytaj({ zSerwera: true });
 $('#btn-odswiez').onclick = odswiezPodglad;
 $('#btn-widok').onclick = () => { widok = { ...WIDOK_STARTOWY }; zastosujWidok(); };
 
+$('#btn-model').onclick = () => $('#plik-model').click();
+$('#plik-model').onchange = async (ev) => {
+  const pliki = [...ev.target.files];
+  ev.target.value = '';                    // ten sam plik ma dać się wgrać drugi raz
+  if (pliki.length) await wgrajModele(pliki);
+};
+
 $('#btn-plik').onclick = () => $('#plik').click();
 $('#plik').onchange = async (ev) => {
   const f = ev.target.files[0];
@@ -1162,6 +1377,7 @@ $('#plik').onchange = async (ev) => {
 };
 
 rysujNarzedzia();
+odswiezModele();
 wczytaj();
 </script>
 </body>

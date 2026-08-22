@@ -13,16 +13,6 @@
       "ikona": "/assets/minigry/karty.png"
     },
     {
-      "id": "sekret-pod-puchem",
-      "tytul": "Sekret pod puchem",
-      "opis": "Rozgarnij piórka i zgadnij",
-      "monety": 25,
-      "trasa": "/games/piorka",
-      "wejscieFabularne": "kopiec piór przy gnieździe",
-      "wymaga": null,
-      "ikona": "/assets/minigry/piorko.png"
-    },
-    {
       "id": "lot-liska",
       "tytul": "Lot Liska",
       "opis": "Naciągnij choinkę i traf do celu",

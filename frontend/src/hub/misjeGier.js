@@ -29,6 +29,7 @@
  * `zadanieGwiazdek.js`.
  */
 import { bonusMonet, dodajMonety } from "../services/monety.js";
+import { czyOdblokowana as czyPuzzleUlozone } from "./puzzleGier.js";
 
 const KLUCZ = "ewolucja.misje.gier";
 
@@ -39,9 +40,6 @@ export const ZDARZENIE_ZMIANY = "ewolucja:misjeGierZmiana";
  * Definicje misji. `id` to identyfikator gry z `hub/data/minigry.v1.json`
  * (jedno słownictwo dla katalogu, adresu i mapy), `znak` — identyfikator
  * znaku w scenie 3D z `public/scena-3d/mapa.json`.
- *
- * `leaf` przy piórku to identyfikator historyczny: model pod nim to dziś
- * piórko, nie liść. Nie zmieniam go, bo siedzi w bundlu sceny i w mapie.
  *
  * Teksty stoją TUTAJ, obok warunków, a nie w komponencie huba. Kwestia
  * Wizkora zmienia się razem ze stanem misji, więc rozdzielenie ich znaczyło
@@ -66,13 +64,33 @@ export const MISJE = [
        rozegrana partie. Suma zostaje ta sama, co przed rozbiciem (40). */
     nagrodaZnalezienie: 15,
     nagroda: 25,
+    /* MISJA ZACZYNA SIĘ OD PUZZLI (decyzja właściciela, 2026-08-22):
+       zlecenie rozsypuje po polanie kawałki obrazka, a znak gry wchodzi na
+       mapę dopiero po ich ułożeniu (patrz `naMapie` niżej i `puzzleGier`).
+       Stąd zlecenie mówi o kawałkach — znak jest nagrodą za ułożenie. */
     zlecenie: {
       tekst:
-        "Masz oko do gwiazdek, wędrowcze. Teraz coś trudniejszego: " +
-        "gdzieś na mapie leży karta Mędrca. Znajdź ją i zagraj w Pamięć " +
-        "Mędrca — pokaż, że pamiętasz.",
-      wyroznienie: "karta Mędrca",
-      przycisk: "Szukam karty!",
+        "Masz oko do gwiazdek, wędrowcze. Teraz coś trudniejszego: obrazek " +
+        "Mędrca rozsypał się na kawałki i wiatr rozniósł je po polanie. " +
+        "Pozbieraj je i ułóż w całość, a pokaże się karta Mędrca.",
+      wyroznienie: "kawałki",
+      przycisk: "Zbieram kawałki!",
+    },
+    /* Dwie kwestie na etap puzzli, bo etap ma dwa widoczne stany:
+       kawałki jeszcze w trawie i komplet czekający na ułożenie. */
+    zbieranie: {
+      tekst:
+        "Kawałki obrazka błyszczą w trawie po całej polanie. " +
+        "Zbierz wszystkie, a ułożymy z nich obrazek Mędrca.",
+      wyroznienie: "Kawałki obrazka",
+      przycisk: "Zbieram dalej!",
+    },
+    ukladanie: {
+      tekst:
+        "Masz wszystkie kawałki! Ułóż z nich obrazek, " +
+        "a karta Mędrca pokaże się na polanie.",
+      wyroznienie: "Ułóż z nich obrazek",
+      przycisk: "Układam!",
     },
     szukanie: {
       tekst:
@@ -102,55 +120,6 @@ export const MISJE = [
     nagrodaEkran: {
       title: "Pamięć jak sowa!",
       subtitle: "Dobrałeś wszystkie pary z karty Mędrca.",
-    },
-  },
-  {
-    id: "sekret-pod-puchem",
-    znak: "leaf",
-    tytul: "Sekret pod puchem",
-    szukaj: "złote piórko",
-    ikona: "/assets/piorka/piorko-zlote.png",
-    ksztaltIkony: "zeton",
-    /* Ten sam podzial co przy karcie — jedna zasada dla calego lancucha.
-       Suma bez zmian (50). */
-    nagrodaZnalezienie: 20,
-    nagroda: 30,
-    zlecenie: {
-      tekst:
-        "Zostało jeszcze jedno. W trawie leży złote piórko, a pod nim " +
-        "kopiec puchu — coś się tam ukrywa. Znajdź piórko i odgadnij, " +
-        "co śpi pod spodem.",
-      wyroznienie: "złote piórko",
-      przycisk: "Szukam piórka!",
-    },
-    szukanie: {
-      tekst:
-        "Piórko jest lekkie i lubi się chować. Rozejrzyj się po polanie — " +
-        "złoty błysk w trawie to właśnie ono.",
-      wyroznienie: "złoty błysk w trawie",
-      przycisk: "Szukam dalej!",
-    },
-    granie: {
-      tekst:
-        "Piórko masz. Teraz rozgarnij puch i zgadnij, co pod nim śpi — " +
-        "im mniej odsłonisz, tym bystrzejsze oko.",
-      wyroznienie: "im mniej odsłonisz",
-      przycisk: "Gram dalej!",
-    },
-    wyplata: {
-      tekst:
-        "Odgadłeś, ledwo muskając puch. To rzadka bystrość, wędrowcze — " +
-        "{nagroda} monet jest twoje.",
-      wyroznienie: "{nagroda} monet",
-      przycisk: "Odbieram nagrodę!",
-    },
-    nagrodaEkranZnalezienie: {
-      title: "Złote piórko!",
-      subtitle: "Leżało w trawie, a pod nim kopiec puchu. Gra czeka w skrzyni.",
-    },
-    nagrodaEkran: {
-      title: "Bystre oko!",
-      subtitle: "Odgadłeś sekret, który spał pod puchem.",
     },
   },
   {
@@ -186,10 +155,25 @@ export const MISJE = [
     nagroda: 35,
     zlecenie: {
       tekst:
-        "Widzisz tę wysoką sosnę na polanie? Z jej czubka widać cały las. " +
-        "Wespnij się na nią, a potem skocz — zobaczymy, jak daleko dolecisz.",
-      wyroznienie: "wysoką sosnę",
-      przycisk: "Wchodzę na sosnę!",
+        "Czas polatać, wędrowcze. Obrazek lotu rozsypał się na dziewięć " +
+        "kawałków i leżą teraz po całej polanie. Pozbieraj je i ułóż " +
+        "w całość, a pokażę ci sosnę, z której się startuje.",
+      wyroznienie: "dziewięć kawałków",
+      przycisk: "Zbieram kawałki!",
+    },
+    zbieranie: {
+      tekst:
+        "Kawałki obrazka wciąż leżą w trawie. Zbierz wszystkie, " +
+        "a ułożymy z nich obrazek lotu.",
+      wyroznienie: "Kawałki obrazka",
+      przycisk: "Zbieram dalej!",
+    },
+    ukladanie: {
+      tekst:
+        "Masz wszystkie kawałki! Ułóż z nich obrazek, " +
+        "a wskażę ci sosnę do startu.",
+      wyroznienie: "Ułóż z nich obrazek",
+      przycisk: "Układam!",
     },
     szukanie: {
       tekst:
@@ -245,15 +229,29 @@ export const MISJE = [
     nagroda: 40,
     zlecenie: {
       tekst:
-        "Zostało ostatnie, wędrowcze. Ktoś zgubił na polanie bucik do " +
-        "biegania — mały, żółty, łatwo go przeoczyć. Znajdź go, a pokażę ci " +
-        "trasę, na której liczy się w biegu.",
-      wyroznienie: "bucik do biegania",
-      przycisk: "Szukam bucika!",
+        "Zostało ostatnie, wędrowcze. Obrazek górskiej trasy rozsypał się " +
+        "na dziewięć kawałków po polanie. Pozbieraj je i ułóż w całość, " +
+        "a pokażę ci, gdzie leży bucik do biegania.",
+      wyroznienie: "dziewięć kawałków",
+      przycisk: "Zbieram kawałki!",
+    },
+    zbieranie: {
+      tekst:
+        "Kawałki obrazka leżą w trawie po całej polanie. " +
+        "Zbierz wszystkie, a ułożymy z nich górską trasę.",
+      wyroznienie: "Kawałki obrazka",
+      przycisk: "Zbieram dalej!",
+    },
+    ukladanie: {
+      tekst:
+        "Masz wszystkie kawałki! Ułóż z nich obrazek, " +
+        "a bucik znajdzie się od razu.",
+      wyroznienie: "Ułóż z nich obrazek",
+      przycisk: "Układam!",
     },
     szukanie: {
       tekst:
-        "Bucik jest mniejszy niż karta i niż piórko — leży gdzieś nisko " +
+        "Bucik jest mniejszy niż karta Mędrca — leży gdzieś nisko " +
         "w trawie. Szukaj żółtej plamki i wbiegnij prosto w nią.",
       wyroznienie: "żółtej plamki",
       przycisk: "Szukam dalej!",
@@ -357,7 +355,10 @@ function zStanu(def, wpis, polowanie) {
      * już nie zaciemniał — bo w spokoju nie ma celu, z którym mógłby
      * konkurować. Wyjątek zniknął razem z regułą, która go wymuszała.
      */
-    naMapie: ujawniona && (polowanie ? !wyplacona : true),
+    /* ZNAK GRY WCHODZI NA MAPĘ DOPIERO PO UŁOŻENIU PUZZLI. Misja zaczyna
+       się od zbierania kawałków obrazka (`puzzleGier`), a znak jest nagrodą
+       za ułożenie — wcześniej na polanie stoją kawałki, nie znak. */
+    naMapie: ujawniona && czyPuzzleUlozone(def.id) && (polowanie ? !wyplacona : true),
     /** Gra siedzi w zakładce dopiero od znalezienia — i tam zostaje. */
     wZakladce: znaleziona,
   };
