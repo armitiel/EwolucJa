@@ -17,6 +17,7 @@ import EkranStartuGry from "../hub/EkranStartuGry.jsx";
 import SplashGry from "../hub/SplashGry.jsx";
 import RewardScreen from "../components/RewardScreen.jsx";
 import { dodajMonety } from "../services/monety.js";
+import { zdarzenie } from "../services/analityka.jsx";
 import { rozliczPartie } from "../hub/misjeGier.js";
 import { poziomyGry } from "../hub/poziomyGier.js";
 import { czyDev } from "../services/dev.js";
@@ -403,8 +404,9 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
     setKomunikat("Dotknij liska i przeciągnij w dół");
     setNagrodaMisji(0);
     wyplaconoRef.current = false;
+    zdarzenie("gra_start", { gra: GRA, poziom: wybranyPoziom });
     setFaza("gra");
-  }, []);
+  }, [wybranyPoziom]);
 
   /* Misja Wizkora zamyka się TUTAJ — dokładnie tak samo jak w `MemoryGame`
      i w `MemoryGame`. Bez tego partia kończyła się, a `wygrana` w łańcuchu
@@ -415,6 +417,7 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
     if (faza !== "koniec" || wyplaconoRef.current) return;
     wyplaconoRef.current = true;
     if (monety > 0) dodajMonety(monety, "minigra:lot-liska");
+    zdarzenie("gra_koniec", { gra: GRA, poziom: wybranyPoziom, monety, strzaly, brama: !!brama });
     try {
       const { dodane } = rozliczPartie(GRA);
       setNagrodaMisji(dodane || 0);

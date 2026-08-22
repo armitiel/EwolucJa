@@ -44,6 +44,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import bgMusic from "../services/bgMusic";
+import { zdarzenie } from "../services/analityka.jsx";
 
 /** Tempo za porą dnia — rano krócej, wieczorem dłużej. */
 const TEMPO = { rano: 3.4, poludnie: 3.8, popoludnie: 3.8, wieczor: 4.6, noc: 5 };
@@ -279,6 +280,13 @@ export default function EkranOddechu({ pora = "poludnie", onKoniec, onUkonczone 
     if (faza === "odliczanie" || faza === "koniec") return;
     try { navigator.vibrate?.(faza === "wstrzymaj" ? 6 : 12); } catch {}
   }, [faza]);
+
+  // Zdarzenia: ile dzieci ZACZYNA oddech, a ile dochodzi do konca - to
+  // jedyna liczba, ktora powie, czy ten ekran dziala, czy jest ozdoba.
+  useEffect(() => { zdarzenie("oddech_start", { pora }); }, [pora]);
+  useEffect(() => {
+    if (faza === "koniec") zdarzenie("oddech_koniec", { pora, cykle: CYKLE });
+  }, [faza, pora]);
 
   const zrobione = faza === "koniec" ? CYKLE : cykl;
   const poziom = faza === "koniec" ? 1 : cykl / (CYKLE - 1);

@@ -51,6 +51,7 @@ const BiegLiskaGame = lazy(() => import("./pages/BiegLiskaGame.jsx"));
 import LoginAsStudent from "./pages/LoginAsStudent.jsx";
 import LoginByCode from "./pages/LoginByCode.jsx";
 import DevTools from "./components/DevTools.jsx";
+import Analityka from "./services/analityka.jsx";
 import HintPopup from "./components/HintPopup.jsx";
 import Loading from "./components/Loading.jsx";
 import AppDataProvider, { useAppData } from "./contexts/AppData.jsx";
@@ -137,6 +138,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <AppRoutes />
         <HintPopup />
         <DevTools />
+        {/* Statystyki Vercela. Same wizyty autora sa wyciszane w przegladarce -
+            patrz services/analityka.jsx. */}
+        <Analityka />
       </AppDataProvider>
     </BrowserRouter>
   </React.StrictMode>

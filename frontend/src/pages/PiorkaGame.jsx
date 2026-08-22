@@ -30,6 +30,7 @@ import SplashGry from "../hub/SplashGry.jsx";
 import EkranStartuGry from "../hub/EkranStartuGry.jsx";
 import { fx } from "../services/soundFx.js";
 import { dodajMonety } from "../services/monety.js";
+import { zdarzenie } from "../services/analityka.jsx";
 import { rozliczPartie } from "../hub/misjeGier.js";
 import { poziomIstnieje, poziomyGry } from "../hub/poziomyGier.js";
 import { czyDev } from "../services/dev.js";
@@ -446,6 +447,7 @@ export default function PiorkaGame({ osadzona = false, poziom = null, onWyjscie 
     if (faza !== "koniec" || wyplaconoRef.current) return;
     wyplaconoRef.current = true;
     if (monety > 0) dodajMonety(monety, "minigra:piorka");
+    zdarzenie("gra_koniec", { gra: GRA, monety, rundy: runda, bez_pudla: bezPudla });
     try {
       const { dodane } = rozliczPartie(GRA);
       setNagrodaMisji(dodane || 0);
@@ -464,6 +466,7 @@ export default function PiorkaGame({ osadzona = false, poziom = null, onWyjscie 
     setRunda(0); setMonety(0); setBezPudla(0); setNagrodaMisji(0);
     wyplaconoRef.current = false;
     nowaRunda();
+    zdarzenie("gra_start", { gra: GRA });
     setFaza("gra");
   }
 

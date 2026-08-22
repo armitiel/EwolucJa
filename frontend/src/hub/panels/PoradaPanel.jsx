@@ -7,6 +7,7 @@
  */
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import EkranOddechu from "../EkranOddechu.jsx";
+import { zdarzenie } from "../../services/analityka.jsx";
 import PoradaAkcja from "../PoradaAkcja.jsx";
 import {
   anulujWyborKarty,
@@ -63,6 +64,7 @@ export default function PoradaPanel({ onPowrot }) {
   }, []);
 
   function wybierz(karta) {
+    zdarzenie("karta_wybrana", { karta: karta.id, akcja: karta.akcja, pora: pora.id });
     setStan(wybierzKarteDnia(karta.id));
     const zdanie = zachetaDoKarty(karta);
     setZachetaKarty(zdanie);
@@ -91,6 +93,9 @@ export default function PoradaPanel({ onPowrot }) {
 
   function ukoncz() {
     if (!wybrana) return;
+    // Para zdarzen karta_wybrana / karta_ukonczona daje jedyna liczbe, ktora
+    // cos tu mowi: ile wybranych kart dziecko doprowadza do konca.
+    zdarzenie("karta_ukonczona", { karta: wybrana.id, akcja: wybrana.akcja, pora: pora.id });
     setStan(ukonczKarteDnia(wybrana.id));
     setSlady(czytajSlady());
     setAkcja(false);

@@ -12,6 +12,7 @@
  */
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { zdarzenie } from "../services/analityka.jsx";
 
 export const PANELE = ["gry", "profil", "czat", "wiadomosci", "porada", "zadanie"];
 
@@ -27,6 +28,7 @@ export function useHubPanel() {
   const otworz = useCallback(
     (id) => {
       if (!PANELE.includes(id) || id === panel) return;
+      zdarzenie("panel_otwarty", { panel: id });
       navigate(`${location.pathname}?panel=${id}`, { replace: panel !== null });
     },
     [navigate, location.pathname, panel]

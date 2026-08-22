@@ -23,6 +23,7 @@ import TutorialGry from "../hub/TutorialGry.jsx";
 import { oznaczTutorial, tutorialWidziany, zapomnijTutoriale, zasadyGry } from "../hub/zasadyGier.js";
 import EkranStartuGry from "../hub/EkranStartuGry.jsx";
 import { dodajMonety } from "../services/monety.js";
+import { zdarzenie } from "../services/analityka.jsx";
 import { rozliczPartie } from "../hub/misjeGier.js";
 import { maksMonet, poziomIstnieje, poziomyGry } from "../hub/poziomyGier.js";
 import { czyDev } from "../services/dev.js";
@@ -304,6 +305,7 @@ export default function MemoryGame({ osadzona = false, poziom = null, onWyjscie 
     wyplaconoRef.current = true;
     const zaPartie = policzNagrode(diff, stars, seconds);
     dodajMonety(zaPartie, "minigra:memory");
+    zdarzenie("gra_koniec", { gra: GRA, poziom: diff, gwiazdki: stars, sekundy: seconds, monety: zaPartie });
     setNagrodaPartii(zaPartie);
     /**
      * Misja Wizkora („znajdz karte na mapie i zagraj") zalicza sie TUTAJ,
@@ -384,6 +386,7 @@ export default function MemoryGame({ osadzona = false, poziom = null, onWyjscie 
   };
 
   const restart = (newDiff) => {
+    zdarzenie("gra_start", { gra: GRA, poziom: newDiff || diff });
     if (newDiff) setDiff(newDiff);
     else setDeck(makeDeck(pairs));
     setFlipped([]); setMatched(new Set()); setMoves(0); setSeconds(0);
