@@ -223,6 +223,7 @@ function stworzCel(scena) {
 export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onWyjscie }) {
   const navigate = useNavigate();
   const canvasRef = useRef(null);
+  const torRef = useRef(null);
   const graRef = useRef({ sterowanie: null });
   const wyplaconoRef = useRef(false);
   /* Wybrany poziom żyje w stanie, a nie tylko w propsie: z mapy gra wchodzi
@@ -364,36 +365,30 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
       () => { /* Proceduralny lis pozostaje pełnoprawnym fallbackiem offline. */ }
     );
 
-    /* ── Podglad toru: STRZALKA W LUKU, nie sznur kropek ───────────────
-       Kropki mowily "gdzies tedy poleci", ale nie mowily NAJWAZNIEJSZEGO:
-       ktoredy tor idzie w GLAB sceny. Piętnascie jednakowych kulek w rzucie
-       perspektywicznym wyglada tak samo przy strzale w dal i przy strzale w
-       bok - dopiero grot na koncu pokazuje kierunek jednoznacznie.
+    /* ── Podglad toru: STRZALKA W LUKU, rysowana NAD scena ─────────────
+       Dwa podejscia odpadly, zanim zostalo to:
 
-       Rurka jest budowana od nowa przy kazdej zmianie naciagu (kilkadziesiat
-       trojkatow, robota na ulamek milisekundy), bo TubeGeometry nie da sie
-       przeliczyc w miejscu. */
-    const MATERIAL_TORU = new THREE.MeshBasicMaterial({
-      color: 0xffd166, transparent: true, opacity: 0.85, depthWrite: false,
-    });
-    const torLuk = new THREE.Mesh(new THREE.BufferGeometry(), MATERIAL_TORU);
-    torLuk.visible = false;
-    torLuk.renderOrder = 2;
-    scena.add(torLuk);
+       1. Sznur kropek - mowil "gdzies tedy poleci", ale nie mowil, ktoredy tor
+          idzie w GLAB. Kilkanascie jednakowych kulek w perspektywie wyglada
+          tak samo przy strzale w dal i przy strzale w bok.
+       2. Wstega 3D w scenie - lisek leci prawie DOKLADNIE od kamery, wiec
+          kazda bryla ulozona wzdluz toru splaszcza sie do kreski i grot widac
+          od tylu, czyli jako plamke.
 
-    const torGrot = new THREE.Mesh(
-      new THREE.ConeGeometry(0.26, 0.62, 14),
-      new THREE.MeshBasicMaterial({ color: 0xffe9a1, transparent: true, opacity: 0.95, depthWrite: false })
-    );
-    torGrot.visible = false;
-    torGrot.renderOrder = 3;
-    scena.add(torGrot);
-
+       Dlatego strzalka jest plaska i rysowana w SVG NAD plotnem: punkty toru
+       rzutujemy z 3D na ekran, a grubosc wstegi i wielkosc grotu podajemy w
+       PIKSELACH. Dzieki temu strzalka wyglada tak samo czytelnie niezaleznie
+       od tego, jak bardzo tor ucieka w perspektywe - dokladnie jak strzalka
+       narysowana na instrukcji. */
     const KROK_TORU = 0.075;       // sekundy miedzy probkami balistyki
     const PROBEK_TORU = 22;
+    const SZER_OGON = 21;          // piksele - grubosc wstegi przy choince
+    const SZER_PRZOD = 13;         // ...i tuz przed grotem
+    const GROT_POL = 27;           // polowa szerokosci grotu
+    const GROT_DL = 34;
+
     const tmpProbki = [];
-    const tmpGrotKierunek = new THREE.Vector3();
-    const tmpOsGrotu = new THREE.Vector3(0, 1, 0);
+    const tmpEkran = new THREE.Vector3();
 
     const stan = {
       tryb: "gotowy",
@@ -463,34 +458,73 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
     };
 
     const pokazTor = () => {
+      const sciezka = torRef.current;
+      if (!sciezka) return;
       choinka.czubek.getWorldPosition(tmpTip);
       const v = predkoscZNaciagu();
+      const szer = canvas.clientWidth || 1;
+      const wys = canvas.clientHeight || 1;
+
       tmpProbki.length = 0;
       for (let i = 0; i <= PROBEK_TORU; i++) {
         const t = i * KROK_TORU;
         const y = tmpTip.y + v.y * t - 0.5 * 7.3 * t * t;
         // Luk urywamy nad ziemia: strzalka ma pokazywac LOT, a nie miejsce,
-        // w ktorym lisek zaorałby polane.
+        // w ktorym lisek zaoralby polane.
         if (y < 0.35 && i > 2) break;
-        tmpProbki.push(new THREE.Vector3(tmpTip.x + v.x * t, y, tmpTip.z + v.z * t));
+        tmpEkran.set(tmpTip.x + v.x * t, y, tmpTip.z + v.z * t).project(kamera);
+        const px = (tmpEkran.x * 0.5 + 0.5) * szer;
+        const py = (-tmpEkran.y * 0.5 + 0.5) * wys;
+        // Probki, ktore po rzutowaniu padaja na ten sam piksel, wyrzucamy:
+        // przy silnej perspektywie poczatek toru zbija sie w kilka punktow,
+        // a normalna liczona z takiej pary skacze i robi zalamanie na ogonie.
+        const ost = tmpProbki[tmpProbki.length - 1];
+        if (ost && Math.hypot(px - ost[0], py - ost[1]) < 5) continue;
+        tmpProbki.push([px, py]);
       }
-      if (tmpProbki.length < 3) { schowajTor(); return; }
+      const n = tmpProbki.length;
+      if (n < 3) { schowajTor(); return; }
 
-      const krzywa = new THREE.CatmullRomCurve3(tmpProbki);
-      torLuk.geometry.dispose();
-      torLuk.geometry = new THREE.TubeGeometry(krzywa, tmpProbki.length * 2, 0.075, 8, false);
-      torLuk.visible = true;
+      // Kierunek na ekranie liczymy z SASIADOW, nie z jednego odcinka -
+      // przy mocnej perspektywie sasiednie probki potrafia paść na ten sam
+      // piksel i normalna skakalaby jak oszalala.
+      const normalna = (i) => {
+        const a = tmpProbki[Math.max(0, i - 1)];
+        const b = tmpProbki[Math.min(n - 1, i + 1)];
+        const dx = b[0] - a[0];
+        const dy = b[1] - a[1];
+        const d = Math.hypot(dx, dy) || 1;
+        return [-dy / d, dx / d];
+      };
 
-      // Grot siada na koncu luku i patrzy w strone lotu. Stozek w three.js
-      // stoi domyslnie wzdluz osi Y, stad obrot z (0,1,0) na kierunek.
-      const koniec = tmpProbki[tmpProbki.length - 1];
-      tmpGrotKierunek.copy(koniec).sub(tmpProbki[tmpProbki.length - 2]).normalize();
-      torGrot.position.copy(koniec).addScaledVector(tmpGrotKierunek, 0.24);
-      torGrot.quaternion.setFromUnitVectors(tmpOsGrotu, tmpGrotKierunek);
-      torGrot.visible = true;
+      const lewa = [];
+      const prawa = [];
+      for (let i = 0; i < n; i++) {
+        const [nx, ny] = normalna(i);
+        const u = i / (n - 1);
+        const pol = (SZER_OGON + (SZER_PRZOD - SZER_OGON) * u) / 2;
+        lewa.push([tmpProbki[i][0] + nx * pol, tmpProbki[i][1] + ny * pol]);
+        prawa.push([tmpProbki[i][0] - nx * pol, tmpProbki[i][1] - ny * pol]);
+      }
+
+      const [nx, ny] = normalna(n - 1);
+      const koniec = tmpProbki[n - 1];
+      const kier = [ny, -nx];   // styczna = normalna obrocona o 90 stopni
+      const grotBazaL = [koniec[0] + nx * GROT_POL, koniec[1] + ny * GROT_POL];
+      const grotBazaP = [koniec[0] - nx * GROT_POL, koniec[1] - ny * GROT_POL];
+      const grotSzpic = [koniec[0] + kier[0] * GROT_DL, koniec[1] + kier[1] * GROT_DL];
+
+      const punkty = [...lewa, grotBazaL, grotSzpic, grotBazaP, ...prawa.reverse()];
+      sciezka.setAttribute(
+        "d",
+        `M${punkty.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join("L")}Z`
+      );
+      sciezka.style.opacity = "1";
     };
 
-    const schowajTor = () => { torLuk.visible = false; torGrot.visible = false; };
+    const schowajTor = () => {
+      if (torRef.current) torRef.current.style.opacity = "0";
+    };
 
     const przeliczKadry = () => {
       kameraFokus.set(cel.position.x, cel.position.y - 0.65, cel.position.z);
@@ -738,6 +772,10 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
         lis.position.copy(tmpTip);
         lis.rotation.z = -kierunek * 0.32;
         prowadzKameraZaNaciagiem(stan.ugiecie, dt, czas);
+        // Wstega musi sie przebudowac razem z kamera, ktora w naciagu caly
+        // czas plynie - liczenie jej tylko przy ruchu palca splaszczaloby ja
+        // do kreski, gdy tylko dziecko przestanie ciagnac.
+        pokazTor();
       } else if (stan.tryb === "prostowanie") {
         stan.czasProstowania += dt;
         const t = ogranicz(stan.czasProstowania / 0.28, 0, 1);
@@ -923,6 +961,20 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
             onPointerCancel={przekaz("anuluj")}
             aria-label="Scena gry. Przeciągnij liska w dół i w bok, potem puść."
           />
+          {/* Strzalka toru: rysowana nad plotnem, w pikselach ekranu.
+              `pointer-events:none` - gest naciagu nalezy do plotna. */}
+          <svg className="choinka-tor" aria-hidden="true">
+            <defs>
+              <linearGradient id="torGradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#c87a12" />
+                <stop offset="55%" stopColor="#ffc94a" />
+                <stop offset="100%" stopColor="#fff0b0" />
+              </linearGradient>
+            </defs>
+            <path ref={torRef} d="" fill="url(#torGradient)" stroke="#7a4a12" strokeWidth="2"
+                  strokeLinejoin="round" style={{ opacity: 0 }} />
+          </svg>
+
           <div className="choinka-komunikat" role="status">{komunikat}</div>
           <div className="choinka-podpowiedz" aria-hidden="true">
             <span className="choinka-palec">☝</span>
