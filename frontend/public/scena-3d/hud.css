@@ -519,7 +519,11 @@
 }
 
 .message-scroll.is-open .message-scroll-parchment {
-  height: min(var(--message-scroll-height), 72dvh, 560px);
+  /* Sufit 72dvh byl za niski: na telefonie 640 px zwoj konczyl sie na 460 px,
+     a samo zadanie potrzebuje ponad 500 - CTA "OTWORZ" wchodzilo pod dolna
+     rolke. 86dvh zostawia miejsce na dok i bezpieczna krawedz, a i tak nie
+     pozwoli zwojowi wyjsc poza ekran. */
+  height: min(var(--message-scroll-height), 86dvh, 640px);
   transform: translateY(0) scale(1);
   opacity: 1;
 }
@@ -1064,7 +1068,7 @@
   .game-hud-badge.is-kropka { min-width: 18px; width: 18px; height: 18px; top: 2px; right: 6px; }
   .message-scroll { padding: 14px 8px calc(91px + env(safe-area-inset-bottom, 0px)); }
   .message-scroll-parchment { width: min(100%, 390px); }
-  .message-scroll.is-open .message-scroll-parchment { height: min(var(--message-scroll-height), 72dvh, 560px); }
+  .message-scroll.is-open .message-scroll-parchment { height: min(var(--message-scroll-height), 86dvh, 640px); }
   .message-scroll-content { inset: 8% 5% 7%; }
   .message-scroll-header h2 { font-size: 27px; }
   .scroll-message-head { grid-template-columns: 40px minmax(0,1fr) auto; gap: 7px; padding: 8px; }

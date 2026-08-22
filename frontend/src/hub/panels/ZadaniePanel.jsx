@@ -27,8 +27,12 @@ import {
   sprawdzMentora,
   stanZadania,
   wyslijDowod,
+  zadanieDlaCechy,
+  zadanieDoZlecenia,
+  zlecZadanie,
   ZDARZENIE_ZMIANY,
 } from "../zadanieWizkora.js";
+import KoloFortuny from "../KoloFortuny.jsx";
 
 export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
   const { refreshPlayer } = useAppData();
@@ -203,14 +207,39 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
     onKomunikat?.(stan.nagroda ? `+${stan.nagroda} monet od Mentora` : "Nagroda odebrana");
   }
 
-  /* ── brak zadania ──────────────────────────────────────────────────── */
+  /* ── brak zadania: KOŁO PRZEZNACZENIA ──────────────────────────────
+     Zadania w realu nie przydziela już nikt — losuje je dziecko, kręcąc
+     kołem cech awatara. Koło stoi TUTAJ, w panelu zadania, bo to pierwsza
+     odsłona tego samego ekranu: zakręcenie zamienia je w opis zadania
+     z podpowiedziami i przyciskiem wysyłki, bez zmiany zakładki.
+
+     Gdy w katalogu nie ma czego losować (wszystko zrobione), zostaje
+     dawna pustka — koło bez zadania w tle byłoby obietnicą bez pokrycia. */
   if (!stan.istnieje || !def) {
-    return (
-      <div className="hub-pane" data-testid="hub-pane-zadanie">
-        <div className="hub-empty">
-          <GameIcon name="hourglass" size={34} />
-          <p>Wizkor nie ma dziś dla Ciebie zadania. Pobiegaj po mapie — znajdzie Cię sam.</p>
+    const jestCoLosowac = !!zadanieDoZlecenia();
+    if (!jestCoLosowac) {
+      return (
+        <div className="hub-pane" data-testid="hub-pane-zadanie">
+          <div className="hub-empty">
+            <GameIcon name="hourglass" size={34} />
+            <p>Wizkor nie ma dziś dla Ciebie zadania. Pobiegaj po mapie — znajdzie Cię sam.</p>
+          </div>
         </div>
+      );
+    }
+    return (
+      <div className="hub-pane" data-testid="hub-pane-zadanie" ref={panelRef}>
+        <KoloFortuny
+          osadzone
+          onWybor={(cecha) => {
+            const wylosowane = zadanieDlaCechy(cecha);
+            if (!wylosowane) return;
+            // `setStan` z wyniku, nie z nasłuchu: panel ma przeskoczyć na
+            // opis zadania w tej samej klatce, w której dziecko klika.
+            setStan(zlecZadanie(wylosowane.id));
+            onKomunikat?.(`Nowe zadanie: ${wylosowane.tytul}`);
+          }}
+        />
       </div>
     );
   }
@@ -364,7 +393,7 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
 
       <div className="hub-actions">
         <button type="button" className="hub-btn hub-btn-primary" onClick={() => setEtap("dowod")}>
-          Już zrobione!
+          Do dzieła!
         </button>
       </div>
 

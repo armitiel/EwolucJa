@@ -16,7 +16,7 @@ import { useAdventureDane } from "../adventure/engine/useAdventure.js";
 import { kiedyTekst, oznaczPrzeczytana, wpisZadania, wpisZadaniaWizkora, zbierzWiadomosci } from "./wiadomosci.js";
 
 const MIN_WYSOKOSC = 360;
-const MAX_WYSOKOSC = 560;
+const MAX_WYSOKOSC = 640;
 
 /**
  * JEDNO ZADANIE W REALU NA EKRANIE, nie dwa.
@@ -76,7 +76,7 @@ export default function MessageScroll({ open, onClose, onZmiana }) {
     // Pojedyncze zadanie jest bohaterem zwoju, nie krótkim wpisem skrzynki.
     // Mockup zostawia mu pełną kompozycję: postać, tytuł, polecenie, nagrodę
     // i CTA. Minimalna wysokość zapobiega ściśnięciu tych pięter w cienki pasek.
-    const minimalna = lista.querySelector(".scroll-message.is-quest") ? 520 : MIN_WYSOKOSC;
+    const minimalna = lista.querySelector(".scroll-message.is-quest") ? 540 : MIN_WYSOKOSC;
 
     if (animowane) pergamin.classList.add("is-resizing");
     pergamin.style.setProperty(
