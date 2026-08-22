@@ -2,24 +2,32 @@
  * misjeGier — łańcuch zadań Wizkora, w których dziecko ODKRYWA minigry.
  *
  * DLACZEGO TO ISTNIEJE. Gry nie mają być listą, którą widać od pierwszego
- * wejścia. Mają być znaleziskiem: Wizkor mówi, że coś leży w trawie, dziecko
- * biegnie tego szukać, wbiega w znak — i dopiero wtedy gra jest jego, na
- * stałe. Dlatego jeden moduł trzyma OBIE rzeczy naraz: postęp zadania
- * i odkrycie gry. Trzymane osobno rozjechałyby się przy pierwszej poprawce
- * (zadanie skończone, a gra dalej niedostępna albo odwrotnie).
+ * wejścia. Mają być zdobyczą: Wizkor mówi, że obrazek rozsypał się po
+ * polanie, dziecko zbiera kawałki, układa je — i dopiero wtedy gra jest
+ * jego, na stałe. Dlatego jeden moduł trzyma OBIE rzeczy naraz: postęp
+ * zadania i odkrycie gry. Trzymane osobno rozjechałyby się przy pierwszej
+ * poprawce (zadanie skończone, a gra dalej niedostępna albo odwrotnie).
  *
  * ŻYCIE JEDNEJ MISJI — cztery kroki, każdy widoczny w innym miejscu:
  *
- *   1. ukryta        znaku NIE MA na mapie, gry nie ma w zakładce
- *   2. ujawniona     Wizkor zlecił — znak pojawia się na mapie
- *   3. znaleziona    dziecko wbiegło w znak — gra ląduje w zakładce NA STAŁE,
- *                    a znak zostaje na mapie jako skrót do niej
+ *   1. ukryta        na mapie nie ma nic z tej misji, gry nie ma w zakładce
+ *   2. ujawniona     Wizkor zlecił — po polanie leżą kawałki obrazka
+ *   3. odkryta       układanka ułożona (`puzzleGier`) — gra ląduje w zakładce
+ *                    NA STAŁE, znak wchodzi na mapę jako skrót do niej,
+ *                    a minigra rusza OD RAZU
  *   4. wygrana       partia rozegrana do końca → Wizkor płaci (`wyplacona`)
  *
- * Kolejność ma znaczenie: `zaliczWygrana` nie ruszy zadania, którego znak
- * nie został znaleziony. To jest cała zasada „najpierw znajdź na mapie".
- * Dzięki temu nie potrzeba żadnej ulotnej flagi „wszedłem z mapy" — samo
- * `znaleziona` jest dowodem, a przy okazji przeżywa zamknięcie apki.
+ * ETAPU „ZNAJDŹ ZNAK NA MAPIE" NIE MA (decyzja właściciela, 2026-08-22).
+ * Wcześniej ułożona układanka tylko ODSŁANIAŁA znak, a grę odpalało dopiero
+ * wbiegnięcie w niego. Szukanie po ułożonym obrazku było drugim szukaniem
+ * pod rząd — dziecko przeszło już całą polanę po kawałki i dostawało za to
+ * kolejne polowanie zamiast gry. Teraz obrazek JEST szukaniem: układanka
+ * kończy pogoń, a znak zostaje na polanie jako stały skrót do gry.
+ *
+ * Kolejność ma znaczenie: `zaliczWygrana` nie ruszy misji, której układanka
+ * nie została ułożona. To jest cała zasada „najpierw zdobądź grę". Dzięki
+ * temu nie potrzeba żadnej ulotnej flagi „wszedłem z mapy" — samo `odkryta`
+ * jest dowodem, a przy okazji przeżywa zamknięcie apki.
  *
  * Misje idą PO KOLEI, w porządku z `MISJE`. Wizkor zawsze mówi o pierwszej
  * nierozliczonej — dziecko ma na ekranie jeden cel, a nie listę zadań.
@@ -57,22 +65,23 @@ export const MISJE = [
     // pudelko i zaokraglone rogi), zeton to kwadrat. Bez tego HUD musialby
     // zgadywac proporcje z nazwy pliku.
     ksztaltIkony: "karta",
-    /* NAGRODA JEST ROZBITA NA DWIE. Znalezienie znaku na mapie to osobne
-       osiagniecie i od teraz ma wlasny ekran wygranej - dziecko biega po
-       polanie przez kilka minut i to bieganie musi sie oplacic samo w sobie,
-       niezaleznie od tego, czy zaraz zagra. Druga czesc placi Wizkor za
-       rozegrana partie. Suma zostaje ta sama, co przed rozbiciem (40). */
-    nagrodaZnalezienie: 15,
+    /* NAGRODA JEST ROZBITA NA DWIE. Ułożenie obrazka to osobne osiagniecie
+       i ma wlasny ekran wygranej - dziecko biega po polanie po kawalki przez
+       kilka minut i to bieganie musi sie oplacic samo w sobie, niezaleznie
+       od tego, jak pojdzie sama partia. Druga czesc placi Wizkor za rozegrana
+       gre. Suma zostaje ta sama, co przed rozbiciem (40). */
+    nagrodaUlozenie: 15,
     nagroda: 25,
     /* MISJA ZACZYNA SIĘ OD PUZZLI (decyzja właściciela, 2026-08-22):
-       zlecenie rozsypuje po polanie kawałki obrazka, a znak gry wchodzi na
-       mapę dopiero po ich ułożeniu (patrz `naMapie` niżej i `puzzleGier`).
-       Stąd zlecenie mówi o kawałkach — znak jest nagrodą za ułożenie. */
+       zlecenie rozsypuje po polanie kawałki obrazka, a ułożenie ich WCHODZI
+       PROSTO W GRĘ — znak zostaje przy okazji na mapie jako skrót (patrz
+       `naMapie` niżej i `puzzleGier`). Stąd zlecenie mówi o kawałkach
+       i obiecuje grę, a nie kolejne szukanie. */
     zlecenie: {
       tekst:
         "Masz oko do gwiazdek, wędrowcze. Teraz coś trudniejszego: obrazek " +
         "Mędrca rozsypał się na kawałki i wiatr rozniósł je po polanie. " +
-        "Pozbieraj je i ułóż w całość, a pokaże się karta Mędrca.",
+        "Pozbieraj je i ułóż w całość, a karta Mędrca będzie twoja.",
       wyroznienie: "kawałki",
       przycisk: "Zbieram kawałki!",
     },
@@ -88,16 +97,9 @@ export const MISJE = [
     ukladanie: {
       tekst:
         "Masz wszystkie kawałki! Ułóż z nich obrazek, " +
-        "a karta Mędrca pokaże się na polanie.",
+        "a od razu rozłoży się stół pełen par.",
       wyroznienie: "Ułóż z nich obrazek",
       przycisk: "Układam!",
-    },
-    szukanie: {
-      tekst:
-        "Karta leży gdzieś na polanie i mruga do ciebie złotem. " +
-        "Wbiegnij w nią, a rozłoży się stół pełen par.",
-      wyroznienie: "gdzieś na polanie",
-      przycisk: "Szukam dalej!",
     },
     granie: {
       tekst:
@@ -113,9 +115,9 @@ export const MISJE = [
       wyroznienie: "{nagroda} monet",
       przycisk: "Odbieram nagrodę!",
     },
-    nagrodaEkranZnalezienie: {
-      title: "Karta znaleziona!",
-      subtitle: "Rewers Mędrca leżał w trawie. Od teraz czeka w skrzyni z grami.",
+    nagrodaEkranUlozenie: {
+      title: "Obrazek ułożony!",
+      subtitle: "Karta Mędrca jest twoja — czeka w skrzyni z grami i na polanie.",
     },
     nagrodaEkran: {
       title: "Pamięć jak sowa!",
@@ -133,14 +135,11 @@ export const MISJE = [
     znak: "drzewo-lotu",
     /* Sosna miała tu kiedyś `zostajeNaMapie: true` — była JEDYNYM znakiem,
        który przeżywał rozliczenie misji, bo jako drzewo nie czytała się jako
-       „zbierz mnie". Flaga zniknęła, gdy zasada stała się ogólna: po
-       rozliczeniu WSZYSTKICH misji na polanę wracają wszystkie zdobyte znaki
-       (patrz `naMapie`), a w trakcie polowania chowają się wszystkie, łącznie
-       z sosną. Jeden wyjątek mniej. */
-    /* Bez kafelka „0/1" w HUD. Przy karcie i piórku licznik ma sens: znak
-       leży gdzieś w trawie i kafelek przypomina, ŻE się go szuka. Sosnę widać
-       z drugiego końca polany i wystarczy do niej podbiec — licznik nie niesie
-       wtedy żadnej informacji, tylko zajmuje górę ekranu. */
+       „zbierz mnie". Flaga zniknęła, gdy zasada stała się ogólna: raz zdobyty
+       znak stoi na polanie na stałe (patrz `naMapie`). Jeden wyjątek mniej. */
+    /* Bez kafelka „0/1" w HUD. Sosnę widać z drugiego końca polany
+       i wystarczy do niej podbiec — licznik nie niesie wtedy żadnej
+       informacji, tylko zajmuje górę ekranu. */
     bezLicznikaHud: true,
     tytul: "Lot Liska",
     szukaj: "wysoką sosnę",
@@ -151,13 +150,13 @@ export const MISJE = [
     ksztaltIkony: "zeton",
     /* Ten sam podział co wyżej, suma 55 — lot jest ostatnią i najdłuższą
        z trzech gier, więc dostaje odrobinę więcej niż piórko. */
-    nagrodaZnalezienie: 20,
+    nagrodaUlozenie: 20,
     nagroda: 35,
     zlecenie: {
       tekst:
         "Czas polatać, wędrowcze. Obrazek lotu rozsypał się na dziewięć " +
         "kawałków i leżą teraz po całej polanie. Pozbieraj je i ułóż " +
-        "w całość, a pokażę ci sosnę, z której się startuje.",
+        "w całość, a staniesz na szczycie sosny.",
       wyroznienie: "dziewięć kawałków",
       przycisk: "Zbieram kawałki!",
     },
@@ -171,16 +170,9 @@ export const MISJE = [
     ukladanie: {
       tekst:
         "Masz wszystkie kawałki! Ułóż z nich obrazek, " +
-        "a wskażę ci sosnę do startu.",
+        "a od razu wejdziesz na sosnę.",
       wyroznienie: "Ułóż z nich obrazek",
       przycisk: "Układam!",
-    },
-    szukanie: {
-      tekst:
-        "Sosna jest najwyższa na polanie, nie da się jej przeoczyć. " +
-        "Podbiegnij do niej, a reszta pójdzie sama.",
-      wyroznienie: "najwyższa na polanie",
-      przycisk: "Już biegnę!",
     },
     granie: {
       tekst:
@@ -196,9 +188,9 @@ export const MISJE = [
       wyroznienie: "{nagroda} monet",
       przycisk: "Odbieram nagrodę!",
     },
-    nagrodaEkranZnalezienie: {
-      title: "Sosna znaleziona!",
-      subtitle: "Najwyższa na polanie. Od teraz startujesz z niej, kiedy chcesz.",
+    nagrodaEkranUlozenie: {
+      title: "Obrazek ułożony!",
+      subtitle: "Sosna jest twoja — od teraz startujesz z niej, kiedy chcesz.",
     },
     nagrodaEkran: {
       title: "Ale lot!",
@@ -209,9 +201,9 @@ export const MISJE = [
     id: "bieg-liska",
     /* Znak tej misji to BUCIK (`assets/but.glb`) — zgubiony but do biegania,
        leżący w trawie. Wracamy więc do schematu karty i piórka: przedmiot,
-       który się ZNAJDUJE i podnosi, a nie miejsce, do którego się podchodzi.
-       Dzięki temu i wchłanianie, i ekran znalezienia działają tu tak samo jak
-       w dwóch pierwszych misjach — bez wyjątków w kodzie sceny. */
+       który się podnosi, a nie miejsce, do którego się podchodzi. Dzięki temu
+       wchłanianie działa tu tak samo jak w dwóch pierwszych misjach — bez
+       wyjątków w kodzie sceny. */
     znak: "bucik",
     tytul: "Bieg Liska",
     szukaj: "zgubiony bucik",
@@ -222,16 +214,16 @@ export const MISJE = [
     ikona: "/assets/minigry/but.png",
     ksztaltIkony: "zeton",
     /* Ten sam podział co w reszcie łańcucha. Suma 65 — bieg jest ostatni
-       i najdłuższy (pięć zadań na trasie), więc płaci najwięcej.
-       Za samo znalezienie bucika płacimy najhojniej z całego łańcucha (25):
-       jest najmniejszy ze wszystkich znaków, więc i szuka się go najdłużej. */
-    nagrodaZnalezienie: 25,
+       i najdłuższy (pięć zadań na trasie), więc płaci najwięcej. Za ułożenie
+       płacimy najhojniej z całego łańcucha (25): obrazek trasy ma dziewięć
+       kawałków, a to najdłuższe zbieranie w grze. */
+    nagrodaUlozenie: 25,
     nagroda: 40,
     zlecenie: {
       tekst:
         "Zostało ostatnie, wędrowcze. Obrazek górskiej trasy rozsypał się " +
         "na dziewięć kawałków po polanie. Pozbieraj je i ułóż w całość, " +
-        "a pokażę ci, gdzie leży bucik do biegania.",
+        "a bucik do biegania będzie twój.",
       wyroznienie: "dziewięć kawałków",
       przycisk: "Zbieram kawałki!",
     },
@@ -245,16 +237,9 @@ export const MISJE = [
     ukladanie: {
       tekst:
         "Masz wszystkie kawałki! Ułóż z nich obrazek, " +
-        "a bucik znajdzie się od razu.",
+        "a trasa stanie otworem od razu.",
       wyroznienie: "Ułóż z nich obrazek",
       przycisk: "Układam!",
-    },
-    szukanie: {
-      tekst:
-        "Bucik jest mniejszy niż karta Mędrca — leży gdzieś nisko " +
-        "w trawie. Szukaj żółtej plamki i wbiegnij prosto w nią.",
-      wyroznienie: "żółtej plamki",
-      przycisk: "Szukam dalej!",
     },
     granie: {
       tekst:
@@ -270,9 +255,9 @@ export const MISJE = [
       wyroznienie: "{nagroda} monet",
       przycisk: "Odbieram nagrodę!",
     },
-    nagrodaEkranZnalezienie: {
-      title: "Bucik znaleziony!",
-      subtitle: "Leżał w trawie, mały i żółty. Trasa czeka w skrzyni z grami.",
+    nagrodaEkranUlozenie: {
+      title: "Obrazek ułożony!",
+      subtitle: "Bucik jest twój — trasa czeka w skrzyni z grami i na polanie.",
     },
     nagrodaEkran: {
       title: "Głowa i nogi!",
@@ -305,81 +290,58 @@ function zapisz(zapis) {
   } catch {}
 }
 
-/**
- * Czy trwa POLOWANIE: jest misja zlecona i jeszcze nierozliczona, czyli
- * dziecko szuka teraz nowej gry albo dopiero ma ją przejść pierwszy raz.
- * To jedyny stan, w którym mapa musi mówić o JEDNEJ rzeczy.
- */
-function czyPolowanie(zapis) {
-  return MISJE.some((def) => {
-    const w = zapis[def.id];
-    return !!w?.ujawniona && !w?.wyplacona;
-  });
-}
-
-function zStanu(def, wpis, polowanie) {
+function zStanu(def, wpis) {
   const ujawniona = !!wpis?.ujawniona;
-  const znaleziona = !!wpis?.znaleziona;
+  /* `znaleziona` to STARA nazwa tej samej flagi — z czasów, gdy grę odkrywało
+     wbiegnięcie w znak, a nie ułożenie układanki. Czytamy obie, żeby zapis
+     zrobiony przed tą zmianą nie odebrał dziecku zdobytej już gry. */
+  const odkryta = !!(wpis?.odkryta || wpis?.znaleziona);
   const wygrana = !!wpis?.wygrana;
   const wyplacona = !!wpis?.wyplacona;
-  const wyplaconaZnalezienie = !!wpis?.wyplaconaZnalezienie;
+  const wyplaconaUlozenie = !!(wpis?.wyplaconaUlozenie || wpis?.wyplaconaZnalezienie);
   return {
     id: def.id,
     def,
     ujawniona,
-    znaleziona,
+    odkryta,
     wygrana,
     wyplacona,
-    /** Czy zaplacilismy juz za SAMO znalezienie znaku na mapie. */
-    wyplaconaZnalezienie,
-    /** Znak znaleziony, a nagroda za znalezienie jeszcze nieodebrana. */
-    doNagrodyZaZnalezienie: znaleziona && !wyplaconaZnalezienie,
+    /** Czy zaplacilismy juz za SAMO ulozenie obrazka. */
+    wyplaconaUlozenie,
+    /** Obrazek ułożony, a nagroda za ułożenie jeszcze nieodebrana. */
+    doNagrodyZaUlozenie: odkryta && !wyplaconaUlozenie,
     /** Kafelek w HUD ma stać, dopóki misja nie jest rozliczona. */
     aktywna: ujawniona && !wyplacona,
     /**
-     * CO STOI NA MAPIE — zależy od tego, czy trwa polowanie.
+     * CO STOI NA MAPIE. Znak gry wchodzi na polanę w chwili UŁOŻENIA
+     * układanki i zostaje tam NA ZAWSZE — jako skrót do zdobytej gry.
      *
-     *   polowanie (misja zlecona, gra jeszcze nieprzeszła):
-     *       na mapie stoi TYLKO jej znak, reszta skrótów się chowa,
-     *   spokój (wszystko rozliczone):
-     *       wracają WSZYSTKIE zdobyte znaki jako stałe skróty do gier.
-     *
-     * Dwie zasady w jednym warunku, bo to jedna decyzja. Kiedy dziecko czegoś
-     * szuka, mapa ma mówić o jednej rzeczy — inaczej przestaje znaczyć „tego
-     * szukasz", a zaczyna „tu coś jest", i cel ginie wśród pamiątek. Kiedy nie
-     * szuka niczego, nie ma czego chronić: polana może być wtedy tym, czym
-     * powinna — miejscem, z którego wchodzi się do każdej zdobytej gry.
-     *
-     * Wcześniej znak znikał po rozliczeniu NA ZAWSZE (poza wyjątkiem
-     * `zostajeNaMapie` dla sosny). Skrót do przejętej gry przepadał, choć nic
-     * już nie zaciemniał — bo w spokoju nie ma celu, z którym mógłby
-     * konkurować. Wyjątek zniknął razem z regułą, która go wymuszała.
+     * Wcześniej znak chował się na czas kolejnego polowania („mapa mówi
+     * o jednej rzeczy") i wracał dopiero po rozliczeniu wszystkich misji.
+     * Miało to sens, dopóki znak BYŁ celem: dwa cele naraz gubiły ten
+     * właściwy. Od kiedy celem jest obrazek, a znak tylko drzwiami do gry,
+     * chowanie go odbierało dziecku wstęp do rzeczy, którą już zdobyło —
+     * i to w jedynym momencie, w którym miałoby ochotę zagrać w nią jeszcze
+     * raz. Cel nowej misji leży teraz w trawie jako kawałki puzzli i niczym
+     * się z drzwiami nie myli (decyzja właściciela, 2026-08-22).
      */
-    /* ZNAK GRY WCHODZI NA MAPĘ DOPIERO PO UŁOŻENIU PUZZLI. Misja zaczyna
-       się od zbierania kawałków obrazka (`puzzleGier`), a znak jest nagrodą
-       za ułożenie — wcześniej na polanie stoją kawałki, nie znak. */
-    naMapie: ujawniona && czyPuzzleUlozone(def.id) && (polowanie ? !wyplacona : true),
-    /** Gra siedzi w zakładce dopiero od znalezienia — i tam zostaje. */
-    wZakladce: znaleziona,
+    naMapie: ujawniona && czyPuzzleUlozone(def.id),
+    /** Gra siedzi w zakładce od ułożenia obrazka — i tam zostaje. */
+    wZakladce: odkryta,
   };
 }
 
 /** Stany wszystkich misji, w kolejności z `MISJE`. */
 export function stanMisji() {
   const zapis = czytaj();
-  // `polowanie` liczymy RAZ, z całego zapisu: `naMapie` jednej misji zależy od
-  // tego, czy któraś INNA jest w toku, więc nie da się go policzyć z samego
-  // wpisu. To jedyne pole w tym module, które patrzy poza swoją misję.
-  const polowanie = czyPolowanie(zapis);
-  return MISJE.map((def) => zStanu(def, zapis[def.id], polowanie));
+  return MISJE.map((def) => zStanu(def, zapis[def.id]));
 }
 
 /** Stan jednej misji (albo `null`, gdy takiej gry nie ma w łańcuchu). */
 export function stanGry(id) {
   const def = misjaGry(id);
   if (!def) return null;
-  const zapis = czytaj();
-  return zStanu(def, zapis[id], czyPolowanie(zapis));
+  return zStanu(def, czytaj()[id]);
 }
 
 /**
@@ -412,8 +374,8 @@ function zmien(id, latka) {
   const teraz = zapis[id] || {};
   const nowy = { ...teraz, ...latka };
   // Bez zmiany nie ma zapisu i nie ma zdarzenia — inaczej każde wejście
-  // w znaleziony już znak przerysowywałoby hub bez powodu.
-  const KLUCZE = ["ujawniona", "znaleziona", "wygrana", "wyplacona", "wyplaconaZnalezienie"];
+  // w zdobyty już znak przerysowywałoby hub bez powodu.
+  const KLUCZE = ["ujawniona", "odkryta", "wygrana", "wyplacona", "wyplaconaUlozenie"];
   if (KLUCZE.every((k) => !!teraz[k] === !!nowy[k])) {
     return zStanu(def, teraz);
   }
@@ -422,51 +384,55 @@ function zmien(id, latka) {
   return zStanu(def, nowy);
 }
 
-/** Wizkor zleca misję: znak wchodzi na mapę, kafelek zapala się w HUD. */
+/** Wizkor zleca misję: kawałki obrazka wchodzą na mapę, kafelek w HUD. */
 export function ujawnij(id) {
   return zmien(id, { ujawniona: true });
 }
 
 /**
- * Dziecko wbiegło w znak. Od tej chwili gra jest w zakładce NA STAŁE — także
- * wtedy, gdy partii nie skończy. Znalezienie jest tu osobną nagrodą i nie
- * może zależeć od wyniku.
+ * Układanka ułożona — gra ZDOBYTA. Od tej chwili siedzi w zakładce NA STAŁE
+ * (także wtedy, gdy pierwszej partii dziecko nie skończy), a jej znak stoi na
+ * polanie jako skrót. Ułożenie jest osobną nagrodą i nie może zależeć od
+ * wyniku gry.
+ *
+ * Nazwa została z czasów, gdy grę odkrywało wbiegnięcie w znak — bo czynność
+ * jest ta sama: „ta gra jest od teraz twoja".
  */
 export function odkryj(id) {
   const teraz = stanGry(id);
-  if (!teraz || !teraz.ujawniona) return null;   // znaku i tak nie ma na mapie
-  return zmien(id, { znaleziona: true });
+  if (!teraz || !teraz.ujawniona) return null;   // misji nikt jeszcze nie zlecił
+  return zmien(id, { odkryta: true });
 }
 
 /**
- * Wypłata za SAMO ZNALEZIENIE znaku. Osobna od wypłaty za partię, bo to dwa
- * różne wysiłki: bieganie po polanie i rozegranie gry. Dziecko dostaje za
- * każdy z nich własny ekran wygranej, w chwili, w której naprawdę coś
- * zrobiło — czekanie z całą nagrodą do końca partii znaczyło, że kilka minut
- * szukania nie miało na ekranie żadnego śladu.
+ * Wypłata za SAMO UŁOŻENIE obrazka. Osobna od wypłaty za partię, bo to dwa
+ * różne wysiłki: zbieranie kawałków po polanie i rozegranie gry. Dziecko
+ * dostaje za każdy z nich własny ekran wygranej, w chwili, w której naprawdę
+ * coś zrobiło — czekanie z całą nagrodą do końca partii znaczyło, że kilka
+ * minut zbierania nie miało na ekranie żadnego śladu.
  *
- * Idempotentna, dokładnie jak `odbierzNagrode`: powrót do znalezionego już
- * znaku ani podwójne kliknięcie w ekranie nagrody nie płacą drugi raz.
+ * Idempotentna, dokładnie jak `odbierzNagrode`: powtórne wejście ani podwójne
+ * kliknięcie w ekranie nagrody nie płacą drugi raz.
  */
-export function odbierzNagrodeZnalezienia(id) {
+export function odbierzNagrodeUlozenia(id) {
   const teraz = stanGry(id);
-  if (!teraz || !teraz.znaleziona || teraz.wyplaconaZnalezienie) {
+  if (!teraz || !teraz.odkryta || teraz.wyplaconaUlozenie) {
     return { stan: teraz, dodane: 0 };
   }
-  const stan = zmien(id, { wyplaconaZnalezienie: true });
-  const ile = teraz.def.nagrodaZnalezienie || 0;
-  if (ile) dodajMonety(ile, `misja:${id}:znalezienie`);
+  const stan = zmien(id, { wyplaconaUlozenie: true });
+  const ile = teraz.def.nagrodaUlozenie || 0;
+  if (ile) dodajMonety(ile, `misja:${id}:ulozenie`);
   return { stan, dodane: ile };
 }
 
 /**
- * Rozegrana partia. Liczy się TYLKO dla gry znalezionej na mapie — to jest
+ * Rozegrana partia. Liczy się TYLKO dla gry zdobytej układanką — to jest
  * ten warunek, dla którego cały moduł istnieje. Zwraca `null`, gdy nie ma
  * czego zaliczać, więc gra wie, czy pokazywać jakąkolwiek reakcję.
  */
 export function zaliczWygrana(id) {
   const teraz = stanGry(id);
-  if (!teraz || !teraz.znaleziona || teraz.wygrana || teraz.wyplacona) return null;
+  if (!teraz || !teraz.odkryta || teraz.wygrana || teraz.wyplacona) return null;
   return zmien(id, { wygrana: true });
 }
 
@@ -495,7 +461,7 @@ export function odbierzNagrode(id) {
  * u siebie i pokazuje obie liczby na jednym ekranie.
  *
  * Zwraca `{ stan, dodane }`; `dodane` to 0, gdy nie było czego wypłacać
- * (gra bez misji, misja rozliczona wcześniej, znak nieznaleziony na mapie) —
+ * (gra bez misji, misja rozliczona wcześniej, układanka nieułożona) —
  * ekran wyniku pyta o to, zanim dopisze linijkę o Wizkorze.
  *
  * Ekran nagrody w hubie ZOSTAJE jako bezpiecznik: zapis sprzed tej zmiany

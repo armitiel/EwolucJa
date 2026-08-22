@@ -1,7 +1,7 @@
 /**
  * DevRezyserka — pulpit testowy świata. Skraca do jednego kliknięcia rzeczy,
  * które inaczej trwają: dziesięć gwiazdek, czekanie na Wizkora (pojawia się
- * co ~95 s), bieganie w poszukiwaniu znaku, rozgrywanie partii do końca.
+ * co ~95 s), zbieranie kawałków obrazka, rozgrywanie partii do końca.
  *
  * NIE JEST CZĘŚCIĄ GRY. Wchodzi tylko przy włączonym trybie dev
  * (`services/dev.js`), więc na ekranie dziecka nie istnieje — także wtedy,
@@ -197,18 +197,20 @@ export default function DevRezyserka({
   }
 
   /* Puzzle jednej gry od zera do ułożenia — tą samą drogą, którą idzie
-     gra (rozpocznij → dolicz → ułóż), nie skrótem przez localStorage. */
+     gra (rozpocznij → dolicz → ułóż → gra zdobyta), nie skrótem przez
+     localStorage. `odkryj` jest tu częścią układanki, bo w grze ułożenie
+     obrazka JEST zdobyciem gry — rozdzielone produkowałoby zapis, którego
+     świat nigdy nie wytworzy. */
   function ulozPuzzle(id) {
     rozpocznijZbieranie(id);
     for (let i = 1; i <= 9; i += 1) doliczPuzel(`puzel-${i}`);
     zaliczUlozenie(id);
+    odkryj(id);
   }
 
   function wszystkoOdkryte() {
     gwiazdkiPoNagrodzie();
-    // Puzzle ułożone PRZED odkryciem — w grze znak nie ma prawa stanąć na
-    // mapie przed układanką, więc skrót nie może produkować innego zapisu.
-    for (const def of MISJE) { ujawnij(def.id); ulozPuzzle(def.id); odkryj(def.id); }
+    for (const def of MISJE) { ujawnij(def.id); ulozPuzzle(def.id); }
     odswiez("DEV: wszystkie gry odkryte");
   }
 
@@ -399,17 +401,18 @@ export default function DevRezyserka({
               tytul={`${m.def.tytul} — ${
                 m.wyplacona ? "rozliczona"
                 : m.wygrana ? "wygrana, do wypłaty"
-                : m.znaleziona ? "znaleziona"
-                : m.ujawniona ? (etapPuzzli ? `zlecona, ${etapPuzzli}` : "zlecona, do znalezienia")
+                : m.odkryta ? "zdobyta, do rozegrania"
+                : m.ujawniona ? (etapPuzzli ? `zlecona, ${etapPuzzli}` : "zlecona")
                 : "ukryta"
               }`}
             >
               <Guzik onClick={() => { ujawnij(m.id); rozpocznijZbieranie(m.id); odswiez(`DEV: zlecona ${m.def.tytul} — kawałki na mapie`); }}>Zleć</Guzik>
-              {/* Pod-etapy bramy z puzzli — między zleceniem a znalezieniem,
-                  w tej samej kolejności, co w grze. */}
+              {/* Pod-etapy bramy z puzzli — między zleceniem a grą, w tej
+                  samej kolejności, co w grze. „Ułóż" domyka cały etap:
+                  układanka ułożona = gra zdobyta i znak na mapie, więc nie ma
+                  tu osobnego guzika „znajdź znak". */}
               <Guzik onClick={() => { rozpocznijZbieranie(m.id); for (let i = 1; i <= 9; i += 1) doliczPuzel(`puzel-${i}`); odswiez(`DEV: komplet kawałków (${celPuzzli(m.id)})`); }}>Komplet kawałków</Guzik>
-              <Guzik onClick={() => { ulozPuzzle(m.id); odswiez("DEV: układanka ułożona — znak na mapie"); }}>Ułóż</Guzik>
-              <Guzik onClick={() => { odkryj(m.id); odswiez(`DEV: znaleziona ${m.def.tytul}`); }}>Znajdź</Guzik>
+              <Guzik onClick={() => { ulozPuzzle(m.id); odswiez(`DEV: ułożona — ${m.def.tytul} zdobyta, znak na mapie`); }}>Ułóż</Guzik>
               <Guzik onClick={() => { zaliczWygrana(m.id); odswiez(`DEV: zaliczona ${m.def.tytul}`); }}>Zalicz partię</Guzik>
               <Guzik onClick={() => { odbierzNagrodeMisji(m.id); odswiez(`DEV: +${m.def.nagroda} monet`); }}>Wypłać</Guzik>
               <Guzik onClick={() => skoczDoZnaku(m.def.znak)}>Skocz do znaku</Guzik>

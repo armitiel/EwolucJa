@@ -163,14 +163,15 @@ export function powitanieCzarodzieja(z, misja) {
     // czarodziej rzuca krótki komunikat zamiast otwierać okno), ale muszą
     // istnieć: dosięga ich `window.popupPostaci.pokaz()` i pulpit testowy,
     // a stan jest realny.
-    if (misja.znaleziona) return { ...baza, ...def.granie, akcja: null };
+    if (misja.odkryta) return { ...baza, ...def.granie, akcja: null };
     if (misja.ujawniona) {
       /**
-       * ETAP PUZZLI. Zlecona misja zaczyna się od kawałków obrazka: dopóki
-       * układanka nie jest ułożona, Wizkor mówi o kawałkach, nie o znaku —
-       * znaku i tak nie ma jeszcze na mapie (patrz `naMapie` w `misjeGier`).
-       * Z kompletem kwestia dostaje zielony przycisk „Układam!", który
-       * otwiera układankę prosto z rozmowy.
+       * ETAP PUZZLI — jedyny etap między zleceniem a grą. Zlecona misja
+       * zaczyna się od kawałków obrazka i dopóki układanka nie jest ułożona,
+       * Wizkor mówi o kawałkach: znaku i tak nie ma jeszcze na mapie (patrz
+       * `naMapie` w `misjeGier`). Z kompletem kwestia dostaje zielony przycisk
+       * „Układam!", który otwiera układankę prosto z rozmowy — a ułożenie
+       * wchodzi wprost w grę, więc kwestii „szukaj znaku" już nie ma.
        */
       /* Pulpit dev podstawia `misja.puzzle`, żeby dało się obejrzeć kwestię
          każdego pod-etapu bez grzebania w prawdziwym zapisie puzzli —
@@ -179,11 +180,14 @@ export function powitanieCzarodzieja(z, misja) {
       const puzzle = misja.puzzle || stanPuzzli(misja.def.id);
       if (puzzle.brama && !puzzle.ulozona) {
         if (puzzle.komplet) {
-          return { ...baza, ...(misja.def.ukladanie || misja.def.szukanie), akcja: `ukladanka:${misja.def.id}` };
+          return { ...baza, ...misja.def.ukladanie, akcja: `ukladanka:${misja.def.id}` };
         }
-        return { ...baza, ...(misja.def.zbieranie || misja.def.szukanie), akcja: null };
+        return { ...baza, ...misja.def.zbieranie, akcja: null };
       }
-      return { ...baza, ...def.szukanie, akcja: null };
+      /* Układanka ułożona, a misja nieoznaczona jako odkryta: zapis sprzed
+         tej zmiany albo gra bez bramy z puzzli. Gra jest wtedy dostępna, więc
+         Wizkor mówi to samo, co po zdobyciu — „idź zagrać". */
+      return { ...baza, ...def.granie, akcja: null };
     }
     return { ...baza, ...def.zlecenie, akcja: `zlec:${def.id}` };
   }

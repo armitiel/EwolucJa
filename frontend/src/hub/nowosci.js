@@ -64,7 +64,7 @@ function oznacz(klucz, dostepne) {
 
 /* ── MINIGRY ──────────────────────────────────────────────────────────────
    Dostępne = dokładnie to, co widać w zakładce: gry spoza misji są tam zawsze,
-   gry z misji dopiero po znalezieniu znaku na mapie. Filtr jest ten sam, co
+   gry z misji dopiero po ułożeniu ich układanki. Filtr jest ten sam, co
    w `MinigryPanel`, i musi taki zostać — plakietka obiecująca coś, czego
    w zakładce nie ma, byłaby gorsza niż jej brak. */
 const ID_MISJI = new Set(MISJE.map((m) => m.id));

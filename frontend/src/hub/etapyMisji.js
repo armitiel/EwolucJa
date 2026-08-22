@@ -13,7 +13,8 @@
  * Dlatego etap NIE jest tu zbiorem przełączników, tylko jednym punktem na
  * osi. Wybranie etapu odbudowuje OBA zapisy od zera, tą samą drogą, którą
  * idzie gra: `rozpocznijZadanie` → `dolicz` → `odbierzNagrode` → `ujawnij` →
- * `odkryj` → `zaliczWygrana` → `odbierzNagrode`. Skrótem przez localStorage
+ * `zaliczUlozenie` → `odkryj` → `zaliczWygrana` → `odbierzNagrode`.
+ * Skrótem przez localStorage
  * byłoby to testowanie samego skrótu, a nie gry — i pierwszy stan niemożliwy
  * w grze znów wyglądałby jak jej błąd.
  *
@@ -52,13 +53,14 @@ import {
 } from "./misjeGier.js";
 
 /**
- * Stopnie jednej misji — ta sama kolejność, co w grze. Od wprowadzenia bramy
- * z puzzli misja ma DWA stopnie więcej: po zleceniu dziecko najpierw zbiera
- * kawałki obrazka („kawalki"), potem układa układankę („komplet" = wszystkie
- * zebrane, nieułożone). Dopiero „zlecona" znaczy to, co dawniej: znak gry
- * stoi na mapie i się go szuka.
+ * Stopnie jednej misji — ta sama kolejność, co w grze. Po zleceniu dziecko
+ * zbiera kawałki obrazka („kawalki"), potem układa układankę („komplet" =
+ * wszystkie zebrane, nieułożone), a ułożenie od razu daje grę („odkryta").
+ *
+ * Etapu „znak stoi na mapie i się go szuka" już nie ma — układanka wchodzi
+ * wprost w minigrę (patrz nagłówek `misjeGier.js`).
  */
-const FAZY = ["brak", "kawalki", "komplet", "zlecona", "znaleziona", "wygrana"];
+const FAZY = ["brak", "kawalki", "komplet", "odkryta", "wygrana"];
 
 /**
  * Etapy gwiazdek. `zebrane: null` znaczy „zadania w ogóle nie ma", a nie
@@ -101,7 +103,7 @@ function etapyGwiazdek() {
   ];
 }
 
-/** Sześć momentów jednej misji z grą, w kolejności jej życia. */
+/** Pięć momentów jednej misji z grą, w kolejności jej życia. */
 function etapyMisji(def, idx) {
   const kawalkow = celPuzzli(def.id);
   return [
@@ -116,7 +118,7 @@ function etapyMisji(def, idx) {
     {
       id: `${def.id}:kawalki`,
       tytul: `${def.tytul} — kawałki puzzli`,
-      opis: `Misja zlecona: ${kawalkow} kawałków obrazka rozsypanych po mapie (licznik w HUD). Znaku „${def.znak}" jeszcze nie ma — wejdzie po ułożeniu.`,
+      opis: `Misja zlecona: ${kawalkow} kawałków obrazka rozsypanych po mapie (licznik w HUD). Znaku „${def.znak}" jeszcze nie ma — wejdzie na stałe po ułożeniu.`,
       misja: idx,
       faza: "kawalki",
       akcja: null,
@@ -130,19 +132,11 @@ function etapyMisji(def, idx) {
       akcja: `ukladanka:${def.id}`,
     },
     {
-      id: `${def.id}:zlecona`,
-      tytul: `${def.tytul} — szukanie`,
-      opis: `Puzzle ułożone: znak „${def.znak}" stoi na mapie, gry nie ma jeszcze w zakładce.`,
+      id: `${def.id}:odkryta`,
+      tytul: `${def.tytul} — gra zdobyta`,
+      opis: `Puzzle ułożone: gra siedzi w zakładce, znak „${def.znak}" stoi na mapie jako skrót. Partia jeszcze nierozegrana.`,
       misja: idx,
-      faza: "zlecona",
-      akcja: null,
-    },
-    {
-      id: `${def.id}:znaleziona`,
-      tytul: `${def.tytul} — gra odkryta`,
-      opis: "Znak dotknięty, gra siedzi w zakładce. Partia jeszcze nierozegrana.",
-      misja: idx,
-      faza: "znaleziona",
+      faza: "odkryta",
       akcja: null,
     },
     {
@@ -180,12 +174,13 @@ const PIERWSZA_GRA = etapyGwiazdek().length;
 
 /** Stopień jednej misji jako liczba, żeby dało się porównywać kolejność. */
 function stopien(m) {
-  if (m.wyplacona) return 6;
-  if (m.wygrana) return 5;
-  if (m.znaleziona) return 4;
+  if (m.wyplacona) return 5;
+  if (m.wygrana) return 4;
+  if (m.odkryta) return 3;
   if (m.ujawniona) {
-    // Etap puzzli mieści się między zleceniem a szukaniem znaku: najpierw
-    // kawałki po mapie, potem układanka, dopiero potem znak (patrz FAZY).
+    // Etap puzzli mieści się między zleceniem a grą: najpierw kawałki po
+    // mapie, potem układanka (patrz FAZY). Ułożona układanka bez `odkryta`
+    // to zapis sprzed zmiany albo gra bez bramy — liczy się jak zdobyta.
     const puzzle = stanPuzzli(m.id);
     if (puzzle.brama && !puzzle.ulozona) return puzzle.komplet ? 2 : 1;
     return 3;
@@ -225,7 +220,7 @@ export function zlamanaKolejnosc() {
     return `„${ruszone[0].def.tytul}" ruszyła, choć gwiazdki nie są rozliczone.`;
   }
   for (let i = 1; i < misje.length; i += 1) {
-    if (stopien(misje[i]) > 0 && stopien(misje[i - 1]) < 6) {
+    if (stopien(misje[i]) > 0 && stopien(misje[i - 1]) < 5) {
       return `„${misje[i].def.tytul}" ruszyła przed rozliczeniem „${misje[i - 1].def.tytul}".`;
     }
   }
@@ -283,9 +278,9 @@ export function zastosujEtap(nr) {
     if (faza === "brak") break;
     ujawnij(id);
     zbudujPuzzle(id, faza);
-    if (faza === "kawalki" || faza === "komplet" || faza === "zlecona") break;
+    if (faza === "kawalki" || faza === "komplet") break;
     odkryj(id);
-    if (faza === "znaleziona") break;
+    if (faza === "odkryta") break;
     zaliczWygrana(id);
     if (faza === "wygrana") break;
     odbierzNagrodeMisji(id);

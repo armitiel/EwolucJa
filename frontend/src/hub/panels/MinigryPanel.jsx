@@ -26,9 +26,9 @@ import { gryWZakladce, MISJE, ZDARZENIE_ZMIANY as MISJE_ZMIANA } from "../misjeG
 import { oznaczMinigryObejrzane } from "../nowosci.js";
 
 /**
- * Gry z łańcucha misji (`hub/misjeGier.js`) są ZNALEZISKIEM, nie pozycją
- * w spisie: do zakładki wchodzą dopiero wtedy, gdy dziecko wbiegnie w ich
- * znak na mapie — i zostają w niej na zawsze. Dopóki tego nie zrobi, kafelka
+ * Gry z łańcucha misji (`hub/misjeGier.js`) są ZDOBYCZĄ, nie pozycją
+ * w spisie: do zakładki wchodzą dopiero wtedy, gdy dziecko ułoży ich
+ * układankę — i zostają w niej na zawsze. Dopóki tego nie zrobi, kafelka
  * nie ma wcale. Zablokowany kafelek z kłódką zdradzałby, że coś istnieje,
  * a cała przyjemność jest w tym, że gra pojawia się znikąd.
  */

@@ -257,8 +257,8 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
   const [strzaly, setStrzaly] = useState(0);
   const [monety, setMonety] = useState(0);
   const [komunikat, setKomunikat] = useState("Dotknij liska i przeciągnij w dół");
-  // Nagroda Wizkora za domkniętą misję — 0, gdy misji nie ma albo sosna nie
-  // została jeszcze znaleziona na mapie.
+  // Nagroda Wizkora za domkniętą misję — 0, gdy misji nie ma albo układanka
+  // lotu nie została jeszcze ułożona.
   const [nagrodaMisji, setNagrodaMisji] = useState(0);
 
   const wrocDoHuba = useCallback(() => {

@@ -36,7 +36,7 @@ import {
   aktualnaMisja,
   MISJE,
   odbierzNagrode as odbierzNagrodeMisji,
-  odbierzNagrodeZnalezienia,
+  odbierzNagrodeUlozenia,
   odkryj as odkryjGre,
   skasujMisje,
   stanGry,
@@ -157,15 +157,15 @@ const ZNAK_GRY = Object.fromEntries(MISJE.map((m) => [m.znak, m.id]));
 
 /**
  * Stan `nagroda` niesie TRZY rodzaje ekranu wygranej: "gwiazdki", `id` misji
- * (wypłata za rozegraną partię) i `znalezienie:<id>` (wypłata za znalezienie
- * znaku na mapie). Prefiks zamiast osobnego stanu, bo te ekrany nigdy nie
- * stoją obok siebie — zawsze jest ich na ekranie dokładnie zero albo jeden,
+ * (wypłata za rozegraną partię) i `ulozenie:<id>` (wypłata za ułożenie
+ * obrazka). Prefiks zamiast osobnego stanu, bo te ekrany nigdy nie stoją
+ * obok siebie — zawsze jest ich na ekranie dokładnie zero albo jeden,
  * a drugi stan znaczyłby tylko tyle, że da się je pokazać naraz.
  */
-const PREFIKS_ZNALEZIENIE = "znalezienie:";
-const idZeZnalezienia = (wartosc) =>
-  (typeof wartosc === "string" && wartosc.startsWith(PREFIKS_ZNALEZIENIE)
-    ? wartosc.slice(PREFIKS_ZNALEZIENIE.length)
+const PREFIKS_ULOZENIE = "ulozenie:";
+const idZUlozenia = (wartosc) =>
+  (typeof wartosc === "string" && wartosc.startsWith(PREFIKS_ULOZENIE)
+    ? wartosc.slice(PREFIKS_ULOZENIE.length)
     : null);
 
 /**
@@ -394,18 +394,29 @@ export default function Swiat() {
    */
   const bramaRef = useRef(() => false);
   /**
-   * ZNALEZIENIE ZNAKU JEST OSOBNĄ WYGRANĄ. Wbiegnięcie w kartę albo w piórko
-   * kończy pierwszą połowę misji — dziecko szukało tego przez kilka minut
-   * biegania po polanie i musi to zobaczyć NATYCHMIAST, a nie dopiero po
-   * rozegranej partii. Ekran nagrody wchodzi więc dwa razy w jednej misji:
-   * raz za znalezienie (`znalezienie:<id>`), raz za grę (`<id>`).
+   * UŁOŻENIE OBRAZKA JEST OSOBNĄ WYGRANĄ. Ostatni kawałek wciśnięty na
+   * miejsce kończy pierwszą połowę misji — dziecko zbierało kawałki przez
+   * kilka minut biegania po polanie i musi to zobaczyć NATYCHMIAST, a nie
+   * dopiero po rozegranej partii. Ekran nagrody wchodzi więc dwa razy
+   * w jednej misji: raz za ułożenie (`ulozenie:<id>`), raz za grę (`<id>`).
    *
-   * Kolejność jest sztywna: wchłonięcie znaku → ekran wygranej za znalezienie
-   * → dopiero potem lisek pyta „gramy?". Trzy rzeczy naraz na ekranie
-   * sześciolatka to nie świętowanie, tylko hałas — stąd `zaproszeniePoNagrodzieRef`,
-   * które przechowuje zaproszenie do chwili zamknięcia ekranu nagrody.
+   * Kolejność jest sztywna i po ekranie nagrody wchodzi DOKŁADNIE JEDNA
+   * rzecz — dwa okna naraz na ekranie sześciolatka to nie świętowanie, tylko
+   * hałas. Stąd dwa uchwyty, każdy na inną drogę:
+   *
+   *   `graPoNagrodzieRef`          układanka → ekran nagrody → SAMA GRA
+   *                                (nowa droga: obrazek wchodzi wprost w grę),
+   *   `zaproszeniePoNagrodzieRef`  znak na mapie → ekran nagrody → okno liska
+   *                                (zostaje dla gier bez bramy z puzzli
+   *                                 i dla zapisów sprzed zmiany).
    */
   const zaproszeniePoNagrodzieRef = useRef(null);
+  /**
+   * Gra, która ma ruszyć po zamknięciu ekranu nagrody za ułożenie:
+   * `{ id, poziom }` albo `null`. Poziom pochodzi z okna liska sprzed bramy
+   * (`poziomPoUkladanceRef`) albo z domyślnego dla tej gry.
+   */
+  const graPoNagrodzieRef = useRef(null);
   /**
    * Znak w trakcie wchłaniania (id gry albo `null`). Trzymany jako STAN, nie
    * ref, bo blokuje efekt pilnujący zaległych nagród — bez tego ekran
@@ -464,12 +475,13 @@ export default function Swiat() {
      `misjaHud`     — czy pokazać kafelek „0/1" u góry. Misja może go wyłączyć
        (`bezLicznikaHud`), a to nie znaczy, że przestała trwać. */
   const misjaAktywna = misje.find((m) => m.aktywna) || null;
-  /* Kafelek „szukam znaku" czeka, aż puzzle będą ułożone — w etapie
-     kawałków dziecko szuka ICH, a nie znaku (postęp niesie toast i Wizkor). */
+  /* Kafelek misji („zagraj") czeka, aż puzzle będą ułożone — w etapie
+     kawałków górę ekranu ma dla siebie ich licznik, a jeden cel naraz
+     to cała zasada tego HUD-u. */
   const misjaHud =
     misje.find((m) => m.aktywna && !m.def.bezLicznikaHud && czyOdblokowana(m.id)) || null;
   const misjaDoZaplaty = misje.find((m) => m.wygrana && !m.wyplacona) || null;
-  const misjaDoNagrodyZnalezienia = misje.find((m) => m.doNagrodyZaZnalezienie) || null;
+  const misjaDoNagrodyUlozenia = misje.find((m) => m.doNagrodyZaUlozenie) || null;
   /**
    * Ekran nagrody: `null`, "gwiazdki" albo `id` gry, której misja właśnie
    * płaci. Zwykłe `true/false` nie wystarczy od chwili, gdy zadań jest kilka —
@@ -800,7 +812,8 @@ export default function Swiat() {
     // jeszcze nie stoi na ekranie.
     rozmowaRef.current =
       !!powitanie || !!zaproszenie || !!nagroda || wskazowkaBlokuje
-      || !!zegarZaproszeniaRef.current || !!zaproszeniePoNagrodzieRef.current;
+      || !!zegarZaproszeniaRef.current || !!zaproszeniePoNagrodzieRef.current
+      || !!graPoNagrodzieRef.current;
     if (powitanie || zaproszenie || nagroda || wskazowkaBlokuje) fx.krokiStop();
   }, [powitanie, zaproszenie, nagroda, wskazowkaBlokuje]);
 
@@ -833,15 +846,15 @@ export default function Swiat() {
     // zobaczyło, CO znalazło, zanim przykryje to ekran wygranej.
     if (wchlanianie) return;
     if (zadanie.spelnione && !zadanie.wyplacone) { setNagroda("gwiazdki"); return; }
-    // Znalezienie idzie PRZED wypłatą za partię: to wcześniejszy krok misji,
-    // a przy zapisie sprzed tej zmiany (znak znaleziony, nagrody nigdy nie
+    // Ułożenie idzie PRZED wypłatą za partię: to wcześniejszy krok misji,
+    // a przy zapisie sprzed tej zmiany (gra zdobyta, nagrody nigdy nie
     // było) i tak trzeba je domknąć najpierw.
-    if (misjaDoNagrodyZnalezienia) { setNagroda(`${PREFIKS_ZNALEZIENIE}${misjaDoNagrodyZnalezienia.id}`); return; }
+    if (misjaDoNagrodyUlozenia) { setNagroda(`${PREFIKS_ULOZENIE}${misjaDoNagrodyUlozenia.id}`); return; }
     if (misjaDoZaplaty) setNagroda(misjaDoZaplaty.id);
   }, [
     odsloniete, nagroda, gra, wchlanianie,
     zadanie.spelnione, zadanie.wyplacone,
-    misjaDoNagrodyZnalezienia?.id, misjaDoZaplaty?.id,
+    misjaDoNagrodyUlozenia?.id, misjaDoZaplaty?.id,
   ]);
 
   /**
@@ -906,9 +919,9 @@ export default function Swiat() {
   useEffect(() => {
     if (!nagroda) return undefined;
     const naLadowanie = () => {
-      const zaZnalezienie = idZeZnalezienia(nagroda);
-      if (zaZnalezienie) {
-        const { dodane } = odbierzNagrodeZnalezienia(zaZnalezienie);
+      const zaUlozenie = idZUlozenia(nagroda);
+      if (zaUlozenie) {
+        const { dodane } = odbierzNagrodeUlozenia(zaUlozenie);
         if (dodane) setBonus(bonusMonet());
         setMisje(stanMisji());
         return;
@@ -933,9 +946,9 @@ export default function Swiat() {
    * przepaść przez szybsze kliknięcie.
    */
   const zamknijNagrode = useCallback(() => {
-    const zaZnalezienie = idZeZnalezienia(nagroda);
-    if (zaZnalezienie) {
-      const { dodane } = odbierzNagrodeZnalezienia(zaZnalezienie);
+    const zaUlozenie = idZUlozenia(nagroda);
+    if (zaUlozenie) {
+      const { dodane } = odbierzNagrodeUlozenia(zaUlozenie);
       if (dodane) setBonus(bonusMonet());
       setMisje(stanMisji());
     } else if (nagroda && nagroda !== "gwiazdki") {
@@ -948,6 +961,16 @@ export default function Swiat() {
       setZadanie(stan);
     }
     setNagroda(null);
+    /* PROSTO W GRĘ. Ekran nagrody za ułożenie jest ostatnią rzeczą między
+       obrazkiem a partią: dziecko kliknęło już „Gramy!" (albo kafelek gry)
+       przed bramą z puzzli, więc pytanie o to samo drugi raz byłoby oknem
+       za dużo. Uchwyt zerujemy od razu — startuje dokładnie jedna gra. */
+    const doGry = graPoNagrodzieRef.current;
+    if (doGry) {
+      graPoNagrodzieRef.current = null;
+      otworzGre(doGry.id, { poziom: doGry.poziom });
+      return;
+    }
     // Lisek czekał z zaproszeniem, żeby nie mówić przez ekran wygranej.
     // Teraz jest jego kolej — i tylko jego, bo uchwyt zerujemy od razu.
     const dalej = zaproszeniePoNagrodzieRef.current;
@@ -955,7 +978,7 @@ export default function Swiat() {
       zaproszeniePoNagrodzieRef.current = null;
       setZaproszenie(dalej);
     }
-  }, [nagroda]);
+  }, [nagroda, otworzGre]);
 
   /**
    * Koniec rozmowy = zamknięcie okna. I tyle.
@@ -1169,9 +1192,10 @@ export default function Swiat() {
       rozstanie();
       /* MISJA ZACZYNA SIĘ OD PUZZLI. Zlecenie rozsypuje kawałki obrazka po
          mapie OD RAZU — dziecko wychodzi z rozmowy prosto w las i musi mieć
-         czego szukać. Znak gry wejdzie dopiero po ułożeniu układanki
-         (`naMapie` w misjeGier pilnuje tego samego warunku). Stara ścieżka
-         „znajdź znak" zostaje dla misji bez bramy i po ułożeniu. */
+         czego szukać. Znak gry wejdzie po ułożeniu układanki i od razu
+         z nią samą (`naMapie` w misjeGier pilnuje tego warunku). Ścieżka
+         „znajdź znak na mapie" zostaje TYLKO dla misji bez bramy z puzzli —
+         dziś nie ma takiej żadnej, ale katalog gier rośnie. */
       if (stan && !czyOdblokowana(id)) {
         rozpocznijZbieranie(id);
         odswiezPuzleNaMapie();
@@ -1239,9 +1263,9 @@ export default function Swiat() {
       stan: () => ({ ...stanZadania(), bonusMonet: bonusMonet() }),
       nagroda: () => setNagroda("gwiazdki"),
     };
-    // Misje z grami mają własny uchwyt — bieganie po mapie w poszukiwaniu
-    // karty przy każdej poprawce w kwestii Wizkora byłoby nie do zniesienia:
-    //   window.misjeGier.zlec("pamiec-medrca") / .znajdz(id) / .wygraj(id)
+    // Misje z grami mają własny uchwyt — zbieranie kawałków po mapie przy
+    // każdej poprawce w kwestii Wizkora byłoby nie do zniesienia:
+    //   window.misjeGier.zlec("pamiec-medrca") / .odkryj(id) / .wygraj(id)
     //   window.misjeGier.stan() / .kasuj() / .nagroda(id)
     // Zadanie poza ekranem ma własny uchwyt: bez tego sprawdzenie ekranu
     // nagrody wymagałoby prawdziwego Mentora i prawdziwego werdyktu.
@@ -1263,7 +1287,7 @@ export default function Swiat() {
         try { odswiezZnakiMisji(); } catch {}
         return stan;
       },
-      znajdz: (id) => { const stan = odkryjGre(id); setMisje(stanMisji()); return stan; },
+      odkryj: (id) => { const stan = odkryjGre(id); setMisje(stanMisji()); return stan; },
       wygraj: (id) => { const stan = zaliczWygrana(id); setMisje(stanMisji()); return stan; },
       kasuj: () => { const stan = skasujMisje(); setMisje(stan); return stan; },
       stan: () => stanMisji().map(({ def, ...reszta }) => reszta),
@@ -1307,7 +1331,7 @@ export default function Swiat() {
       spelnione: false, wyplacone: false, ...nadpisz,
     });
     const misjaStan = (def, nadpisz) => ({
-      id: def.id, def, ujawniona: true, znaleziona: false, wygrana: false,
+      id: def.id, def, ujawniona: true, odkryta: false, wygrana: false,
       wyplacona: false, aktywna: true, naMapie: true, wZakladce: false, ...nadpisz,
     });
     const okno = (z, misja) => setPowitanie(powitanieCzarodzieja(z, misja));
@@ -1340,9 +1364,9 @@ export default function Swiat() {
       },
     ];
 
-    // Sześć kwestii na każdą misję — tyle, ile ma etapów, ODKĄD misja
-    // zaczyna się od puzzli: zlecenie → kawałki → układanie → szukanie znaku
-    // → gra → wypłata. Stany puzzli są PODSTAWIONE (`puzzle` w stanie misji),
+    // Pięć kwestii na każdą misję — tyle, ile ma etapów: zlecenie → kawałki
+    // → układanie → gra → wypłata. Kwestii „szukaj znaku" nie ma, bo nie ma
+    // takiego etapu. Stany puzzli są PODSTAWIONE (`puzzle` w stanie misji),
     // więc podgląd nie zależy od prawdziwego zapisu i nic w nim nie zmienia.
     const poGwiazdkach = gwiazdkiStan({ spelnione: true, wyplacone: true, aktywne: false });
     const puzzlePrzed = (def, nadpisz) => ({
@@ -1360,14 +1384,10 @@ export default function Swiat() {
           odpal: () => okno(poGwiazdkach, misjaStan(def, {
             puzzle: puzzlePrzed(def, { komplet: true, zebrane: celPuzzli(def.id) }),
           })) },
-        { grupa: "Okno Wizkora", etykieta: `${krotki}: szukanie`,
-          // `ulozona: true` — kwestia szukania znaku, niezależnie od tego,
-          // czy prawdziwe puzzle są w tym zapisie ułożone.
-          odpal: () => okno(poGwiazdkach, misjaStan(def, { puzzle: { brama: true, ulozona: true } })) },
         { grupa: "Okno Wizkora", etykieta: `${krotki}: gra`,
-          odpal: () => okno(poGwiazdkach, misjaStan(def, { znaleziona: true })) },
+          odpal: () => okno(poGwiazdkach, misjaStan(def, { odkryta: true })) },
         { grupa: "Okno Wizkora", etykieta: `${krotki}: wypłata`,
-          odpal: () => okno(poGwiazdkach, misjaStan(def, { znaleziona: true, wygrana: true })) },
+          odpal: () => okno(poGwiazdkach, misjaStan(def, { odkryta: true, wygrana: true })) },
       );
     }
 
@@ -1383,8 +1403,8 @@ export default function Swiat() {
       { grupa: "Okna i ekrany", etykieta: "Nagroda: gwiazdki", odpal: () => setNagroda("gwiazdki") },
       ...MISJE.map((def) => ({
         grupa: "Okna i ekrany",
-        etykieta: `Znalezisko: ${def.tytul}`,
-        odpal: () => setNagroda(`${PREFIKS_ZNALEZIENIE}${def.id}`),
+        etykieta: `Ułożone: ${def.tytul}`,
+        odpal: () => setNagroda(`${PREFIKS_ULOZENIE}${def.id}`),
       })),
       ...MISJE.map((def) => ({
         grupa: "Okna i ekrany",
@@ -1530,25 +1550,24 @@ export default function Swiat() {
             return;
           }
           // To samo w trakcie MISJI Z GRĄ. Przypomnienie mówi dokładnie to,
-          // czego brakuje na tym etapie: szukać znaku czy dograć partię.
+          // czego brakuje na tym etapie: zbierać kawałki czy dograć partię.
           const m = z.wyplacone ? aktualnaMisja() : null;
           if (m && m.ujawniona && !m.wygrana) {
             /* Etap puzzli: w trakcie zbierania — krótki licznik jak przy
                gwiazdkach. Z KOMPLETEM kawałków przypomnienia nie ma wcale:
                przepuszczamy do okna niżej, bo kwestia „Masz wszystkie
                kawałki!" niesie zielony przycisk otwierający układankę. */
-            const puzzle = !m.znaleziona ? stanPuzzli(m.id) : null;
+            const puzzle = !m.odkryta ? stanPuzzli(m.id) : null;
             const brama = !!puzzle && puzzle.brama && !puzzle.ulozona;
             if (brama && !puzzle.komplet) {
               pokazKomunikat(`Wizkor czeka — masz ${puzzle.zebrane} z ${puzzle.cel} kawałków`);
               return;
             }
+            /* Poza etapem puzzli zostaje jedno: gra jest zdobyta i czeka na
+               rozegranie. Etapu „znajdź znak" nie ma, więc nie ma tu już
+               drugiego przypomnienia. */
             if (!brama) {
-              pokazKomunikat(
-                m.znaleziona
-                  ? `Wizkor czeka — zagraj w ${m.def.tytul}`
-                  : `Wizkor czeka — znajdź ${m.def.szukaj} na mapie`
-              );
+              pokazKomunikat(`Wizkor czeka — zagraj w ${m.def.tytul}`);
               return;
             }
           }
@@ -1636,23 +1655,18 @@ export default function Swiat() {
           // z animacji powrotu w chwili, gdy stan misji się właśnie zmienia.
           const stanZnaku = stanGry(doGry);
           if (!stanZnaku?.ujawniona) return;
-          /* ZNAK ROZLICZONEJ MISJI JEST SKRÓTEM DO GRY i zachowuje się tak samo
-             jak każdy inny: wchłania się, pyta lisek, gra rusza. Nie ma tu już
-             czego odkrywać ani wypłacać — `odkryj` i `rozliczPartie` zwrócą
-             wtedy po prostu zero — więc nie potrzeba osobnej ścieżki.
+          /* KAŻDY ZNAK GRY JEST SKRÓTEM DO NIEJ i zachowuje się tak samo:
+             wchłania się, pyta lisek, gra rusza. Znak stoi na polanie od
+             ułożenia układanki i zostaje tam na zawsze, więc zwykle nie ma
+             tu już czego odkrywać ani wypłacać — `odkryj` i `rozliczPartie`
+             zwrócą wtedy po prostu zero. Osobnej ścieżki nie potrzeba.
 
-             Wcześniej stał tu wyjątek: rozliczony znak nie robił NIC, poza
-             sosną z `zostajeNaMapie`. Miał sens, dopóki rozliczony znak
-             potrafił zostać na mapie tylko przez pomyłkę (wracał z animacji
-             powrotu). Od kiedy skróty wracają na polanę celowo, po skończeniu
-             wszystkich misji, ten wyjątek odbierałby dziecku dokładnie to,
-             po co tam wróciły. */
-          // ZNALEZIONE. Od tej chwili gra siedzi w zakładce minigier na stałe
-          // — także wtedy, gdy dziecko odmówi teraz gry albo przerwie partię.
-          // Znalezienie jest osobną nagrodą i nie może zależeć od wyniku.
-          // Stan podnosi nasłuch `MISJE_ZMIANA` — moduł ogłasza zmianę tylko
-          // wtedy, gdy naprawdę zaszła, więc kolejne wbiegnięcia w znaleziony
-          // już znak nie przerysowują huba.
+             `odkryjGre` zostaje jako domknięcie dwóch przypadków brzegowych:
+             gry BEZ bramy z puzzli (nie ma jej dziś żadnej, ale katalog
+             rośnie) i zapisu sprzed usunięcia etapu szukania. Stan podnosi
+             nasłuch `MISJE_ZMIANA` — moduł ogłasza zmianę tylko wtedy, gdy
+             naprawdę zaszła, więc kolejne wbiegnięcia w zdobyty już znak nie
+             przerysowują huba. */
           odkryjGre(doGry);
           if (rozmowaRef.current) return;
           /**
@@ -1679,16 +1693,17 @@ export default function Swiat() {
             zegarZaproszeniaRef.current = 0;
             setWchlanianie(null);
             /**
-             * ZNALEZIONE = WYGRANE. Nagroda za znalezienie należy się od razu,
-             * więc zamiast zaproszenia wpuszczamy ekran wygranej (robi to efekt
-             * pilnujący zaległych nagród — jeden właściciel tej decyzji), a
-             * lisek dostaje swoją kolej dopiero po jego zamknięciu.
+             * ZALEGŁA NAGRODA ZA UŁOŻENIE. Normalnie płaci ją ekran zaraz po
+             * układance, więc tutaj zostaje tylko dla zapisu, w którym coś
+             * przerwało tę drogę (zamknięta apka, gra bez bramy z puzzli).
+             * Wtedy zamiast zaproszenia wpuszczamy ekran wygranej, a lisek
+             * dostaje swoją kolej dopiero po jego zamknięciu.
              *
-             * Gdy nagroda była już wypłacona (powrót do znalezionego znaku),
-             * nie ma czego świętować i zaproszenie idzie od razu, jak dotąd.
+             * Gdy nagroda była już wypłacona — czyli prawie zawsze, bo znak
+             * jest wtedy zwykłym skrótem — zaproszenie idzie od razu.
              */
             const stan = stanGry(doGry);
-            if (stan?.doNagrodyZaZnalezienie) {
+            if (stan?.doNagrodyZaUlozenie) {
               zaproszeniePoNagrodzieRef.current = doGry;
               /* Ekran wygranej ustawiamy TUTAJ, a nie zostawiamy efektowi
                  pilnującemu zaległych nagród. Efekt czyta stan misji ze stanu
@@ -1697,7 +1712,7 @@ export default function Swiat() {
                  jest na to ledwie 280 ms i nagroda potrafiła się nie pokazać
                  wcale. `setNagroda` z funkcją: jeśli jakiś ekran już stoi,
                  nie podmieniamy go. */
-              setNagroda((biezaca) => biezaca || `${PREFIKS_ZNALEZIENIE}${doGry}`);
+              setNagroda((biezaca) => biezaca || `${PREFIKS_ULOZENIE}${doGry}`);
             } else setZaproszenie(doGry);
           }, czekanie);
           return;
@@ -1770,7 +1785,7 @@ export default function Swiat() {
    */
   useEffect(() => {
     if (!scenaGotowa) return;
-    const m = misje.find((w) => w.ujawniona && !w.znaleziona && !w.wyplacona);
+    const m = misje.find((w) => w.ujawniona && !w.odkryta && !w.wyplacona);
     if (!m || czyOdblokowana(m.id)) return;
     const stan = stanPuzzli(m.id);
     if (!stan.zbieranie && !stan.komplet) {
@@ -1818,9 +1833,9 @@ export default function Swiat() {
   }, [zaproszenie, poziomZaproszenia, otworzGre, bramaPuzzli]);
 
   /**
-   * Zasady „najpierw znajdź na mapie" nie pilnuje już żadna ulotna flaga:
-   * gry NIE MA w zakładce, dopóki jej znak nie zostanie znaleziony, więc
-   * każda rozegrana partia z definicji przyszła po odkryciu. Warunek siedzi
+   * Zasady „najpierw zdobądź grę" nie pilnuje żadna ulotna flaga: gry NIE MA
+   * w zakładce, dopóki jej układanka nie zostanie ułożona, więc każda
+   * rozegrana partia z definicji przyszła po zdobyciu. Warunek siedzi
    * w `zaliczWygrana` (`misjeGier.js`) i przeżywa zamknięcie apki.
    */
 
@@ -1994,18 +2009,17 @@ export default function Swiat() {
                 idzie z definicji misji: rewers karty, złote piórko, cokolwiek
                 dojdzie później.
 
-                Kropka zamiast liczby, dopóki znak nie jest znaleziony: „0/1"
-                sugerowałoby, że gdzieś się już liczy postęp, a na tym etapie
-                nie ma czego liczyć — jest szukanie. */}
+                Kafelek wchodzi DOPIERO po ułożeniu układanki (patrz
+                `misjaHud`), więc „0/1" znaczy tu jedno: gra jest już zdobyta,
+                partia jeszcze nierozegrana. W etapie kawałków górę ekranu ma
+                dla siebie ich własny licznik. */}
             {misjaHud ? (
               <span
                 className={`game-hud-counter game-hud-counter--misja${misjaHud.wygrana ? " jest-spelnione" : ""}`}
                 aria-label={
                   misjaHud.wygrana
                     ? `${misjaHud.def.tytul}: rozegrane`
-                    : misjaHud.znaleziona
-                      ? `${misjaHud.def.tytul}: znaleziona, zagraj`
-                      : `${misjaHud.def.tytul}: znajdź ${misjaHud.def.szukaj} na mapie`
+                    : `${misjaHud.def.tytul}: gra zdobyta, zagraj`
                 }
                 data-testid={`hub-misja-${misjaHud.id}`}
               >
@@ -2172,17 +2186,19 @@ export default function Swiat() {
         />
       ) : null}
 
-      {/* Nagroda za ZNALEZIENIE znaku — pierwsza połowa misji. Wchodzi tuż po
-          wchłonięciu karty (albo piórka), zanim lisek zdąży zaprosić do gry:
-          dziecko dostaje potwierdzenie dokładnie tam, gdzie skończyło szukać. */}
-      {stanGry(idZeZnalezienia(nagroda) || "") ? (
+      {/* Nagroda za UŁOŻENIE OBRAZKA — pierwsza połowa misji. Wchodzi zaraz
+          po ostatnim kawałku wciśniętym na miejsce: dziecko dostaje
+          potwierdzenie dokładnie tam, gdzie skończył się wysiłek. Jej
+          zamknięcie startuje minigrę (`graPoNagrodzieRef`), więc CTA mówi
+          „Gramy!", a nie „Super!" — obiecuje to, co naprawdę się stanie. */}
+      {stanGry(idZUlozenia(nagroda) || "") ? (
         <RewardScreen
-          eyebrow="✦ ZNALEZISKO"
-          title={stanGry(idZeZnalezienia(nagroda)).def.nagrodaEkranZnalezienie.title}
-          subtitle={stanGry(idZeZnalezienia(nagroda)).def.nagrodaEkranZnalezienie.subtitle}
-          coins={stanGry(idZeZnalezienia(nagroda)).def.nagrodaZnalezienie}
+          eyebrow="✦ OBRAZEK ZŁOŻONY"
+          title={stanGry(idZUlozenia(nagroda)).def.nagrodaEkranUlozenie.title}
+          subtitle={stanGry(idZUlozenia(nagroda)).def.nagrodaEkranUlozenie.subtitle}
+          coins={stanGry(idZUlozenia(nagroda)).def.nagrodaUlozenie}
           note="Reszta czeka za rozegraną partię"
-          ctaLabel="Super! ✦"
+          ctaLabel={graPoNagrodzieRef.current ? "Gramy! ✦" : "Super! ✦"}
           onDismiss={zamknijNagrode}
         />
       ) : null}
@@ -2191,7 +2207,7 @@ export default function Swiat() {
           pilnujący zaległych nagród nie odpala jej nad otwartą minigrą, żeby
           konfetti nie leciało pod planszą. Teksty stoją przy definicji misji,
           więc trzecia gra nie wymaga tu ani jednej linijki. */}
-      {nagroda && nagroda !== "gwiazdki" && !idZeZnalezienia(nagroda) && stanGry(nagroda) ? (
+      {nagroda && nagroda !== "gwiazdki" && !idZUlozenia(nagroda) && stanGry(nagroda) ? (
         <RewardScreen
           eyebrow="✦ ZADANIE WIZKORA"
           title={stanGry(nagroda).def.nagrodaEkran.title}
@@ -2258,24 +2274,50 @@ export default function Swiat() {
           <PuzzleBrama
             gra={ukladanka}
             tytul={(KATALOG_GIER.gry || []).find((g) => g.id === ukladanka)?.tytul || "Układanka"}
-            onZamknij={() => setUkladanka(null)}
-            onUlozona={() => {
+            /* KRZYŻYK PO UŁOŻENIU nie może odebrać zdobyczy. Brama zapisuje
+               ułożenie od razu (`zaliczUlozenie`), więc obrazek jest złożony
+               także wtedy, gdy dziecko zamknie ekran zamiast kliknąć „Gramy!".
+               Domykamy więc to samo, co CTA, minus start gry — a nagrodę za
+               ułożenie dopłaci efekt pilnujący zaległych nagród. */
+            onZamknij={() => {
               const id = ukladanka;
-              const poziom = poziomPoUkladanceRef.current;
               poziomPoUkladanceRef.current = null;
               setUkladanka(null);
-              const m = stanGry(id);
-              /* W TRAKCIE MISJI układanka ODSŁANIA znak gry na mapie — grę
-                 odpala dopiero wbiegnięcie w niego, tak jak obiecał Wizkor.
-                 Poza misją (skrót po rozliczeniu, stary zapis) dziecko
-                 kliknęło „Gramy!", więc gra rusza od razu. */
-              if (m && m.ujawniona && !m.znaleziona) {
-                setMisje(stanMisji());
-                try { odswiezZnakiMisji(); } catch {}
-                pokazKomunikat(`Znajdź ${m.def.szukaj} na mapie`);
+              if (!id || !czyOdblokowana(id)) return;
+              odkryjGre(id);
+              setMisje(stanMisji());
+              try { odswiezZnakiMisji(); } catch {}
+            }}
+            onUlozona={() => {
+              const id = ukladanka;
+              const poziom = poziomPoUkladanceRef.current || poziomDomyslny(id);
+              poziomPoUkladanceRef.current = null;
+              setUkladanka(null);
+              /* UŁOŻONE = ZDOBYTE, I GRA RUSZA (decyzja właściciela,
+                 2026-08-22). `odkryjGre` wstawia grę do skrzyni na stałe
+                 i wpuszcza jej znak na polanę jako skrót — a dziecko idzie
+                 PROSTO do gry, bez szukania czegokolwiek po trawie.
+
+                 Wcześniej stał tu etap „znajdź kartę Mędrca na mapie":
+                 ułożony obrazek tylko odsłaniał znak, a partię odpalało
+                 wbiegnięcie w niego. Było to drugie polowanie pod rząd, tuż
+                 po zbieraniu dziewięciu kawałków — czyli kara za skończenie
+                 układanki, dokładnie w chwili największej ochoty na grę.
+
+                 Między obrazkiem a partią zostaje jedna rzecz: ekran nagrody
+                 za ułożenie. Nagroda należy się TERAZ, bo teraz skończył się
+                 wysiłek, a jej zamknięcie startuje grę (`graPoNagrodzieRef`
+                 → `zamknijNagrode`). Gdy nie ma czego wypłacać (druga
+                 układanka tej samej gry po resecie puzzli), gra rusza od razu. */
+              const stan = odkryjGre(id) || stanGry(id);
+              setMisje(stanMisji());
+              try { odswiezZnakiMisji(); } catch {}
+              if (stan?.doNagrodyZaUlozenie) {
+                graPoNagrodzieRef.current = { id, poziom };
+                setNagroda(`${PREFIKS_ULOZENIE}${id}`);
                 return;
               }
-              otworzGre(id, { poziom: poziom || poziomDomyslny(id) });
+              otworzGre(id, { poziom });
             }}
           />
         </Suspense>
