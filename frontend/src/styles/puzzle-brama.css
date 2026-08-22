@@ -1,0 +1,236 @@
+/* PuzzleBrama — układanka odblokowująca minigrę.
+   Ten sam język co reszta huba: pergamin, złote obwódki, Baloo. Ekran stoi
+   NAD światem (scena pod spodem pauzuje), więc tło przygasza mapę.
+
+   Kawałki mają PRAWDZIWY puzzlowy kształt (SVG w komponencie), więc siatka
+   nie ma szczelin ani ramek pól: wypustki wystają poza własne pole i muszą
+   nachodzić na sąsiadów. Stąd `gap:0` i brak `overflow:hidden` gdziekolwiek
+   po drodze. */
+
+.puzzle-brama{
+  position:fixed; inset:0; z-index:70;
+  display:flex; align-items:center; justify-content:center;
+  padding:18px; background:rgba(24,15,33,.55);
+  backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px);
+  animation:puzzle-wejscie .25s ease;
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+}
+@keyframes puzzle-wejscie{ from{ opacity:0; } to{ opacity:1; } }
+
+/* ── karta ──
+   BEZ PRZEWIJANIA. Karta miała `max-height:94dvh; overflow:auto`, więc na
+   niższym oknie wychodziły dwa paski przewijania naraz: pionowy (nagłówek +
+   plansza + taca nie mieściły się na wysokość) i poziomy (wypustki kawałków
+   wystają o 30% pola poza własne miejsce, a przewijalny kontener liczy to
+   jako treść do przewinięcia). Układanka to jeden ekran do dotykania palcem —
+   pasek przewijania w środku psuł i wygląd, i przeciąganie kawałków.
+
+   Zamiast przewijać, DOBIERAMY ROZMIAR PLANSZY do okna: `--plansza` bierze
+   najmniejszą z trzech wartości — szerokości okna, wygodnego maksimum i
+   ułamka wysokości. Plansza i kafelki tacy liczą się z niej, więc cała karta
+   kurczy się proporcjonalnie i mieści się w każdym oknie bez przewijania.
+   Wysokości nie ograniczamy w ogóle — gdyby coś kiedyś urosło, karta ma
+   urosnąć razem z tym, a nie schować treść pod obcięciem. */
+.puzzle-karta{
+  /* Trzy ograniczenia naraz: szerokość okna, wygodne maksimum i ułamek
+     wysokości. `36dvh` to najmniejsza wartość, przy której cała karta mieści
+     się jeszcze na 320×568 (najmniejszy realny telefon) — sprawdzone
+     pomiarem na sześciu rozmiarach okna, od 320×568 po 1280×900. */
+  --plansza:min(76vw,340px,36dvh);
+  position:relative; width:min(94vw,520px); overflow:visible;
+  padding:20px 22px 24px; border-radius:26px;
+  background:linear-gradient(180deg,#fff8dd,#f2ddad);
+  border:3px solid #e6a832; box-shadow:0 4px 0 #a2621c, 0 18px 40px rgba(20,12,4,.45);
+  text-align:center;
+  /* Ciągnięcie myszą nie może po drodze zaznaczać tekstów karty. */
+  user-select:none; -webkit-user-select:none;
+  animation:puzzle-karta-wjazd .35s cubic-bezier(.2,.9,.3,1.25);
+}
+@keyframes puzzle-karta-wjazd{
+  from{ transform:translateY(18px) scale(.92); opacity:0; }
+  to{ transform:translateY(0) scale(1); opacity:1; }
+}
+
+.puzzle-x{
+  position:absolute; top:10px; right:10px; width:38px; height:38px;
+  border-radius:50%; border:2px solid #d9a13a; background:#fff3cf;
+  color:#7a5514; font-size:22px; font-weight:800; line-height:1; cursor:pointer;
+  z-index:2;
+}
+
+.puzzle-nadtytul{
+  margin:2px 0 0; font-size:12px; font-weight:800; letter-spacing:2.4px;
+  color:#a2621c;
+}
+.puzzle-tytul{
+  margin:2px 0 6px; font-size:clamp(22px,5.4vw,30px); font-weight:800;
+  color:#4a2f10;
+}
+.puzzle-podpowiedz{
+  margin:0 0 14px; white-space:pre-line; font-size:14px; font-weight:700;
+  color:#7a5c2c; line-height:1.35;
+}
+
+/* ── siatka ──
+   Blat pod puzzle: jaśniejszy prostokąt, na którym kontury pustych pól
+   czytają się jak wytłoczenie w tekturce. Padding robi miejsce na wypustki
+   skrajnych kawałków, gdy dziecko obróci kawałek wypustką na zewnątrz. */
+.puzzle-siatka{
+  --bok:3;
+  position:relative;
+  /* Górny odstęp na wypustki skrajnego rzędu: kawałek obrócony wypustką do
+     góry wystaje poza planszę o ~30% pola i bez tego marginesu wchodził na
+     tekst podpowiedzi. Liczony z pola, więc trzyma się przy każdym rozmiarze. */
+  margin:calc(var(--plansza) / var(--bok) * .2) auto 0;
+  width:var(--plansza); aspect-ratio:1;
+  display:grid; grid-template-columns:repeat(var(--bok),1fr); gap:0;
+  background:rgba(255,251,235,.6); border-radius:14px;
+  box-shadow:inset 0 0 0 2px rgba(185,134,31,.35);
+}
+.puzzle-pole{
+  position:relative; padding:0; border:0; background:transparent; cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.puzzle-pole:not(.is-pelne):active{ transform:scale(.95); }
+.puzzle-pole.is-pudlo{ animation:puzzle-wstrzas .4s ease; }
+/* Wgłębienie pustego pola: jasny brzeg pod kształtem i cień nad nim —
+   klasyczny tłoczony relief, dziura „w dół" zamiast rysunku „na wierzchu". */
+.puzzle-dziura{
+  filter:drop-shadow(0 1.6px 0 rgba(255,252,235,.85))
+         drop-shadow(0 -1px 1px rgba(70,42,10,.28));
+}
+@keyframes puzzle-wstrzas{
+  0%,100%{ transform:translateX(0); }
+  20%{ transform:translateX(-5px); } 40%{ transform:translateX(5px); }
+  60%{ transform:translateX(-3px); } 80%{ transform:translateX(3px); }
+}
+
+/* SVG kawałka: viewBox ma 30% zapasu na wypustki z każdej strony, więc
+   element jest o tyle większy od pola i wystaje na sąsiadów. Środek SVG =
+   środek pola, więc obrót kręci kawałkiem w miejscu. Bez pointer-events —
+   dotknięcia łapie przycisk pola, nie wystająca wypustka sąsiada. */
+.puzzle-kawalek-svg{
+  position:absolute; left:-30%; top:-30%; width:160%; height:160%;
+  pointer-events:none;
+  transition:transform .22s cubic-bezier(.2,.9,.3,1.2);
+}
+.puzzle-pole.is-pelne .puzzle-kawalek-svg{
+  filter:drop-shadow(0 2px 2px rgba(40,25,5,.28));
+  /* Ułożony kawałek NAD wgłębieniami sąsiadów — wypustka ma leżeć na
+     blacie, a nie pod dziurą pustego pola. */
+  z-index:1;
+}
+/* WSKOK: kawałek, który trafił na swoje miejsce, osadza się z wyraźnym
+   dociśnięciem — wchodzi wyraźnie większy, dociska poniżej 1 i sprężyście
+   wraca, ze złotym rozbłyskiem. Klasę `is-wskok` zapala polozKawalek
+   (stan komponentu), więc animacja gra dokładnie w chwili decyzji, a nie
+   „przy montowaniu" — i nie zależy od kolejki renderów. Animujemy `scale`
+   i `filter`, NIE `transform`: transform niesie obrót kawałka (styl
+   inline) i animacja na nim zdejmowałaby obrót na czas wskoku. */
+.puzzle-pole.is-wskok .puzzle-kawalek-svg{
+  animation:puzzle-wskok .55s cubic-bezier(.2,.9,.3,1.25);
+}
+@keyframes puzzle-wskok{
+  0%{ scale:1.45; filter:drop-shadow(0 0 16px rgba(255,214,105,1)); }
+  55%{ scale:.92; filter:drop-shadow(0 0 9px rgba(255,214,105,.75)); }
+  100%{ scale:1; filter:drop-shadow(0 2px 2px rgba(40,25,5,.28)); }
+}
+/* Złoty pierścień rozchodzący się z miejsca osadzenia. */
+.puzzle-blysk-osadzenia{
+  position:absolute; left:50%; top:50%; width:88%; aspect-ratio:1;
+  margin:-44% 0 0 -44%; border-radius:50%; pointer-events:none; z-index:2;
+  border:4px solid rgba(255,214,105,.95);
+  box-shadow:0 0 18px rgba(255,214,105,.85), inset 0 0 12px rgba(255,214,105,.6);
+  animation:puzzle-blysk .6s ease-out forwards;
+}
+@keyframes puzzle-blysk{
+  0%{ transform:scale(.35); opacity:1; }
+  100%{ transform:scale(1.55); opacity:0; }
+}
+
+/* Po ułożeniu: jeden obrazek bez szwów, z łagodnym rozbłyskiem. */
+.puzzle-caly{
+  position:absolute; inset:0; border-radius:14px; z-index:2;
+  background-size:cover; background-position:center;
+  border:3px solid #b9861f; box-shadow:0 0 0 4px rgba(255,224,140,.55);
+  animation:puzzle-zrost .5s ease;
+}
+@keyframes puzzle-zrost{ from{ opacity:0; transform:scale(.97); } to{ opacity:1; transform:scale(1); } }
+.puzzle-siatka.is-ulozona .puzzle-pole{ visibility:hidden; }
+
+/* ── taca ──
+   SAME kawałki, bez kafelków-podkładek: kwadratowe płytki robiły z puzzli
+   talię kart. Przycisk jest przezroczysty i większy niż dawna płytka, więc
+   palec ma w co trafić, a oko widzi kształt z wypustkami. `touch-action:
+   none`, bo ten sam przycisk obsługuje ciągnięcie — przeglądarka nie może
+   w połowie gestu zabrać go na przewijanie karty. */
+.puzzle-taca{
+  display:flex; flex-wrap:wrap; justify-content:center; gap:2px;
+  margin-top:14px;
+}
+/* Kafelek tacy = ćwiartka pola planszy… a właściwie tyle, ile pole przy
+   pełnym rozmiarze (340/4 = 85 px, czyli dokładnie to, co było). Wiąże się
+   z `--plansza`, więc na niższym oknie taca kurczy się razem z planszą i
+   nie wypycha karty poza ekran. */
+.puzzle-kafelek{
+  position:relative; width:calc(var(--plansza) / 4); height:calc(var(--plansza) / 4); padding:0;
+  cursor:pointer; border:0; background:transparent;
+  transition:transform .15s ease;
+  touch-action:none;
+  -webkit-tap-highlight-color:transparent;
+}
+/* Na tacy kawałek siedzi WEWNĄTRZ przycisku (viewBox ma własny zapas). */
+.puzzle-kafelek .puzzle-kawalek-svg{
+  left:0; top:0; width:100%; height:100%;
+  filter:drop-shadow(0 3px 2px rgba(40,25,5,.3));
+}
+.puzzle-kafelek.is-wybrany{ transform:translateY(-7px) scale(1.12); }
+.puzzle-kafelek.is-wybrany .puzzle-kawalek-svg{
+  filter:drop-shadow(0 5px 3px rgba(40,25,5,.3))
+         drop-shadow(0 0 6px rgba(122,204,84,.95));
+}
+/* Kawałek właśnie ciągnięty palcem jedzie POD PALCEM (`.puzzle-ciag`),
+   więc jego miejsce na tacy stoi puste, ale nie zapada się. */
+.puzzle-kafelek.is-ciagniety .puzzle-kawalek-svg{ opacity:.25; filter:none; }
+
+/* Kawałek pod palcem: rozmiar pola siatki, środek pod opuszkiem. */
+.puzzle-ciag{
+  position:fixed; z-index:80; pointer-events:none;
+  transform:translate(-50%,-60%);
+}
+.puzzle-ciag .puzzle-kawalek-svg{
+  position:static; width:100%; height:100%;
+  filter:drop-shadow(0 8px 10px rgba(30,18,4,.4));
+}
+
+/* Migająca podpowiedź obrotu na położonym, przekręconym kawałku. */
+.puzzle-obrot-hint{
+  position:absolute; inset:0; margin:auto; width:38%; aspect-ratio:1;
+  display:grid; place-items:center; border-radius:50%;
+  background:rgba(24,15,33,.6); box-shadow:0 0 0 2px rgba(255,255,255,.7);
+  pointer-events:none; z-index:2;
+  animation:puzzle-hint-krec 1.5s ease-in-out infinite;
+}
+.puzzle-obrot-hint svg{ width:62%; height:62%; }
+@keyframes puzzle-hint-krec{
+  0%, 45%{ transform:rotate(0deg) scale(1); }
+  70%{ transform:rotate(90deg) scale(1.12); }
+  100%{ transform:rotate(90deg) scale(1); }
+}
+
+.puzzle-cta{
+  margin-top:18px; padding:12px 34px; border-radius:999px; cursor:pointer;
+  border:3px solid #5c9a44; background:linear-gradient(180deg,#9fd97f,#6fbb4e);
+  color:#1f4d12; font-family:inherit; font-size:20px; font-weight:800;
+  box-shadow:0 4px 0 #3f7a2b; animation:puzzle-karta-wjazd .35s ease;
+}
+.puzzle-cta:active{ transform:translateY(2px); box-shadow:0 2px 0 #3f7a2b; }
+
+@media (prefers-reduced-motion: reduce){
+  .puzzle-brama, .puzzle-karta, .puzzle-caly, .puzzle-cta{ animation:none; }
+  .puzzle-pole.is-pudlo{ animation:none; }
+  .puzzle-pole.is-wskok .puzzle-kawalek-svg{ animation:none; }
+  .puzzle-blysk-osadzenia{ animation:none; display:none; }
+  .puzzle-obrot-hint{ animation:none; }
+  .puzzle-kawalek-svg{ transition:none; }
+}

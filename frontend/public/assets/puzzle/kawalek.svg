@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-8 -34 142 142">
+  <!-- Ikona kawalka puzzli do HUD: ten sam ksztalt, co kawalki w ukladance
+       (górna i prawa wypustka, dolne wciecie), zloto jak model na mapie. -->
+  <defs>
+    <linearGradient id="zloto" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe9a8"/>
+      <stop offset=".55" stop-color="#f2c14e"/>
+      <stop offset="1" stop-color="#d18f28"/>
+    </linearGradient>
+  </defs>
+  <path d="M 0 0 L 37 0 C 50 0 35 -24 50 -24 C 65 -24 50 0 63 0 L 100 0 L 100 37 C 100 50 124 35 124 50 C 124 65 100 50 100 63 L 100 100 L 63 100 C 50 100 65 76 50 76 C 35 76 50 100 37 100 L 0 100 L 0 0 Z" fill="url(#zloto)" stroke="#8a5a16" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M 0 0 L 37 0 C 50 0 35 -24 50 -24 C 65 -24 50 0 63 0 L 100 0 L 100 37 C 100 50 124 35 124 50 C 124 65 100 50 100 63 L 100 100 L 63 100 C 50 100 65 76 50 76 C 35 76 50 100 37 100 L 0 100 L 0 0 Z" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2.4" transform="translate(0,2.2) scale(.985)" stroke-linejoin="round"/>
+</svg>
