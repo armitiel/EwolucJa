@@ -5,6 +5,13 @@
     "promien": 14,
     "teren": 40
   },
+  "start": {
+    "pos": [
+      -7.45,
+      9.77
+    ],
+    "obrot": 2.383
+  },
   "sciezka": [
     [
       -10.5,
@@ -845,10 +852,11 @@
   ],
   "latarnia": {
     "pos": [
-      10.99,
+      10.96,
       2.7
     ],
-    "punktSciezki": 160
+    "punktSciezki": 160,
+    "ukryta": true
   },
   "rzeka": {
     "szerokosc": 1.5,
@@ -908,8 +916,8 @@
           -13.8
         ],
         "do": [
-          -4.96,
-          -20.43
+          -8.1,
+          -22.33
         ],
         "kroki": 34
       }
@@ -1044,8 +1052,8 @@
       "label": "Pamięć Mędrca",
       "toast": "Karty Mędrca — dobierz pary",
       "pos": [
-        7.79,
-        3.94
+        0.24,
+        7.17
       ],
       "scale": 1.85,
       "height": 1.6,
@@ -1188,8 +1196,8 @@
       "iskry": 26,
       "iskrySila": 1.6,
       "pos": [
-        -2.24,
-        -10.8
+        3.21,
+        -10.18
       ]
     },
     {
@@ -1328,8 +1336,8 @@
       "label": "Lot Liska",
       "toast": "Wysoka sosna - stad sie startuje",
       "pos": [
-        4.79,
-        -9.64
+        8.54,
+        -0.03
       ],
       "scale": 5.6,
       "height": 1.54,
@@ -1341,7 +1349,10 @@
       "lightBase": 0.9,
       "metalness": 0,
       "roughness": 0.95,
-      "jasnosc": 1.12,
+      "jasnosc": 1.35,
+      "barwaMnoznik": 14745032,
+      "bezUnoszenia": true,
+      "oddechSkali": 0.25,
       "bezObrotu": true,
       "obrotY": 0.4,
       "absorb": false,
@@ -1358,8 +1369,8 @@
       "label": "Bieg Liska",
       "toast": "Bucik biegacza - trasa z cyferkami",
       "pos": [
-        1.81,
-        9.86
+        2.02,
+        -4.49
       ],
       "scale": 1.05,
       "height": 0.95,
@@ -1608,8 +1619,8 @@
       "iskrySila": 1.5,
       "id": "puzel-9",
       "pos": [
-        -7.4,
-        10.6
+        -5.66,
+        10.48
       ]
     }
   ],

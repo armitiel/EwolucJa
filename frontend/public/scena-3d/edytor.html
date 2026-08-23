@@ -205,6 +205,7 @@ async function wczytaj({ zSerwera = false } = {}) {
 
 function ustaw(m, skad) {
   mapa = m;
+  zapewnijStart();
   zapewnijWezly();
   przeliczSciezke();
   wybor = null;
@@ -310,6 +311,22 @@ window.addEventListener('message', (ev) => {
    więc suwak przechodzi płynnie od ostrych kantów do zaokrąglonych łuków.
    `probki` mówi, na ile kawałków ciąć każdy odcinek — im więcej, tym gładszy
    łuk i tym dłuższa tablica w pliku.                                         */
+
+/* Mapy sprzed wprowadzenia startu nie maja tego pola. Dopisujemy je na
+   pierwszym wolnym punkcie sciezki - czyli tam, gdzie bohater i tak stawal -
+   ale juz jako OSOBNA wartosc, ktorej przerysowanie sciezki nie rusza. */
+function zapewnijStart() {
+  if (mapa.start?.pos) return;
+  const s = mapa.sciezka || [];
+  const r = (mapa.swiat?.promien ?? 14) - 0.7;
+  const p = s.find((q) => Math.hypot(q[0], q[1]) <= r) || s[0] || [0, 0];
+  const i = s.indexOf(p);
+  const dalej = i >= 0 ? s[Math.min(i + 6, s.length - 1)] : p;
+  mapa.start = {
+    pos: [p[0], p[1]],
+    obrot: Math.round(Math.atan2(dalej[0] - p[0], dalej[1] - p[1]) * 1000) / 1000,
+  };
+}
 
 function zapewnijWezly() {
   if (!mapa.sciezkaWezly) {
@@ -557,6 +574,21 @@ function rysuj() {
     }));
   }
 
+  /* START LISKA. Osobny punkt, nie pierwszy wezel sciezki: sciezke rysuje sie
+     i przerysowuje bez konca, a spawn ma zostac tam, gdzie go postawiono.
+     Rysujemy kolko z dziobem pokazujacym, w ktora strone lisek patrzy - to
+     jedyne miejsce, w ktorym ten kat w ogole widac. */
+  if (mapa.start) {
+    const p = mapa.start.pos;
+    const k = mapa.start.obrot ?? 0;
+    el('line', { x1:p[0], y1:p[1], x2:p[0] + Math.sin(k) * 1.15, y2:p[1] + Math.cos(k) * 1.15,
+      stroke:'#E07A2F', 'stroke-width':.12, 'stroke-linecap':'round' });
+    uchwyt('start', 0, el('circle', {
+      cx:p[0], cy:p[1], r:.5,
+      fill:'#F09A44', stroke:'#8a4a12', 'stroke-width':.11,
+    }));
+  }
+
   const kreskaObrotu = (o, r, kolor) => {
     const k = o.obrot;
     if (k == null) return;
@@ -616,7 +648,7 @@ function rysuj() {
 
 /** Pola, po ktorych „skaluje sie" dany typ — kazdy ma inna jednostke. */
 const POLE_SKALI = { znak:'scale', drzewo:'skala', glaz:'skala', budynek:'wysokosc' };
-const POLE_OBROTU = { znak:'obrotY', budynek:'obrot', drzewo:'obrot', glaz:'obrot' };
+const POLE_OBROTU = { znak:'obrotY', budynek:'obrot', drzewo:'obrot', glaz:'obrot', start:'obrot' };
 
 /**
  * Czy silnik w ogóle POSŁUCHA zadanego kąta znaku.
@@ -704,6 +736,7 @@ function rysujListe() {
   // klikania w uchwyt na planie — a to pierwsze miejsce, w którym ktoś będzie
   // szukał latarni, gdy zniknie ze sceny.
   if (mapa.latarnia) dodaj('latarnia', 0, mapa.latarnia.ukryta ? 'latarnia (ukryta)' : 'latarnia');
+  if (mapa.start) dodaj('start', 0, 'start liska');
   if (mapa.brama) dodaj('brama', 0, 'brama');
   if (mapa.most) dodaj('most', 0, 'most');
 }
@@ -717,6 +750,7 @@ function obiektWyboru() {
   if (typ === 'drzewo') return mapa.drzewa?.[idx];
   if (typ === 'glaz') return mapa.glazy?.[idx];
   if (typ === 'kwiat') return mapa.kwiaty?.[idx];
+  if (typ === 'start') return mapa.start;
   if (typ === 'latarnia') return mapa.latarnia;
   if (typ === 'brama') return mapa.brama;
   if (typ === 'most') return mapa.most;
@@ -904,6 +938,30 @@ function rysujWlasciwosci() {
     poleSuwak(box, 'skala', o.skala ?? 1, { min:.5, max:2.5 }, (v) => { o.skala = v; zmiana(); });
     poleSuwak(box, 'obrót [rad]', o.obrot ?? 0, { min:-3.15, max:3.15, krok:.01 }, (v) => { o.obrot = v; zmiana(); });
     podpowiedz(box, 'Kwiat nie blokuje chodzenia. Bez ustawionego kąta obrót losuje się z numeru kwiatu — suwak przejmuje nad nim kontrolę. Skala mnoży i wzrost, i główkę.');
+  }
+  if (wybor.typ === 'start') {
+    poleSuwak(box, 'obrót [rad]', mapa.start.obrot ?? 0, { min:-3.15, max:3.15, krok:.01 },
+      (v) => { mapa.start.obrot = v; zmiana(); });
+    /* Przycisk jest tu, bo START MUSI BYC CHODZALNY. Postawiony w rzece albo
+       poza promieniem swiata wpycha bohatera w stan "stoje tam, gdzie nie
+       wolno" - a wtedy kolizja przepuszcza juz wszystko i da sie chodzic po
+       wodzie. Dosuniecie do sciezki to najkrotsza droga z powrotem na ladu. */
+    const doSciezki = document.createElement('button');
+    doSciezki.textContent = 'Dosuń do ścieżki';
+    doSciezki.onclick = () => {
+      const s = mapa.sciezka || [];
+      if (!s.length) return;
+      const r = (mapa.swiat?.promien ?? 14) - 0.7;
+      const kandydat = s.find((q) => Math.hypot(q[0], q[1]) <= r) || s[0];
+      const i = s.indexOf(kandydat);
+      const dalej = s[Math.min(i + 6, s.length - 1)];
+      mapa.start.pos = [kandydat[0], kandydat[1]];
+      mapa.start.obrot = Math.round(Math.atan2(dalej[0] - kandydat[0], dalej[1] - kandydat[1]) * 1000) / 1000;
+      zapisz();
+      rysuj();
+    };
+    box.appendChild(doSciezki);
+    podpowiedz(box, 'Miejsce, w którym lisek pojawia się po wejściu na mapę — niezależne od ścieżki. Kreska pokazuje, w którą stronę patrzy. Trzymaj punkt na trawie: start w rzece albo poza krawędzią świata psuje kolizję i pozwala chodzić po wodzie.');
   }
   if (wybor.typ === 'latarnia') {
     zapewnijWezly();

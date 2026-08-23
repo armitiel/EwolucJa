@@ -199,6 +199,31 @@ def patch(s, nazwa_pliku):
             f"{I2}(k.do[0]),{R2}(k.do[1]+{P}));{T2}.stroke()}}")
          + s[m.end():])
 
+    # ── 12. START LISKA (niezalezny od sciezki) ──────────────────────────────
+    # Bohater startowal na POCZATKU SCIEZKI (`placeHero(0)`), wiec kazde
+    # przeciagniecie pierwszego wezla w edytorze przesuwalo mu spawn - a gdy
+    # sciezka wyszla poza promien swiata, dziecko zaczynalo gre na terenie,
+    # po ktorym nie wolno chodzic. Wtedy odpalal sie bezpiecznik w
+    # `moveWithCollision` ("stoisz w zlym miejscu, wiec pozwalam na wszystko")
+    # i zostawal wlaczony na stale: stad chodzenie po wodzie i poza mapa.
+    #
+    # Start jest teraz osobnym punktem w `mapa.json` (`start.pos`, `start.obrot`).
+    # Sciezka zostaje sama sobie - mozna ja przerysowac bez ruszania spawnu.
+    m = jedno(s, r"placeHero\((\w+),(\w+)=!1\)\{this\.heroT=\1;let (\w+)=(\w+)\(\1\);", "start liska")
+    e_arg, n_var = m.group(1), m.group(3)
+    s = (s[:m.end()]
+         + f"var _st={M}?.start;if(_st?.pos&&{e_arg}===0)"
+           f"{n_var}=new {V3}(_st.pos[0],0,_st.pos[1]);"
+         + s[m.end():])
+
+    # Kierunek patrzenia na starcie: bez tego lisek celuje w punkt sciezki,
+    # ktory po zmianie spawnu potrafi lezec za jego plecami.
+    m = jedno(s, r"this\.heading=Math\.atan2\((\w+)\.x-(\w+)\.x,\1\.z-\2\.z\)", "kierunek startu")
+    a, b = m.group(1), m.group(2)
+    s = (s[:m.start()]
+         + f"this.heading=(_st?.obrot!=null&&{e_arg}===0?_st.obrot:Math.atan2({a}.x-{b}.x,{a}.z-{b}.z))"
+         + s[m.end():])
+
     return s
 
 
