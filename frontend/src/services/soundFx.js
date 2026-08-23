@@ -243,8 +243,55 @@ export function krokiStop() {
   }, KROKI_WYGASZENIE * 1000 + 40);
 }
 
+/* ── TYK KOŁA FORTUNY ─────────────────────────────────────────────────────
+   Syntezowany, nie z pliku. Dźwięk kręcącego się koła to nie jedna próbka,
+   tylko RYTM: kołek uderza o każdy mijany klin, więc stuknięcia same
+   zwalniają razem z tarczą. Próbka pętlowa tego nie zrobi — musiałaby
+   zmieniać tempo w locie, a i tak rozjechałaby się z animacją.
+
+   Barwa: krótki szum przepuszczony przez wąskie pasmo ~1,8 kHz. To brzmi jak
+   drewno, nie jak elektroniczny „bip" — a koło w grze jest drewniane. */
+let szumBufor = null;
+
+function bufoSzumu(ctx) {
+  if (szumBufor && szumBufor.sampleRate === ctx.sampleRate) return szumBufor;
+  const dl = Math.floor(ctx.sampleRate * 0.05);
+  const b = ctx.createBuffer(1, dl, ctx.sampleRate);
+  const d = b.getChannelData(0);
+  for (let i = 0; i < dl; i++) d[i] = Math.random() * 2 - 1;
+  szumBufor = b;
+  return b;
+}
+
+/**
+ * Jedno stuknięcie kołka o klin. `sila` 0–1 ścisza i przygasza dźwięk —
+ * pod koniec kręcenia tarcza ledwo się toczy i tyki mają być ciche.
+ */
+export function tykKola(sila = 1) {
+  const ctx = audioCtx();
+  if (!ctx) return;
+  odblokuj();
+  const s = Math.max(0, Math.min(1, sila));
+  const t = ctx.currentTime;
+  const zrodlo = ctx.createBufferSource();
+  zrodlo.buffer = bufoSzumu(ctx);
+  const pasmo = ctx.createBiquadFilter();
+  pasmo.type = "bandpass";
+  pasmo.frequency.value = 1500 + 600 * s;
+  pasmo.Q.value = 7;
+  const wzm = ctx.createGain();
+  const szczyt = 0.05 + 0.16 * s;
+  wzm.gain.setValueAtTime(0.0001, t);
+  wzm.gain.exponentialRampToValueAtTime(szczyt, t + 0.003);
+  wzm.gain.exponentialRampToValueAtTime(0.0001, t + 0.045);
+  zrodlo.connect(pasmo).connect(wzm).connect(ctx.destination);
+  zrodlo.start(t);
+  zrodlo.stop(t + 0.06);
+}
+
 /** Skróty do dźwięków używanych w grze. */
 export const fx = {
+  tykKola,
   dopamine: (vol) => playFx("dopamine", vol ?? 0.6),
   magicalAncient: (vol) => playFx("magicalAncient", vol ?? 0.6),
   gentleMagical: (vol) => playFx("gentleMagical", vol ?? 0.6),

@@ -13,8 +13,11 @@
 @keyframes kolo-wejscie{ from{ opacity:0; } to{ opacity:1; } }
 
 .kolo-karta{
+  /* BEZ PRZEWIJANIA. Rozmiar tarczy schodzi z wysokości okna (`--kolo`
+     niżej), więc nagłówek, koło i przycisk zawsze mieszczą się w kadrze —
+     nie ma czego przewijać i karta nie dostaje `overflow`. */
   position:relative; width:min(94vw,470px);
-  padding:20px 22px 24px; border-radius:26px;
+  padding:18px 20px 20px; border-radius:26px;
   background:linear-gradient(180deg,#fff8dd,#f2ddad);
   border:3px solid #e6a832; box-shadow:0 4px 0 #a2621c, 0 18px 40px rgba(20,12,4,.45);
   text-align:center; user-select:none; -webkit-user-select:none;
@@ -25,63 +28,180 @@
   to{ transform:translateY(0) scale(1); opacity:1; }
 }
 
-.kolo-x{
-  position:absolute; top:10px; right:10px; width:38px; height:38px;
-  border-radius:50%; border:2px solid #d9a13a; background:#fff3cf;
-  color:#7a5514; font-size:22px; font-weight:800; line-height:1; cursor:pointer;
-  z-index:2;
-}
+/* Wygląd krzyżyka jest wspólny (`.popup-postaci-zamknij` w `hub.css`) —
+   tu tylko miejsce w karcie. */
+.kolo-x{ top:8px; right:8px; }
 
 .kolo-nadtytul{
-  margin:2px 0 0; font-size:12px; font-weight:800; letter-spacing:2.4px;
-  color:#a2621c;
+  /* Boczny odstęp SYMETRYCZNY, nie tylko z prawej: krzyżyk stoi w prawym
+     górnym rogu, a nadtytuł ma zostać wyśrodkowany względem karty, nie
+     zepchnięty w lewo. */
+  margin:2px 0 0; padding:0 46px; font-size:11px; font-weight:800; letter-spacing:2.2px;
+  color:#a2621c; text-transform:uppercase;
 }
 .kolo-tytul{
   margin:2px 0 6px; font-size:clamp(22px,5.4vw,30px); font-weight:800;
-  color:#4a2f10;
+  color:#4a2f10; display:flex; align-items:center; justify-content:center; gap:8px;
+  min-height:1.25em;
+}
+/* Ikona wylosowanej cechy zamiast emoji — ten sam obrazek, który dziecko
+   właśnie zobaczyło na klinie. */
+.kolo-tytul-ikona{ width:1.15em; height:1.15em; object-fit:contain; }
+.kolo-tytul.is-wynik{ animation:kolo-tytul-wskok .45s cubic-bezier(.2,1.5,.4,1); }
+@keyframes kolo-tytul-wskok{
+  0%{ transform:scale(.72); opacity:0; }
+  100%{ transform:scale(1); opacity:1; }
 }
 .kolo-podpowiedz{
-  margin:0 0 10px; white-space:pre-line; font-size:14px; font-weight:700;
-  color:#7a5c2c; line-height:1.35; min-height:38px;
+  /* Jedna linijka — `min-height` trzyma miejsce, żeby po zatrzymaniu koła
+     karta nie podskoczyła, gdy tekst zmieni długość. */
+  margin:0 0 8px; font-size:14px; font-weight:700;
+  color:#7a5c2c; line-height:1.3; min-height:1.3em;
 }
 
-.kolo-scena{ position:relative; margin:0 auto; width:min(76vw,320px,40dvh); }
-.kolo-tarcza{ display:block; width:100%; height:auto; }
+/* ── KOŁO Z WARSTW ────────────────────────────────────────────────────
+   Cztery pliki na wspólnym płótnie 1024×1024, środek koła w środku pliku,
+   więc wszystkie kładą się przez `inset:0` i nic nie trzeba pozycjonować.
+   Opis warstw i geometrii: `public/assets/kolo/README.md`. */
+/* ŚREDNICA KOŁA — jedyna liczba, którą się tu kręci. O 15% większa niż
+   pierwsza wersja (76vw/320px/40dvh); ułamek wysokości pilnuje, żeby na
+   niskim oknie całość dalej mieściła się bez przewijania. */
+.kolo-fortuny{ --kolo:min(87vw,368px,42dvh); }
+.kolo-scena{
+  position:relative; margin:0 auto; width:var(--kolo); aspect-ratio:1;
+  /* PISMO ETYKIET MIERZY SIĘ KOŁEM, NIE OKNEM. Wcześniej stopień szedł
+     z `clamp(…, 2.25vw, …)`, a średnica koła z `min(87vw, 368px, 42dvh)` —
+     na szerokim, niskim oknie koło schodziło do 42% wysokości, a napis
+     zostawał przy maksimum i wychodził poza swój klin. Jedna miara dla obu
+     znaczy, że kąt, jaki napis zajmuje w klinie, jest ZAWSZE ten sam. */
+  font-size:calc(var(--kolo) * .026);
+}
+.kolo-scena > *,
+.kolo-wirnik > img{ position:absolute; inset:0; width:100%; height:100%; }
+.kolo-piasta{ z-index:2; pointer-events:none; }
+.kolo-rama{ z-index:3; pointer-events:none; }
+.kolo-strzalka{ z-index:4; filter:drop-shadow(0 2px 3px rgba(40,25,5,.35)); }
 
 /* Wirnik: sam obrót w transformie, czas i krzywa tu — jedna prawda o tym,
    jak długo koło się kręci (skrypt czeka te same 3,6 s minus zapas). */
 .kolo-wirnik{
   transition:transform 3.4s cubic-bezier(.15,.65,.08,1);
-  transform-origin:0 0;
+  transform-origin:50% 50%;
+  will-change:transform;
 }
-.kolo-emoji{ font-size:34px; }
-.kolo-napis{ font-size:14.5px; font-weight:800; letter-spacing:.2px; }
-.kolo-gwiazdka{ font-size:26px; fill:#c8862a; }
 
-/* Wygrane pole mruga po zatrzymaniu — oko od razu wie, co padło. */
-.kolo-pole.is-wygrane path{ animation:kolo-puls 1s ease-in-out infinite; }
+/* Ikona i napis jadą RAZEM z tarczą, więc leżą w obracanym pudełku i nic
+   nie trzeba im kompensować. Etykieta to cały kwadrat obrócony o kąt środka
+   pola, z treścią przy górnej krawędzi; `margin-top` ustala, jak daleko od
+   środka koła siedzi. */
+.kolo-etykieta{
+  position:absolute; inset:0; display:flex; justify-content:center;
+  transform:rotate(var(--kat)); transform-origin:50% 50%;
+  pointer-events:none;
+}
+.kolo-tresc{
+  /* `--wsuniecie` = jak głęboko w klin wchodzi grupa ikona+napis. Im więcej,
+     tym bliżej środka — a klin się przy tym zwęża, więc granicę wyznacza
+     najdłuższy napis („Współpraca"). Wartość dobrana POMIAREM narożników
+     napisów w biegunowych współrzędnych koła, na czterech rozmiarach okna:
+     przy 15% najdalszy narożnik siedzi ~33° od osi klina, czyli 3° przed
+     granicą; przy 16% dotyka jej, przy 19% wchodzi na sąsiedni klin. */
+  --wsuniecie:15%;
+  width:23%; margin-top:var(--wsuniecie);
+  display:flex; flex-direction:column; align-items:center; gap:1px;
+  text-align:center;
+}
+.kolo-tresc img{
+  /* Mniejsza ikona = krótsza grupa = da się ją wsunąć głębiej w klin,
+     nie wypychając napisu w miejsce, gdzie klin jest już za wąski. */
+  position:static; width:64%; height:auto;
+  filter:drop-shadow(0 2px 2px rgba(40,25,5,.4));
+}
+.kolo-tresc b{
+  /* WERSALIKI: krótkie, jednowyrazowe etykiety czytają się w nich pewniej
+     i tworzą równy pasek zamiast rozchwianej linii z wystającymi „ł" i „ó".
+     Mniejszy stopień pisma i ciaśniejszy odstęp rekompensują to, że wersaliki
+     są szersze — napis zajmuje tyle samo, a wchodzi głębiej w klin. */
+  font-size:1em; color:#fff; font-weight:800; line-height:1.05;
+  text-transform:uppercase; letter-spacing:.02em;
+  text-shadow:0 2px 0 rgba(0,0,0,.4), 0 0 6px rgba(0,0,0,.3);
+}
+/* DOLNE POLA WISIAŁYBY DO GÓRY NOGAMI. Zamiast obracać samą treść (stanęłaby
+   na głowie też ikona), obracamy CAŁE pudełko o dodatkowe 180° i wieszamy
+   treść przy jego DOLNEJ krawędzi — wraca na to samo pole, ale czyta się
+   normalnie. `column-reverse` pilnuje, żeby ikona dalej była bliżej obręczy. */
+.kolo-etykieta.is-odwrocona{
+  transform:rotate(calc(var(--kat) + 180deg)); align-items:flex-end;
+}
+.kolo-etykieta.is-odwrocona .kolo-tresc{
+  margin-top:0; margin-bottom:var(--wsuniecie); flex-direction:column-reverse;
+}
+
+/* ── EFEKT WYNIKU ─────────────────────────────────────────────────────
+   Trzy rzeczy naraz, ale każda krótka: rozbłysk z osi koła, wianek iskier
+   rozlatujący się na zewnątrz i wskoczenie tytułu. Fajerwerk pojawia się
+   w DOM dopiero po zatrzymaniu (patrz komponent), więc przez całe kręcenie
+   nie ma tu ani jednej dodatkowej animacji. */
+.kolo-fajerwerk{
+  position:absolute; inset:0; z-index:5; pointer-events:none;
+}
+.kolo-rozblysk{
+  position:absolute; inset:-6%; border-radius:50%;
+  background:radial-gradient(circle at 50% 50%, rgba(255,252,230,.9) 0%, rgba(255,224,122,.6) 32%, rgba(255,205,70,.28) 54%, rgba(255,205,70,0) 72%);
+  mix-blend-mode:screen;
+  /* Krótko i nie na pełne krycie: rozbłysk ma podbić moment, a nie zasłonić
+     na pół sekundy pole, które właśnie padło. */
+  animation:kolo-rozblysk .6s ease-out forwards;
+}
+@keyframes kolo-rozblysk{
+  0%{ transform:scale(.3); opacity:0; }
+  18%{ opacity:.75; }
+  100%{ transform:scale(1.12); opacity:0; }
+}
+/* ISKRA TO PASEK DŁUGOŚCI PROMIENIA, nie sam punkcik. Punkt animowany
+   `translateY` w procentach jechałby o procent WŁASNEJ wysokości, czyli
+   o kilka pikseli — trasa musi być mierzona kołem, nie iskrą. Pasek obraca
+   się wokół środka tarczy, a świecąca kropka wędruje wzdłuż niego (`top`
+   w procentach paska), więc efekt skaluje się razem z kołem. */
+.kolo-iskra{
+  /* Pasek DŁUŻSZY od promienia (62%), żeby iskra kończyła lot już POZA
+     obręczą — na spokojnym pergaminie widać ją, a na kolorowym klinie ginęła. */
+  position:absolute; left:50%; top:50%; width:14px; height:62%;
+  margin-left:-7px; transform-origin:50% 0; transform:rotate(var(--kat));
+}
+.kolo-iskra::before{
+  content:""; position:absolute; left:0; width:14px; height:14px;
+  border-radius:4px; background:#FFE484;
+  box-shadow:0 0 14px rgba(255,205,70,.95), 0 0 4px #fff8d8;
+  animation:kolo-iskra .85s cubic-bezier(.15,.7,.35,1) var(--zwloka) backwards;
+}
+@keyframes kolo-iskra{
+  0%{ top:12%; transform:scale(.4); opacity:0; }
+  20%{ opacity:1; }
+  70%{ opacity:1; }
+  100%{ top:100%; transform:scale(.7) rotate(120deg); opacity:0; }
+}
+
+/* Wygrane pole mruga po zatrzymaniu — oko od razu wie, co padło. Mruga sama
+   etykieta, bo klin jest częścią obrazka i nie da się go przemalować. */
+.kolo-etykieta.is-wygrane .kolo-tresc{ animation:kolo-puls 1s ease-in-out infinite; }
 @keyframes kolo-puls{
-  0%,100%{ filter:brightness(1); }
-  50%{ filter:brightness(1.25) drop-shadow(0 0 10px rgba(255,224,140,.9)); }
+  0%,100%{ filter:brightness(1) drop-shadow(0 0 0 rgba(255,224,140,0)); transform:scale(1); }
+  50%{ filter:brightness(1.15) drop-shadow(0 0 9px rgba(255,236,160,.95)); transform:scale(1.08); }
 }
 
-.kolo-strzalka{
-  position:absolute; left:50%; top:-8px; width:40px; height:34px;
-  transform:translateX(-50%); z-index:2;
-  filter:drop-shadow(0 2px 2px rgba(40,25,5,.35));
-}
-
-.kolo-cta{
-  margin-top:16px; padding:12px 34px; border-radius:999px; cursor:pointer;
-  border:3px solid #5c9a44; background:linear-gradient(180deg,#9fd97f,#6fbb4e);
-  color:#1f4d12; font-family:inherit; font-size:20px; font-weight:800;
-  box-shadow:0 4px 0 #3f7a2b;
-}
-.kolo-cta:disabled{ opacity:.7; cursor:default; }
-.kolo-cta:not(:disabled):active{ transform:translateY(2px); box-shadow:0 2px 0 #3f7a2b; }
+/* WYGLĄD PRZYCISKU JEST WSPÓLNY dla całej gry (`.hub-btn.hub-btn-primary`
+   w `ewolucja.css`) — tutaj zostaje wyłącznie odstęp i szerokość. Wcześniej
+   koło miało własny zielony przycisk o innym kroju, obwódce i cieniu niż
+   reszta ekranów. */
+.kolo-cta{ margin-top:14px; }
 
 @media (prefers-reduced-motion: reduce){
   .kolo-fortuny, .kolo-karta{ animation:none; }
   .kolo-wirnik{ transition-duration:.6s; }
-  .kolo-pole.is-wygrane path{ animation:none; filter:brightness(1.2); }
+  .kolo-etykieta.is-wygrane .kolo-tresc{ animation:none; filter:brightness(1.2); }
+  /* Rozbłysk i iskry to czysta dekoracja — przy spokojnym ruchu znikają
+     całkiem, zamiast migać w skróconej wersji. */
+  .kolo-fajerwerk{ display:none; }
+  .kolo-tytul.is-wynik{ animation:none; }
 }

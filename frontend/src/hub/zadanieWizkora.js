@@ -29,6 +29,15 @@ import { wzmocnijCeche } from "../adventure/engine/adventureState.js";
 
 
 const KLUCZ = "ewolucja.zadanie.wizkora";
+/**
+ * HISTORIA rozliczonych zadań — same identyfikatory, osobno od bieżącego
+ * zapisu. Bieżący zapis trzyma JEDNO zadanie i po wypłacie zostaje
+ * nadpisany następnym, więc bez tej listy koło co losowanie podawałoby to
+ * samo zadanie z cechy (kolejność w katalogu). Historia jest tylko
+ * podpowiedzią dla losowania: gdy dziecko przerobi już całą cechę,
+ * zadania wracają — powtórka „zrób coś dobrego" niczego nie psuje.
+ */
+const KLUCZ_HISTORII = "ewolucja.zadanie.wizkora.historia";
 export const ZDARZENIE_ZMIANY = "ewolucja:zadanieWizkoraZmiana";
 
 export const ZADANIA = DANE.zadania || [];
@@ -137,9 +146,33 @@ export function zadanieDoZlecenia() {
 export function zadanieDlaCechy(cecha) {
   const stan = stanZadania();
   if (stan.istnieje && !stan.wyplacone) return null;
-  const zrobione = stan.istnieje ? [stan.id] : [];
   const wCesze = ZADANIA.filter((z) => z.cecha === cecha);
-  return wCesze.find((z) => !zrobione.includes(z.id)) || wCesze[0] || zadanieDoZlecenia();
+  if (!wCesze.length) return zadanieDoZlecenia();
+  // Ostatnio rozliczone też odpada — dwa razy pod rząd to samo zadanie
+  // czyta się jak awaria koła, nawet gdy naprawdę wypadła ta sama cecha.
+  const pominiete = new Set([...historiaZadan(), stan.istnieje ? stan.id : null].filter(Boolean));
+  const swieze = wCesze.filter((z) => !pominiete.has(z.id));
+  const pula = swieze.length ? swieze : wCesze;
+  return pula[Math.floor(Math.random() * pula.length)];
+}
+
+/** Identyfikatory zadań już rozliczonych (do losowania bez powtórek). */
+export function historiaZadan() {
+  try {
+    const surowe = JSON.parse(localStorage.getItem(KLUCZ_HISTORII) || "[]");
+    return Array.isArray(surowe) ? surowe.filter((x) => typeof x === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function dopiszDoHistorii(id) {
+  if (!id) return;
+  try {
+    const teraz = historiaZadan();
+    if (teraz.includes(id)) return;
+    localStorage.setItem(KLUCZ_HISTORII, JSON.stringify([...teraz, id]));
+  } catch {}
 }
 
 export function zlecZadanie(id) {
@@ -348,11 +381,13 @@ export function odbierzNagrode() {
    */
   const cecha = definicjaZadania(zapis.id)?.cecha;
   if (cecha) { try { wzmocnijCeche(cecha, 1); } catch {} }
+  dopiszDoHistorii(zapis.id);
   return zapisz({ ...zapis, status: "wyplacone" });
 }
 
 /** Do pulpitu testowego i konsoli — czekanie na Mentora byłoby nie do zniesienia. */
-export function skasujZadanie() {
+export function skasujZadanie({ historia = false } = {}) {
+  if (historia) { try { localStorage.removeItem(KLUCZ_HISTORII); } catch {} }
   return zapisz(null);
 }
 

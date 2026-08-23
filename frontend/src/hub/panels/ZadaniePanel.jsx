@@ -27,12 +27,9 @@ import {
   sprawdzMentora,
   stanZadania,
   wyslijDowod,
-  zadanieDlaCechy,
   zadanieDoZlecenia,
-  zlecZadanie,
   ZDARZENIE_ZMIANY,
 } from "../zadanieWizkora.js";
-import KoloFortuny from "../KoloFortuny.jsx";
 
 export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
   const { refreshPlayer } = useAppData();
@@ -207,39 +204,26 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
     onKomunikat?.(stan.nagroda ? `+${stan.nagroda} monet od Mentora` : "Nagroda odebrana");
   }
 
-  /* ── brak zadania: KOŁO PRZEZNACZENIA ──────────────────────────────
-     Zadania w realu nie przydziela już nikt — losuje je dziecko, kręcąc
-     kołem cech awatara. Koło stoi TUTAJ, w panelu zadania, bo to pierwsza
-     odsłona tego samego ekranu: zakręcenie zamienia je w opis zadania
-     z podpowiedziami i przyciskiem wysyłki, bez zmiany zakładki.
-
-     Gdy w katalogu nie ma czego losować (wszystko zrobione), zostaje
-     dawna pustka — koło bez zadania w tle byłoby obietnicą bez pokrycia. */
+  /* ── brak zadania ──────────────────────────────────────────────────
+     KOŁO PRZEZNACZENIA STOI PRZY WIZKORZE, NIE TUTAJ (decyzja właściciela,
+     2026-08-23). Wcześniej ta zakładka otwierała się z kołem na wierzchu,
+     więc za losowaniem stał od razu drugi ekran, a krzyżyk zostawiał
+     przycisk „Zakręć kołem" — czyli dwa wejścia do tej samej rzeczy.
+     Teraz koło wychodzi z rozmowy (akcja `kolo` w `Swiat.jsx`), a szuflada
+     wjeżdża dopiero z wylosowanym zadaniem. Tu zostaje sama informacja,
+     gdzie po nie iść. */
   if (!stan.istnieje || !def) {
     const jestCoLosowac = !!zadanieDoZlecenia();
-    if (!jestCoLosowac) {
-      return (
-        <div className="hub-pane" data-testid="hub-pane-zadanie">
-          <div className="hub-empty">
-            <GameIcon name="hourglass" size={34} />
-            <p>Wizkor nie ma dziś dla Ciebie zadania. Pobiegaj po mapie — znajdzie Cię sam.</p>
-          </div>
-        </div>
-      );
-    }
     return (
-      <div className="hub-pane" data-testid="hub-pane-zadanie" ref={panelRef}>
-        <KoloFortuny
-          osadzone
-          onWybor={(cecha) => {
-            const wylosowane = zadanieDlaCechy(cecha);
-            if (!wylosowane) return;
-            // `setStan` z wyniku, nie z nasłuchu: panel ma przeskoczyć na
-            // opis zadania w tej samej klatce, w której dziecko klika.
-            setStan(zlecZadanie(wylosowane.id));
-            onKomunikat?.(`Nowe zadanie: ${wylosowane.tytul}`);
-          }}
-        />
+      <div className="hub-pane" data-testid="hub-pane-zadanie">
+        <div className="hub-empty">
+          <GameIcon name={jestCoLosowac ? "star" : "hourglass"} size={jestCoLosowac ? 38 : 34} />
+          <p>
+            {jestCoLosowac
+              ? "Wizkor ma dziś dla Ciebie zadanie. Znajdź go na polanie i zakręć kołem przeznaczenia."
+              : "Wizkor nie ma dziś dla Ciebie zadania. Pobiegaj po mapie — znajdzie Cię sam."}
+          </p>
+        </div>
       </div>
     );
   }

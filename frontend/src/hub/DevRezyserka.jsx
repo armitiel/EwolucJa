@@ -55,7 +55,11 @@ import {
   zlamanaKolejnosc,
 } from "./etapyMisji.js";
 import { powitanieCzarodzieja, ZNAK_CZARODZIEJA } from "./kwestieWizkora.js";
+import { CECHY_KOLA } from "./KoloFortuny.jsx";
+import { TRAIT_LABELS } from "../adventure/engine/adventureState.js";
 import {
+  historiaZadan,
+  zadanieDlaCechy,
   odbierzNagrode as odbierzNagrodeReala,
   skasujZadanie as skasujZadanieReala,
   sprawdzMentora,
@@ -271,6 +275,30 @@ export default function DevRezyserka({
   }
 
   /**
+   * Zadanie Z KONKRETNEJ CECHY — to, co w grze robi koło przeznaczenia,
+   * tylko bez losowania. Pulpit ma umieć wejść w każdy wynik koła od razu:
+   * kręcenie po pięć razy, żeby trafić na sprawdzaną cechę, byłoby dokładnie
+   * tym rodzajem czekania, dla którego ten pulpit powstał.
+   */
+  function realZlecCeche(cecha) {
+    const wybrane = zadanieDlaCechy(cecha);
+    if (!wybrane) {
+      onKomunikat?.("DEV: najpierw rozlicz albo skasuj bieżące zadanie");
+      return;
+    }
+    zlecZadanieReala(wybrane.id);
+    odswiez(`DEV: ${TRAIT_LABELS[cecha]} → „${wybrane.tytul}"`);
+  }
+
+  /** Koło w panelu pokazuje się TYLKO bez zadania — więc najpierw czyścimy. */
+  function realKolo() {
+    skasujZadanieReala({ historia: true });
+    setOtwarty(false);
+    onOtworzPanel?.("zadanie");
+    onKomunikat?.("DEV: zakręć kołem przeznaczenia");
+  }
+
+  /**
    * Wysyłka idzie NAJPIERW prawdziwą drogą (`wyslijDowod` → seed misji
    * u Mentora + dowód przez API), bo wtedy testuje się także backend
    * i panel Mentora. Bez sieci albo bez gracza schodzi na `wyslijDowodDev`,
@@ -423,7 +451,9 @@ export default function DevRezyserka({
 
           {/* Kolejność guzików = kolejność prawdziwego obiegu. Stan w tytule
               mówi, który krok jest „teraz" — klikanie po kolei przechodzi
-              całe zadanie od zlecenia do wypłaty. */}
+              całe zadanie od zlecenia do wypłaty. Od kiedy zadanie losuje
+              KOŁO PRZEZNACZENIA, tytuł mówi też, którą cechę awatara to
+              zadanie ćwiczy — bo to ona rośnie przy wypłacie. */}
           <Grupa
             tytul={`Zadanie w realu — ${
               !real.istnieje ? "brak"
@@ -432,9 +462,10 @@ export default function DevRezyserka({
               : real.czeka ? "u Mentora"
               : real.status === "poprawka" ? "poprawka"
               : "do zrobienia"
-            }${real.istnieje ? ` („${real.def?.tytul}")` : ""}`}
+            }${real.istnieje && real.def ? ` („${real.def.tytul}" · ${TRAIT_LABELS[real.def.cecha] || "bez cechy"})` : ""}`}
           >
-            <Guzik onClick={realZlec}>Zleć</Guzik>
+            <Guzik ton="mocny" onClick={realKolo}>Koło przeznaczenia</Guzik>
+            <Guzik onClick={realZlec}>Zleć (pierwsze wolne)</Guzik>
             <Guzik onClick={() => onOtworzPanel?.("wiadomosci")}>Otwórz Listy</Guzik>
             <Guzik onClick={() => onOtworzPanel?.("zadanie")}>Otwórz zadanie</Guzik>
             <Guzik onClick={realWyslij}>Wyślij zdjęcie + tekst</Guzik>
@@ -447,6 +478,24 @@ export default function DevRezyserka({
             <Guzik onClick={realWerdykt}>Sprawdź werdykt (API)</Guzik>
             <Guzik onClick={() => { odbierzNagrodeReala(); odswiez("DEV: nagroda odebrana"); }}>Odbierz nagrodę</Guzik>
             <Guzik onClick={() => { skasujZadanieReala(); odswiez("DEV: zadanie skasowane"); }}>Reset</Guzik>
+            <Guzik onClick={() => { skasujZadanieReala({ historia: true }); odswiez("DEV: zadanie i historia skasowane"); }}>
+              Reset + historia
+            </Guzik>
+          </Grupa>
+
+          {/* Wynik koła bez kręcenia: jedna cecha = jedno kliknięcie. Podpis
+              mówi, ile zadań tej cechy jest już rozliczonych — po tym widać,
+              kiedy losowanie zacznie się powtarzać. */}
+          <Grupa tytul={`Koło — cechy (rozliczone: ${historiaZadan().length}/${ZADANIA_REALNE.length})`}>
+            {CECHY_KOLA.map((c) => {
+              const wCesze = ZADANIA_REALNE.filter((z) => z.cecha === c.id);
+              const zrobione = wCesze.filter((z) => historiaZadan().includes(z.id)).length;
+              return (
+                <Guzik key={c.id} onClick={() => realZlecCeche(c.id)}>
+                  {`${c.emoji} ${c.nazwa} ${zrobione}/${wCesze.length}`}
+                </Guzik>
+              );
+            })}
           </Grupa>
 
           <Grupa tytul="Świat">

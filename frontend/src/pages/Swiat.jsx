@@ -200,12 +200,12 @@ const Reflektor = lazy(() => import("../hub/Reflektor.jsx"));
  * na grę, przy pierwszym podejściu, i nie ma czego robić w paczce startowej.
  */
 const PuzzleBrama = lazy(() => import("../hub/PuzzleBrama.jsx"));
-
-/**
- * Koło fortuny do zadań w realu: losuje cechę awatara, cecha wybiera
- * zadanie. `lazy` z tego samego powodu, co układanka — wchodzi rzadko.
- */
 const KoloFortuny = lazy(() => import("../hub/KoloFortuny.jsx"));
+
+/* KOŁO PRZEZNACZENIA nie jest osobnym ekranem huba: stoi w panelu zadania
+   (`panels/ZadaniePanel.jsx`) jako jego pierwsza odsłona, więc losowanie
+   i opis wylosowanego zadania dzieją się w jednym miejscu. Hub tylko
+   otwiera ten panel — zielonym przyciskiem Wizkora albo pulpitem dev. */
 
 const GRY_OSADZONE = {
   "pamiec-medrca": lazy(() => import("./MemoryGame.jsx")),
@@ -382,9 +382,8 @@ export default function Swiat() {
    * układa. Osobno od `zaproszenie` — układanka wchodzi też z biblioteki gier.
    */
   const [ukladanka, setUkladanka] = useState(null);
-  // Koło fortuny (zadania w realu) na ekranie? Samo `true/false` — koło
-  // wie o cechach wszystko, hub tylko je pokazuje i odbiera wynik.
-  const [koloFortuny, setKoloFortuny] = useState(false);
+  // Koło przeznaczenia stoi NAD mapą, nie w szufladzie — patrz akcja `kolo`.
+  const [kolo, setKolo] = useState(false);
   /**
    * Etap puzzli do LICZNIKA w HUD: `null` poza etapem, inaczej stan
    * z `puzzleGier` (zebrane/cel/komplet). Trzymany w stanie Reacta, bo
@@ -1228,13 +1227,6 @@ export default function Swiat() {
       setUkladanka(akcja.slice(10));
       return;
     }
-    if (akcja === "koloFortuny") {
-      // „Kręcę kołem!" — okno Wizkora schodzi, wjeżdża koło przeznaczenia.
-      // Zadanie zlecamy dopiero PO losowaniu (onWybor przy kole, niżej).
-      setPowitanie(null);
-      setKoloFortuny(true);
-      return;
-    }
     if (typeof akcja === "string" && akcja.startsWith("zlecReal:")) {
       zlecZadanieWizkora(akcja.slice(9));
       rozstanie();
@@ -1250,6 +1242,14 @@ export default function Swiat() {
     if (akcja === "otworzZadanie") {
       setPowitanie(null);
       otworz("zadanie");
+      return;
+    }
+    if (akcja === "kolo") {
+      // Okno Wizkora schodzi, na jego miejsce wchodzi koło — dokładnie tak
+      // samo, jak układanka. Szuflada zadania NIE otwiera się teraz: wjedzie
+      // dopiero po „Biorę zadanie!", żeby za kołem nie stał drugi ekran.
+      setPowitanie(null);
+      setKolo(true);
       return;
     }
     rozstanie();
@@ -1483,14 +1483,24 @@ export default function Swiat() {
         etykieta: "Zleć od nowa",
         odpal: () => {
           skasujZadanieWizkora();
-          zlecZadanieWizkora(ZADANIA_WIZKORA[0]?.id);
-          pokazKomunikat("DEV: zadanie w realu zlecone");
+          const nowe = ZADANIA_WIZKORA[0];
+          zlecZadanieWizkora(nowe?.id);
+          pokazKomunikat(nowe ? `DEV: zlecone „${nowe.tytul}"` : "DEV: katalog zadań pusty");
         },
       },
       {
         grupa: "Zadanie w realu",
-        etykieta: "Koło fortuny",
-        odpal: () => setKoloFortuny(true),
+        etykieta: "Koło przeznaczenia (Listy)",
+        /* Koło pokazuje się w panelu tylko, gdy NIE MA zadania — bieżące
+           trzeba więc najpierw skasować, inaczej pulpit otworzyłby opis
+           starego zadania i wyglądałoby to, jakby koła w ogóle nie było. */
+        odpal: () => {
+          // Z historią: pulpit ma losować jak przy pierwszym uruchomieniu,
+          // a nie omijać zadania rozliczone w poprzednich próbach.
+          skasujZadanieWizkora({ historia: true });
+          otworz("zadanie");
+          pokazKomunikat("DEV: zakręć kołem przeznaczenia");
+        },
       },
       // Puzzle przed grami: zbieranie, komplet i sama układanka na żądanie.
       ...MISJE.map((def) => ({
@@ -1525,7 +1535,7 @@ export default function Swiat() {
     );
 
     return pozycje;
-  }, [dev, pokazKomunikat, odswiezPuzleNaMapie]);
+  }, [dev, pokazKomunikat, odswiezPuzleNaMapie, otworz]);
 
   const naZdarzenieSceny = useCallback(
     (nazwa, dane) => {
@@ -2289,30 +2299,29 @@ export default function Swiat() {
         </div>
       ) : null}
 
-      {/* UKŁADANKA — brama przed minigrą. Nad HUD-em i arkuszem, pod samą
-          grą (nigdy nie stoją naraz: jedna otwiera drugą). */}
-      {/* KOŁO FORTUNY — losowanie cechy przed zadaniem w realu. Wynik
-          zleca zadanie dobrane do cechy i prowadzi wzrok do Listów,
-          dokładnie tak, jak robiło to stare `zlecReal` z okna Wizkora. */}
-      {koloFortuny ? (
+      {/* KOŁO PRZEZNACZENIA — losowanie cechy przed zadaniem w realu.
+          Wychodzi z rozmowy z Wizkorem (akcja `kolo`) i stoi NAD mapą, bez
+          niczego pod spodem. Krzyżyk zamyka je bezpowrotnie: nie ma skrótu
+          w szufladzie, po koło wraca się do Wizkora. Szuflada zadania wjeżdża
+          dopiero z wylosowanym zadaniem. */}
+      {kolo ? (
         <Suspense fallback={null}>
           <KoloFortuny
-            onZamknij={() => setKoloFortuny(false)}
+            onZamknij={() => setKolo(false)}
             onWybor={(cecha) => {
-              setKoloFortuny(false);
-              const zadanieCechy = zadanieDlaCechy(cecha);
-              // Koło z pulpitu dev można otworzyć przy niedokończonym
-              // zadaniu — wtedy losowanie niczego nie zleca i mówi czemu.
-              if (!zadanieCechy) { pokazKomunikat("Najpierw dokończ obecne zadanie"); return; }
-              zlecZadanieWizkora(zadanieCechy.id);
+              const wylosowane = zadanieDlaCechy(cecha);
+              setKolo(false);
+              if (!wylosowane) return;
+              zlecZadanieWizkora(wylosowane.id);
               przeliczNieprzeczytane();
-              pokazKomunikat("Zadanie czeka w Listach");
-              mrugnijListy();
+              otworz("zadanie");
             }}
           />
         </Suspense>
       ) : null}
 
+      {/* UKŁADANKA — brama przed minigrą. Nad HUD-em i arkuszem, pod samą
+          grą (nigdy nie stoją naraz: jedna otwiera drugą). */}
       {ukladanka ? (
         <Suspense fallback={null}>
           <PuzzleBrama

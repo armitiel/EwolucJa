@@ -19,7 +19,7 @@ import { idPostaci } from "../utils/postac.js";
 // UWAGA: numer ma tylko ROSNĄĆ. Numery 3–13 zostały już wydane przeglądarce
 // z inną zawartością modułu (kolejne wersje znaków, gwiazdki, tempo ruchu),
 // więc cofnięcie go serwuje z cache starą scenę zamiast aktualnej.
-export const WERSJA_SCENY = "34";  // galezie sciezki rysowane na trawie (mapa.json -> `galezie`)
+export const WERSJA_SCENY = "35";  // latarnie da sie ukryc z mapy (mapa.json -> `latarnia.ukryta`)
 const ZASOBY = "/scena-3d/assets/";
 
 /**

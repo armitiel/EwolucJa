@@ -54,7 +54,8 @@ export const ZNAK_CZARODZIEJA = "czarodziej";
  *   "ukladanka:<id>"  → otwórz układankę puzzli tej gry
  *   "naplac:<id gry>" → otwórz ekran wygranej za rozegraną partię
  *   "zlecReal:<id>"   → zleć zadanie do zrobienia poza ekranem (ląduje w zwoju)
- *   "koloFortuny"     → otwórz koło fortuny: losuje cechę i zadanie w realu
+ *   (koło przeznaczenia nie ma własnej akcji — mieszka w panelu zadania,
+ *    więc zaproszenie do losowania to zwykłe "otworzZadanie")
  *   "otworzZadanie"   → otwórz zakładkę z tym zadaniem
  *   null              → sam przycisk zamykający, nic się nie dzieje
  *
@@ -128,12 +129,18 @@ export function powitanieCzarodzieja(z, misja) {
       const nowe = zadanieDoZlecenia();
       if (nowe) {
         /**
-         * ZADANIA W REALU LOSUJE KOŁO FORTUNY (decyzja właściciela,
-         * 2026-08-22). Wizkor nie przydziela zadania — zaprasza do
-         * zakręcenia: koło wskazuje jedną z cech awatara, a cecha wybiera
-         * zadanie, które ją ćwiczy (`zadanieDlaCechy`). Samo zlecenie robi
-         * hub PO losowaniu, więc `zadanieDoZlecenia` zostaje tu tylko
-         * bramkarzem: mówi, czy w ogóle jest co losować.
+         * ZADANIA W REALU LOSUJE KOŁO PRZEZNACZENIA (decyzja właściciela,
+         * 2026-08-22). Wizkor nie przydziela zadania — wynosi koło: ono
+         * wskazuje jedną z cech awatara, a cecha wybiera zadanie, które ją
+         * ćwiczy (`zadanieDlaCechy`). Zlecenie zapada dopiero przy losowaniu,
+         * więc `zadanieDoZlecenia` zostaje tu bramkarzem: mówi, czy w ogóle
+         * jest co losować.
+         *
+         * KOŁO WYCHODZI Z ROZMOWY, nie z szuflady (decyzja właściciela,
+         * 2026-08-23). Akcja `kolo` otwiera je wprost nad mapą; szuflada
+         * zadania wjeżdża dopiero po „Biorę zadanie!". Zamknięcie krzyżykiem
+         * nie zostawia więc żadnego skrótu — po koło wraca się do Wizkora,
+         * tak jak po każde inne zlecenie.
          */
         return {
           ...baza,
@@ -142,7 +149,7 @@ export function powitanieCzarodzieja(z, misja) {
             "Zakręć kołem przeznaczenia — wskaże, którą siłę dziś ćwiczysz.",
           wyroznienie: "kołem przeznaczenia",
           przycisk: "Kręcę kołem!",
-          akcja: "koloFortuny",
+          akcja: "kolo",
         };
       }
 

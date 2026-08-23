@@ -417,7 +417,10 @@ function punktyRzeki() {
 const NS = 'http://www.w3.org/2000/svg';
 function el(nazwa, atrybuty) {
   const e = document.createElementNS(NS, nazwa);
-  for (const [k, v] of Object.entries(atrybuty || {})) e.setAttribute(k, v);
+  // Atrybut o wartości null/undefined jest POMIJANY, a nie wpisywany jako
+  // tekst "null" — dzięki temu da się pisać `stroke-dasharray: warunek ? '…' : null`
+  // zamiast budować obiekt atrybutów w dwóch wariantach.
+  for (const [k, v] of Object.entries(atrybuty || {})) if (v != null) e.setAttribute(k, v);
   plan.appendChild(e);
   return e;
 }
@@ -539,7 +542,19 @@ function rysuj() {
   }
   if (mapa.latarnia) {
     const p = mapa.latarnia.pos;
-    uchwyt('latarnia', 0, el('circle', { cx:p[0], cy:p[1], r:.42, fill:'#FFE08A', stroke:'#C9922E', 'stroke-width':.09 }));
+    /* Ukryta latarnia zostaje na mapie jako PUSTE, przerywane kółko: nie ma jej
+       w scenie, ale musi dać się kliknąć i przywrócić. Znikający uchwyt
+       zamieniłby ukrycie w operację bez powrotu — jedyną drogą z powrotem
+       byłoby ręczne grzebanie w `mapa.json`. */
+    const zgaszona = !!mapa.latarnia.ukryta;
+    uchwyt('latarnia', 0, el('circle', {
+      cx:p[0], cy:p[1], r:.42,
+      fill: zgaszona ? 'none' : '#FFE08A',
+      stroke: zgaszona ? '#9c8a63' : '#C9922E',
+      'stroke-width': .09,
+      'stroke-dasharray': zgaszona ? '.22 .18' : null,
+      opacity: zgaszona ? .55 : 1,
+    }));
   }
 
   const kreskaObrotu = (o, r, kolor) => {
@@ -685,7 +700,10 @@ function rysujListe() {
     dodaj('kwiat', i, 'kwiat ' + (i + 1) + ' · ' + (KWIATY_ODMIANY[k.wariant ?? 0] || KWIATY_ODMIANY[0]).nazwa));
   (mapa.galezie || []).forEach((g, i) =>
     dodaj('galaz', i + ':1', 'gałąź ' + (i + 1) + ' · od węzła ' + (g.od ?? 0)));
-  if (mapa.latarnia) dodaj('latarnia', 0, 'latarnia');
+  // Dopisek „(ukryta)" jest jedynym miejscem, w którym widać ten stan bez
+  // klikania w uchwyt na planie — a to pierwsze miejsce, w którym ktoś będzie
+  // szukał latarni, gdy zniknie ze sceny.
+  if (mapa.latarnia) dodaj('latarnia', 0, mapa.latarnia.ukryta ? 'latarnia (ukryta)' : 'latarnia');
   if (mapa.brama) dodaj('brama', 0, 'brama');
   if (mapa.most) dodaj('most', 0, 'most');
 }
@@ -893,6 +911,24 @@ function rysujWlasciwosci() {
       { min:0, max:Math.max(0, wezly().length - 1), krok:1 },
       (v) => { mapa.sciezkaWezly.wezelLatarni = Math.round(v); przeliczSciezke(); zmiana(); });
     podpowiedz(box, 'Do którego węzła ścieżki bohater dochodzi, gdy sam rusza do latarni. Indeks w wypalonej łamanej (`punktSciezki`) przelicza się sam.');
+    /* Latarnia jest w mapie POJEDYNCZYM obiektem, nie pozycją w tablicy, więc
+       nie da się jej „wyciąć" jak drzewa — scena i tak by ją zbudowała, tylko
+       na pozycji domyślnej. Zamiast tego przełącznik ustawia flagę `ukryta`,
+       którą scena sprawdza przed dodaniem bryły, cienia i kolizji. Jeden
+       przycisk w obie strony, bo to jest stan, a nie czynność bez powrotu. */
+    const przelacz = document.createElement('button');
+    const jestUkryta = !!mapa.latarnia?.ukryta;
+    przelacz.className = jestUkryta ? '' : 'groza';
+    przelacz.textContent = jestUkryta ? 'Przywróć latarnię' : 'Ukryj latarnię (Delete)';
+    przelacz.onclick = () => {
+      if (!mapa.latarnia) return;
+      if (jestUkryta) delete mapa.latarnia.ukryta;
+      else mapa.latarnia.ukryta = true;
+      zapisz();
+      rysuj();
+    };
+    box.appendChild(przelacz);
+    if (jestUkryta) podpowiedz(box, 'Latarnia jest ukryta: nie ma jej w scenie ani jako przeszkody. Jej uchwyt zostaje na mapie, żeby dało się ją przywrócić — bohater nadal chodzi do wskazanego węzła ścieżki.');
   }
   if (wybor.typ === 'sciezka') {
     const i = Number(wybor.idx);
@@ -1091,6 +1127,21 @@ function usunWybor() {
     wybor = null;
     przeliczGalezie();
     zapisz(); rysuj();
+    return;
+  }
+  /* LATARNIA NIE JEST POZYCJĄ W TABLICY, tylko pojedynczym obiektem w mapie —
+     i przez to Delete na niej dotąd NIC NIE ROBIŁ (leciał do `if (!nazwa) return`).
+     Nie da się jej też po prostu wykasować z mapy: scena buduje latarnię
+     bezwarunkowo i przy braku klucza bierze pozycję domyślną, więc „usunięcie"
+     tylko przestawiałoby ją w inne miejsce. Dlatego kasowanie to tu UKRYCIE:
+     flaga `ukryta`, którą scena sprawdza przed dodaniem bryły, cienia i kółka
+     kolizji. Uchwyt zostaje na mapie (przygaszony), żeby dało się ją przywrócić
+     bez grzebania w JSON-ie. */
+  if (wybor.typ === 'latarnia') {
+    if (!mapa.latarnia) return;
+    mapa.latarnia.ukryta = true;
+    zapisz();
+    rysuj();
     return;
   }
   const tablice = { znak:'znaki', budynek:'budynki', drzewo:'drzewa', glaz:'glazy', kwiat:'kwiaty' };

@@ -35,6 +35,14 @@ import {
   stanZadania,
 } from "./zadanieGwiazdek.js";
 import {
+  skasujZadanie as skasujReal,
+  stanZadania as stanReal,
+  ustawStatus as ustawStatusReala,
+  wyslijDowodDev,
+  zlecZadanie as zlecReal,
+  ZADANIA as ZADANIA_REALNE,
+} from "./zadanieWizkora.js";
+import {
   celPuzzli,
   doliczPuzel,
   rozpocznijZbieranie,
@@ -156,21 +164,71 @@ function etapyMisji(def, idx) {
  * do PORÓWNANIA z tym, co naprawdę wybierze `powitanieCzarodzieja`, więc
  * rozjazd między osią a kwestią widać od razu, bez czytania kodu.
  */
+/**
+ * ZADANIE W REALU — ostatni odcinek łańcucha, po rozliczeniu wszystkich gier.
+ * Tu Wizkor przestaje przydzielać i zaprasza do KOŁA PRZEZNACZENIA: koło
+ * losuje cechę awatara, cecha wybiera zadanie poza ekranem, a rozliczenie
+ * tę cechę wzmacnia. Oś kończyła się wcześniej na „łańcuch skończony", więc
+ * cały ten odcinek był poza zasięgiem pulpitu — a przy okazji wyglądał jak
+ * rozjazd, bo oś obiecywała `null`, a Wizkor mówił „Kręcę kołem!".
+ *
+ * `real` to etap tego odcinka; `misja: MISJE.length` znaczy „wszystkie gry
+ * rozliczone" i buduje je w komplecie (patrz `zastosujEtap`).
+ */
+function etapyReala() {
+  const wspolne = { misja: MISJE.length, faza: "brak" };
+  return [
+    {
+      ...wspolne,
+      id: "real:kolo",
+      real: "brak",
+      tytul: "Zadanie w realu — koło",
+      opis: "Gry rozliczone, zadania jeszcze nie ma. Wizkor odsyła do Listów, gdzie stoi koło przeznaczenia.",
+      akcja: "otworzZadanie",
+    },
+    {
+      ...wspolne,
+      id: "real:doZrobienia",
+      real: "zlecone",
+      tytul: "Zadanie w realu — do zrobienia",
+      opis: "Koło wylosowało cechę, zadanie leży w Listach. Wizkor tylko przypomina.",
+      akcja: "otworzZadanie",
+    },
+    {
+      ...wspolne,
+      id: "real:czeka",
+      real: "wyslane",
+      tytul: "Zadanie w realu — u Mentora",
+      opis: "Dowód wysłany, werdyktu jeszcze nie ma. Wizkor mówi „baw się dalej”.",
+      akcja: null,
+    },
+    {
+      ...wspolne,
+      id: "real:doOdbioru",
+      real: "zatwierdzone",
+      tytul: "Zadanie w realu — nagroda",
+      opis: "Mentor przyjął. Zostaje odbiór nagrody i wzmocnienie wylosowanej cechy.",
+      akcja: "otworzZadanie",
+    },
+  ];
+}
+
+/**
+ * Wszystkie momenty łańcucha, po kolei. Każdy ma `akcja` — czego oczekujemy
+ * po zielonym przycisku Wizkora. To pole nie steruje niczym w grze; służy
+ * do PORÓWNANIA z tym, co naprawdę wybierze `powitanieCzarodzieja`, więc
+ * rozjazd między osią a kwestią widać od razu, bez czytania kodu.
+ */
 export const ETAPY = [
   ...etapyGwiazdek(),
   ...MISJE.flatMap((def, idx) => etapyMisji(def, idx)),
-  {
-    id: "koniec",
-    tytul: "Łańcuch skończony",
-    opis: "Wszystko rozliczone. Wizkor nie ma nowego zadania.",
-    misja: MISJE.length,
-    faza: "brak",
-    akcja: null,
-  },
+  ...etapyReala(),
 ];
 
 /** Numer pierwszego etapu z grami — reszta osi liczy się od niego. */
 const PIERWSZA_GRA = etapyGwiazdek().length;
+/** Numer pierwszego etapu zadania w realu (tuż za ostatnią misją). */
+const PIERWSZY_REAL = PIERWSZA_GRA + MISJE.length * FAZY.length;
 
 /** Stopień jednej misji jako liczba, żeby dało się porównywać kolejność. */
 function stopien(m) {
@@ -201,9 +259,18 @@ export function etapBiezacy() {
 
   const misje = stanMisji();
   const idx = misje.findIndex((m) => !m.wyplacona);
-  if (idx < 0) return ETAPY.length - 1;
-  const faza = Math.min(stopien(misje[idx]), FAZY.length - 1);
-  return PIERWSZA_GRA + idx * FAZY.length + faza;
+  if (idx >= 0) {
+    const faza = Math.min(stopien(misje[idx]), FAZY.length - 1);
+    return PIERWSZA_GRA + idx * FAZY.length + faza;
+  }
+
+  // Gry rozliczone → odcinek zadania w realu. Numer bierzemy ze STATUSU
+  // zadania, nie z licznika: to jedyny stan, który tu jeszcze się zmienia.
+  const real = stanReal();
+  if (!real.istnieje || real.wyplacone) return PIERWSZY_REAL;
+  if (real.doOdbioru) return PIERWSZY_REAL + 3;
+  if (real.czeka) return PIERWSZY_REAL + 2;
+  return PIERWSZY_REAL + 1;
 }
 
 /**
@@ -284,6 +351,26 @@ export function zastosujEtap(nr) {
     zaliczWygrana(id);
     if (faza === "wygrana") break;
     odbierzNagrodeMisji(id);
+  }
+
+  /**
+   * ODCINEK ZADANIA W REALU. Budowany tą samą drogą, co reszta osi: zlecenie
+   * → dowód → werdykt. Dowód idzie ścieżką dev (`wyslijDowodDev`), bo
+   * prawdziwa wymaga sieci i gracza, a pulpit ma działać bez obu.
+   *
+   * Zadanie kasujemy TU, a nie przy każdym etapie: skok na dowolny moment
+   * łańcucha gier zostawia zadanie poza ekranem nietknięte — dziecko może
+   * je mieć naprawdę zaczęte, a pulpit nie ma powodu tego niszczyć.
+   */
+  if (etap.real) {
+    skasujReal();
+    if (etap.real !== "brak") {
+      zlecReal(ZADANIA_REALNE[0]?.id);
+      if (etap.real !== "zlecone") {
+        wyslijDowodDev({ opis: "DEV: dowód z osi etapów" });
+        if (etap.real !== "wyslane") ustawStatusReala(etap.real, "DEV: werdykt z osi etapów");
+      }
+    }
   }
   return etap;
 }

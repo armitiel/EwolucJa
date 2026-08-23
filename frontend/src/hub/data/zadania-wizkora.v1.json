@@ -1,49 +1,7 @@
 {
   "version": 1,
-  "note": "Zadania Wizkora wykonywane POZA ekranem. Dowod idzie do Mentora istniejacym torem weryfikacji (seedMission -> submit -> verify). `miejsca` to podpowiedzi, gdzie takie zadanie sie miesci w ciagu dnia. TEKSTY TRZYMAMY KROTKIE: to czyta dziecko 6-12 lat, a panel ma sie miescic bez przewijania sciany tekstu - jedno zdanie na pole. `dowod` mowi, CO zrobic po zadaniu - stoi przy przycisku zdjecia, a nie w karcie zadania, bo dziecko potrzebuje go dopiero na dole ekranu. `cecha` wiaze zadanie z cecha awatara (kolo fortuny losuje ceche, zadanie ja wzmacnia przy wyplacie nagrody).",
+  "note": "Zadania Wizkora wykonywane POZA ekranem. Kazde nalezy do jednej `cecha` z profilu awatara (ciekawosc, tworzenie, wspolpraca, odwaga, wytrwalosc) — kolo przeznaczenia losuje ceche, cecha wybiera zadanie, a rozliczenie te ceche wzmacnia. Po dwa zadania na ceche, zeby powtorzone losowanie nie dawalo od razu tego samego. Dowod idzie do Mentora istniejacym torem weryfikacji (seedMission -> submit -> verify). `miejsca` to podpowiedzi, gdzie takie zadanie sie miesci w ciagu dnia. TEKSTY TRZYMAMY KROTKIE: to czyta dziecko 6-12 lat, a panel ma sie miescic bez przewijania sciany tekstu - jedno zdanie na pole. `dowod` mowi, CO zrobic po zadaniu - stoi przy przycisku zdjecia, a nie w karcie zadania.",
   "zadania": [
-    {
-      "id": "ciche-dobro",
-      "tytul": "Ciche dobro",
-      "cel": "Zrób dziś coś dobrego dla kogoś z domu.\nPo cichu.",
-      "szept": "Po cichu.",
-      "jak": "Wybierz jedną rzecz i zrób ją tak, żeby nikt nie zauważył.",
-      "dowod": "Potem zrób zdjęcie albo napisz Mentorowi, co to było.",
-      "przyklad": "Nakryłem do stołu, zanim mama weszła. Nic nie mówiłem.",
-      "nagroda": 25,
-      "minuty": 15,
-      "competency_focus": [
-        "EM",
-        "MD"
-      ],
-      "miejsca": [
-        {
-          "id": "kuchnia",
-          "emoji": "🍽️",
-          "nazwa": "W kuchni",
-          "opis": "Nakryj do stołu, zanim ktoś poprosi."
-        },
-        {
-          "id": "pokoj",
-          "emoji": "🛏️",
-          "nazwa": "W swoim pokoju",
-          "opis": "Posprzątaj coś, czego nikt Ci nie kazał."
-        },
-        {
-          "id": "przedpokoj",
-          "emoji": "🧦",
-          "nazwa": "W przedpokoju",
-          "opis": "Ustaw buty równo. Powieś czyjąś kurtkę."
-        },
-        {
-          "id": "dwor",
-          "emoji": "🌳",
-          "nazwa": "Na dworze",
-          "opis": "Przytrzymaj drzwi. Pomóż nieść siatkę."
-        }
-      ],
-      "cecha": "wspolpraca"
-    },
     {
       "id": "lowca-pytan",
       "cecha": "ciekawosc",
@@ -82,6 +40,47 @@
           "emoji": "🍞",
           "nazwa": "W kuchni",
           "opis": "Zapytaj, jak powstaje Twoja ulubiona potrawa."
+        }
+      ]
+    },
+    {
+      "id": "zwiadowca-podworka",
+      "cecha": "ciekawosc",
+      "tytul": "Zwiadowca",
+      "cel": "Znajdź dziś trzy rzeczy,\nktórych nigdy nie zauważyłeś.",
+      "szept": "Trzy rzeczy.",
+      "jak": "Idź drogą, którą znasz na pamięć, i patrz tak, jakbyś był tu pierwszy raz.",
+      "dowod": "Zrób zdjęcie tego, co znalazłeś, albo opisz to Mentorowi.",
+      "przyklad": "Nad naszą klatką jest gniazdo. Chodzę tędy codziennie i nigdy go nie widziałem.",
+      "nagroda": 25,
+      "minuty": 15,
+      "competency_focus": [
+        "MD"
+      ],
+      "miejsca": [
+        {
+          "id": "droga",
+          "emoji": "🚶",
+          "nazwa": "Po drodze",
+          "opis": "Idź do szkoły albo do sklepu i patrz w górę."
+        },
+        {
+          "id": "dom",
+          "emoji": "🔎",
+          "nazwa": "W domu",
+          "opis": "Znajdź trzy rzeczy starsze od Ciebie."
+        },
+        {
+          "id": "okno",
+          "emoji": "🪟",
+          "nazwa": "Przy oknie",
+          "opis": "Popatrz przez pięć minut i policz, co się rusza."
+        },
+        {
+          "id": "park",
+          "emoji": "🌲",
+          "nazwa": "W parku",
+          "opis": "Znajdź trzy różne liście i porównaj je."
         }
       ]
     },
@@ -127,6 +126,130 @@
       ]
     },
     {
+      "id": "warsztat-wynalazcy",
+      "cecha": "tworzenie",
+      "tytul": "Warsztat wynalazcy",
+      "cel": "Zbuduj dziś coś,\nczego nie ma w żadnym sklepie.",
+      "szept": "Z tego, co zbędne.",
+      "jak": "Weź pudełko, sznurek, korki — i zrób z tego maszynę albo pojazd.",
+      "dowod": "Zrób zdjęcie wynalazku albo opowiedz Mentorowi, do czego służy.",
+      "przyklad": "Zrobiłem karmnik z kartonu po mleku. Wróble już przyleciały.",
+      "nagroda": 25,
+      "minuty": 20,
+      "competency_focus": [
+        "MD"
+      ],
+      "miejsca": [
+        {
+          "id": "kuchnia",
+          "emoji": "📦",
+          "nazwa": "Z pudełek",
+          "opis": "Zbuduj pojazd z opakowań po jedzeniu."
+        },
+        {
+          "id": "sznurek",
+          "emoji": "🪢",
+          "nazwa": "Ze sznurka",
+          "opis": "Zrób telefon z dwóch kubków i sznurka."
+        },
+        {
+          "id": "dwor",
+          "emoji": "🍃",
+          "nazwa": "Z natury",
+          "opis": "Zbuduj domek dla owadów z patyków."
+        },
+        {
+          "id": "biurko",
+          "emoji": "✂️",
+          "nazwa": "Przy biurku",
+          "opis": "Wymyśl grę planszową i narysuj planszę."
+        }
+      ]
+    },
+    {
+      "id": "ramie-w-ramie",
+      "cecha": "wspolpraca",
+      "tytul": "Ramię w ramię",
+      "cel": "Zrób dziś z kimś robotę,\nktóra we dwoje idzie szybciej.",
+      "szept": "We dwoje.",
+      "jak": "Zaproponuj komuś pomoc i umówcie się, kto robi którą część.",
+      "dowod": "Zrób zdjęcie tego, co zrobiliście razem, albo napisz Mentorowi.",
+      "przyklad": "Z tatą myliśmy auto. Ja robiłem koła, on dach. Poszło dwa razy szybciej.",
+      "nagroda": 25,
+      "minuty": 20,
+      "competency_focus": [
+        "EM"
+      ],
+      "miejsca": [
+        {
+          "id": "kuchnia",
+          "emoji": "🍲",
+          "nazwa": "W kuchni",
+          "opis": "Ugotujcie coś razem — podzielcie się zadaniami."
+        },
+        {
+          "id": "pokoj",
+          "emoji": "🧹",
+          "nazwa": "W pokoju",
+          "opis": "Posprzątajcie razem: jedno zbiera, drugie odkłada."
+        },
+        {
+          "id": "dwor",
+          "emoji": "🍂",
+          "nazwa": "Na dworze",
+          "opis": "Zagrabcie liście albo umyjcie rower we dwoje."
+        },
+        {
+          "id": "zakupy",
+          "emoji": "🛍️",
+          "nazwa": "Na zakupach",
+          "opis": "Nieś część siatek i pilnuj listy."
+        }
+      ]
+    },
+    {
+      "id": "mistrz-instrukcji",
+      "cecha": "wspolpraca",
+      "tytul": "Mistrz instrukcji",
+      "cel": "Naucz dziś kogoś czegoś,\nco umiesz zrobić sam.",
+      "szept": "Naucz kogoś.",
+      "jak": "Wybierz jedną rzecz i pokaż ją krok po kroku, aż druga osoba zrobi to sama.",
+      "dowod": "Napisz Mentorowi, czego i kogo nauczyłeś, albo zrób zdjęcie.",
+      "przyklad": "Nauczyłem siostrę wiązać buty. Za trzecim razem zrobiła to sama!",
+      "nagroda": 25,
+      "minuty": 15,
+      "competency_focus": [
+        "EM",
+        "MD"
+      ],
+      "miejsca": [
+        {
+          "id": "rodzenstwo",
+          "emoji": "🧒",
+          "nazwa": "Rodzeństwo",
+          "opis": "Pokaż młodszemu, jak coś działa."
+        },
+        {
+          "id": "dorosly",
+          "emoji": "👵",
+          "nazwa": "Ktoś dorosły",
+          "opis": "Naucz babcię albo dziadka czegoś z ekranu."
+        },
+        {
+          "id": "kolega",
+          "emoji": "⚽",
+          "nazwa": "Kolega",
+          "opis": "Pokaż komuś sztuczkę albo zasady gry."
+        },
+        {
+          "id": "dom",
+          "emoji": "🐕",
+          "nazwa": "W domu",
+          "opis": "Naucz psa jednej komendy — spokojnie i cierpliwie."
+        }
+      ]
+    },
+    {
       "id": "jeden-krok-dalej",
       "cecha": "odwaga",
       "tytul": "Jeden krok dalej",
@@ -164,6 +287,47 @@
           "emoji": "🗣️",
           "nazwa": "Przy stole",
           "opis": "Opowiedz wszystkim, co dziś było najlepsze."
+        }
+      ]
+    },
+    {
+      "id": "pierwszy-raz",
+      "cecha": "odwaga",
+      "tytul": "Pierwszy raz",
+      "cel": "Spróbuj dziś czegoś,\nczego nigdy nie próbowałeś.",
+      "szept": "Pierwszy raz.",
+      "jak": "Wybierz jedną bezpieczną nowość i spróbuj jej naprawdę, nie na niby.",
+      "dowod": "Napisz Mentorowi, co to było i jak Ci się podobało.",
+      "przyklad": "Spróbowałem oliwek. Dziwne, ale zjadłem trzy.",
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "EM"
+      ],
+      "miejsca": [
+        {
+          "id": "stol",
+          "emoji": "🫒",
+          "nazwa": "Przy stole",
+          "opis": "Spróbuj potrawy, której zawsze odmawiasz."
+        },
+        {
+          "id": "dwor",
+          "emoji": "🛼",
+          "nazwa": "Na dworze",
+          "opis": "Spróbuj sportu, którego jeszcze nie znasz."
+        },
+        {
+          "id": "pokoj",
+          "emoji": "🎼",
+          "nazwa": "W pokoju",
+          "opis": "Posłuchaj muzyki zupełnie innej niż zwykle."
+        },
+        {
+          "id": "ksiazka",
+          "emoji": "📕",
+          "nazwa": "W książce",
+          "opis": "Przeczytaj książkę z półki, po którą nigdy nie sięgasz."
         }
       ]
     },
@@ -206,6 +370,47 @@
           "emoji": "🚲",
           "nazwa": "Na dworze",
           "opis": "Dojedź rowerem trasę do samego końca."
+        }
+      ]
+    },
+    {
+      "id": "siedem-razy",
+      "cecha": "wytrwalosc",
+      "tytul": "Siedem razy",
+      "cel": "Powtórz dziś jedną rzecz\nsiedem razy z rzędu.",
+      "szept": "Siedem razy.",
+      "jak": "Wybierz coś, co Ci jeszcze nie wychodzi, i ćwicz — aż policzysz do siedmiu.",
+      "dowod": "Nagraj albo opisz Mentorowi, co ćwiczyłeś i która próba była najlepsza.",
+      "przyklad": "Rzucałem piłką do kosza. Pierwszy raz spudłowałem, siódmy wpadł!",
+      "nagroda": 25,
+      "minuty": 15,
+      "competency_focus": [
+        "EM"
+      ],
+      "miejsca": [
+        {
+          "id": "dwor",
+          "emoji": "🏀",
+          "nazwa": "Na dworze",
+          "opis": "Trafiaj do celu albo skacz przez skakankę."
+        },
+        {
+          "id": "pokoj",
+          "emoji": "🎹",
+          "nazwa": "W pokoju",
+          "opis": "Zagraj tę samą melodię, aż zabrzmi gładko."
+        },
+        {
+          "id": "biurko",
+          "emoji": "✍️",
+          "nazwa": "Przy biurku",
+          "opis": "Napisz najtrudniejszą literę siedem razy."
+        },
+        {
+          "id": "kuchnia",
+          "emoji": "🥄",
+          "nazwa": "W kuchni",
+          "opis": "Ćwicz nalewanie albo krojenie (z dorosłym)."
         }
       ]
     }
