@@ -1,0 +1,100 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   TWÓJ POKÓJ — wnętrze chatki z mapy. Komponent: `hub/panels/DomPanel.jsx`.
+
+   To jedyny ekran w hubie BEZ ANI JEDNEGO PRZYCISKU, który coś zaczyna.
+   Zakładki w doku mówią „co możesz teraz zrobić"; pokój mówi „co już masz".
+   Stąd spokojniejsza typografia, więcej powietrza i brak akcentów wołających
+   o dotknięcie.
+
+   Osobny arkusz, nie `hub.css` — ten ma 160 kB i zmienia się przy każdej
+   innej robocie.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.dom-pane{ padding-bottom:10px; }
+
+/* ── Bohater w kręgu światła z okna ──────────────────────────────────── */
+.dom-bohater{
+  position:relative; display:grid; justify-items:center; gap:2px;
+  margin:2px 0 16px; padding:14px 12px 12px;
+  border-radius:26px;
+  background:radial-gradient(120% 90% at 50% 18%, rgba(255,240,190,.85) 0%, rgba(255,247,224,.35) 55%, rgba(255,247,224,0) 100%);
+}
+/* Miękki snop światła pod stopami — pokój ma być ciepły, nie pusty. */
+.dom-swiatlo{
+  position:absolute; left:50%; bottom:34px; z-index:0;
+  width:190px; height:52px; margin-left:-95px; border-radius:50%;
+  background:radial-gradient(50% 50% at 50% 50%, rgba(255,214,120,.55), rgba(255,214,120,0) 70%);
+  filter:blur(1px);
+}
+.dom-bohater > svg,.dom-bohater > img{ position:relative; z-index:1; }
+.dom-imie{
+  position:relative; z-index:1; margin-top:4px;
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  font-size:21px; font-weight:900; color:#523c1a;
+}
+
+/* ── Trzy liczby, pierwszy raz obok siebie ───────────────────────────── */
+.dom-skarby{ display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-bottom:16px; }
+.dom-skarb{
+  display:grid; justify-items:center; gap:1px; padding:11px 6px 9px;
+  border-radius:18px;
+  background:linear-gradient(180deg,rgba(255,252,232,.95),rgba(245,228,181,.95));
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.8),0 2px 0 rgba(150,105,30,.3),0 6px 12px rgba(72,53,26,.12);
+}
+.dom-skarb img{ width:34px; height:34px; object-fit:contain; }
+.dom-skarb b{
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  font-size:23px; font-weight:900; line-height:1; color:#7A4D10;
+}
+.dom-skarb small{ font-size:12px; font-weight:700; color:var(--p-ink-soft,#5A4F77); }
+
+/* ── Półka z trofeami ────────────────────────────────────────────────── */
+/* Prawdziwa półka: deska pod przedmiotami, nie siatka kafelków. Trofeum ma
+   STAĆ, a nie być pozycją na liście. */
+.dom-polka{
+  list-style:none; margin:0 0 4px; padding:0 4px 12px;
+  display:flex; gap:14px; flex-wrap:wrap; justify-content:center;
+  border-bottom:5px solid #c08a3e;
+  border-radius:0 0 8px 8px;
+  box-shadow:0 6px 10px -6px rgba(72,53,26,.45);
+}
+.dom-trofeum{ display:grid; justify-items:center; gap:3px; width:78px; }
+.dom-trofeum img{
+  width:52px; height:52px; object-fit:contain;
+  filter:drop-shadow(0 4px 4px rgba(80,60,20,.3));
+}
+.dom-trofeum span{
+  font-size:11.5px; font-weight:800; line-height:1.15; text-align:center;
+  color:#6b5233;
+}
+
+.dom-wtoku{
+  margin:12px 2px 0; font-size:14.5px; line-height:1.4;
+  color:var(--p-ink-soft,#5A4F77);
+}
+.dom-wtoku b{ color:#5b421d; }
+
+/* ── Listki z ostatnich dni ──────────────────────────────────────────── */
+.dom-listki{
+  list-style:none; margin:0; padding:0;
+  display:flex; gap:8px; flex-wrap:wrap;
+}
+.dom-listek{
+  width:46px; height:46px; border-radius:14px; overflow:hidden;
+  background:rgba(255,255,255,.6);
+  box-shadow:inset 0 0 0 1.5px rgba(196,146,44,.3);
+}
+.dom-listek img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+/* Puste stany mówią, CO postawi tu pierwszą rzecz — bez „brak danych". */
+.dom-pusto{
+  margin:0 2px; font-size:14.5px; line-height:1.45;
+  color:var(--p-ink-soft,#5A4F77);
+}
+
+@media (max-width:340px){
+  .dom-skarb img{ width:30px; height:30px; }
+  .dom-skarb b{ font-size:21px; }
+  .dom-trofeum{ width:68px; }
+  .dom-trofeum img{ width:46px; height:46px; }
+}

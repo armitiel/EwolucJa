@@ -1,0 +1,779 @@
+<title>Dolina na Poziomach</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=IBM+Plex+Mono:wght@400;500;600&family=Nunito:wght@400;600;800&display=swap">
+
+<style>
+:root{
+  /* Papier i atrament — z palety gry (ewolucja.css), przyciemnione tak, żeby
+     rysunek techniczny czytał się jak plan na kalce, a nie jak ekran gry. */
+  --papier:#F7EED6;
+  --papier-2:#FDF7E8;
+  --papier-3:#EFE2C2;
+  --atrament:#3B3556;
+  --atrament-2:#6A6188;
+  --kreska:#C9B98F;
+  --kreska-cienka:#DED0AC;
+  --siatka-tla:#E7DBBB;
+
+  --woda:#6FA8CC;
+  --bursztyn:#C9781B;
+  --bursztyn-jasny:#E0902F;
+  --magia:#7A4DC2;
+  --zieleń:#4F8B4A;
+
+  /* Skala hipsometryczna poziomów: zimne niziny → ciepłe wierzchowiny.
+     To nie jest ozdoba — kolor NIESIE wysokość i tylko dlatego pięć warstw
+     da się odczytać z jednego rzutu z góry. */
+  --p-m2:#5C7A88;
+  --p-m1:#7E9A8A;
+  --p-00:#9DBA7C;
+  --p-p1:#C6C46E;
+  --p-p2:#E4BC63;
+
+  --cien:0 1px 0 rgba(59,53,86,.06), 0 8px 22px rgba(59,53,86,.10);
+  --max:74rem;
+  --kolumna:40rem;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --papier:#1E1A2E;
+    --papier-2:#272138;
+    --papier-3:#332B48;
+    --atrament:#EDE6F6;
+    --atrament-2:#A79ECA;
+    --kreska:#4B4168;
+    --kreska-cienka:#3A3252;
+    --siatka-tla:#272138;
+    --woda:#4E86AC;
+    --bursztyn:#F0AE55;
+    --bursztyn-jasny:#F0AE55;
+    --magia:#B98AE8;
+    --zieleń:#7DC08A;
+    --p-m2:#3E5A68;
+    --p-m1:#55766B;
+    --p-00:#6D8F58;
+    --p-p1:#9AA04F;
+    --p-p2:#BE9846;
+    --cien:0 1px 0 rgba(0,0,0,.3), 0 10px 26px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --papier:#1E1A2E;
+  --papier-2:#272138;
+  --papier-3:#332B48;
+  --atrament:#EDE6F6;
+  --atrament-2:#A79ECA;
+  --kreska:#4B4168;
+  --kreska-cienka:#3A3252;
+  --siatka-tla:#272138;
+  --woda:#4E86AC;
+  --bursztyn:#F0AE55;
+  --bursztyn-jasny:#F0AE55;
+  --magia:#B98AE8;
+  --zieleń:#7DC08A;
+  --p-m2:#3E5A68;
+  --p-m1:#55766B;
+  --p-00:#6D8F58;
+  --p-p1:#9AA04F;
+  --p-p2:#BE9846;
+  --cien:0 1px 0 rgba(0,0,0,.3), 0 10px 26px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--papier);
+  background-image:
+    linear-gradient(var(--siatka-tla) 1px, transparent 1px),
+    linear-gradient(90deg, var(--siatka-tla) 1px, transparent 1px);
+  background-size:34px 34px, 34px 34px;
+  color:var(--atrament);
+  font-family:'Nunito', system-ui, sans-serif;
+  font-size:16.5px;
+  line-height:1.62;
+}
+.plansza{ max-width:var(--max); margin:0 auto; padding:0 20px 96px; }
+
+h1,h2,h3{ font-family:'Baloo 2', system-ui, sans-serif; text-wrap:balance; margin:0; }
+h1{ font-size:clamp(38px,6.6vw,62px); font-weight:800; line-height:1.02; letter-spacing:-.01em; }
+h2{ font-size:clamp(25px,3.4vw,33px); font-weight:800; line-height:1.1; }
+h3{ font-size:20px; font-weight:800; line-height:1.2; }
+p{ margin:0; max-width:var(--kolumna); }
+
+.etykieta{
+  font-family:'IBM Plex Mono', ui-monospace, monospace;
+  font-size:11.5px; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--atrament-2);
+}
+code, .dane{ font-family:'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric:tabular-nums; }
+code{ font-size:.88em; background:var(--papier-3); padding:.1em .38em; border-radius:4px; }
+
+/* ─── Nagłówek ─── */
+header{ padding:72px 0 40px; display:flex; flex-direction:column; gap:18px; }
+.podtytul{ font-size:19.5px; color:var(--atrament-2); max-width:34rem; }
+.metryka{
+  display:flex; flex-wrap:wrap; gap:0 28px; row-gap:6px;
+  padding-top:14px; border-top:2px solid var(--kreska);
+}
+.metryka div{ display:flex; gap:8px; align-items:baseline; }
+.metryka b{ font-family:'IBM Plex Mono', monospace; font-weight:600; font-variant-numeric:tabular-nums; }
+
+/* ─── Sekcje ─── */
+section{ padding-top:64px; display:flex; flex-direction:column; gap:20px; }
+.naglowek-sekcji{ display:flex; flex-direction:column; gap:6px; }
+
+/* ─── Figury (plansze rysunkowe) ─── */
+figure{
+  margin:0; background:var(--papier-2);
+  border:2px solid var(--kreska); border-radius:6px; box-shadow:var(--cien);
+  overflow:hidden;
+}
+figcaption{
+  display:flex; flex-wrap:wrap; gap:6px 16px; align-items:baseline;
+  padding:12px 16px; border-top:2px solid var(--kreska);
+  background:var(--papier-3);
+}
+figcaption b{ font-family:'Baloo 2', sans-serif; font-size:16px; }
+figcaption span{ font-size:14px; color:var(--atrament-2); }
+.rysunek{ display:block; width:100%; height:auto; }
+
+/* ─── Przełączniki warstw ─── */
+.warstwy{ display:flex; flex-wrap:wrap; gap:8px; }
+.warstwy button{
+  font:600 13.5px/1 'IBM Plex Mono', monospace; letter-spacing:.04em;
+  display:inline-flex; align-items:center; gap:8px;
+  padding:9px 14px; cursor:pointer;
+  color:var(--atrament); background:var(--papier-2);
+  border:2px solid var(--kreska); border-radius:999px;
+  transition:background .14s ease, border-color .14s ease, color .14s ease;
+}
+.warstwy button .kropka{ width:11px; height:11px; border-radius:3px; background:currentColor; opacity:.9; }
+.warstwy button[aria-pressed="false"]{ color:var(--atrament-2); background:transparent; border-style:dashed; }
+.warstwy button[aria-pressed="false"] .kropka{ opacity:.28; }
+.warstwy button:focus-visible{ outline:3px solid var(--bursztyn); outline-offset:2px; }
+.warstwy button:hover{ border-color:var(--atrament-2); }
+
+/* ─── Legenda ─── */
+.legenda{ display:grid; grid-template-columns:repeat(auto-fit,minmax(158px,1fr)); gap:10px 18px; }
+.legenda div{ display:flex; align-items:center; gap:9px; font-size:14px; }
+.legenda i{ width:22px; height:12px; border-radius:2px; flex:none; border:1px solid rgba(0,0,0,.18); }
+.legenda span{ font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--atrament-2); margin-left:auto; }
+
+/* ─── Karty katalogu ─── */
+.katalog{ display:grid; grid-template-columns:repeat(auto-fit,minmax(255px,1fr)); gap:16px; }
+.karta{
+  background:var(--papier-2); border:2px solid var(--kreska); border-radius:6px;
+  padding:18px; display:flex; flex-direction:column; gap:10px;
+}
+.karta .szkic{ height:96px; margin:-4px -4px 2px; }
+.karta p{ font-size:14.5px; color:var(--atrament-2); }
+.karta .tag{
+  font-family:'IBM Plex Mono',monospace; font-size:11.5px; letter-spacing:.06em;
+  align-self:flex-start; padding:3px 8px; border-radius:4px;
+  background:var(--papier-3); color:var(--atrament-2);
+}
+
+/* ─── Tabele ─── */
+.przewin{ overflow-x:auto; border:2px solid var(--kreska); border-radius:6px; background:var(--papier-2); }
+table{ border-collapse:collapse; width:100%; min-width:640px; font-size:14.5px; }
+th,td{ text-align:left; padding:10px 14px; border-bottom:1px solid var(--kreska-cienka); vertical-align:top; }
+thead th{
+  font-family:'IBM Plex Mono',monospace; font-size:11.5px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--atrament-2); background:var(--papier-3); border-bottom:2px solid var(--kreska); white-space:nowrap;
+}
+tbody tr:last-child td{ border-bottom:0; }
+td.liczba{ font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; white-space:nowrap; }
+
+/* ─── Blok kodu ─── */
+pre{
+  margin:0; overflow-x:auto; padding:18px 20px;
+  background:var(--papier-2); border:2px solid var(--kreska); border-radius:6px;
+  font-family:'IBM Plex Mono',monospace; font-size:13.5px; line-height:1.62; tab-size:2;
+}
+pre .k{ color:var(--magia); }
+pre .n{ color:var(--bursztyn); }
+pre .c{ color:var(--atrament-2); font-style:italic; }
+
+/* ─── Etapy ─── */
+.etapy{ display:flex; flex-direction:column; gap:2px; }
+.etap{
+  display:grid; grid-template-columns:auto 1fr; gap:0 20px;
+  padding:20px 0; border-top:1px solid var(--kreska-cienka);
+}
+.etap:first-child{ border-top:2px solid var(--kreska); }
+.etap .nr{
+  font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:600;
+  color:var(--bursztyn); padding-top:4px;
+}
+.etap div:last-child{ display:flex; flex-direction:column; gap:6px; }
+.etap .koszt{ font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--atrament-2); }
+
+/* ─── Uwaga / ostrzeżenie ─── */
+.uwaga{
+  border-left:5px solid var(--bursztyn); background:var(--papier-2);
+  padding:16px 20px; border-radius:0 6px 6px 0; display:flex; flex-direction:column; gap:8px;
+}
+.uwaga p{ max-width:none; }
+
+footer{ margin-top:80px; padding-top:22px; border-top:2px solid var(--kreska); font-size:14px; color:var(--atrament-2); }
+
+@media (prefers-reduced-motion:reduce){ *{ transition:none !important; animation:none !important; } }
+</style>
+
+<div class="plansza">
+
+<header>
+  <span class="etykieta">EwolucJA · koncepcja rozbudowy świata 3D</span>
+  <h1>Dolina na&nbsp;Poziomach</h1>
+  <p class="podtytul">Dziś cała mapa leży na jednej wysokości. Ten plan dokłada pięć poziomów, przejścia między nimi i żywopłoty — naniesione na prawdziwe współrzędne z <code>mapa.json</code>, nie na wyobrażoną planszę.</p>
+  <div class="metryka">
+    <div><span class="etykieta">świat</span><b>ø 28 m</b></div>
+    <div><span class="etykieta">ścieżka</span><b>14 węzłów</b></div>
+    <div><span class="etykieta">znaki</span><b>23</b></div>
+    <div><span class="etykieta">poziomy dziś</span><b>1</b></div>
+    <div><span class="etykieta">poziomy w planie</span><b>5</b></div>
+  </div>
+</header>
+
+<section id="po-co">
+  <div class="naglowek-sekcji">
+    <span class="etykieta">Problem</span>
+    <h2>Płaski dysk nie ma czego chować</h2>
+  </div>
+  <p>Świat to koło o promieniu 14 metrów, na którym wszystko stoi na wysokości zero. Ścieżka wije się ładnie w rzucie z góry, ale kamera patrzy z ukosa — a z ukosa płaska łąka wygląda tak samo z każdego miejsca. Nie ma się co wyłonić zza wzniesienia, nie ma dokąd wspiąć się po nagrodę, nie ma miejsca, którego nie widać, dopóki się tam nie wejdzie.</p>
+  <p>Najdroższa rzecz w mapie dla dziecka to <b>odsłanianie</b>. Poziomy dają je najtaniej: ten sam teren, ta sama ścieżka, tylko część z nich pół metra wyżej — i nagle za krawędzią coś jest.</p>
+</section>
+
+<section id="plansze">
+  <div class="naglowek-sekcji">
+    <span class="etykieta">Rysunek</span>
+    <h2>Plan poziomów naniesiony na istniejący świat</h2>
+  </div>
+  <p>Ścieżka, rzeka, most, brama, drzewa, głazy i wszystkie 23 znaki są narysowane z prawdziwych współrzędnych z&nbsp;<code>mapa.json</code>. Warstwy tarasów, przejść i żywopłotów to propozycja — rysują się z tej samej struktury danych, którą opisuje sekcja „Schemat danych”.</p>
+
+  <div class="warstwy" id="warstwy"></div>
+
+  <figure>
+    <svg class="rysunek" id="plansza-a" role="img" aria-label="Plan kotliny z góry: istniejąca ścieżka i rzeka, na to naniesione cztery tarasy, przejścia i żywopłoty"></svg>
+    <figcaption>
+      <b>Plansza A — Kotlina</b>
+      <span>rzut z góry · 1 kratka = 2 m · północ u góry</span>
+    </figcaption>
+  </figure>
+
+  <div class="legenda" id="legenda"></div>
+
+  <figure>
+    <svg class="rysunek" id="plansza-b" role="img" aria-label="Plan wąwozu południowego: długi korytarz ścieżki ujęty w dwa żywopłoty, ze schodami i kładką"></svg>
+    <figcaption>
+      <b>Plansza B — Wąwóz Południowy</b>
+      <span>ten sam świat, obrócony · południe w prawo · dziś: 12 m prostej bez jednego wydarzenia</span>
+    </figcaption>
+  </figure>
+
+  <figure>
+    <svg class="rysunek" id="przekroj" role="img" aria-label="Przekrój schematyczny wzdłuż trasy bohatera: poziomy od plus 1.6 do minus 1.8 metra"></svg>
+    <figcaption>
+      <b>Przekrój — rytm wędrówki</b>
+      <span>schematyczny, wzdłuż trasy bohatera · wysokości w metrach świata</span>
+    </figcaption>
+  </figure>
+</section>
+
+<section id="katalog-elementow">
+  <div class="naglowek-sekcji">
+    <span class="etykieta">Katalog</span>
+    <h2>Sześć nowych rodzajów obiektu</h2>
+  </div>
+  <p>Każdy z nich ma robić w mapie jedną rzecz, której dziś nie robi nic innego. Jeśli któryś dubluje istniejący — nie wchodzi.</p>
+  <div class="katalog" id="katalog"></div>
+</section>
+
+<section id="dane">
+  <div class="naglowek-sekcji">
+    <span class="etykieta">Schemat danych</span>
+    <h2>Trzy nowe tablice w <code>mapa.json</code></h2>
+  </div>
+  <p>Kształt jest celowo taki sam jak istniejących <code>galezie</code> i <code>rzeka</code>: tablica obiektów, współrzędne jako pary, wszystko opcjonalne. Stara mapa bez tych kluczy ma działać bez zmian — i działa, bo brak tablicy znaczy „zero sztuk”.</p>
+  <pre><code><span class="c">// mapa.json — dopisek, nic nie zmienia w istniejących kluczach</span>
+
+<span class="k">"poziomy"</span>: { <span class="c">/* słownik nazw wysokości — żeby liczby nie krążyły luzem */</span>
+  <span class="k">"wawoz"</span>: <span class="n">-1.8</span>, <span class="k">"niecka"</span>: <span class="n">-0.9</span>, <span class="k">"laka"</span>: <span class="n">0</span>, <span class="k">"taras"</span>: <span class="n">0.8</span>, <span class="k">"grzbiet"</span>: <span class="n">1.6</span>
+},
+
+<span class="k">"tarasy"</span>: [
+  { <span class="k">"id"</span>: <span class="n">"ogrod"</span>, <span class="k">"poziom"</span>: <span class="n">"taras"</span>,
+    <span class="k">"obrys"</span>: [[<span class="n">-0.35</span>,<span class="n">4.25</span>], [<span class="n">0.55</span>,<span class="n">5.15</span>], <span class="c">/* … */</span>],
+    <span class="k">"krawedz"</span>: <span class="n">"murek"</span>,      <span class="c">// murek | skarpa | skala</span>
+    <span class="k">"pokrycie"</span>: <span class="n">"trawa"</span> }   <span class="c">// trawa | kamien | piasek</span>
+],
+
+<span class="k">"przejscia"</span>: [
+  { <span class="k">"id"</span>: <span class="n">"schody-ogrod-pn"</span>, <span class="k">"typ"</span>: <span class="n">"schody"</span>,
+    <span class="k">"od"</span>: [<span class="n">-1.15</span>,<span class="n">4.1</span>], <span class="k">"do"</span>: [<span class="n">-0.3</span>,<span class="n">4.35</span>],
+    <span class="k">"szerokosc"</span>: <span class="n">1.8</span>, <span class="k">"stopnie"</span>: <span class="n">4</span> }
+],
+
+<span class="k">"zywoploty"</span>: [
+  { <span class="k">"id"</span>: <span class="n">"wawoz-lewy"</span>,
+    <span class="k">"punkty"</span>: [[<span class="n">-2.5</span>,<span class="n">-9.8</span>], [<span class="n">-2.65</span>,<span class="n">-13.2</span>], <span class="c">/* … */</span>],
+    <span class="k">"wysokosc"</span>: <span class="n">1.3</span>, <span class="k">"grubosc"</span>: <span class="n">0.7</span>,
+    <span class="k">"bramki"</span>: [<span class="n">2</span>] }        <span class="c">// indeksy odcinków z łukiem do przejścia</span>
+]</code></pre>
+  <div class="uwaga">
+    <span class="etykieta">Decyzja</span>
+    <p><b>Wysokość mieszka w słowniku <code>poziomy</code>, nie przy obiekcie.</b> Gdyby każdy taras trzymał własne <code>h: 0.8</code>, po pierwszej korekcie „podnieśmy ogród o 10 cm” trzeba by poprawić schody, żywopłot i murek osobno — i któryś zostałby na starej liczbie. Nazwa poziomu daje edytorowi jedno pokrętło na całą warstwę.</p>
+  </div>
+</section>
+
+<section id="edytor">
+  <div class="naglowek-sekcji">
+    <span class="etykieta">Edytor</span>
+    <h2>Co musi umieć <code>edytor.html</code></h2>
+  </div>
+  <div class="przewin">
+    <table>
+      <thead><tr><th>Narzędzie</th><th>Gest</th><th>Wzorzec, który już istnieje</th></tr></thead>
+      <tbody>
+        <tr><td><b>+ Taras</b></td><td>Klikasz kolejne rogi, dwuklik zamyka obrys.</td><td>Tryb „+ Gałąź” rysuje łamaną tym samym gestem — różnica to zamknięcie wielokąta.</td></tr>
+        <tr><td><b>+ Przejście</b></td><td>Ciągniesz od punktu A do B; typ z listy.</td><td>Rzeka ma odcinki z końcami <code>od</code>/<code>do</code> i sklejaniem sąsiadów.</td></tr>
+        <tr><td><b>+ Żywopłot</b></td><td>Klikasz łamaną; Delete kasuje punkt, przy dwóch — cały żywopłot.</td><td>Dokładnie zachowanie <code>galezie</code> — do przepisania jeden do jednego.</td></tr>
+        <tr><td><b>Filtr poziomu</b></td><td>Pasek z pięcioma poziomami; kliknięty zostaje ostry, reszta gaśnie.</td><td>Nowe. Bez tego rzut z góry z pięcioma warstwami robi się nieczytelny.</td></tr>
+        <tr><td><b>Pasek przekroju</b></td><td>Wąski profil pod planem, pokazuje wysokości wzdłuż ścieżki.</td><td>Nowe. Płaski edytor nie pokaże wysokości inaczej niż liczbą — a liczba nie mówi, czy skok jest zbyt stromy.</td></tr>
+        <tr><td><b>Wysokość węzła</b></td><td>Suwak w panelu wybranego węzła ścieżki.</td><td>Panel węzła już jest (łuk, wstawianie punktów) — dochodzi jedno pole.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="silnik">
+  <div class="naglowek-sekcji">
+    <span class="etykieta">Silnik</span>
+    <h2>Gdzie leży prawdziwy koszt</h2>
+  </div>
+  <p>Scena 3D siedzi w repozytorium wyłącznie jako zbudowany, zminifikowany plik — bez źródeł. Każdy nowy rodzaj obiektu to łatka w tym pliku. Dlatego plan zakłada <b>jedną</b> łatkę, a nie sześć.</p>
+
+  <div class="uwaga">
+    <span class="etykieta">Klucz całego planu</span>
+    <p><b>Jeden generyczny mechanizm „rekwizytów” zamiast sześciu typów w silniku.</b> Scena dostaje obsługę tablicy <code>rekwizyty</code>: <code>{ file, pos, h, obrot, skala, kolizja }</code> — wczytuje GLB z <code>assets/</code> i stawia go we wskazanym miejscu na wskazanej wysokości. Schody, murki, żywopłoty, balustrady i kładki są wtedy <i>danymi</i>, nie kodem. Edytor rozkłada taras na murki wzdłuż obrysu, a żywopłot na segmenty wzdłuż łamanej — i zapisuje gotową listę rekwizytów obok wersji „autorskiej”, z której je policzył.</p>
+  </div>
+
+  <div class="przewin">
+    <table>
+      <thead><tr><th>Element</th><th>Czego wymaga od silnika</th><th>Koszt</th></tr></thead>
+      <tbody>
+        <tr><td>Żywopłot, murek, balustrada, schody jako <i>bryły</i></td><td>Nic ponad mechanizm rekwizytów.</td><td class="liczba">1 łatka</td></tr>
+        <tr><td>Kolizja żywopłotu</td><td>Nic. Łamana rozkłada się na łańcuch kółek — a kółka silnik już zna (<code>{x, z, r}</code>).</td><td class="liczba">0</td></tr>
+        <tr><td>Bohater idący pod górę</td><td>Próbkowanie wysokości wzdłuż wypalonej łamanej i podnoszenie postaci. Węzeł dostaje <code>h</code>, między węzłami interpolacja.</td><td class="liczba">1 łatka</td></tr>
+        <tr><td>Kamera nad nierównym terenem</td><td>Ta sama wysokość co bohater, z opóźnieniem — inaczej kamera wchodzi w skarpę.</td><td class="liczba">1 łatka</td></tr>
+        <tr><td>Taras jako <i>teren</i> (wyciągnięty wielokąt)</td><td>Nowa geometria liczona w czasie startu sceny.</td><td class="liczba">duża</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Dlatego etap pierwszy celowo <b>nie rusza terenu</b>: tarasy udają wysokość murkiem po obwodzie i ciemniejszą trawą w środku, a ścieżka zostaje płaska. To daje 80% wrażenia za 20% ryzyka — i sprawdza, czy poziomy w ogóle poprawiają zabawę, zanim ktokolwiek tknie geometrię terenu.</p>
+</section>
+
+<section id="modele">
+  <div class="naglowek-sekcji">
+    <span class="etykieta">Do zamówienia</span>
+    <h2>Osiem prostych modeli</h2>
+  </div>
+  <p>Wszystkie w stylu istniejących: obłe krawędzie, płaskie kolory, bez tekstur PBR. Kafelkowe — jeden metr długości, powielany wzdłuż łamanej — żeby edytor mógł je układać dowolnie długo.</p>
+  <div class="przewin">
+    <table>
+      <thead><tr><th>Plik</th><th>Co to</th><th>Wymiar</th><th>Budżet</th><th>Uwaga</th></tr></thead>
+      <tbody>
+        <tr><td class="dane">zywoplot.glb</td><td>Segment żywopłotu</td><td class="liczba">1 × 1,3 × 0,7 m</td><td class="liczba">~300 tri</td><td>Końce płaskie, żeby segmenty się stykały bez szpary</td></tr>
+        <tr><td class="dane">zywoplot-luk.glb</td><td>Przejście w żywopłocie</td><td class="liczba">1,6 × 2,1 × 0,7 m</td><td class="liczba">~500 tri</td><td>Otwór min. 1,2 m — szerokość bohatera z zapasem</td></tr>
+        <tr><td class="dane">murek.glb</td><td>Segment murku oporowego</td><td class="liczba">1 × 0,8 × 0,4 m</td><td class="liczba">~120 tri</td><td>Wysokość = jeden skok poziomu</td></tr>
+        <tr><td class="dane">schody.glb</td><td>Bieg 4 stopni</td><td class="liczba">1,8 × 0,8 × 1,2 m</td><td class="liczba">~250 tri</td><td>Sztaplowalne: dwa biegi = 1,6 m</td></tr>
+        <tr><td class="dane">rampa.glb</td><td>Pochylnia z poręczą</td><td class="liczba">2,2 × 0,8 × 2,6 m</td><td class="liczba">~350 tri</td><td>Nachylenie ≤ 18°, żeby bieg wyglądał naturalnie</td></tr>
+        <tr><td class="dane">kladka.glb</td><td>Kładka z desek</td><td class="liczba">1,4 × 0,3 × 3,2 m</td><td class="liczba">~280 tri</td><td>Rozpiętość skalowana w Z</td></tr>
+        <tr><td class="dane">kamien-krok.glb</td><td>Kamień do przeskoku</td><td class="liczba">0,8 × 0,4 × 0,8 m</td><td class="liczba">~90 tri</td><td>Trzy warianty obrotu z jednego pliku</td></tr>
+        <tr><td class="dane">balustrada.glb</td><td>Barierka punktu widokowego</td><td class="liczba">1 × 0,9 × 0,15 m</td><td class="liczba">~160 tri</td><td>Tylko tam, gdzie jest urwisko — inaczej kłamie</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="etapy">
+  <div class="naglowek-sekcji">
+    <span class="etykieta">Kolejność</span>
+    <h2>Trzy etapy, każdy grywalny sam</h2>
+  </div>
+  <p>Kolejność nie jest umowna: każdy etap zostawia mapę w stanie, w którym da się ją oddać dziecku i zobaczyć, czy zmiana pomogła. Dopiero to decyduje o wejściu w następny.</p>
+  <div class="etapy">
+    <div class="etap">
+      <div class="nr">ETAP 1</div>
+      <div>
+        <h3>Zielone ściany</h3>
+        <p>Żywopłoty i murki jako rekwizyty na płaskim terenie. Wąwóz Południowy dostaje dwie zielone ściany, ogród — fragment labiryntu. Ścieżka zostaje na zerze.</p>
+        <p class="koszt">silnik: mechanizm rekwizytów · edytor: „+ Żywopłot” · modele: zywoplot, zywoplot-luk, murek</p>
+      </div>
+    </div>
+    <div class="etap">
+      <div class="nr">ETAP 2</div>
+      <div>
+        <h3>Ścieżka się wspina</h3>
+        <p>Węzły ścieżki dostają wysokość, bohater i kamera idą za nią. Niecka Bramy schodzi o 90 cm, wąwóz o dalsze 90. Schody i rampy stają w miejscach zmiany poziomu.</p>
+        <p class="koszt">silnik: wysokość wzdłuż trasy + kamera · edytor: suwak węzła, pasek przekroju · modele: schody, rampa, kamien-krok</p>
+      </div>
+    </div>
+    <div class="etap">
+      <div class="nr">ETAP 3</div>
+      <div>
+        <h3>Tarasy jako teren</h3>
+        <p>Obrysy tarasów stają się prawdziwą, wyciągniętą geometrią — po niej też da się chodzić poza ścieżką. Kładka nad wąwozem otwiera skrót. Punkt widokowy na Grzbiecie Wschodnim dostaje balustradę i widok na całą kotlinę.</p>
+        <p class="koszt">silnik: geometria terenu z wielokątów · edytor: „+ Taras”, filtr poziomu · modele: kladka, balustrada</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Rysunki wygenerowane ze współrzędnych z <code>frontend/public/scena-3d/mapa.json</code> (209 punktów ścieżki, 14 węzłów, 4 odcinki rzeki, 23 znaki). Warstwy tarasów, przejść i żywopłotów są propozycją — te liczby nie są jeszcze w mapie.
+</footer>
+
+</div>
+
+<script>
+/* ── Dane świata: prawdziwe, z frontend/public/scena-3d/mapa.json ───────── */
+const SCIEZKA=[[-10.5,13.02],[-10.01,12.5],[-9.34,11.8],[-8.55,10.97],[-7.69,10.06],[-6.82,9.14],[-5.99,8.27],[-5.27,7.5],[-4.7,6.9],[-4.32,6.48],[-4.05,6.17],[-3.87,5.93],[-3.74,5.75],[-3.63,5.61],[-3.53,5.49],[-3.39,5.36],[-3.2,5.2],[-2.96,5.01],[-2.71,4.8],[-2.46,4.58],[-2.19,4.38],[-1.9,4.21],[-1.61,4.09],[-1.29,4.04],[-0.96,4.08],[-0.6,4.28],[-0.22,4.62],[0.18,5.06],[0.6,5.53],[1.02,5.99],[1.45,6.39],[1.89,6.66],[2.33,6.76],[2.81,6.63],[3.36,6.36],[3.93,5.97],[4.5,5.52],[5.03,5.03],[5.5,4.54],[5.85,4.1],[6.07,3.74],[6.11,3.45],[6.04,3.19],[5.87,2.94],[5.62,2.71],[5.32,2.5],[4.98,2.3],[4.62,2.12],[4.26,1.94],[3.84,1.8],[3.32,1.71],[2.76,1.65],[2.17,1.6],[1.6,1.53],[1.08,1.42],[0.65,1.26],[0.34,1.03],[0.16,0.66],[0.04,0.17],[-0.02,-0.38],[-0.01,-0.97],[0.06,-1.53],[0.21,-2.03],[0.43,-2.42],[0.73,-2.66],[1.19,-2.66],[1.8,-2.48],[2.51,-2.19],[3.28,-1.83],[4.06,-1.48],[4.82,-1.19],[5.5,-1.02],[6.06,-1.03],[6.52,-1.28],[6.97,-1.68],[7.38,-2.19],[7.73,-2.76],[8.03,-3.37],[8.25,-3.96],[8.39,-4.49],[8.42,-4.92],[8.31,-5.27],[8.09,-5.59],[7.78,-5.88],[7.39,-6.15],[6.95,-6.38],[6.46,-6.58],[5.95,-6.73],[5.42,-6.85],[4.81,-6.79],[4.1,-6.54],[3.32,-6.17],[2.51,-5.81],[1.72,-5.54],[0.99,-5.47],[0.35,-5.7],[-0.16,-6.32],[-0.5,-7.59],[-0.74,-9.37],[-0.89,-11.49],[-0.99,-13.79],[-1.04,-16.09],[-1.07,-18.23],[-1.1,-20.03],[-1.15,-21.32]];
+const RZEKA={szerokosc:1.5,krzywe:[{od:[-22.13,-1.99],kontrola:[-9.72,-2.34],do:[-5.06,6.94]},{od:[-5.06,6.94],kontrola:[4.28,12.83],do:[-3.8,16.8]},{od:[-3.8,16.8],kontrola:[-14.54,25.37],do:[7.73,20.92]},{od:[7.73,20.92],kontrola:[34.05,-13.8],do:[-8.1,-22.33]}]};
+const ZNAKI=[["wizard",-3.33,-2.48,"Czarodziej"],["karta",0.24,7.17,"Pamięć Mędrca"],["gwiazda",-0.4,4.6],["gwiazda",4.11,5.71],["gwiazda",-4.48,7.13],["gwiazda",-0.52,-3.86],["gwiazda",3.21,-10.18],["gwiazda",9.93,0.09],["gwiazda",1.09,-7.36],["gwiazda",3.84,10.2],["gwiazda",6.83,0.94],["gwiazda",8.1,-5.91],["drzewo",8.54,-0.03,"Lot Liska"],["but",2.02,-4.49,"Bieg Liska"],["puzel",-10.43,5.3],["puzel",-3.53,11.23],["puzel",-3.44,-7.17],["puzel",7.17,9.04],["puzel",10.67,-1.82],["puzel",-9.1,-4.2],["puzel",-0.6,5.2],["puzel",5.55,-5.42],["puzel",-5.66,10.48]];
+const DRZEWA=[[1.76,3.74,1.3],[5.43,-3.65,.9],[3.19,.06,1],[7.25,6,1],[-3.63,2.84,1]];
+const GLAZY=[[-1.8,6.6,1.1],[-5.48,-9.88,1],[9.73,-2.96,1]];
+const CHATKA=[-8.86,-6.19]; const MOST=[-4.7,6.9]; const BRAMA=[-0.54,-8.46]; const LATARNIA=[10.96,2.7];
+const PROMIEN=14;
+
+/* ── Propozycja: poziomy, tarasy, przejścia, żywopłoty ─────────────────── */
+const POZIOMY={wawoz:-1.8,niecka:-0.9,laka:0,taras:.8,grzbiet:1.6};
+const BARWA={wawoz:"--p-m2",niecka:"--p-m1",laka:"--p-00",taras:"--p-p1",grzbiet:"--p-p2"};
+const TARASY=[
+ {id:"ogrod",nazwa:"Taras Ogrodowy",poziom:"taras",etykieta:[3.1,4.7],obrys:[[-.35,4.25],[.55,5.15],[1.35,5.9],[2.05,6.25],[2.75,6.15],[3.6,5.6],[4.55,4.8],[5.25,4],[5.4,3.45],[5.05,2.95],[4.55,2.65],[4,2.4],[3.25,2.2],[2.2,2.1],[1.15,1.95],[.6,1.7],[.15,2.35],[-.2,3.2]]},
+ {id:"grzbiet-wschodni",nazwa:"Grzbiet Wschodni",poziom:"grzbiet",etykieta:[9.3,2.6],obrys:[[6.2,1],[7.6,-.4],[9.6,-.6],[11.4,.6],[11.8,2.6],[10.2,3.9],[7.8,3.6],[6.3,2.6]]},
+ {id:"wzgorze-chatki",nazwa:"Wzgórze Chatki",poziom:"taras",etykieta:[-10.1,-4.7],obrys:[[-11.8,-3.4],[-7.4,-3.8],[-6.5,-6.3],[-7.7,-8.9],[-10.7,-8.7],[-12.1,-6.1]]},
+ {id:"niecka-bramy",nazwa:"Niecka Bramy",poziom:"niecka",etykieta:[-1.7,-6.1],obrys:[[-2.6,-5.3],[.7,-5.1],[1.9,-6.7],[1.3,-8.9],[-1.2,-9.9],[-3.2,-8.7],[-3.4,-6.6]]},
+ {id:"wawoz",nazwa:"Wąwóz Południowy",poziom:"wawoz",obrys:[[-2.4,-9.7],[.4,-9.7],[.7,-21.9],[-2.9,-21.9]]}
+];
+const PRZEJSCIA=[
+ {id:"schody-ogrod-pn",typ:"schody",od:[-1.15,4.1],do:[-.3,4.35],szer:1.8,stopnie:4},
+ {id:"rampa-ogrod-pd",typ:"rampa",od:[4.3,1.95],do:[3.9,2.5],szer:2.2},
+ {id:"schody-grzbiet",typ:"schody",od:[6.05,3.05],do:[6.65,2.65],szer:1.6,stopnie:5},
+ {id:"kamienie-grzbiet",typ:"kamienie",od:[6.4,-1.15],do:[7.4,-.3],szer:.9},
+ {id:"schody-niecka",typ:"schody",od:[-.25,-5.55],do:[-.42,-6.55],szer:3,stopnie:4},
+ {id:"schody-wawoz",typ:"schody",od:[-.62,-9.15],do:[-.78,-10.25],szer:2.4,stopnie:4},
+ {id:"kladka-wawoz",typ:"kladka",od:[-2.55,-13.4],do:[.45,-13.4],szer:1.4},
+ {id:"rampa-chatka",typ:"rampa",od:[-6.5,-4.85],do:[-7.5,-5.15],szer:2}
+];
+const ZYWOPLOTY=[
+ {id:"wawoz-lewy",punkty:[[-2.5,-9.8],[-2.65,-13.2],[-2.5,-16.8],[-2.7,-20.4],[-2.8,-21.7]],grubosc:.7},
+ {id:"wawoz-prawy",punkty:[[.45,-9.8],[.6,-13.2],[.45,-16.8],[.6,-20.4],[.65,-21.7]],grubosc:.7},
+ {id:"labirynt-ogrod",punkty:[[-1.7,6],[-.75,6.35],[-.05,5.75],[-.15,4.85]],grubosc:.6},
+ {id:"oslona-czarodzieja",punkty:[[-5.5,-1.1],[-4.7,-3.5],[-2.7,-4.5]],grubosc:.6},
+ {id:"balustrada-grzbietu",punkty:[[6.6,2.4],[8.6,3.4],[10.6,3.3]],grubosc:.4}
+];
+
+/* ── Rysowanie ─────────────────────────────────────────────────────────── */
+const NS="http://www.w3.org/2000/svg";
+/* Obwódka w kolorze papieru pod każdym napisem na rysunku: bez niej etykiety
+   giną na drzewach, bryłach i kolorowych tarasach. */
+const OTOK="paint-order:stroke;stroke:var(--papier-2);stroke-width:4.5;stroke-linejoin:round;";
+function E(t,a,rodzic){const e=document.createElementNS(NS,t);for(const k in a)if(a[k]!=null)e.setAttribute(k,a[k]);if(rodzic)rodzic.appendChild(e);return e;}
+function G(rodzic,warstwa){const g=E("g",{},rodzic);if(warstwa)g.dataset.warstwa=warstwa;return g;}
+function sciezkaD(pkt,rzut,zamknij){return pkt.map((p,i)=>(i?"L":"M")+rzut(p).join(" ")).join(" ")+(zamknij?" Z":"");}
+function srodek(pkt){const s=pkt.reduce((a,p)=>[a[0]+p[0],a[1]+p[1]],[0,0]);return [s[0]/pkt.length,s[1]/pkt.length];}
+
+/* Rzutnia: świat w metrach → piksele SVG. Y odwrócone, bo w świecie rośnie
+   na północ, a w SVG w dół. Plansza B ma własny rzut (obrót o 90°). */
+function rzutnia(x0,x1,y0,y1,s){
+  const f=(p)=>[+((p[0]-x0)*s).toFixed(1),+(( y1-p[1])*s).toFixed(1)];
+  f.w=(x1-x0)*s; f.h=(y1-y0)*s; f.s=s; return f;
+}
+
+function siatka(g,rzut,x0,x1,y0,y1,krok){
+  for(let x=Math.ceil(x0/krok)*krok;x<=x1;x+=krok)
+    E("line",{x1:rzut([x,y0])[0],y1:rzut([x,y0])[1],x2:rzut([x,y1])[0],y2:rzut([x,y1])[1],style:"stroke:var(--kreska-cienka);stroke-width:1"},g);
+  for(let y=Math.ceil(y0/krok)*krok;y<=y1;y+=krok)
+    E("line",{x1:rzut([x0,y])[0],y1:rzut([x0,y])[1],x2:rzut([x1,y])[0],y2:rzut([x1,y])[1],style:"stroke:var(--kreska-cienka);stroke-width:1"},g);
+}
+
+function rysujTarasy(g,rzut){
+  TARASY.forEach((t)=>{
+    const kolor="var("+BARWA[t.poziom]+")";
+    E("path",{d:sciezkaD(t.obrys,rzut,true),style:`fill:${kolor};fill-opacity:.42;stroke:${kolor};stroke-width:3;stroke-linejoin:round`},g);
+    E("path",{d:sciezkaD(t.obrys,rzut,true),style:`fill:none;stroke:${kolor};stroke-width:9;stroke-opacity:.3;stroke-linejoin:round`},g);
+  });
+}
+
+/* Napisy rysują się OSOBNO, na samym końcu — inaczej ścieżka i bryły
+   przejeżdżają po nazwach tarasów, bo leżą wyżej w kolejności rysowania. */
+function etykietyTarasow(g,rzut){
+  TARASY.forEach((t)=>{
+    const c=rzut(t.etykieta||srodek(t.obrys)), h=POZIOMY[t.poziom];
+    E("text",{x:c[0],y:c[1]-3,"text-anchor":"middle",style:OTOK+"font:800 15px 'Baloo 2',sans-serif;fill:var(--atrament)"},g).textContent=t.nazwa;
+    E("text",{x:c[0],y:c[1]+14,"text-anchor":"middle",style:OTOK+"font:600 13px 'IBM Plex Mono',monospace;fill:var(--atrament-2)"},g)
+      .textContent=(h>0?"+":"")+h.toFixed(1)+" m";
+  });
+}
+
+function rysujZywoploty(g,rzut){
+  ZYWOPLOTY.forEach((z)=>{
+    const d=sciezkaD(z.punkty,rzut,false), w=z.grubosc*rzut.s;
+    E("path",{d,style:`fill:none;stroke:var(--zieleń);stroke-width:${w};stroke-linecap:round;stroke-linejoin:round;stroke-opacity:.85`},g);
+    E("path",{d,style:`fill:none;stroke:var(--papier-2);stroke-width:${w*.32};stroke-linecap:round;stroke-dasharray:2 ${w*.5};stroke-opacity:.7`},g);
+  });
+}
+
+function rysujPrzejscia(g,rzut){
+  PRZEJSCIA.forEach((p)=>{
+    const a=rzut(p.od), b=rzut(p.do);
+    const dx=b[0]-a[0], dy=b[1]-a[1], dl=Math.hypot(dx,dy)||1;
+    const nx=-dy/dl, ny=dx/dl, w=(p.szer||1.5)*rzut.s/2;
+    const styl="stroke:var(--bursztyn);stroke-width:2.6;stroke-linecap:round";
+    if(p.typ==="schody"){
+      for(let i=0;i<=p.stopnie;i++){
+        const t=i/p.stopnie, cx=a[0]+dx*t, cy=a[1]+dy*t;
+        E("line",{x1:cx+nx*w,y1:cy+ny*w,x2:cx-nx*w,y2:cy-ny*w,style:styl},g);
+      }
+    } else if(p.typ==="rampa"){
+      E("path",{d:`M${a[0]+nx*w} ${a[1]+ny*w} L${b[0]+nx*w} ${b[1]+ny*w} L${b[0]-nx*w} ${b[1]-ny*w} L${a[0]-nx*w} ${a[1]-ny*w} Z`,
+        style:"fill:var(--bursztyn);fill-opacity:.2;stroke:var(--bursztyn);stroke-width:2.2"},g);
+      E("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],style:styl+";stroke-dasharray:5 4"},g);
+    } else if(p.typ==="kamienie"){
+      for(let i=0;i<4;i++){const t=(i+.5)/4;
+        E("circle",{cx:a[0]+dx*t,cy:a[1]+dy*t,r:w*.55,style:"fill:var(--bursztyn);fill-opacity:.28;stroke:var(--bursztyn);stroke-width:2"},g);}
+    } else if(p.typ==="kladka"){
+      E("line",{x1:a[0]+nx*w,y1:a[1]+ny*w,x2:b[0]+nx*w,y2:b[1]+ny*w,style:styl},g);
+      E("line",{x1:a[0]-nx*w,y1:a[1]-ny*w,x2:b[0]-nx*w,y2:b[1]-ny*w,style:styl},g);
+      for(let i=1;i<7;i++){const t=i/7;const cx=a[0]+dx*t,cy=a[1]+dy*t;
+        E("line",{x1:cx+nx*w,y1:cy+ny*w,x2:cx-nx*w,y2:cy-ny*w,style:"stroke:var(--bursztyn);stroke-width:1.6;stroke-opacity:.7"},g);}
+    }
+  });
+}
+</script>
+
+<script>
+/* ── Istniejący świat: to wszystko jest już w mapa.json ─────────────────── */
+function rysujSwiat(g,rzut,peleWidok){
+  if(peleWidok){
+    const c=rzut([0,0]);
+    E("circle",{cx:c[0],cy:c[1],r:PROMIEN*rzut.s,style:"fill:var(--p-00);fill-opacity:.16;stroke:var(--kreska);stroke-width:2;stroke-dasharray:8 6"},g);
+  }
+  const clip=E("clipPath",{id:"obrys-swiata-"+(peleWidok?"a":"b")},g);
+  const c2=rzut([0,0]);
+  E("circle",{cx:c2[0],cy:c2[1],r:(PROMIEN+.6)*rzut.s},clip);
+  const rz=E("g",{"clip-path":"url(#obrys-swiata-"+(peleWidok?"a":"b")+")"},g);
+  RZEKA.krzywe.forEach((k)=>{
+    const a=rzut(k.od),b=rzut(k.kontrola),d=rzut(k.do);
+    E("path",{d:`M${a[0]} ${a[1]} Q${b[0]} ${b[1]} ${d[0]} ${d[1]}`,
+      style:`fill:none;stroke:var(--woda);stroke-width:${RZEKA.szerokosc*rzut.s};stroke-opacity:.55;stroke-linecap:round`},rz);
+  });
+  const d=sciezkaD(SCIEZKA,rzut,false);
+  E("path",{d,style:`fill:none;stroke:var(--kreska);stroke-width:${1.15*rzut.s};stroke-linecap:round;stroke-linejoin:round`},g);
+  E("path",{d,style:`fill:none;stroke:var(--papier-2);stroke-width:${.2*rzut.s};stroke-dasharray:${.5*rzut.s} ${.45*rzut.s};stroke-opacity:.85`},g);
+
+  const kolo=(p,r,styl)=>{const q=rzut(p);E("circle",{cx:q[0],cy:q[1],r:r*rzut.s,style:styl},g);};
+  DRZEWA.forEach((t)=>kolo([t[0],t[1]],.72*t[2],"fill:var(--zieleń);fill-opacity:.5;stroke:var(--zieleń);stroke-width:1.5"));
+  GLAZY.forEach((t)=>kolo([t[0],t[1]],.42*t[2],"fill:var(--atrament-2);fill-opacity:.4"));
+  const ch=rzut(CHATKA);
+  E("rect",{x:ch[0]-.9*rzut.s,y:ch[1]-.9*rzut.s,width:1.8*rzut.s,height:1.8*rzut.s,rx:3,
+    style:"fill:var(--bursztyn);fill-opacity:.45;stroke:var(--bursztyn);stroke-width:2"},g);
+  const mo=rzut(MOST);
+  E("rect",{x:mo[0]-1*rzut.s,y:mo[1]-.55*rzut.s,width:2*rzut.s,height:1.1*rzut.s,rx:2,
+    transform:`rotate(-42 ${mo[0]} ${mo[1]})`,style:"fill:var(--bursztyn);fill-opacity:.55;stroke:var(--bursztyn);stroke-width:2"},g);
+  const br=rzut(BRAMA);
+  E("rect",{x:br[0]-1.5*rzut.s,y:br[1]-.25*rzut.s,width:3*rzut.s,height:.5*rzut.s,rx:2,
+    style:"fill:var(--magia);fill-opacity:.5;stroke:var(--magia);stroke-width:2"},g);
+  const la=rzut(LATARNIA);
+  E("circle",{cx:la[0],cy:la[1],r:.42*rzut.s,style:"fill:none;stroke:var(--atrament-2);stroke-width:2;stroke-dasharray:4 3"},g);
+  E("text",{x:la[0]+.5*rzut.s,y:la[1]+.42*rzut.s+15,"text-anchor":"end",
+    style:OTOK+"font:400 11px 'IBM Plex Mono',monospace;fill:var(--atrament-2)"},g).textContent="latarnia (ukryta)";
+
+  const BARWY_ZNAKU={wizard:"var(--magia)",karta:"var(--magia)",drzewo:"var(--magia)",but:"var(--magia)",
+    gwiazda:"var(--bursztyn-jasny)",puzel:"var(--atrament-2)"};
+  ZNAKI.forEach((z)=>{
+    const q=rzut([z[1],z[2]]), duzy=z[3]!=null, kol=BARWY_ZNAKU[z[0]]||"var(--atrament-2)";
+    E("circle",{cx:q[0],cy:q[1],r:(duzy?.52:.34)*rzut.s,
+      style:`fill:${kol};fill-opacity:${duzy?.85:.55};stroke:var(--papier-2);stroke-width:2`},g);
+  });
+}
+
+function podpisyZnakow(g,rzut){
+  ZNAKI.filter((z)=>z[3]!=null).forEach((z)=>{
+    const q=rzut([z[1],z[2]]);
+    E("text",{x:q[0],y:q[1]-.72*rzut.s,"text-anchor":"middle",
+      style:OTOK+"font:600 12px 'IBM Plex Mono',monospace;fill:var(--atrament)"},g).textContent=z[3];
+  });
+}
+
+/* ── Plansza A: kotlina ────────────────────────────────────────────────── */
+(function(){
+  const s=34, x0=-13, x1=13, y0=-12.6, y1=14.4;
+  const rzut=rzutnia(x0,x1,y0,y1,s);
+  const svg=document.getElementById("plansza-a");
+  svg.setAttribute("viewBox",`0 0 ${rzut.w} ${rzut.h}`);
+  siatka(G(svg,"siatka"),rzut,x0,x1,y0,y1,2);
+  rysujTarasy(G(svg,"tarasy"),rzut);
+  rysujSwiat(G(svg,"istniejace"),rzut,true);
+  rysujZywoploty(G(svg,"zywoploty"),rzut);
+  rysujPrzejscia(G(svg,"przejscia"),rzut);
+  podpisyZnakow(G(svg,"istniejace"),rzut);
+  etykietyTarasow(G(svg,"tarasy"),rzut);
+  const pol=E("g",{},svg);
+  const p=rzut([x0+1.4,y1-1.4]);
+  E("path",{d:`M${p[0]} ${p[1]+18} L${p[0]} ${p[1]-14} M${p[0]-6} ${p[1]-6} L${p[0]} ${p[1]-14} L${p[0]+6} ${p[1]-6}`,
+    style:"fill:none;stroke:var(--atrament-2);stroke-width:2;stroke-linecap:round"},pol);
+  E("text",{x:p[0],y:p[1]+34,"text-anchor":"middle",style:"font:600 12px 'IBM Plex Mono',monospace;fill:var(--atrament-2)"},pol).textContent="N";
+})();
+
+/* ── Plansza B: wąwóz (świat obrócony o 90°, południe w prawo) ──────────── */
+(function(){
+  const s=52;
+  const rzut=(p)=>[+((-p[1]-9)*s).toFixed(1),+((p[0]+3.7)*s).toFixed(1)];
+  rzut.s=s; rzut.w=13.4*s; rzut.h=5.2*s;
+  const svg=document.getElementById("plansza-b");
+  svg.setAttribute("viewBox",`0 0 ${rzut.w} ${rzut.h}`);
+  const gs=G(svg,"siatka");
+  for(let y=-9;y>=-22;y-=2){const a=rzut([-3.7,y]),b=rzut([1.5,y]);
+    E("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],style:"stroke:var(--kreska-cienka);stroke-width:1"},gs);}
+  rysujTarasy(G(svg,"tarasy"),rzut);
+  const gi=G(svg,"istniejace");
+  const odc=SCIEZKA.filter((p)=>p[1]<=-9);
+  E("path",{d:sciezkaD(odc,rzut,false),style:`fill:none;stroke:var(--kreska);stroke-width:${1.15*s};stroke-linecap:round`},gi);
+  E("path",{d:sciezkaD(odc,rzut,false),style:`fill:none;stroke:var(--papier-2);stroke-width:${.2*s};stroke-dasharray:${.5*s} ${.45*s}`},gi);
+  ZNAKI.filter((z)=>z[2]<=-9).forEach((z)=>{const q=rzut([z[1],z[2]]);
+    E("circle",{cx:q[0],cy:q[1],r:.34*s,style:"fill:var(--bursztyn-jasny);fill-opacity:.6;stroke:var(--papier-2);stroke-width:2"},gi);});
+  rysujZywoploty(G(svg,"zywoploty"),rzut);
+  rysujPrzejscia(G(svg,"przejscia"),rzut);
+  etykietyTarasow(G(svg,"tarasy"),rzut);
+  const t=rzut([-3.3,-10.4]);
+  E("text",{x:t[0],y:t[1],style:"font:600 12px 'IBM Plex Mono',monospace;fill:var(--atrament-2)"},svg).textContent="kierunek marszu →";
+})();
+</script>
+
+<script>
+/* ── Przekrój: rytm wędrówki ────────────────────────────────────────────── */
+(function(){
+  const ETAPY=[["Most nad rzeką","laka",5],["Łąka Czarodzieja","laka",5],["Taras Ogrodowy","taras",7],
+    ["Zejście na łąkę","laka",4],["Grzbiet Wschodni","grzbiet",6],["Powrót na łąkę","laka",5],
+    ["Niecka Bramy","niecka",5],["Wąwóz Południowy","wawoz",12]];
+  const SKOS=2.2, MARG=44, GORA=34, DOL=62;
+  const dl=ETAPY.reduce((a,e)=>a+e[2],0)+SKOS*(ETAPY.length-1);
+  const s=(1040-MARG*2)/dl, hs=46;
+  const W=1040, H=GORA+ (2.2+2.6)*hs + DOL;
+  const zero=GORA+2.2*hs;
+  const X=(u)=>MARG+u*s, Y=(h)=>zero-h*hs;
+  const svg=document.getElementById("przekroj");
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+
+  const gl=G(svg);
+  Object.keys(POZIOMY).forEach((k)=>{
+    const y=Y(POZIOMY[k]);
+    E("line",{x1:MARG,y1:y,x2:W-MARG,y2:y,style:`stroke:var(${BARWA[k]});stroke-width:1.5;stroke-opacity:.45;stroke-dasharray:3 5`},gl);
+    E("text",{x:W-MARG+6,y:y+4,style:`font:600 11.5px 'IBM Plex Mono',monospace;fill:var(${BARWA[k]})`},gl)
+      .textContent=(POZIOMY[k]>0?"+":"")+POZIOMY[k].toFixed(1);
+  });
+
+  const pkt=[]; let u=0;
+  ETAPY.forEach((e,i)=>{
+    const h=POZIOMY[e[1]];
+    if(i){ u+=SKOS; }
+    pkt.push([u,h]); u+=e[2]; pkt.push([u,h]);
+  });
+  const linia=pkt.map((p,i)=>(i?"L":"M")+X(p[0])+" "+Y(p[1])).join(" ");
+  E("path",{d:linia+` L${X(u)} ${H-DOL} L${MARG} ${H-DOL} Z`,style:"fill:var(--p-00);fill-opacity:.2"},svg);
+  E("path",{d:linia,style:"fill:none;stroke:var(--kreska);stroke-width:5;stroke-linejoin:round;stroke-linecap:round"},svg);
+  E("path",{d:linia,style:"fill:none;stroke:var(--bursztyn);stroke-width:2;stroke-dasharray:6 5;stroke-linejoin:round"},svg);
+
+  let v=0;
+  ETAPY.forEach((e,i)=>{
+    if(i) v+=SKOS;
+    const h=POZIOMY[e[1]], sr=X(v+e[2]/2), y=Y(h);
+    E("circle",{cx:sr,cy:y,r:4.5,style:`fill:var(${BARWA[e[1]]});stroke:var(--papier-2);stroke-width:2`},svg);
+    const wyzej=h>=0;
+    E("text",{x:sr,y:wyzej?y-14:y+22,"text-anchor":"middle",
+      style:"font:800 13px 'Baloo 2',sans-serif;fill:var(--atrament)"},svg).textContent=e[0];
+    v+=e[2];
+  });
+  E("text",{x:MARG,y:H-26,style:"font:600 11.5px 'IBM Plex Mono',monospace;fill:var(--atrament-2)"},svg)
+    .textContent="START — most";
+  E("text",{x:W-MARG,y:H-26,"text-anchor":"end",style:"font:600 11.5px 'IBM Plex Mono',monospace;fill:var(--atrament-2)"},svg)
+    .textContent="KONIEC — dno wąwozu";
+  E("text",{x:W/2,y:H-8,"text-anchor":"middle",style:"font:400 11.5px 'IBM Plex Mono',monospace;fill:var(--atrament-2)"},svg)
+    .textContent="różnica między najwyższym a najniższym punktem trasy: 3,4 m — cztery razy wzrost bohatera";
+})();
+
+/* ── Legenda i przełączniki warstw ──────────────────────────────────────── */
+(function(){
+  const leg=document.getElementById("legenda");
+  const poz=[["grzbiet","Grzbiet"],["taras","Taras"],["laka","Łąka (dziś: całość)"],["niecka","Niecka"],["wawoz","Wąwóz"]];
+  poz.forEach(([k,n])=>{
+    const d=document.createElement("div");
+    d.innerHTML=`<i style="background:var(${BARWA[k]})"></i>${n}<span>${POZIOMY[k]>0?"+":""}${POZIOMY[k].toFixed(1)} m</span>`;
+    leg.appendChild(d);
+  });
+  [["var(--kreska)","Ścieżka"],["var(--woda)","Rzeka"],["var(--zieleń)","Żywopłot"],["var(--bursztyn)","Przejście"],["var(--magia)","Znak minigry"]]
+    .forEach(([c,n])=>{const d=document.createElement("div");d.innerHTML=`<i style="background:${c}"></i>${n}`;leg.appendChild(d);});
+
+  const WARSTWY=[["siatka","siatka 2 m","var(--kreska)"],["istniejace","co jest dziś","var(--atrament-2)"],
+    ["tarasy","tarasy","var(--p-p1)"],["przejscia","przejścia","var(--bursztyn)"],["zywoploty","żywopłoty","var(--zieleń)"]];
+  const pas=document.getElementById("warstwy");
+  WARSTWY.forEach(([id,nazwa,kolor])=>{
+    const b=document.createElement("button");
+    b.type="button"; b.setAttribute("aria-pressed","true");
+    b.innerHTML=`<i class="kropka" style="background:${kolor}"></i>${nazwa}`;
+    b.onclick=()=>{
+      const wl=b.getAttribute("aria-pressed")==="true";
+      b.setAttribute("aria-pressed",String(!wl));
+      document.querySelectorAll(`[data-warstwa="${id}"]`).forEach((g)=>{ g.style.display=wl?"none":""; });
+    };
+    pas.appendChild(b);
+  });
+})();
+
+/* ── Katalog: sześć kart z bocznym szkicem ─────────────────────────────── */
+(function(){
+  const K=[
+    ["Taras","poziom","Płat terenu podniesiony o jeden skok. Trzyma na sobie znaki i drzewa, a jego krawędź jest tym, zza czego coś się wyłania.",
+      (g)=>{E("path",{d:"M6 74 L74 74 L74 44 L150 44 L150 74 L214 74",style:"fill:none;stroke:var(--atrament-2);stroke-width:3"},g);
+            E("path",{d:"M74 74 L74 44 L150 44 L150 74 Z",style:"fill:var(--p-p1);fill-opacity:.45"},g);
+            E("rect",{x:70,y:44,width:8,height:30,style:"fill:var(--bursztyn);fill-opacity:.6"},g);
+            E("rect",{x:146,y:44,width:8,height:30,style:"fill:var(--bursztyn);fill-opacity:.6"},g);}],
+    ["Schody","przejście","Cztery stopnie na jeden poziom. Najczytelniejszy znak „tędy da się wyżej” — dziecko rozumie je bez podpisu.",
+      (g)=>{E("path",{d:"M6 74 L70 74 L70 66 L92 66 L92 58 L114 58 L114 50 L136 50 L136 42 L214 42",
+            style:"fill:none;stroke:var(--atrament-2);stroke-width:3;stroke-linejoin:round"},g);
+            E("path",{d:"M70 74 L70 66 L92 66 L92 58 L114 58 L114 50 L136 50 L136 42 L136 74 Z",style:"fill:var(--bursztyn);fill-opacity:.25"},g);}],
+    ["Rampa","przejście","Łagodne podejście bez stopni. Bohater biegnie po niej płynnie, więc nadaje się tam, gdzie nie chcemy przerywać ruchu.",
+      (g)=>{E("path",{d:"M6 74 L74 74 L146 44 L214 44",style:"fill:none;stroke:var(--atrament-2);stroke-width:3;stroke-linejoin:round"},g);
+            E("path",{d:"M74 74 L146 44 L146 74 Z",style:"fill:var(--bursztyn);fill-opacity:.25"},g);
+            E("path",{d:"M78 62 L138 37",style:"stroke:var(--bursztyn);stroke-width:2.5;stroke-dasharray:6 5"},g);}],
+    ["Kładka","przejście","Deski przerzucone nad wąwozem. Nie zmienia poziomu — skraca drogę, więc jest nagrodą za znalezienie, nie zwykłym połączeniem.",
+      (g)=>{E("path",{d:"M6 52 L64 52 M156 52 L214 52",style:"fill:none;stroke:var(--atrament-2);stroke-width:3"},g);
+            E("path",{d:"M64 52 L64 88 M156 52 L156 88",style:"stroke:var(--p-m2);stroke-width:3;stroke-opacity:.6"},g);
+            E("rect",{x:60,y:44,width:100,height:8,rx:2,style:"fill:var(--bursztyn);fill-opacity:.7"},g);
+            for(let i=0;i<6;i++)E("line",{x1:70+i*16,y1:44,x2:70+i*16,y2:52,style:"stroke:var(--papier-2);stroke-width:2"},g);}],
+    ["Kamienie","przejście","Trzy–cztery głazy do przeskoku. Nieformalny skrót: widać, że ktoś tędy chodzi, ale nikt tego nie zbudował.",
+      (g)=>{E("path",{d:"M6 74 L58 74 M162 46 L214 46",style:"fill:none;stroke:var(--atrament-2);stroke-width:3"},g);
+            [[74,70],[104,64],[134,56],[160,48]].forEach(([x,y])=>
+              E("ellipse",{cx:x,cy:y,rx:13,ry:7,style:"fill:var(--bursztyn);fill-opacity:.35;stroke:var(--bursztyn);stroke-width:2.5"},g));}],
+    ["Żywopłot","ściana","Zielona ściana, która nie jest terenem. Zasłania, prowadzi wzrok i robi korytarz tam, gdzie dziś jest pusta łąka. Łuk = przejście.",
+      (g)=>{E("path",{d:"M6 78 L214 78",style:"stroke:var(--atrament-2);stroke-width:3"},g);
+            E("rect",{x:14,y:36,width:66,height:42,rx:8,style:"fill:var(--zieleń);fill-opacity:.55"},g);
+            E("rect",{x:140,y:36,width:66,height:42,rx:8,style:"fill:var(--zieleń);fill-opacity:.55"},g);
+            E("path",{d:"M80 78 L80 52 A30 30 0 0 1 140 52 L140 78",style:"fill:none;stroke:var(--zieleń);stroke-width:11;stroke-opacity:.55"},g);}]
+  ];
+  const kat=document.getElementById("katalog");
+  K.forEach(([nazwa,tag,opis,szkic])=>{
+    const div=document.createElement("div"); div.className="karta";
+    const svg=E("svg",{class:"szkic",viewBox:"0 0 220 96",role:"presentation"});
+    szkic(svg);
+    div.appendChild(svg);
+    const h=document.createElement("h3"); h.textContent=nazwa; div.appendChild(h);
+    const t=document.createElement("span"); t.className="tag"; t.textContent=tag; div.appendChild(t);
+    const p=document.createElement("p"); p.textContent=opis; div.appendChild(p);
+    kat.appendChild(div);
+  });
+})();
+</script>

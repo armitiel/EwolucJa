@@ -1,0 +1,272 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Koło Przeznaczenia — assety i kręcenie</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+<style>
+/* Podgląd assetów Koła Przeznaczenia. Plik leży w `frontend/`, więc serwer
+   deweloperski podaje go pod /kolo-podglad.html, a build produkcyjny go nie
+   bierze (wejściem jest tylko index.html). */
+:root{
+  --wood:#A45A1C; --wood-ciemny:#6E3A10; --zloto:#F5C21B;
+  --pergamin:#FBEFCB; --tusz:#3A2109; --zielen:#3F7A2B;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; min-height:100vh; display:flex; gap:28px; flex-wrap:wrap;
+  align-items:flex-start; justify-content:center; padding:24px;
+  background:#20301c; color:#3A2109;
+  font-family:'Baloo 2',system-ui,sans-serif;
+}
+
+/* ── EKRAN ──────────────────────────────────────────────────────────── */
+.ekran{
+  position:relative; width:min(94vw,470px); padding:16px 16px 22px;
+  border-radius:24px; overflow:hidden;
+  background:#2c4225 url(/assets/kolo/tlo-las.webp) center/cover;
+  box-shadow:0 20px 50px rgba(0,0,0,.5);
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+}
+.plansza{position:relative; width:100%}
+.plansza img{display:block; width:100%; height:auto}
+.baner{width:98%; margin:0 auto}
+.wstazka{width:84%; margin:-9% auto 0}
+/* Pola tekstowe są WYMIERZONE z assetów: pergamin baneru zajmuje w pliku
+   x 20–79%, y 31–74%, wstążki x 23–77%, y 41–62%. Napisy siedzą w pudełkach
+   dokładnie na tych polach i centrują się w nich same, więc podmiana grafiki
+   na inną wymaga poprawienia jednej liczby, a nie szukania po pikselu. */
+.tresc-banera{
+  position:absolute; left:20%; right:21%; top:31%; bottom:26%;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1%;
+}
+.tresc-wstazki{
+  position:absolute; left:23%; right:23%; top:41%; bottom:38%;
+  display:flex; align-items:center; justify-content:center;
+}
+.napis-nad{font-size:clamp(8px,2.2vw,11px); font-weight:800; letter-spacing:2.2px; color:#8a5a16; white-space:nowrap}
+.napis-tytul{font-size:clamp(18px,5.4vw,29px); font-weight:800; color:#5b3210; line-height:1; white-space:nowrap}
+.napis-pod{font-size:clamp(10px,2.8vw,14px); font-weight:600; color:#6b4a1c; text-align:center; line-height:1.15}
+
+.zamknij{
+  position:absolute; top:10px; right:10px; width:52px; height:52px;
+  border:0; padding:0; background:transparent; cursor:pointer; z-index:5;
+}
+.zamknij img{width:100%; display:block}
+.zamknij span{
+  /* Krążek pergaminu nie leży w środku pliku (47% / 44%), więc krzyżyk
+     dosuwamy do niego, a nie do środka przycisku. */
+  position:absolute; inset:0; display:grid; place-items:center;
+  font:900 24px/1 system-ui,sans-serif; color:#7a5514;
+  padding:0 6% 12% 0;
+}
+
+/* ── KOŁO ───────────────────────────────────────────────────────────── */
+.scena{position:relative; width:100%; margin-top:-4%}
+.kolo{position:relative; width:86%; aspect-ratio:1; margin:0 auto; z-index:2}
+/* Wszystkie warstwy koła to ten sam kwadrat 1024×1024 ze środkiem koła
+   w środku pliku — dlatego wystarczy `inset:0` i nic nie trzeba pozycjonować.
+   Dotyczy TAKŻE obrazka w pudełku obracanym, inaczej wchodzi w naturalnym
+   rozmiarze 1024 px i rozpycha ekran. */
+.kolo>img, .kolo>.obrot, .obrot>img{
+  position:absolute; inset:0; width:100%; height:100%;
+}
+.obrot{will-change:transform}
+.piasta{z-index:2; pointer-events:none}
+.rama{z-index:3; pointer-events:none}
+.wskaznik{z-index:4; transform-origin:50% 50%}
+.wskaznik.stuk{animation:stuk .13s ease-out}
+@keyframes stuk{ 50%{ transform:rotate(6deg) } }
+
+/* Etykieta klina jedzie RAZEM z tarczą, więc leży w obracanym pudełku i nie
+   trzeba jej niczego kompensować. Sama etykieta to CAŁY kwadrat obrócony
+   o kąt środka klina; treść wisi u jego góry, a `margin-top` ustala, jak
+   daleko od środka koła siedzi. */
+.etykieta{
+  position:absolute; inset:0; display:flex; justify-content:center;
+  transform:rotate(var(--kat)); transform-origin:50% 50%;
+  pointer-events:none;
+}
+.etykieta .tresc{
+  width:25%; margin-top:11%;
+  display:flex; flex-direction:column; align-items:center; gap:1px;
+  text-align:center;
+}
+/* DOLNE KLINY WISZĄ DO GÓRY NOGAMI, jeśli etykieta po prostu jedzie z tarczą.
+   Zamiast obracać samą treść (odwróciłaby się też ikona), obracamy CAŁE
+   pudełko o dodatkowe 180° i wieszamy treść przy jego DOLNEJ krawędzi —
+   wraca na ten sam klin, ale czyta się normalnie. `column-reverse` pilnuje,
+   żeby ikona dalej była bliżej obręczy, a napis bliżej środka. */
+.etykieta.odwrocona{
+  transform:rotate(calc(var(--kat) + 180deg)); align-items:flex-end;
+}
+.etykieta.odwrocona .tresc{
+  margin-top:0; margin-bottom:11%; flex-direction:column-reverse;
+}
+.etykieta img{
+  position:static; width:70%; height:auto;
+  filter:drop-shadow(0 2px 2px rgba(40,25,5,.4));
+}
+.etykieta b{
+  font-size:clamp(9px,2.6vw,13px); color:#fff; font-weight:800; line-height:1.05;
+  text-shadow:0 2px 0 rgba(0,0,0,.4), 0 0 6px rgba(0,0,0,.3);
+}
+
+.podstawa{position:absolute; left:50%; bottom:-7%; width:52%; transform:translateX(-50%); z-index:1}
+.lisek{position:absolute; left:-4%; bottom:-14%; width:30%; z-index:3}
+
+.cta{position:relative; width:74%; margin:9% auto 0; border:0; background:transparent; padding:0; cursor:pointer}
+.cta img{width:100%; display:block}
+.cta span{
+  position:absolute; inset:0; display:grid; place-items:center; padding-bottom:5%;
+  font-size:clamp(15px,4.2vw,22px); font-weight:800; color:#fff;
+  text-shadow:0 2px 0 rgba(0,0,0,.35);
+}
+.cta:disabled{filter:saturate(.6) brightness(.95); cursor:default}
+.cta:active:not(:disabled){transform:translateY(2px)}
+
+/* ── SPIS WARSTW ────────────────────────────────────────────────────── */
+.spis{
+  width:min(94vw,470px); background:#FBEFCB; border-radius:20px; padding:18px 20px;
+  border:3px solid #e6a832; box-shadow:0 12px 30px rgba(0,0,0,.35);
+}
+.spis h1{margin:0 0 2px; font-size:20px}
+.spis h2{margin:16px 0 6px; font-size:14px; letter-spacing:1.5px; text-transform:uppercase; color:#8a5a16}
+.spis p{margin:0 0 8px; font-size:13px; line-height:1.45; color:#5b3f1c}
+table{width:100%; border-collapse:collapse; font-size:12.5px}
+td{padding:3px 0; vertical-align:top; border-bottom:1px solid rgba(138,90,22,.18)}
+td:first-child{font-weight:800; white-space:nowrap; padding-right:10px}
+code{background:rgba(138,90,22,.13); padding:1px 5px; border-radius:5px; font-size:11.5px}
+</style>
+
+<div class="ekran">
+  <button class="zamknij" aria-label="Zamknij">
+    <img src="/assets/kolo/przycisk-zamknij.webp" alt=""><span>×</span>
+  </button>
+
+  <div class="plansza">
+    <img class="baner" src="/assets/kolo/baner-tytul.webp" alt="">
+    <div class="tresc-banera">
+      <span class="napis-nad">✦ KOŁO PRZEZNACZENIA ✦</span>
+      <span class="napis-tytul" id="tytul">Zakręć kołem</span>
+    </div>
+  </div>
+  <div class="plansza">
+    <img class="wstazka" src="/assets/kolo/wstazka-podtytul.webp" alt="">
+    <div class="tresc-wstazki"><span class="napis-pod" id="podtytul">Co dziś ćwiczymy?</span></div>
+  </div>
+
+  <div class="scena">
+    <div class="kolo">
+      <div class="obrot" id="obrot">
+        <img class="tarcza" src="/assets/kolo/kolo-tarcza.png" alt="">
+        <div class="etykieta" style="--kat:0deg"><span class="tresc"><img src="/assets/kolo/ikona-ciekawosc.webp" alt=""><b>Ciekawość</b></span></div>
+        <div class="etykieta" style="--kat:72deg"><span class="tresc"><img src="/assets/kolo/ikona-tworzenie.webp" alt=""><b>Tworzenie</b></span></div>
+        <div class="etykieta odwrocona" style="--kat:144deg"><span class="tresc"><img src="/assets/kolo/ikona-wspolpraca.webp" alt=""><b>Współpraca</b></span></div>
+        <div class="etykieta odwrocona" style="--kat:216deg"><span class="tresc"><img src="/assets/kolo/ikona-odwaga.webp" alt=""><b>Odwaga</b></span></div>
+        <div class="etykieta" style="--kat:288deg"><span class="tresc"><img src="/assets/kolo/ikona-wytrwalosc.webp" alt=""><b>Wytrwałość</b></span></div>
+      </div>
+      <img class="piasta" src="/assets/kolo/kolo-piasta.png" alt="">
+      <img class="rama"   src="/assets/kolo/kolo-rama.png" alt="">
+      <img class="wskaznik" id="wskaznik" src="/assets/kolo/kolo-wskaznik.png" alt="">
+    </div>
+    <img class="podstawa" src="/assets/kolo/kolo-podstawa.webp" alt="">
+    <img class="lisek" src="/assets/kolo/lisek.webp" alt="">
+  </div>
+
+  <button class="cta" id="cta">
+    <img src="/assets/kolo/przycisk-cta.webp" alt=""><span id="cta-napis">Zakręć!</span>
+  </button>
+</div>
+
+<div class="spis">
+  <h1>Koło Przeznaczenia — assety</h1>
+  <p>Kliknij <b>Zakręć!</b> Koło zatrzyma się środkiem klina dokładnie pod wskaźnikiem — zawsze, bo tarcza jest rysowana kodem i ma równe 72°.</p>
+
+  <h2>Warstwy koła</h2>
+  <p>Cztery pliki PNG na <b>wspólnym płótnie 1024×1024</b>, środek koła w środku pliku. W kodzie kładzie się je jedna na drugiej (<code>position:absolute; inset:0</code>) — nic nie trzeba pozycjonować.</p>
+  <table>
+    <tr><td>kolo-tarcza</td><td>OBRACA SIĘ. Pięć klinów po 72°, środek klinu 0 patrzy w górę. <code>transform-origin:50% 50%</code></td></tr>
+    <tr><td>kolo-piasta</td><td>stoi. Złota obręcz z drewnianym guzikiem, zakrywa dziurę tarczy</td></tr>
+    <tr><td>kolo-rama</td><td>stoi. Drewniana obręcz, leży NAD tarczą i przycina jej brzeg</td></tr>
+    <tr><td>kolo-wskaznik</td><td>stoi. Trójkąt z uszami na godzinie 12; przy przejściu klinu dostaje krótkie stuknięcie</td></tr>
+  </table>
+
+  <h2>Reszta ekranu</h2>
+  <table>
+    <tr><td>baner-tytul</td><td>tabliczka nagłówka (tekst z HTML-a, nie z obrazka)</td></tr>
+    <tr><td>wstazka-podtytul</td><td>wstążka pod tytułem</td></tr>
+    <tr><td>przycisk-cta</td><td>zielony przycisk (napis z HTML-a)</td></tr>
+    <tr><td>przycisk-zamknij</td><td>okrągły przycisk ×</td></tr>
+    <tr><td>kolo-podstawa</td><td>pieniek pod kołem</td></tr>
+    <tr><td>lisek</td><td>maskotka w lewym dolnym rogu</td></tr>
+    <tr><td>tlo-las</td><td>tło panelu (WEBP, nieprzezroczyste)</td></tr>
+    <tr><td>ikona-*</td><td>pięć ikon kategorii — jadą razem z tarczą</td></tr>
+  </table>
+
+  <h2>Matematyka losowania</h2>
+  <p>Klin <code>k</code> ma środek na <code>k·72°</code> od góry, zgodnie z ruchem wskazówek. Żeby postawić go pod wskaźnikiem:</p>
+  <p><code>kat = 360·obroty − k·72 + rozrzut</code></p>
+  <p>gdzie <code>rozrzut</code> to ±22° (mniej niż pół klina), żeby koło nie zatrzymywało się za każdym razem w identycznej pozycji. Wynik losujemy PRZED animacją — animacja tylko go pokazuje.</p>
+</div>
+
+<script>
+const KLINY = ['Ciekawość','Tworzenie','Współpraca','Odwaga','Wytrwałość'];
+const obrot = document.getElementById('obrot');
+const wskaznik = document.getElementById('wskaznik');
+const cta = document.getElementById('cta');
+const ctaNapis = document.getElementById('cta-napis');
+const tytul = document.getElementById('tytul');
+const podtytul = document.getElementById('podtytul');
+
+let kat = 0;          // bieżący obrót tarczy w stopniach
+let kreci = false;
+
+/** Wynik losujemy PRZED animacją — animacja go tylko pokazuje. */
+function zakrec() {
+  if (kreci) return;
+  kreci = true;
+  cta.disabled = true;
+  ctaNapis.textContent = 'Kręci się…';
+
+  const k = Math.floor(Math.random() * KLINY.length);
+  const rozrzut = (Math.random() * 2 - 1) * 22;
+  const obroty = 4 + Math.floor(Math.random() * 3);
+  const start = kat;
+  const koniec = Math.ceil(kat / 360) * 360 + obroty * 360 - k * 72 + rozrzut;
+
+  const czas = 4200;
+  const t0 = performance.now();
+  let ostatniKlin = null;
+
+  function klatka(teraz) {
+    const t = Math.min(1, (teraz - t0) / czas);
+    // wyhamowanie: szybki start, długie dochodzenie — jak prawdziwe koło
+    const e = 1 - Math.pow(1 - t, 4);
+    kat = start + (koniec - start) * e;
+    obrot.style.transform = `rotate(${kat}deg)`;
+
+    // stuknięcie wskaźnika przy każdym mijanym klinie
+    const klin = Math.round(kat / 72);
+    if (ostatniKlin !== null && klin !== ostatniKlin) {
+      wskaznik.classList.remove('stuk');
+      void wskaznik.offsetWidth;
+      wskaznik.classList.add('stuk');
+    }
+    ostatniKlin = klin;
+
+    if (t < 1) requestAnimationFrame(klatka);
+    else {
+      kat = ((koniec % 360) + 360) % 360;
+      obrot.style.transform = `rotate(${kat}deg)`;
+      kreci = false;
+      cta.disabled = false;
+      ctaNapis.textContent = 'Biorę zadanie!';
+      tytul.textContent = KLINY[k] + '!';
+      podtytul.textContent = 'Koło wybrało: ' + KLINY[k].toLowerCase();
+    }
+  }
+  requestAnimationFrame(klatka);
+}
+
+cta.addEventListener('click', zakrec);
+</script>
