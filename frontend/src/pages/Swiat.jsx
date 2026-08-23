@@ -149,7 +149,12 @@ const PREFIKS_GWIAZDKI = "gwiazda-";
  * mają id `zloto-1`…`zloto-9`, a `lisc` to tylko nazwa pliku GLB (na tej
  * pomyłce już raz straciliśmy wieczór).
  */
-const ZNAK_PANELU = {};
+const ZNAK_PANELU = {
+  /* Próg chatki. Jedyny znak na mapie, który nie jest znaleziskiem ani misją,
+     tylko DRZWIAMI: nie znika po dotknięciu i można przez niego przechodzić
+     tyle razy, ile się chce. Mechanizm był tu od dawna gotowy i pusty. */
+  "drzwi-domu": "dom",
+};
 
 /**
  * Znaki w scenie, które ODPALAJĄ MINIGRĘ zamiast otwierać panel huba.
@@ -200,6 +205,9 @@ const Reflektor = lazy(() => import("../hub/Reflektor.jsx"));
  * na grę, przy pierwszym podejściu, i nie ma czego robić w paczce startowej.
  */
 const PuzzleBrama = lazy(() => import("../hub/PuzzleBrama.jsx"));
+/* Wnętrze chatki jest sceną 3D z własnym kontekstem WebGL — do głównego
+   pakietu huba wchodzić nie może, tak samo jak minigry. */
+const WnetrzeDomku = lazy(() => import("./WnetrzeDomku.jsx"));
 const KoloFortuny = lazy(() => import("../hub/KoloFortuny.jsx"));
 
 /* KOŁO PRZEZNACZENIA nie jest osobnym ekranem huba: stoi w panelu zadania
@@ -241,9 +249,18 @@ const GRY_OSADZONE = {
  * animacja, pauza i dopiero okno.
  */
 const WCHLANIANIE_MS = 950;
-// Ile trwa sam błysk znaku, który NIE znika po dotknięciu — tyle, żeby
-// dziecko zdążyło zobaczyć rozjaśnienie, zanim wejdzie okno startu.
-const BLYSK_MS = 280;
+/**
+ * Ile czekamy ze wpuszczeniem okna, gdy znak NIE znika po dotknięciu (dziś:
+ * sosna Lotu Liska). Nie jest to „czas na błysk" — sosna po wbiegnięciu
+ * KOŁYSZE SIĘ, i to kołysanie ma być widoczne, zanim ekran przykryje mapa.
+ *
+ * 800 ms to nie okrągła liczba z sufitu, tylko moment z animacji: drzewo
+ * wychyla się o 8° (0,18 s), wraca na −4° (0,60 s) i o 0,84 s przechodzi
+ * przez pion. Okno wchodzi więc po PEŁNYM wahnięciu w jedną i w drugą stronę,
+ * a nie w połowie pierwszego. Wcześniej stało tu 280 ms i okno zasłaniało
+ * drzewo, zanim zdążyło się odchylić.
+ */
+const KOLYSANIE_MS = 800;
 const WYPRZEDZENIE_MS = 160;
 
 /**
@@ -317,12 +334,21 @@ function EkranPrzejscia({ id, onWyjscie }) {
 
 // Sam tytuł sekcji, bez nadtytułu. Nadtytuł powtarzał innymi słowami to, co
 // mówi już przycisk w doku — dziecko czytało dwie linijki zamiast jednej.
+/* Identyfikator sekcji został `wiadomosci` — siedzi w zapisach obejrzanych
+   (`nowosci.js`), w adresach `?panel=` i w pulpicie testowym. Zmieniła się
+   sama NAZWA na ekranie: zakładka niesie dziś zadanie w realu, a nie pocztę. */
 const NAGLOWKI = {
   gry: "Minigry",
   profil: "Twój profil",
   czat: "Rozmowy",
   porada: "Porada dnia",
   zadanie: "Zadanie od Wizkora",
+  /* „dom" NIE MA tu wpisu — i to jest cała mechanika przełączenia. Pokój nie
+     jest już szufladą wysuwaną nad mapą, tylko pełnoekranową sceną 3D
+     (`pages/WnetrzeDomku.jsx`), a `naglowek === null` trzyma `PanelSheet`
+     zamkniętym. Reszta obsługi panelu (adres, pauza sceny, systemowy
+     „wstecz") działa bez zmiany, bo to dalej ten sam `?panel=dom`. */
+  wiadomosci: "Zadania",
 };
 
 export default function Swiat() {
@@ -666,7 +692,7 @@ export default function Swiat() {
    * dziecko musiało samo zgadnąć, że jest po co tam zajrzeć — i zwykle nie
    * zgadywało. Świat pyta więc sam: raz przy wejściu i raz przy powrocie do
    * karty. Zatwierdzenie ląduje wtedy w skrzynce jako wieść („Mentor przyjął
-   * Twoje zadanie!") i zapala plakietkę na „Listach".
+   * Twoje zadanie!") i zapala plakietkę na zakładce „Zadania".
    *
    * Dławik siedzi w `sprawdzMentoraWTle` (jedno zapytanie na 10 minut, tylko
    * gdy naprawdę czekamy), więc przeskakiwanie między kartami nie zamienia
@@ -1008,22 +1034,21 @@ export default function Swiat() {
   }, []);
 
   /**
-   * Mrugnięcie skrótem „Listy" w doku — kilka sekund, po czym cisza.
+   * Mrugnięcie zakładką „Zadania" w doku — kilka sekund, po czym cisza.
    *
-   * PO CO. Wizkor mówi „czeka w twoich Listach", ale dla dziecka „Listy"
-   * to słowo, a koperta w doku to obrazek — mrugnięcie skleja jedno
-   * z drugim dokładnie w chwili, gdy okno schodzi i dok znów widać.
-   * Ograniczone w czasie: skrót, który miga bez końca, to alarm, a tu
-   * nic się nie pali.
+   * PO CO. Wizkor mówi „czeka w zakładce Zadania", ale dla dziecka to
+   * słowo, a ikonka w doku to obrazek — mrugnięcie skleja jedno z drugim
+   * dokładnie w chwili, gdy okno schodzi i dok znów widać. Ograniczone
+   * w czasie: skrót, który miga bez końca, to alarm, a tu nic się nie pali.
    */
-  const [migaListy, setMigaListy] = useState(false);
-  const migaListyTimer = useRef(0);
-  const mrugnijListy = useCallback(() => {
-    setMigaListy(true);
-    window.clearTimeout(migaListyTimer.current);
-    migaListyTimer.current = window.setTimeout(() => setMigaListy(false), 3600);
+  const [migaZadania, setMigaZadania] = useState(false);
+  const migaZadaniaTimer = useRef(0);
+  const mrugnijZadania = useCallback(() => {
+    setMigaZadania(true);
+    window.clearTimeout(migaZadaniaTimer.current);
+    migaZadaniaTimer.current = window.setTimeout(() => setMigaZadania(false), 3600);
   }, []);
-  useEffect(() => () => window.clearTimeout(migaListyTimer.current), []);
+  useEffect(() => () => window.clearTimeout(migaZadaniaTimer.current), []);
 
   /**
    * Mapa pod bieżący stan misji: znaki gier jeszcze nieujawnionych po prostu
@@ -1233,10 +1258,10 @@ export default function Swiat() {
       przeliczNieprzeczytane();
       // Komunikat mówi, GDZIE tego szukać. Zadania poza ekranem nie widać
       // na mapie, więc bez tego zdania dziecko wychodzi z rozmowy z niczym.
-      pokazKomunikat("Zadanie czeka w Listach");
-      // Komunikat mówi „w Listach" — koperta w doku mruga, żeby było
+      pokazKomunikat("Nowe zadanie — zajrzyj do Zadań");
+      // Komunikat mówi „w Zadaniach" — zakładka w doku mruga, żeby było
       // widać, o KTÓRY przycisk chodzi.
-      mrugnijListy();
+      mrugnijZadania();
       return;
     }
     if (akcja === "otworzZadanie") {
@@ -1253,7 +1278,7 @@ export default function Swiat() {
       return;
     }
     rozstanie();
-  }, [powitanie, rozstanie, pokazKomunikat, odswiezZnakiMisji, odswiezPuzleNaMapie, otworz, przeliczNieprzeczytane, mrugnijListy]);
+  }, [powitanie, rozstanie, pokazKomunikat, odswiezZnakiMisji, odswiezPuzleNaMapie, otworz, przeliczNieprzeczytane, mrugnijZadania]);
 
   // Uchwyt do konsoli — czekanie na dziesięć gwiazdek przy każdym sprawdzeniu
   // licznika byłoby nie do zniesienia:
@@ -1480,6 +1505,22 @@ export default function Swiat() {
       },
       {
         grupa: "Zadanie w realu",
+        etykieta: "Koło przeznaczenia",
+        /**
+         * Koło od razu, bez chodzenia do Wizkora. W grze wychodzi ono
+         * z rozmowy (akcja `kolo`), a żeby ta rozmowa w ogóle się odbyła,
+         * trzeba mieć rozliczone gwiazdki i wszystkie misje z grami —
+         * przy każdej poprawce w kole byłaby to droga przez pół świata.
+         *
+         * Otwiera DOKŁADNIE to samo okno, co rozmowa: „Biorę zadanie!"
+         * zleca wylosowane zadanie i wjeżdża szuflada. Bieżące zadanie
+         * zostaje nietknięte aż do tej chwili — jeśli jakieś trwa, wybór
+         * z koła je nadpisze, tak samo jak w grze.
+         */
+        odpal: () => setKolo(true),
+      },
+      {
+        grupa: "Zadanie w realu",
         etykieta: "Zleć od nowa",
         odpal: () => {
           skasujZadanieWizkora();
@@ -1490,16 +1531,13 @@ export default function Swiat() {
       },
       {
         grupa: "Zadanie w realu",
-        etykieta: "Koło przeznaczenia (Listy)",
-        /* Koło pokazuje się w panelu tylko, gdy NIE MA zadania — bieżące
-           trzeba więc najpierw skasować, inaczej pulpit otworzyłby opis
-           starego zadania i wyglądałoby to, jakby koła w ogóle nie było. */
+        etykieta: "Koło od zera",
+        /* To samo koło, ale po wyczyszczeniu zapisu RAZEM Z HISTORIĄ: losuje
+           wtedy z pełnego katalogu, jak przy pierwszym uruchomieniu, zamiast
+           omijać zadania rozliczone w poprzednich próbach. */
         odpal: () => {
-          // Z historią: pulpit ma losować jak przy pierwszym uruchomieniu,
-          // a nie omijać zadania rozliczone w poprzednich próbach.
           skasujZadanieWizkora({ historia: true });
-          otworz("zadanie");
-          pokazKomunikat("DEV: zakręć kołem przeznaczenia");
+          setKolo(true);
         },
       },
       // Puzzle przed grami: zbieranie, komplet i sama układanka na żądanie.
@@ -1705,12 +1743,12 @@ export default function Swiat() {
            * ZNAK, KTÓRY NIE ZNIKA (sosna Lotu Liska), nie ma czego „wchłaniać".
            * Rozpoznajemy go po zdarzeniu: `minigra:start` przychodzi tylko od
            * znaków z `absorb`, a `znak:dotkniety` — od tych, które zostają.
-           * Taki znak sam się rozjaśnia i odbija w scenie (`punch` w module),
-           * więc zamiast 0,8 s czekania na zniknięcie z trawy dajemy krótką
-           * chwilę na ten błysk i od razu wpuszczamy okno.
+           * Taki znak nie znika, tylko się KOŁYSZE (`bujanie` w mapie), więc
+           * zamiast czekać, aż zejdzie z trawy, dajemy mu czas na wahnięcie
+           * w obie strony — patrz `KOLYSANIE_MS`.
            */
           const bezWchlaniania = nazwa === "znak:dotkniety";
-          const czekanie = bezWchlaniania ? BLYSK_MS : WCHLANIANIE_MS - WYPRZEDZENIE_MS;
+          const czekanie = bezWchlaniania ? KOLYSANIE_MS : WCHLANIANIE_MS - WYPRZEDZENIE_MS;
           if (!bezWchlaniania) setWchlanianie(doGry);
           // Blokada zapada OD RAZU, choć okno wejdzie dopiero za chwilę:
           // przez te 0,8 s lis biegnie dalej i bez tego zdążyłby wpaść
@@ -2132,7 +2170,7 @@ export default function Swiat() {
           <HubDock
             aktywny={panel}
             onWybor={przelacz}
-            migajaca={migaListy ? "wiadomosci" : null}
+            migajaca={migaZadania ? "wiadomosci" : null}
             plakietki={{
               gry: nowosci.gry,
               czat: nowosci.czat,
@@ -2164,10 +2202,10 @@ export default function Swiat() {
         ton="mystery"
         onAkcja={naPrzyciskCzarodzieja}
         /* Zamknięcie krzyżykiem przypomnienia o zadaniu = „jeszcze nie teraz".
-           Wtedy TYM BARDZIEJ mrugamy Listami: dziecko nie weszło w zadanie,
+           Wtedy TYM BARDZIEJ mrugamy Zadaniami: dziecko nie weszło w zadanie,
            więc niech chociaż zobaczy, gdzie ono na nie czeka. */
         onZamknij={() => {
-          if (powitanie?.akcja === "otworzZadanie") mrugnijListy();
+          if (powitanie?.akcja === "otworzZadanie") mrugnijZadania();
           rozstanie();
         }}
       />
@@ -2380,6 +2418,15 @@ export default function Swiat() {
           HUD, dok, arkusz sekcji. Scena pod spodem zostaje zamontowana
           i zapauzowana, więc wyjście z gry nie kosztuje ani jednego pobrania
           modelu, a lis stoi tam, gdzie go zostawiliśmy. */}
+      {/* WNĘTRZE CHATKI — ta sama warstwa co minigra: scena mapy pod spodem
+          zostaje zamontowana i zapauzowana (robi to efekt reagujący na `panel`),
+          więc wyjście z pokoju stawia liska dokładnie tam, gdzie stał w progu. */}
+      {panel === "dom" ? (
+        <Suspense fallback={null}>
+          <WnetrzeDomku onWyjscie={zamknij} />
+        </Suspense>
+      ) : null}
+
       {GraOsadzona ? (
         <Suspense fallback={<EkranPrzejscia id={gra} onWyjscie={zamknijGre} />}>
           {/* `poziom` z adresu = dziecko wybrało go już w oknie liska, więc
@@ -2424,7 +2471,7 @@ export default function Swiat() {
               setNagroda(null);
             }}
             onOtworzGre={otworzGre}
-            /* Panele huba (Listy, zadanie) — sekcja „Zadanie w realu" otwiera
+            /* Panele huba (Zadania, zadanie) — sekcja „Zadanie w realu" otwiera
                nimi zwój i kartę zadania bez biegania po mapie. */
             onOtworzPanel={otworz}
             /* Oś etapów: moment „układanka" otwiera ekran układanki. */

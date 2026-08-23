@@ -231,7 +231,7 @@ export async function wyslijDowod({ opis, zdjecieUrl }) {
  * (2026-08-22, decyzja właściciela): przypięta karta zadania i tak zmienia
  * się wtedy na „Nagroda czeka" — z kwotą i przyciskiem odbioru — więc wieść
  * mówiła to samo drugi raz, dwa centymetry niżej. Plakietkę na zakładce
- * „Listy" pali sam przypięty wpis (patrz `wpisZadaniaWizkora` w
+ * „Zadania" pali sam przypięty wpis (patrz `wpisZadaniaWizkora` w
  * `wiadomosci.js`), więc sygnał „coś na Ciebie czeka" nie znika.
  */
 /* ── DEMO: WERDYKT PRZYCHODZI SAM ─────────────────────────────────────────
@@ -244,7 +244,7 @@ export async function wyslijDowod({ opis, zdjecieUrl }) {
 
    CO ROBI PRZEŁĄCZNIK. Po `DEMO_OPOZNIENIE_MS` od wysłania dowodu werdykt
    przychodzi sam: karta zadania zmienia się na „Nagroda czeka", plakietka
-   zapala się na „Listach", a monety dopisują się przy odbiorze nagrody.
+   zapala się na zakładce „Zadania", a monety dopisują się przy odbiorze nagrody.
 
    DLACZEGO NIE NATYCHMIAST. „Wysłane do Mentora", po którym nagroda pojawia
    się w tej samej sekundzie, mówi dziecku wprost, że po drugiej stronie

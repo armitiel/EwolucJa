@@ -11,7 +11,7 @@ import React from "react";
 const SEKCJE = [
   { id: "gry", label: "Minigry", asset: "/assets/hub-nav/minigry-simple.png" },
   { id: "czat", label: "Rozmowy", asset: "/assets/hub-nav/czat-simple.png" },
-  { id: "wiadomosci", label: "Listy", asset: "/assets/hub-nav/wiadomosci-simple.png" },
+  { id: "wiadomosci", label: "Zadania", asset: "/assets/hub-nav/zadania-simple.png" },
   { id: "porada", label: "Porada", asset: "/assets/hub-nav/porada-simple.png" },
 ];
 
@@ -25,7 +25,7 @@ const SEKCJE = [
 /**
  * `migajaca` = id sekcji, której ikona ma przez chwilę mrugać (klasa
  * `is-miga`). Steruje tym świat — np. po słowach Wizkora „czeka w twoich
- * Listach" mruga koperta, żeby słowo skleiło się z przyciskiem.
+ * Zadaniach" mruga zakładka, żeby słowo skleiło się z przyciskiem.
  */
 export default function HubDock({ aktywny, onWybor, plakietki = {}, migajaca = null }) {
   return (

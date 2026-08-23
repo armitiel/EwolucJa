@@ -931,8 +931,8 @@
   },
   "brama": {
     "pos": [
-      -0.54,
-      -8.46
+      -0.82,
+      -11.58
     ]
   },
   "drzewa": [
@@ -1010,7 +1010,18 @@
       "wysokosc": 5.2,
       "obrot": 0.55,
       "promien": 2.6,
-      "jasnosc": 1.45
+      "jasnosc": 1.45,
+      "drzwiKat": 0.55,
+      "drzwiSzer": 0.9,
+      "ciemnosc": 0.9,
+      "mrokPromien": 0.7,
+      "mrokWysokosc": 2,
+      "mrokBarwa": 1511432,
+      "mrokY": 0,
+      "mrokPos": [
+        -8.161,
+        -5.955
+      ]
     }
   ],
   "znaki": [
@@ -1041,7 +1052,7 @@
       "roughness": 0.85,
       "haloOpacity": 0.2,
       "haloScale": 1.7,
-      "ringOpacity": 0.3,
+      "ringOpacity": 0.46,
       "lightBase": 0,
       "iskry": 38,
       "iskrySila": 1.9
@@ -1061,7 +1072,7 @@
       "ringColor": 13148400,
       "haloOpacity": 0.2,
       "haloScale": 1.2,
-      "ringOpacity": 0.22,
+      "ringOpacity": 0.4,
       "lightBase": 0,
       "metalness": 0,
       "roughness": 0.85,
@@ -1345,7 +1356,7 @@
       "ringColor": 14221232,
       "haloOpacity": 0.1,
       "haloScale": 2.2,
-      "ringOpacity": 0.34,
+      "ringOpacity": 0.44,
       "lightBase": 0.9,
       "metalness": 0,
       "roughness": 0.95,
@@ -1353,6 +1364,8 @@
       "barwaMnoznik": 14745032,
       "bezUnoszenia": true,
       "oddechSkali": 0.25,
+      "oddechDotyku": 0,
+      "bujanie": 0.19,
       "bezObrotu": true,
       "obrotY": 0.4,
       "absorb": false,
@@ -1378,7 +1391,7 @@
       "ringColor": 15984296,
       "haloOpacity": 0.15,
       "haloScale": 1.1,
-      "ringOpacity": 0.22,
+      "ringOpacity": 0.4,
       "lightBase": 0,
       "metalness": 0,
       "roughness": 0.88,
@@ -1622,6 +1635,30 @@
         -5.66,
         10.48
       ]
+    },
+    {
+      "id": "drzwi-domu",
+      "file": "prog",
+      "label": "Dom",
+      "toast": "Wchodzisz do domu",
+      "pos": [
+        -8.161,
+        -5.955
+      ],
+      "scale": 1,
+      "height": 0.06,
+      "absorb": false,
+      "raz": true,
+      "zasieg": 0.85,
+      "glow": 16767370,
+      "ringColor": 16773316,
+      "haloOpacity": 0.26,
+      "haloScale": 1.4,
+      "ringOpacity": 0.5,
+      "lightBase": 0.25,
+      "iskry": 10,
+      "iskrySila": 0.7,
+      "zbrojenie": 3.6
     }
   ],
   "sciezkaWezly": {
@@ -1780,8 +1817,8 @@
     {
       "wariant": 0,
       "pos": [
-        -2.38,
-        -8.15
+        -2.43,
+        -10.91
       ],
       "skala": 1.98
     },

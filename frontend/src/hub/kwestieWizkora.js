@@ -98,7 +98,7 @@ export function powitanieCzarodzieja(z, misja) {
           ...baza,
           tekst:
             "Twoje zadanie jest u Mentora.\n" +
-            "Baw się dalej — zajrzyj do Listów za jakiś czas.",
+            "Baw się dalej — zajrzyj do Zadań za jakiś czas.",
           wyroznienie: "u Mentora",
           przycisk: "Dobrze!",
           akcja: null,
@@ -115,11 +115,11 @@ export function powitanieCzarodzieja(z, misja) {
          * zrobisz tutaj" (obie wersje tu były i obie wyleciały): pouczenie
          * brzmi jak nieufność, a zakaz jak przyłapanie na oszustwie, którego
          * nikt nie planował. Wizkor przypomina i wierzy — jak zadanie ma się
-         * odbywać, mówi samo zadanie w Listach.
+         * odbywać, mówi samo zadanie w zakładce Zadania.
          */
         return {
           ...baza,
-          tekst: `Pamiętasz o zadaniu?\n„${real.def.tytul}"\nczeka w twoich Listach.`,
+          tekst: `Pamiętasz o zadaniu?\n„${real.def.tytul}"\nczeka w zakładce Zadania.`,
           wyroznienie: real.def.tytul,
           przycisk: "Otwieram zadanie",
           akcja: "otworzZadanie",

@@ -254,7 +254,7 @@ export default function DevRezyserka({
   }
 
   /* ── zadanie w realu ──────────────────────────────────────────────────
-     Cały obieg zadania POZA EKRANEM, krok po kroku: zlecenie → Listy →
+     Cały obieg zadania POZA EKRANEM, krok po kroku: zlecenie → Zadania →
      wysyłka zdjęcia z opisem → werdykt Mentora → nagroda. Bez tych skrótów
      przetestowanie jednej zmiany w panelu zadania znaczyło: zagadać Wizkora,
      zrobić zdjęcie, zalogować się jako Mentor i klikać werdykt. */
@@ -466,7 +466,7 @@ export default function DevRezyserka({
           >
             <Guzik ton="mocny" onClick={realKolo}>Koło przeznaczenia</Guzik>
             <Guzik onClick={realZlec}>Zleć (pierwsze wolne)</Guzik>
-            <Guzik onClick={() => onOtworzPanel?.("wiadomosci")}>Otwórz Listy</Guzik>
+            <Guzik onClick={() => onOtworzPanel?.("wiadomosci")}>Otwórz Zadania</Guzik>
             <Guzik onClick={() => onOtworzPanel?.("zadanie")}>Otwórz zadanie</Guzik>
             <Guzik onClick={realWyslij}>Wyślij zdjęcie + tekst</Guzik>
             <Guzik onClick={() => { ustawStatusReala("zatwierdzone"); odswiez("DEV: Mentor przyjął"); }}>

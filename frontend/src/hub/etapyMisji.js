@@ -183,7 +183,7 @@ function etapyReala() {
       id: "real:kolo",
       real: "brak",
       tytul: "Zadanie w realu — koło",
-      opis: "Gry rozliczone, zadania jeszcze nie ma. Wizkor odsyła do Listów, gdzie stoi koło przeznaczenia.",
+      opis: "Gry rozliczone, zadania jeszcze nie ma. Wizkor wynosi koło przeznaczenia wprost z rozmowy.",
       akcja: "otworzZadanie",
     },
     {
@@ -191,7 +191,7 @@ function etapyReala() {
       id: "real:doZrobienia",
       real: "zlecone",
       tytul: "Zadanie w realu — do zrobienia",
-      opis: "Koło wylosowało cechę, zadanie leży w Listach. Wizkor tylko przypomina.",
+      opis: "Koło wylosowało cechę, zadanie leży w zakładce Zadania. Wizkor tylko przypomina.",
       akcja: "otworzZadanie",
     },
     {

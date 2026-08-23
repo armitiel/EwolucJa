@@ -134,12 +134,12 @@ export default function MessageScroll({ open, onClose, onZmiana }) {
     <section
       className={`message-scroll${open ? " is-open" : ""}`}
       aria-hidden={open ? "false" : "true"}
-      aria-label="Listy i zadania"
+      aria-label="Zadania"
       data-testid="hub-message-scroll"
     >
       <button className="message-scroll-backdrop" type="button" aria-label="Zamknij wiadomości" onClick={onClose} />
 
-      <div className="message-scroll-parchment" ref={pergaminRef} role="dialog" aria-modal="false" aria-label="Listy i zadania">
+      <div className="message-scroll-parchment" ref={pergaminRef} role="dialog" aria-modal="false" aria-label="Zadania">
         <div className="message-scroll-paper" ref={papierRef}>
           <div className="message-scroll-content">
             <div className="message-scroll-list" ref={listaRef}>

@@ -14,7 +14,7 @@
  *               NIE MA (mówią przez chmurkę Wizkora i misje) — czat jest
  *               miejscem kontaktu z ludźmi.
  * Mentor nie jest kanałem czatu: to realny dorosły, który odpowiada na
- * zadania przez Listy. Pokazywanie tu zamkniętego kafla tworzyło drugą,
+ * zadania przez zakładkę Zadania. Pokazywanie tu zamkniętego kafla tworzyło drugą,
  * pozorną drogę do tej samej osoby.
  *
  * UKŁAD (2026-08-20). Ekran wejściowy mówi tym samym językiem co Minigry:

@@ -14,7 +14,7 @@ import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { zdarzenie } from "../services/analityka.jsx";
 
-export const PANELE = ["gry", "profil", "czat", "wiadomosci", "porada", "zadanie"];
+export const PANELE = ["gry", "profil", "czat", "wiadomosci", "porada", "zadanie", "dom"];
 
 export function useHubPanel() {
   const navigate = useNavigate();

@@ -74,3 +74,60 @@ przez jej `szerokosc`. Trasa bohatera, latarnia i most czytają wyłącznie
 
 **Po każdej podmianie bundla trzeba ją nałożyć ponownie** i podbić
 `WERSJA_SCENY` w `src/components/Scena3D.jsx`.
+
+## `znak-drzewo-spokoj.py` — spokojna sosna Lotu Liska
+
+Znak „wysokiej sosny" jest jedynym DUŻYM znakiem na mapie (`scale` 5,6 wobec
+1–1,9 u reszty), a animacja znaku jest jedna dla wszystkich. Przy tej skali
+przestaje działać: oddech skali (+8% na podejście bohatera, +40% przy
+dotknięciu) czyta się jak migotanie, a delikatne unoszenie odrywa drzewo od
+trawy. Łatka dokłada bundlowi dwa parametry definicji znaku:
+
+| pole | co robi |
+|---|---|
+| `oddechSkali` | mnożnik obu składników oddechu skali (domyślnie 1). Sosna ma 0,25: +2% i +10% zamiast +8% i +40% |
+| `barwaMnoznik` | hex mnożony przez WŁASNE kolory modelu, kanał po kanale |
+
+`bezUnoszenia` bundle znał już wcześniej — brakowało go tylko w mapie.
+
+Po co osobny mnożnik barwy: `barwa` zamalowuje model jednym kolorem (pień
+razem z igłami), a `jasnosc` to skalar — żadne z nich nie przesuwa samego
+odcienia. Mnożnik przesuwa: igły idą z matowego `#44896f` na świeższe
+`#48a569`, wciąż zielone, ale odklejone od tła polany.
+
+```bash
+python narzedzia/znak-drzewo-spokoj.py     # idempotentne
+```
+
+**Po każdej podmianie bundla trzeba ją nałożyć ponownie** i podbić
+`WERSJA_SCENY` w `src/components/Scena3D.jsx`.
+
+## `znak-drzewo-bujanie.py` — dotknięcie sosny ją kołysze
+
+Dotknięcie znaku odpalało jeden efekt dla wszystkich: `punch` rozdmuchiwał znak
+o 40% i podnosił go. Przy karcie to sprężysty pyk, przy sośnie wielkości pół
+ekranu — pompka. Drzewo, w które ktoś wbiegł, ma się zakołysać.
+
+| pole | co robi |
+|---|---|
+| `bujanie` | amplituda kołysania w radianach. Sosna ma 0,21 → pierwsze wychylenie 8°, wygaszone po 1,9 s |
+| `oddechDotyku` | osobny mnożnik skoku skali PRZY DOTKNIĘCIU (domyślnie tyle, co `oddechSkali`). Sosna ma 0 |
+
+Kołysanie idzie po tłumionej sinusoidzie `bujanie · e^(−2,6t) · sin(9,2t)` —
+ten sam kształt, co drgania drzew na mapie, tylko liczony wprost, bo znak nie
+jest ich częścią.
+
+**Oś kołysania jest u podstawy, nie w pasie.** Loader centruje model na środku
+jego bryły, więc samo `rotation.z` obracałoby drzewo wokół połowy wysokości —
+pień jeździłby po trawie tak samo jak czubek. Łatka dolicza przesunięcie
+sprowadzające podstawę na miejsce: `x = −H·sin(kąt)`, `y = −H·(1−cos(kąt))`,
+gdzie `H = 0,275 · scale`. Sprawdzone symulacją: czubek wychyla się o 0,43
+jednostki, podstawa nie rusza się ani o tysięczną.
+
+Przy okazji `bezUnoszenia` wycisza też PODSKOK przy dotknięciu — flaga mówi
+„ten znak nie odrywa się od trawy" i dotknięcie nie jest wyjątkiem.
+
+```bash
+python narzedzia/znak-drzewo-spokoj.py     # najpierw (dokłada `oddechSkali`)
+python narzedzia/znak-drzewo-bujanie.py    # potem; obie idempotentne
+```
