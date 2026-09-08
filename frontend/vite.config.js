@@ -137,29 +137,75 @@ function modeleMapy() {
   };
 }
 
-export default defineConfig({
-  plugins: [react(), zapisMapy(), modeleMapy()],
-  define: {
-    // Wersja wydania dla Sentry — po niej widać, który commit wywalił scenę.
-    // Na Vercelu zmienna jest ustawiana automatycznie przy każdym buildzie;
-    // lokalnie zostaje "dev". JSON.stringify jest konieczny: `define` wkleja
-    // wartość dosłownie w kod, więc goły skrót byłby nazwą zmiennej.
-    __EWOLUCJA_RELEASE__: JSON.stringify(
-      (process.env.VERCEL_GIT_COMMIT_SHA || "").slice(0, 7) || "dev"
-    ),
-    // Środowisko wydania. `import.meta.env.PROD` jest prawdziwe także dla
-    // buildów podglądowych, więc bez tego błędy z preview trafiałyby do
-    // Sentry oznaczone jako produkcja.
-    __EWOLUCJA_ENV__: JSON.stringify(process.env.VERCEL_ENV || "development"),
-  },
-  server: {
-    port: 3000,
-    proxy: {
-      // 127.0.0.1, NIE localhost. Node 18+ rozwiazuje `localhost` na ::1, a backend
-      // (Express) slucha tylko na IPv4 — proxy leci wiec w pustke i kazde
-      // wywolanie /api konczy sie `ECONNREFUSED ::1:3001`. Objaw w grze: HUD
-      // pokazuje „Wedrowiec" i 0 monet, choc oba serwery dzialaja.
-      "/api": "http://127.0.0.1:3001",
+/**
+ * Konfiguracja jest ASYNCHRONICZNA, bo wtyczka Sentry doładowuje się
+ * dynamicznie i tylko wtedy, gdy w środowisku jest `SENTRY_AUTH_TOKEN`.
+ *
+ * PO CO TAKA OSTROŻNOŚĆ. `@sentry/vite-plugin` siedzi w devDependencies,
+ * a na tej maszynie `NODE_ENV=production` — `npm install` pomija wtedy
+ * zależności deweloperskie i statyczny import wywaliłby build kompletnie
+ * niezwiązanym komunikatem. Tutaj brak wtyczki kosztuje tylko mapy
+ * źródłowe, a aplikacja i tak się zbuduje.
+ *
+ * `build.sourcemap` włącza się WYŁĄCZNIE razem z wtyczką, bo to ona
+ * kasuje mapy po wgraniu (`filesToDeleteAfterUpload`). Same mapy w `dist/`
+ * Vercel serwowałby publicznie — czyli cały kod źródłowy gry.
+ */
+export default defineConfig(async () => {
+  const tokenSentry = (process.env.SENTRY_AUTH_TOKEN || "").trim();
+  const wydanie = (process.env.VERCEL_GIT_COMMIT_SHA || "").slice(0, 7) || "dev";
+  const wtyczki = [react(), zapisMapy(), modeleMapy()];
+  let mapyZrodlowe = false;
+
+  if (tokenSentry) {
+    try {
+      const { sentryVitePlugin } = await import("@sentry/vite-plugin");
+      mapyZrodlowe = true;
+      wtyczki.push(
+        sentryVitePlugin({
+          org: "armitiel",
+          project: "ewolucja-frontend",
+          authToken: tokenSentry,
+          // Organizacja siedzi w regionie europejskim — domyślne
+          // https://sentry.io/ zwróciłoby 404 przy wgrywaniu.
+          url: "https://de.sentry.io/",
+          release: { name: wydanie },
+          sourcemaps: { filesToDeleteAfterUpload: ["./dist/**/*.js.map"] },
+          telemetry: false,
+        })
+      );
+    } catch (e) {
+      console.warn(
+        "[sentry] wtyczka niedostepna, buduje bez map zrodlowych:",
+        e?.message || e
+      );
+    }
+  }
+
+  return {
+    plugins: wtyczki,
+    build: { sourcemap: mapyZrodlowe },
+    define: {
+      // Wersja wydania dla Sentry — po niej widać, który commit wywalił scenę.
+      // Ta sama wartość idzie do wtyczki jako nazwa release'u, więc ślad stosu
+      // trafia na właściwe mapy źródłowe. JSON.stringify jest konieczny:
+      // `define` wkleja wartość dosłownie w kod, więc goły skrót byłby nazwą
+      // zmiennej.
+      __EWOLUCJA_RELEASE__: JSON.stringify(wydanie),
+      // Środowisko wydania. `import.meta.env.PROD` jest prawdziwe także dla
+      // buildów podglądowych, więc bez tego błędy z preview trafiałyby do
+      // Sentry oznaczone jako produkcja.
+      __EWOLUCJA_ENV__: JSON.stringify(process.env.VERCEL_ENV || "development"),
     },
-  },
+    server: {
+      port: 3000,
+      proxy: {
+        // 127.0.0.1, NIE localhost. Node 18+ rozwiazuje `localhost` na ::1, a backend
+        // (Express) slucha tylko na IPv4 — proxy leci wiec w pustke i kazde
+        // wywolanie /api konczy sie `ECONNREFUSED ::1:3001`. Objaw w grze: HUD
+        // pokazuje „Wedrowiec" i 0 monet, choc oba serwery dzialaja.
+        "/api": "http://127.0.0.1:3001",
+      },
+    },
+  };
 });
