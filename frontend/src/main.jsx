@@ -1,3 +1,7 @@
+// PIERWSZA linia pliku — Sentry musi postawić globalne łapacze błędów, zanim
+// React zacznie renderować. Bez DSN w środowisku moduł nic nie robi.
+import "./services/sentry";
+
 import React, { lazy, Suspense, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
@@ -23,7 +27,6 @@ function ScrollToTop() {
   }, [pathname]);
   return null;
 }
-import App from "./App.jsx";
 import Landing from "./pages/Landing.jsx";
 import Onboarding from "./pages/Onboarding.jsx";
 import Przygoda from "./pages/Przygoda.jsx";
@@ -45,6 +48,11 @@ import PoradyPage from "./pages/PoradyPage.jsx";
 // Minigry osobnymi paczkami. Statyczny import wciagalby je z powrotem do
 // glownego pliku i lazy w `Swiat.jsx` nie dawaloby nic — Vite dzieli po
 // grafie importow, a nie po tym, jak komponent jest uzyty.
+// Prototyp V1 (`App.jsx`, 1698 linii) siedzi na /play i jest osiagalny wylacznie
+// z pulpitu deweloperskiego. Statyczny import wciagal jego caly ogon
+// (AvatarBuilder, AvatarSVG, AvatarDisplay, AvatarAI, growthData) do paczki
+// startowej KAZDEGO dziecka, ktore laduje na /swiat i nigdy tego kodu nie zobaczy.
+const App = lazy(() => import("./App.jsx"));
 const MemoryGame = lazy(() => import("./pages/MemoryGame.jsx"));
 const ChoinkaLaunchGame = lazy(() => import("./pages/ChoinkaLaunchGame.jsx"));
 const BiegLiskaGame = lazy(() => import("./pages/BiegLiskaGame.jsx"));
@@ -107,7 +115,10 @@ function AppRoutes() {
       <Route path="/invite-gm" element={<InviteGM />} />
       <Route path="/gm" element={<GMPanel />} />
       <Route path="/dev" element={<DevPanel />} />
-      <Route path="/play" element={<App />} />
+      <Route
+        path="/play"
+        element={<Suspense fallback={<Loading text="Otwieram prototyp V1…" />}><App /></Suspense>}
+      />
       {/* Mentor & klasy */}
       <Route path="/mentor/zaloguj" element={<MentorLogin />} />
       <Route path="/mentor" element={<MentorDashboard />} />

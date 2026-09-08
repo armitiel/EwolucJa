@@ -139,6 +139,19 @@ function modeleMapy() {
 
 export default defineConfig({
   plugins: [react(), zapisMapy(), modeleMapy()],
+  define: {
+    // Wersja wydania dla Sentry — po niej widać, który commit wywalił scenę.
+    // Na Vercelu zmienna jest ustawiana automatycznie przy każdym buildzie;
+    // lokalnie zostaje "dev". JSON.stringify jest konieczny: `define` wkleja
+    // wartość dosłownie w kod, więc goły skrót byłby nazwą zmiennej.
+    __EWOLUCJA_RELEASE__: JSON.stringify(
+      (process.env.VERCEL_GIT_COMMIT_SHA || "").slice(0, 7) || "dev"
+    ),
+    // Środowisko wydania. `import.meta.env.PROD` jest prawdziwe także dla
+    // buildów podglądowych, więc bez tego błędy z preview trafiałyby do
+    // Sentry oznaczone jako produkcja.
+    __EWOLUCJA_ENV__: JSON.stringify(process.env.VERCEL_ENV || "development"),
+  },
   server: {
     port: 3000,
     proxy: {
