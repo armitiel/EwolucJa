@@ -16,9 +16,9 @@
 .bieg-pasek-lewo{ display:flex; align-items:center; gap:8px; min-width:0; }
 .bieg-postep{
   display:inline-flex; align-items:baseline; gap:4px; padding:6px 14px;
-  border-radius:999px; background:rgba(255,249,216,.92);
+  border-radius:999px; background:rgba(255,249,217,.92);
   border:2px solid #e6a832; box-shadow:0 2px 0 #a2621c;
-  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif; color:#5c3a12;
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif; color:#5a3d12;
 }
 .bieg-postep b{ font-size:20px; }
 .bieg-postep span{ font-size:13px; font-weight:800; opacity:.75; }
@@ -39,10 +39,10 @@
 .bieg-pytanie{
   max-width:100%; padding:10px 26px; white-space:nowrap;
   border:3px solid #e6a832; border-radius:999px;
-  background:linear-gradient(180deg,#fff8dd,#f4e1ac);
+  background:linear-gradient(180deg,var(--p-paper),#f4e1ac);
   box-shadow:0 3px 0 #a2621c, 0 8px 16px rgba(38,31,18,.25);
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
-  font-size:clamp(24px,5.5vw,34px); font-weight:800; color:#4a2f10;
+  font-size:clamp(24px,5.5vw,34px); font-weight:800; color:#4a3410;
   animation:bieg-pytanie-wjazd .35s cubic-bezier(.2,.9,.3,1.25);
 }
 .bieg-pytanie.is-cicha{ font-size:17px; opacity:.85; }
@@ -62,9 +62,9 @@
   font-size:16px; font-weight:800;
   animation:bieg-pytanie-wjazd .3s ease;
 }
-.bieg-reakcja.is-dobrze{ background:#e2f6d9; border-color:#7dbb5e; color:#2c5e1f; }
-.bieg-reakcja.is-zle{ background:#fdeed2; border-color:#e0a94f; color:#7c5514; }
-.bieg-reakcja.is-mimo{ background:#f2e9f9; border-color:#b18ad6; color:#5b3a80; }
+.bieg-reakcja.is-dobrze{ background:#e2f6d9; border-color:#7dbb5e; color:#205b1f; }
+.bieg-reakcja.is-zle{ background:var(--p-paper); border-color:#e0a94f; color:#7a5514; }
+.bieg-reakcja.is-mimo{ background:#faf2ff; border-color:#a582cc; color:#5f438a; }
 
 /* Serca — ile razy jeszcze można wpaść w wyrwę.
    Puste serce ZOSTAJE na miejscu (przygaszone), zamiast znikać: rząd o stałej
@@ -73,11 +73,11 @@
 .bieg-zycia{
   display:inline-flex; align-items:center; gap:3px; flex:none;
   padding:5px 11px; border-radius:999px;
-  background:rgba(255,249,216,.92); border:2px solid #e6a832; box-shadow:0 2px 0 #a2621c;
+  background:rgba(255,249,217,.92); border:2px solid #e6a832; box-shadow:0 2px 0 #a2621c;
   line-height:1;
 }
 .bieg-zycia i{ font-style:normal; font-size:19px; line-height:1; }
-.bieg-zycia i.jest{ color:#dc4a3d; text-shadow:0 1px 0 rgba(255,255,255,.7); }
+.bieg-zycia i.jest{ color:#e95145; text-shadow:0 1px 0 rgba(255,255,255,.7); }
 .bieg-zycia i.puste{ color:#cbb79a; opacity:.65; }
 
 /* Podpowiedź gestu — jak w Locie Liska, na dole, nie łapie dotknięć.
@@ -89,7 +89,7 @@
   transform:translateX(-50%); z-index:2; pointer-events:none;
   display:flex; align-items:center; gap:12px; padding:14px 26px;
   border-radius:999px; background:rgba(24,15,33,.62); color:#fff3bd;
-  border:2.5px solid rgba(255,222,132,.55);
+  border:2.5px solid rgba(255,224,140,.55);
   box-shadow:0 6px 18px rgba(18,10,26,.35);
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-size:clamp(19px,5vw,24px); font-weight:900; letter-spacing:.4px;
@@ -139,7 +139,7 @@
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:10px; padding:28px 26px calc(28px + env(safe-area-inset-bottom,0px));
   text-align:center;
-  background:linear-gradient(180deg,#C9E9FF 0%,#FFE0B5 58%,#FFC9A0 100%);
+  background:linear-gradient(180deg,#C9E9FF 0%,var(--p-sky-2) 58%,#FFC9A0 100%);
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   color:var(--p-ink,#4e4d76);
 }

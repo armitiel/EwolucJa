@@ -28,7 +28,7 @@
 
 .wnetrze-tytul{
   flex:1; min-width:0; text-align:center;
-  font-size:22px; font-weight:900; color:#ffe9bd;
+  font-size:22px; font-weight:900; color:var(--p-paper-2);
   text-shadow:0 2px 10px rgba(0,0,0,.6);
   pointer-events:none;
 }
@@ -39,14 +39,14 @@
 .wnetrze-zyro{
   flex:none; min-height:40px; padding:0 14px;
   border:2px solid #a97a3f; border-radius:999px;
-  background:linear-gradient(180deg,rgba(255,240,205,.94),rgba(240,208,148,.94));
-  color:#5a3a16; font-family:inherit; font-size:13.5px; font-weight:900;
+  background:linear-gradient(180deg,rgba(246,231,196,.94),rgba(240,208,148,.94));
+  color:#533314; font-family:inherit; font-size:13.5px; font-weight:900;
   cursor:pointer;
 }
 .wnetrze-zyro.jest-wlaczony{
   border-color:#4f8f45;
   background:linear-gradient(180deg,#cdf0b8,#a6dc8c);
-  color:#28521f;
+  color:#255018;
 }
 .wnetrze-zyro:disabled{ opacity:.55; cursor:default; }
 
@@ -54,7 +54,7 @@
   position:absolute; left:50%; transform:translateX(-50%);
   top:calc(env(safe-area-inset-top,0px) + 60px);
   margin:0; padding:7px 14px; border-radius:999px;
-  background:rgba(36,23,16,.82); color:#ffe9bd;
+  background:rgba(36,23,16,.82); color:var(--p-paper-2);
   font-size:14px; font-weight:800; text-align:center; max-width:90%;
 }
 
@@ -67,15 +67,15 @@
 .wnetrze-dol > *{ pointer-events:auto; }
 
 .wnetrze-podpowiedz{
-  color:#ffdfae; font-size:14px; font-weight:800; text-align:center;
+  color:var(--p-sky-2); font-size:14px; font-weight:800; text-align:center;
   text-shadow:0 2px 8px rgba(0,0,0,.7);
   pointer-events:none;
 }
 .wnetrze-lista{
   min-height:48px; padding:0 22px; font-size:18px;
   border:2px solid #a97a3f;
-  background:linear-gradient(180deg,#fff3d2,#f0d094);
-  color:#5a3a16;
+  background:linear-gradient(180deg,var(--p-paper),#f0d094);
+  color:#533314;
 }
 
 /* „Co juz mam" to ISTNIEJACY DomPanel wlozony w karte. Pokoj pokazuje,
@@ -83,14 +83,14 @@
 .wnetrze-karta{
   position:absolute; inset:0; z-index:2;
   display:grid; place-items:center;
-  background:rgba(24,14,9,.72);
+  background:rgba(26,16,8,.72);
   padding:calc(env(safe-area-inset-top,0px) + 12px) 12px calc(env(safe-area-inset-bottom,0px) + 12px);
 }
 .wnetrze-karta-tresc{
   width:min(100%,460px); max-height:100%; overflow-y:auto;
   border-radius:22px; padding:14px 14px 20px;
-  background:linear-gradient(180deg,#fff8e4,#ffeec9);
-  box-shadow:0 18px 40px rgba(20,10,4,.45);
+  background:linear-gradient(180deg,#fffbe0,#fff4c9);
+  box-shadow:0 18px 40px rgba(26,16,8,.45);
 }
 .wnetrze-karta-x{ position:absolute; top:calc(env(safe-area-inset-top,0px) + 14px); right:14px; z-index:3; }
 

@@ -18,8 +18,8 @@
      nie ma czego przewijać i karta nie dostaje `overflow`. */
   position:relative; width:min(94vw,470px);
   padding:18px 20px 20px; border-radius:26px;
-  background:linear-gradient(180deg,#fff8dd,#f2ddad);
-  border:3px solid #e6a832; box-shadow:0 4px 0 #a2621c, 0 18px 40px rgba(20,12,4,.45);
+  background:linear-gradient(180deg,var(--p-paper),var(--p-paper-2));
+  border:3px solid #e6a832; box-shadow:0 4px 0 #a2621c, 0 18px 40px rgba(26,16,8,.45);
   text-align:center; user-select:none; -webkit-user-select:none;
   animation:kolo-karta-wjazd .35s cubic-bezier(.2,.9,.3,1.25);
 }
@@ -41,7 +41,7 @@
 }
 .kolo-tytul{
   margin:2px 0 6px; font-size:clamp(22px,5.4vw,30px); font-weight:800;
-  color:#4a2f10; display:flex; align-items:center; justify-content:center; gap:8px;
+  color:#4a3410; display:flex; align-items:center; justify-content:center; gap:8px;
   min-height:1.25em;
 }
 /* Ikona wylosowanej cechy zamiast emoji — ten sam obrazek, który dziecko
@@ -56,7 +56,7 @@
   /* Jedna linijka — `min-height` trzyma miejsce, żeby po zatrzymaniu koła
      karta nie podskoczyła, gdy tekst zmieni długość. */
   margin:0 0 8px; font-size:14px; font-weight:700;
-  color:#7a5c2c; line-height:1.3; min-height:1.3em;
+  color:#765a30; line-height:1.3; min-height:1.3em;
 }
 
 /* ── KOŁO Z WARSTW ────────────────────────────────────────────────────
@@ -122,7 +122,7 @@
      i tworzą równy pasek zamiast rozchwianej linii z wystającymi „ł" i „ó".
      Mniejszy stopień pisma i ciaśniejszy odstęp rekompensują to, że wersaliki
      są szersze — napis zajmuje tyle samo, a wchodzi głębiej w klin. */
-  font-size:1em; color:#fff; font-weight:800; line-height:1.05;
+  font-size:1em; color:#ffffff; font-weight:800; line-height:1.05;
   text-transform:uppercase; letter-spacing:.02em;
   text-shadow:0 2px 0 rgba(0,0,0,.4), 0 0 6px rgba(0,0,0,.3);
 }
@@ -147,7 +147,7 @@
 }
 .kolo-rozblysk{
   position:absolute; inset:-6%; border-radius:50%;
-  background:radial-gradient(circle at 50% 50%, rgba(255,252,230,.9) 0%, rgba(255,224,122,.6) 32%, rgba(255,205,70,.28) 54%, rgba(255,205,70,0) 72%);
+  background:radial-gradient(circle at 50% 50%, rgba(255,251,224,.9) 0%, rgba(245,216,115,.6) 32%, rgba(255,205,70,.28) 54%, rgba(255,205,70,0) 72%);
   mix-blend-mode:screen;
   /* Krótko i nie na pełne krycie: rozbłysk ma podbić moment, a nie zasłonić
      na pół sekundy pole, które właśnie padło. */
@@ -171,8 +171,8 @@
 }
 .kolo-iskra::before{
   content:""; position:absolute; left:0; width:14px; height:14px;
-  border-radius:4px; background:#FFE484;
-  box-shadow:0 0 14px rgba(255,205,70,.95), 0 0 4px #fff8d8;
+  border-radius:4px; background:#ffdf82;
+  box-shadow:0 0 14px rgba(255,205,70,.95), 0 0 4px var(--p-paper);
   animation:kolo-iskra .85s cubic-bezier(.15,.7,.35,1) var(--zwloka) backwards;
 }
 @keyframes kolo-iskra{
@@ -187,7 +187,7 @@
 .kolo-etykieta.is-wygrane .kolo-tresc{ animation:kolo-puls 1s ease-in-out infinite; }
 @keyframes kolo-puls{
   0%,100%{ filter:brightness(1) drop-shadow(0 0 0 rgba(255,224,140,0)); transform:scale(1); }
-  50%{ filter:brightness(1.15) drop-shadow(0 0 9px rgba(255,236,160,.95)); transform:scale(1.08); }
+  50%{ filter:brightness(1.15) drop-shadow(0 0 9px rgba(255,243,168,.95)); transform:scale(1.08); }
 }
 
 /* WYGLĄD PRZYCISKU JEST WSPÓLNY dla całej gry (`.hub-btn.hub-btn-primary`

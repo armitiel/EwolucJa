@@ -69,16 +69,16 @@
   display:inline-flex; align-items:center; gap:7px;
   border:2px solid transparent; border-radius:var(--r-pill,999px);
   background:
-    linear-gradient(180deg,rgba(255,250,224,.96),rgba(242,222,169,.96)) padding-box,
-    linear-gradient(180deg,#fff3a8 0%,#e5aa32 62%,#a46418 100%) border-box;
+    linear-gradient(180deg,rgba(251,241,214,.96),rgba(244,225,172,.96)) padding-box,
+    linear-gradient(180deg,#fff3a8 0%,#e6a832 62%,#a2621c 100%) border-box;
   backdrop-filter:blur(9px);
   box-shadow:
     inset 0 1.5px 0 rgba(255,255,255,.82),
-    0 3px 0 #925118,
+    0 3px 0 #8f5017,
     0 7px 13px rgba(49,42,20,.24);
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-weight:800; font-size:14px; line-height:1;
-  color:#433554;
+  color:var(--hud-ink);
 }
 .hub-chip{ min-height:43px; padding:2px 13px 2px 2px; cursor:pointer; max-width:40vw; }
 .hub-chip:active{ transform:translateY(1px); }
@@ -88,7 +88,7 @@
 }
 .hub-chip-face img{
   width:48px; height:48px; object-fit:contain; display:block;
-  filter:drop-shadow(0 2px 1px rgba(75,42,10,.28));
+  filter:drop-shadow(0 2px 1px rgba(79,43,12,.28));
   user-select:none; -webkit-user-drag:none;
 }
 .hub-chip-name{
@@ -103,7 +103,7 @@
 .hub-resource-icon{
   width:31px; height:31px; object-fit:contain; display:block;
   margin:-1px 0 -1px -1px;
-  filter:drop-shadow(0 2px 1px rgba(89,50,10,.28));
+  filter:drop-shadow(0 2px 1px rgba(90,51,17,.28));
   user-select:none; -webkit-user-drag:none;
 }
 .hub-root .hub-map-button{
@@ -111,16 +111,16 @@
   border:2px solid transparent;
   background:
     linear-gradient(180deg,#f5d873,#c47c1f) padding-box,
-    linear-gradient(180deg,#fff2a4,#dfa32c 58%,#8f5017) border-box;
+    linear-gradient(180deg,#fff3a8,#e6a832 58%,#8f5017) border-box;
   box-shadow:0 4px 0 #7f4517,0 8px 15px rgba(36,39,25,.3),inset 0 2px 0 rgba(255,255,255,.55);
 }
 .hub-root .hub-map-button .adv-icon-button-inner{
-  color:#fff1a6;
+  color:#fff3a8;
   background:radial-gradient(circle at 42% 30%,#3e6b89 0%,#244d70 48%,#183653 100%);
-  border:1.5px solid rgba(255,235,154,.62);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.15),inset 0 -3px 0 rgba(6,20,39,.26);
+  border:1.5px solid rgba(255,241,154,.62);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.15),inset 0 -3px 0 rgba(14,22,42,.26);
 }
-.hub-root .hub-map-button svg{ width:22px; height:22px; filter:drop-shadow(0 2px 0 rgba(14,28,47,.55)); }
+.hub-root .hub-map-button svg{ width:22px; height:22px; filter:drop-shadow(0 2px 0 rgba(14,22,42,.55)); }
 
 /* Muzyka — nutka obok monet. Ta sama „moneta-guzik” co reszta HUD-u,
    w środku grafika /music.png. Stan wyłączony: wyszarzenie + ukośnik. */
@@ -131,7 +131,7 @@
   border:2px solid transparent; border-radius:50%;
   background:
     linear-gradient(180deg,#f5d873,#c47c1f) padding-box,
-    linear-gradient(180deg,#fff2a4,#dfa32c 58%,#8f5017) border-box;
+    linear-gradient(180deg,#fff3a8,#e6a832 58%,#8f5017) border-box;
   box-shadow:0 4px 0 #7f4517,0 8px 15px rgba(36,39,25,.3),inset 0 2px 0 rgba(255,255,255,.55);
   cursor:pointer; -webkit-tap-highlight-color:transparent;
   transition:transform .12s ease, filter .2s ease, opacity .2s ease;
@@ -147,7 +147,7 @@
 .hub-music-button.is-muted::after{
   content:""; position:absolute; left:9px; right:9px; top:50%;
   height:3px; border-radius:2px; transform:rotate(-45deg);
-  background:#fff; box-shadow:0 0 0 1.5px rgba(60,40,10,.55);
+  background:#ffffff; box-shadow:0 0 0 1.5px rgba(60,45,15,.55);
 }
 @media (prefers-reduced-motion:reduce){
   .hub-music-button{ transition:none; }
@@ -156,19 +156,19 @@
 .hub-place{
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-size:11px; font-weight:800; letter-spacing:1.25px; text-transform:uppercase;
-  color:#fff1b5;
+  color:#fff3bd;
   background:
     linear-gradient(180deg,rgba(62,117,110,.94),rgba(36,77,76,.95)) padding-box,
     linear-gradient(180deg,#ffe87c,#d58b27) border-box;
   border:1.5px solid transparent; backdrop-filter:blur(6px);
   padding:4px 13px; border-radius:var(--r-pill,999px);
   text-shadow:0 1.5px 0 #253f3d;
-  box-shadow:0 2px 0 #794716,0 5px 10px rgba(31,42,27,.2),inset 0 1px 0 rgba(255,255,255,.18);
+  box-shadow:0 2px 0 #7f4517,0 5px 10px rgba(31,42,27,.2),inset 0 1px 0 rgba(255,255,255,.18);
 }
 .hub-hint{
-  font-size:12px; font-weight:800; text-align:center; color:#fff0bf;
-  background:rgba(36,72,70,.88); backdrop-filter:blur(6px);
-  border:1px solid rgba(239,183,71,.62);
+  font-size:12px; font-weight:800; text-align:center; color:#fff4c9;
+  background:rgba(36,77,76,.88); backdrop-filter:blur(6px);
+  border:1px solid rgba(245,191,82,.62);
   padding:5px 14px; border-radius:var(--r-pill,999px);
   text-shadow:0 1px 0 rgba(24,45,43,.9); box-shadow:0 2px 0 rgba(105,61,22,.76);
 }
@@ -194,11 +194,11 @@
   width:68px; height:68px; border-radius:50%;
   border:2px solid transparent;
   background:
-    linear-gradient(180deg,#fff9df 0%,#ead79f 100%) padding-box,
-    linear-gradient(180deg,#fff09a 0%,#dfa12c 62%,#91551a 100%) border-box;
+    linear-gradient(180deg,var(--p-paper) 0%,#f4e1ac 100%) padding-box,
+    linear-gradient(180deg,var(--hud-gold-light) 0%,#e6a832 62%,#8f5017 100%) border-box;
   box-shadow:
     inset 0 2px 0 rgba(255,255,255,.82),
-    0 3px 0 #87501b,
+    0 3px 0 #86511b,
     0 7px 12px rgba(46,46,23,.22);
   transition:transform .16s ease,box-shadow .16s ease,filter .16s ease;
 }
@@ -224,8 +224,8 @@
   filter:brightness(1.04);
   box-shadow:
     inset 0 2px 0 rgba(255,255,255,.9),
-    0 3px 0 #87501b,
-    0 0 0 3px rgba(255,231,116,.42),
+    0 3px 0 #86511b,
+    0 0 0 3px rgba(255,232,124,.42),
     0 9px 17px var(--hub-dock-glow);
 }
 .hub-dock-item:focus-visible{ outline:3px solid #296d54; outline-offset:2px; }
@@ -241,7 +241,7 @@
   position:relative; z-index:1; display:block;
   width:58px; height:58px; object-fit:contain;
   user-select:none; -webkit-user-drag:none;
-  filter:drop-shadow(0 3px 1px rgba(78,45,12,.28));
+  filter:drop-shadow(0 3px 1px rgba(79,43,12,.28));
   transition:transform .16s ease,filter .16s ease;
 }
 .hub-dock-item.is-active .hub-dock-ico{
@@ -253,21 +253,21 @@
 }
 .hub-dock-item.is-active .hub-dock-ico img{
   transform:translateY(-2px);
-  filter:drop-shadow(0 3px 1px rgba(78,45,12,.3)) drop-shadow(0 7px 7px var(--hub-dock-glow));
+  filter:drop-shadow(0 3px 1px rgba(79,43,12,.3)) drop-shadow(0 7px 7px var(--hub-dock-glow));
 }
 .hub-dock-badge{
   position:absolute; top:1px; right:calc(50% - 29px); z-index:3;
   min-width:20px; height:20px; padding:0 5px; border-radius:var(--r-pill,999px);
-  border:2px solid #fff0b0;
-  background:linear-gradient(180deg,#ff8c8c,#d94355); color:#fff4c4;
+  border:2px solid #ffefae;
+  background:linear-gradient(180deg,#ff8c8c,#d94355); color:#fff4c9;
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-size:11px; font-weight:800; display:grid; place-items:center;
-  box-shadow:0 3px 0 #8f2937,0 5px 8px rgba(140,38,51,.3);
+  box-shadow:0 3px 0 #8f2937,0 5px 8px rgba(143,41,55,.3);
 }
 
 /* ── arkusz panelu ── */
 .hub-scrim{
-  position:absolute; inset:0; z-index:4; background:rgba(24,18,46,.42);
+  position:absolute; inset:0; z-index:4; background:rgba(26,20,44,.42);
   backdrop-filter:blur(2px); opacity:0; pointer-events:none; transition:opacity .22s ease;
 }
 .hub-scrim.is-open{ opacity:1; pointer-events:auto; }
@@ -276,8 +276,8 @@
   height:78%; max-height:78%; display:flex; flex-direction:column;
   border:3px solid transparent; border-bottom:none; border-radius:30px 30px 0 0;
   background:
-    linear-gradient(180deg,#fff8dd 0%,#f4e1ac 100%) padding-box,
-    linear-gradient(180deg,#fff09a 0%,#eaaa2f 48%,#a46219 100%) border-box;
+    linear-gradient(180deg,var(--p-paper) 0%,#f4e1ac 100%) padding-box,
+    linear-gradient(180deg,var(--hud-gold-light) 0%,#e6a832 48%,#a2621c 100%) border-box;
   /* Gorna krawedz arkusza. WCZESNIEJ byly tu dwa twarde pasy cienia
      (0 -4px brazowy + 0 -9px pomaranczowy na 42% krycia) rzucane na
      przezroczystosc. Nad zielenia swiata 3D polprzezroczysty pomaranczowy
@@ -286,7 +286,7 @@
      obchodzi zaokraglone rogi) + miekki, neutralny cien glebi. Zero
      mieszania kolorow z tlem. */
   box-shadow:
-    0 0 0 3px #7d4518,
+    0 0 0 3px #7f4517,
     0 -10px 22px rgba(26,16,8,.26),
     0 -26px 54px rgba(26,16,8,.20),
     inset 0 2px 0 rgba(255,255,255,.76);
@@ -306,7 +306,7 @@
    naglowkiem, bo to dziecko). Dzieki temu okno ma ciagly, czysty kontur. */
 .hub-sheet::before{
   content:""; position:absolute; inset:0; z-index:6; pointer-events:none;
-  border:2px solid rgba(255,226,150,.5); border-bottom:none;
+  border:2px solid rgba(255,226,154,.5); border-bottom:none;
   border-radius:27px 27px 0 0;
 }
 .hub-sheet-grip{ display:none; }
@@ -322,12 +322,12 @@
   position:relative; flex:none;
   margin:0; padding:14px 62px 16px;
   min-height:76px; display:flex; flex-direction:column; align-items:stretch; justify-content:center; text-align:center;
-  border:none; border-bottom:3px solid #a46219; border-radius:27px 27px 0 0;
-  background:linear-gradient(180deg,#7a63a0 0%,#5b4577 52%,#42324f 100%);
+  border:none; border-bottom:3px solid #a2621c; border-radius:27px 27px 0 0;
+  background:linear-gradient(180deg,#7a63a0 0%,#5b4577 52%,var(--hud-ink) 100%);
   box-shadow:
     inset 0 2px 0 rgba(255,255,255,.16),
-    inset 0 -6px 0 rgba(41,27,54,.28),
-    0 6px 14px rgba(40,25,55,.3);
+    inset 0 -6px 0 rgba(36,29,60,.28),
+    0 6px 14px rgba(36,29,60,.3);
 }
 .hub-sheet-head > div{ min-width:0; }
 /* Pas pod belka tytulowa, na cala szerokosc arkusza (dzis: kanaly czatu).
@@ -336,15 +336,15 @@
 .hub-sheet-slot{ flex:none; }
 .hub-sheet-slot:empty{ display:none; }
 .hub-sheet-head .hub-kicker{
-  color:#ffd96f; font-size:12.5px; letter-spacing:1.3px;
-  text-shadow:0 1px 0 #34243f;
+  color:#ffd66d; font-size:12.5px; letter-spacing:1.3px;
+  text-shadow:0 1px 0 #35243d;
 }
 .hub-sheet-head h2{
   font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
   font-size:31px; font-weight:800; margin:2px 0 0; line-height:1.05;
-  color:#fff1b2;
+  color:#ffefae;
   -webkit-text-stroke:1px #35243d; paint-order:stroke fill;
-  text-shadow:0 3px 0 #35243d,0 5px 5px rgba(32,22,39,.28);
+  text-shadow:0 3px 0 #35243d,0 5px 5px rgba(24,15,33,.28);
 }
 /* Krzyzyk wrocil na SRODEK wysokosci naglowka (2026-08-20). Stala odleglosc
    od gory byla obejsciem na czasy, gdy panel wrzucal do naglowka wlasny pasek
@@ -355,7 +355,7 @@
    wystawalo ponizej belki i kladlo sie na zakladce. */
 /* KRZYZYK JEST TEN SAM, CO NA ZWOJU WIADOMOSCI. Wartosci przepisane
    1:1 z `.message-scroll-close` (public/scena-3d/hud.css): 46 px, obrys
-   #8f2d27, ta sama czerwien, ten sam cien i ten sam znak `×` w JSX.
+   #8d2a27, ta sama czerwien, ten sam cien i ten sam znak `×` w JSX.
    Wczesniej szuflada miala wlasny krzyzyk — 43 px, obrys z gradientu
    border-box, obrys tekstu (`-webkit-text-stroke`) i inny glif — wiec dwa
    miejsca, ktore dziecko zamyka jedno po drugim, wygladaly na dwie rozne gry.
@@ -371,7 +371,7 @@
   position:absolute; right:14px; top:50%; transform:translateY(-50%);
   z-index:5; flex:none; width:46px; height:46px;
   display:grid; place-items:center; padding:0 0 4px;
-  border:2px solid #8f2d27; border-radius:50%;
+  border:2px solid #8d2a27; border-radius:50%;
   background:linear-gradient(180deg,#ff6a5e,#d53537);
   box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 3px 0 #8d2a27,0 6px 9px rgba(77,35,22,.2);
   cursor:pointer; color:#fff4c9;
@@ -383,7 +383,7 @@
 .hub-sheet-close.is-back{ padding:0; }
 .hub-sheet-close.is-back svg{
   width:28px; height:25px; display:block; overflow:visible;
-  fill:#fff; filter:drop-shadow(0 2px 0 #8d2a27);
+  fill:#ffffff; filter:drop-shadow(0 2px 0 #8d2a27);
 }
 /* `-50%` musi zostac w kazdym stanie — bez niego wcisniety krzyzyk zeskakuje
    o pol swojej wysokosci w dol, bo to ten sam `transform`, ktory go srodkuje. */
@@ -408,7 +408,7 @@
 .hub-sheet-body::-webkit-scrollbar-track{ background:transparent; }
 .hub-sheet-body::-webkit-scrollbar-thumb{
   border-radius:99px;
-  background:linear-gradient(180deg,#e9b64a,#b8801f);
+  background:linear-gradient(180deg,#e8b64c,#b9861f);
   border:1px solid rgba(255,255,255,.5);
 }
 .hub-sheet-body{ scrollbar-width:thin; scrollbar-color:#d5a33c transparent; }
@@ -428,10 +428,10 @@
 .hub-card{
   border:1.8px solid transparent;
   background:
-    linear-gradient(180deg,rgba(255,252,232,.93),rgba(245,228,181,.93)) padding-box,
-    linear-gradient(180deg,#fff0a1,#dba13a 62%,#9c6321) border-box;
+    linear-gradient(180deg,rgba(255,251,224,.93),rgba(244,227,184,.93)) padding-box,
+    linear-gradient(180deg,var(--hud-gold-light),#d59a31 62%,#9c6321) border-box;
   border-radius:var(--r-card,22px);
-  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.82),0 3px 0 rgba(125,73,25,.62),0 8px 15px rgba(72,53,26,.14);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.82),0 3px 0 rgba(127,69,23,.62),0 8px 15px rgba(72,53,26,.14);
   padding:14px;
 }
 .hub-card-title{
@@ -443,7 +443,7 @@
   background:rgba(122,77,194,.10); border:1px dashed rgba(122,77,194,.38);
   border-radius:16px; padding:10px 12px; font-size:12px; line-height:1.45; color:#4A3670;
 }
-.hub-note-warn{ background:rgba(232,154,61,.12); border-color:rgba(180,115,34,.45); color:#5A3A12; }
+.hub-note-warn{ background:rgba(232,154,61,.12); border-color:rgba(180,115,34,.45); color:#50320a; }
 .hub-note svg{ flex:none; margin-top:1px; }
 .hub-sec-title{ display:flex; align-items:baseline; gap:8px; margin:16px 2px 8px; }
 .hub-sec-title h3{
@@ -454,7 +454,7 @@
 
 .hub-row{
   display:flex; align-items:center; gap:10px; padding:9px 0;
-  border-bottom:1px solid rgba(160,120,50,.14); text-align:left;
+  border-bottom:1px solid rgba(160,124,52,.14); text-align:left;
 }
 .hub-row:last-child{ border-bottom:none; }
 .hub-row-dot{
@@ -481,21 +481,21 @@
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:10px; text-align:center;
   min-height:158px; padding:14px 10px 13px; border-radius:var(--r-card,22px);
-  border:2px solid rgba(255,214,110,.95);
+  border:2px solid rgba(255,214,109,.95);
   box-shadow:inset 0 1.5px 0 rgba(255,255,255,.8),0 4px 0 rgba(134,81,27,.5),0 8px 15px rgba(61,47,25,.16);
   position:relative; overflow:hidden;
   /* Gra otwarta jest CIEPLA i wypukla, zamknieta chlodna i plaska. Po zdjeciu
      gradientow z katalogu obie wygladaly tak samo i nie bylo widac, w co
      mozna kliknac. */
-  background:linear-gradient(180deg,#FFF3CE,#F6D98F);
+  background:linear-gradient(180deg,var(--hud-cream-top),#ffe29a);
 }
 /* Zamknieta gra: chlodny szarofiolet, bez zlotej ramki i bez wypuklosci.
    Kafel ma wygladac na uspiony, a nie na uszkodzony - stad zaden ciemny
    overlay ani przekreslenie. */
 .hub-tile.is-locked .hub-tile-in{
-  background:linear-gradient(180deg,rgba(238,236,244,.9),rgba(219,215,230,.9));
+  background:linear-gradient(180deg,rgba(242,246,255,.9),rgba(219,215,230,.9));
   border-color:rgba(120,112,150,.28);
-  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.5),0 2px 0 rgba(90,80,120,.18);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.5),0 2px 0 rgba(78,77,118,.18);
   filter:grayscale(.75); opacity:.72;
 }
 .hub-tile.is-locked .hub-tile-ikona{ opacity:.85; }
@@ -509,7 +509,7 @@
 }
 .hub-tile-ikona img{
   width:68px; height:68px; object-fit:contain; display:block;
-  filter:drop-shadow(0 3px 4px rgba(80,60,20,.28));
+  filter:drop-shadow(0 3px 4px rgba(74,52,16,.28));
 }
 
 .hub-tile small{ font-size:10.5px; color:#6b5c3c; line-height:1.3; }
@@ -520,7 +520,7 @@
 }
 .hub-coin img{
   width:19px; height:19px; object-fit:contain; display:block; margin:-4px 0 -4px -5px;
-  filter:drop-shadow(0 1px 0 rgba(101,57,12,.24));
+  filter:drop-shadow(0 1px 0 rgba(105,61,22,.24));
 }
 /* Nagroda na kaflu gry: to ona ma przyciagac wzrok po ikonie, wiec moneta
    rosnie razem z liczba - w wersji bazowej pigulka jest podpisem, tu jest
@@ -533,7 +533,7 @@
 .hub-coin--duza img{ width:30px; height:30px; margin:-6px 0 -6px -4px; }
 .hub-flag{
   position:absolute; top:8px; left:8px; font-size:9px; font-weight:800; letter-spacing:.8px;
-  text-transform:uppercase; background:rgba(122,77,194,.9); color:#fff;
+  text-transform:uppercase; background:rgba(122,77,194,.9); color:#ffffff;
   padding:2px 7px; border-radius:var(--r-pill,999px);
 }
 
@@ -545,7 +545,7 @@
 .hub-hero p{ margin:0 12px; font-size:13px; line-height:1.5; }
 .hub-orbit{
   width:158px; height:158px; border-radius:50%; display:grid; place-items:center; position:relative;
-  background:radial-gradient(circle at 50% 58%, rgba(255,248,225,.95), rgba(244,201,93,.28) 62%, transparent 74%);
+  background:radial-gradient(circle at 50% 58%, rgba(251,241,214,.95), rgba(244,201,93,.28) 62%, transparent 74%);
 }
 /* Przerywany okrąg za awatarem ZDJĘTY. Nie znaczył nic — nie był paskiem
    postępu ani orbitą przedmiotów — a obrysowywał postać tak, jakby coś
@@ -565,7 +565,7 @@
 }
 .profil-awatar{
   display:grid; place-items:center; width:150px; height:150px; border-radius:50%;
-  background:radial-gradient(circle at 50% 58%, rgba(255,248,225,.95), rgba(244,201,93,.28) 62%, transparent 74%);
+  background:radial-gradient(circle at 50% 58%, rgba(251,241,214,.95), rgba(244,201,93,.28) 62%, transparent 74%);
 }
 .profil-imie{
   font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
@@ -611,14 +611,14 @@
   border-radius:var(--r-pill,999px); padding:8px 13px; min-height:40px;
   font-family:inherit; font-weight:800; font-size:12px; color:var(--p-ink-soft,#5A4F77);
 }
-.hub-tab.is-active{ background:linear-gradient(180deg,#C8A0F0,#7A4DC2); color:#fff; border-color:transparent; }
+.hub-tab.is-active{ background:linear-gradient(180deg,#C8A0F0,var(--p-magic-dk)); color:#ffffff; border-color:transparent; }
 .hub-tab.is-locked{ opacity:.65; }
 .hub-bubbles{ display:flex; flex-direction:column; gap:9px; }
 .hub-bubble{ max-width:84%; padding:10px 13px; font-size:13.5px; line-height:1.45; box-shadow:var(--shadow-md); }
 .hub-bubble.is-them{ align-self:flex-start; background:rgba(255,255,255,.88); border-radius:18px 18px 18px 6px; }
 .hub-bubble.is-me{
-  align-self:flex-end; color:#4A2A0E; border-radius:18px 18px 6px 18px;
-  background:linear-gradient(180deg,#FFE6A8,#F4C95D);
+  align-self:flex-end; color:#4f2b0c; border-radius:18px 18px 6px 18px;
+  background:linear-gradient(180deg,#FFE6A8,var(--p-amber));
 }
 .hub-bubble-who{
   display:block; font-size:10px; font-weight:800; letter-spacing:.8px; text-transform:uppercase;
@@ -637,8 +637,8 @@
 }
 .hub-composer button{
   width:52px; height:52px; flex:none; border-radius:50%; border:none; cursor:pointer;
-  background:linear-gradient(180deg,#C8A0F0,#7A4DC2); color:#fff; font-size:19px;
-  box-shadow:0 3px 0 rgba(74,42,120,.4);
+  background:linear-gradient(180deg,#C8A0F0,var(--p-magic-dk)); color:#ffffff; font-size:19px;
+  box-shadow:0 3px 0 rgba(74,45,128,.4);
 }
 .hub-composer button:disabled{ opacity:.45; cursor:default; box-shadow:none; }
 
@@ -687,7 +687,7 @@
 .czat-zakladka.is-active{ color:var(--p-magic-dk,#7A4DC2); opacity:1; }
 .czat-zakladka.is-active::after{
   content:""; position:absolute; left:16%; right:16%; bottom:0; height:4px;
-  border-radius:4px 4px 0 0; background:#d99a2a;
+  border-radius:4px 4px 0 0; background:#d59a31;
 }
 /* Zamkniety kanal poznaje sie po KLODCE i po niczym wiecej. Wygaszanie calej
    zakladki bylo drugim znakiem tego samego („tu nie wejdziesz") i sprawialo,
@@ -699,7 +699,7 @@
    CzatPanel.jsx. Liczba rosnąca w tle popycha do ciągłego wracania. */
 .czat-kropka{
   display:inline-block; width:10px; height:10px; border-radius:50%; margin-left:6px;
-  background:#E89A3D; box-shadow:0 0 0 2px rgba(255,255,255,.85);
+  background:var(--p-dusk); box-shadow:0 0 0 2px rgba(255,255,255,.85);
 }
 .czat-zakladka .czat-kropka{ position:absolute; top:7px; right:calc(50% - 24px); margin:0; width:9px; height:9px; }
 
@@ -735,10 +735,10 @@
 .czat-kafelek{
   position:relative; min-height:190px; padding:14px 9px 12px;
   display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
-  border:1.5px solid #efbf58; border-radius:19px; cursor:pointer;
-  background:linear-gradient(180deg,rgba(255,249,222,.96),rgba(247,218,149,.96));
-  color:#594776; font-family:inherit;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 3px 0 rgba(164,111,31,.34),0 7px 13px rgba(91,65,27,.12);
+  border:1.5px solid #f5c45e; border-radius:19px; cursor:pointer;
+  background:linear-gradient(180deg,rgba(251,241,214,.96),rgba(241,217,151,.96));
+  color:#5b4577; font-family:inherit;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 3px 0 rgba(160,110,30,.34),0 7px 13px rgba(91,66,29,.12);
   transition:transform .12s ease,filter .12s ease;
 }
 .czat-kafelek:active{ transform:translateY(2px); filter:brightness(.98); }
@@ -746,17 +746,17 @@
   position:relative; width:86px; height:86px; flex:none; margin-bottom:8px;
   display:grid; place-items:center; color:#7440bd;
   border:2px solid #9f793c; border-radius:25px;
-  background:linear-gradient(180deg,#fff9df,#e9d8aa);
-  box-shadow:inset 0 3px 0 rgba(255,255,255,.9),0 5px 0 #9f8559,0 8px 12px rgba(78,55,25,.26);
+  background:linear-gradient(180deg,var(--p-paper),#e9d8aa);
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.9),0 5px 0 #9f8559,0 8px 12px rgba(72,53,26,.26);
 }
 .czat-kafelek-ikona i{
   position:absolute; inset:0; display:grid; place-items:center; color:#8f8b83;
-  background:rgba(250,246,231,.78); border-radius:23px;
+  background:rgba(255,249,229,.78); border-radius:23px;
 }
 .czat-kafelek-nowe{
   position:absolute; top:-8px; right:-8px; width:28px; height:28px;
-  display:grid; place-items:center; border-radius:50%; color:#fff; background:#e95145;
-  border:3px solid #fff7d8; box-shadow:0 2px 0 #a6312d; font-size:14px;
+  display:grid; place-items:center; border-radius:50%; color:#ffffff; background:#e95145;
+  border:3px solid var(--p-paper); box-shadow:0 2px 0 #a6312d; font-size:14px;
 }
 .czat-kafelek strong{
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
@@ -765,23 +765,23 @@
 .czat-kafelek small{ min-height:34px; margin-top:3px; font-size:12.5px; line-height:1.3; font-weight:700; }
 .czat-kafelek-status{
   min-height:28px; margin-top:auto; padding:4px 11px; display:inline-flex; align-items:center; gap:5px;
-  border:2px solid rgba(194,139,43,.38); border-radius:999px; background:#fffdf2;
-  color:#8a5b19; font-size:12.5px; line-height:1; font-weight:900;
-  box-shadow:0 2px 0 rgba(145,99,24,.16);
+  border:2px solid rgba(196,146,44,.38); border-radius:999px; background:#fffaf0;
+  color:#8a5a18; font-size:12.5px; line-height:1; font-weight:900;
+  box-shadow:0 2px 0 rgba(150,105,30,.16);
 }
 .czat-kafelek.is-locked{
-  border-color:#cbc4b4; background:linear-gradient(180deg,#f2efe5,#dedbd0); color:#8c887f;
+  border-color:#cbc4b4; background:linear-gradient(180deg,#f2efe5,#dedbd0); color:#8f8b83;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 3px 0 #b8af9e,0 7px 13px rgba(70,62,48,.1);
 }
-.czat-kafelek.is-locked .czat-kafelek-ikona{ color:#97938b; border-color:#aaa392; background:linear-gradient(180deg,#faf7e9,#dcd6c4); }
-.czat-kafelek.is-locked .czat-kafelek-status{ color:#817d74; border-color:#cec7b7; }
+.czat-kafelek.is-locked .czat-kafelek-ikona{ color:#8f8b83; border-color:#aaa392; background:linear-gradient(180deg,#fff9e5,#dcd6c4); }
+.czat-kafelek.is-locked .czat-kafelek-status{ color:#817d74; border-color:#cbc4b4; }
 .czat-kanal-head{
   position:relative; flex:none; min-height:66px; margin:-2px 0 12px; padding:0 0 11px;
-  display:flex; align-items:center; gap:10px; color:#614a7f;
+  display:flex; align-items:center; gap:10px; color:#5b4577;
 }
 .czat-kanal-head::after{
   content:""; position:absolute; left:0; right:0; bottom:0; height:2px;
-  border-radius:999px; background:rgba(188,137,43,.24);
+  border-radius:999px; background:rgba(185,134,31,.24);
 }
 .czat-kanal-head strong{
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
@@ -789,7 +789,7 @@
 }
 /* Zloty przycisk cofania zniknal z naglowka kanalu — cofa krzyzyk belki
    arkusza (patrz `PanelSheet`), tak samo jak w Poradach i w Zadaniu. */
-.czat-kanal-znak{ width:34px; height:34px; display:grid; place-items:center; color:#7a4dc2; }
+.czat-kanal-znak{ width:34px; height:34px; display:grid; place-items:center; color:var(--p-magic-dk); }
 /* W otwartym watku znakiem kanalu jest AVATAR rozmowcy — ta sama emotka,
    co na liscie rozmow, zeby belka i lista mowily o tej samej osobie. */
 .czat-kanal-avatar{
@@ -847,7 +847,7 @@
 }
 .czat-rozmowa--forum .czat-wpis.is-moja .czat-wpis-tresc{
   border-radius:18px 18px 6px 18px;
-  background:linear-gradient(180deg,#FFE6A8,#F4C95D);
+  background:linear-gradient(180deg,#FFE6A8,var(--p-amber));
   box-shadow:0 2px 0 rgba(160,110,30,.22);
 }
 .czat-rozmowa--forum .czat-wpis-tresc p{ margin:0; }
@@ -879,8 +879,8 @@
 .czat-dol{
   flex:none; margin:0 -18px -0px; padding:8px 18px 0;
   background:linear-gradient(180deg,rgba(246,232,193,0) 0%,#f6e8c1 34%,#f3e2b2 100%);
-  border-top:2px solid rgba(160,120,45,.26);
-  box-shadow:0 -6px 12px rgba(120,84,30,.10);
+  border-top:2px solid rgba(160,124,52,.26);
+  box-shadow:0 -6px 12px rgba(117,81,28,.10);
 }
 /* Gotowe zdania: JEDEN pasek przewijany w bok, wysuwany przyciskiem z dymkiem
    przy polu pisania. Na stałe nad polem były pięcioma kolorowymi przyciskami
@@ -909,7 +909,7 @@
   color:var(--p-magic-dk,#7A4DC2);
 }
 .czat-podpowiedzi.is-otwarte{
-  background:linear-gradient(180deg,#C8A0F0,#7A4DC2); border-color:transparent; color:#fff;
+  background:linear-gradient(180deg,#C8A0F0,var(--p-magic-dk)); border-color:transparent; color:#ffffff;
 }
 .czat-podpowiedzi:disabled{ opacity:.32; cursor:default; }
 .czat-skroty::-webkit-scrollbar{ display:none; }
@@ -989,7 +989,7 @@
   border-radius:18px; box-shadow:var(--shadow-md);
 }
 .czat-wpis.is-moja{
-  background:linear-gradient(180deg,#FFF0C4,#F7DFA4); border-color:rgba(228,182,106,.75);
+  background:linear-gradient(180deg,#fff4c9,#f4e1ac); border-color:rgba(225,182,106,.75);
 }
 .czat-wpis-av{
   width:38px; height:38px; flex:none; border-radius:13px; display:grid; place-items:center;
@@ -1010,7 +1010,7 @@
   background:rgba(255,255,255,.85); color:var(--p-magic-dk,#7A4DC2);
 }
 .czat-brawa.is-dane{
-  background:linear-gradient(180deg,#FFE6A8,#F4C95D); border-color:transparent; color:#4A2A0E;
+  background:linear-gradient(180deg,#FFE6A8,var(--p-amber)); border-color:transparent; color:#4f2b0c;
   cursor:default;
 }
 
@@ -1051,7 +1051,7 @@
 [data-testid="hub-pane-zadanie"] .hub-actions{ margin-bottom:18px; }
 .hub-pane .hub-composer input{
   font-size:16px; min-height:52px; padding:13px 18px;
-  border:2px solid rgba(120,90,30,.3); background:#fff; color:var(--p-ink,#4e4d76);
+  border:2px solid rgba(120,90,30,.3); background:#ffffff; color:var(--p-ink,#4e4d76);
   box-shadow:inset 0 1px 2px rgba(120,90,30,.12);
 }
 .hub-pane .hub-composer input::placeholder{ color:var(--p-ink-soft,#5A4F77); opacity:.75; }
@@ -1062,7 +1062,7 @@
    — trzy sygnały naraz, bo jeden bywa niewidoczny przy jasnym ekranie
    na dworze. `outline` zostaje osobno dla nawigacji klawiaturą. */
 .hub-pane .hub-composer input:focus{
-  border-color:#7A4DC2; background:#fff;
+  border-color:var(--p-magic-dk); background:#ffffff;
   box-shadow:0 0 0 4px rgba(200,160,240,.55),inset 0 1px 2px rgba(120,90,30,.1);
   outline:none;
 }
@@ -1071,7 +1071,7 @@
 /* Skoro pole jest aktywne, ➤ przestaje być ozdobą — dostaje wyraźny cień
    i lekko podnosi się nad tło. */
 .hub-pane .hub-composer:focus-within button:not(:disabled){
-  box-shadow:0 3px 0 rgba(74,42,120,.55),0 0 0 4px rgba(200,160,240,.4);
+  box-shadow:0 3px 0 rgba(74,45,128,.55),0 0 0 4px rgba(200,160,240,.4);
 }
 
 /* ── zadanie od Wizkora (robione poza ekranem) ── */
@@ -1080,8 +1080,8 @@
    pinezka, jedno zdanie — bo to ten sam gest: „weź jedną i zrób". */
 .zadanie-karta{
   position:relative; border:2px solid rgba(255,223,130,.9); border-radius:var(--r-card,22px);
-  background:linear-gradient(180deg,rgba(255,252,232,.96),rgba(245,228,181,.96));
-  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.82),0 3px 0 rgba(125,73,25,.5),0 8px 15px rgba(72,53,26,.14);
+  background:linear-gradient(180deg,rgba(255,251,224,.96),rgba(244,227,184,.96));
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.82),0 3px 0 rgba(127,69,23,.5),0 8px 15px rgba(72,53,26,.14);
   padding:16px; margin-bottom:14px;
 }
 .zadanie-moneta{ position:absolute; top:12px; right:12px; }
@@ -1117,8 +1117,8 @@
 .zadanie-tytul::before{
   content:""; flex:none; width:15px; height:15px; margin-top:6px;
   border-radius:4px; transform:rotate(45deg);
-  background:linear-gradient(180deg,#ffdf82,#e0a02c);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.75), 0 1px 0 rgba(150,95,20,.35);
+  background:linear-gradient(180deg,#ffdf82,#e6a832);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.75), 0 1px 0 rgba(156,99,33,.35);
 }
 
 .zadanie-tytul::after{
@@ -1164,7 +1164,7 @@
 }
 .zadanie-przyklad span{
   font-family:'Caveat', var(--font-display,'Baloo 2'), cursive;
-  font-size:20px; line-height:1.3; color:#4a3270;
+  font-size:20px; line-height:1.3; color:#4a3670;
 }
 
 /* Miejsca — karteczki, nie lista do odhaczenia. Wybór niczego nie blokuje. */
@@ -1176,7 +1176,7 @@
   position:relative; display:grid; grid-template-columns:auto 1fr; gap:4px 12px; align-items:center;
   text-align:left; cursor:pointer; font-family:inherit; color:var(--p-ink,#4e4d76);
   min-height:68px; padding:10px 11px; border:none; border-radius:16px;
-  background:linear-gradient(180deg,#FFF6C9,#FFEFAE);
+  background:linear-gradient(180deg,#fff4c9,#FFEFAE);
   box-shadow:0 2px 0 rgba(150,105,30,.28),0 7px 14px rgba(72,53,26,.14);
   transform:rotate(-.7deg);
 }
@@ -1188,7 +1188,7 @@
    (wybór ma dać się zmienić), tylko cofa się o krok. */
 .zadanie-miejsca.ma-wybor .zadanie-miejsce{ opacity:.42; filter:saturate(.55); }
 .zadanie-miejsce.is-wybrane{
-  background:linear-gradient(180deg,#FFE6A8,#F4C95D);
+  background:linear-gradient(180deg,#FFE6A8,var(--p-amber));
   box-shadow:0 3px 0 rgba(150,105,30,.45),0 10px 18px rgba(72,53,26,.24),inset 0 0 0 2.5px rgba(255,255,255,.7);
   transform:rotate(0deg) scale(1.03);
 }
@@ -1208,8 +1208,8 @@
 }
 .zadanie-pinezka{
   position:absolute; top:-7px; left:50%; width:16px; height:16px; border-radius:50%; margin-left:-8px;
-  background:radial-gradient(circle at 35% 30%,#ff8f8f,#c0392b 70%);
-  box-shadow:0 2px 3px rgba(80,40,10,.35);
+  background:radial-gradient(circle at 35% 30%,#ff8c8c,#c0392b 70%);
+  box-shadow:0 2px 3px rgba(79,43,12,.35);
 }
 .zadanie-miejsce-emoji{ grid-row:1 / span 2; font-size:26px; line-height:1; }
 .zadanie-miejsce strong{ font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif; font-size:15px; line-height:1.15; }
@@ -1234,13 +1234,13 @@
 }
 .zadanie-opis::placeholder{ color:var(--p-ink-soft,#5A4F77); opacity:.75; }
 .zadanie-opis:focus{
-  border-color:#7A4DC2; background:#fff;
+  border-color:var(--p-magic-dk); background:#ffffff;
   box-shadow:0 0 0 4px rgba(200,160,240,.55); outline:none;
 }
 .zadanie-opis:focus-visible{ outline:3px solid rgba(122,77,194,.35); outline-offset:3px; }
 .zadanie-blad{
   margin:10px 0 0; padding:11px 13px; border-radius:14px; font-size:14.5px; line-height:1.45;
-  background:rgba(232,154,61,.14); border:1px dashed rgba(180,115,34,.5); color:#5A3A12;
+  background:rgba(232,154,61,.14); border:1px dashed rgba(180,115,34,.5); color:#50320a;
 }
 
 /* Czekanie i nagroda — po jednym ekranie na stan, nigdy dwa naraz. */
@@ -1297,9 +1297,9 @@
 .zadanie-podglad{
   box-sizing:content-box; display:block;
   width:196px; max-width:74%; aspect-ratio:1/1; object-fit:cover;
-  /* Biel jest CIEPŁA (#fffdf7): papier szuflady jest kremowy, więc czysta biel
+  /* Biel jest CIEPŁA (#ffffff): papier szuflady jest kremowy, więc czysta biel
      robi się przy nim sina. */
-  border:9px solid #fffdf7; border-bottom-width:30px; border-radius:3px;
+  border:9px solid #ffffff; border-bottom-width:30px; border-radius:3px;
   /* Cień pod spodem odkleja zdjęcie od papieru — twarda linia tuż pod
      krawędzią plus miękka poświata niżej. */
   box-shadow:0 1px 2px rgba(83,51,20,.3), 0 8px 16px rgba(83,51,20,.26);
@@ -1346,7 +1346,7 @@
 /* ── porada dnia ── */
 .hub-tip{
   display:grid; justify-items:center; gap:6px; text-align:center;
-  background:linear-gradient(180deg,#FFF6DE,#F7E4B4); border:1.5px solid #E1CB94;
+  background:linear-gradient(180deg,var(--p-paper),var(--p-paper-2)); border:1.5px solid #E1CB94;
   border-radius:var(--r-card,22px); padding:18px 16px; box-shadow:var(--shadow-lg);
 }
 .hub-tip-art{ display:grid; place-items:center; }
@@ -1360,7 +1360,7 @@
 .hub-toast{
   position:absolute; left:50%; bottom:calc(96px + env(safe-area-inset-bottom,0px));
   transform:translateX(-50%); z-index:9; max-width:80%;
-  background:rgba(37,32,60,.93); color:#F6E7C4; font-size:12.5px; font-weight:700;
+  background:rgba(36,29,60,.93); color:#F6E7C4; font-size:12.5px; font-weight:700;
   padding:10px 16px; border-radius:var(--r-pill,999px); text-align:center;
   animation:hubToast .2s ease;
 }
@@ -1405,8 +1405,8 @@
   min-height:82px; padding:11px 9px 11px 7px;
   border:3px solid #5f438a;
   border-radius:25px;
-  background:linear-gradient(180deg,#fffdf4 0%,#f8e8bd 100%);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.9),0 5px 0 rgba(73,49,108,.3),0 13px 26px rgba(37,25,61,.28);
+  background:linear-gradient(180deg,#fffaf0 0%,var(--p-paper-2) 100%);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.9),0 5px 0 rgba(74,54,112,.3),0 13px 26px rgba(27,19,56,.28);
   /* Krój tytułowy gry (Baloo 2), a nie krok z arkusza HUD-u: HUD ma wlasny
      ("Arial Rounded"), bo musi dzialac takze w podgladzie bez Google Fonts.
      Tekst Medrca to zdanie do przeczytania, wiec idzie typografia aplikacji. */
@@ -1442,7 +1442,7 @@
   font:900 18px/1 "Baloo 2",system-ui,sans-serif;
 }
 .medrzec-akcje button:active{ transform:translateY(2px); box-shadow:none; }
-.medrzec-akcje button:focus-visible{ outline:3px solid #ffd269; outline-offset:2px; }
+.medrzec-akcje button:focus-visible{ outline:3px solid var(--p-amber); outline-offset:2px; }
 
 @keyframes medrzec-wejscie{
   from{ opacity:0; transform:translate(-50%,18px) scale(.94); }
@@ -1471,7 +1471,7 @@
 .gra-root{
   position:fixed; inset:0; z-index:1;
   display:flex; flex-direction:column;
-  background:linear-gradient(180deg,#C9E9FF 0%,#FFE0B5 58%,#FFC9A0 100%);
+  background:linear-gradient(180deg,#C9E9FF 0%,var(--p-sky-2) 58%,#FFC9A0 100%);
 }
 
 /* Gra otwarta NAD hubem (`/swiat?gra=…`), a nie na wlasnym adresie. Musi
@@ -1500,7 +1500,7 @@
 .gra-x{
   width:46px; height:46px; flex:none;
   display:grid; place-items:center; padding:0 0 4px;
-  border:2px solid #8f2d27; border-radius:50%;
+  border:2px solid #8d2a27; border-radius:50%;
   background:linear-gradient(180deg,#ff6a5e,#d53537);
   box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 3px 0 #8d2a27,0 6px 9px rgba(77,35,22,.2);
   color:#fff4c9; font:900 32px/1 system-ui,sans-serif;
@@ -1521,9 +1521,9 @@
   display:grid; place-items:center;
   border:2px solid transparent; border-radius:50%;
   background:
-    linear-gradient(180deg,rgba(255,251,224,.97),rgba(243,224,171,.97)) padding-box,
-    linear-gradient(180deg,#fff3a8 0%,#e5aa32 62%,#a46418 100%) border-box;
-  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.8),0 3px 0 #925118,0 6px 12px rgba(49,42,20,.22);
+    linear-gradient(180deg,rgba(255,251,224,.97),rgba(244,225,172,.97)) padding-box,
+    linear-gradient(180deg,#fff3a8 0%,#e6a832 62%,#a2621c 100%) border-box;
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.8),0 3px 0 #8f5017,0 6px 12px rgba(49,42,20,.22);
   color:#5a3d12; cursor:pointer;
 }
 .gra-ikona:active{ transform:translateY(2px); }
@@ -1579,11 +1579,11 @@
   border-radius:28px;
   background:
     linear-gradient(180deg,var(--p-paper,#FBF1D6) 0%,var(--p-paper-2,#F4E3B8) 100%) padding-box,
-    linear-gradient(180deg,#fff0a1 0%,#e9b436 55%,#a4671b 100%) border-box;
+    linear-gradient(180deg,var(--hud-gold-light) 0%,var(--hud-gold) 55%,#a2621c 100%) border-box;
   box-shadow:
     inset 0 3px 0 rgba(255,255,255,.75),
     0 6px 0 rgba(122,77,194,.28),
-    0 22px 46px rgba(40,26,70,.45);
+    0 22px 46px rgba(37,29,74,.45);
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   color:var(--p-ink,#4e4d76);
   text-align:center;
@@ -1613,7 +1613,7 @@
      bezpiecznikiem: gdyby ktos podal inna grafike, zostanie wpisana
      w kadr zamiast rozciagnieta. */
   aspect-ratio:560 / 599; object-fit:contain;
-  filter:drop-shadow(0 8px 14px rgba(40,26,70,.42));
+  filter:drop-shadow(0 8px 14px rgba(37,29,74,.42));
   user-select:none; -webkit-user-drag:none; pointer-events:none;
   animation:popup-postaci-bohater .52s cubic-bezier(.2,.9,.3,1.3) .06s both;
 }
@@ -1631,13 +1631,13 @@
   margin:-58px auto 22px; padding:8px 18px;
   border:2.5px solid transparent; border-radius:999px;
   background:
-    linear-gradient(180deg,#a878e6 0%,#7A4DC2 58%,#5a3499 100%) padding-box,
-    linear-gradient(180deg,#fff0a1 0%,#e9b436 58%,#a4671b 100%) border-box;
+    linear-gradient(180deg,#a878e6 0%,var(--p-magic-dk) 58%,#5a3499 100%) padding-box,
+    linear-gradient(180deg,var(--hud-gold-light) 0%,var(--hud-gold) 58%,#a2621c 100%) border-box;
   box-shadow:
     inset 0 2px 0 rgba(255,255,255,.34),
     0 4px 0 rgba(74,45,128,.85),
-    0 9px 16px rgba(40,26,70,.34);
-  color:#fff;
+    0 9px 16px rgba(37,29,74,.34);
+  color:#ffffff;
   font-size:20px; font-weight:800; letter-spacing:.6px; line-height:1.15;
   text-transform:uppercase;
   text-shadow:0 2px 0 rgba(74,45,128,.9);
@@ -1766,7 +1766,7 @@
      bo oba guziki widzi w tej samej aplikacji. */
   width:46px; height:46px;
   display:grid; place-items:center;
-  border:2px solid #8f2d27; border-radius:50%;
+  border:2px solid #8d2a27; border-radius:50%;
   background:linear-gradient(180deg,#ff6a5e,#d53537);
   box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 3px 0 #8d2a27,0 6px 9px rgba(77,35,22,.2);
   cursor:pointer; color:#fff4c9;
@@ -1951,11 +1951,11 @@
   padding:8px 6px; cursor:pointer;
   border:2px solid transparent; border-radius:var(--r-card,22px);
   background:
-    linear-gradient(180deg,rgba(255,251,224,.98),rgba(243,224,171,.98)) padding-box,
-    linear-gradient(180deg,#fff3a8 0%,#e5aa32 62%,#a46418 100%) border-box;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.85),0 4px 0 #925118,0 8px 16px rgba(49,42,20,.28);
+    linear-gradient(180deg,rgba(255,251,224,.98),rgba(244,225,172,.98)) padding-box,
+    linear-gradient(180deg,#fff3a8 0%,#e6a832 62%,#a2621c 100%) border-box;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.85),0 4px 0 #8f5017,0 8px 16px rgba(49,42,20,.28);
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
-  font-size:13px; font-weight:800; color:#513c14;
+  font-size:13px; font-weight:800; color:#4a3410;
 }
 /* Sylwetka zamiast pelnego koloru: kolorowy kafelek konkurowalby z tym, co
    wlasnie sie odslania. `brightness(0)` robi ja z tego samego pliku, wiec
@@ -2014,13 +2014,13 @@
      paska trawy między brzegiem stołu a skrajną kartą. */
   width:122%; height:min(78%, 660px);
   object-fit:fill;
-  filter:drop-shadow(0 10px 16px rgba(40,30,10,.35));
+  filter:drop-shadow(0 10px 16px rgba(40,25,5,.35));
   animation:blat-wjazd .5s ease-out both;
 }
 .karty-wizkor, .karty-lis{
   position:absolute; left:50%;
   width:min(46%, 210px); height:auto;
-  filter:drop-shadow(0 6px 12px rgba(40,30,10,.35));
+  filter:drop-shadow(0 6px 12px rgba(40,25,5,.35));
 }
 .karty-wizkor{ top:0; transform:translate(-50%,0); animation:wsuw-z-gory .75s cubic-bezier(.22,.9,.3,1.12) .12s both; }
 .karty-lis{ bottom:0; transform:translate(-50%,0); animation:wsuw-z-dolu .75s cubic-bezier(.22,.9,.3,1.12) .26s both; }
@@ -2065,15 +2065,15 @@
 }
 .start-gry::after{
   content:""; position:absolute; z-index:-2; inset:22% -18px 0;
-  background:linear-gradient(180deg,transparent 0%,rgba(255,244,218,.2) 38%,rgba(255,231,190,.86) 67%,#ffd3a8 100%);
+  background:linear-gradient(180deg,transparent 0%,rgba(251,241,214,.2) 38%,rgba(255,224,181,.86) 67%,#ffd3a8 100%);
   pointer-events:none;
 }
-.start-gry--pamiec::after{ background:linear-gradient(180deg,transparent 0%,rgba(42,19,91,.06) 28%,rgba(80,43,128,.82) 66%,#2b174e 100%); }
-.start-gry--lot::after{ background:linear-gradient(180deg,transparent 0%,rgba(255,235,154,.08) 38%,rgba(91,119,48,.73) 70%,#244b34 100%); }
+.start-gry--pamiec::after{ background:linear-gradient(180deg,transparent 0%,rgba(42,19,91,.06) 28%,rgba(74,45,128,.82) 66%,#2b174e 100%); }
+.start-gry--lot::after{ background:linear-gradient(180deg,transparent 0%,rgba(255,241,154,.08) 38%,rgba(91,119,48,.73) 70%,#244b34 100%); }
 /* Bieg: dol sceny to piaskowa sciezka na brazowej skale (#70452c przy 97%
    wysokosci), a bazowy gradient jest kremowo-pomaranczowy. Ten sam zabieg co
    przy Locie: schodzimy w kolor, ktory na obrazie JUZ jest. */
-.start-gry--bieg::after{ background:linear-gradient(180deg,transparent 0%,rgba(255,231,178,.1) 38%,rgba(163,110,72,.78) 70%,#6d3d31 100%); }
+.start-gry--bieg::after{ background:linear-gradient(180deg,transparent 0%,rgba(244,225,172,.1) 38%,rgba(163,110,72,.78) 70%,#6d3d31 100%); }
 /* Dół tła Biegu to piaskowy klif — panel wtapia się w ten sam ciepły brąz. */
 .start-gry-scena{
   position:relative; z-index:1; flex:none; width:min(100%,430px); height:clamp(316px,43svh,400px);
@@ -2092,7 +2092,7 @@
 .start-gry-art{
   --plyw:start-gry-plywanie;
   width:min(72vw,305px); max-height:96%; object-fit:contain;
-  filter:drop-shadow(0 15px 20px rgba(45,33,63,.3));
+  filter:drop-shadow(0 15px 20px rgba(36,29,60,.3));
   transform-origin:50% 75%;
 }
 /* Kolysanie rusza dopiero razem z wejsciem — inaczej oba zegary chodzilyby
@@ -2132,12 +2132,12 @@
 /* Chmurki Biegu Liska: dwa nakładające się owale, dryfują w poprzek sceny —
    lisek biegnie NAD chmurami i splash ma to mówić, zanim ruszy gra. */
 .start-gry-chmurka{
-  position:absolute; width:64px; height:22px; border-radius:999px; background:#fff;
-  opacity:.92; box-shadow:0 6px 10px rgba(38,84,120,.18);
+  position:absolute; width:64px; height:22px; border-radius:999px; background:#ffffff;
+  opacity:.92; box-shadow:0 6px 10px rgba(36,77,112,.18);
 }
 .start-gry-chmurka::after{
   content:""; position:absolute; width:34px; height:24px; border-radius:50%;
-  background:#fff; left:14px; top:-13px;
+  background:#ffffff; left:14px; top:-13px;
 }
 .start-gry-chmurka--1{ left:2%; top:26%; animation:start-chmurka 7s ease-in-out infinite; }
 .start-gry-chmurka--2{ right:3%; top:14%; transform:scale(.72); animation:start-chmurka 6s ease-in-out -2.2s infinite reverse; }
@@ -2147,7 +2147,7 @@
   50%{ translate:14px -7px; }
 }
 .start-gry-iskra{
-  position:absolute; width:9px; height:9px; border-radius:50%; background:#fff7a8;
+  position:absolute; width:9px; height:9px; border-radius:50%; background:#fff3a8;
   box-shadow:0 0 0 4px rgba(255,237,112,.18),0 0 16px 5px rgba(255,226,63,.75);
   animation:start-iskra 2.3s ease-in-out infinite;
 }
@@ -2169,7 +2169,7 @@
   position:relative; z-index:1; margin:0; color:inherit;
   font-size:clamp(31px,9vw,41px); font-weight:800; line-height:1.01; letter-spacing:-.9px;
   -webkit-text-stroke:1px currentColor; paint-order:stroke fill;
-  text-shadow:0 2px 0 #fff,0 4px 7px rgba(94,65,35,.16);
+  text-shadow:0 2px 0 #ffffff,0 4px 7px rgba(94,65,35,.16);
   transform:translateY(4px);
 }
 .start-gry--puch .start-gry-tytul{ font-size:clamp(28px,7.7vw,34px); letter-spacing:-.65px; white-space:nowrap; }
@@ -2183,8 +2183,8 @@
   position:relative; overflow:hidden; width:min(100%,238px); min-height:136px; padding:17px 18px 14px;
   display:grid; align-content:center; justify-items:center; gap:12px;
   border:4px solid transparent; border-radius:30px;
-  background:linear-gradient(180deg,#fff9da 0%,#f1d28d 100%) padding-box,linear-gradient(180deg,#fff3a9 0%,#e5ae3f 48%,#a86717 100%) border-box;
-  box-shadow:inset 0 3px 0 rgba(255,255,255,.84),0 6px 0 #9d6417,0 14px 23px rgba(83,52,14,.28);
+  background:linear-gradient(180deg,var(--p-paper) 0%,#f1d28d 100%) padding-box,linear-gradient(180deg,#fff3a8 0%,#e5ae3f 48%,#a96112 100%) border-box;
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.84),0 6px 0 #a2621c,0 14px 23px rgba(83,51,20,.28);
   color:var(--start-atrament); font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
 }
 .start-gry-loader::after{
@@ -2196,17 +2196,17 @@
   position:relative; z-index:1; display:block; overflow:hidden; width:188px; height:58px;
   border:4px solid rgba(255,255,255,.88); border-radius:25px;
   background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(235,238,220,.58));
-  box-shadow:inset 0 5px 8px rgba(74,82,56,.2),inset 0 -4px 7px rgba(255,255,255,.72),0 4px 0 rgba(123,89,27,.34),0 8px 12px rgba(79,57,18,.16);
+  box-shadow:inset 0 5px 8px rgba(74,82,56,.2),inset 0 -4px 7px rgba(255,255,255,.72),0 4px 0 rgba(120,90,30,.34),0 8px 12px rgba(74,52,16,.16);
 }
 .start-gry-loader-plyn{
   position:absolute; inset:4px auto 4px 4px; width:92%; overflow:visible; border-radius:17px 12px 12px 17px;
   background:linear-gradient(180deg,#c8f75d 0%,#67cf2d 42%,#279220 100%);
-  box-shadow:inset 0 5px 0 rgba(245,255,180,.52),inset 0 -5px 6px rgba(20,100,25,.24),0 0 13px rgba(104,218,42,.52);
+  box-shadow:inset 0 5px 0 rgba(245,255,180,.52),inset 0 -5px 6px rgba(34,105,30,.24),0 0 13px rgba(104,218,42,.52);
   transform-origin:left center; animation:start-loader-napelnianie 1.5s cubic-bezier(.18,.78,.2,1) both;
 }
 .start-gry-loader-plyn::after{
   content:""; position:absolute; top:-2px; right:-8px; width:18px; height:46px; border-radius:48% 55% 45% 52%;
-  background:linear-gradient(90deg,#55bf27,#a9ed4a 68%,#72d332); filter:drop-shadow(3px 0 3px rgba(48,139,26,.25));
+  background:linear-gradient(90deg,#55bf27,#a9ed4a 68%,#67cf2d); filter:drop-shadow(3px 0 3px rgba(48,139,26,.25));
   animation:start-loader-fala .8s ease-in-out infinite alternate;
 }
 .start-gry-loader-plyn i{
@@ -2228,24 +2228,24 @@
 .start-gry-poziom{
   position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
   min-height:76px; padding:8px 9px; cursor:pointer; border:3px solid transparent; border-radius:20px;
-  background:linear-gradient(180deg,#fff8d7 0%,#f2d798 100%) padding-box,linear-gradient(180deg,#fff2a8 0%,#e8b64c 48%,#aa6d19 100%) border-box;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.82),0 4px 0 #aa711e,0 9px 16px rgba(107,72,20,.22);
+  background:linear-gradient(180deg,var(--p-paper) 0%,var(--hud-cream-bottom) 100%) padding-box,linear-gradient(180deg,#fff3a8 0%,#e8b64c 48%,#b47322 100%) border-box;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.82),0 4px 0 #b47322,0 9px 16px rgba(117,81,28,.22);
   font-family:inherit; color:var(--p-ink,#4e4d76);
 }
 .start-gry-poziom.wybrany{
-  background:linear-gradient(180deg,#fff8d7 0%,#f2d798 100%) padding-box,linear-gradient(180deg,#fff2a8 0%,#e8b64c 48%,#aa6d19 100%) border-box;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.82),0 4px 0 #aa711e,0 0 0 4px rgba(168,78,212,.42),0 11px 18px rgba(74,45,128,.24);
+  background:linear-gradient(180deg,var(--p-paper) 0%,var(--hud-cream-bottom) 100%) padding-box,linear-gradient(180deg,#fff3a8 0%,#e8b64c 48%,#b47322 100%) border-box;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.82),0 4px 0 #b47322,0 0 0 4px rgba(168,78,212,.42),0 11px 18px rgba(74,45,128,.24);
 }
 .start-gry-poziom-check{
   position:absolute; top:-10px; right:-7px; width:36px; height:36px; display:grid; place-items:center;
-  border:3px solid #fff; border-radius:50%; background:linear-gradient(180deg,#c868f0,#8242c5);
-  box-shadow:0 4px 0 #57308a,0 7px 12px rgba(67,34,111,.28); color:#fff; font:900 24px/1 system-ui,sans-serif;
+  border:3px solid #ffffff; border-radius:50%; background:linear-gradient(180deg,#c868f0,#8242c5);
+  box-shadow:0 4px 0 #57308a,0 7px 12px rgba(67,34,111,.28); color:#ffffff; font:900 24px/1 system-ui,sans-serif;
 }
 .start-gry-poziom:disabled{ cursor:default; }
 .start-gry-poziom:not(:disabled):active{ transform:translateY(2px); }
 .start-gry-poziom-nazwa{ font-size:22px; font-weight:900; line-height:1; }
 .start-gry-poziom-monety{ display:inline-flex; align-items:center; gap:8px; font-size:28px; font-weight:900; line-height:1; color:#7A4D10; text-shadow:0 2px 0 rgba(255,255,255,.6); }
-.start-gry-poziom.wybrany .start-gry-poziom-monety{ color:#4a2c77; }
+.start-gry-poziom.wybrany .start-gry-poziom-monety{ color:#4e317a; }
 /* START gry ma ten sam ROZMIAR, co kazde inne CTA (skala `--cta-*`) - wyroznia
    go grubszy kant, polysk i oddech, a nie wieksza wysokosc. Wczesniej byl
    o 6 px wyzszy i o 2 px wiekszy w literach od reszty i przez to caly zestaw
@@ -2253,7 +2253,7 @@
 .start-gry .start-gry-cta{
   position:relative; overflow:hidden; width:100%; max-width:380px; min-height:var(--cta-h,56px);
   border:3px solid #b4e858; border-radius:20px;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.55),0 5px 0 #287714,0 11px 19px rgba(36,101,19,.28);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.55),0 5px 0 #287714,0 11px 19px rgba(34,105,30,.28);
   align-self:start; margin-top:3px; font-size:var(--cta-fs,21px); letter-spacing:.6px; animation:start-cta-oddech 2.4s ease-in-out 1s infinite;
 }
 .start-gry-cta span{ position:relative; z-index:2; }
@@ -2314,7 +2314,7 @@
   .start-gry-postac{ opacity:1 !important; }
 }
 
-.gra-root:has(.start-gry--pamiec){ background:#17112d; }
+.gra-root:has(.start-gry--pamiec){ background:#1a142c; }
 .gra-root:has(.start-gry--puch){ background:#78cff6; }
 .gra-root:has(.start-gry--lot){ background:#5c944f; }
 .gra-root:has(.start-gry) > .gra-pasek{
@@ -2329,9 +2329,9 @@
   width:100%; margin-top:8px; padding:12px 20px;
   border:2.5px solid transparent; border-radius:20px;
   background:
-    linear-gradient(180deg,#FFF8E2 0%,#F3DFA6 100%) padding-box,
-    linear-gradient(180deg,#fff0a1 0%,#e0a63a 60%,#a4671b 100%) border-box;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.8), 0 4px 0 #b8842c, 0 10px 18px rgba(90,60,15,.22);
+    linear-gradient(180deg,var(--p-paper) 0%,#f4e1ac 100%) padding-box,
+    linear-gradient(180deg,var(--hud-gold-light) 0%,#e5ae3f 60%,#a2621c 100%) border-box;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.8), 0 4px 0 #b8842c, 0 10px 18px rgba(90,61,18,.22);
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
 }
 .wynik-nagroda-kwota{ font-size:38px; font-weight:900; line-height:1; color:#5A3407; text-shadow:0 2px 0 rgba(255,255,255,.6); }
@@ -2350,7 +2350,7 @@
   margin:26px auto 22px; width:min(100%,300px);
   padding:30px 20px 18px;
   border-radius:6px;
-  background:linear-gradient(180deg,#FFF6C9 0%,#FFEFAE 100%);
+  background:linear-gradient(180deg,#fff4c9 0%,#FFEFAE 100%);
   box-shadow:0 10px 18px rgba(60,45,15,.22), inset 0 1px 0 rgba(255,255,255,.7);
   transform:rotate(-1.6deg);
   text-align:center;
@@ -2374,7 +2374,7 @@
   margin:0 0 16px;
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-size:24px; line-height:1.3; font-weight:700;
-  color:#5a4a1e;
+  color:#5a4619;
 }
 
 /* Dwie ikony zamiast dwoch przyciskow z napisami: dziecko, ktore jeszcze slabo
@@ -2395,17 +2395,17 @@
 /* Zielony = to samo "idz dalej", co przycisk glowny w calej grze. */
 .porada-ikona--tak{
   background:linear-gradient(180deg,#8ed15f,#5aa733) padding-box,
-             linear-gradient(180deg,#b6e88f,#3e7a22) border-box;
+             linear-gradient(180deg,#b6e88f,#3c761f) border-box;
   box-shadow:0 4px 0 #3c761f, 0 8px 14px rgba(30,70,15,.3), inset 0 2px 0 rgba(255,255,255,.5);
 }
-.porada-ikona--tak svg{ fill:#fffdf4; stroke:none; }
+.porada-ikona--tak svg{ fill:#fffaf0; stroke:none; }
 .porada-ikona--tak:active{ box-shadow:0 2px 0 #3c761f, 0 4px 8px rgba(30,70,15,.3); }
 
 /* Krzyzyk jest LZEJSZY, nie czerwony: odlozenie porady to nie blad ani kara,
    a czerwony krzyzyk czyta sie jak "zle zrobiles". */
 .porada-ikona--nie{
-  background:linear-gradient(180deg,#fdf3d8,#f0e0b4) padding-box,
-             linear-gradient(180deg,#fff8e4,#c8a86a) border-box;
+  background:linear-gradient(180deg,var(--p-paper),var(--p-paper-2)) padding-box,
+             linear-gradient(180deg,#fffbe0,#c8a86a) border-box;
   box-shadow:0 4px 0 #b9955a, 0 6px 10px rgba(90,70,25,.22), inset 0 2px 0 rgba(255,255,255,.7);
 }
 .porada-ikona--nie svg{ fill:none; stroke:#8a6f36; stroke-width:2.6; stroke-linecap:round; }
@@ -2450,9 +2450,9 @@
   gap:0; margin:16px 0 20px; padding:14px 14px 12px;
   border:1.8px solid transparent; border-radius:24px;
   background:
-    linear-gradient(180deg,rgba(255,252,232,.95),rgba(245,228,181,.95)) padding-box,
-    linear-gradient(180deg,#fff0a1,#dba13a 62%,#9c6321) border-box;
-  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.82),0 3px 0 rgba(125,73,25,.55),0 8px 15px rgba(72,53,26,.14);
+    linear-gradient(180deg,rgba(255,251,224,.95),rgba(244,227,184,.95)) padding-box,
+    linear-gradient(180deg,var(--hud-gold-light),#d59a31 62%,#9c6321) border-box;
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.82),0 3px 0 rgba(127,69,23,.55),0 8px 15px rgba(72,53,26,.14);
 }
 /* Zegar ma sztywna szerokosc (inline `width:size`), wiec bez `justify-self`
    przykleilby sie do lewej krawedzi swojej polowy zamiast stanac na jej srodku.
@@ -2475,7 +2475,7 @@
    linii, wiec rozne stopnie pisma bylo widac jak przekrzywiona polke. */
 .kacik-tytul{
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
-  font-size:18px; font-weight:800; line-height:1.1; letter-spacing:.3px; color:#7a5a1e;
+  font-size:18px; font-weight:800; line-height:1.1; letter-spacing:.3px; color:#785a1e;
 }
 
 /* Guzik ma sie prosic o dotkniecie: duzy, okragly, z cieniem pod spodem, ktory
@@ -2578,13 +2578,13 @@
   transition:opacity 1.1s ease;
 }
 .oddech-tlo--wdech{
-  background:radial-gradient(circle at 50% 44%,#4f7fb5 0%,#2f4f80 55%,#1b2a4c 100%);
+  background:radial-gradient(circle at 50% 44%,#4f7fb5 0%,#2f4f80 55%,#1a2f4f 100%);
 }
 .oddech-tlo--wstrzymaj{
   background:radial-gradient(circle at 50% 44%,#8a6f4e 0%,#4f406a 55%,#2a2246 100%);
 }
 .oddech-tlo--wydech{
-  background:radial-gradient(circle at 50% 44%,#5d4a8f 0%,#332a5c 58%,#1e1836 100%);
+  background:radial-gradient(circle at 50% 44%,#5f438a 0%,#332a5c 58%,#241d3c 100%);
 }
 .oddech-ekran--wdech .oddech-tlo--wdech,
 .oddech-ekran--wstrzymaj .oddech-tlo--wstrzymaj,
@@ -2643,19 +2643,19 @@
   display:grid; justify-items:center; gap:5px;
   padding:8px 16px 9px; border-radius:16px;
   background:rgba(255,255,255,.82);
-  box-shadow:0 2px 0 rgba(40,80,110,.18);
+  box-shadow:0 2px 0 rgba(36,77,112,.18);
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-size:25px; font-weight:800; letter-spacing:.4px; line-height:1;
-  color:#2d5f86;
+  color:#1d5f88;
   /* Kolor i rozmiar plytki tez sa przejsciem: wejscie z odliczania w pierwszy
      wdech zmienia oba naraz i bez tego byloby to szarpniecie na starcie. */
   transition:color .85s ease, font-size .5s ease, padding .5s ease, top .5s ease, opacity .6s ease;
 }
 .oddech-slowo--odliczanie{
-  font-size:46px; color:#2d5f86; top:31%; padding:6px 22px 8px; border-radius:20px;
+  font-size:46px; color:#1d5f88; top:31%; padding:6px 22px 8px; border-radius:20px;
 }
-.oddech-slowo--wdech{ color:#1f6390; }
-.oddech-slowo--wstrzymaj{ color:#9a6a12; }
+.oddech-slowo--wdech{ color:#1c6a9c; }
+.oddech-slowo--wstrzymaj{ color:#a06e1e; }
 .oddech-slowo--wydech{ color:#4a3d86; }
 
 /* Strzalka: JEDEN ksztalt, ktory sie obraca. W gore na wdechu, w bok na
@@ -2668,7 +2668,7 @@
    z gory niezaleznie od tego, jak strzalka akurat stoi. */
 .oddech-strzalka{
   display:block; line-height:0;
-  filter:drop-shadow(0 2px 0 rgba(35,62,102,.22)) drop-shadow(0 4px 5px rgba(20,40,70,.18));
+  filter:drop-shadow(0 2px 0 rgba(35,62,102,.22)) drop-shadow(0 4px 5px rgba(26,47,79,.18));
 }
 
 .oddech-strzalka svg{
@@ -2734,7 +2734,7 @@
 .oddech-lisek{
   position:absolute; left:50%; bottom:0; translate:-50% 0; z-index:1;
   width:min(50vw,186px); height:auto; display:block;
-  filter:drop-shadow(0 6px 10px rgba(20,12,40,.45));
+  filter:drop-shadow(0 6px 10px rgba(26,20,44,.45));
 }
 
 /* Pufy pary przy wydechu - trzy, kazda innym torem, wszystkie krotkie. */
@@ -2757,7 +2757,7 @@
   width:min(112vw,420px); aspect-ratio:1; transform:translate(-50%,50%);
   border-radius:50%; pointer-events:none;
   background:radial-gradient(circle,
-    rgba(196,236,255,calc(.10 + .34 * var(--poziom))) 0%,
+    rgba(201,233,255,calc(.10 + .34 * var(--poziom))) 0%,
     rgba(160,220,255,calc(.05 + .18 * var(--poziom))) 38%,
     rgba(160,220,255,0) 68%);
   transition:opacity .6s ease;
@@ -2781,7 +2781,7 @@
   --promien:min(38vw,150px);
   position:absolute; width:11px; height:11px; margin:-5.5px;
   border-radius:50%;
-  background:radial-gradient(circle,#fff6cf 0%,#ffd977 45%,rgba(255,200,90,0) 72%);
+  background:radial-gradient(circle,var(--hud-cream-top) 0%,#ffd66d 45%,rgba(245,191,82,0) 72%);
   transform:rotate(var(--kat)) translateY(calc(-1 * var(--promien) + 22px)) scale(.3);
   opacity:0; transition:opacity .8s ease, transform .8s ease;
 }
@@ -2810,7 +2810,7 @@
   transition:background .4s ease, box-shadow .4s ease, transform .4s ease;
 }
 .oddech-platek.jest-pelny{
-  background:linear-gradient(180deg,#ffe9a1,#e6ac36);
+  background:linear-gradient(180deg,#ffe29a,#e6a832);
   box-shadow:0 0 12px rgba(255,214,120,.7);
   transform:scale(1.15);
 }
@@ -2821,7 +2821,7 @@
 }
 .oddech-koniec p{
   margin:0; font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
-  font-size:22px; font-weight:700; color:#fff4d2; text-align:center;
+  font-size:22px; font-weight:700; color:var(--p-paper); text-align:center;
 }
 
 /* Dziecko, ktore ma wylaczone animacje w systemie, dostaje sam rytm slow,
@@ -2841,7 +2841,7 @@
 }
 .oddech-zamknij svg{
   width:18px; height:18px; fill:none;
-  stroke:#fff4d2; stroke-width:2.6; stroke-linecap:round;
+  stroke:var(--p-paper); stroke-width:2.6; stroke-linecap:round;
 }
 
 
@@ -2849,23 +2849,23 @@
 .zegar-tarcza{ width:100%; height:auto; display:block;
   filter:drop-shadow(0 6px 10px rgba(60,45,15,.28)); }
 .zegar-koperta{ fill:#c8a86a; }
-.zegar-plyta{ fill:#fdf6e0; stroke:#8a6f36; stroke-width:.8; }
+.zegar-plyta{ fill:var(--p-paper); stroke:#8a6f36; stroke-width:.8; }
 .zegar-kreska{ stroke:#8a6f36; stroke-width:1.4; stroke-linecap:round; }
-.zegar-kreska--duza{ stroke:#5a4a1e; stroke-width:2.6; }
-.zegar-wsk{ stroke:#4e4d76; stroke-linecap:round; }
+.zegar-kreska--duza{ stroke:#5a4619; stroke-width:2.6; }
+.zegar-wsk{ stroke:var(--p-ink); stroke-linecap:round; }
 .zegar-wsk--godz{ stroke-width:4.4; }
 .zegar-wsk--min{ stroke-width:3; }
 /* Sekundnik cienki i miedziany - ma byc widac, ze zegar chodzi, ale nie ma
    przekrzykiwac dwoch wazniejszych wskazowek. */
 .zegar-wsk--sek{ stroke:#c9553f; stroke-width:1.2; }
-.zegar-os{ fill:#4e4d76; }
+.zegar-os{ fill:var(--p-ink); }
 .zegar-os-sek{ fill:#c9553f; }
 
 /* Pierscien por dnia: pastele, nie plakat. Kolor ma podpowiadac, gdzie w dobie
    stoi wskazowka, a nie zabierac uwage tarczy. */
 .zegar-pora{ fill:none; stroke-width:4.6; stroke-linecap:butt; }
-.zegar-pora--rano{ stroke:#CFE6F7; }
-.zegar-pora--poludnie{ stroke:#FBEFB6; }
+.zegar-pora--rano{ stroke:#c9e9ff; }
+.zegar-pora--poludnie{ stroke:#fff3bd; }
 .zegar-pora--popoludnie{ stroke:#FAD9A6; }
 .zegar-pora--wieczor{ stroke:#DFCDEE; }
 .zegar-pora--noc{ stroke:#C6C6DE; }
@@ -2894,7 +2894,7 @@
   background:linear-gradient(180deg,#8ed15f,#5aa733);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.6);
 }
-.porada-polka--dusza h3::before{ background:linear-gradient(180deg,#b98ce6,#7A4DC2); }
+.porada-polka--dusza h3::before{ background:linear-gradient(180deg,#b98ce6,var(--p-magic-dk)); }
 .porada-polka h3::after{
   content:""; flex:1; height:2px; border-radius:2px;
   background:linear-gradient(90deg, rgba(196,146,44,.4), rgba(196,146,44,0));
@@ -2957,8 +2957,8 @@
   position:relative; min-height:152px; padding:9px 18px 9px 9px;
   display:grid; grid-template-columns:136px minmax(0,1fr);
   justify-items:start; align-items:center; column-gap:12px; text-align:left;
-  border:2px solid rgba(255,214,110,.95); border-radius:var(--r-card,22px);
-  background:linear-gradient(180deg,#FFF3CE,#F6D98F);
+  border:2px solid rgba(255,214,109,.95); border-radius:var(--r-card,22px);
+  background:linear-gradient(180deg,var(--hud-cream-top),#ffe29a);
   box-shadow:inset 0 1.5px 0 rgba(255,255,255,.8),0 4px 0 rgba(134,81,27,.5),0 8px 15px rgba(61,47,25,.16);
   transition:transform .14s ease,filter .14s ease,box-shadow .14s ease;
 }
@@ -2972,7 +2972,7 @@
 }
 .porada-kafelek-obraz img{
   width:108px; height:108px; display:block; object-fit:contain;
-  filter:drop-shadow(0 3px 4px rgba(80,60,20,.24));
+  filter:drop-shadow(0 3px 4px rgba(74,52,16,.24));
 }
 .porada-kafelek strong{
   margin:0; font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
@@ -2982,8 +2982,8 @@
 /* Wybrany kafel rośnie w jeden ekran decyzji, ale zachowuje tę samą płytkę. */
 .porada-wybrana,.porada-odzew{
   margin:4px 0 14px; padding:18px 18px 16px; text-align:center;
-  border:2px solid rgba(255,214,110,.95); border-radius:24px;
-  background:linear-gradient(180deg,#FFF3CE,#F6D98F);
+  border:2px solid rgba(255,214,109,.95); border-radius:24px;
+  background:linear-gradient(180deg,var(--hud-cream-top),#ffe29a);
   box-shadow:inset 0 1.5px 0 rgba(255,255,255,.82),0 4px 0 rgba(134,81,27,.48),0 9px 17px rgba(61,47,25,.15);
 }
 .porada-wybrana-obraz,.porada-odzew-portret{
@@ -2992,11 +2992,11 @@
 }
 .porada-wybrana-obraz img,.porada-odzew-portret img{ width:150px; height:150px; object-fit:contain; display:block; }
 .porada-wybrana h3,.porada-odzew h3{
-  margin:4px 0 14px; color:#523c1a; font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  margin:4px 0 14px; color:#4a3410; font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-size:25px; line-height:1.08; font-weight:900;
 }
 .porada-odzew h3{ margin-bottom:5px; }
-.porada-odzew p{ margin:0 auto 2px; max-width:330px; color:#655334; font-size:15px; line-height:1.4; }
+.porada-odzew p{ margin:0 auto 2px; max-width:330px; color:#6b5c3c; font-size:15px; line-height:1.4; }
 /* Rozmiar ze skali `--cta-*` (`ewolucja.css`) - tu tylko szerokosc. */
 .porada-wybrana .hub-btn{ width:100%; }
 .porada-zmien{
@@ -3004,7 +3004,7 @@
   color:#765a30; cursor:pointer; font:800 13px/1.2 var(--font-display,'Baloo 2'),system-ui,sans-serif;
   text-decoration:underline; text-decoration-color:rgba(118,90,48,.38); text-underline-offset:3px;
 }
-.porada-odzew{ background:linear-gradient(180deg,#f3f7d8,#ddebaf); border-color:#b8d873; }
+.porada-odzew{ background:linear-gradient(180deg,var(--hud-cream-top),#ddebaf); border-color:#b8d873; }
 .porada-odzew-portret{ width:158px; height:158px; }
 .porada-odzew-portret img{ width:132px; height:132px; }
 
@@ -3012,7 +3012,7 @@
    że niczego nie trzeba nadrabiać. */
 .porada-slady{
   margin:18px 0 2px; padding:14px 15px 12px; border-radius:20px;
-  background:rgba(255,253,235,.72); box-shadow:inset 0 0 0 1.5px rgba(177,139,59,.24);
+  background:rgba(255,249,229,.72); box-shadow:inset 0 0 0 1.5px rgba(177,139,59,.24);
 }
 .porada-slady h3{ font-size:18px; }
 .porada-slady-listki{ display:flex; justify-content:center; gap:10px; margin:12px 0 8px; }
@@ -3021,7 +3021,7 @@
   rotate:-34deg; background:#e8e0c8; box-shadow:inset 0 0 0 1.5px rgba(104,95,68,.12);
 }
 .porada-slady-listki span.jest-pelny{
-  background:linear-gradient(135deg,#a6d75f,#54a83b); box-shadow:inset 2px 2px 0 rgba(255,255,255,.35),0 2px 4px rgba(46,97,31,.24);
+  background:linear-gradient(135deg,#a6d75f,#5aa733); box-shadow:inset 2px 2px 0 rgba(255,255,255,.35),0 2px 4px rgba(46,97,31,.24);
 }
 
 /* Ekrany aktywności: pełny ekran usuwa dok i półki z pola widzenia, tak jak
@@ -3030,14 +3030,14 @@
   position:fixed; inset:0; z-index:92; display:grid; place-items:center; padding:22px;
   background:
     radial-gradient(circle at 50% 34%,rgba(84,176,209,.24),transparent 38%),
-    linear-gradient(160deg,#232347,#3d2d65 58%,#21203f);
-  color:#fff; overflow:auto;
+    linear-gradient(160deg,#2a2246,#3d2d65 58%,#241d3c);
+  color:#ffffff; overflow:auto;
 }
 .porada-akcja-zamknij{
   position:fixed; top:max(16px,env(safe-area-inset-top)); right:16px; z-index:2;
   width:44px; height:44px; display:grid; place-items:center; padding:0;
   border:2px solid rgba(255,255,255,.34); border-radius:50%; background:rgba(23,21,51,.28);
-  color:#fff; cursor:pointer; font:400 30px/1 system-ui,sans-serif;
+  color:#ffffff; cursor:pointer; font:400 30px/1 system-ui,sans-serif;
 }
 .porada-akcja-scena{ width:min(100%,420px); text-align:center; }
 .porada-akcja-obraz{
@@ -3047,10 +3047,10 @@
 }
 .porada-akcja-obraz img{ width:154px; height:154px; object-fit:contain; display:block; }
 .porada-akcja-scena h2{
-  margin:4px 0 8px; color:#fff4c7; font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  margin:4px 0 8px; color:#fff4c9; font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-size:30px; line-height:1.1; font-weight:900; text-shadow:0 3px 0 rgba(0,0,0,.24);
 }
-.porada-akcja-instrukcja{ margin:0 auto 16px; max-width:360px; color:#f3edf9; font-size:16px; line-height:1.45; font-weight:700; }
+.porada-akcja-instrukcja{ margin:0 auto 16px; max-width:360px; color:#faf2ff; font-size:16px; line-height:1.45; font-weight:700; }
 .porada-trop-listki{ display:flex; justify-content:center; gap:12px; margin:16px 0 12px; }
 .porada-trop-listki button{
   width:48px; height:58px; display:grid; place-items:center; padding:0; border:0; border-radius:18px;
@@ -3065,14 +3065,14 @@
 .porada-akcja-gotowe{ width:min(100%,300px); margin-top:5px; }
 .porada-ruch-kropki{ display:flex; justify-content:center; gap:10px; margin:12px 0 20px; }
 .porada-ruch-kropki span{ width:14px; height:14px; border:2px solid rgba(255,255,255,.5); border-radius:50%; }
-.porada-ruch-kropki span.jest-pelna{ background:#f6cd54; border-color:#fff1a7; box-shadow:0 0 12px rgba(246,205,84,.62); }
+.porada-ruch-kropki span.jest-pelna{ background:#f6cd54; border-color:#fff3a8; box-shadow:0 0 12px rgba(246,205,84,.62); }
 .porada-ruch-polecenie{
-  min-height:48px; margin:0 auto 8px; color:#fff4cf; font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  min-height:48px; margin:0 auto 8px; color:var(--hud-cream-top); font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-size:23px; line-height:1.2; font-weight:900;
 }
 .porada-ruch-czas{
   width:66px; height:66px; margin:8px auto 0; display:grid; place-items:center;
-  border:3px solid #f6cd54; border-radius:50%; color:#fff8d8; background:rgba(28,25,58,.52);
+  border:3px solid #f6cd54; border-radius:50%; color:var(--p-paper); background:rgba(36,29,60,.52);
   box-shadow:0 0 0 7px rgba(246,205,84,.1); font:900 28px/1 var(--font-display,'Baloo 2'),system-ui,sans-serif;
 }
 
@@ -3127,8 +3127,8 @@
 }
 
 @keyframes reflektor-puls{
-  0%,100%{ box-shadow:0 0 0 3px rgba(255,224,140,.22), 0 0 18px 4px rgba(255,206,90,.38); transform:scale(1) }
-  50%    { box-shadow:0 0 0 8px rgba(255,224,140,.12), 0 0 30px 10px rgba(255,206,90,.62); transform:scale(1.045) }
+  0%,100%{ box-shadow:0 0 0 3px rgba(255,224,140,.22), 0 0 18px 4px rgba(246,205,84,.38); transform:scale(1) }
+  50%    { box-shadow:0 0 0 8px rgba(255,224,140,.12), 0 0 30px 10px rgba(246,205,84,.62); transform:scale(1.045) }
 }
 
 /* ── Chmurka ─────────────────────────────────────────────────────────────
@@ -3163,7 +3163,7 @@
   position:relative;
   overflow:visible;            /* dzióbek wychodzi poza box karty */
   cursor:pointer;
-  filter:drop-shadow(0 7px 0 rgba(78,77,118,.17)) drop-shadow(0 14px 22px rgba(30,18,52,.34));
+  filter:drop-shadow(0 7px 0 rgba(78,77,118,.17)) drop-shadow(0 14px 22px rgba(27,19,56,.34));
   animation:reflektor-oddech 3.2s ease-in-out .5s infinite;
 }
 
@@ -3186,7 +3186,7 @@
 .reflektor-postac{
   width:84px; height:auto; flex:none;
   margin:-38px -2px -10px -6px;  /* Wizkor wychyla się ponad chmurkę */
-  filter:drop-shadow(0 4px 6px rgba(35,20,60,.35));
+  filter:drop-shadow(0 4px 6px rgba(27,19,56,.35));
   pointer-events:none;
   animation:reflektor-wizkor .5s .12s cubic-bezier(.2,1.4,.4,1) both;
 }
@@ -3210,7 +3210,7 @@
   font:900 19px/1 "Baloo 2",system-ui,sans-serif;
 }
 .reflektor-glos:active{ transform:translateY(2px); box-shadow:none; }
-.reflektor-glos:focus-visible{ outline:3px solid #ffd269; outline-offset:2px; }
+.reflektor-glos:focus-visible{ outline:3px solid var(--p-amber); outline-offset:2px; }
 
 .reflektor-imie{
   display:block; margin-bottom:-3px;
@@ -3233,8 +3233,8 @@
   position:absolute; top:-9px; right:-7px; z-index:2;
   width:30px; height:30px;
   display:grid; place-items:center;
-  border:3px solid #4e4d76; border-radius:50%;
-  background:#fffcf2; color:#4e4d76;
+  border:3px solid var(--p-ink); border-radius:50%;
+  background:#fffaf0; color:var(--p-ink);
   font-size:16px; line-height:1; cursor:pointer;
 }
 
@@ -3252,7 +3252,7 @@
   .reflektor-dymek,
   .reflektor-karta,
   .reflektor-postac{ animation:none }
-  .reflektor-obrecz{ animation:none; box-shadow:0 0 0 4px rgba(255,224,140,.3), 0 0 22px 6px rgba(255,206,90,.5) }
+  .reflektor-obrecz{ animation:none; box-shadow:0 0 0 4px rgba(255,224,140,.3), 0 0 22px 6px rgba(246,205,84,.5) }
 }
 
 /* hub.css — pelny plik, 2426 linii (odswiezenie dla watchera Vite) */
@@ -3266,16 +3266,16 @@
 .porada-lisek{
   display:flex; align-items:center; gap:9px;
   width:100%; margin:6px 0 2px; padding:7px 12px 7px 7px;
-  border:2px dashed rgba(226,163,46,.55); border-radius:16px;
-  background:rgba(255,252,238,.72);
+  border:2px dashed rgba(230,168,50,.55); border-radius:16px;
+  background:rgba(255,249,229,.72);
   color:var(--p-ink,#4e4d76); text-align:left; cursor:pointer;
   font-family:"Nunito",system-ui,sans-serif; font-size:14.5px; line-height:1.35;
 }
 .porada-lisek img{
   width:38px; height:38px; flex:none; object-fit:contain; object-position:top center;
-  filter:drop-shadow(0 2px 3px rgba(60,40,20,.28));
+  filter:drop-shadow(0 2px 3px rgba(62,38,16,.28));
 }
-.porada-lisek:active{ background:rgba(255,247,214,.9); }
+.porada-lisek:active{ background:rgba(251,241,214,.9); }
 .porada-lisek--wybor{ justify-content:center; text-align:center; border-style:solid; }
 
 @media (prefers-reduced-motion:reduce){

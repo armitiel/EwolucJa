@@ -14,7 +14,7 @@
   position:absolute; inset:0; z-index:30;
   display:flex; align-items:center; justify-content:center;
   padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));
-  background:rgba(30,20,52,.55);
+  background:rgba(27,19,56,.55);
   backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px);
   animation:tut-wejscie .22s ease both;
 }
@@ -26,15 +26,15 @@
   border:3px solid transparent; border-radius:28px;
   background:
     linear-gradient(180deg,var(--p-paper,#FBF1D6) 0%,var(--p-paper-2,#F4E3B8) 100%) padding-box,
-    linear-gradient(180deg,#fff0a1 0%,#e9b436 55%,#a4671b 100%) border-box;
-  box-shadow:inset 0 3px 0 rgba(255,255,255,.75),0 6px 0 rgba(122,77,194,.28),0 22px 46px rgba(40,26,70,.45);
+    linear-gradient(180deg,var(--hud-gold-light) 0%,var(--hud-gold) 55%,#a2621c 100%) border-box;
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.75),0 6px 0 rgba(122,77,194,.28),0 22px 46px rgba(37,29,74,.45);
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   color:var(--p-ink,#4e4d76); text-align:center;
 }
 
 .tut-tytul{
   margin:2px 0 14px; font-size:26px; font-weight:900; line-height:1.1;
-  color:#523c1a;
+  color:#4a3410;
 }
 
 .tut-kroki{ list-style:none; margin:0; padding:0; display:grid; gap:10px; }
@@ -72,7 +72,7 @@
 .tut-karta-rewers img{ width:100%; height:100%; object-fit:cover; display:block; }
 .tut-karta-lice{
   transform:rotateY(180deg);
-  background:linear-gradient(180deg,#fffbe0,#f3e0ab);
+  background:linear-gradient(180deg,#fffbe0,#f4e1ac);
   box-shadow:inset 0 0 0 1.5px #d59a31;
 }
 .tut-karta-lice svg{ width:20px; height:20px; display:block; }
@@ -93,8 +93,8 @@
 .tut-karta--para{ animation-name:tut-para; }
 @keyframes tut-blysk{
   0%,30%   { box-shadow:inset 0 0 0 1.5px #d59a31 }
-  55%      { box-shadow:inset 0 0 0 2px #f0c14a, 0 0 12px 3px rgba(255,214,105,.9) }
-  100%     { box-shadow:inset 0 0 0 2px #f0c14a, 0 0 7px 2px rgba(255,214,105,.55) }
+  55%      { box-shadow:inset 0 0 0 2px #f0c14a, 0 0 12px 3px rgba(255,214,109,.9) }
+  100%     { box-shadow:inset 0 0 0 2px #f0c14a, 0 0 7px 2px rgba(255,214,109,.55) }
 }
 .tut-karta--para .tut-karta-lice{
   animation:tut-blysk 4s ease-in-out infinite;
@@ -114,7 +114,7 @@
 .tut-palec{
   position:absolute; left:14px; bottom:6px;
   width:15px; height:15px; border-radius:50%;
-  background:radial-gradient(circle at 35% 32%,#fff,rgba(255,255,255,.25) 60%,transparent 70%),
+  background:radial-gradient(circle at 35% 32%,#ffffff,rgba(255,255,255,.25) 60%,transparent 70%),
              rgba(122,77,194,.55);
   box-shadow:0 0 0 2px rgba(255,255,255,.7);
   animation:tut-puk 4s ease-in-out infinite;

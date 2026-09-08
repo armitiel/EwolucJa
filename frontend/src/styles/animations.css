@@ -216,7 +216,7 @@ html, body {
 .cta-splash:hover {
   border-color: rgba(233, 69, 96, 1) !important;
   background: linear-gradient(135deg, rgba(233,69,96,0.4), rgba(255,213,84,0.3)) !important;
-  color: #fff !important;
+  color: #ffffff !important;
 }
 .cta-splash {
   transition: border-color 0.3s, background 0.3s, color 0.3s;

@@ -41,7 +41,7 @@
   border: 2px solid transparent;
   border-radius: 999px;
   background:
-    linear-gradient(180deg, rgba(255, 251, 224, .97), rgba(242, 220, 158, .97)) padding-box,
+    linear-gradient(180deg, rgba(255, 251, 224, .97), rgba(241,217,151,.97)) padding-box,
     linear-gradient(180deg, var(--hud-gold-light), var(--hud-gold) 58%, var(--hud-gold-deep)) border-box;
   box-shadow: inset 0 2px 0 rgba(255, 255, 255, .82), 0 3px 0 var(--hud-shadow), 0 7px 13px rgba(62, 38, 16, .24);
   color: var(--hud-ink);
@@ -65,7 +65,7 @@
   flex: none;
   object-fit: contain;
   margin: -6px 0 -6px -3px;
-  filter: drop-shadow(0 2px 1px rgba(73, 39, 12, .27));
+  filter: drop-shadow(0 2px 1px rgba(79,43,12,.27));
 }
 
 .game-hud-profile span {
@@ -89,7 +89,7 @@
   height: 34px;
   object-fit: contain;
   margin: -1px 0 -1px -2px;
-  filter: drop-shadow(0 2px 1px rgba(83, 44, 9, .3));
+  filter: drop-shadow(0 2px 1px rgba(79,43,12,.3));
 }
 
 .game-hud-counter--spark {
@@ -117,9 +117,9 @@
   border-radius: 50%;
   background:
     radial-gradient(circle at 42% 30%, #3e6b89 0%, #244d70 52%, #183653 100%) padding-box,
-    linear-gradient(180deg, #fff3a1, #e2a32e 58%, #8f5017) border-box;
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .16), 0 4px 0 #784116, 0 8px 15px rgba(35, 38, 24, .3);
-  color: #fff0a3;
+    linear-gradient(180deg, var(--hud-gold-light), #e6a832 58%, #8f5017) border-box;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .16), 0 4px 0 #7f4517, 0 8px 15px rgba(36,39,25,.3);
+  color: #fff3a8;
 }
 
 .game-hud-map svg {
@@ -130,7 +130,7 @@
   stroke-width: 2.2;
   stroke-linecap: round;
   stroke-linejoin: round;
-  filter: drop-shadow(0 2px 0 rgba(12, 27, 45, .58));
+  filter: drop-shadow(0 2px 0 rgba(14,22,42,.58));
 }
 
 .game-hud-bottom { display: grid; justify-items: center; gap: 8px; }
@@ -140,9 +140,9 @@
   border: 1.5px solid transparent;
   border-radius: 999px;
   background:
-    linear-gradient(180deg, rgba(64, 119, 111, .95), rgba(35, 76, 75, .96)) padding-box,
-    linear-gradient(180deg, #ffe980, #d88d29) border-box;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18), 0 2px 0 #774416, 0 5px 10px rgba(31, 42, 27, .2);
+    linear-gradient(180deg, rgba(62,117,110,.95), rgba(36,77,76,.96)) padding-box,
+    linear-gradient(180deg, #ffe87c, #d58b27) border-box;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18), 0 2px 0 #7f4517, 0 5px 10px rgba(31, 42, 27, .2);
   color: #fff3bd;
   font-size: 11px;
   font-weight: 900;
@@ -187,7 +187,7 @@
   background:
     linear-gradient(180deg, var(--hud-cream-top), var(--hud-cream-bottom)) padding-box,
     linear-gradient(180deg, var(--hud-gold-light), var(--hud-gold) 56%, var(--hud-gold-deep)) border-box;
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .92), inset 0 -3px 0 rgba(177, 112, 28, .17), 0 5px 0 var(--hud-shadow), 0 9px 14px rgba(63, 39, 14, .26);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .92), inset 0 -3px 0 rgba(180,115,34,.17), 0 5px 0 var(--hud-shadow), 0 9px 14px rgba(62,38,16,.26);
 }
 
 .game-hud-dock img {
@@ -223,7 +223,7 @@
   border: 2px solid #a582cc;
   border-radius: 999px;
   background: linear-gradient(180deg, #76569c, #503867);
-  box-shadow: 0 2px 0 #35243d, 0 4px 7px rgba(45, 28, 52, .24);
+  box-shadow: 0 2px 0 #35243d, 0 4px 7px rgba(53,36,61,.24);
   color: #fff3bd;
   font-family: "Nunito", system-ui, sans-serif;
   /* +15% wzgledem 10 px - podpis ma sie czytac w biegu, jednym rzutem oka. */
@@ -283,15 +283,15 @@
   display: grid;
   place-items: center;
   padding: 0 9px;
-  border: 3px solid #fff0c4;
+  border: 3px solid #fff4c9;
   border-radius: 999px;
-  background: linear-gradient(180deg, #ff665e, #d92e34);
-  box-shadow: 0 3px 0 #8e2528, 0 6px 11px rgba(72, 25, 21, .28);
-  color: #fff7d0;
+  background: linear-gradient(180deg, #ff6a5e, #d53537);
+  box-shadow: 0 3px 0 #8d2a27, 0 6px 11px rgba(72, 25, 21, .28);
+  color: var(--hud-cream-top);
   font-size: 22px;
   font-weight: 900;
   line-height: 1;
-  text-shadow: 0 2px 0 #8e2528;
+  text-shadow: 0 2px 0 #8d2a27;
 }
 
 /* Cyferka LEKKO DO GORY wewnatrz kolka. Pismo wyswietlane jest z odstepem pod
@@ -314,7 +314,7 @@
   top: 1px;
   right: 8px;
   background: linear-gradient(180deg, #7ede76, #37a84a);
-  box-shadow: 0 2px 0 #1f7333, 0 4px 8px rgba(20, 66, 30, .28);
+  box-shadow: 0 2px 0 #28753b, 0 4px 8px rgba(20, 66, 30, .28);
 }
 
 .game-hud-dock button:hover,
@@ -347,16 +347,16 @@
 .game-hud-dock button:hover::before,
 .game-hud-dock button.is-active::before {
   background:
-    linear-gradient(180deg, #fffde9, #f6df91) padding-box,
-    linear-gradient(180deg, #fff8b0, #f4bf3f 56%, #bd6d1d) border-box;
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .96), 0 5px 0 #8b4717, 0 0 18px rgba(255, 221, 85, .58), 0 10px 15px rgba(63, 39, 14, .28);
+    linear-gradient(180deg, #fffbe0, #ffe797) padding-box,
+    linear-gradient(180deg, #fff3a8, var(--hud-gold) 56%, var(--hud-gold-deep)) border-box;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .96), 0 5px 0 var(--hud-shadow), 0 0 18px rgba(255, 221, 85, .58), 0 10px 15px rgba(62,38,16,.28);
 }
 
 .game-hud-dock button:active { transform: translateY(-1px) scale(.96); }
 
 .game-hud-dock button:focus-visible,
 .game-hud-profile:focus-visible,
-.game-hud-map:focus-visible { outline: 3px solid #fff3a1; outline-offset: 3px; }
+.game-hud-map:focus-visible { outline: 3px solid var(--hud-gold-light); outline-offset: 3px; }
 
 .game-hud-toast {
   position: fixed;
@@ -378,8 +378,8 @@
   box-sizing: border-box;
   border: 2px solid #e6a832;
   border-radius: 999px;
-  background: linear-gradient(180deg, #466f68, #294d4b);
-  box-shadow: 0 3px 0 #744117, 0 7px 13px rgba(38, 31, 18, .28);
+  background: linear-gradient(180deg, #466f68, #244d4c);
+  box-shadow: 0 3px 0 #6f3a12, 0 7px 13px rgba(38, 31, 18, .28);
   color: #fff3bd;
   font-size: 12px;
   font-weight: 900;
@@ -388,7 +388,7 @@
   text-align: center;
   text-wrap: balance;
   text-transform: uppercase;
-  text-shadow: 0 1px 0 #203d3a;
+  text-shadow: 0 1px 0 #253f3d;
   transition: opacity .18s ease, transform .18s ease;
 }
 
@@ -402,7 +402,7 @@
      na baseline moneta „spadala" pod linie pisma. */
   vertical-align: -0.32em;
   margin-left: 5px;
-  filter: drop-shadow(0 1px 1px rgba(32, 61, 58, .45));
+  filter: drop-shadow(0 1px 1px rgba(37,63,61,.45));
 }
 
 .game-hud-toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
@@ -423,14 +423,14 @@
   border: 2.5px solid transparent;
   border-radius: 26px;
   background:
-    linear-gradient(180deg, rgba(255, 249, 216, .9) 0%, rgba(240, 213, 141, .86) 100%) padding-box,
-    linear-gradient(180deg, #fff39b 0%, #edb334 56%, #b8681b 100%) border-box;
+    linear-gradient(180deg, rgba(255,249,217,.9) 0%, rgba(241,217,151,.86) 100%) padding-box,
+    linear-gradient(180deg, var(--hud-gold-light) 0%, var(--hud-gold) 56%, var(--hud-gold-deep) 100%) border-box;
   backdrop-filter: blur(5px) saturate(1.06);
   -webkit-backdrop-filter: blur(5px) saturate(1.06);
   box-shadow:
-    inset 0 -2px 0 rgba(167, 101, 24, .12),
-    0 3px 0 rgba(139, 70, 24, .88),
-    0 7px 12px rgba(58, 37, 14, .2);
+    inset 0 -2px 0 rgba(162,98,28,.12),
+    0 3px 0 rgba(141,72,24,.88),
+    0 7px 12px rgba(62,38,16,.2);
 }
 
 .game-hud.is-shelf .game-hud-dock button {
@@ -446,7 +446,7 @@
   height: 62px;
   filter:
     drop-shadow(0 3px 1px rgba(79, 43, 12, .3))
-    drop-shadow(0 0 1px rgba(255, 244, 171, .7));
+    drop-shadow(0 0 1px rgba(255,243,168,.7));
 }
 
 .game-hud.is-shelf .game-hud-dock button:hover,
@@ -459,7 +459,7 @@
   transform: translateY(-6px) scale(1.08);
   filter:
     drop-shadow(0 4px 1px rgba(79, 43, 12, .3))
-    drop-shadow(0 0 9px rgba(255, 228, 88, .9));
+    drop-shadow(0 0 9px rgba(255,221,85,.9));
 }
 
 .game-hud.is-shelf .game-hud-dock button:active {
@@ -541,7 +541,7 @@
   z-index: 0;
   inset: 8% -12%;
   border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(255,225,113,.36), rgba(255,211,90,.12) 48%, transparent 72%);
+  background: radial-gradient(ellipse, rgba(255,225,113,.36), rgba(246,205,84,.12) 48%, transparent 72%);
   filter: blur(14px);
   opacity: 0;
   transform: scale(.7);
@@ -614,13 +614,13 @@
   gap: 12px;
   padding-top: 8px;
   padding-bottom: 12px;
-  border-bottom: 2px solid rgba(176,112,35,.2);
+  border-bottom: 2px solid rgba(180,115,34,.2);
 }
 
 .message-scroll-kicker {
   display: block;
   margin-bottom: 2px;
-  color: #a7651d;
+  color: #a2621c;
   font-size: 10px;
   font-weight: 900;
   letter-spacing: 1.2px;
@@ -629,14 +629,14 @@
 
 .message-scroll-header h2 {
   margin: 0;
-  color: #fff0b5;
+  color: #fff3bd;
   font-size: 30px;
   font-weight: 900;
   line-height: 1;
   letter-spacing: .3px;
   -webkit-text-stroke: 4px #4f3020;
   paint-order: stroke fill;
-  text-shadow: 0 3px 0 #a66022, 0 5px 8px rgba(73,42,20,.22);
+  text-shadow: 0 3px 0 #a2621c, 0 5px 8px rgba(73,42,20,.22);
 }
 
 .message-scroll-close {
@@ -650,7 +650,7 @@
   display: grid;
   place-items: center;
   padding: 0 0 4px;
-  border: 2px solid #8f2d27;
+  border: 2px solid #8d2a27;
   border-radius: 50%;
   background: linear-gradient(180deg, #ff6a5e, #d53537);
   box-shadow: inset 0 2px 0 rgba(255,255,255,.35), 0 3px 0 #8d2a27, 0 6px 9px rgba(77,35,22,.2);
@@ -673,7 +673,7 @@
   padding: 10px 12px;
   border: 1.5px solid rgba(190,126,39,.34);
   border-radius: 14px;
-  background: rgba(255,250,225,.68);
+  background: rgba(251,241,214,.68);
   color: #79553a;
   font-family: "Trebuchet MS", system-ui, sans-serif;
   font-size: 12.5px;
@@ -688,15 +688,15 @@
 
 .scroll-message {
   overflow: hidden;
-  border: 1.5px solid rgba(177,113,35,.28);
+  border: 1.5px solid rgba(180,115,34,.28);
   border-radius: 17px;
-  background: rgba(255,251,231,.68);
+  background: rgba(255,251,224,.68);
   box-shadow: 0 3px 8px rgba(83,51,20,.1);
 }
 
 .scroll-message.is-unread {
-  border-color: rgba(220,139,38,.72);
-  background: rgba(255,252,235,.94);
+  border-color: rgba(213,139,39,.72);
+  background: rgba(255,249,229,.94);
 }
 
 .scroll-message-head {
@@ -708,13 +708,13 @@
   padding: 9px 10px;
   border: 0;
   background: transparent;
-  color: #563a26;
+  color: #50351f;
   text-align: left;
   cursor: pointer;
 }
 
 .scroll-message-head:focus-visible {
-  outline: 3px solid #e1a239;
+  outline: 3px solid #d59a31;
   outline-offset: -3px;
   border-radius: 15px;
 }
@@ -764,7 +764,7 @@
   height: 9px;
   border-radius: 50%;
   background: #e74343;
-  box-shadow: 0 1px 0 #9c2929;
+  box-shadow: 0 1px 0 #a6312d;
 }
 
 .scroll-message-body {
@@ -780,7 +780,7 @@
 .scroll-message-body span {
   display: block;
   margin-bottom: 4px;
-  color: #a7651d;
+  color: #a2621c;
   font-size: 10px;
   font-weight: 900;
   letter-spacing: .7px;
@@ -832,11 +832,11 @@
   box-shadow: none;
   background: linear-gradient(90deg,
       transparent,
-      rgba(181,116,31,.48) 14%,
-      rgba(181,116,31,.48) 45%,
+      rgba(180,115,34,.48) 14%,
+      rgba(180,115,34,.48) 45%,
       transparent 45%, transparent 55%,
-      rgba(181,116,31,.48) 55%,
-      rgba(181,116,31,.48) 86%,
+      rgba(180,115,34,.48) 55%,
+      rgba(180,115,34,.48) 86%,
       transparent) bottom left / 100% 1.5px no-repeat;
 }
 .scroll-message.is-quest .scroll-message-avatar {
@@ -846,10 +846,10 @@
   grid-row: 1 / span 2;
   align-self: center;
   overflow: hidden;
-  border: 3px solid #bd7b2b;
+  border: 3px solid #b47322;
   border-radius: 48% 48% 42% 42%;
-  background: radial-gradient(circle at 50% 42%, #8f51c8 0 42%, #6b329e 70%, #4d246f 100%);
-  box-shadow: inset 0 0 0 3px rgba(255,232,154,.58), 0 4px 0 rgba(111,64,19,.34), 0 8px 14px rgba(80,44,19,.18);
+  background: radial-gradient(circle at 50% 42%, #8f51c8 0 42%, #73349c 70%, #54286f 100%);
+  box-shadow: inset 0 0 0 3px rgba(255,226,154,.58), 0 4px 0 rgba(111,58,18,.34), 0 8px 14px rgba(79,43,12,.18);
 }
 .scroll-message.is-quest .scroll-message-avatar img {
   width: 116px;
@@ -866,11 +866,11 @@
   align-self: end;
 }
 .scroll-message.is-quest .scroll-message-copy strong {
-  color:#573113;
+  color:#4f2b0c;
   font-size: 29px;
   line-height: 1.02;
   letter-spacing: .2px;
-  text-shadow: 0 2px 0 rgba(255,246,205,.72);
+  text-shadow: 0 2px 0 rgba(255,244,201,.72);
 }
 
 /* Plakietka w drugim wierszu, przy LEWEJ krawedzi tekstu (dziedziczone
@@ -898,9 +898,9 @@
   font-size: 18px;
   line-height: 1.45;
   /* Ciemniej niz na karcie (#6b5233). Kartka miala tlo prawie biale, pergamin
-     jest zloty (#f5cb7f-#f9deb0) - ten sam braz czytal sie na nim o polowe
+     jest zloty (#f5cb7f-var(--p-sky-2)) - ten sam braz czytal sie na nim o polowe
      slabiej. Ta wartosc daje ~6:1 na najciemniejszym miejscu papieru. */
-  color: #5b4327;
+  color: #5e4123;
 }
 
 /* Uwaga Mentora ("prosze poprawic") tez schodzi ciemniej i zostawia sobie
@@ -908,7 +908,7 @@
 .scroll-message.is-quest .scroll-message-note {
   margin-top: 10px;
   border-left-color: rgba(122,77,194,.42);
-  color: #614326;
+  color: #5e4123;
   font-size: 13px;
 }
 .scroll-message.is-quest .scroll-message-body p {
@@ -926,14 +926,14 @@
   width:100%;
   box-sizing:border-box;
   padding:18px 20px 15px;
-  border:1.5px solid rgba(185,122,38,.44);
+  border:1.5px solid rgba(180,115,34,.44);
   border-radius:20px;
-  background:rgba(255,246,209,.42);
+  background:rgba(255,249,217,.42);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.58);
   text-align:center;
 }
 .scroll-message.is-quest .scroll-message-task-copy > p:first-child{
-  color:#563116;
+  color:#4f2b0c;
   font-size:21px;
   font-weight:900;
   line-height:1.28;
@@ -965,13 +965,13 @@
   box-sizing:border-box;
   margin-top:-1px;
   padding:5px 16px 6px 10px;
-  border:2px solid #c48a31;
+  border:2px solid #b8842c;
   border-radius:999px;
-  background:linear-gradient(180deg,#fff1bd,#f4d38c);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.7),0 3px 0 rgba(137,82,24,.35);
-  color:#613416;
+  background:linear-gradient(180deg,#fff3bd,#f1d28d);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.7),0 3px 0 rgba(134,81,27,.35);
+  color:#5a3311;
 }
-.scroll-message-reward img{ width:34px; height:34px; object-fit:contain; filter:drop-shadow(0 2px 1px rgba(91,51,15,.25)); }
+.scroll-message-reward img{ width:34px; height:34px; object-fit:contain; filter:drop-shadow(0 2px 1px rgba(90,51,17,.25)); }
 .scroll-message-reward strong{ font-size:24px; line-height:1; }
 
 /* Koniec zadania, poczatek wiesci. Bez ramki akapit na golym papierze zlewalby
@@ -1017,8 +1017,8 @@
   padding: 7px 14px 8px;
   border-radius: 999px;
   background: linear-gradient(180deg, #9a75da, #6b3fb4);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 2px 0 rgba(66,38,116,.75);
-  color: #fff4cd;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 2px 0 rgba(67,34,111,.75);
+  color: #fff4c9;
   font-size: 12px;
   font-weight: 900;
   letter-spacing: .5px;
@@ -1032,7 +1032,7 @@
   height: 11px;
   border-radius: 50%;
   background: #ff5b5b;
-  box-shadow: 0 0 0 1.6px rgba(255,244,205,.75);
+  box-shadow: 0 0 0 1.6px rgba(255,244,201,.75);
 }
 
 @keyframes message-scroll-close-press {
@@ -1181,7 +1181,7 @@
   border: 2px solid transparent;
   border-radius: 50%;
   background:
-    radial-gradient(circle at 42% 30%, #fffbe0 0%, #f2dc9e 58%, #e3c274 100%) padding-box,
+    radial-gradient(circle at 42% 30%, #fffbe0 0%, var(--hud-cream-bottom) 58%, #e3c274 100%) padding-box,
     linear-gradient(180deg, var(--hud-gold-light), var(--hud-gold) 58%, var(--hud-gold-deep)) border-box;
   box-shadow: inset 0 2px 0 rgba(255, 255, 255, .82), 0 3px 0 var(--hud-shadow), 0 7px 13px rgba(62, 38, 16, .24);
   cursor: pointer;
@@ -1194,12 +1194,12 @@
   object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
-  filter: drop-shadow(0 2px 1px rgba(73, 39, 12, .27));
+  filter: drop-shadow(0 2px 1px rgba(79,43,12,.27));
   transition: filter .16s ease, opacity .16s ease;
 }
 
 .game-hud-music:active { transform: translateY(2px); }
-.game-hud-music:focus-visible { outline: 3px solid #fff3a1; outline-offset: 3px; }
+.game-hud-music:focus-visible { outline: 3px solid var(--hud-gold-light); outline-offset: 3px; }
 
 /* Wyciszone: ikona traci kolor i sile, ale przycisk zostaje tak samo duzy -
    dziecko ma trafic w to samo miejsce, zeby wlaczyc muzyke z powrotem. */
@@ -1248,7 +1248,7 @@
   margin: -4px 0 -4px -2px;
   /* Mocniejszy cien niz w kafelku - bez zlotej obwodki awatar musi sam
      odkleic sie od sceny, ktora bywa jasna. */
-  filter: drop-shadow(0 3px 2px rgba(38, 26, 12, .42)) drop-shadow(0 1px 0 rgba(255, 255, 255, .35));
+  filter: drop-shadow(0 3px 2px rgba(40,25,5,.42)) drop-shadow(0 1px 0 rgba(255, 255, 255, .35));
 }
 
 @media (max-width: 340px) {
@@ -1301,8 +1301,8 @@
   bottom: 6px;
   height: 6px;
   border-radius: 999px;
-  background: rgba(122, 68, 22, .2);
-  box-shadow: inset 0 1px 1px rgba(88, 48, 14, .28);
+  background: rgba(127,69,23,.2);
+  box-shadow: inset 0 1px 1px rgba(79,43,12,.28);
   overflow: hidden;
 }
 
@@ -1311,15 +1311,15 @@
   height: 100%;
   min-width: 0;
   border-radius: 999px;
-  background: linear-gradient(180deg, #ffef9c, #f2b93f 58%, #cf861c);
-  box-shadow: 0 0 6px rgba(255, 206, 90, .55), inset 0 1px 0 rgba(255, 255, 255, .7);
+  background: linear-gradient(180deg, var(--hud-gold-light), var(--hud-gold) 58%, #d58b27);
+  box-shadow: 0 0 6px rgba(246,205,84,.55), inset 0 1px 0 rgba(255, 255, 255, .7);
   transition: width .45s cubic-bezier(.22, .74, .24, 1);
 }
 
 /* Cel osiagniety - pasek przestaje byc "brakiem" i zaczyna byc nagroda. */
 .game-hud-progress.is-full i {
-  background: linear-gradient(180deg, #fffbd4, #ffd964 58%, #eda42a);
-  box-shadow: 0 0 10px rgba(255, 222, 120, .85), inset 0 1px 0 rgba(255, 255, 255, .85);
+  background: linear-gradient(180deg, var(--hud-cream-top), #ffd964 58%, #eda42a);
+  box-shadow: 0 0 10px rgba(245,216,115,.85), inset 0 1px 0 rgba(255, 255, 255, .85);
 }
 
 @media (max-width: 340px) {
@@ -1346,9 +1346,9 @@
   width: 86px;
   height: 12px;
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(108, 58, 18, .26), rgba(140, 82, 28, .16));
+  background: linear-gradient(180deg, rgba(111,58,18,.26), rgba(134,81,27,.16));
   box-shadow:
-    inset 0 1.5px 2px rgba(78, 41, 11, .38),
+    inset 0 1.5px 2px rgba(79,43,12,.38),
     0 1px 0 rgba(255, 255, 255, .55);
   overflow: hidden;
 }
@@ -1360,11 +1360,11 @@
      juz jest, a nie wygladac na pusty. Bez tego pierwsze monety sa niewidoczne. */
   min-width: 12px;
   border-radius: 999px;
-  background: linear-gradient(180deg, #fff6bd 0%, #ffd062 46%, #f0a92c 74%, #d4841c 100%);
+  background: linear-gradient(180deg, #fff3bd 0%, var(--p-amber) 46%, #eda42a 74%, #d4841c 100%);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, .9),
-    inset 0 -1px 0 rgba(160, 92, 18, .45),
-    0 0 8px rgba(255, 205, 92, .5);
+    inset 0 -1px 0 rgba(162,98,28,.45),
+    0 0 8px rgba(255,204,93,.5);
   transition: width .45s cubic-bezier(.22, .74, .24, 1);
 }
 
@@ -1372,10 +1372,10 @@
 .game-hud-progress.is-empty i { min-width: 0; }
 
 .game-hud-progress.is-full i {
-  background: linear-gradient(180deg, #fffce3 0%, #ffe89b 47%, #ffd257 74%, #f5b330 100%);
+  background: linear-gradient(180deg, var(--hud-cream-top) 0%, #ffe29a 47%, #f6cd54 74%, #f5b330 100%);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, .95),
-    0 0 12px rgba(255, 224, 124, .9);
+    0 0 12px rgba(255,223,130,.9);
 }
 
 @media (max-width: 340px) {
@@ -1399,8 +1399,8 @@
 .scroll-message-note {
   margin: 6px 0 0;
   padding-left: 9px;
-  border-left: 2px solid rgba(180, 128, 44, .5);
-  color: #7a5c3e;
+  border-left: 2px solid rgba(184,132,44,.5);
+  color: #79553a;
   font-size: 12px;
   font-style: italic;
   line-height: 1.45;
@@ -1475,11 +1475,11 @@
   pointer-events: none;
   background: linear-gradient(
     180deg,
-    rgba(255, 248, 226, 0) 0%,
-    rgba(255, 247, 219, .22) 34%,
-    rgba(255, 245, 210, .5) 62%,
-    rgba(255, 243, 202, .72) 86%,
-    rgba(255, 242, 198, .8) 100%
+    rgba(251,241,214,0) 0%,
+    rgba(251,241,214,.22) 34%,
+    rgba(255,249,217,.5) 62%,
+    rgba(255,244,201,.72) 86%,
+    rgba(255,244,201,.8) 100%
   );
 }
 
@@ -1509,11 +1509,11 @@
   left: -16vw; right: -16vw;
   background: linear-gradient(
     180deg,
-    rgba(255, 248, 226, 0) 0%,
-    rgba(255, 246, 216, .40) 7%,
-    rgba(255, 245, 210, .78) 12%,
-    rgba(255, 243, 202, .95) 16%,
-    rgba(255, 242, 198, 1) 24%
+    rgba(251,241,214,0) 0%,
+    rgba(251,241,214,.40) 7%,
+    rgba(255,249,217,.78) 12%,
+    rgba(255,244,201,.95) 16%,
+    rgba(255,244,201,1) 24%
   );
 }
 
@@ -1546,12 +1546,12 @@
   .scena3d-stick.scena3d-stick.run.on { opacity: .72; }
 
   .scena3d-stick.scena3d-stick {
-    background: radial-gradient(circle, rgba(255, 242, 207, .10), rgba(255, 242, 207, .03) 60%, transparent 70%);
-    box-shadow: inset 0 0 0 2px rgba(255, 242, 207, .28);
+    background: radial-gradient(circle, rgba(255,249,217,.10), rgba(255,249,217,.03) 60%, transparent 70%);
+    box-shadow: inset 0 0 0 2px rgba(255,249,217,.28);
   }
 
   .scena3d-stick.scena3d-stick.run {
-    box-shadow: inset 0 0 0 2.5px rgba(255, 216, 115, .6), 0 0 16px rgba(255, 216, 115, .22);
+    box-shadow: inset 0 0 0 2.5px rgba(255,214,109,.6), 0 0 16px rgba(255,214,109,.22);
   }
 
   .scena3d-stick.scena3d-stick .scena3d-knob {
@@ -1585,7 +1585,7 @@
      wiec przy rozmiarze monety zaczynala nad nia dominowac. Wczesniej stala tu
      `iskra.png` - czteroramienny klejnot z cienkimi ramionami, ktory dla
      rownowagi potrzebowal wiecej miejsca. */
-  filter: drop-shadow(0 1.5px 1px rgba(73, 39, 12, .28));
+  filter: drop-shadow(0 1.5px 1px rgba(79,43,12,.28));
 }
 
 .game-hud-counter--gwiazdki strong,
@@ -1606,12 +1606,12 @@
 .game-hud-counter--gwiazdki.jest-spelnione,
 .game-hud-counter--misja.jest-spelnione {
   background:
-    linear-gradient(180deg, rgba(255, 252, 227, .98), rgba(255, 226, 150, .98)) padding-box,
+    linear-gradient(180deg, rgba(255,249,217,.98), rgba(255,226,154,.98)) padding-box,
     linear-gradient(180deg, var(--hud-gold-light), var(--hud-gold) 52%, var(--hud-gold-deep)) border-box;
   box-shadow:
     inset 0 2px 0 rgba(255, 255, 255, .9),
     0 3px 0 var(--hud-shadow),
-    0 0 14px rgba(255, 214, 105, .85);
+    0 0 14px rgba(255,214,109,.85);
 }
 
 .game-hud-counter--gwiazdki.jest-spelnione em,

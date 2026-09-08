@@ -61,11 +61,11 @@
   border-radius: 28px;
   background:
     linear-gradient(180deg, var(--p-paper, #FBF1D6) 0%, var(--p-paper-2, #F4E3B8) 100%) padding-box,
-    linear-gradient(180deg, #fff0a1 0%, #e9b436 55%, #a4671b 100%) border-box;
+    linear-gradient(180deg, var(--hud-gold-light) 0%, var(--hud-gold) 55%, #a2621c 100%) border-box;
   box-shadow:
     inset 0 3px 0 rgba(255, 255, 255, .75),
     0 6px 0 rgba(122, 77, 194, .28),
-    0 22px 46px rgba(40, 26, 70, .45);
+    0 22px 46px rgba(37,29,74,.45);
   font-family: var(--font-display, 'Baloo 2'), system-ui, sans-serif;
   color: var(--p-ink, #4e4d76);
   text-align: center;
@@ -94,13 +94,13 @@
   border: 2.5px solid transparent;
   border-radius: 999px;
   background:
-    linear-gradient(180deg, #a878e6 0%, #7A4DC2 58%, #5a3499 100%) padding-box,
-    linear-gradient(180deg, #fff0a1 0%, #e9b436 58%, #a4671b 100%) border-box;
+    linear-gradient(180deg, #a878e6 0%, var(--p-magic-dk) 58%, #5a3499 100%) padding-box,
+    linear-gradient(180deg, var(--hud-gold-light) 0%, var(--hud-gold) 58%, #a2621c 100%) border-box;
   box-shadow:
     inset 0 2px 0 rgba(255, 255, 255, .34),
     0 4px 0 rgba(74, 45, 128, .85),
-    0 9px 16px rgba(40, 26, 70, .34);
-  color: #fff;
+    0 9px 16px rgba(37,29,74,.34);
+  color: #ffffff;
   font-size: 13px;
   font-weight: 800;
   letter-spacing: .8px;
@@ -157,9 +157,9 @@
     linear-gradient(180deg, #fff19a 0%, #efb937 58%, #b86a1c 100%) border-box;
   box-shadow:
     inset 0 2px 0 rgba(255, 255, 255, .8),
-    0 4px 0 #b06f18,
-    0 0 42px rgba(255, 210, 105, .6);
-  color: #6d3f0c;
+    0 4px 0 #b47322,
+    0 0 42px rgba(244,201,93,.6);
+  color: #713f08;
   font-size: 34px;
   font-weight: 800;
   line-height: 1;
@@ -209,7 +209,7 @@
   font-size: 16.5px;
   font-weight: 600;
   letter-spacing: 0;
-  color: #5C4220;
+  color: #5b421d;
   line-height: 1.35;
 }
 
@@ -269,7 +269,7 @@
 }
 
 .nagroda-rozbicie li + li { border-top: 1.5px dashed rgba(122, 77, 194, .18); }
-.nagroda-rozbicie b { color: #8a5a12; font-weight: 800; }
+.nagroda-rozbicie b { color: #8a5a18; font-weight: 800; }
 
 /* Kafelki statystyk — ciekawostka, nie nagroda, więc celowo drobne i szare. */
 .nagroda-kafelki {
