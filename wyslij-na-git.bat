@@ -136,10 +136,20 @@ if errorlevel 1 (
   echo  [UWAGA] Nie udalo sie rozpakowac archiwum - pomijam probe.
   goto :po_probie
 )
-mklink /J "!SPRAWDZ!\frontend\node_modules" "%cd%\frontend\node_modules" >nul 2>&1
+rem Bez ">nul 2>&1": jesli zlacze sie nie uda, MUSIMY to zobaczyc. Gdy go nie ma,
+rem `npx` nie znajduje vite lokalnie, probuje go SCIAGNAC i pyta "Ok to proceed?".
+rem To pytanie leci do build.log razem z reszta wyjscia, wiec okno stoi puste
+rem i czeka na klawisz, ktorego nikt nie widzi. Tak wyglada "skrypt sie zawiesil".
+mklink /J "!SPRAWDZ!\frontend\node_modules" "%cd%\frontend\node_modules"
+if not exist "!SPRAWDZ!\frontend\node_modules\.bin\vite.cmd" (
+  echo  [UWAGA] Nie widze vite w podpietym node_modules - pomijam probe budowania.
+  goto :po_probie
+)
 
 pushd "!SPRAWDZ!\frontend"
-call npx vite build > "!SPRAWDZ!\build.log" 2>&1
+rem Vite wolany WPROST, a nie przez `npx`: npx przy braku pakietu siega do sieci
+rem i pyta o zgode, a tu nie ma komu odpowiedziec.
+call "!SPRAWDZ!\frontend\node_modules\.bin\vite.cmd" build > "!SPRAWDZ!\build.log" 2>&1
 set BLAD_BUDOWANIA=!errorlevel!
 popd
 
@@ -178,8 +188,28 @@ if /i not "!ODP!"=="t" (
 
 echo.
 echo  Wysylam na origin/!GALAZ! ...
-git push origin !GALAZ!
-if errorlevel 1 goto :blad
+rem PIERWSZA PROBA JEST NIEINTERAKTYWNA - i to jest cala poprawka na "wisi bez
+rem komunikatu". W Menedzerze poswiadczen Windows lezy kilka kont GitHub, wiec
+rem Git Credential Manager otwiera okno "wybierz konto". Gdy to okno wyjdzie za
+rem innymi oknami albo w ogole sie nie pokaze, push stoi w nieskonczonosc, a na
+rem ekranie nie ma ANI JEDNEGO napisu. Z ponizszymi przelacznikami git zwraca
+rem blad od razu - i dopiero wtedy swiadomie pytamy o logowanie.
+set GIT_TERMINAL_PROMPT=0
+git -c credential.interactive=never push origin !GALAZ!
+set BLAD_PUSH=!errorlevel!
+set GIT_TERMINAL_PROMPT=
+if not "!BLAD_PUSH!"=="0" (
+  echo.
+  echo  [UWAGA] Git nie mial gotowego logowania do GitHuba.
+  echo  Zaraz MOZE otworzyc sie okno logowania. Jesli go nie widzisz -
+  echo  sprawdz pasek zadan, okno nalezy do "git-credential-manager".
+  echo.
+  echo  Jesli to sie powtarza, ustaw raz na zawsze, ktore konto brac:
+  echo      git config --global credential.https://github.com.username armitiel
+  echo.
+  git push origin !GALAZ!
+  if errorlevel 1 goto :blad
+)
 
 echo.
 echo  ================================================
