@@ -140,6 +140,31 @@
   --cta-h:56px; --cta-fs:21px; --cta-pad:12px 20px; --cta-r:18px;
   --cta-sec-h:48px; --cta-sec-fs:16px;
 
+  /* WYGLAD CTA — zmierzony z makiety (BTN.pdf, 9.09.2026), co do piksela.
+     Wczesniej te wartosci byly wpisane w regule `.hub-btn-primary`, a drugi
+     zielony przycisk (`.puzzle-cta`) mial WLASNE, podobne-ale-inne. Teraz
+     wyglad jest tu, a regula tylko go sklada — dzieki temu wariant w innej
+     barwie to podmiana czterech zmiennych w kontenerze, a nie nowy gradient.
+
+     Makieta ma obrys 3 px (byl 2), rant 8 px (byl 4) i JASNIEJSZE lico:
+     zaczyna sie od #A4E850, przez pierwsze ~15% wysokosci schodzi do #7FD731
+     i dopiero stamtad plynie do #43A50C. Ten szybki spadek na gorze robi
+     polysk — dlatego nie ma juz osobnego `inset ... rgba(255,255,255,.3)`. */
+  --cta-obrys:3px;
+  /* Stopnie nie sa zaokraglone „na oko": to punkty odczytane z makiety
+     i przeliczone na % wysokosci lica. Sama prosta 15%->100% dawala
+     w srodku o 5 jednostek za jasno - ramp jest lekko wygiety. */
+  --cta-lico:linear-gradient(180deg,#A4E850 0%,#A2E64F 11%,#7FD731 15%,
+    #71CE27 31%,#63C51D 48%,#56BA14 67%,#49AC0F 89%,#43A50C 100%);
+  --cta-obrys-barwa:linear-gradient(180deg,#B9EC5F 0%,#BAF254 50%,#C0FF50 100%);
+  --cta-rant:8px;               /* twardy dolny rant, bez rozmycia */
+  --cta-rant-barwa:#3C761F;
+  --cta-tekst:#FFEEA6;
+  /* Cien napisu jest CZARNY z alfa, nie zielony: czern nalozona normalnie na
+     lico daje dokladnie to samo, co mnozenie, wiec dziala tak samo nad kazda
+     barwa wariantu. Zmierzone z makiety: 21% czerni, 3 px w dol. */
+  --cta-tekst-cien:0 3px 0 rgba(0,0,0,.21);
+
   --shadow-sm: 0 2px 0 rgba(78,77,118,.08), 0 4px 14px rgba(78,77,118,.10);
   --shadow-md: 0 3px 0 rgba(78,77,118,.10), 0 10px 24px rgba(78,77,118,.14);
   --shadow-lg: 0 6px 0 rgba(78,77,118,.10), 0 20px 40px rgba(78,77,118,.20);

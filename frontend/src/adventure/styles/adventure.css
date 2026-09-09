@@ -347,7 +347,9 @@
 
 .adv-cta {
   width: 100%;
-  min-height: 58px;
+  /* Wysokosc jest WSPOLNA dla calej gry - Przygoda nie ma wlasnej miary
+     „tu sie klika". Barwa i ksztalt zostaja na razie zlote i pigulkowe. */
+  min-height: var(--cta-h, 56px);
   border-radius: 999px;
   border: none;
   background: linear-gradient(180deg, var(--krem-400), var(--adv-gold));

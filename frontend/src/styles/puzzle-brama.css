@@ -218,16 +218,36 @@
   100%{ transform:rotate(90deg) scale(1); }
 }
 
+/* DRUGI ZIELONY PRZYCISK W GRZE - i przez pol roku byl PODOBNY, a nie taki sam
+   jak glowny CTA: wlasny gradient (#9fd97f -> #6fbb4e), wlasny obrys #5c9a44,
+   ciemny napis zamiast kremowego i promien 999 zamiast 18. Obok siebie tego
+   nie widac, ale dziecko przechodzi przez oba w jednej sesji.
+   Teraz sklada sie z tych samych `--cta-*`, co `.hub-btn-primary`. Wlasne
+   zostaja tylko trzy rzeczy, ktore naprawde nalezą do tego ekranu: odstep
+   od gory, szerszy padding i animacja wjazdu karty. */
 .puzzle-cta{
-  margin-top:18px; padding:12px 34px; border-radius:999px; cursor:pointer;
-  border:3px solid #5c9a44; background:linear-gradient(180deg,#9fd97f,#6fbb4e);
-  color:#1e460f; font-family:inherit; font-size:20px; font-weight:800;
-  box-shadow:0 4px 0 #3c761f; animation:puzzle-karta-wjazd .35s ease;
+  margin-top:18px; padding:var(--cta-pad,12px 20px); cursor:pointer;
+  display:inline-flex; align-items:center; justify-content:center;
+  min-height:var(--cta-h,56px); border-radius:var(--cta-r,18px);
+  border:var(--cta-obrys,3px) solid transparent;
+  background:
+    var(--cta-lico) padding-box,
+    var(--cta-obrys-barwa) border-box;
+  color:var(--cta-tekst,#FFEEA6); text-shadow:var(--cta-tekst-cien);
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  font-size:min(var(--cta-fs,21px), 5.4vw); font-weight:800;
+  letter-spacing:.35px; line-height:1; text-transform:uppercase; white-space:nowrap;
+  box-shadow:0 var(--cta-rant,8px) 0 var(--cta-rant-barwa,#3C761F);
+  animation:puzzle-karta-wjazd .35s ease;
 }
-.puzzle-cta:active{ transform:translateY(2px); box-shadow:0 2px 0 #3c761f; }
+.puzzle-cta:active{
+  transform:translateY(var(--cta-rant,8px));
+  box-shadow:0 0 0 var(--cta-rant-barwa,#3C761F);
+}
 
 @media (prefers-reduced-motion: reduce){
   .puzzle-brama, .puzzle-karta, .puzzle-caly, .puzzle-cta{ animation:none; }
+  .puzzle-cta:active{ transform:none; box-shadow:0 0 0 var(--cta-rant-barwa,#3C761F); }
   .puzzle-pole.is-pudlo{ animation:none; }
   .puzzle-pole.is-wskok .puzzle-kawalek-svg{ animation:none; }
   .puzzle-blysk-osadzenia{ animation:none; display:none; }

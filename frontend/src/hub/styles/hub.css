@@ -1531,7 +1531,9 @@
 /* Pusty placeholder trzyma tytul dokladnie na srodku, gdy nie ma restartu. */
 .gra-ikona.is-pusta{ background:none; border:0; box-shadow:none; pointer-events:none; }
 
-.gra-btn-duzy{ margin-top:14px; width:100%; min-height:52px; font-size:17px; }
+/* Szerokosc jest lokalna (na cala karte), wysokosc NIE: 52 px robilo z tego
+   przycisk mniejszy niz ten sam gest na sasiednim ekranie. */
+.gra-btn-duzy{ margin-top:14px; width:100%; }
 .gra-akcje{ margin-top:14px; }
 
 @media (prefers-reduced-motion:reduce){
@@ -2251,11 +2253,16 @@
    go grubszy kant, polysk i oddech, a nie wieksza wysokosc. Wczesniej byl
    o 6 px wyzszy i o 2 px wiekszy w literach od reszty i przez to caly zestaw
    przyciskow w grze wygladal na przypadkowy. */
+/* TRZECI zielony przycisk, ktory szedl wlasna droga: obrys #b4e858 zamiast
+   gradientu, promien 20 zamiast 18 i rant 5 px zamiast 8, do tego wewnetrzna
+   biala poswiata. Rozne o kilka pikseli, a to jest DOKLADNIE ten sam gest, co
+   „Zagraj" w hubie - dziecko widzi oba w jednej minucie.
+   Zostaje tylko to, co naprawde nalezy do splashu: szerokosc, oddech i
+   przesuwajacy sie polysk (`::after` nizej). Wyglad idzie z `--cta-*`. */
 .start-gry .start-gry-cta{
-  position:relative; overflow:hidden; width:100%; max-width:380px; min-height:var(--cta-h,56px);
-  border:3px solid #b4e858; border-radius:20px;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.55),0 5px 0 #287714,0 11px 19px rgba(34,105,30,.28);
-  align-self:start; margin-top:3px; font-size:var(--cta-fs,21px); letter-spacing:.6px; animation:start-cta-oddech 2.4s ease-in-out 1s infinite;
+  position:relative; overflow:hidden; width:100%; max-width:380px;
+  align-self:start; margin-top:3px; letter-spacing:.6px;
+  animation:start-cta-oddech 2.4s ease-in-out 1s infinite;
 }
 .start-gry-cta span{ position:relative; z-index:2; }
 .start-gry-cta::after{

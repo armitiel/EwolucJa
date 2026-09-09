@@ -166,28 +166,42 @@ h3.title{ font-size: 22px; margin:0; }
    `--cta-h` / `--cta-fs` w kontenerze tego ekranu. */
 .hub-btn{
   display:inline-flex; align-items:center; justify-content:center; gap:8px;
-  border:2px solid transparent; cursor:pointer; border-radius:var(--cta-r,18px);
+  border:var(--cta-obrys,3px) solid transparent; cursor:pointer; border-radius:var(--cta-r,18px);
   padding:var(--cta-pad,12px 20px);
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-weight:800; font-size:var(--cta-sec-fs,16px); letter-spacing:.35px; line-height:1;
   min-height:var(--cta-sec-h,48px);
   text-transform:uppercase;
 }
+/* GLOWNY CTA. Ani jednej wartosci wygladu w tej regule - wszystkie siedza
+   w `public/tokeny.css` jako `--cta-*`. Regula tylko je sklada, wiec wariant
+   w innej barwie robi sie nadpisaniem zmiennych w kontenerze ekranu.
+   Ksztalt zmierzony z makiety BTN.pdf (9.09.2026): obrys 3 px, promien 18,
+   rant 8 px w dol bez rozmycia, kremowy napis z cieniem 3 px. */
 .hub-btn-primary{
   /* `min(..., 5.4vw)` to bezpiecznik na waskie telefony: przy 390 px szerokosci
      wychodzi dokladnie --cta-fs, a ponizej litery same schodza, zamiast lamac
      dluzszy napis na dwie linie i podwajac wysokosc przycisku. Wysokosc zostaje
      ta sama zawsze - to ona ma byc wspolna miara. */
   min-height:var(--cta-h,56px); font-size:min(var(--cta-fs,21px), 5.4vw);
-  color:var(--krem-200);
+  /* To `nowrap` DOTRZYMUJE obietnicy „wszedzie ta sama wysokosc". Bez niego
+     dluzszy napis w wezszym przycisku lamie sie na dwie linie i guzik rosnie
+     do 84 px, choc `min-height` dalej mowi 56. Napisy CTA sa krotkie
+     („Zagraj!", „Gramy!", „Odbieram nagrode!"), a na waskim telefonie i tak
+     schodzi stopien pisma - `min(..., 5.4vw)` wyzej plus media query
+     w tokeny.css. */
+  white-space:nowrap;
+  color:var(--cta-tekst,#FFEEA6);
   background:
-    linear-gradient(180deg,#9bd33e 0%,#64a727 62%,#478519 100%) padding-box,
-    linear-gradient(180deg,#e6f58a 0%,#72aa29 58%,#2e611f 100%) border-box;
-  -webkit-text-stroke:.65px #315617; paint-order:stroke fill;
-  text-shadow:0 2px 0 #315617,0 3px 3px rgba(34,67,18,.28);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.3),0 4px 0 #3c761f,0 7px 11px rgba(49,86,23,.22);
+    var(--cta-lico) padding-box,
+    var(--cta-obrys-barwa) border-box;
+  text-shadow:var(--cta-tekst-cien);
+  /* Sam rant, bez miekkiego cienia pod nim - makieta go nie ma, a przy tak
+     jasnym licu rozmyta plama tylko zamula krawedz. */
+  box-shadow:0 var(--cta-rant,8px) 0 var(--cta-rant-barwa,#3C761F);
 }
 .hub-btn-primary:disabled{ filter:grayscale(.35); cursor:default; box-shadow:none; }
+.hub-btn-primary:disabled:active{ transform:none; box-shadow:none; }
 .hub-btn-ghost{
   color:var(--hud-ink);
   background:
@@ -197,7 +211,20 @@ h3.title{ font-size: 22px; margin:0; }
   box-shadow:inset 0 2px 0 rgba(255,255,255,.66),0 3px 0 var(--ochra-500),0 6px 9px color-mix(in srgb, var(--ochra-700) 17%, transparent);
 }
 .hub-btn:active{ transform:translateY(2px); }
-@media (prefers-reduced-motion:reduce){ .hub-btn:active{ transform:none; } }
+/* Wcisniecie CTA: przycisk zjezdza NA CALY rant i rant znika - jak prawdziwy
+   klawisz dociskany do podstawy. Zjazd o 2 px przy rancie 8 px wygladalby
+   tylko na drgniecie. STOI PO `.hub-btn:active` swiadomie: obie reguly maja
+   te sama specyficznosc, wiec decyduje kolejnosc. */
+.hub-btn-primary:active{
+  transform:translateY(var(--cta-rant,8px));
+  box-shadow:0 0 0 var(--cta-rant-barwa,#3C761F);
+}
+@media (prefers-reduced-motion:reduce){
+  /* Bez ruchu, ale rant nadal gasnie - wcisniecie musi byc widoczne takze
+     dla dziecka, ktore ma wylaczone animacje. */
+  .hub-btn:active{ transform:none; }
+  .hub-btn-primary:active{ transform:none; box-shadow:0 0 0 var(--cta-rant-barwa,#3C761F); }
+}
 
 /* ─── Cards ─── */
 .card{

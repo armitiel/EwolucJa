@@ -253,6 +253,24 @@ export default function DevRezyserka({
     odswiez("DEV: znaki wracają szybciej");
   }
 
+  /* ── kamera ───────────────────────────────────────────────────────────
+     Ujęcia filmowe na bohatera (`scena3d`: kino / kinoSkroc). Pulpit MUSI
+     się najpierw schować — inaczej wysunięta szuflada zasłania pół kadru,
+     a właśnie kadr się tu ocenia. Stąd zwłoka równa animacji zamykania.
+     Uwaga przy testowaniu: dotknięcie płótna woła `kinoSkroc()`, więc do
+     obejrzenia całego ujęcia nie wolno klikać w scenę. */
+  function ujecie(nazwa, opcje, info) {
+    const s = scena();
+    if (!s?.kino) { onKomunikat?.("DEV: scena jeszcze nie gotowa"); return; }
+    setOtwarty(false);
+    setTimeout(() => {
+      // `kino()` zwraca false przy włączonym spokojnym ruchu — wtedy nic
+      // się nie dzieje i lepiej powiedzieć to wprost niż zostawić ciszę.
+      if (s.kino(nazwa, opcje)) onKomunikat?.(info);
+      else onKomunikat?.("DEV: ujęcia wyłączone (spokojny ruch)");
+    }, 260);
+  }
+
   /* ── zadanie w realu ──────────────────────────────────────────────────
      Cały obieg zadania POZA EKRANEM, krok po kroku: zlecenie → Zadania →
      wysyłka zdjęcia z opisem → werdykt Mentora → nagroda. Bez tych skrótów
@@ -540,6 +558,39 @@ export default function DevRezyserka({
           <Grupa tytul={`Monety — bonus ${bonusMonet()}`}>
             <Guzik onClick={() => { dodajMonety(100, "dev"); odswiez(); }}>+100</Guzik>
             <Guzik onClick={() => { wyzerujBonus(); odswiez("DEV: bonus wyzerowany"); }}>Zeruj</Guzik>
+          </Grupa>
+
+          <Grupa tytul="Kamera — ujęcia na bohatera">
+            <Guzik onClick={() => ujecie("wejscie", null, "DEV: intro — kamera przy pysku")}>
+              Intro (wejście)
+            </Guzik>
+            <Guzik onClick={() => ujecie("bohater", null, "DEV: pokaz postaci")}>
+              Pokaz postaci
+            </Guzik>
+            <Guzik onClick={() => ujecie("blysk", null, "DEV: błysk")}>
+              Błysk (krótki)
+            </Guzik>
+            <Guzik
+              onClick={() => ujecie("wejscie", { trzym: 6, powrot: 4 }, "DEV: intro w zwolnionym tempie")}
+            >
+              Intro w zwolnieniu
+            </Guzik>
+            <Guzik
+              onClick={() => ujecie("wejscie", { kadr: 2.6, luk: 2.2, el: 0.35 }, "DEV: intro — szerszy kadr")}
+            >
+              Intro — szerszy kadr
+            </Guzik>
+            <Guzik
+              onClick={() => {
+                // Intro leci raz na sesję. Bez tego kasowania F5 pokazuje
+                // już tylko zwykłą mapę i nie da się obejrzeć pierwszego
+                // wrażenia takiego, jakie zobaczy dziecko.
+                try { sessionStorage.removeItem("ewolucja.kino.wejscie"); } catch { /* prywatny tryb */ }
+                onKomunikat?.("DEV: intro odblokowane — przeładuj (F5)");
+              }}
+            >
+              Odblokuj intro przy F5
+            </Guzik>
           </Grupa>
 
           <Grupa tytul="Narzędzie">
