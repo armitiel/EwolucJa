@@ -83,14 +83,14 @@
 .wnetrze-karta{
   position:absolute; inset:0; z-index:2;
   display:grid; place-items:center;
-  background:rgba(26,16,8,.72);
+  background:color-mix(in srgb, var(--braz-950) 72%, transparent);
   padding:calc(env(safe-area-inset-top,0px) + 12px) 12px calc(env(safe-area-inset-bottom,0px) + 12px);
 }
 .wnetrze-karta-tresc{
   width:min(100%,460px); max-height:100%; overflow-y:auto;
   border-radius:22px; padding:14px 14px 20px;
-  background:linear-gradient(180deg,#fffbe0,#fff4c9);
-  box-shadow:0 18px 40px rgba(26,16,8,.45);
+  background:linear-gradient(180deg,var(--krem-50),var(--krem-100));
+  box-shadow:0 18px 40px color-mix(in srgb, var(--braz-950) 45%, transparent);
 }
 .wnetrze-karta-x{ position:absolute; top:calc(env(safe-area-inset-top,0px) + 14px); right:14px; z-index:3; }
 

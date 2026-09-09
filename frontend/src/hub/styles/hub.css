@@ -70,12 +70,12 @@
   display:inline-flex; align-items:center; gap:7px;
   border:2px solid transparent; border-radius:var(--r-pill,999px);
   background:
-    linear-gradient(180deg,rgba(251,241,214,.96),rgba(244,225,172,.96)) padding-box,
-    linear-gradient(180deg,#fff3a8 0%,#e6a832 62%,#a2621c 100%) border-box;
+    linear-gradient(180deg,color-mix(in srgb, var(--p-paper) 96%, transparent),color-mix(in srgb, var(--piasek) 96%, transparent)) padding-box,
+    linear-gradient(180deg,var(--krem-300) 0%,var(--zloto-450) 62%,var(--braz-400) 100%) border-box;
   backdrop-filter:blur(9px);
   box-shadow:
     inset 0 1.5px 0 rgba(255,255,255,.82),
-    0 3px 0 #8f5017,
+    0 3px 0 var(--braz-500),
     0 7px 13px rgba(49,42,20,.24);
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-weight:800; font-size:14px; line-height:1;
@@ -89,7 +89,7 @@
 }
 .hub-chip-face img{
   width:48px; height:48px; object-fit:contain; display:block;
-  filter:drop-shadow(0 2px 1px rgba(79,43,12,.28));
+  filter:drop-shadow(0 2px 1px color-mix(in srgb, var(--braz-800) 28%, transparent));
   user-select:none; -webkit-user-drag:none;
 }
 .hub-chip-name{
@@ -104,7 +104,7 @@
 .hub-resource-icon{
   width:31px; height:31px; object-fit:contain; display:block;
   margin:-1px 0 -1px -1px;
-  filter:drop-shadow(0 2px 1px rgba(90,51,17,.28));
+  filter:drop-shadow(0 2px 1px color-mix(in srgb, var(--braz-700) 28%, transparent));
   user-select:none; -webkit-user-drag:none;
 }
 .hub-root .hub-map-button{
@@ -112,16 +112,16 @@
   border:2px solid transparent;
   background:
     linear-gradient(180deg,#f5d873,#c47c1f) padding-box,
-    linear-gradient(180deg,#fff3a8,#e6a832 58%,#8f5017) border-box;
-  box-shadow:0 4px 0 #7f4517,0 8px 15px rgba(36,39,25,.3),inset 0 2px 0 rgba(255,255,255,.55);
+    linear-gradient(180deg,var(--krem-300),var(--zloto-450) 58%,var(--braz-500)) border-box;
+  box-shadow:0 4px 0 var(--braz-600),0 8px 15px rgba(36,39,25,.3),inset 0 2px 0 rgba(255,255,255,.55);
 }
 .hub-root .hub-map-button .adv-icon-button-inner{
-  color:#fff3a8;
+  color:var(--krem-300);
   background:radial-gradient(circle at 42% 30%,#3e6b89 0%,#244d70 48%,#183653 100%);
-  border:1.5px solid rgba(255,241,154,.62);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.15),inset 0 -3px 0 rgba(14,22,42,.26);
+  border:1.5px solid color-mix(in srgb, var(--zloto-100) 62%, transparent);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.15),inset 0 -3px 0 color-mix(in srgb, var(--noc-900) 26%, transparent);
 }
-.hub-root .hub-map-button svg{ width:22px; height:22px; filter:drop-shadow(0 2px 0 rgba(14,22,42,.55)); }
+.hub-root .hub-map-button svg{ width:22px; height:22px; filter:drop-shadow(0 2px 0 color-mix(in srgb, var(--noc-900) 55%, transparent)); }
 
 /* Muzyka — nutka obok monet. Ta sama „moneta-guzik” co reszta HUD-u,
    w środku grafika /music.png. Stan wyłączony: wyszarzenie + ukośnik. */
@@ -132,8 +132,8 @@
   border:2px solid transparent; border-radius:50%;
   background:
     linear-gradient(180deg,#f5d873,#c47c1f) padding-box,
-    linear-gradient(180deg,#fff3a8,#e6a832 58%,#8f5017) border-box;
-  box-shadow:0 4px 0 #7f4517,0 8px 15px rgba(36,39,25,.3),inset 0 2px 0 rgba(255,255,255,.55);
+    linear-gradient(180deg,var(--krem-300),var(--zloto-450) 58%,var(--braz-500)) border-box;
+  box-shadow:0 4px 0 var(--braz-600),0 8px 15px rgba(36,39,25,.3),inset 0 2px 0 rgba(255,255,255,.55);
   cursor:pointer; -webkit-tap-highlight-color:transparent;
   transition:transform .12s ease, filter .2s ease, opacity .2s ease;
 }
@@ -142,7 +142,7 @@
   filter:drop-shadow(0 2px 1px rgba(45,58,12,.45));
   user-select:none; -webkit-user-drag:none;
 }
-.hub-music-button:active{ transform:translateY(2px); box-shadow:0 2px 0 #7f4517,0 5px 10px rgba(36,39,25,.3),inset 0 2px 0 rgba(255,255,255,.55); }
+.hub-music-button:active{ transform:translateY(2px); box-shadow:0 2px 0 var(--braz-600),0 5px 10px rgba(36,39,25,.3),inset 0 2px 0 rgba(255,255,255,.55); }
 .hub-music-button.is-muted{ filter:saturate(.25) brightness(.9); opacity:.78; }
 /* Ukośnik „wyłączone” — czytelny dla dziecka bez czytania podpisu. */
 .hub-music-button.is-muted::after{
@@ -157,17 +157,17 @@
 .hub-place{
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-size:11px; font-weight:800; letter-spacing:1.25px; text-transform:uppercase;
-  color:#fff3bd;
+  color:var(--krem-200);
   background:
     linear-gradient(180deg,rgba(62,117,110,.94),rgba(36,77,76,.95)) padding-box,
     linear-gradient(180deg,#ffe87c,#d58b27) border-box;
   border:1.5px solid transparent; backdrop-filter:blur(6px);
   padding:4px 13px; border-radius:var(--r-pill,999px);
   text-shadow:0 1.5px 0 #253f3d;
-  box-shadow:0 2px 0 #7f4517,0 5px 10px rgba(31,42,27,.2),inset 0 1px 0 rgba(255,255,255,.18);
+  box-shadow:0 2px 0 var(--braz-600),0 5px 10px rgba(31,42,27,.2),inset 0 1px 0 rgba(255,255,255,.18);
 }
 .hub-hint{
-  font-size:12px; font-weight:800; text-align:center; color:#fff4c9;
+  font-size:12px; font-weight:800; text-align:center; color:var(--krem-100);
   background:rgba(36,77,76,.88); backdrop-filter:blur(6px);
   border:1px solid rgba(245,191,82,.62);
   padding:5px 14px; border-radius:var(--r-pill,999px);
@@ -195,11 +195,11 @@
   width:68px; height:68px; border-radius:50%;
   border:2px solid transparent;
   background:
-    linear-gradient(180deg,var(--p-paper) 0%,#f4e1ac 100%) padding-box,
-    linear-gradient(180deg,var(--hud-gold-light) 0%,#e6a832 62%,#8f5017 100%) border-box;
+    linear-gradient(180deg,var(--p-paper) 0%,var(--piasek) 100%) padding-box,
+    linear-gradient(180deg,var(--hud-gold-light) 0%,var(--zloto-450) 62%,var(--braz-500) 100%) border-box;
   box-shadow:
     inset 0 2px 0 rgba(255,255,255,.82),
-    0 3px 0 #86511b,
+    0 3px 0 var(--braz-550),
     0 7px 12px rgba(46,46,23,.22);
   transition:transform .16s ease,box-shadow .16s ease,filter .16s ease;
 }
@@ -225,7 +225,7 @@
   filter:brightness(1.04);
   box-shadow:
     inset 0 2px 0 rgba(255,255,255,.9),
-    0 3px 0 #86511b,
+    0 3px 0 var(--braz-550),
     0 0 0 3px rgba(255,232,124,.42),
     0 9px 17px var(--hub-dock-glow);
 }
@@ -242,7 +242,7 @@
   position:relative; z-index:1; display:block;
   width:58px; height:58px; object-fit:contain;
   user-select:none; -webkit-user-drag:none;
-  filter:drop-shadow(0 3px 1px rgba(79,43,12,.28));
+  filter:drop-shadow(0 3px 1px color-mix(in srgb, var(--braz-800) 28%, transparent));
   transition:transform .16s ease,filter .16s ease;
 }
 .hub-dock-item.is-active .hub-dock-ico{
@@ -254,13 +254,13 @@
 }
 .hub-dock-item.is-active .hub-dock-ico img{
   transform:translateY(-2px);
-  filter:drop-shadow(0 3px 1px rgba(79,43,12,.3)) drop-shadow(0 7px 7px var(--hub-dock-glow));
+  filter:drop-shadow(0 3px 1px color-mix(in srgb, var(--braz-800) 30%, transparent)) drop-shadow(0 7px 7px var(--hub-dock-glow));
 }
 .hub-dock-badge{
   position:absolute; top:1px; right:calc(50% - 29px); z-index:3;
   min-width:20px; height:20px; padding:0 5px; border-radius:var(--r-pill,999px);
   border:2px solid #ffefae;
-  background:linear-gradient(180deg,#ff8c8c,#d94355); color:#fff4c9;
+  background:linear-gradient(180deg,#ff8c8c,#d94355); color:var(--krem-100);
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-size:11px; font-weight:800; display:grid; place-items:center;
   box-shadow:0 3px 0 #8f2937,0 5px 8px rgba(143,41,55,.3);
@@ -277,8 +277,8 @@
   height:78%; max-height:78%; display:flex; flex-direction:column;
   border:3px solid transparent; border-bottom:none; border-radius:30px 30px 0 0;
   background:
-    linear-gradient(180deg,var(--p-paper) 0%,#f4e1ac 100%) padding-box,
-    linear-gradient(180deg,var(--hud-gold-light) 0%,#e6a832 48%,#a2621c 100%) border-box;
+    linear-gradient(180deg,var(--p-paper) 0%,var(--piasek) 100%) padding-box,
+    linear-gradient(180deg,var(--hud-gold-light) 0%,var(--zloto-450) 48%,var(--braz-400) 100%) border-box;
   /* Gorna krawedz arkusza. WCZESNIEJ byly tu dwa twarde pasy cienia
      (0 -4px brazowy + 0 -9px pomaranczowy na 42% krycia) rzucane na
      przezroczystosc. Nad zielenia swiata 3D polprzezroczysty pomaranczowy
@@ -287,9 +287,9 @@
      obchodzi zaokraglone rogi) + miekki, neutralny cien glebi. Zero
      mieszania kolorow z tlem. */
   box-shadow:
-    0 0 0 3px #7f4517,
-    0 -10px 22px rgba(26,16,8,.26),
-    0 -26px 54px rgba(26,16,8,.20),
+    0 0 0 3px var(--braz-600),
+    0 -10px 22px color-mix(in srgb, var(--braz-950) 26%, transparent),
+    0 -26px 54px color-mix(in srgb, var(--braz-950) 20%, transparent),
     inset 0 2px 0 rgba(255,255,255,.76);
   transform:translateY(103%); transition:transform .28s cubic-bezier(.2,.8,.25,1);
   outline:none; overflow:hidden;
@@ -307,7 +307,7 @@
    naglowkiem, bo to dziecko). Dzieki temu okno ma ciagly, czysty kontur. */
 .hub-sheet::before{
   content:""; position:absolute; inset:0; z-index:6; pointer-events:none;
-  border:2px solid rgba(255,226,154,.5); border-bottom:none;
+  border:2px solid color-mix(in srgb, var(--krem-500) 50%, transparent); border-bottom:none;
   border-radius:27px 27px 0 0;
 }
 .hub-sheet-grip{ display:none; }
@@ -323,12 +323,12 @@
   position:relative; flex:none;
   margin:0; padding:14px 62px 16px;
   min-height:76px; display:flex; flex-direction:column; align-items:stretch; justify-content:center; text-align:center;
-  border:none; border-bottom:3px solid #a2621c; border-radius:27px 27px 0 0;
+  border:none; border-bottom:3px solid var(--braz-400); border-radius:27px 27px 0 0;
   background:linear-gradient(180deg,#7a63a0 0%,#5b4577 52%,var(--hud-ink) 100%);
   box-shadow:
     inset 0 2px 0 rgba(255,255,255,.16),
-    inset 0 -6px 0 rgba(36,29,60,.28),
-    0 6px 14px rgba(36,29,60,.3);
+    inset 0 -6px 0 color-mix(in srgb, var(--noc-800) 28%, transparent),
+    0 6px 14px color-mix(in srgb, var(--noc-800) 30%, transparent);
 }
 .hub-sheet-head > div{ min-width:0; }
 /* Pas pod belka tytulowa, na cala szerokosc arkusza (dzis: kanaly czatu).
@@ -337,7 +337,7 @@
 .hub-sheet-slot{ flex:none; }
 .hub-sheet-slot:empty{ display:none; }
 .hub-sheet-head .hub-kicker{
-  color:#ffd66d; font-size:12.5px; letter-spacing:1.3px;
+  color:var(--zloto-250); font-size:12.5px; letter-spacing:1.3px;
   text-shadow:0 1px 0 #35243d;
 }
 .hub-sheet-head h2{
@@ -372,25 +372,25 @@
   position:absolute; right:14px; top:50%; transform:translateY(-50%);
   z-index:5; flex:none; width:46px; height:46px;
   display:grid; place-items:center; padding:0 0 4px;
-  border:2px solid #8d2a27; border-radius:50%;
+  border:2px solid var(--czerwien-700); border-radius:50%;
   background:linear-gradient(180deg,#ff6a5e,#d53537);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 3px 0 #8d2a27,0 6px 9px rgba(77,35,22,.2);
-  cursor:pointer; color:#fff4c9;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 3px 0 var(--czerwien-700),0 6px 9px color-mix(in srgb, var(--czerwien-900) 20%, transparent);
+  cursor:pointer; color:var(--krem-100);
   font:900 32px/1 system-ui, sans-serif;
-  text-shadow:0 2px 0 #8d2a27;
+  text-shadow:0 2px 0 var(--czerwien-700);
   transition:transform .14s ease, box-shadow .14s ease, filter .14s ease;
 }
 .hub-sheet-close:hover{ filter:brightness(1.08); }
 .hub-sheet-close.is-back{ padding:0; }
 .hub-sheet-close.is-back svg{
   width:28px; height:25px; display:block; overflow:visible;
-  fill:#ffffff; filter:drop-shadow(0 2px 0 #8d2a27);
+  fill:#ffffff; filter:drop-shadow(0 2px 0 var(--czerwien-700));
 }
 /* `-50%` musi zostac w kazdym stanie — bez niego wcisniety krzyzyk zeskakuje
    o pol swojej wysokosci w dol, bo to ten sam `transform`, ktory go srodkuje. */
 .hub-sheet-close:active{
   transform:translateY(calc(-50% + 3px)) scale(.93);
-  box-shadow:inset 0 3px 4px rgba(111,24,24,.3),0 1px 0 #8d2a27,0 2px 4px rgba(77,35,22,.18);
+  box-shadow:inset 0 3px 4px rgba(111,24,24,.3),0 1px 0 var(--czerwien-700),0 2px 4px color-mix(in srgb, var(--czerwien-900) 18%, transparent);
 }
 .hub-sheet-body.screen-scroll{
   flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
@@ -417,7 +417,7 @@
 .hub-sheet::after{
   content:""; position:absolute; z-index:4; left:3px; right:3px;
   bottom:0; height:74px; border-radius:0 0 27px 27px; pointer-events:none;
-  background:linear-gradient(180deg,rgba(244,225,172,0) 0%,rgba(244,225,172,.92) 62%,#f4e1ac 100%);
+  background:linear-gradient(180deg,rgba(244,225,172,0) 0%,color-mix(in srgb, var(--piasek) 92%, transparent) 62%,var(--piasek) 100%);
 }
 
 /* ── wspólne klocki paneli ── */
@@ -429,10 +429,10 @@
 .hub-card{
   border:1.8px solid transparent;
   background:
-    linear-gradient(180deg,rgba(255,251,224,.93),rgba(244,227,184,.93)) padding-box,
-    linear-gradient(180deg,var(--hud-gold-light),#d59a31 62%,#9c6321) border-box;
+    linear-gradient(180deg,color-mix(in srgb, var(--krem-50) 93%, transparent),color-mix(in srgb, var(--p-paper-2) 93%, transparent)) padding-box,
+    linear-gradient(180deg,var(--hud-gold-light),var(--zloto-500) 62%,#9c6321) border-box;
   border-radius:var(--r-card,22px);
-  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.82),0 3px 0 rgba(127,69,23,.62),0 8px 15px rgba(72,53,26,.14);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.82),0 3px 0 color-mix(in srgb, var(--braz-600) 62%, transparent),0 8px 15px color-mix(in srgb, var(--ochra-700) 14%, transparent);
   padding:14px;
 }
 .hub-card-title{
@@ -441,10 +441,10 @@
 }
 .hub-note{
   display:flex; gap:9px; align-items:flex-start; margin:0 0 14px;
-  background:rgba(122,77,194,.10); border:1px dashed rgba(122,77,194,.38);
+  background:color-mix(in srgb, var(--p-magic-dk) 10%, transparent); border:1px dashed color-mix(in srgb, var(--p-magic-dk) 38%, transparent);
   border-radius:16px; padding:10px 12px; font-size:12px; line-height:1.45; color:#4A3670;
 }
-.hub-note-warn{ background:rgba(232,154,61,.12); border-color:rgba(180,115,34,.45); color:#50320a; }
+.hub-note-warn{ background:color-mix(in srgb, var(--p-dusk) 12%, transparent); border-color:color-mix(in srgb, var(--braz-300) 45%, transparent); color:var(--ochra-800); }
 .hub-note svg{ flex:none; margin-top:1px; }
 .hub-sec-title{ display:flex; align-items:baseline; gap:8px; margin:16px 2px 8px; }
 .hub-sec-title h3{
@@ -460,7 +460,7 @@
 .hub-row:last-child{ border-bottom:none; }
 .hub-row-dot{
   width:34px; height:34px; border-radius:12px; flex:none; display:grid; place-items:center;
-  background:rgba(122,77,194,.12); color:var(--p-magic-dk,#7A4DC2);
+  background:color-mix(in srgb, var(--p-magic-dk) 12%, transparent); color:var(--p-magic-dk,#7A4DC2);
 }
 .hub-row strong{ display:block; font-size:13.5px; line-height:1.3; }
 .hub-row small{ display:block; font-size:11.5px; color:var(--p-ink-soft,#5A4F77); line-height:1.35; }
@@ -482,13 +482,13 @@
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:10px; text-align:center;
   min-height:158px; padding:14px 10px 13px; border-radius:var(--r-card,22px);
-  border:2px solid rgba(255,214,109,.95);
-  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.8),0 4px 0 rgba(134,81,27,.5),0 8px 15px rgba(61,47,25,.16);
+  border:2px solid color-mix(in srgb, var(--zloto-250) 95%, transparent);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.8),0 4px 0 color-mix(in srgb, var(--braz-550) 50%, transparent),0 8px 15px rgba(61,47,25,.16);
   position:relative; overflow:hidden;
   /* Gra otwarta jest CIEPLA i wypukla, zamknieta chlodna i plaska. Po zdjeciu
      gradientow z katalogu obie wygladaly tak samo i nie bylo widac, w co
      mozna kliknac. */
-  background:linear-gradient(180deg,var(--hud-cream-top),#ffe29a);
+  background:linear-gradient(180deg,var(--hud-cream-top),var(--krem-500));
 }
 /* Zamknieta gra: chlodny szarofiolet, bez zlotej ramki i bez wypuklosci.
    Kafel ma wygladac na uspiony, a nie na uszkodzony - stad zaden ciemny
@@ -496,7 +496,7 @@
 .hub-tile.is-locked .hub-tile-in{
   background:linear-gradient(180deg,rgba(242,246,255,.9),rgba(219,215,230,.9));
   border-color:rgba(120,112,150,.28);
-  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.5),0 2px 0 rgba(78,77,118,.18);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.5),0 2px 0 color-mix(in srgb, var(--p-ink) 18%, transparent);
   filter:grayscale(.75); opacity:.72;
 }
 .hub-tile.is-locked .hub-tile-ikona{ opacity:.85; }
@@ -510,14 +510,14 @@
 }
 .hub-tile-ikona img{
   width:68px; height:68px; object-fit:contain; display:block;
-  filter:drop-shadow(0 3px 4px rgba(74,52,16,.28));
+  filter:drop-shadow(0 3px 4px color-mix(in srgb, var(--ochra-750) 28%, transparent));
 }
 
 .hub-tile small{ font-size:10.5px; color:#6b5c3c; line-height:1.3; }
 .hub-coin{
   display:inline-flex; align-items:center; gap:2px; background:rgba(255,255,255,.92);
-  color:#7A4D10; font-weight:800; font-size:11.5px; padding:3px 9px;
-  border-radius:var(--r-pill,999px); box-shadow:inset 0 0 0 1.2px #E1B66A;
+  color:var(--ochra-600); font-weight:800; font-size:11.5px; padding:3px 9px;
+  border-radius:var(--r-pill,999px); box-shadow:inset 0 0 0 1.2px var(--zloto-matowe);
 }
 .hub-coin img{
   width:19px; height:19px; object-fit:contain; display:block; margin:-4px 0 -4px -5px;
@@ -529,12 +529,12 @@
 .hub-coin--duza{
   font-size:17px; padding:5px 14px 5px 10px; gap:4px;
   font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
-  box-shadow:inset 0 0 0 1.6px #E1B66A,0 2px 0 rgba(150,105,30,.28);
+  box-shadow:inset 0 0 0 1.6px var(--zloto-matowe),0 2px 0 color-mix(in srgb, var(--ochra-400) 28%, transparent);
 }
 .hub-coin--duza img{ width:30px; height:30px; margin:-6px 0 -6px -4px; }
 .hub-flag{
   position:absolute; top:8px; left:8px; font-size:9px; font-weight:800; letter-spacing:.8px;
-  text-transform:uppercase; background:rgba(122,77,194,.9); color:#ffffff;
+  text-transform:uppercase; background:color-mix(in srgb, var(--p-magic-dk) 90%, transparent); color:#ffffff;
   padding:2px 7px; border-radius:var(--r-pill,999px);
 }
 
@@ -546,7 +546,7 @@
 .hub-hero p{ margin:0 12px; font-size:13px; line-height:1.5; }
 .hub-orbit{
   width:158px; height:158px; border-radius:50%; display:grid; place-items:center; position:relative;
-  background:radial-gradient(circle at 50% 58%, rgba(251,241,214,.95), rgba(244,201,93,.28) 62%, transparent 74%);
+  background:radial-gradient(circle at 50% 58%, color-mix(in srgb, var(--p-paper) 95%, transparent), color-mix(in srgb, var(--zloto-300) 28%, transparent) 62%, transparent 74%);
 }
 /* Przerywany okrąg za awatarem ZDJĘTY. Nie znaczył nic — nie był paskiem
    postępu ani orbitą przedmiotów — a obrysowywał postać tak, jakby coś
@@ -560,13 +560,13 @@
   display:grid; justify-items:center; gap:8px; text-align:center;
   padding:16px 14px 14px; margin-bottom:6px;
   border-radius:var(--r-card,22px);
-  border:1.7px solid rgba(255,223,130,.88);
+  border:1.7px solid color-mix(in srgb, var(--zloto-200) 88%, transparent);
   background:rgba(255,255,255,.7);
-  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.72),0 3px 0 rgba(134,81,27,.4),0 7px 13px rgba(61,47,25,.13);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.72),0 3px 0 color-mix(in srgb, var(--braz-550) 40%, transparent),0 7px 13px rgba(61,47,25,.13);
 }
 .profil-awatar{
   display:grid; place-items:center; width:150px; height:150px; border-radius:50%;
-  background:radial-gradient(circle at 50% 58%, rgba(251,241,214,.95), rgba(244,201,93,.28) 62%, transparent 74%);
+  background:radial-gradient(circle at 50% 58%, color-mix(in srgb, var(--p-paper) 95%, transparent), color-mix(in srgb, var(--zloto-300) 28%, transparent) 62%, transparent 74%);
 }
 .profil-imie{
   font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
@@ -586,7 +586,7 @@
 .profil-cecha .hub-coin{ align-self:flex-end; }
 .profil-cecha--pusta{ text-align:center; align-items:center; }
 .profil-pasek{
-  display:block; height:9px; border-radius:9px; background:rgba(78,77,118,.12); overflow:hidden;
+  display:block; height:9px; border-radius:9px; background:color-mix(in srgb, var(--p-ink) 12%, transparent); overflow:hidden;
 }
 .profil-pasek i{ display:block; height:100%; border-radius:9px; min-width:7px; }
 
@@ -595,12 +595,12 @@
 .hub-trait{ display:flex; align-items:center; gap:10px; margin-bottom:9px; }
 .hub-trait:last-child{ margin-bottom:0; }
 .hub-trait-rank{
-  width:22px; height:22px; flex:none; border-radius:50%; background:rgba(122,77,194,.14);
+  width:22px; height:22px; flex:none; border-radius:50%; background:color-mix(in srgb, var(--p-magic-dk) 14%, transparent);
   color:var(--p-magic-dk,#7A4DC2); font-size:11px; font-weight:800; display:grid; place-items:center;
 }
 .hub-trait-bar{ flex:1; }
 .hub-trait-bar strong{ display:block; font-size:12.5px; margin-bottom:3px; }
-.hub-trait-bar > span{ display:block; height:8px; border-radius:9px; background:rgba(78,77,118,.10); overflow:hidden; }
+.hub-trait-bar > span{ display:block; height:8px; border-radius:9px; background:color-mix(in srgb, var(--p-ink) 10%, transparent); overflow:hidden; }
 .hub-trait-bar i{ display:block; height:100%; border-radius:9px; min-width:6px; }
 .hub-trait b{ font-size:12.5px; width:18px; text-align:right; }
 
@@ -608,18 +608,18 @@
 .hub-tabs{ display:flex; gap:7px; margin-bottom:12px; flex-wrap:wrap; }
 .hub-tab{
   display:inline-flex; align-items:center; gap:6px; cursor:pointer;
-  border:1.5px solid rgba(120,90,30,.2); background:rgba(255,255,255,.62);
+  border:1.5px solid color-mix(in srgb, var(--ochra-550) 20%, transparent); background:rgba(255,255,255,.62);
   border-radius:var(--r-pill,999px); padding:8px 13px; min-height:40px;
   font-family:inherit; font-weight:800; font-size:12px; color:var(--p-ink-soft,#5A4F77);
 }
-.hub-tab.is-active{ background:linear-gradient(180deg,#C8A0F0,var(--p-magic-dk)); color:#ffffff; border-color:transparent; }
+.hub-tab.is-active{ background:linear-gradient(180deg,var(--fiolet-200),var(--p-magic-dk)); color:#ffffff; border-color:transparent; }
 .hub-tab.is-locked{ opacity:.65; }
 .hub-bubbles{ display:flex; flex-direction:column; gap:9px; }
 .hub-bubble{ max-width:84%; padding:10px 13px; font-size:13.5px; line-height:1.45; box-shadow:var(--shadow-md); }
 .hub-bubble.is-them{ align-self:flex-start; background:rgba(255,255,255,.88); border-radius:18px 18px 18px 6px; }
 .hub-bubble.is-me{
-  align-self:flex-end; color:#4f2b0c; border-radius:18px 18px 6px 18px;
-  background:linear-gradient(180deg,#FFE6A8,var(--p-amber));
+  align-self:flex-end; color:var(--braz-800); border-radius:18px 18px 6px 18px;
+  background:linear-gradient(180deg,var(--krem-400),var(--p-amber));
 }
 .hub-bubble-who{
   display:block; font-size:10px; font-weight:800; letter-spacing:.8px; text-transform:uppercase;
@@ -627,19 +627,19 @@
 }
 .hub-replies{ display:flex; flex-wrap:wrap; gap:7px; margin-top:12px; }
 .hub-replies button{
-  border:1.5px solid rgba(122,77,194,.35); background:rgba(255,255,255,.78); cursor:pointer;
+  border:1.5px solid color-mix(in srgb, var(--p-magic-dk) 35%, transparent); background:rgba(255,255,255,.78); cursor:pointer;
   border-radius:var(--r-pill,999px); padding:10px 14px; min-height:44px;
   font-family:inherit; font-weight:800; font-size:12.5px; color:var(--p-magic-dk,#7A4DC2);
 }
 .hub-composer{ display:flex; gap:8px; align-items:center; margin-top:14px; }
 .hub-composer input{
-  flex:1; border:1.5px solid rgba(120,90,30,.22); background:rgba(255,255,255,.6);
+  flex:1; border:1.5px solid color-mix(in srgb, var(--ochra-550) 22%, transparent); background:rgba(255,255,255,.6);
   border-radius:var(--r-pill,999px); padding:12px 14px; font-family:inherit; font-size:13px;
 }
 .hub-composer button{
   width:52px; height:52px; flex:none; border-radius:50%; border:none; cursor:pointer;
-  background:linear-gradient(180deg,#C8A0F0,var(--p-magic-dk)); color:#ffffff; font-size:19px;
-  box-shadow:0 3px 0 rgba(74,45,128,.4);
+  background:linear-gradient(180deg,var(--fiolet-200),var(--p-magic-dk)); color:#ffffff; font-size:19px;
+  box-shadow:0 3px 0 color-mix(in srgb, var(--fiolet-800) 40%, transparent);
 }
 .hub-composer button:disabled{ opacity:.45; cursor:default; box-shadow:none; }
 
@@ -688,7 +688,7 @@
 .czat-zakladka.is-active{ color:var(--p-magic-dk,#7A4DC2); opacity:1; }
 .czat-zakladka.is-active::after{
   content:""; position:absolute; left:16%; right:16%; bottom:0; height:4px;
-  border-radius:4px 4px 0 0; background:#d59a31;
+  border-radius:4px 4px 0 0; background:var(--zloto-500);
 }
 /* Zamkniety kanal poznaje sie po KLODCE i po niczym wiecej. Wygaszanie calej
    zakladki bylo drugim znakiem tego samego („tu nie wejdziesz") i sprawialo,
@@ -736,8 +736,8 @@
 .czat-kafelek{
   position:relative; min-height:190px; padding:14px 9px 12px;
   display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
-  border:1.5px solid #f5c45e; border-radius:19px; cursor:pointer;
-  background:linear-gradient(180deg,rgba(251,241,214,.96),rgba(241,217,151,.96));
+  border:1.5px solid var(--zloto-300); border-radius:19px; cursor:pointer;
+  background:linear-gradient(180deg,color-mix(in srgb, var(--p-paper) 96%, transparent),color-mix(in srgb, var(--hud-cream-bottom) 96%, transparent));
   color:#5b4577; font-family:inherit;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 3px 0 rgba(160,110,30,.34),0 7px 13px rgba(91,66,29,.12);
   transition:transform .12s ease,filter .12s ease;
@@ -748,11 +748,11 @@
   display:grid; place-items:center; color:#7440bd;
   border:2px solid #9f793c; border-radius:25px;
   background:linear-gradient(180deg,var(--p-paper),#e9d8aa);
-  box-shadow:inset 0 3px 0 rgba(255,255,255,.9),0 5px 0 #9f8559,0 8px 12px rgba(72,53,26,.26);
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.9),0 5px 0 #9f8559,0 8px 12px color-mix(in srgb, var(--ochra-700) 26%, transparent);
 }
 .czat-kafelek-ikona i{
   position:absolute; inset:0; display:grid; place-items:center; color:#8f8b83;
-  background:rgba(255,249,229,.78); border-radius:23px;
+  background:color-mix(in srgb, var(--krem-50) 78%, transparent); border-radius:23px;
 }
 .czat-kafelek-nowe{
   position:absolute; top:-8px; right:-8px; width:28px; height:28px;
@@ -766,15 +766,15 @@
 .czat-kafelek small{ min-height:34px; margin-top:3px; font-size:12.5px; line-height:1.3; font-weight:700; }
 .czat-kafelek-status{
   min-height:28px; margin-top:auto; padding:4px 11px; display:inline-flex; align-items:center; gap:5px;
-  border:2px solid rgba(196,146,44,.38); border-radius:999px; background:#fffaf0;
-  color:#8a5a18; font-size:12.5px; line-height:1; font-weight:900;
-  box-shadow:0 2px 0 rgba(150,105,30,.16);
+  border:2px solid color-mix(in srgb, var(--ochra-300) 38%, transparent); border-radius:999px; background:var(--biel-ciepla);
+  color:var(--ochra-500); font-size:12.5px; line-height:1; font-weight:900;
+  box-shadow:0 2px 0 color-mix(in srgb, var(--ochra-400) 16%, transparent);
 }
 .czat-kafelek.is-locked{
   border-color:#cbc4b4; background:linear-gradient(180deg,#f2efe5,#dedbd0); color:#8f8b83;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 3px 0 #b8af9e,0 7px 13px rgba(70,62,48,.1);
 }
-.czat-kafelek.is-locked .czat-kafelek-ikona{ color:#8f8b83; border-color:#aaa392; background:linear-gradient(180deg,#fff9e5,#dcd6c4); }
+.czat-kafelek.is-locked .czat-kafelek-ikona{ color:#8f8b83; border-color:#aaa392; background:linear-gradient(180deg,var(--krem-50),#dcd6c4); }
 .czat-kafelek.is-locked .czat-kafelek-status{ color:#817d74; border-color:#cbc4b4; }
 .czat-kanal-head{
   position:relative; flex:none; min-height:66px; margin:-2px 0 12px; padding:0 0 11px;
@@ -796,7 +796,7 @@
 .czat-kanal-avatar{
   width:34px; height:34px; display:grid; place-items:center;
   font-size:21px; font-style:normal; line-height:1;
-  border-radius:50%; background:rgba(122,77,194,.12);
+  border-radius:50%; background:color-mix(in srgb, var(--p-magic-dk) 12%, transparent);
 }
 /* Lista rozmów i ekran Mentora dalej są listą — przewijają się u siebie. */
 .czat-lista{ flex:1; min-height:0; overflow-y:auto; }
@@ -848,7 +848,7 @@
 }
 .czat-rozmowa--forum .czat-wpis.is-moja .czat-wpis-tresc{
   border-radius:18px 18px 6px 18px;
-  background:linear-gradient(180deg,#FFE6A8,var(--p-amber));
+  background:linear-gradient(180deg,var(--krem-400),var(--p-amber));
   box-shadow:0 2px 0 rgba(160,110,30,.22);
 }
 .czat-rozmowa--forum .czat-wpis-tresc p{ margin:0; }
@@ -869,7 +869,7 @@
   min-height:0; padding:2px 2px 2px 8px; margin:0; font-size:12.5px; opacity:.7;
 }
 .czat-rozmowa--forum .czat-brawa::after{ content:""; position:absolute; inset:-9px -8px; }
-.czat-rozmowa--forum .czat-brawa.is-dane{ opacity:1; color:#8A5A18; background:transparent; }
+.czat-rozmowa--forum .czat-brawa.is-dane{ opacity:1; color:var(--ochra-500); background:transparent; }
 
 /* ── dół rozmowy: gotowe zdania + pole pisania w JEDNYM pasku ────────────
    Pasek jest NIEPRZEZROCZYSTY i idzie od krawędzi do krawędzi szuflady
@@ -906,17 +906,17 @@
 .czat-podpowiedzi{
   flex:none; display:grid; place-items:center; cursor:pointer;
   width:44px; height:44px; border-radius:50%;
-  border:2px solid rgba(122,77,194,.3); background:rgba(255,255,255,.85);
+  border:2px solid color-mix(in srgb, var(--p-magic-dk) 30%, transparent); background:rgba(255,255,255,.85);
   color:var(--p-magic-dk,#7A4DC2);
 }
 .czat-podpowiedzi.is-otwarte{
-  background:linear-gradient(180deg,#C8A0F0,var(--p-magic-dk)); border-color:transparent; color:#ffffff;
+  background:linear-gradient(180deg,var(--fiolet-200),var(--p-magic-dk)); border-color:transparent; color:#ffffff;
 }
 .czat-podpowiedzi:disabled{ opacity:.32; cursor:default; }
 .czat-skroty::-webkit-scrollbar{ display:none; }
 .czat-skroty button{
   flex:none; cursor:pointer; font-family:inherit; font-weight:700; font-size:12.5px;
-  border:1.5px solid rgba(122,77,194,.28); background:rgba(255,255,255,.8);
+  border:1.5px solid color-mix(in srgb, var(--p-magic-dk) 28%, transparent); background:rgba(255,255,255,.8);
   border-radius:var(--r-pill,999px); padding:7px 12px; min-height:34px;
   color:var(--p-magic-dk,#7A4DC2); white-space:nowrap;
 }
@@ -990,7 +990,7 @@
   border-radius:18px; box-shadow:var(--shadow-md);
 }
 .czat-wpis.is-moja{
-  background:linear-gradient(180deg,#fff4c9,#f4e1ac); border-color:rgba(225,182,106,.75);
+  background:linear-gradient(180deg,var(--krem-100),var(--piasek)); border-color:color-mix(in srgb, var(--zloto-matowe) 75%, transparent);
 }
 .czat-wpis-av{
   width:38px; height:38px; flex:none; border-radius:13px; display:grid; place-items:center;
@@ -1001,17 +1001,17 @@
   display:block; font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
   font-weight:800; font-size:14.5px; line-height:1.2; color:var(--p-magic-dk,#7A4DC2);
 }
-.czat-wpis.is-moja .czat-wpis-kto{ color:#8A5A18; }
+.czat-wpis.is-moja .czat-wpis-kto{ color:var(--ochra-500); }
 .czat-wpis-tresc p{ margin:2px 0 0; font-size:15.5px; line-height:1.42; }
 /* Przycisk brawa jest POD tekstem wiadomości, dosunięty w prawo. */
 .czat-brawa{
   margin:7px 0 0 auto; cursor:pointer; font-family:inherit; font-weight:800; font-size:13px;
   display:flex; align-items:center; justify-content:center; gap:5px; min-height:36px; padding:6px 13px;
-  border:2px solid rgba(122,77,194,.3); border-radius:var(--r-pill,999px);
+  border:2px solid color-mix(in srgb, var(--p-magic-dk) 30%, transparent); border-radius:var(--r-pill,999px);
   background:rgba(255,255,255,.85); color:var(--p-magic-dk,#7A4DC2);
 }
 .czat-brawa.is-dane{
-  background:linear-gradient(180deg,#FFE6A8,var(--p-amber)); border-color:transparent; color:#4f2b0c;
+  background:linear-gradient(180deg,var(--krem-400),var(--p-amber)); border-color:transparent; color:var(--braz-800);
   cursor:default;
 }
 
@@ -1052,8 +1052,8 @@
 [data-testid="hub-pane-zadanie"] .hub-actions{ margin-bottom:18px; }
 .hub-pane .hub-composer input{
   font-size:16px; min-height:52px; padding:13px 18px;
-  border:2px solid rgba(120,90,30,.3); background:#ffffff; color:var(--p-ink,#4e4d76);
-  box-shadow:inset 0 1px 2px rgba(120,90,30,.12);
+  border:2px solid color-mix(in srgb, var(--ochra-550) 30%, transparent); background:#ffffff; color:var(--p-ink,#4e4d76);
+  box-shadow:inset 0 1px 2px color-mix(in srgb, var(--ochra-550) 12%, transparent);
 }
 .hub-pane .hub-composer input::placeholder{ color:var(--p-ink-soft,#5A4F77); opacity:.75; }
 /* WYBRANE POLE MA BYĆ WIDAĆ Z DRUGIEGO KOŃCA POKOJU.
@@ -1064,15 +1064,15 @@
    na dworze. `outline` zostaje osobno dla nawigacji klawiaturą. */
 .hub-pane .hub-composer input:focus{
   border-color:var(--p-magic-dk); background:#ffffff;
-  box-shadow:0 0 0 4px rgba(200,160,240,.55),inset 0 1px 2px rgba(120,90,30,.1);
+  box-shadow:0 0 0 4px color-mix(in srgb, var(--fiolet-200) 55%, transparent),inset 0 1px 2px color-mix(in srgb, var(--ochra-550) 10%, transparent);
   outline:none;
 }
-.hub-pane .hub-composer input:focus-visible{ outline:3px solid rgba(122,77,194,.35); outline-offset:3px; }
+.hub-pane .hub-composer input:focus-visible{ outline:3px solid color-mix(in srgb, var(--p-magic-dk) 35%, transparent); outline-offset:3px; }
 .hub-pane .hub-composer input:focus::placeholder{ opacity:.45; }
 /* Skoro pole jest aktywne, ➤ przestaje być ozdobą — dostaje wyraźny cień
    i lekko podnosi się nad tło. */
 .hub-pane .hub-composer:focus-within button:not(:disabled){
-  box-shadow:0 3px 0 rgba(74,45,128,.55),0 0 0 4px rgba(200,160,240,.4);
+  box-shadow:0 3px 0 color-mix(in srgb, var(--fiolet-800) 55%, transparent),0 0 0 4px color-mix(in srgb, var(--fiolet-200) 40%, transparent);
 }
 
 /* ── zadanie od Wizkora (robione poza ekranem) ── */
@@ -1080,9 +1080,9 @@
    16 px. Karteczki miejsc są zbudowane jak karteczka Porady dnia — papier,
    pinezka, jedno zdanie — bo to ten sam gest: „weź jedną i zrób". */
 .zadanie-karta{
-  position:relative; border:2px solid rgba(255,223,130,.9); border-radius:var(--r-card,22px);
-  background:linear-gradient(180deg,rgba(255,251,224,.96),rgba(244,227,184,.96));
-  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.82),0 3px 0 rgba(127,69,23,.5),0 8px 15px rgba(72,53,26,.14);
+  position:relative; border:2px solid color-mix(in srgb, var(--zloto-200) 90%, transparent); border-radius:var(--r-card,22px);
+  background:linear-gradient(180deg,color-mix(in srgb, var(--krem-50) 96%, transparent),color-mix(in srgb, var(--p-paper-2) 96%, transparent));
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.82),0 3px 0 color-mix(in srgb, var(--braz-600) 50%, transparent),0 8px 15px color-mix(in srgb, var(--ochra-700) 14%, transparent);
   padding:16px; margin-bottom:14px;
 }
 .zadanie-moneta{ position:absolute; top:12px; right:12px; }
@@ -1118,7 +1118,7 @@
 .zadanie-tytul::before{
   content:""; flex:none; width:15px; height:15px; margin-top:6px;
   border-radius:4px; transform:rotate(45deg);
-  background:linear-gradient(180deg,#ffdf82,#e6a832);
+  background:linear-gradient(180deg,var(--zloto-200),var(--zloto-450));
   box-shadow:inset 0 1px 0 rgba(255,255,255,.75), 0 1px 0 rgba(156,99,33,.35);
 }
 
@@ -1140,10 +1140,10 @@
   display:inline-flex; align-items:center; gap:8px; cursor:pointer;
   font-family:inherit; font-weight:900; color:var(--p-magic-dk,#7A4DC2);
   margin:13px 0 0; padding:7px 10px 7px 8px;
-  border:1.5px solid rgba(122,77,194,.28); border-radius:999px;
+  border:1.5px solid color-mix(in srgb, var(--p-magic-dk) 28%, transparent); border-radius:999px;
   background:rgba(255,255,255,.58);
 }
-.zadanie-glos:focus-visible{ outline:3px solid rgba(122,77,194,.38); outline-offset:3px; }
+.zadanie-glos:focus-visible{ outline:3px solid color-mix(in srgb, var(--p-magic-dk) 38%, transparent); outline-offset:3px; }
 /* Zdanie o dowodzie: ten sam glos co `jak`, tylko odrobine wieksze - stoi
    samo pod naglowkiem sekcji, wiec nie ma sie o co oprzec wzrokiem. */
 .zadanie-dowod{ margin:-4px 2px 12px; font-size:15px; line-height:1.42; color:var(--p-ink-soft,#5A4F77); }
@@ -1156,7 +1156,7 @@
   display:grid; gap:3px;
   margin:10px 0 0; padding:11px 14px 12px;
   border-radius:14px; border-left:4px solid var(--p-magic,#8A5CD6);
-  background:rgba(122,77,194,.09);
+  background:color-mix(in srgb, var(--p-magic-dk) 9%, transparent);
 }
 .zadanie-przyklad b{
   font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
@@ -1177,8 +1177,8 @@
   position:relative; display:grid; grid-template-columns:auto 1fr; gap:4px 12px; align-items:center;
   text-align:left; cursor:pointer; font-family:inherit; color:var(--p-ink,#4e4d76);
   min-height:68px; padding:10px 11px; border:none; border-radius:16px;
-  background:linear-gradient(180deg,#fff4c9,#FFEFAE);
-  box-shadow:0 2px 0 rgba(150,105,30,.28),0 7px 14px rgba(72,53,26,.14);
+  background:linear-gradient(180deg,var(--krem-100),#FFEFAE);
+  box-shadow:0 2px 0 color-mix(in srgb, var(--ochra-400) 28%, transparent),0 7px 14px color-mix(in srgb, var(--ochra-700) 14%, transparent);
   transform:rotate(-.7deg);
 }
 .zadanie-miejsce:nth-child(even){ transform:rotate(.8deg); }
@@ -1189,8 +1189,8 @@
    (wybór ma dać się zmienić), tylko cofa się o krok. */
 .zadanie-miejsca.ma-wybor .zadanie-miejsce{ opacity:.42; filter:saturate(.55); }
 .zadanie-miejsce.is-wybrane{
-  background:linear-gradient(180deg,#FFE6A8,var(--p-amber));
-  box-shadow:0 3px 0 rgba(150,105,30,.45),0 10px 18px rgba(72,53,26,.24),inset 0 0 0 2.5px rgba(255,255,255,.7);
+  background:linear-gradient(180deg,var(--krem-400),var(--p-amber));
+  box-shadow:0 3px 0 color-mix(in srgb, var(--ochra-400) 45%, transparent),0 10px 18px color-mix(in srgb, var(--ochra-700) 24%, transparent),inset 0 0 0 2.5px rgba(255,255,255,.7);
   transform:rotate(0deg) scale(1.03);
 }
 .zadanie-miejsca.ma-wybor .zadanie-miejsce.is-wybrane{ opacity:1; filter:none; }
@@ -1210,7 +1210,7 @@
 .zadanie-pinezka{
   position:absolute; top:-7px; left:50%; width:16px; height:16px; border-radius:50%; margin-left:-8px;
   background:radial-gradient(circle at 35% 30%,#ff8c8c,#c0392b 70%);
-  box-shadow:0 2px 3px rgba(79,43,12,.35);
+  box-shadow:0 2px 3px color-mix(in srgb, var(--braz-800) 35%, transparent);
 }
 .zadanie-miejsce-emoji{ grid-row:1 / span 2; font-size:26px; line-height:1; }
 .zadanie-miejsce strong{ font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif; font-size:15px; line-height:1.15; }
@@ -1220,7 +1220,7 @@
 .zadanie-zdjecie{
   width:100%; display:grid; justify-items:center; gap:5px; cursor:pointer; font-family:inherit;
   padding:20px 14px; margin-bottom:10px; overflow:hidden;
-  border:2px dashed rgba(122,77,194,.45); border-radius:20px;
+  border:2px dashed color-mix(in srgb, var(--p-magic-dk) 45%, transparent); border-radius:20px;
   background:rgba(255,255,255,.72); color:var(--p-magic-dk,#7A4DC2);
 }
 .zadanie-zdjecie strong{ font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif; font-size:17px; }
@@ -1229,19 +1229,19 @@
 .zadanie-zdjecie:disabled{ opacity:.7; cursor:default; }
 .zadanie-opis{
   width:100%; box-sizing:border-box; resize:vertical; min-height:104px;
-  border:2px solid rgba(120,90,30,.22); border-radius:18px; padding:13px 15px;
+  border:2px solid color-mix(in srgb, var(--ochra-550) 22%, transparent); border-radius:18px; padding:13px 15px;
   font-family:inherit; font-size:16px; line-height:1.45; color:var(--p-ink,#4e4d76);
   background:rgba(255,255,255,.9);
 }
 .zadanie-opis::placeholder{ color:var(--p-ink-soft,#5A4F77); opacity:.75; }
 .zadanie-opis:focus{
   border-color:var(--p-magic-dk); background:#ffffff;
-  box-shadow:0 0 0 4px rgba(200,160,240,.55); outline:none;
+  box-shadow:0 0 0 4px color-mix(in srgb, var(--fiolet-200) 55%, transparent); outline:none;
 }
-.zadanie-opis:focus-visible{ outline:3px solid rgba(122,77,194,.35); outline-offset:3px; }
+.zadanie-opis:focus-visible{ outline:3px solid color-mix(in srgb, var(--p-magic-dk) 35%, transparent); outline-offset:3px; }
 .zadanie-blad{
   margin:10px 0 0; padding:11px 13px; border-radius:14px; font-size:14.5px; line-height:1.45;
-  background:rgba(232,154,61,.14); border:1px dashed rgba(180,115,34,.5); color:#50320a;
+  background:color-mix(in srgb, var(--p-dusk) 14%, transparent); border:1px dashed color-mix(in srgb, var(--braz-300) 50%, transparent); color:var(--ochra-800);
 }
 
 /* Czekanie i nagroda — po jednym ekranie na stan, nigdy dwa naraz. */
@@ -1264,7 +1264,7 @@
    `prefers-reduced-motion` stoi zupelnie. */
 .zadanie-sprawdzanie{
   width:148px; max-width:62%; height:auto; display:block;
-  filter:drop-shadow(0 6px 10px rgba(90,51,17,.22));
+  filter:drop-shadow(0 6px 10px color-mix(in srgb, var(--braz-700) 22%, transparent));
   animation:zadanie-sprawdzanie-oddech 4.2s ease-in-out infinite;
 }
 @keyframes zadanie-sprawdzanie-oddech{
@@ -1280,7 +1280,7 @@
 }
 .zadanie-kwota{
   font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
-  font-size:30px; font-weight:800; color:#8A5A18;
+  font-size:30px; font-weight:800; color:var(--ochra-500);
 }
 /* Zdjęcie dowodu w szufladzie zadania — POLAROID położony na papierze.
    Dziecko ogląda tu własne zdjęcie, kiedy czeka na werdykt. Jako prostokąt na
@@ -1319,7 +1319,7 @@
   background:rgba(255,255,255,.74); border:1.5px solid rgba(255,255,255,.85);
   border-radius:18px; margin-bottom:9px; box-shadow:var(--shadow-md); overflow:hidden;
 }
-.hub-msg.is-unread{ background:rgba(255,255,255,.94); border-color:rgba(232,154,61,.5); }
+.hub-msg.is-unread{ background:rgba(255,255,255,.94); border-color:color-mix(in srgb, var(--p-dusk) 50%, transparent); }
 .hub-msg-head{
   display:flex; gap:10px; align-items:flex-start; width:100%; text-align:left;
   background:transparent; border:none; cursor:pointer; padding:12px; font-family:inherit;
@@ -1327,7 +1327,7 @@
 }
 .hub-msg-av{
   width:36px; height:36px; border-radius:12px; flex:none; display:grid; place-items:center;
-  background:rgba(232,154,61,.18); color:#8A5A18;
+  background:color-mix(in srgb, var(--p-dusk) 18%, transparent); color:var(--ochra-500);
 }
 .hub-msg-copy{ flex:1; min-width:0; }
 .hub-msg-copy strong{ display:block; font-size:13.5px; line-height:1.25; }
@@ -1361,7 +1361,7 @@
 .hub-toast{
   position:absolute; left:50%; bottom:calc(96px + env(safe-area-inset-bottom,0px));
   transform:translateX(-50%); z-index:9; max-width:80%;
-  background:rgba(36,29,60,.93); color:#F6E7C4; font-size:12.5px; font-weight:700;
+  background:color-mix(in srgb, var(--noc-800) 93%, transparent); color:#F6E7C4; font-size:12.5px; font-weight:700;
   padding:10px 16px; border-radius:var(--r-pill,999px); text-align:center;
   animation:hubToast .2s ease;
 }
@@ -1404,10 +1404,10 @@
 .medrzec-karta{
   position:relative; display:grid; grid-template-columns:68px minmax(0,1fr) auto; align-items:center; gap:10px;
   min-height:82px; padding:11px 9px 11px 7px;
-  border:3px solid #5f438a;
+  border:3px solid var(--fiolet-600);
   border-radius:25px;
-  background:linear-gradient(180deg,#fffaf0 0%,var(--p-paper-2) 100%);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.9),0 5px 0 rgba(74,54,112,.3),0 13px 26px rgba(27,19,56,.28);
+  background:linear-gradient(180deg,var(--biel-ciepla) 0%,var(--p-paper-2) 100%);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.9),0 5px 0 rgba(74,54,112,.3),0 13px 26px color-mix(in srgb, var(--noc-850) 28%, transparent);
   /* Krój tytułowy gry (Baloo 2), a nie krok z arkusza HUD-u: HUD ma wlasny
      ("Arial Rounded"), bo musi dzialac takze w podgladzie bez Google Fonts.
      Tekst Medrca to zdanie do przeczytania, wiec idzie typografia aplikacji. */
@@ -1437,9 +1437,9 @@
 .medrzec-akcje{ display:grid; gap:6px; }
 .medrzec-akcje button{
   width:32px; height:32px; display:grid; place-items:center; padding:0;
-  border:2px solid rgba(95,67,138,.45); border-radius:50%;
-  background:#fffaf0; color:#5f438a; cursor:pointer;
-  box-shadow:0 2px 0 rgba(95,67,138,.2);
+  border:2px solid color-mix(in srgb, var(--fiolet-600) 45%, transparent); border-radius:50%;
+  background:var(--biel-ciepla); color:var(--fiolet-600); cursor:pointer;
+  box-shadow:0 2px 0 color-mix(in srgb, var(--fiolet-600) 20%, transparent);
   font:900 18px/1 "Baloo 2",system-ui,sans-serif;
 }
 .medrzec-akcje button:active{ transform:translateY(2px); box-shadow:none; }
@@ -1472,7 +1472,7 @@
 .gra-root{
   position:fixed; inset:0; z-index:1;
   display:flex; flex-direction:column;
-  background:linear-gradient(180deg,#C9E9FF 0%,var(--p-sky-2) 58%,#FFC9A0 100%);
+  background:linear-gradient(180deg,var(--blekit-100) 0%,var(--p-sky-2) 58%,#FFC9A0 100%);
 }
 
 /* Gra otwarta NAD hubem (`/swiat?gra=…`), a nie na wlasnym adresie. Musi
@@ -1501,13 +1501,13 @@
 .gra-x{
   width:46px; height:46px; flex:none;
   display:grid; place-items:center; padding:0 0 4px;
-  border:2px solid #8d2a27; border-radius:50%;
+  border:2px solid var(--czerwien-700); border-radius:50%;
   background:linear-gradient(180deg,#ff6a5e,#d53537);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 3px 0 #8d2a27,0 6px 9px rgba(77,35,22,.2);
-  color:#fff4c9; font:900 32px/1 system-ui,sans-serif;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 3px 0 var(--czerwien-700),0 6px 9px color-mix(in srgb, var(--czerwien-900) 20%, transparent);
+  color:var(--krem-100); font:900 32px/1 system-ui,sans-serif;
   cursor:pointer; -webkit-tap-highlight-color:transparent;
 }
-.gra-x:active{ transform:translateY(2px); box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 1px 0 #8d2a27; }
+.gra-x:active{ transform:translateY(2px); box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 1px 0 var(--czerwien-700); }
 
 .gra-tytul{
   flex:1; min-width:0; text-align:center;
@@ -1522,9 +1522,9 @@
   display:grid; place-items:center;
   border:2px solid transparent; border-radius:50%;
   background:
-    linear-gradient(180deg,rgba(255,251,224,.97),rgba(244,225,172,.97)) padding-box,
-    linear-gradient(180deg,#fff3a8 0%,#e6a832 62%,#a2621c 100%) border-box;
-  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.8),0 3px 0 #8f5017,0 6px 12px rgba(49,42,20,.22);
+    linear-gradient(180deg,color-mix(in srgb, var(--krem-50) 97%, transparent),color-mix(in srgb, var(--piasek) 97%, transparent)) padding-box,
+    linear-gradient(180deg,var(--krem-300) 0%,var(--zloto-450) 62%,var(--braz-400) 100%) border-box;
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.8),0 3px 0 var(--braz-500),0 6px 12px rgba(49,42,20,.22);
   color:#5a3d12; cursor:pointer;
 }
 .gra-ikona:active{ transform:translateY(2px); }
@@ -1580,11 +1580,11 @@
   border-radius:28px;
   background:
     linear-gradient(180deg,var(--p-paper,#FBF1D6) 0%,var(--p-paper-2,#F4E3B8) 100%) padding-box,
-    linear-gradient(180deg,var(--hud-gold-light) 0%,var(--hud-gold) 55%,#a2621c 100%) border-box;
+    linear-gradient(180deg,var(--hud-gold-light) 0%,var(--hud-gold) 55%,var(--braz-400) 100%) border-box;
   box-shadow:
     inset 0 3px 0 rgba(255,255,255,.75),
-    0 6px 0 rgba(122,77,194,.28),
-    0 22px 46px rgba(37,29,74,.45);
+    0 6px 0 color-mix(in srgb, var(--p-magic-dk) 28%, transparent),
+    0 22px 46px color-mix(in srgb, var(--noc-700) 45%, transparent);
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   color:var(--p-ink,#4e4d76);
   text-align:center;
@@ -1614,7 +1614,7 @@
      bezpiecznikiem: gdyby ktos podal inna grafike, zostanie wpisana
      w kadr zamiast rozciagnieta. */
   aspect-ratio:560 / 599; object-fit:contain;
-  filter:drop-shadow(0 8px 14px rgba(37,29,74,.42));
+  filter:drop-shadow(0 8px 14px color-mix(in srgb, var(--noc-700) 42%, transparent));
   user-select:none; -webkit-user-drag:none; pointer-events:none;
   animation:popup-postaci-bohater .52s cubic-bezier(.2,.9,.3,1.3) .06s both;
 }
@@ -1633,15 +1633,15 @@
   border:2.5px solid transparent; border-radius:999px;
   background:
     linear-gradient(180deg,#a878e6 0%,var(--p-magic-dk) 58%,#5a3499 100%) padding-box,
-    linear-gradient(180deg,var(--hud-gold-light) 0%,var(--hud-gold) 58%,#a2621c 100%) border-box;
+    linear-gradient(180deg,var(--hud-gold-light) 0%,var(--hud-gold) 58%,var(--braz-400) 100%) border-box;
   box-shadow:
     inset 0 2px 0 rgba(255,255,255,.34),
-    0 4px 0 rgba(74,45,128,.85),
-    0 9px 16px rgba(37,29,74,.34);
+    0 4px 0 color-mix(in srgb, var(--fiolet-800) 85%, transparent),
+    0 9px 16px color-mix(in srgb, var(--noc-700) 34%, transparent);
   color:#ffffff;
   font-size:20px; font-weight:800; letter-spacing:.6px; line-height:1.15;
   text-transform:uppercase;
-  text-shadow:0 2px 0 rgba(74,45,128,.9);
+  text-shadow:0 2px 0 color-mix(in srgb, var(--fiolet-800) 90%, transparent);
 }
 
 .popup-postaci-wstega span{
@@ -1651,7 +1651,7 @@
 .popup-postaci-gwiazdka{
   width:17px; height:17px; flex:none;
   fill:var(--p-amber,#F4C95D);
-  filter:drop-shadow(0 1.5px 0 rgba(74,45,128,.75));
+  filter:drop-shadow(0 1.5px 0 color-mix(in srgb, var(--fiolet-800) 75%, transparent));
 }
 
 .popup-postaci-tekst{
@@ -1674,7 +1674,7 @@
    tekstu. Dziecko, ktore jeszcze slabo czyta, widzi wtedy KSZTALT frazy,
    nawet gdy nie odroznia odcieni. */
 .popup-postaci-wyroznik{
-  background:linear-gradient(180deg,transparent 58%,rgba(244,201,93,.75) 58%);
+  background:linear-gradient(180deg,transparent 58%,color-mix(in srgb, var(--zloto-300) 75%, transparent) 58%);
   color:inherit; font-weight:800;
   border-radius:3px; padding:0 2px;
 }
@@ -1687,13 +1687,13 @@
 .popup-postaci-przerywnik::before,
 .popup-postaci-przerywnik::after{
   content:""; flex:1; height:2px; border-radius:2px;
-  background:linear-gradient(90deg,rgba(196,146,44,0),rgba(196,146,44,.55));
+  background:linear-gradient(90deg,rgba(196,146,44,0),color-mix(in srgb, var(--ochra-300) 55%, transparent));
 }
 .popup-postaci-przerywnik::after{ transform:scaleX(-1); }
 
 .popup-postaci-iskra{
   width:11px; height:11px; flex:none;
-  fill:rgba(196,146,44,.75);
+  fill:color-mix(in srgb, var(--ochra-300) 75%, transparent);
 }
 .popup-postaci-iskra--duza{ width:16px; height:16px; fill:var(--p-amber,#F4C95D); }
 
@@ -1767,24 +1767,24 @@
      bo oba guziki widzi w tej samej aplikacji. */
   width:46px; height:46px;
   display:grid; place-items:center;
-  border:2px solid #8d2a27; border-radius:50%;
+  border:2px solid var(--czerwien-700); border-radius:50%;
   background:linear-gradient(180deg,#ff6a5e,#d53537);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 3px 0 #8d2a27,0 6px 9px rgba(77,35,22,.2);
-  cursor:pointer; color:#fff4c9;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 3px 0 var(--czerwien-700),0 6px 9px color-mix(in srgb, var(--czerwien-900) 20%, transparent);
+  cursor:pointer; color:var(--krem-100);
   /* Ta sama typografia co w szufladzie, co do wartosci: waga 900, 32 px,
      ten sam cien. Krzyzyk byl wczesniej rysowany SVG-iem i przy tej samej
      grubosci nominalnej wychodzil chudszy niz glif w wadze 900.
      `padding-bottom` centruje glif optycznie - „x" ma w kroju wiecej
      powietrza u dolu niz u gory. */
   font:900 32px/1 system-ui, sans-serif;
-  text-shadow:0 2px 0 #8d2a27;
+  text-shadow:0 2px 0 var(--czerwien-700);
   padding:0 0 4px;
   transition:transform .14s ease, box-shadow .14s ease, filter .14s ease;
 }
 .popup-postaci-zamknij:hover{ filter:brightness(1.08); }
 .popup-postaci-zamknij:active{
   transform:translateY(2px) scale(.94);
-  box-shadow:inset 0 3px 4px rgba(111,24,24,.3),0 1px 0 #8d2a27,0 2px 4px rgba(77,35,22,.18);
+  box-shadow:inset 0 3px 4px rgba(111,24,24,.3),0 1px 0 var(--czerwien-700),0 2px 4px color-mix(in srgb, var(--czerwien-900) 18%, transparent);
 }
 
 @keyframes popup-postaci-zaslona{
@@ -1931,9 +1931,9 @@
 .puch-runda{
   margin-right:auto; padding:6px 14px;
   border-radius:var(--r-pill,999px);
-  background:rgba(255,251,224,.9); box-shadow:inset 0 0 0 1.5px rgba(168,122,42,.35);
+  background:color-mix(in srgb, var(--krem-50) 90%, transparent); box-shadow:inset 0 0 0 1.5px rgba(168,122,42,.35);
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
-  font-size:13px; font-weight:800; color:#7A4D10;
+  font-size:13px; font-weight:800; color:var(--ochra-600);
 }
 
 /* Kafelki wchodza dopiero, gdy cos widac - inaczej dalo by sie strzelac na
@@ -1952,11 +1952,11 @@
   padding:8px 6px; cursor:pointer;
   border:2px solid transparent; border-radius:var(--r-card,22px);
   background:
-    linear-gradient(180deg,rgba(255,251,224,.98),rgba(244,225,172,.98)) padding-box,
-    linear-gradient(180deg,#fff3a8 0%,#e6a832 62%,#a2621c 100%) border-box;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.85),0 4px 0 #8f5017,0 8px 16px rgba(49,42,20,.28);
+    linear-gradient(180deg,color-mix(in srgb, var(--krem-50) 98%, transparent),color-mix(in srgb, var(--piasek) 98%, transparent)) padding-box,
+    linear-gradient(180deg,var(--krem-300) 0%,var(--zloto-450) 62%,var(--braz-400) 100%) border-box;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.85),0 4px 0 var(--braz-500),0 8px 16px rgba(49,42,20,.28);
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
-  font-size:13px; font-weight:800; color:#4a3410;
+  font-size:13px; font-weight:800; color:var(--ochra-750);
 }
 /* Sylwetka zamiast pelnego koloru: kolorowy kafelek konkurowalby z tym, co
    wlasnie sie odslania. `brightness(0)` robi ja z tego samego pliku, wiec
@@ -1975,10 +1975,10 @@
 }
 .puch-intro h1{ margin:0; font-size:30px; }
 .puch-intro p{ margin:0; font-size:16px; font-weight:600; }
-.puch-wskazowka{ color:#7A4D10; font-weight:800 !important; }
+.puch-wskazowka{ color:var(--ochra-600); font-weight:800 !important; }
 .puch-godlo{
   width:104px; height:104px; object-fit:contain;
-  filter:drop-shadow(0 6px 10px rgba(78,77,118,.25));
+  filter:drop-shadow(0 6px 10px color-mix(in srgb, var(--p-ink) 25%, transparent));
   animation:medrzec-wejscie .5s cubic-bezier(.2,.9,.3,1.2) both;
 }
 .puch-intro .gra-btn-duzy{ max-width:320px; }
@@ -2015,13 +2015,13 @@
      paska trawy między brzegiem stołu a skrajną kartą. */
   width:122%; height:min(78%, 660px);
   object-fit:fill;
-  filter:drop-shadow(0 10px 16px rgba(40,25,5,.35));
+  filter:drop-shadow(0 10px 16px color-mix(in srgb, var(--ochra-900) 35%, transparent));
   animation:blat-wjazd .5s ease-out both;
 }
 .karty-wizkor, .karty-lis{
   position:absolute; left:50%;
   width:min(46%, 210px); height:auto;
-  filter:drop-shadow(0 6px 12px rgba(40,25,5,.35));
+  filter:drop-shadow(0 6px 12px color-mix(in srgb, var(--ochra-900) 35%, transparent));
 }
 .karty-wizkor{ top:0; transform:translate(-50%,0); animation:wsuw-z-gory .75s cubic-bezier(.22,.9,.3,1.12) .12s both; }
 .karty-lis{ bottom:0; transform:translate(-50%,0); animation:wsuw-z-dolu .75s cubic-bezier(.22,.9,.3,1.12) .26s both; }
@@ -2066,15 +2066,15 @@
 }
 .start-gry::after{
   content:""; position:absolute; z-index:-2; inset:22% -18px 0;
-  background:linear-gradient(180deg,transparent 0%,rgba(251,241,214,.2) 38%,rgba(255,224,181,.86) 67%,#ffd3a8 100%);
+  background:linear-gradient(180deg,transparent 0%,color-mix(in srgb, var(--p-paper) 20%, transparent) 38%,color-mix(in srgb, var(--p-sky-2) 86%, transparent) 67%,#ffd3a8 100%);
   pointer-events:none;
 }
-.start-gry--pamiec::after{ background:linear-gradient(180deg,transparent 0%,rgba(42,19,91,.06) 28%,rgba(74,45,128,.82) 66%,#2b174e 100%); }
-.start-gry--lot::after{ background:linear-gradient(180deg,transparent 0%,rgba(255,241,154,.08) 38%,rgba(91,119,48,.73) 70%,#244b34 100%); }
+.start-gry--pamiec::after{ background:linear-gradient(180deg,transparent 0%,rgba(42,19,91,.06) 28%,color-mix(in srgb, var(--fiolet-800) 82%, transparent) 66%,#2b174e 100%); }
+.start-gry--lot::after{ background:linear-gradient(180deg,transparent 0%,color-mix(in srgb, var(--zloto-100) 8%, transparent) 38%,rgba(91,119,48,.73) 70%,#244b34 100%); }
 /* Bieg: dol sceny to piaskowa sciezka na brazowej skale (#70452c przy 97%
    wysokosci), a bazowy gradient jest kremowo-pomaranczowy. Ten sam zabieg co
    przy Locie: schodzimy w kolor, ktory na obrazie JUZ jest. */
-.start-gry--bieg::after{ background:linear-gradient(180deg,transparent 0%,rgba(244,225,172,.1) 38%,rgba(163,110,72,.78) 70%,#6d3d31 100%); }
+.start-gry--bieg::after{ background:linear-gradient(180deg,transparent 0%,color-mix(in srgb, var(--piasek) 10%, transparent) 38%,rgba(163,110,72,.78) 70%,#6d3d31 100%); }
 /* Dół tła Biegu to piaskowy klif — panel wtapia się w ten sam ciepły brąz. */
 .start-gry-scena{
   position:relative; z-index:1; flex:none; width:min(100%,430px); height:clamp(316px,43svh,400px);
@@ -2093,7 +2093,7 @@
 .start-gry-art{
   --plyw:start-gry-plywanie;
   width:min(72vw,305px); max-height:96%; object-fit:contain;
-  filter:drop-shadow(0 15px 20px rgba(36,29,60,.3));
+  filter:drop-shadow(0 15px 20px color-mix(in srgb, var(--noc-800) 30%, transparent));
   transform-origin:50% 75%;
 }
 /* Kolysanie rusza dopiero razem z wejsciem — inaczej oba zegary chodzilyby
@@ -2148,7 +2148,7 @@
   50%{ translate:14px -7px; }
 }
 .start-gry-iskra{
-  position:absolute; width:9px; height:9px; border-radius:50%; background:#fff3a8;
+  position:absolute; width:9px; height:9px; border-radius:50%; background:var(--krem-300);
   box-shadow:0 0 0 4px rgba(255,237,112,.18),0 0 16px 5px rgba(255,226,63,.75);
   animation:start-iskra 2.3s ease-in-out infinite;
 }
@@ -2184,8 +2184,8 @@
   position:relative; overflow:hidden; width:min(100%,238px); min-height:136px; padding:17px 18px 14px;
   display:grid; align-content:center; justify-items:center; gap:12px;
   border:4px solid transparent; border-radius:30px;
-  background:linear-gradient(180deg,var(--p-paper) 0%,#f1d28d 100%) padding-box,linear-gradient(180deg,#fff3a8 0%,#e5ae3f 48%,#a96112 100%) border-box;
-  box-shadow:inset 0 3px 0 rgba(255,255,255,.84),0 6px 0 #a2621c,0 14px 23px rgba(83,51,20,.28);
+  background:linear-gradient(180deg,var(--p-paper) 0%,#f1d28d 100%) padding-box,linear-gradient(180deg,var(--krem-300) 0%,#e5ae3f 48%,#a96112 100%) border-box;
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.84),0 6px 0 var(--braz-400),0 14px 23px rgba(83,51,20,.28);
   color:var(--start-atrament); font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
 }
 .start-gry-loader::after{
@@ -2197,7 +2197,7 @@
   position:relative; z-index:1; display:block; overflow:hidden; width:188px; height:58px;
   border:4px solid rgba(255,255,255,.88); border-radius:25px;
   background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(235,238,220,.58));
-  box-shadow:inset 0 5px 8px rgba(74,82,56,.2),inset 0 -4px 7px rgba(255,255,255,.72),0 4px 0 rgba(120,90,30,.34),0 8px 12px rgba(74,52,16,.16);
+  box-shadow:inset 0 5px 8px rgba(74,82,56,.2),inset 0 -4px 7px rgba(255,255,255,.72),0 4px 0 color-mix(in srgb, var(--ochra-550) 34%, transparent),0 8px 12px color-mix(in srgb, var(--ochra-750) 16%, transparent);
 }
 .start-gry-loader-plyn{
   position:absolute; inset:4px auto 4px 4px; width:92%; overflow:visible; border-radius:17px 12px 12px 17px;
@@ -2229,13 +2229,13 @@
 .start-gry-poziom{
   position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
   min-height:76px; padding:8px 9px; cursor:pointer; border:3px solid transparent; border-radius:20px;
-  background:linear-gradient(180deg,var(--p-paper) 0%,var(--hud-cream-bottom) 100%) padding-box,linear-gradient(180deg,#fff3a8 0%,#e8b64c 48%,#b47322 100%) border-box;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.82),0 4px 0 #b47322,0 9px 16px rgba(117,81,28,.22);
+  background:linear-gradient(180deg,var(--p-paper) 0%,var(--hud-cream-bottom) 100%) padding-box,linear-gradient(180deg,var(--krem-300) 0%,#e8b64c 48%,var(--braz-300) 100%) border-box;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.82),0 4px 0 var(--braz-300),0 9px 16px rgba(117,81,28,.22);
   font-family:inherit; color:var(--p-ink,#4e4d76);
 }
 .start-gry-poziom.wybrany{
-  background:linear-gradient(180deg,var(--p-paper) 0%,var(--hud-cream-bottom) 100%) padding-box,linear-gradient(180deg,#fff3a8 0%,#e8b64c 48%,#b47322 100%) border-box;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.82),0 4px 0 #b47322,0 0 0 4px rgba(168,78,212,.42),0 11px 18px rgba(74,45,128,.24);
+  background:linear-gradient(180deg,var(--p-paper) 0%,var(--hud-cream-bottom) 100%) padding-box,linear-gradient(180deg,var(--krem-300) 0%,#e8b64c 48%,var(--braz-300) 100%) border-box;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.82),0 4px 0 var(--braz-300),0 0 0 4px rgba(168,78,212,.42),0 11px 18px color-mix(in srgb, var(--fiolet-800) 24%, transparent);
 }
 .start-gry-poziom-check{
   position:absolute; top:-10px; right:-7px; width:36px; height:36px; display:grid; place-items:center;
@@ -2245,7 +2245,7 @@
 .start-gry-poziom:disabled{ cursor:default; }
 .start-gry-poziom:not(:disabled):active{ transform:translateY(2px); }
 .start-gry-poziom-nazwa{ font-size:22px; font-weight:900; line-height:1; }
-.start-gry-poziom-monety{ display:inline-flex; align-items:center; gap:8px; font-size:28px; font-weight:900; line-height:1; color:#7A4D10; text-shadow:0 2px 0 rgba(255,255,255,.6); }
+.start-gry-poziom-monety{ display:inline-flex; align-items:center; gap:8px; font-size:28px; font-weight:900; line-height:1; color:var(--ochra-600); text-shadow:0 2px 0 rgba(255,255,255,.6); }
 .start-gry-poziom.wybrany .start-gry-poziom-monety{ color:#4e317a; }
 /* START gry ma ten sam ROZMIAR, co kazde inne CTA (skala `--cta-*`) - wyroznia
    go grubszy kant, polysk i oddech, a nie wieksza wysokosc. Wczesniej byl
@@ -2330,13 +2330,13 @@
   width:100%; margin-top:8px; padding:12px 20px;
   border:2.5px solid transparent; border-radius:20px;
   background:
-    linear-gradient(180deg,var(--p-paper) 0%,#f4e1ac 100%) padding-box,
-    linear-gradient(180deg,var(--hud-gold-light) 0%,#e5ae3f 60%,#a2621c 100%) border-box;
+    linear-gradient(180deg,var(--p-paper) 0%,var(--piasek) 100%) padding-box,
+    linear-gradient(180deg,var(--hud-gold-light) 0%,#e5ae3f 60%,var(--braz-400) 100%) border-box;
   box-shadow:inset 0 2px 0 rgba(255,255,255,.8), 0 4px 0 #b8842c, 0 10px 18px rgba(90,61,18,.22);
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
 }
 .wynik-nagroda-kwota{ font-size:38px; font-weight:900; line-height:1; color:#5A3407; text-shadow:0 2px 0 rgba(255,255,255,.6); }
-.wynik-nagroda-opis{ font-size:14px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; color:#7A4D10; }
+.wynik-nagroda-opis{ font-size:14px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; color:var(--ochra-600); }
 .wynik-rozbicie{
   margin:6px 0 0; font-size:13px; font-weight:800; color:var(--p-ink-soft,#5A4F77);
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
@@ -2351,7 +2351,7 @@
   margin:26px auto 22px; width:min(100%,300px);
   padding:30px 20px 18px;
   border-radius:6px;
-  background:linear-gradient(180deg,#fff4c9 0%,#FFEFAE 100%);
+  background:linear-gradient(180deg,var(--krem-100) 0%,#FFEFAE 100%);
   box-shadow:0 10px 18px rgba(60,45,15,.22), inset 0 1px 0 rgba(255,255,255,.7);
   transform:rotate(-1.6deg);
   text-align:center;
@@ -2399,14 +2399,14 @@
              linear-gradient(180deg,#b6e88f,#3c761f) border-box;
   box-shadow:0 4px 0 #3c761f, 0 8px 14px rgba(30,70,15,.3), inset 0 2px 0 rgba(255,255,255,.5);
 }
-.porada-ikona--tak svg{ fill:#fffaf0; stroke:none; }
+.porada-ikona--tak svg{ fill:var(--biel-ciepla); stroke:none; }
 .porada-ikona--tak:active{ box-shadow:0 2px 0 #3c761f, 0 4px 8px rgba(30,70,15,.3); }
 
 /* Krzyzyk jest LZEJSZY, nie czerwony: odlozenie porady to nie blad ani kara,
    a czerwony krzyzyk czyta sie jak "zle zrobiles". */
 .porada-ikona--nie{
   background:linear-gradient(180deg,var(--p-paper),var(--p-paper-2)) padding-box,
-             linear-gradient(180deg,#fffbe0,#c8a86a) border-box;
+             linear-gradient(180deg,var(--krem-50),#c8a86a) border-box;
   box-shadow:0 4px 0 #b9955a, 0 6px 10px rgba(90,70,25,.22), inset 0 2px 0 rgba(255,255,255,.7);
 }
 .porada-ikona--nie svg{ fill:none; stroke:#8a6f36; stroke-width:2.6; stroke-linecap:round; }
@@ -2451,9 +2451,9 @@
   gap:0; margin:16px 0 20px; padding:14px 14px 12px;
   border:1.8px solid transparent; border-radius:24px;
   background:
-    linear-gradient(180deg,rgba(255,251,224,.95),rgba(244,227,184,.95)) padding-box,
-    linear-gradient(180deg,var(--hud-gold-light),#d59a31 62%,#9c6321) border-box;
-  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.82),0 3px 0 rgba(127,69,23,.55),0 8px 15px rgba(72,53,26,.14);
+    linear-gradient(180deg,color-mix(in srgb, var(--krem-50) 95%, transparent),color-mix(in srgb, var(--p-paper-2) 95%, transparent)) padding-box,
+    linear-gradient(180deg,var(--hud-gold-light),var(--zloto-500) 62%,#9c6321) border-box;
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.82),0 3px 0 color-mix(in srgb, var(--braz-600) 55%, transparent),0 8px 15px color-mix(in srgb, var(--ochra-700) 14%, transparent);
 }
 /* Zegar ma sztywna szerokosc (inline `width:size`), wiec bez `justify-self`
    przykleilby sie do lewej krawedzi swojej polowy zamiast stanac na jej srodku.
@@ -2476,7 +2476,7 @@
    linii, wiec rozne stopnie pisma bylo widac jak przekrzywiona polke. */
 .kacik-tytul{
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
-  font-size:18px; font-weight:800; line-height:1.1; letter-spacing:.3px; color:#785a1e;
+  font-size:18px; font-weight:800; line-height:1.1; letter-spacing:.3px; color:var(--ochra-550);
 }
 
 /* Guzik ma sie prosic o dotkniecie: duzy, okragly, z cieniem pod spodem, ktory
@@ -2566,7 +2566,7 @@
   --poziom:0;
   position:fixed; inset:0; z-index:60; overflow:hidden;
   display:block;
-  background:radial-gradient(circle at 50% 42%,#5b4a86 0%,#3a2f5c 58%,#241d3c 100%);
+  background:radial-gradient(circle at 50% 42%,#5b4a86 0%,#3a2f5c 58%,var(--noc-800) 100%);
   animation:oddech-wejscie .35s ease-out;
   transition:--poziom 1.4s ease;
 }
@@ -2585,7 +2585,7 @@
   background:radial-gradient(circle at 50% 44%,#8a6f4e 0%,#4f406a 55%,#2a2246 100%);
 }
 .oddech-tlo--wydech{
-  background:radial-gradient(circle at 50% 44%,#5f438a 0%,#332a5c 58%,#241d3c 100%);
+  background:radial-gradient(circle at 50% 44%,var(--fiolet-600) 0%,#332a5c 58%,var(--noc-800) 100%);
 }
 .oddech-ekran--wdech .oddech-tlo--wdech,
 .oddech-ekran--wstrzymaj .oddech-tlo--wstrzymaj,
@@ -2758,7 +2758,7 @@
   width:min(112vw,420px); aspect-ratio:1; transform:translate(-50%,50%);
   border-radius:50%; pointer-events:none;
   background:radial-gradient(circle,
-    rgba(201,233,255,calc(.10 + .34 * var(--poziom))) 0%,
+    color-mix(in srgb, var(--blekit-100) NaN%, transparent))) 0%,
     rgba(160,220,255,calc(.05 + .18 * var(--poziom))) 38%,
     rgba(160,220,255,0) 68%);
   transition:opacity .6s ease;
@@ -2782,7 +2782,7 @@
   --promien:min(38vw,150px);
   position:absolute; width:11px; height:11px; margin:-5.5px;
   border-radius:50%;
-  background:radial-gradient(circle,var(--hud-cream-top) 0%,#ffd66d 45%,rgba(245,191,82,0) 72%);
+  background:radial-gradient(circle,var(--hud-cream-top) 0%,var(--zloto-250) 45%,rgba(245,191,82,0) 72%);
   transform:rotate(var(--kat)) translateY(calc(-1 * var(--promien) + 22px)) scale(.3);
   opacity:0; transition:opacity .8s ease, transform .8s ease;
 }
@@ -2811,7 +2811,7 @@
   transition:background .4s ease, box-shadow .4s ease, transform .4s ease;
 }
 .oddech-platek.jest-pelny{
-  background:linear-gradient(180deg,#ffe29a,#e6a832);
+  background:linear-gradient(180deg,var(--krem-500),var(--zloto-450));
   box-shadow:0 0 12px rgba(255,214,120,.7);
   transform:scale(1.15);
 }
@@ -2865,8 +2865,8 @@
 /* Pierscien por dnia: pastele, nie plakat. Kolor ma podpowiadac, gdzie w dobie
    stoi wskazowka, a nie zabierac uwage tarczy. */
 .zegar-pora{ fill:none; stroke-width:4.6; stroke-linecap:butt; }
-.zegar-pora--rano{ stroke:#c9e9ff; }
-.zegar-pora--poludnie{ stroke:#fff3bd; }
+.zegar-pora--rano{ stroke:var(--blekit-100); }
+.zegar-pora--poludnie{ stroke:var(--krem-200); }
 .zegar-pora--popoludnie{ stroke:#FAD9A6; }
 .zegar-pora--wieczor{ stroke:#DFCDEE; }
 .zegar-pora--noc{ stroke:#C6C6DE; }
@@ -2898,14 +2898,14 @@
 .porada-polka--dusza h3::before{ background:linear-gradient(180deg,#b98ce6,var(--p-magic-dk)); }
 .porada-polka h3::after{
   content:""; flex:1; height:2px; border-radius:2px;
-  background:linear-gradient(90deg, rgba(196,146,44,.4), rgba(196,146,44,0));
+  background:linear-gradient(90deg, color-mix(in srgb, var(--ochra-300) 40%, transparent), rgba(196,146,44,0));
 }
 .porada-polka ul{ margin:0; padding:0; list-style:none; display:grid; gap:6px; }
 .porada-polka li{
   padding:11px 14px;
   border-radius:12px;
   background:var(--p-paper,#FBF1D6);
-  box-shadow:inset 0 0 0 1.5px rgba(196,146,44,.25);
+  box-shadow:inset 0 0 0 1.5px color-mix(in srgb, var(--ochra-300) 25%, transparent);
   font-size:18px; line-height:1.35; color:var(--p-ink,#4e4d76);
 }
 
@@ -2925,7 +2925,7 @@
   display:flex; align-items:center; gap:9px;
   padding:9px 12px; border-radius:10px;
   background:rgba(255,255,255,.45);
-  box-shadow:inset 0 0 0 1px rgba(196,146,44,.2);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--ochra-300) 20%, transparent);
   font-size:16px; color:var(--p-ink-soft,#5A4F77);
 }
 .porada-historia-znak{ width:17px; height:17px; flex:none; display:grid; place-items:center; }
@@ -2958,14 +2958,14 @@
   position:relative; min-height:152px; padding:9px 18px 9px 9px;
   display:grid; grid-template-columns:136px minmax(0,1fr);
   justify-items:start; align-items:center; column-gap:12px; text-align:left;
-  border:2px solid rgba(255,214,109,.95); border-radius:var(--r-card,22px);
-  background:linear-gradient(180deg,var(--hud-cream-top),#ffe29a);
-  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.8),0 4px 0 rgba(134,81,27,.5),0 8px 15px rgba(61,47,25,.16);
+  border:2px solid color-mix(in srgb, var(--zloto-250) 95%, transparent); border-radius:var(--r-card,22px);
+  background:linear-gradient(180deg,var(--hud-cream-top),var(--krem-500));
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.8),0 4px 0 color-mix(in srgb, var(--braz-550) 50%, transparent),0 8px 15px rgba(61,47,25,.16);
   transition:transform .14s ease,filter .14s ease,box-shadow .14s ease;
 }
 .porada-kafelek:active .porada-kafelek-in{
   transform:translateY(3px); filter:brightness(.98);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 1px 0 rgba(134,81,27,.55),0 4px 8px rgba(61,47,25,.14);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 1px 0 color-mix(in srgb, var(--braz-550) 55%, transparent),0 4px 8px rgba(61,47,25,.14);
 }
 .porada-kafelek-obraz{
   width:132px; height:132px; display:grid; place-items:center; flex:none;
@@ -2973,7 +2973,7 @@
 }
 .porada-kafelek-obraz img{
   width:108px; height:108px; display:block; object-fit:contain;
-  filter:drop-shadow(0 3px 4px rgba(74,52,16,.24));
+  filter:drop-shadow(0 3px 4px color-mix(in srgb, var(--ochra-750) 24%, transparent));
 }
 .porada-kafelek strong{
   margin:0; font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
@@ -2983,9 +2983,9 @@
 /* Wybrany kafel rośnie w jeden ekran decyzji, ale zachowuje tę samą płytkę. */
 .porada-wybrana,.porada-odzew{
   margin:4px 0 14px; padding:18px 18px 16px; text-align:center;
-  border:2px solid rgba(255,214,109,.95); border-radius:24px;
-  background:linear-gradient(180deg,var(--hud-cream-top),#ffe29a);
-  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.82),0 4px 0 rgba(134,81,27,.48),0 9px 17px rgba(61,47,25,.15);
+  border:2px solid color-mix(in srgb, var(--zloto-250) 95%, transparent); border-radius:24px;
+  background:linear-gradient(180deg,var(--hud-cream-top),var(--krem-500));
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.82),0 4px 0 color-mix(in srgb, var(--braz-550) 48%, transparent),0 9px 17px rgba(61,47,25,.15);
 }
 .porada-wybrana-obraz,.porada-odzew-portret{
   width:180px; height:180px; margin:0 auto 6px; display:grid; place-items:center;
@@ -2993,7 +2993,7 @@
 }
 .porada-wybrana-obraz img,.porada-odzew-portret img{ width:150px; height:150px; object-fit:contain; display:block; }
 .porada-wybrana h3,.porada-odzew h3{
-  margin:4px 0 14px; color:#4a3410; font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  margin:4px 0 14px; color:var(--ochra-750); font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-size:25px; line-height:1.08; font-weight:900;
 }
 .porada-odzew h3{ margin-bottom:5px; }
@@ -3002,8 +3002,8 @@
 .porada-wybrana .hub-btn{ width:100%; }
 .porada-zmien{
   min-height:42px; margin:8px auto -6px; padding:6px 12px; border:0; background:transparent;
-  color:#765a30; cursor:pointer; font:800 13px/1.2 var(--font-display,'Baloo 2'),system-ui,sans-serif;
-  text-decoration:underline; text-decoration-color:rgba(118,90,48,.38); text-underline-offset:3px;
+  color:var(--ochra-450); cursor:pointer; font:800 13px/1.2 var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  text-decoration:underline; text-decoration-color:color-mix(in srgb, var(--ochra-450) 38%, transparent); text-underline-offset:3px;
 }
 .porada-odzew{ background:linear-gradient(180deg,var(--hud-cream-top),#ddebaf); border-color:#b8d873; }
 .porada-odzew-portret{ width:158px; height:158px; }
@@ -3013,7 +3013,7 @@
    że niczego nie trzeba nadrabiać. */
 .porada-slady{
   margin:18px 0 2px; padding:14px 15px 12px; border-radius:20px;
-  background:rgba(255,249,229,.72); box-shadow:inset 0 0 0 1.5px rgba(177,139,59,.24);
+  background:color-mix(in srgb, var(--krem-50) 72%, transparent); box-shadow:inset 0 0 0 1.5px rgba(177,139,59,.24);
 }
 .porada-slady h3{ font-size:18px; }
 .porada-slady-listki{ display:flex; justify-content:center; gap:10px; margin:12px 0 8px; }
@@ -3031,7 +3031,7 @@
   position:fixed; inset:0; z-index:92; display:grid; place-items:center; padding:22px;
   background:
     radial-gradient(circle at 50% 34%,rgba(84,176,209,.24),transparent 38%),
-    linear-gradient(160deg,#2a2246,#3d2d65 58%,#241d3c);
+    linear-gradient(160deg,#2a2246,#3d2d65 58%,var(--noc-800));
   color:#ffffff; overflow:auto;
 }
 .porada-akcja-zamknij{
@@ -3048,7 +3048,7 @@
 }
 .porada-akcja-obraz img{ width:154px; height:154px; object-fit:contain; display:block; }
 .porada-akcja-scena h2{
-  margin:4px 0 8px; color:#fff4c9; font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  margin:4px 0 8px; color:var(--krem-100); font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-size:30px; line-height:1.1; font-weight:900; text-shadow:0 3px 0 rgba(0,0,0,.24);
 }
 .porada-akcja-instrukcja{ margin:0 auto 16px; max-width:360px; color:#faf2ff; font-size:16px; line-height:1.45; font-weight:700; }
@@ -3066,15 +3066,15 @@
 .porada-akcja-gotowe{ width:min(100%,300px); margin-top:5px; }
 .porada-ruch-kropki{ display:flex; justify-content:center; gap:10px; margin:12px 0 20px; }
 .porada-ruch-kropki span{ width:14px; height:14px; border:2px solid rgba(255,255,255,.5); border-radius:50%; }
-.porada-ruch-kropki span.jest-pelna{ background:#f6cd54; border-color:#fff3a8; box-shadow:0 0 12px rgba(246,205,84,.62); }
+.porada-ruch-kropki span.jest-pelna{ background:var(--zloto-350); border-color:var(--krem-300); box-shadow:0 0 12px color-mix(in srgb, var(--zloto-350) 62%, transparent); }
 .porada-ruch-polecenie{
   min-height:48px; margin:0 auto 8px; color:var(--hud-cream-top); font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-size:23px; line-height:1.2; font-weight:900;
 }
 .porada-ruch-czas{
   width:66px; height:66px; margin:8px auto 0; display:grid; place-items:center;
-  border:3px solid #f6cd54; border-radius:50%; color:var(--p-paper); background:rgba(36,29,60,.52);
-  box-shadow:0 0 0 7px rgba(246,205,84,.1); font:900 28px/1 var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  border:3px solid var(--zloto-350); border-radius:50%; color:var(--p-paper); background:color-mix(in srgb, var(--noc-800) 52%, transparent);
+  box-shadow:0 0 0 7px color-mix(in srgb, var(--zloto-350) 10%, transparent); font:900 28px/1 var(--font-display,'Baloo 2'),system-ui,sans-serif;
 }
 
 @media (max-width:380px){
@@ -3123,13 +3123,13 @@
 /* Obręcz na ikonie. Pulsuje wolno — ma przyciągać kątem oka, a nie migać. */
 .reflektor-obrecz{
   position:fixed; pointer-events:none;
-  border:3px solid rgba(255,224,140,.95);
+  border:3px solid color-mix(in srgb, var(--zloto-150) 95%, transparent);
   animation:reflektor-puls 1.9s ease-in-out infinite;
 }
 
 @keyframes reflektor-puls{
-  0%,100%{ box-shadow:0 0 0 3px rgba(255,224,140,.22), 0 0 18px 4px rgba(246,205,84,.38); transform:scale(1) }
-  50%    { box-shadow:0 0 0 8px rgba(255,224,140,.12), 0 0 30px 10px rgba(246,205,84,.62); transform:scale(1.045) }
+  0%,100%{ box-shadow:0 0 0 3px color-mix(in srgb, var(--zloto-150) 22%, transparent), 0 0 18px 4px color-mix(in srgb, var(--zloto-350) 38%, transparent); transform:scale(1) }
+  50%    { box-shadow:0 0 0 8px color-mix(in srgb, var(--zloto-150) 12%, transparent), 0 0 30px 10px color-mix(in srgb, var(--zloto-350) 62%, transparent); transform:scale(1.045) }
 }
 
 /* ── Chmurka ─────────────────────────────────────────────────────────────
@@ -3164,7 +3164,7 @@
   position:relative;
   overflow:visible;            /* dzióbek wychodzi poza box karty */
   cursor:pointer;
-  filter:drop-shadow(0 7px 0 rgba(78,77,118,.17)) drop-shadow(0 14px 22px rgba(27,19,56,.34));
+  filter:drop-shadow(0 7px 0 color-mix(in srgb, var(--p-ink) 17%, transparent)) drop-shadow(0 14px 22px color-mix(in srgb, var(--noc-850) 34%, transparent));
   animation:reflektor-oddech 3.2s ease-in-out .5s infinite;
 }
 
@@ -3187,7 +3187,7 @@
 .reflektor-postac{
   width:84px; height:auto; flex:none;
   margin:-38px -2px -10px -6px;  /* Wizkor wychyla się ponad chmurkę */
-  filter:drop-shadow(0 4px 6px rgba(27,19,56,.35));
+  filter:drop-shadow(0 4px 6px color-mix(in srgb, var(--noc-850) 35%, transparent));
   pointer-events:none;
   animation:reflektor-wizkor .5s .12s cubic-bezier(.2,1.4,.4,1) both;
 }
@@ -3205,9 +3205,9 @@
 
 .reflektor-glos{
   width:34px; height:34px; flex:none; display:grid; place-items:center; padding:0;
-  border:2px solid rgba(95,67,138,.5); border-radius:50%;
-  background:#fffaf0; color:#5f438a; cursor:pointer;
-  box-shadow:0 2px 0 rgba(95,67,138,.22);
+  border:2px solid color-mix(in srgb, var(--fiolet-600) 50%, transparent); border-radius:50%;
+  background:var(--biel-ciepla); color:var(--fiolet-600); cursor:pointer;
+  box-shadow:0 2px 0 color-mix(in srgb, var(--fiolet-600) 22%, transparent);
   font:900 19px/1 "Baloo 2",system-ui,sans-serif;
 }
 .reflektor-glos:active{ transform:translateY(2px); box-shadow:none; }
@@ -3235,7 +3235,7 @@
   width:30px; height:30px;
   display:grid; place-items:center;
   border:3px solid var(--p-ink); border-radius:50%;
-  background:#fffaf0; color:var(--p-ink);
+  background:var(--biel-ciepla); color:var(--p-ink);
   font-size:16px; line-height:1; cursor:pointer;
 }
 
@@ -3253,7 +3253,7 @@
   .reflektor-dymek,
   .reflektor-karta,
   .reflektor-postac{ animation:none }
-  .reflektor-obrecz{ animation:none; box-shadow:0 0 0 4px rgba(255,224,140,.3), 0 0 22px 6px rgba(246,205,84,.5) }
+  .reflektor-obrecz{ animation:none; box-shadow:0 0 0 4px color-mix(in srgb, var(--zloto-150) 30%, transparent), 0 0 22px 6px color-mix(in srgb, var(--zloto-350) 50%, transparent) }
 }
 
 /* hub.css — pelny plik, 2426 linii (odswiezenie dla watchera Vite) */
@@ -3267,16 +3267,16 @@
 .porada-lisek{
   display:flex; align-items:center; gap:9px;
   width:100%; margin:6px 0 2px; padding:7px 12px 7px 7px;
-  border:2px dashed rgba(230,168,50,.55); border-radius:16px;
-  background:rgba(255,249,229,.72);
+  border:2px dashed color-mix(in srgb, var(--zloto-450) 55%, transparent); border-radius:16px;
+  background:color-mix(in srgb, var(--krem-50) 72%, transparent);
   color:var(--p-ink,#4e4d76); text-align:left; cursor:pointer;
   font-family:"Nunito",system-ui,sans-serif; font-size:14.5px; line-height:1.35;
 }
 .porada-lisek img{
   width:38px; height:38px; flex:none; object-fit:contain; object-position:top center;
-  filter:drop-shadow(0 2px 3px rgba(62,38,16,.28));
+  filter:drop-shadow(0 2px 3px color-mix(in srgb, var(--braz-900) 28%, transparent));
 }
-.porada-lisek:active{ background:rgba(251,241,214,.9); }
+.porada-lisek:active{ background:color-mix(in srgb, var(--p-paper) 90%, transparent); }
 .porada-lisek--wybor{ justify-content:center; text-align:center; border-style:solid; }
 
 @media (prefers-reduced-motion:reduce){

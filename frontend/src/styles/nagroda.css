@@ -39,7 +39,7 @@
 .nagroda-zaslona {
   position: fixed;
   inset: 0;
-  background: radial-gradient(circle at 50% 40%, rgba(122, 77, 194, .58) 0%, rgba(26, 20, 44, .88) 100%);
+  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--p-magic-dk) 58%, transparent) 0%, rgba(26, 20, 44, .88) 100%);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
 }
@@ -61,11 +61,11 @@
   border-radius: 28px;
   background:
     linear-gradient(180deg, var(--p-paper, #FBF1D6) 0%, var(--p-paper-2, #F4E3B8) 100%) padding-box,
-    linear-gradient(180deg, var(--hud-gold-light) 0%, var(--hud-gold) 55%, #a2621c 100%) border-box;
+    linear-gradient(180deg, var(--hud-gold-light) 0%, var(--hud-gold) 55%, var(--braz-400) 100%) border-box;
   box-shadow:
     inset 0 3px 0 rgba(255, 255, 255, .75),
-    0 6px 0 rgba(122, 77, 194, .28),
-    0 22px 46px rgba(37,29,74,.45);
+    0 6px 0 color-mix(in srgb, var(--p-magic-dk) 28%, transparent),
+    0 22px 46px color-mix(in srgb, var(--noc-700) 45%, transparent);
   font-family: var(--font-display, 'Baloo 2'), system-ui, sans-serif;
   color: var(--p-ink, #4e4d76);
   text-align: center;
@@ -95,18 +95,18 @@
   border-radius: 999px;
   background:
     linear-gradient(180deg, #a878e6 0%, var(--p-magic-dk) 58%, #5a3499 100%) padding-box,
-    linear-gradient(180deg, var(--hud-gold-light) 0%, var(--hud-gold) 58%, #a2621c 100%) border-box;
+    linear-gradient(180deg, var(--hud-gold-light) 0%, var(--hud-gold) 58%, var(--braz-400) 100%) border-box;
   box-shadow:
     inset 0 2px 0 rgba(255, 255, 255, .34),
-    0 4px 0 rgba(74, 45, 128, .85),
-    0 9px 16px rgba(37,29,74,.34);
+    0 4px 0 color-mix(in srgb, var(--fiolet-800) 85%, transparent),
+    0 9px 16px color-mix(in srgb, var(--noc-700) 34%, transparent);
   color: #ffffff;
   font-size: 13px;
   font-weight: 800;
   letter-spacing: .8px;
   line-height: 1.15;
   text-transform: uppercase;
-  text-shadow: 0 2px 0 rgba(74, 45, 128, .9);
+  text-shadow: 0 2px 0 color-mix(in srgb, var(--fiolet-800) 90%, transparent);
 }
 
 .nagroda-wstega span {
@@ -121,7 +121,7 @@
   height: 15px;
   flex: none;
   fill: var(--p-amber, #F4C95D);
-  filter: drop-shadow(0 1.5px 0 rgba(74, 45, 128, .75));
+  filter: drop-shadow(0 1.5px 0 color-mix(in srgb, var(--fiolet-800) 75%, transparent));
 }
 
 .nagroda-tytul {
@@ -153,12 +153,12 @@
   border: 2.5px solid transparent;
   border-radius: 999px;
   background:
-    linear-gradient(180deg, #fffbe0 0%, #ffd76a 62%, #f0b43a 100%) padding-box,
-    linear-gradient(180deg, #fff19a 0%, #efb937 58%, #b86a1c 100%) border-box;
+    linear-gradient(180deg, var(--krem-50) 0%, #ffd76a 62%, #f0b43a 100%) padding-box,
+    linear-gradient(180deg, var(--zloto-100) 0%, var(--zloto-400) 58%, var(--zloto-600) 100%) border-box;
   box-shadow:
     inset 0 2px 0 rgba(255, 255, 255, .8),
-    0 4px 0 #b47322,
-    0 0 42px rgba(244,201,93,.6);
+    0 4px 0 var(--braz-300),
+    0 0 42px color-mix(in srgb, var(--zloto-300) 60%, transparent);
   color: #713f08;
   font-size: 34px;
   font-weight: 800;
@@ -189,11 +189,11 @@
   flex: 1;
   height: 2px;
   border-radius: 2px;
-  background: linear-gradient(90deg, rgba(196, 146, 44, 0), rgba(196, 146, 44, .55));
+  background: linear-gradient(90deg, rgba(196, 146, 44, 0), color-mix(in srgb, var(--ochra-300) 55%, transparent));
 }
 .nagroda-przerywnik::after { transform: scaleX(-1); }
 
-.nagroda-iskierka { width: 11px; height: 11px; flex: none; fill: rgba(196, 146, 44, .75); }
+.nagroda-iskierka { width: 11px; height: 11px; flex: none; fill: color-mix(in srgb, var(--ochra-300) 75%, transparent); }
 .nagroda-iskierka--duza { width: 16px; height: 16px; fill: var(--p-amber, #F4C95D); }
 
 .nagroda-notka {
@@ -233,7 +233,7 @@
 .nagroda-gwiazda {
   width: 46px;
   height: 46px;
-  filter: drop-shadow(0 3px 5px rgba(122, 77, 194, .3));
+  filter: drop-shadow(0 3px 5px color-mix(in srgb, var(--p-magic-dk) 30%, transparent));
   animation: nagroda-gwiazda-wskok .5s cubic-bezier(.2, .9, .3, 1.5) both;
 }
 .nagroda-gwiazda--srodek { width: 58px; height: 58px; transform: translateY(-7px); animation-delay: .1s; }
@@ -268,8 +268,8 @@
   padding: 3px 0;
 }
 
-.nagroda-rozbicie li + li { border-top: 1.5px dashed rgba(122, 77, 194, .18); }
-.nagroda-rozbicie b { color: #8a5a18; font-weight: 800; }
+.nagroda-rozbicie li + li { border-top: 1.5px dashed color-mix(in srgb, var(--p-magic-dk) 18%, transparent); }
+.nagroda-rozbicie b { color: var(--ochra-500); font-weight: 800; }
 
 /* Kafelki statystyk — ciekawostka, nie nagroda, więc celowo drobne i szare. */
 .nagroda-kafelki {

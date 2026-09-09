@@ -14,7 +14,7 @@ html,body{margin:0;padding:0;}
    nawet jak iOS odslania html podczas bounce, widac plynne nieskonczone tlo zamiast paskow. */
 html{
   /* Bounce dopuszczony, ale .screen-scroll uzywa "contain" zeby nie propagowac do body */
-  background: linear-gradient(180deg, #C9E9FF 0%, var(--p-sky-2) 55%, #FFC9A0 100%);
+  background: linear-gradient(180deg, var(--blekit-100) 0%, var(--p-sky-2) 55%, #FFC9A0 100%);
   background-attachment: fixed;
 }
 body{
@@ -54,10 +54,10 @@ h1, h2, h3, h4, h5, h6,
    Tlo rozciaga sie poza viewport (background-attachment: fixed) zeby gestowy bounce nigdy nie odslonil pustki. */
 .page-bg{
   position:fixed; inset:-100px 0; z-index:-1;
-  background: linear-gradient(180deg, #C9E9FF 0%, var(--p-sky-2) 55%, #FFC9A0 100%);
+  background: linear-gradient(180deg, var(--blekit-100) 0%, var(--p-sky-2) 55%, #FFC9A0 100%);
 }
 .page-bg.night{
-  background: linear-gradient(180deg, #1B1338 0%, #382066 60%, #5B3A8A 100%);
+  background: linear-gradient(180deg, var(--noc-850) 0%, #382066 60%, #5B3A8A 100%);
 }
 
 /* drifting clouds layer */
@@ -93,7 +93,7 @@ h1, h2, h3, h4, h5, h6,
   background-size: 100% 100%;
 }
 .sky-bg.night{
-  background: linear-gradient(180deg, #1B1338 0%, #382066 60%, #5B3A8A 100%);
+  background: linear-gradient(180deg, var(--noc-850) 0%, #382066 60%, #5B3A8A 100%);
 }
 .sky-bg.dawn{
   background: linear-gradient(180deg, #FFC9D9 0%, #ffd3a8 50%, var(--p-sky-2) 100%);
@@ -126,13 +126,13 @@ h3.title{ font-size: 22px; margin:0; }
 .btn:active{ transform: translateY(2px) scale(.985); }
 .btn-primary{
   background: linear-gradient(180deg, var(--p-amber) 0%, var(--p-dusk) 100%);
-  color: #4f2b0c;
-  box-shadow: 0 3px 0 #B47322, 0 8px 18px rgba(232,154,61,.45);
+  color: var(--braz-800);
+  box-shadow: 0 3px 0 var(--braz-300), 0 8px 18px color-mix(in srgb, var(--p-dusk) 45%, transparent);
 }
 .btn-magic{
-  background: linear-gradient(180deg, #C8A0F0 0%, var(--p-magic-dk) 100%);
+  background: linear-gradient(180deg, var(--fiolet-200) 0%, var(--p-magic-dk) 100%);
   color: #ffffff;
-  box-shadow: 0 3px 0 #4A2D80, 0 8px 18px rgba(122,77,194,.45);
+  box-shadow: 0 3px 0 var(--fiolet-800), 0 8px 18px color-mix(in srgb, var(--p-magic-dk) 45%, transparent);
 }
 .btn-leaf{
   background: linear-gradient(180deg, #7DC089 0%, #4A8F66 100%);
@@ -142,7 +142,7 @@ h3.title{ font-size: 22px; margin:0; }
 .btn-ghost{
   background: rgba(255,255,255,.55); color: var(--p-ink);
   backdrop-filter: blur(8px);
-  box-shadow: inset 0 0 0 1.5px rgba(78,77,118,.12), 0 1px 0 rgba(78,77,118,.05);
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--p-ink) 12%, transparent), 0 1px 0 color-mix(in srgb, var(--p-ink) 5%, transparent);
 }
 /* CTA rodziny `.btn-*` (ekrany tekstowe: Landing, logowanie, onboarding, mentor)
    ma te sama wysokosc i ten sam rozmiar liter, co CTA w hubie - inaczej ta sama
@@ -179,7 +179,7 @@ h3.title{ font-size: 22px; margin:0; }
      dluzszy napis na dwie linie i podwajac wysokosc przycisku. Wysokosc zostaje
      ta sama zawsze - to ona ma byc wspolna miara. */
   min-height:var(--cta-h,56px); font-size:min(var(--cta-fs,21px), 5.4vw);
-  color:#fff3bd;
+  color:var(--krem-200);
   background:
     linear-gradient(180deg,#9bd33e 0%,#64a727 62%,#478519 100%) padding-box,
     linear-gradient(180deg,#e6f58a 0%,#72aa29 58%,#2e611f 100%) border-box;
@@ -192,9 +192,9 @@ h3.title{ font-size: 22px; margin:0; }
   color:var(--hud-ink);
   background:
     linear-gradient(180deg,var(--p-paper),#ecd99e) padding-box,
-    linear-gradient(180deg,var(--hud-gold-light),#d59a31 65%,#8f5017) border-box;
+    linear-gradient(180deg,var(--hud-gold-light),var(--zloto-500) 65%,var(--braz-500)) border-box;
   text-shadow:0 1px 0 rgba(255,255,255,.82);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.66),0 3px 0 #8a5a18,0 6px 9px rgba(72,53,26,.17);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.66),0 3px 0 var(--ochra-500),0 6px 9px color-mix(in srgb, var(--ochra-700) 17%, transparent);
 }
 .hub-btn:active{ transform:translateY(2px); }
 @media (prefers-reduced-motion:reduce){ .hub-btn:active{ transform:none; } }
@@ -209,16 +209,16 @@ h3.title{ font-size: 22px; margin:0; }
   border: 1.5px solid rgba(255,255,255,.7);
 }
 .card-paper{
-  background: linear-gradient(180deg, #fff9e5 0%, var(--p-paper-2) 100%);
+  background: linear-gradient(180deg, var(--krem-50) 0%, var(--p-paper-2) 100%);
   border:1.5px solid #E1CB94;
-  box-shadow: 0 4px 0 rgba(120,90,30,.18), 0 14px 30px rgba(80,50,10,.18);
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--ochra-550) 18%, transparent), 0 14px 30px color-mix(in srgb, var(--ochra-800) 18%, transparent);
   position:relative;
 }
 .card-paper::before{
   content:''; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
   background:
-    radial-gradient(120px 80px at 80% 5%, rgba(150,105,30,.10), transparent 70%),
-    radial-gradient(180px 120px at 10% 95%, rgba(150,105,30,.08), transparent 70%);
+    radial-gradient(120px 80px at 80% 5%, color-mix(in srgb, var(--ochra-400) 10%, transparent), transparent 70%),
+    radial-gradient(180px 120px at 10% 95%, color-mix(in srgb, var(--ochra-400) 8%, transparent), transparent 70%);
 }
 .card-tight{ padding: 14px; }
 
@@ -268,7 +268,7 @@ h3.title{ font-size: 22px; margin:0; }
 }
 .tab.active{
   color: var(--p-magic-dk);
-  background: rgba(184,134,232,.16);
+  background: color-mix(in srgb, var(--p-magic) 16%, transparent);
 }
 .tab svg{ width:24px; height:24px; }
 
@@ -278,11 +278,11 @@ h3.title{ font-size: 22px; margin:0; }
   padding:5px 11px; border-radius:999px;
   font-size:12px; font-weight:800; letter-spacing:.3px;
   background: rgba(255,255,255,.75);
-  box-shadow: inset 0 0 0 1.2px rgba(78,77,118,.08);
+  box-shadow: inset 0 0 0 1.2px color-mix(in srgb, var(--p-ink) 8%, transparent);
 }
-.chip.amber{ background:#f4e1ac; color:#7A4D10; box-shadow:inset 0 0 0 1.2px #E1B66A;}
+.chip.amber{ background:var(--piasek); color:var(--ochra-600); box-shadow:inset 0 0 0 1.2px var(--zloto-matowe);}
 .chip.leaf{ background:#D4ECC9; color:var(--p-leaf-dk); box-shadow:inset 0 0 0 1.2px #8FBE82;}
-.chip.magic{ background:#dfcdee; color:#4A2D80; box-shadow:inset 0 0 0 1.2px #C0A2EC;}
+.chip.magic{ background:#dfcdee; color:var(--fiolet-800); box-shadow:inset 0 0 0 1.2px #C0A2EC;}
 .chip.rose{ background:#FFD7D7; color:#7A2A2A; box-shadow:inset 0 0 0 1.2px #ECA0A0;}
 
 /* ─── MissionScroll - nowa kompozycja (2 belki SVG + papier-div miedzy) ─────
@@ -330,7 +330,7 @@ h3.title{ font-size: 22px; margin:0; }
   -webkit-text-fill-color: transparent;
   color: transparent;
   animation: aurora-flow 6s ease-in-out infinite;
-  filter: drop-shadow(0 0 6px rgba(232,75,160,.35)) drop-shadow(0 0 14px rgba(122,77,194,.5));
+  filter: drop-shadow(0 0 6px rgba(232,75,160,.35)) drop-shadow(0 0 14px color-mix(in srgb, var(--p-magic-dk) 50%, transparent));
 }
 @keyframes aurora-flow{
   0%   { background-position: 0% 50%; }
@@ -369,8 +369,8 @@ h3.title{ font-size: 22px; margin:0; }
   100% { transform: scale(1.00); opacity: 1; }
 }
 @keyframes splash-cta-pulse {
-  0%, 100% { transform: scale(1);    box-shadow: 0 0 0 6px rgba(244,201,93,.25), 0 8px 24px rgba(232,154,61,.55), 0 3px 0 #B47322; }
-  50%      { transform: scale(1.06); box-shadow: 0 0 0 14px rgba(244,201,93,.18), 0 12px 32px rgba(232,154,61,.65), 0 3px 0 #B47322; }
+  0%, 100% { transform: scale(1);    box-shadow: 0 0 0 6px color-mix(in srgb, var(--zloto-300) 25%, transparent), 0 8px 24px color-mix(in srgb, var(--p-dusk) 55%, transparent), 0 3px 0 var(--braz-300); }
+  50%      { transform: scale(1.06); box-shadow: 0 0 0 14px color-mix(in srgb, var(--zloto-300) 18%, transparent), 0 12px 32px color-mix(in srgb, var(--p-dusk) 65%, transparent), 0 3px 0 var(--braz-300); }
 }
 /* Profile avatar - pulsujace glow tla i pierscienia (oddychanie) */
 @keyframes profile-glow-pulse {
@@ -395,10 +395,10 @@ h3.title{ font-size: 22px; margin:0; }
   100% { transform: translate(var(--tx,0px), var(--ty,0px)) scale(.4) rotate(540deg); opacity: 0; }
 }
 @keyframes coin-pill-pulse {
-  0%   { transform: scale(1); box-shadow: inset 0 0 0 1.8px #E1B66A, 0 3px 0 #B47322, 0 4px 10px rgba(160,110,30,.30); }
-  25%  { transform: scale(1.22); box-shadow: inset 0 0 0 2px #E1B66A, 0 3px 0 #B47322, 0 6px 28px rgba(244,201,93,.95), 0 0 40px rgba(244,201,93,.7); }
-  60%  { transform: scale(1.08); box-shadow: inset 0 0 0 1.8px #E1B66A, 0 3px 0 #B47322, 0 4px 18px rgba(244,201,93,.55), 0 0 20px rgba(244,201,93,.35); }
-  100% { transform: scale(1); box-shadow: inset 0 0 0 1.8px #E1B66A, 0 3px 0 #B47322, 0 4px 10px rgba(160,110,30,.30); }
+  0%   { transform: scale(1); box-shadow: inset 0 0 0 1.8px var(--zloto-matowe), 0 3px 0 var(--braz-300), 0 4px 10px rgba(160,110,30,.30); }
+  25%  { transform: scale(1.22); box-shadow: inset 0 0 0 2px var(--zloto-matowe), 0 3px 0 var(--braz-300), 0 6px 28px color-mix(in srgb, var(--zloto-300) 95%, transparent), 0 0 40px color-mix(in srgb, var(--zloto-300) 70%, transparent); }
+  60%  { transform: scale(1.08); box-shadow: inset 0 0 0 1.8px var(--zloto-matowe), 0 3px 0 var(--braz-300), 0 4px 18px color-mix(in srgb, var(--zloto-300) 55%, transparent), 0 0 20px color-mix(in srgb, var(--zloto-300) 35%, transparent); }
+  100% { transform: scale(1); box-shadow: inset 0 0 0 1.8px var(--zloto-matowe), 0 3px 0 var(--braz-300), 0 4px 10px rgba(160,110,30,.30); }
 }
 .coin-pill-pulse { animation: coin-pill-pulse 1.2s ease-out; }
 @keyframes coin-tally{ 0%,100%{ transform: scale(1) } 50%{ transform: scale(1.18) } }
@@ -436,19 +436,19 @@ h3.title{ font-size: 22px; margin:0; }
   content:''; position:absolute; left:14px; bottom:-7px;
   width:14px; height:14px; background: inherit; border-radius:3px;
   transform: rotate(45deg);
-  box-shadow: 2px 2px 4px rgba(78,77,118,.05);
+  box-shadow: 2px 2px 4px color-mix(in srgb, var(--p-ink) 5%, transparent);
 }
 
 /* progress bar */
 .prog{
-  width:100%; height:10px; background: rgba(78,77,118,.10);
+  width:100%; height:10px; background: color-mix(in srgb, var(--p-ink) 10%, transparent);
   border-radius:999px; overflow:hidden;
 }
 .prog > i{ display:block; height:100%;
   background: linear-gradient(90deg, var(--p-amber), var(--p-dusk));
   border-radius:inherit; transition: width .6s cubic-bezier(.4,1,.6,1);
 }
-.prog.magic > i{ background: linear-gradient(90deg, #C8A0F0, var(--p-magic-dk)); }
+.prog.magic > i{ background: linear-gradient(90deg, var(--fiolet-200), var(--p-magic-dk)); }
 .prog.leaf > i{ background: linear-gradient(90deg, #8FCB95, #4A8F66); }
 
 /* shimmer used on artifact */
@@ -509,7 +509,7 @@ h3.title{ font-size: 22px; margin:0; }
 /* avatar evolution stages */
 .aura{
   position:absolute; inset:-10px; border-radius:50%;
-  background: radial-gradient(circle, rgba(244,201,93,.55) 0%, transparent 60%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--zloto-300) 55%, transparent) 0%, transparent 60%);
   filter: blur(8px); animation: float-mid 3.5s ease-in-out infinite;
 }
 
@@ -544,7 +544,7 @@ h3.title{ font-size: 22px; margin:0; }
 }
 .pin.active .pin-dot{
   background: var(--p-amber);
-  box-shadow: 0 0 0 6px rgba(244,201,93,.35), 0 2px 8px rgba(0,0,0,.35);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--zloto-300) 35%, transparent), 0 2px 8px rgba(0,0,0,.35);
 }
 .pin .pin-label{
   position:absolute; top:-32px; left:50%; transform: translateX(-50%);
@@ -586,8 +586,8 @@ h3.title{ font-size: 22px; margin:0; }
   position:absolute; left:0; right:0; bottom:0; height:52%;
   background:linear-gradient(180deg,
     rgba(251,241,214,0) 0%,
-    rgba(251,241,214,.55) 22%,
-    rgba(251,241,214,.94) 42%,
+    color-mix(in srgb, var(--p-paper) 55%, transparent) 22%,
+    color-mix(in srgb, var(--p-paper) 94%, transparent) 42%,
     var(--p-paper) 58%);
 }
 .start-tresc{
@@ -618,8 +618,8 @@ h3.title{ font-size: 22px; margin:0; }
   letter-spacing:-.04em;
   margin:0; position:relative; color:var(--p-ink);
   display:inline-flex; align-items:center; gap:7px;
-  -webkit-text-stroke:1.4px #fffaf0; paint-order:stroke fill;
-  text-shadow:0 3px 0 rgba(255,255,255,.85), 0 5px 0 rgba(90,61,18,.18), 0 10px 16px rgba(62,38,16,.28);
+  -webkit-text-stroke:1.4px var(--biel-ciepla); paint-order:stroke fill;
+  text-shadow:0 3px 0 rgba(255,255,255,.85), 0 5px 0 rgba(90,61,18,.18), 0 10px 16px color-mix(in srgb, var(--braz-900) 28%, transparent);
 }
 /* Dwa gradienty naraz: pierwszy maluje wnetrze (padding-box), drugi ramke
    (border-box). Bez tego zloty kant trzeba by robic drugim elementem. */
@@ -628,11 +628,11 @@ h3.title{ font-size: 22px; margin:0; }
      trakt zbijalby dwie litery w jeden ksztalt. */
   font-weight:800; letter-spacing:0; padding:3px 13px 6px; border-radius:16px;
   border:3px solid transparent; transform:rotate(-4deg);
-  background:linear-gradient(180deg,#fff3a8,var(--hud-gold) 58%,#c47c1f) padding-box,
-             linear-gradient(180deg,#fff4c9,#e6a832 60%,#8d5412) border-box;
-  color:#5a3311; -webkit-text-stroke:0;
+  background:linear-gradient(180deg,var(--krem-300),var(--hud-gold) 58%,#c47c1f) padding-box,
+             linear-gradient(180deg,var(--krem-100),var(--zloto-450) 60%,#8d5412) border-box;
+  color:var(--braz-700); -webkit-text-stroke:0;
   text-shadow:0 2px 0 rgba(255,255,255,.7);
-  box-shadow:0 4px 0 #a2621c, 0 8px 14px rgba(80,50,10,.32), inset 0 2px 0 rgba(255,255,255,.75);
+  box-shadow:0 4px 0 var(--braz-400), 0 8px 14px color-mix(in srgb, var(--ochra-800) 32%, transparent), inset 0 2px 0 rgba(255,255,255,.75);
 }
 .start-logo-iskra{
   position:absolute; right:-13px; top:-11px; width:24px; height:24px;
@@ -656,7 +656,7 @@ h3.title{ font-size: 22px; margin:0; }
 .start-cta .hub-btn-primary{ letter-spacing:.16em; text-indent:.16em; }
 /* Ikonki w przyciskach to te same pliki, co w grze (gwiazdka z Pamieci Medrca,
    klucz z ekranu logowania) — dziecko widzi ten sam przedmiot, nie emoji. */
-.start-ikona{ width:24px; height:24px; object-fit:contain; display:block; filter:drop-shadow(0 2px 2px rgba(122,77,16,.32)); }
+.start-ikona{ width:24px; height:24px; object-fit:contain; display:block; filter:drop-shadow(0 2px 2px color-mix(in srgb, var(--ochra-600) 32%, transparent)); }
 .start-nuta{
   margin:10px 0 0; max-width:320px; text-align:center;
   font-size:12px; line-height:1.35; color:var(--p-ink-soft); opacity:.85;
@@ -673,18 +673,18 @@ h3.title{ font-size: 22px; margin:0; }
   flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:14px; padding:24px 26px; text-align:center;
 }
-.kod-klucz{ width:118px; height:auto; display:block; animation:float-mid 4s ease-in-out infinite; filter:drop-shadow(0 12px 18px rgba(138,90,24,.28)); }
+.kod-klucz{ width:118px; height:auto; display:block; animation:float-mid 4s ease-in-out infinite; filter:drop-shadow(0 12px 18px color-mix(in srgb, var(--ochra-500) 28%, transparent)); }
 .kod-tytul{ margin:2px 0 0; font-size:27px; color:var(--p-magic-dk); }
 .kod-podpis{ margin:0; max-width:300px; font-size:14px; line-height:1.4; color:var(--p-ink-soft); }
 .kod-pole{
   width:100%; box-sizing:border-box; padding:16px 18px;
-  border:2px solid rgba(122,77,194,.35); border-radius:16px;
+  border:2px solid color-mix(in srgb, var(--p-magic-dk) 35%, transparent); border-radius:16px;
   background:rgba(255,255,255,.95); color:var(--p-magic-dk);
   font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
   font-size:32px; font-weight:800; letter-spacing:6px; text-align:center; text-transform:uppercase;
   outline:none; transition:border-color .15s ease, box-shadow .15s ease;
 }
-.kod-pole:focus{ border-color:var(--p-magic); box-shadow:0 0 0 4px rgba(184,134,232,.22); }
+.kod-pole:focus{ border-color:var(--p-magic); box-shadow:0 0 0 4px color-mix(in srgb, var(--p-magic) 22%, transparent); }
 .kod-blad{ font-size:13px; font-weight:800; color:#B85B47; }
 .kod-ikona{ width:22px; height:22px; object-fit:contain; display:block; }
 .kod-stopka{ margin-top:12px; font-size:12.5px; color:var(--p-ink-soft); }

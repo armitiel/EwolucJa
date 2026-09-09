@@ -35,9 +35,9 @@
   border: 2px solid transparent;
   border-radius: 999px;
   background:
-    linear-gradient(180deg, rgba(255, 251, 224, .97), rgba(241,217,151,.97)) padding-box,
+    linear-gradient(180deg, color-mix(in srgb, var(--krem-50) 97%, transparent), color-mix(in srgb, var(--hud-cream-bottom) 97%, transparent)) padding-box,
     linear-gradient(180deg, var(--hud-gold-light), var(--hud-gold) 58%, var(--hud-gold-deep)) border-box;
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .82), 0 3px 0 var(--cien-twardy), 0 7px 13px rgba(62, 38, 16, .24);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .82), 0 3px 0 var(--cien-twardy), 0 7px 13px color-mix(in srgb, var(--braz-900) 24%, transparent);
   /* ROLA, nie prymityw: wewnatrz .game-hud --tekst to --hud-ink (motyw w tokeny.css).
      Ta sama regula w hubie dalaby --p-ink. Pierwszy konsument warstwy rol (9.09). */
   color: var(--tekst);
@@ -61,7 +61,7 @@
   flex: none;
   object-fit: contain;
   margin: -6px 0 -6px -3px;
-  filter: drop-shadow(0 2px 1px rgba(79,43,12,.27));
+  filter: drop-shadow(0 2px 1px color-mix(in srgb, var(--braz-800) 27%, transparent));
 }
 
 .game-hud-profile span {
@@ -85,7 +85,7 @@
   height: 34px;
   object-fit: contain;
   margin: -1px 0 -1px -2px;
-  filter: drop-shadow(0 2px 1px rgba(79,43,12,.3));
+  filter: drop-shadow(0 2px 1px color-mix(in srgb, var(--braz-800) 30%, transparent));
 }
 
 .game-hud-counter--spark {
@@ -113,9 +113,9 @@
   border-radius: 50%;
   background:
     radial-gradient(circle at 42% 30%, #3e6b89 0%, #244d70 52%, #183653 100%) padding-box,
-    linear-gradient(180deg, var(--hud-gold-light), #e6a832 58%, #8f5017) border-box;
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .16), 0 4px 0 #7f4517, 0 8px 15px rgba(36,39,25,.3);
-  color: #fff3a8;
+    linear-gradient(180deg, var(--hud-gold-light), var(--zloto-450) 58%, var(--braz-500)) border-box;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .16), 0 4px 0 var(--braz-600), 0 8px 15px rgba(36,39,25,.3);
+  color: var(--krem-300);
 }
 
 .game-hud-map svg {
@@ -126,7 +126,7 @@
   stroke-width: 2.2;
   stroke-linecap: round;
   stroke-linejoin: round;
-  filter: drop-shadow(0 2px 0 rgba(14,22,42,.58));
+  filter: drop-shadow(0 2px 0 color-mix(in srgb, var(--noc-900) 58%, transparent));
 }
 
 .game-hud-bottom { display: grid; justify-items: center; gap: 8px; }
@@ -138,8 +138,8 @@
   background:
     linear-gradient(180deg, rgba(62,117,110,.95), rgba(36,77,76,.96)) padding-box,
     linear-gradient(180deg, #ffe87c, #d58b27) border-box;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18), 0 2px 0 #7f4517, 0 5px 10px rgba(31, 42, 27, .2);
-  color: #fff3bd;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18), 0 2px 0 var(--braz-600), 0 5px 10px rgba(31, 42, 27, .2);
+  color: var(--krem-200);
   font-size: 11px;
   font-weight: 900;
   line-height: 1;
@@ -183,7 +183,7 @@
   background:
     linear-gradient(180deg, var(--hud-cream-top), var(--hud-cream-bottom)) padding-box,
     linear-gradient(180deg, var(--hud-gold-light), var(--hud-gold) 56%, var(--hud-gold-deep)) border-box;
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .92), inset 0 -3px 0 rgba(180,115,34,.17), 0 5px 0 var(--hud-shadow), 0 9px 14px rgba(62,38,16,.26);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .92), inset 0 -3px 0 color-mix(in srgb, var(--braz-300) 17%, transparent), 0 5px 0 var(--hud-shadow), 0 9px 14px color-mix(in srgb, var(--braz-900) 26%, transparent);
 }
 
 .game-hud-dock img {
@@ -195,7 +195,7 @@
   object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
-  filter: drop-shadow(0 3px 1px rgba(79, 43, 12, .26));
+  filter: drop-shadow(0 3px 1px color-mix(in srgb, var(--braz-800) 26%, transparent));
   transition: transform .16s ease, filter .16s ease;
 }
 
@@ -220,7 +220,7 @@
   border-radius: 999px;
   background: linear-gradient(180deg, #76569c, #503867);
   box-shadow: 0 2px 0 #35243d, 0 4px 7px rgba(53,36,61,.24);
-  color: #fff3bd;
+  color: var(--krem-200);
   font-family: "Nunito", system-ui, sans-serif;
   /* +15% wzgledem 10 px - podpis ma sie czytac w biegu, jednym rzutem oka. */
   font-size: 11.5px;
@@ -279,15 +279,15 @@
   display: grid;
   place-items: center;
   padding: 0 9px;
-  border: 3px solid #fff4c9;
+  border: 3px solid var(--krem-100);
   border-radius: 999px;
   background: linear-gradient(180deg, #ff6a5e, #d53537);
-  box-shadow: 0 3px 0 #8d2a27, 0 6px 11px rgba(72, 25, 21, .28);
+  box-shadow: 0 3px 0 var(--czerwien-700), 0 6px 11px rgba(72, 25, 21, .28);
   color: var(--hud-cream-top);
   font-size: 22px;
   font-weight: 900;
   line-height: 1;
-  text-shadow: 0 2px 0 #8d2a27;
+  text-shadow: 0 2px 0 var(--czerwien-700);
 }
 
 /* Cyferka LEKKO DO GORY wewnatrz kolka. Pismo wyswietlane jest z odstepem pod
@@ -323,10 +323,10 @@
   animation: dock-mig .62s ease-in-out 5;
 }
 @keyframes dock-mig {
-  0%, 100% { transform: translateY(0) scale(1); filter: drop-shadow(0 3px 1px rgba(79, 43, 12, .26)); }
+  0%, 100% { transform: translateY(0) scale(1); filter: drop-shadow(0 3px 1px color-mix(in srgb, var(--braz-800) 26%, transparent)); }
   50% {
     transform: translateY(-7px) scale(1.12);
-    filter: drop-shadow(0 3px 1px rgba(79, 43, 12, .26)) drop-shadow(0 0 13px rgba(255, 221, 85, .95)) brightness(1.22);
+    filter: drop-shadow(0 3px 1px color-mix(in srgb, var(--braz-800) 26%, transparent)) drop-shadow(0 0 13px rgba(255, 221, 85, .95)) brightness(1.22);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -343,9 +343,9 @@
 .game-hud-dock button:hover::before,
 .game-hud-dock button.is-active::before {
   background:
-    linear-gradient(180deg, #fffbe0, #ffe797) padding-box,
-    linear-gradient(180deg, #fff3a8, var(--hud-gold) 56%, var(--hud-gold-deep)) border-box;
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .96), 0 5px 0 var(--hud-shadow), 0 0 18px rgba(255, 221, 85, .58), 0 10px 15px rgba(62,38,16,.28);
+    linear-gradient(180deg, var(--krem-50), #ffe797) padding-box,
+    linear-gradient(180deg, var(--krem-300), var(--hud-gold) 56%, var(--hud-gold-deep)) border-box;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .96), 0 5px 0 var(--hud-shadow), 0 0 18px rgba(255, 221, 85, .58), 0 10px 15px color-mix(in srgb, var(--braz-900) 28%, transparent);
 }
 
 .game-hud-dock button:active { transform: translateY(-1px) scale(.96); }
@@ -372,11 +372,11 @@
      bo pojedyncza linijka wypelnia kafelek co do piksela. */
   max-width: min(80vw, 330px);
   box-sizing: border-box;
-  border: 2px solid #e6a832;
+  border: 2px solid var(--zloto-450);
   border-radius: 999px;
   background: linear-gradient(180deg, #466f68, #244d4c);
   box-shadow: 0 3px 0 #6f3a12, 0 7px 13px rgba(38, 31, 18, .28);
-  color: #fff3bd;
+  color: var(--krem-200);
   font-size: 12px;
   font-weight: 900;
   letter-spacing: .6px;
@@ -419,14 +419,14 @@
   border: 2.5px solid transparent;
   border-radius: 26px;
   background:
-    linear-gradient(180deg, rgba(255,249,217,.9) 0%, rgba(241,217,151,.86) 100%) padding-box,
+    linear-gradient(180deg, color-mix(in srgb, var(--krem-50) 90%, transparent) 0%, color-mix(in srgb, var(--hud-cream-bottom) 86%, transparent) 100%) padding-box,
     linear-gradient(180deg, var(--hud-gold-light) 0%, var(--hud-gold) 56%, var(--hud-gold-deep) 100%) border-box;
   backdrop-filter: blur(5px) saturate(1.06);
   -webkit-backdrop-filter: blur(5px) saturate(1.06);
   box-shadow:
-    inset 0 -2px 0 rgba(162,98,28,.12),
-    0 3px 0 rgba(141,72,24,.88),
-    0 7px 12px rgba(62,38,16,.2);
+    inset 0 -2px 0 color-mix(in srgb, var(--braz-400) 12%, transparent),
+    0 3px 0 color-mix(in srgb, var(--zloto-800) 88%, transparent),
+    0 7px 12px color-mix(in srgb, var(--braz-900) 20%, transparent);
 }
 
 .game-hud.is-shelf .game-hud-dock button {
@@ -441,8 +441,8 @@
   width: 62px;
   height: 62px;
   filter:
-    drop-shadow(0 3px 1px rgba(79, 43, 12, .3))
-    drop-shadow(0 0 1px rgba(255,243,168,.7));
+    drop-shadow(0 3px 1px color-mix(in srgb, var(--braz-800) 30%, transparent))
+    drop-shadow(0 0 1px color-mix(in srgb, var(--krem-300) 70%, transparent));
 }
 
 .game-hud.is-shelf .game-hud-dock button:hover,
@@ -454,7 +454,7 @@
 .game-hud.is-shelf .game-hud-dock button.is-active img {
   transform: translateY(-6px) scale(1.08);
   filter:
-    drop-shadow(0 4px 1px rgba(79, 43, 12, .3))
+    drop-shadow(0 4px 1px color-mix(in srgb, var(--braz-800) 30%, transparent))
     drop-shadow(0 0 9px rgba(255,221,85,.9));
 }
 
@@ -537,7 +537,7 @@
   z-index: 0;
   inset: 8% -12%;
   border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(255,225,113,.36), rgba(246,205,84,.12) 48%, transparent 72%);
+  background: radial-gradient(ellipse, rgba(255,225,113,.36), color-mix(in srgb, var(--zloto-350) 12%, transparent) 48%, transparent 72%);
   filter: blur(14px);
   opacity: 0;
   transform: scale(.7);
@@ -597,7 +597,7 @@
   display: block;
   pointer-events: none;
   user-select: none;
-  filter: drop-shadow(0 5px 6px rgba(80,50,10,.27));
+  filter: drop-shadow(0 5px 6px color-mix(in srgb, var(--ochra-800) 27%, transparent));
 }
 
 .message-scroll-rod--top { top: 0; }
@@ -610,13 +610,13 @@
   gap: 12px;
   padding-top: 8px;
   padding-bottom: 12px;
-  border-bottom: 2px solid rgba(180,115,34,.2);
+  border-bottom: 2px solid color-mix(in srgb, var(--braz-300) 20%, transparent);
 }
 
 .message-scroll-kicker {
   display: block;
   margin-bottom: 2px;
-  color: #a2621c;
+  color: var(--braz-400);
   font-size: 10px;
   font-weight: 900;
   letter-spacing: 1.2px;
@@ -625,14 +625,14 @@
 
 .message-scroll-header h2 {
   margin: 0;
-  color: #fff3bd;
+  color: var(--krem-200);
   font-size: 30px;
   font-weight: 900;
   line-height: 1;
   letter-spacing: .3px;
   -webkit-text-stroke: 4px #4f3020;
   paint-order: stroke fill;
-  text-shadow: 0 3px 0 #a2621c, 0 5px 8px rgba(73,42,20,.22);
+  text-shadow: 0 3px 0 var(--braz-400), 0 5px 8px rgba(73,42,20,.22);
 }
 
 .message-scroll-close {
@@ -646,13 +646,13 @@
   display: grid;
   place-items: center;
   padding: 0 0 4px;
-  border: 2px solid #8d2a27;
+  border: 2px solid var(--czerwien-700);
   border-radius: 50%;
   background: linear-gradient(180deg, #ff6a5e, #d53537);
-  box-shadow: inset 0 2px 0 rgba(255,255,255,.35), 0 3px 0 #8d2a27, 0 6px 9px rgba(77,35,22,.2);
-  color: #fff4c9;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.35), 0 3px 0 var(--czerwien-700), 0 6px 9px color-mix(in srgb, var(--czerwien-900) 20%, transparent);
+  color: var(--krem-100);
   font: 900 32px/1 system-ui, sans-serif;
-  text-shadow: 0 2px 0 #8d2a27;
+  text-shadow: 0 2px 0 var(--czerwien-700);
   cursor: pointer;
   transform-origin: center;
   transition: transform .14s ease, box-shadow .14s ease, filter .14s ease;
@@ -669,7 +669,7 @@
   padding: 10px 12px;
   border: 1.5px solid rgba(190,126,39,.34);
   border-radius: 14px;
-  background: rgba(251,241,214,.68);
+  background: color-mix(in srgb, var(--p-paper) 68%, transparent);
   color: #79553a;
   font-family: "Trebuchet MS", system-ui, sans-serif;
   font-size: 12.5px;
@@ -684,15 +684,15 @@
 
 .scroll-message {
   overflow: hidden;
-  border: 1.5px solid rgba(180,115,34,.28);
+  border: 1.5px solid color-mix(in srgb, var(--braz-300) 28%, transparent);
   border-radius: 17px;
-  background: rgba(255,251,224,.68);
+  background: color-mix(in srgb, var(--krem-50) 68%, transparent);
   box-shadow: 0 3px 8px rgba(83,51,20,.1);
 }
 
 .scroll-message.is-unread {
   border-color: rgba(213,139,39,.72);
-  background: rgba(255,249,229,.94);
+  background: color-mix(in srgb, var(--krem-50) 94%, transparent);
 }
 
 .scroll-message-head {
@@ -710,7 +710,7 @@
 }
 
 .scroll-message-head:focus-visible {
-  outline: 3px solid #d59a31;
+  outline: 3px solid var(--zloto-500);
   outline-offset: -3px;
   border-radius: 15px;
 }
@@ -726,7 +726,7 @@
   width: 48px;
   height: 48px;
   object-fit: contain;
-  filter: drop-shadow(0 2px 1px rgba(90,51,17,.24));
+  filter: drop-shadow(0 2px 1px color-mix(in srgb, var(--braz-700) 24%, transparent));
 }
 
 .scroll-message-copy { min-width: 0; }
@@ -776,7 +776,7 @@
 .scroll-message-body span {
   display: block;
   margin-bottom: 4px;
-  color: #a2621c;
+  color: var(--braz-400);
   font-size: 10px;
   font-weight: 900;
   letter-spacing: .7px;
@@ -828,11 +828,11 @@
   box-shadow: none;
   background: linear-gradient(90deg,
       transparent,
-      rgba(180,115,34,.48) 14%,
-      rgba(180,115,34,.48) 45%,
+      color-mix(in srgb, var(--braz-300) 48%, transparent) 14%,
+      color-mix(in srgb, var(--braz-300) 48%, transparent) 45%,
       transparent 45%, transparent 55%,
-      rgba(180,115,34,.48) 55%,
-      rgba(180,115,34,.48) 86%,
+      color-mix(in srgb, var(--braz-300) 48%, transparent) 55%,
+      color-mix(in srgb, var(--braz-300) 48%, transparent) 86%,
       transparent) bottom left / 100% 1.5px no-repeat;
 }
 .scroll-message.is-quest .scroll-message-avatar {
@@ -842,10 +842,10 @@
   grid-row: 1 / span 2;
   align-self: center;
   overflow: hidden;
-  border: 3px solid #b47322;
+  border: 3px solid var(--braz-300);
   border-radius: 48% 48% 42% 42%;
   background: radial-gradient(circle at 50% 42%, #8f51c8 0 42%, #73349c 70%, #54286f 100%);
-  box-shadow: inset 0 0 0 3px rgba(255,226,154,.58), 0 4px 0 rgba(111,58,18,.34), 0 8px 14px rgba(79,43,12,.18);
+  box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--krem-500) 58%, transparent), 0 4px 0 rgba(111,58,18,.34), 0 8px 14px color-mix(in srgb, var(--braz-800) 18%, transparent);
 }
 .scroll-message.is-quest .scroll-message-avatar img {
   width: 116px;
@@ -862,11 +862,11 @@
   align-self: end;
 }
 .scroll-message.is-quest .scroll-message-copy strong {
-  color:#4f2b0c;
+  color:var(--braz-800);
   font-size: 29px;
   line-height: 1.02;
   letter-spacing: .2px;
-  text-shadow: 0 2px 0 rgba(255,244,201,.72);
+  text-shadow: 0 2px 0 color-mix(in srgb, var(--krem-100) 72%, transparent);
 }
 
 /* Plakietka w drugim wierszu, przy LEWEJ krawedzi tekstu (dziedziczone
@@ -903,7 +903,7 @@
    pionowa kreske - to jedyny fragment zadania, ktory jest CUDZYM glosem. */
 .scroll-message.is-quest .scroll-message-note {
   margin-top: 10px;
-  border-left-color: rgba(122,77,194,.42);
+  border-left-color: color-mix(in srgb, var(--p-magic-dk) 42%, transparent);
   color: #5e4123;
   font-size: 13px;
 }
@@ -922,14 +922,14 @@
   width:100%;
   box-sizing:border-box;
   padding:18px 20px 15px;
-  border:1.5px solid rgba(180,115,34,.44);
+  border:1.5px solid color-mix(in srgb, var(--braz-300) 44%, transparent);
   border-radius:20px;
-  background:rgba(255,249,217,.42);
+  background:color-mix(in srgb, var(--krem-50) 42%, transparent);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.58);
   text-align:center;
 }
 .scroll-message.is-quest .scroll-message-task-copy > p:first-child{
-  color:#4f2b0c;
+  color:var(--braz-800);
   font-size:21px;
   font-weight:900;
   line-height:1.28;
@@ -963,11 +963,11 @@
   padding:5px 16px 6px 10px;
   border:2px solid #b8842c;
   border-radius:999px;
-  background:linear-gradient(180deg,#fff3bd,#f1d28d);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.7),0 3px 0 rgba(134,81,27,.35);
-  color:#5a3311;
+  background:linear-gradient(180deg,var(--krem-200),#f1d28d);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.7),0 3px 0 color-mix(in srgb, var(--braz-550) 35%, transparent);
+  color:var(--braz-700);
 }
-.scroll-message-reward img{ width:34px; height:34px; object-fit:contain; filter:drop-shadow(0 2px 1px rgba(90,51,17,.25)); }
+.scroll-message-reward img{ width:34px; height:34px; object-fit:contain; filter:drop-shadow(0 2px 1px color-mix(in srgb, var(--braz-700) 25%, transparent)); }
 .scroll-message-reward strong{ font-size:24px; line-height:1; }
 
 /* Koniec zadania, poczatek wiesci. Bez ramki akapit na golym papierze zlewalby
@@ -978,8 +978,8 @@
   padding-bottom: 14px;
   background: linear-gradient(90deg,
       transparent,
-      rgba(122,77,194,.2) 14%,
-      rgba(122,77,194,.2) 86%,
+      color-mix(in srgb, var(--p-magic-dk) 20%, transparent) 14%,
+      color-mix(in srgb, var(--p-magic-dk) 20%, transparent) 86%,
       transparent) bottom left / 100% 1.5px no-repeat;
 }
 
@@ -1014,7 +1014,7 @@
   border-radius: 999px;
   background: linear-gradient(180deg, #9a75da, #6b3fb4);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 2px 0 rgba(67,34,111,.75);
-  color: #fff4c9;
+  color: var(--krem-100);
   font-size: 12px;
   font-weight: 900;
   letter-spacing: .5px;
@@ -1028,14 +1028,14 @@
   height: 11px;
   border-radius: 50%;
   background: #ff5b5b;
-  box-shadow: 0 0 0 1.6px rgba(255,244,201,.75);
+  box-shadow: 0 0 0 1.6px color-mix(in srgb, var(--krem-100) 75%, transparent);
 }
 
 @keyframes message-scroll-close-press {
   0% { transform: translateY(0) scale(1); }
   48% {
     transform: translateY(4px) scale(.86);
-    box-shadow: inset 0 3px 4px rgba(111,24,24,.3), 0 1px 0 #8d2a27, 0 2px 4px rgba(77,35,22,.18);
+    box-shadow: inset 0 3px 4px rgba(111,24,24,.3), 0 1px 0 var(--czerwien-700), 0 2px 4px color-mix(in srgb, var(--czerwien-900) 18%, transparent);
   }
   100% { transform: translateY(0) scale(1); }
 }
@@ -1177,9 +1177,9 @@
   border: 2px solid transparent;
   border-radius: 50%;
   background:
-    radial-gradient(circle at 42% 30%, #fffbe0 0%, var(--hud-cream-bottom) 58%, #e3c274 100%) padding-box,
+    radial-gradient(circle at 42% 30%, var(--krem-50) 0%, var(--hud-cream-bottom) 58%, #e3c274 100%) padding-box,
     linear-gradient(180deg, var(--hud-gold-light), var(--hud-gold) 58%, var(--hud-gold-deep)) border-box;
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .82), 0 3px 0 var(--hud-shadow), 0 7px 13px rgba(62, 38, 16, .24);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .82), 0 3px 0 var(--hud-shadow), 0 7px 13px color-mix(in srgb, var(--braz-900) 24%, transparent);
   cursor: pointer;
   transition: transform .16s ease, filter .16s ease;
 }
@@ -1190,7 +1190,7 @@
   object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
-  filter: drop-shadow(0 2px 1px rgba(79,43,12,.27));
+  filter: drop-shadow(0 2px 1px color-mix(in srgb, var(--braz-800) 27%, transparent));
   transition: filter .16s ease, opacity .16s ease;
 }
 
@@ -1207,7 +1207,7 @@
   width: 40px;
   height: 3px;
   border-radius: 2px;
-  background: #8f5017;
+  background: var(--braz-500);
   box-shadow: 0 1px 0 rgba(255, 255, 255, .6);
   transform: rotate(-38deg);
 }
@@ -1244,7 +1244,7 @@
   margin: -4px 0 -4px -2px;
   /* Mocniejszy cien niz w kafelku - bez zlotej obwodki awatar musi sam
      odkleic sie od sceny, ktora bywa jasna. */
-  filter: drop-shadow(0 3px 2px rgba(40,25,5,.42)) drop-shadow(0 1px 0 rgba(255, 255, 255, .35));
+  filter: drop-shadow(0 3px 2px color-mix(in srgb, var(--ochra-900) 42%, transparent)) drop-shadow(0 1px 0 rgba(255, 255, 255, .35));
 }
 
 @media (max-width: 340px) {
@@ -1297,8 +1297,8 @@
   bottom: 6px;
   height: 6px;
   border-radius: 999px;
-  background: rgba(127,69,23,.2);
-  box-shadow: inset 0 1px 1px rgba(79,43,12,.28);
+  background: color-mix(in srgb, var(--braz-600) 20%, transparent);
+  box-shadow: inset 0 1px 1px color-mix(in srgb, var(--braz-800) 28%, transparent);
   overflow: hidden;
 }
 
@@ -1308,7 +1308,7 @@
   min-width: 0;
   border-radius: 999px;
   background: linear-gradient(180deg, var(--hud-gold-light), var(--hud-gold) 58%, #d58b27);
-  box-shadow: 0 0 6px rgba(246,205,84,.55), inset 0 1px 0 rgba(255, 255, 255, .7);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--zloto-350) 55%, transparent), inset 0 1px 0 rgba(255, 255, 255, .7);
   transition: width .45s cubic-bezier(.22, .74, .24, 1);
 }
 
@@ -1342,9 +1342,9 @@
   width: 86px;
   height: 12px;
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(111,58,18,.26), rgba(134,81,27,.16));
+  background: linear-gradient(180deg, rgba(111,58,18,.26), color-mix(in srgb, var(--braz-550) 16%, transparent));
   box-shadow:
-    inset 0 1.5px 2px rgba(79,43,12,.38),
+    inset 0 1.5px 2px color-mix(in srgb, var(--braz-800) 38%, transparent),
     0 1px 0 rgba(255, 255, 255, .55);
   overflow: hidden;
 }
@@ -1356,10 +1356,10 @@
      juz jest, a nie wygladac na pusty. Bez tego pierwsze monety sa niewidoczne. */
   min-width: 12px;
   border-radius: 999px;
-  background: linear-gradient(180deg, #fff3bd 0%, var(--p-amber) 46%, #eda42a 74%, #d4841c 100%);
+  background: linear-gradient(180deg, var(--krem-200) 0%, var(--p-amber) 46%, #eda42a 74%, #d4841c 100%);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, .9),
-    inset 0 -1px 0 rgba(162,98,28,.45),
+    inset 0 -1px 0 color-mix(in srgb, var(--braz-400) 45%, transparent),
     0 0 8px rgba(255,204,93,.5);
   transition: width .45s cubic-bezier(.22, .74, .24, 1);
 }
@@ -1368,10 +1368,10 @@
 .game-hud-progress.is-empty i { min-width: 0; }
 
 .game-hud-progress.is-full i {
-  background: linear-gradient(180deg, var(--hud-cream-top) 0%, #ffe29a 47%, #f6cd54 74%, #f5b330 100%);
+  background: linear-gradient(180deg, var(--hud-cream-top) 0%, var(--krem-500) 47%, var(--zloto-350) 74%, #f5b330 100%);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, .95),
-    0 0 12px rgba(255,223,130,.9);
+    0 0 12px color-mix(in srgb, var(--zloto-200) 90%, transparent);
 }
 
 @media (max-width: 340px) {
@@ -1472,10 +1472,10 @@
   background: linear-gradient(
     180deg,
     rgba(251,241,214,0) 0%,
-    rgba(251,241,214,.22) 34%,
-    rgba(255,249,217,.5) 62%,
-    rgba(255,244,201,.72) 86%,
-    rgba(255,244,201,.8) 100%
+    color-mix(in srgb, var(--p-paper) 22%, transparent) 34%,
+    color-mix(in srgb, var(--krem-50) 50%, transparent) 62%,
+    color-mix(in srgb, var(--krem-100) 72%, transparent) 86%,
+    color-mix(in srgb, var(--krem-100) 80%, transparent) 100%
   );
 }
 
@@ -1506,10 +1506,10 @@
   background: linear-gradient(
     180deg,
     rgba(251,241,214,0) 0%,
-    rgba(251,241,214,.40) 7%,
-    rgba(255,249,217,.78) 12%,
-    rgba(255,244,201,.95) 16%,
-    rgba(255,244,201,1) 24%
+    color-mix(in srgb, var(--p-paper) 40%, transparent) 7%,
+    color-mix(in srgb, var(--krem-50) 78%, transparent) 12%,
+    color-mix(in srgb, var(--krem-100) 95%, transparent) 16%,
+    var(--krem-100) 24%
   );
 }
 
@@ -1542,12 +1542,12 @@
   .scena3d-stick.scena3d-stick.run.on { opacity: .72; }
 
   .scena3d-stick.scena3d-stick {
-    background: radial-gradient(circle, rgba(255,249,217,.10), rgba(255,249,217,.03) 60%, transparent 70%);
-    box-shadow: inset 0 0 0 2px rgba(255,249,217,.28);
+    background: radial-gradient(circle, color-mix(in srgb, var(--krem-50) 10%, transparent), color-mix(in srgb, var(--krem-50) 3%, transparent) 60%, transparent 70%);
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--krem-50) 28%, transparent);
   }
 
   .scena3d-stick.scena3d-stick.run {
-    box-shadow: inset 0 0 0 2.5px rgba(255,214,109,.6), 0 0 16px rgba(255,214,109,.22);
+    box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--zloto-250) 60%, transparent), 0 0 16px color-mix(in srgb, var(--zloto-250) 22%, transparent);
   }
 
   .scena3d-stick.scena3d-stick .scena3d-knob {
@@ -1581,7 +1581,7 @@
      wiec przy rozmiarze monety zaczynala nad nia dominowac. Wczesniej stala tu
      `iskra.png` - czteroramienny klejnot z cienkimi ramionami, ktory dla
      rownowagi potrzebowal wiecej miejsca. */
-  filter: drop-shadow(0 1.5px 1px rgba(79,43,12,.28));
+  filter: drop-shadow(0 1.5px 1px color-mix(in srgb, var(--braz-800) 28%, transparent));
 }
 
 .game-hud-counter--gwiazdki strong,
@@ -1602,12 +1602,12 @@
 .game-hud-counter--gwiazdki.jest-spelnione,
 .game-hud-counter--misja.jest-spelnione {
   background:
-    linear-gradient(180deg, rgba(255,249,217,.98), rgba(255,226,154,.98)) padding-box,
+    linear-gradient(180deg, color-mix(in srgb, var(--krem-50) 98%, transparent), color-mix(in srgb, var(--krem-500) 98%, transparent)) padding-box,
     linear-gradient(180deg, var(--hud-gold-light), var(--hud-gold) 52%, var(--hud-gold-deep)) border-box;
   box-shadow:
     inset 0 2px 0 rgba(255, 255, 255, .9),
     0 3px 0 var(--hud-shadow),
-    0 0 14px rgba(255,214,109,.85);
+    0 0 14px color-mix(in srgb, var(--zloto-250) 85%, transparent);
 }
 
 .game-hud-counter--gwiazdki.jest-spelnione em,

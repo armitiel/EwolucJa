@@ -21,20 +21,93 @@
    stare tokeny z cache.
    ═══════════════════════════════════════════════════════════════════════ */
 
-/* ── 0. RAMPA ZLOTA — jedno zloto zamiast czterech ─────────────────────
-   Przed 9.09.2026 zloto istnialo w czterech wersjach, kazda w innym pliku:
-   #F4C95D (bursztyn UI), #EFB937 (HUD), #F5C45E (Przygoda), #FFD24A (mapa).
-   Nic nie pilnowalo, zeby dalej byly do siebie podobne. Teraz to JEDNA rampa,
-   a stare nazwy (--p-amber, --hud-gold, --adv-gold) sa jej aliasami — kod,
-   ktory ich uzywa, dziala bez zmian.
-   Przygoda schodzi z #F5C45E na #F4C95D (deltaE < 1 — nie do zobaczenia).
-   Mapa zostaje poza CSS-em: jej kolory siedza w mapa.json. */
+/* ── 0. RAMPY BARW — kazdy odcien ma nazwe i miejsce na skali ──────────
+   Numer = ciemnosc: 50 najjasniejszy, 950 najciemniejszy (jak w Tailwind).
+   Sasiednie stopnie roznia sie o deltaE >= 4, czyli sa ROZROZNIALNE golym
+   okiem — blizniaki zostaly scalone 9.09.2026 (scripts/ujednolic-barwy.mjs).
+
+   Wartosci NIE sa wymyslone: to dokladnie te hexy, ktore juz siedzialy
+   w arkuszach (krok 3 planu, 9.09.2026). Nadanie nazwy niczego nie
+   przemalowalo — zmienilo tylko to, ze odcien uzywany 25 razy w 5 plikach
+   ma teraz JEDNA definicje. Stopnie o zerowym uzyciu celowo nie istnieja;
+   luki w numeracji (np. zloto 700) sa miejscem na przyszle odcienie.
+
+   Rampy z alfa: NIE dokladaj wariantu „--braz-800-50”. Piszesz
+   `color-mix(in srgb, var(--braz-800) 50%, transparent)` — to samo, co
+   rgba(79,43,12,.5), a zmiana odcienia w rampie przechodzi tez na cienie.
+
+   ZLOTO: przed 9.09.2026 istnialo w czterech wersjach, kazda w innym pliku
+   (#F4C95D bursztyn UI, #EFB937 HUD, #F5C45E Przygoda, #FFD24A mapa). Teraz
+   to JEDNA rampa, a stare nazwy (--p-amber, --hud-gold, --adv-gold) sa jej
+   aliasami. Przygoda zeszla z #F5C45E na #F4C95D (deltaE 3.7). Mapa zostaje
+   poza CSS-em: jej kolory siedza w mapa.json. */
 :root{
+  /* zloto — nagrody, lamowki, gwiazdki */
   --zloto-100:#FFF19A;   /* gorna lamowka, rozblysk gwiazdki */
+  --zloto-150:#FFE08C;   /* jasny blask, poswiata */
+  --zloto-200:#FFDF82;
+  --zloto-250:#FFD66D;   /* poswiata dokow, tla chipow z alfa */
   --zloto-300:#F4C95D;   /* bursztyn UI: nagrody, gwiazdki, chipy */
+  --zloto-350:#F6CD54;
   --zloto-400:#EFB937;   /* zloto wlasciwe HUD-u — srodek lamowki */
+  --zloto-450:#E6A832;   /* obrys monety, cieplejsze zloto tekstu */
+  --zloto-500:#D59A31;
   --zloto-600:#B86A1C;   /* dolna lamowka */
   --zloto-800:#8D4818;   /* twardy cien 3 px pod zlotym kaflem */
+  --zloto-matowe:#E1B66A; /* przygaszone zloto — podpisy, nieaktywne */
+
+  /* krem — jasne tla kart, pergamin, tekst na ciemnym */
+  --biel-ciepla:#FFFDF4; /* cieply bialy — gora gradientu okna; wchlonal #FFFAF0 (deltaE 1.5) */
+  --krem-50:#FFFBE0;     /* najjasniejszy krem; wchlonal #FFF9E5 i #fff9d9 (deltaE < 4) */
+  --krem-100:#FFF4C9;    /* tlo kart HUD-u */
+  --krem-200:#FFF3BD;
+  --krem-300:#FFF3A8;    /* cieplejszy, bardziej zolty */
+  --krem-400:#FFE6A8;
+  --krem-500:#FFE29A;    /* dol gradientu kremu, tekst na brazie */
+  --piasek:#F4E1AC;      /* matowy pergamin (mniej nasycony niz krem) */
+
+  /* ochra — zoltawe brazy: deski, ramy, listwy */
+  --ochra-300:#C4922C;   /* jasna ochra — obrysy z alfa */
+  --ochra-400:#96691E;
+  --ochra-450:#765A30;   /* przygaszona, szarawa */
+  --ochra-500:#8A5A18;
+  --ochra-550:#785A1E;
+  --ochra-600:#7A4D10;
+  --ochra-700:#48351A;
+  --ochra-750:#4A3410;   /* ciemna rama, tekst na kremie */
+  --ochra-800:#50320A;
+  --ochra-900:#281905;   /* najciemniejsza ochra — cien pod deska */
+
+  /* braz — czerwonawe brazy: kontury, cienie CTA, tekst na zlocie */
+  --braz-300:#B47322;    /* cien pod pomaranczowym CTA (--akcent-drugi-cien), obrysy z alfa */
+  --braz-400:#A2621C;    /* najczesciej uzywany braz UI (25x) */
+  --braz-500:#8F5017;
+  --braz-550:#86511B;
+  --braz-600:#7F4517;
+  --braz-700:#5A3311;
+  --braz-800:#4F2B0C;    /* kontur i cien glowny (21x) */
+  --braz-900:#3E2610;
+  --braz-950:#1A1008;    /* niemal czern, cieple */
+
+  /* noc — ciemne tla okien, overlay, Przygoda */
+  --noc-700:#251D4A;     /* fioletowa noc, jasniejsza — tla nagrod, tutorial */
+  --noc-800:#241D3C;     /* fioletowa noc — tla okien w hubie */
+  --noc-850:#1B1338;     /* glebszy fiolet nocy — overlay hubu */
+  --noc-900:#0E162A;     /* granat — panel Przygody (bez alfa) */
+  --noc-950:#060A18;     /* najglebsza noc — overlay Przygody */
+
+  /* fiolet — magia (uzupelnia --p-magic / --p-magic-dk) */
+  --fiolet-200:#C8A0F0;  /* jasna poswiata magii */
+  --fiolet-600:#5F438A;
+  --fiolet-800:#4A2D80;  /* gleboki fiolet — tla nagrod */
+
+  /* czerwien — zycia, blad, uwaga */
+  --czerwien-500:#E94560; /* serce, animacje */
+  --czerwien-700:#8D2A27; /* tekst ostrzezenia, X zamykania */
+  --czerwien-900:#4D2316; /* cien pod czerwienia */
+
+  /* blekit — jasne niebo */
+  --blekit-100:#C9E9FF;
 }
 
 /* ── 1. FUNDAMENT — paleta, kroje, promienie, cienie, skala CTA ─────────
@@ -82,11 +155,12 @@
 }
 
 /* ── 2. HUD SCENY 3D — krem i atrament; zloto z rampy ──────────────────
-   Przeniesione z public/scena-3d/hud.css. Cztery z siedmiu nazw to od 9.09
-   aliasy rampy zlota (te same wartosci co wczesniej). Krem i atrament HUD-u
-   zostaja wlasne — leza miedzy odcieniami fundamentu i nie maja tam pary. */
+   Przeniesione z public/scena-3d/hud.css. Piec z siedmiu nazw to od 9.09
+   aliasy ramp (zloto, krem). Gora kremu byla #fff9d9 — od kroku 3 wskazuje
+   na --krem-50 (#FFFBE0, deltaE 2.7, nie do odroznienia). Dol kremu
+   i atrament HUD-u zostaja wlasne — nie maja pary w rampach (deltaE > 4). */
 :root {
-  --hud-cream-top: #fff9d9;
+  --hud-cream-top: var(--krem-50);
   --hud-cream-bottom: #f1d997;
   --hud-gold-light: var(--zloto-100);
   --hud-gold: var(--zloto-400);
@@ -98,12 +172,12 @@
 /* ── 3. PRZYGODA — noc i szklo (dawniej w adventure.css na .adv-root) ───
    Definicje tokenow przeniesione tutaj; uklad (.adv-root: position, inset…)
    zostal w adventure.css. Jeden selektor w dwoch plikach — celowo: tu wartosci,
-   tam geometria. --adv-gold to alias rampy (bylo #F5C45E, deltaE < 1). */
+   tam geometria. --adv-gold to alias rampy (bylo #F5C45E, deltaE 3.7). */
 .adv-root {
   --adv-ink: #F2F6FF;
   --adv-ink-soft: rgba(242, 246, 255, 0.76);
-  --adv-panel: rgba(14, 22, 42, 0.62);
-  --adv-panel-solid: rgba(14, 22, 42, 0.9);
+  --adv-panel: color-mix(in srgb, var(--noc-900) 62%, transparent);      /* bylo rgba(14,22,42,.62) — ta sama barwa, z rampy */
+  --adv-panel-solid: color-mix(in srgb, var(--noc-900) 90%, transparent);
   --adv-edge: rgba(255, 255, 255, 0.16);
   --adv-accent: #57C7D4;
   --adv-gold: var(--zloto-300);
@@ -120,7 +194,7 @@
   /* tla */
   --tlo-karty: var(--p-paper);          /* pergamin kart i paneli */
   --tlo-karty-2: var(--p-paper-2);      /* dol gradientu karty, papier cieplejszy */
-  --tlo-jasne: #FFFDF4;                 /* cieply bialy — gora gradientu okna */
+  --tlo-jasne: var(--biel-ciepla);      /* cieply bialy — gora gradientu okna */
 
   /* tekst */
   --tekst: var(--p-ink);                /* fiolet zamiast czerni */
@@ -129,7 +203,7 @@
 
   /* akcenty — kazdy z twardym cieniem pod spodem (glina) */
   --akcent-cta: var(--p-leaf);          --akcent-cta-cien: var(--p-leaf-dk);
-  --akcent-drugi: var(--p-dusk);        --akcent-drugi-cien: #B47322;
+  --akcent-drugi: var(--p-dusk);        --akcent-drugi-cien: var(--braz-300);
   --akcent-magia: var(--p-magic);       --akcent-magia-gleboka: var(--p-magic-dk);
   --akcent-nagrody: var(--zloto-300);   /* gwiazdki, monety, chipy nagrod */
   --uwaga: var(--p-rose);               /* zycia, ostrzezenie, plakietka */
@@ -158,4 +232,22 @@
   --tekst-cichy: var(--adv-ink-soft);
   --akcent-nagrody: var(--adv-gold);
   --lamowka: var(--adv-accent);         /* w Przygodzie krawedz jest cyjanowa, nie zlota */
+}
+
+/* ── 6. ODSTEPY — jedna skala zamiast 40 roznych liczb ─────────────────
+   Audyt z 9.09.2026: w arkuszach jest ~40 roznych wartosci padding/gap/margin
+   (5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18…). Dziecko nie widzi roznicy miedzy
+   13 a 14 px, ale my widzimy niespojne odstepy miedzy ekranami. Skala ponizej
+   to 8 stopni; NOWY kod bierze odstep stad. Stary kod NIE jest przepisywany
+   automatycznie (rozne liczby to czasem swiadome dopasowanie do grafiki),
+   tylko przy okazji dotykania reguly — patrz docs/SYSTEM_STYLOW.md, krok 3. */
+:root{
+  --o-1:2px;    /* obrys, szczelina miedzy warstwami */
+  --o-2:4px;    /* mikro: ikona–tekst, cien 3D */
+  --o-3:8px;    /* gap w rzedzie, padding chipa */
+  --o-4:12px;   /* padding malego przycisku, gap w kolumnie */
+  --o-5:16px;   /* padding karty, odstep miedzy blokami */
+  --o-6:24px;   /* padding okna, sekcja */
+  --o-7:32px;   /* duzy oddech: naglowek–tresc */
+  --o-8:56px;   /* wysokosc CTA (= --cta-h), strefa dotyku */
 }

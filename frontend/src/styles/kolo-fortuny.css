@@ -19,7 +19,7 @@
   position:relative; width:min(94vw,470px);
   padding:18px 20px 20px; border-radius:26px;
   background:linear-gradient(180deg,var(--p-paper),var(--p-paper-2));
-  border:3px solid #e6a832; box-shadow:0 4px 0 #a2621c, 0 18px 40px rgba(26,16,8,.45);
+  border:3px solid var(--zloto-450); box-shadow:0 4px 0 var(--braz-400), 0 18px 40px color-mix(in srgb, var(--braz-950) 45%, transparent);
   text-align:center; user-select:none; -webkit-user-select:none;
   animation:kolo-karta-wjazd .35s cubic-bezier(.2,.9,.3,1.25);
 }
@@ -37,11 +37,11 @@
      górnym rogu, a nadtytuł ma zostać wyśrodkowany względem karty, nie
      zepchnięty w lewo. */
   margin:2px 0 0; padding:0 46px; font-size:11px; font-weight:800; letter-spacing:2.2px;
-  color:#a2621c; text-transform:uppercase;
+  color:var(--braz-400); text-transform:uppercase;
 }
 .kolo-tytul{
   margin:2px 0 6px; font-size:clamp(22px,5.4vw,30px); font-weight:800;
-  color:#4a3410; display:flex; align-items:center; justify-content:center; gap:8px;
+  color:var(--ochra-750); display:flex; align-items:center; justify-content:center; gap:8px;
   min-height:1.25em;
 }
 /* Ikona wylosowanej cechy zamiast emoji — ten sam obrazek, który dziecko
@@ -56,7 +56,7 @@
   /* Jedna linijka — `min-height` trzyma miejsce, żeby po zatrzymaniu koła
      karta nie podskoczyła, gdy tekst zmieni długość. */
   margin:0 0 8px; font-size:14px; font-weight:700;
-  color:#765a30; line-height:1.3; min-height:1.3em;
+  color:var(--ochra-450); line-height:1.3; min-height:1.3em;
 }
 
 /* ── KOŁO Z WARSTW ────────────────────────────────────────────────────
@@ -80,7 +80,7 @@
 .kolo-wirnik > img{ position:absolute; inset:0; width:100%; height:100%; }
 .kolo-piasta{ z-index:2; pointer-events:none; }
 .kolo-rama{ z-index:3; pointer-events:none; }
-.kolo-strzalka{ z-index:4; filter:drop-shadow(0 2px 3px rgba(40,25,5,.35)); }
+.kolo-strzalka{ z-index:4; filter:drop-shadow(0 2px 3px color-mix(in srgb, var(--ochra-900) 35%, transparent)); }
 
 /* Wirnik: sam obrót w transformie, czas i krzywa tu — jedna prawda o tym,
    jak długo koło się kręci (skrypt czeka te same 3,6 s minus zapas). */
@@ -115,7 +115,7 @@
   /* Mniejsza ikona = krótsza grupa = da się ją wsunąć głębiej w klin,
      nie wypychając napisu w miejsce, gdzie klin jest już za wąski. */
   position:static; width:64%; height:auto;
-  filter:drop-shadow(0 2px 2px rgba(40,25,5,.4));
+  filter:drop-shadow(0 2px 2px color-mix(in srgb, var(--ochra-900) 40%, transparent));
 }
 .kolo-tresc b{
   /* WERSALIKI: krótkie, jednowyrazowe etykiety czytają się w nich pewniej
@@ -147,7 +147,7 @@
 }
 .kolo-rozblysk{
   position:absolute; inset:-6%; border-radius:50%;
-  background:radial-gradient(circle at 50% 50%, rgba(255,251,224,.9) 0%, rgba(245,216,115,.6) 32%, rgba(255,205,70,.28) 54%, rgba(255,205,70,0) 72%);
+  background:radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--krem-50) 90%, transparent) 0%, rgba(245,216,115,.6) 32%, rgba(255,205,70,.28) 54%, rgba(255,205,70,0) 72%);
   mix-blend-mode:screen;
   /* Krótko i nie na pełne krycie: rozbłysk ma podbić moment, a nie zasłonić
      na pół sekundy pole, które właśnie padło. */
@@ -171,7 +171,7 @@
 }
 .kolo-iskra::before{
   content:""; position:absolute; left:0; width:14px; height:14px;
-  border-radius:4px; background:#ffdf82;
+  border-radius:4px; background:var(--zloto-200);
   box-shadow:0 0 14px rgba(255,205,70,.95), 0 0 4px var(--p-paper);
   animation:kolo-iskra .85s cubic-bezier(.15,.7,.35,1) var(--zwloka) backwards;
 }
@@ -187,7 +187,7 @@
 .kolo-etykieta.is-wygrane .kolo-tresc{ animation:kolo-puls 1s ease-in-out infinite; }
 @keyframes kolo-puls{
   0%,100%{ filter:brightness(1) drop-shadow(0 0 0 rgba(255,224,140,0)); transform:scale(1); }
-  50%{ filter:brightness(1.15) drop-shadow(0 0 9px rgba(255,243,168,.95)); transform:scale(1.08); }
+  50%{ filter:brightness(1.15) drop-shadow(0 0 9px color-mix(in srgb, var(--krem-300) 95%, transparent)); transform:scale(1.08); }
 }
 
 /* WYGLĄD PRZYCISKU JEST WSPÓLNY dla całej gry (`.hub-btn.hub-btn-primary`
