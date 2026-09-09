@@ -2,7 +2,7 @@
 // React zacznie renderować. Bez DSN w środowisku moduł nic nie robi.
 import "./services/sentry";
 
-import React, { lazy, Suspense, useEffect } from "react";
+import React, { Suspense, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 
@@ -52,10 +52,10 @@ import PoradyPage from "./pages/PoradyPage.jsx";
 // z pulpitu deweloperskiego. Statyczny import wciagal jego caly ogon
 // (AvatarBuilder, AvatarSVG, AvatarDisplay, AvatarAI, growthData) do paczki
 // startowej KAZDEGO dziecka, ktore laduje na /swiat i nigdy tego kodu nie zobaczy.
-const App = lazy(() => import("./App.jsx"));
-const MemoryGame = lazy(() => import("./pages/MemoryGame.jsx"));
-const ChoinkaLaunchGame = lazy(() => import("./pages/ChoinkaLaunchGame.jsx"));
-const BiegLiskaGame = lazy(() => import("./pages/BiegLiskaGame.jsx"));
+const App = leniwy(() => import("./App.jsx"));
+const MemoryGame = leniwy(() => import("./pages/MemoryGame.jsx"));
+const ChoinkaLaunchGame = leniwy(() => import("./pages/ChoinkaLaunchGame.jsx"));
+const BiegLiskaGame = leniwy(() => import("./pages/BiegLiskaGame.jsx"));
 import LoginAsStudent from "./pages/LoginAsStudent.jsx";
 import LoginByCode from "./pages/LoginByCode.jsx";
 import DevTools from "./components/DevTools.jsx";
@@ -66,6 +66,7 @@ import AppDataProvider, { useAppData } from "./contexts/AppData.jsx";
 import "./services/bgMusic";
 import "./styles/ewolucja.css";
 import "./styles/animations.css";
+import { leniwy, pilnujWdrozen } from "./services/leniwyImport.js";
 
 // Wrapper — gdy AppData laduje sie po raz pierwszy, pokazujemy jeden globalny loader.
 // Po tym kazda zmiana zakladki (Dom/Mapa/Plecak/Profil) jest natychmiastowa.
@@ -135,6 +136,10 @@ function AppRoutes() {
 
 // Rejestracja Service Worker dla push notifications (i offline fallback w przyszłosci).
 // Wymagane do `pushManager.subscribe` w pushNotifications.js.
+/* Bezpiecznik na wdrozenia: `<link rel="modulepreload">` potrafi paść
+   wczesniej niz sam import, wiec `leniwy` nie ma wtedy czego zlapac. */
+pilnujWdrozen();
+
 if ("serviceWorker" in navigator && location.hostname !== "localhost") {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("/sw.js").catch((e) => console.warn("[SW] register failed:", e));

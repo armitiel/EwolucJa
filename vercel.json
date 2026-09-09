@@ -3,14 +3,55 @@
   "outputDirectory": "frontend/dist",
   "framework": "vite",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api" },
-    { "source": "/scena-3d", "destination": "/scena-3d/index.html" },
-    { "source": "/scena-3d/", "destination": "/scena-3d/index.html" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/api/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/scena-3d",
+      "destination": "/scena-3d/index.html"
+    },
+    {
+      "source": "/scena-3d/",
+      "destination": "/scena-3d/index.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, must-revalidate"
+        }
+      ]
+    }
   ],
   "crons": [
-    { "path": "/api/push/send-daily?slot=poranek",  "schedule": "0 6 * * *" },
-    { "path": "/api/push/send-daily?slot=poludnie", "schedule": "0 11 * * *" },
-    { "path": "/api/push/send-daily?slot=wieczor",  "schedule": "0 17 * * *" }
+    {
+      "path": "/api/push/send-daily?slot=poranek",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/push/send-daily?slot=poludnie",
+      "schedule": "0 11 * * *"
+    },
+    {
+      "path": "/api/push/send-daily?slot=wieczor",
+      "schedule": "0 17 * * *"
+    }
   ]
 }

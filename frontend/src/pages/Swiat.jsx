@@ -12,7 +12,7 @@
  * Bez WebGL-a hub NIE przestaje działać: scena zamienia się w statyczne tło,
  * a wszystkie sekcje zostają dostępne.
  */
-import React, { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Scena3D, { webglDostepny } from "../components/Scena3D.jsx";
 import HubDock from "../hub/HubDock.jsx";
@@ -117,6 +117,7 @@ import kolejkaStartu from "../services/kolejkaStartu.js";
 import { awatarPostaci } from "../utils/postac.js";
 import "../adventure/styles/adventure.css";
 import "../hub/styles/hub.css";
+import { leniwy } from "../services/leniwyImport.js";
 
 // Cel monetowy pokazywany paskiem w HUD. Trzymany tutaj, a nie w bazie, bo
 // dopóki ekonomia się ustala, to liczba do strojenia, nie ustawienie gracza.
@@ -191,24 +192,24 @@ const idZUlozenia = (wartosc) =>
  * do paczki, którą pobiera dziecko. Import wykonuje się dopiero wtedy, gdy
  * tryb dev jest naprawdę włączony (`services/dev.js`).
  */
-const DevRezyserka = lazy(() => import("../hub/DevRezyserka.jsx"));
+const DevRezyserka = leniwy(() => import("../hub/DevRezyserka.jsx"));
 
 /**
  * Reflektor — wskazówka, która gasi świat i podświetla jeden element HUD-u.
  * `lazy`, bo dziecko zobaczy każdą z nich RAZ w życiu: nie ma powodu, żeby
  * ten kod wchodził do paczki wczytywanej przy każdym starcie.
  */
-const Reflektor = lazy(() => import("../hub/Reflektor.jsx"));
+const Reflektor = leniwy(() => import("../hub/Reflektor.jsx"));
 
 /**
  * Układanka odblokowująca minigrę (brama z puzzli). `lazy` — wchodzi raz
  * na grę, przy pierwszym podejściu, i nie ma czego robić w paczce startowej.
  */
-const PuzzleBrama = lazy(() => import("../hub/PuzzleBrama.jsx"));
+const PuzzleBrama = leniwy(() => import("../hub/PuzzleBrama.jsx"));
 /* Wnętrze chatki jest sceną 3D z własnym kontekstem WebGL — do głównego
    pakietu huba wchodzić nie może, tak samo jak minigry. */
-const WnetrzeDomku = lazy(() => import("./WnetrzeDomku.jsx"));
-const KoloFortuny = lazy(() => import("../hub/KoloFortuny.jsx"));
+const WnetrzeDomku = leniwy(() => import("./WnetrzeDomku.jsx"));
+const KoloFortuny = leniwy(() => import("../hub/KoloFortuny.jsx"));
 
 /* KOŁO PRZEZNACZENIA nie jest osobnym ekranem huba: stoi w panelu zadania
    (`panels/ZadaniePanel.jsx`) jako jego pierwsza odsłona, więc losowanie
@@ -216,9 +217,9 @@ const KoloFortuny = lazy(() => import("../hub/KoloFortuny.jsx"));
    otwiera ten panel — zielonym przyciskiem Wizkora albo pulpitem dev. */
 
 const GRY_OSADZONE = {
-  "pamiec-medrca": lazy(() => import("./MemoryGame.jsx")),
-  "lot-liska": lazy(() => import("./ChoinkaLaunchGame.jsx")),
-  "bieg-liska": lazy(() => import("./BiegLiskaGame.jsx")),
+  "pamiec-medrca": leniwy(() => import("./MemoryGame.jsx")),
+  "lot-liska": leniwy(() => import("./ChoinkaLaunchGame.jsx")),
+  "bieg-liska": leniwy(() => import("./BiegLiskaGame.jsx")),
 };
 
 /**
