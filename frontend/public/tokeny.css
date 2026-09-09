@@ -65,6 +65,11 @@
   --krem-400:#FFE6A8;
   --krem-500:#FFE29A;    /* dol gradientu kremu, tekst na brazie */
   --piasek:#F4E1AC;      /* matowy pergamin (mniej nasycony niz krem) */
+  /* Dwa przyciemnienia kremu — NIE kolejne stopnie rampy, tylko CIEN na kremie.
+     Maja te sama jasnosc co krem, mniej nasycenia: to nimi robi sie „glina"
+     (miekkie zejscie przy dolnej krawedzi chmurki), nie osobnym box-shadow. */
+  --krem-cien-1:#F0E2BD; /* poczatek zejscia */
+  --krem-cien-2:#D5C7A4; /* dolna krawedz — najciemniej */
 
   /* ochra — zoltawe brazy: deski, ramy, listwy */
   --ochra-300:#C4922C;   /* jasna ochra — obrysy z alfa */
@@ -98,8 +103,12 @@
 
   /* fiolet — magia (uzupelnia --p-magic / --p-magic-dk) */
   --fiolet-200:#C8A0F0;  /* jasna poswiata magii */
+  --fiolet-500:#6B3C97;  /* lamowka chmurek Medrca — jedno zrodlo dla wszystkich */
   --fiolet-600:#5F438A;
   --fiolet-800:#4A2D80;  /* gleboki fiolet — tla nagrod */
+
+  /* pomarancz — lisek: lamowka jego chmurki i przycisku zamykania */
+  --pomarancz-500:#FB8F18;
 
   /* czerwien — zycia, blad, uwaga */
   --czerwien-500:#E94560; /* serce, animacje */
@@ -275,4 +284,49 @@
   --o-6:24px;   /* padding okna, sekcja */
   --o-7:32px;   /* duzy oddech: naglowek–tresc */
   --o-8:56px;   /* wysokosc CTA (= --cta-h), strefa dotyku */
+}
+
+/* ── 7. CHMURKI KOMUNIKATOW — jeden ksztalt dla Medrca, liska i Porady ──
+   W grze mowia do dziecka trzy chmurki: Medrzec z porada o ciele
+   (`PodpowiedzMedrca`), lisek zapraszajacy do minigier i Medrzec z Porada dnia
+   (obie z `Reflektor`). Przed 9.09.2026 kazda miala WLASNA lamowke (#5F438A,
+   #7b3fb0, #ff8a17), wlasna grubosc (3 px w DOM, 3 j. w SVG), wlasne tlo
+   i wlasny krzyzyk. Wygladaly jak trzy gry.
+
+   Teraz roznia sie JEDNA linia — `--chmurka-akcent` ustawionym na kontenerze.
+   Reszta (grubosc, wypelnienie, glina, krzyzyk) jest tutaj i zmienia sie raz.
+
+   GLINA (soft 3D clay) to nie box-shadow, tylko WYPELNIENIE: pasek swiatla na
+   gornej krawedzi i zejscie w cien na dolnej, zrobione stopniami gradientu.
+   Dzieki temu ten sam przepis dziala w DOM-owej karcie Medrca i w sciezce SVG
+   liska (`ksztaltChmurki.js`), gdzie box-shadow nie istnieje — a bańka i jej
+   dzióbek cieniuja sie jednym ruchem, bez szwu na styku. */
+:root{
+  --chmurka-akcent:var(--fiolet-500);  /* domyslnie Medrzec; lisek nadpisuje */
+  --chmurka-lamowka:4px;               /* bylo 3 px — za cienko na „glinę" */
+  --chmurka-r:41px;
+
+  /* Piec stopni. 0–10% to swiatlo na gornej krawedzi, 90–100% zejscie w cien:
+     zmierzone z wzorca, nie zgadniete. Procenty licza sie od gory SAMEJ banki
+     (bez dziobka), dlatego w SVG gradient dostaje `gradientUnits`. */
+  --chmurka-tlo-0:var(--biel-ciepla);
+  --chmurka-tlo-1:var(--krem-50);
+  --chmurka-tlo-2:var(--krem-100);
+  --chmurka-tlo-3:var(--krem-cien-1);
+  --chmurka-tlo-4:var(--krem-cien-2);
+  --chmurka-wypelnienie:linear-gradient(180deg,
+    var(--chmurka-tlo-0) 0%, var(--chmurka-tlo-1) 10%,
+    var(--chmurka-tlo-2) 90%, var(--chmurka-tlo-3) 95.5%, var(--chmurka-tlo-4) 100%);
+
+  /* Cien pod chmurka: twarda podstawka w tonie lamowki (to ona robi „lezy na
+     czyms") + jedno miekkie rozmycie. Dwa wpisy, nie cztery — wiecej warstw
+     robi mydlo, nie glebie. */
+  --chmurka-cien-1:0 6px 0 color-mix(in srgb, var(--chmurka-akcent) 30%, transparent);
+  --chmurka-cien-2:0 14px 26px color-mix(in srgb, var(--noc-850) 34%, transparent);
+  /* To samo dla ksztaltu SVG, gdzie box-shadow nie dziala: `drop-shadow` idzie
+     za sylwetka, wiec cien obejmuje takze dzióbek. Ta sama geometria i barwy —
+     zmiana wyzej ma isc TU RAZEM, dlatego liczby stoja obok siebie. */
+  --chmurka-cien-filtr:
+    drop-shadow(0 6px 0 color-mix(in srgb, var(--chmurka-akcent) 30%, transparent))
+    drop-shadow(0 14px 22px color-mix(in srgb, var(--noc-850) 34%, transparent));
 }

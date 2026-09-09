@@ -25,7 +25,7 @@
  * Reflektor NIE decyduje, kiedy się pokazać (to robi hub) ani czy dziecko już
  * zna to miejsce (to robi `wskazowki.js`). Tutaj jest obraz i wyjścia.
  */
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { OGON_DLUGOSC, sciezkaChmurki } from "./ksztaltChmurki.js";
 import bgMusic from "../services/bgMusic.js";
@@ -72,7 +72,7 @@ export default function Reflektor({ wskazowka, onZamknij }) {
   const [otwor, setOtwor] = useState(null);
   const [banka, setBanka] = useState({ szer: 0, wys: 0 });
   const celRef = useRef(null);
-  const wnetrzeRef = useRef(null);
+  const obserwatorRef = useRef(null);
 
   // Cel znajdujemy PO wyrenderowaniu HUD-u: podpowiedź pojawia się nad żywym
   // interfejsem, a nie zamiast niego.
@@ -80,11 +80,21 @@ export default function Reflektor({ wskazowka, onZamknij }) {
     if (!wskazowka) { setOtwor(null); celRef.current = null; return undefined; }
     let zywe = true;
 
+    // Pomiar chodzi 4× na sekundę. Bez porównania z poprzednim wynikiem każdy
+    // przebieg wstawiałby NOWY obiekt i przerysowywał całą warstwę, choć nic
+    // się nie ruszyło — a przy okazji zrywał identyczność `otwor` innym
+    // zależnościom. Odświeżamy tylko wtedy, gdy cel naprawdę się przesunął.
     const odswiez = () => {
       if (!zywe) return;
       const el = document.querySelector(wskazowka.cel);
       celRef.current = el;
-      setOtwor(zmierz(el, wskazowka.obszar));
+      const nowy = zmierz(el, wskazowka.obszar);
+      setOtwor((teraz) => {
+        if (!teraz || !nowy) return teraz === nowy ? teraz : nowy;
+        const rowne = ["left", "top", "szer", "wys", "srodekX"]
+          .every((k) => Math.abs(teraz[k] - nowy[k]) < 0.5);
+        return rowne ? teraz : nowy;
+      });
     };
 
     odswiez();
@@ -102,20 +112,35 @@ export default function Reflektor({ wskazowka, onZamknij }) {
   /**
    * Rozmiar bańki bierze się z treści, nie odwrotnie: `ResizeObserver` patrzy
    * na warstwę z Wizkorem i tekstem, a ścieżka SVG rysuje się pod ten pomiar.
-   * `useLayoutEffect`, żeby pierwsza narysowana klatka miała już właściwy
-   * kształt — inaczej chmurka mrugałaby pustym tłem przy wjeździe.
+   *
+   * DLACZEGO REF ZWROTNY, A NIE `useLayoutEffect([wskazowka])`. Tak było
+   * i przez to bańka NIGDY nie była mierzona. Przy pierwszym renderze `otwor`
+   * jest jeszcze `null`, więc komponent zwraca `null` i `wnetrzeRef.current`
+   * też jest `null` — efekt wychodził pustą ręką. Gdy chwilę później pomiar
+   * celu ustawiał `otwor` i karta wreszcie wjeżdżała do DOM-u, `wskazowka`
+   * się nie zmieniła, więc efekt już się NIE powtarzał: obserwator nie
+   * podpinał się nigdy, a `banka` zostawała `{0,0}`.
+   *
+   * Skutek było widać: ścieżka rysowała się z wartości zapasowej 90 px, a
+   * tekst wyśrodkowany w prawdziwym pudełku (118 px) siadał o ~14 px NIŻEJ
+   * niż środek narysowanej bańki i dociskał się do jej dolnej krawędzi.
+   *
+   * Ref zwrotny nie da się na to nabrać: przeglądarka woła go z węzłem, gdy
+   * ten wchodzi do DOM-u, i z `null`, gdy wychodzi — niezależnie od tego,
+   * który render go tam wstawił.
    */
-  useLayoutEffect(() => {
-    const el = wnetrzeRef.current;
-    if (!el) return undefined;
+  const rozepnijObserwatora = useCallback((el) => {
+    obserwatorRef.current?.disconnect();
+    obserwatorRef.current = null;
+    if (!el) return;
     /**
      * `offsetWidth/Height`, NIE `getBoundingClientRect`. Chmurka wjeżdża
      * animacją, która zaczyna się od `scale(.5)`, a prostokąt z `rect`
-     * podaje rozmiar PO transformacji — pierwszy pomiar wypadał więc
-     * dokładnie o połowę za mały i bańka rysowała się w połowie treści.
+     * podaje rozmiar PO transformacji — pierwszy pomiar wypadałby więc
+     * dokładnie o połowę za mały i bańka rysowałaby się w połowie treści.
      * `offset*` opisuje układ, a nie to, co akurat robi z nim animacja.
      */
-    const zmierzWnetrze = () => {
+    const zmierz = () => {
       const szer = el.offsetWidth;
       const wys = el.offsetHeight;
       setBanka((teraz) =>
@@ -124,12 +149,11 @@ export default function Reflektor({ wskazowka, onZamknij }) {
           : { szer, wys }
       );
     };
-    zmierzWnetrze();
-    if (typeof ResizeObserver === "undefined") return undefined;
-    const obserwator = new ResizeObserver(zmierzWnetrze);
-    obserwator.observe(el);
-    return () => obserwator.disconnect();
-  }, [wskazowka]);
+    zmierz();
+    if (typeof ResizeObserver === "undefined") return;
+    obserwatorRef.current = new ResizeObserver(zmierz);
+    obserwatorRef.current.observe(el);
+  }, []);
 
   const zamknij = useCallback((powod) => onZamknij?.(powod), [onZamknij]);
 
@@ -205,6 +229,14 @@ export default function Reflektor({ wskazowka, onZamknij }) {
   );
   const dziobekX = Math.max(18, Math.min(otwor.srodekX - lewaDymka - 13, szerDymka - 44));
 
+  // Wymiary SAMEJ bańki (bez dzióbka). Wartości zapasowe działają tylko przez
+  // jedną klatkę — zanim ref zwrotny zdąży zmierzyć wnętrze.
+  const szerBanki = banka.szer || szerDymka;
+  const wysBanki = banka.wys || 118;
+  // Gdzie w układzie SVG zaczyna się bańka: przy dzióbku w dół od zera,
+  // przy dzióbku w górę dopiero pod nim. Tego potrzebuje gradient gliny.
+  const goraBanki = nadCelem ? 0 : OGON_DLUGOSC;
+
   const stylDymka = nadCelem
     ? { bottom: `${Math.max(MARGINES, wysOkna - otwor.top + PRZERWA)}px` }
     : { top: `${otwor.top + otwor.wys + PRZERWA}px` };
@@ -236,7 +268,8 @@ export default function Reflektor({ wskazowka, onZamknij }) {
   return createPortal((
     <div
       className={`reflektor${dymkowy ? " jest-dymkiem" : ""}${lisek ? " jest-liskiem" : " jest-wizkorem"}`}
-      style={{ "--reflektor-akcent": lisek ? "#ff8a17" : "#7b3fb0" }}
+      /* Barwy tu NIE MA: `jest-liskiem`/`jest-wizkorem` ustawia `--chmurka-akcent`
+         w hub.css, a stamtąd biorą ją lamówka, krzyżyk i cień naraz. */
       role={dymkowy ? "status" : "dialog"}
       aria-live={dymkowy ? "polite" : undefined}
       aria-modal={dymkowy ? undefined : "true"}
@@ -286,42 +319,57 @@ export default function Reflektor({ wskazowka, onZamknij }) {
               o długość dzióbka — stąd `overflow: visible` w CSS. */}
           <svg
             className="reflektor-ksztalt"
-            width={banka.szer || szerDymka}
-            height={(banka.wys || 90) + OGON_DLUGOSC}
-            viewBox={`0 0 ${banka.szer || szerDymka} ${(banka.wys || 90) + OGON_DLUGOSC}`}
+            width={szerBanki}
+            height={wysBanki + OGON_DLUGOSC}
+            viewBox={`0 0 ${szerBanki} ${wysBanki + OGON_DLUGOSC}`}
             style={nadCelem ? { top: 0 } : { top: `${-OGON_DLUGOSC}px` }}
             aria-hidden="true"
           >
             <defs>
-              <linearGradient id="reflektor-wypelnienie" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#fffcf2" />
-                <stop offset="1" stopColor="#ffeec4" />
+              {/* GLINA. Pięć stopni z `tokeny.css` sekcja 7 — te same, którymi
+                  maluje się karta Mędrca, więc obie chmurki mają identyczne
+                  światło u góry i zejście w cień u dołu.
+                  `gradientUnits="userSpaceOnUse"` jest tu konieczne: procenty
+                  liczyłyby się od całej wysokości SVG, czyli RAZEM z dzióbkiem,
+                  i cień dolnej krawędzi wypadłby w środku bańki. Tak liczą się
+                  od samej bańki, a dzióbek (poza zakresem) dostaje przedłużony
+                  ostatni stopień — czyli ten sam cień, co krawędź nad nim. */}
+              <linearGradient
+                id="reflektor-wypelnienie"
+                gradientUnits="userSpaceOnUse"
+                x1="0" y1={goraBanki} x2="0" y2={goraBanki + wysBanki}
+              >
+                <stop offset="0" stopColor="var(--chmurka-tlo-0)" />
+                <stop offset="0.1" stopColor="var(--chmurka-tlo-1)" />
+                <stop offset="0.9" stopColor="var(--chmurka-tlo-2)" />
+                <stop offset="0.955" stopColor="var(--chmurka-tlo-3)" />
+                <stop offset="1" stopColor="var(--chmurka-tlo-4)" />
               </linearGradient>
             </defs>
             <path
               d={sciezkaChmurki({
-                szer: banka.szer || szerDymka,
-                wys: banka.wys || 90,
+                szer: szerBanki,
+                wys: wysBanki,
                 ogonX: otwor.srodekX - lewaDymka,
                 wDol: nadCelem,
               })}
               fill="url(#reflektor-wypelnienie)"
-              stroke="var(--reflektor-akcent)"
-              strokeWidth="3"
+              /* stroke i stroke-width: hub.css, `.reflektor-ksztalt path` */
+
               strokeLinejoin="round"
             />
           </svg>
 
           <button
             type="button"
-            className="reflektor-x"
+            className="chmurka-x reflektor-x"
             onClick={(e) => { e.stopPropagation(); zamknij("krzyzyk"); }}
             aria-label="Zamknij podpowiedź"
           >
             ×
           </button>
 
-          <div className="reflektor-wnetrze" ref={wnetrzeRef}>
+          <div className="reflektor-wnetrze" ref={rozepnijObserwatora}>
             <img
               className={`reflektor-postac${lisek ? " jest-liskiem" : ""}`}
               src={wskazowka.postac}

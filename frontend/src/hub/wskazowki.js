@@ -50,7 +50,13 @@ export const WSKAZOWKI = [
      * już tam było, nie ma być zapraszane po raz drugi.
      */
     panelCelu: "porada",
-    postac: "/wizTip.webp",
+    /**
+     * Popiersie Mędrca, nie wizerunek z palcem w górze (`/wizTip.webp`).
+     * Ta sama grafika, co w chmurce Mędrca o ciele — dziecko ma widzieć jedną
+     * postać mówiącą dwie rzeczy, a nie dwóch podobnych czarodziejów. Wskazanie
+     * niesie obręcz na ikonie i dzióbek chmurki; palec był trzecim wskaźnikiem.
+     */
+    postac: "/wizhead.svg",
     tytul: "Porada dnia",
     // Bez przycisku w chmurce — dziecko ma dotknąć TEJ ikony, nie zielonego
     // guzika. Zdanie kończy się wskazaniem, obręcz pokazuje gdzie.

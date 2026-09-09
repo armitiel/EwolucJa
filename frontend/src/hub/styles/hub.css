@@ -1380,6 +1380,45 @@
 }
 
 
+/* ═══════════════════════════════════════════════════════════════════════
+   CHMURKI KOMUNIKATOW — wspolne czesci
+
+   Trzy chmurki w grze (Medrzec z porada o ciele, lisek z minigrami, Medrzec
+   z Porada dnia) sa TYM SAMYM przedmiotem w dwoch technikach: karta Medrca to
+   pudelko DOM-owe, chmurka Reflektora to sciezka SVG z dzióbkiem. Wspolne jest
+   wszystko poza technika — i siedzi tutaj oraz w `tokeny.css` sekcja 7.
+
+   Kto chce zmienic wyglad wszystkich trzech, zmienia JEDNO miejsce.
+   Kto chce zmienic jedna — nadpisuje `--chmurka-akcent` na jej kontenerze.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Barwa chmurki to jedyna roznica miedzy nimi. Ustawiona na KONTENERZE, wiec
+   siega i do lamowki, i do krzyzyka, i do cienia pod spodem naraz. */
+.medrzec-podpowiedz{ --chmurka-akcent:var(--fiolet-500); }
+.reflektor.jest-wizkorem{ --chmurka-akcent:var(--fiolet-500); }
+.reflektor.jest-liskiem{ --chmurka-akcent:var(--pomarancz-500); }
+
+/* Krzyzyk. Kremowy pierscien (nie przezroczysta biel) i kremowy znak — na
+   wzorcu obwodka jest PELNA barwa papieru, dzieki czemu guzik trzyma sie
+   chmurki nawet nad jasnym tlem mapy, gdzie polprzezroczysta biel znikala. */
+.chmurka-x{
+  width:44px; height:44px; display:grid; place-items:center; padding:0;
+  border:var(--chmurka-lamowka) solid var(--krem-50); border-radius:50%;
+  background:var(--chmurka-akcent); color:var(--krem-100); cursor:pointer;
+  box-shadow:
+    inset 0 2px 0 color-mix(in srgb, var(--krem-50) 30%, transparent),
+    0 4px 0 color-mix(in srgb, var(--noc-850) 34%, transparent),
+    0 8px 14px color-mix(in srgb, var(--noc-850) 26%, transparent);
+  font:900 26px/1 var(--font-display,"Baloo 2"),system-ui,sans-serif;
+}
+.chmurka-x:active{ transform:translateY(3px); box-shadow:none; }
+.chmurka-x:focus-visible{ outline:3px solid var(--akcent-nagrody); outline-offset:2px; }
+/* Na wąskim telefonie guzik schodzi RAZ, dla obu chmurek. Wcześniej każda
+   miała własne zejście we własnym bloku media i rozjeżdżały się o 2 px. */
+@media (max-width:360px){
+  .chmurka-x{ width:38px; height:38px; border-width:3px; font-size:23px; }
+}
+
 /* ── Podpowiedz Medrca ─────────────────────────────────────────────────── */
 /* Karta wchodzi nad dokiem, a nie nad HUD-em u gory: gora to zasoby dziecka
    (monety, awatar), a to jest glos z zewnatrz - siada blizej reki i latwiej
@@ -1402,12 +1441,14 @@
    "magic" to w tym projekcie barwy Mentora (tak samo ustawiony jest domyslny
    ton `MentorBubble`), a nie zloto HUD-u, ktore oznacza zasoby gracza. */
 .medrzec-karta{
-  position:relative; display:grid; grid-template-columns:108px minmax(0,1fr); align-items:center; gap:8px;
-  box-sizing:border-box; min-height:120px; padding:16px 46px 16px 8px;
-  border:3px solid var(--fiolet-600);
-  border-radius:41px;
-  background:linear-gradient(180deg,var(--biel-ciepla) 0%,var(--p-paper-2) 100%);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.9),0 5px 0 rgba(74,54,112,.24),0 14px 30px color-mix(in srgb, var(--noc-850) 30%, transparent);
+  position:relative; display:grid; grid-template-columns:108px minmax(0,1fr); align-items:center; gap:var(--o-3);
+  box-sizing:border-box; min-height:120px; padding:var(--o-5) 46px var(--o-5) var(--o-3);
+  /* Lamowka, wypelnienie i cien: `tokeny.css` sekcja 7. Ta sama recepta co
+     u liska — chmurki maja sie roznic tylko barwa akcentu. */
+  border:var(--chmurka-lamowka) solid var(--chmurka-akcent);
+  border-radius:var(--chmurka-r);
+  background:var(--chmurka-wypelnienie);
+  box-shadow:var(--chmurka-cien-1),var(--chmurka-cien-2);
   /* Krój tytułowy gry (Baloo 2), a nie krok z arkusza HUD-u: HUD ma wlasny
      ("Arial Rounded"), bo musi dzialac takze w podgladzie bez Google Fonts.
      Tekst Medrca to zdanie do przeczytania, wiec idzie typografia aplikacji. */
@@ -1431,27 +1472,24 @@
   color:var(--p-ink,#4e4d76);
 }
 .medrzec-akcje{ position:absolute; top:-14px; right:-14px; }
-.medrzec-akcje button{
-  width:42px; height:42px; display:grid; place-items:center; padding:0;
-  border:2px solid rgba(255,255,255,.22); border-radius:50%;
-  background:var(--fiolet-600); color:#fff; cursor:pointer;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.2),0 4px 0 rgba(57,30,91,.28),0 8px 14px rgba(36,20,65,.2);
-  font:900 27px/1 var(--font-display,"Baloo 2"),system-ui,sans-serif;
-}
-.medrzec-akcje button:active{ transform:translateY(2px); box-shadow:none; }
-.medrzec-akcje button:focus-visible{ outline:3px solid var(--p-amber); outline-offset:2px; }
 
 .medrzec-mysl-ogon{
   position:absolute; left:46%; bottom:-34px; width:55px; height:38px;
   pointer-events:none;
 }
+/* Kropki myśli to ta sama glina co bańka, tylko mała. Gradient dostaje własną
+   wysokość w każdej kropce (`background-size` domyślnie = element), więc
+   światło i cień siadają na jej krawędziach, a nie na krawędziach karty. */
 .medrzec-mysl-ogon > span{
-  position:absolute; display:block; border:3px solid var(--fiolet-600); border-radius:50%;
-  background:linear-gradient(180deg,var(--biel-ciepla) 0%,var(--p-paper-2) 100%);
-  box-shadow:0 4px 0 rgba(74,54,112,.2),0 8px 13px rgba(36,20,65,.18);
+  position:absolute; display:block; border-radius:50%;
+  border:var(--chmurka-lamowka) solid var(--chmurka-akcent);
+  background:var(--chmurka-wypelnienie);
+  box-shadow:var(--chmurka-cien-1),var(--chmurka-cien-2);
 }
 .medrzec-mysl-ogon > span:first-child{ top:0; right:0; width:25px; height:25px; }
-.medrzec-mysl-ogon > span:last-child{ bottom:0; left:0; width:15px; height:15px; }
+/* Najmniejsza kropka: 4 px lamowki zostawiloby 7 px wypelnienia i kropka
+   czytalaby sie jak kolko, nie jak myśl. Jedyne miejsce, gdzie grubosc schodzi. */
+.medrzec-mysl-ogon > span:last-child{ bottom:0; left:0; width:15px; height:15px; border-width:3px; }
 
 @keyframes medrzec-wejscie{
   from{ opacity:0; transform:translate(-50%,18px) scale(.94); }
@@ -1463,8 +1501,7 @@
   .medrzec-karta{ grid-template-columns:76px minmax(0,1fr); gap:4px; min-height:100px; padding:13px 38px 13px 5px; border-radius:34px; }
   .medrzec-glowa{ width:96px; height:96px; margin:-18px -8px -16px -9px; }
   .medrzec-tekst{ font-size:14px; }
-  .medrzec-akcje{ top:-10px; right:-8px; }
-  .medrzec-akcje button{ width:36px; height:36px; font-size:23px; }
+  .medrzec-akcje{ top:-10px; right:-8px; }   /* rozmiar guzika: wspólny `.chmurka-x` */
 }
 
 @media (prefers-reduced-motion:reduce){
@@ -3181,7 +3218,7 @@
   position:relative;
   overflow:visible;            /* dzióbek wychodzi poza box karty */
   cursor:pointer;
-  filter:drop-shadow(0 7px 0 color-mix(in srgb, var(--p-ink) 17%, transparent)) drop-shadow(0 14px 22px color-mix(in srgb, var(--noc-850) 34%, transparent));
+  filter:var(--chmurka-cien-filtr);
   animation:reflektor-oddech 3.2s ease-in-out .5s infinite;
 }
 
@@ -3190,6 +3227,14 @@
   position:absolute; left:0;
   pointer-events:none;
   overflow:visible;
+}
+/* Grubosc lamowki idzie z tokenu, nie z atrybutu `stroke-width` w JSX: atrybut
+   nie przyjmuje `var()`, a chmurka ma miec DOKLADNIE te sama kreske co karta
+   Medrca. Obrys SVG jest liczony od srodka sciezki, wiec polowa lezy wewnatrz
+   banki — dlatego wizualnie zgadza sie z lamowka DOM-owa tej samej wartosci. */
+.reflektor-ksztalt path{
+  stroke:var(--chmurka-akcent);
+  stroke-width:var(--chmurka-lamowka);
 }
 
 /* Warstwa mierzona przez `ResizeObserver` — to ONA wyznacza rozmiar bańki,
@@ -3201,9 +3246,15 @@
   text-align:center;
 }
 
+/* Postać stoi w lewym polu chmurki, na które `.reflektor-wnetrze` rezerwuje
+   `padding-left`. Domyślne wymiary są pod POPIERSIE Mędrca (`wizhead.svg`,
+   proporcje 648×770) — od 9.09.2026 Porada dnia używa tej samej głowy, co
+   chmurka Mędrca o ciele, zamiast osobnego wizerunku z palcem w górze.
+   Głowa wystaje ponad górną krawędź (jak moneta z kafelka w HUD-zie), ale
+   nie podnosi wysokości bańki: `position:absolute` trzyma ją poza pomiarem. */
 .reflektor-postac{
-  position:absolute; left:5px; bottom:0;
-  width:122px; height:auto;
+  position:absolute; left:6px; bottom:-3px;
+  width:114px; height:auto;
   margin:0;  /* postać wychyla się ponad chmurkę, ale nie zwiększa jej wysokości */
   filter:drop-shadow(0 4px 6px color-mix(in srgb, var(--noc-850) 35%, transparent));
   pointer-events:none;
@@ -3234,15 +3285,8 @@
   color:var(--p-ink,#4e4d76);
 }
 
-.reflektor-x{
-  position:absolute; top:-13px; right:-12px; z-index:2;
-  width:42px; height:42px;
-  display:grid; place-items:center;
-  border:2px solid rgba(255,255,255,.22); border-radius:50%;
-  background:var(--reflektor-akcent); color:#fff;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.22),0 4px 0 color-mix(in srgb,var(--reflektor-akcent) 62%,#3b2459),0 8px 14px rgba(36,20,65,.2);
-  font:900 27px/1 var(--font-display,"Baloo 2"),system-ui,sans-serif; cursor:pointer;
-}
+/* Wyglad guzika jest w `.chmurka-x` (wspolny z Medrcem) — tutaj tylko miejsce. */
+.reflektor-x{ position:absolute; top:-13px; right:-12px; z-index:2; }
 
 @media (max-width:360px){
   .reflektor-wnetrze{ min-height:104px; padding:14px 18px 14px 94px; }
@@ -3250,7 +3294,7 @@
   .reflektor-postac.jest-liskiem{ left:5px; width:88px; margin:0; }
   .reflektor-karta h2{ font-size:17px; }
   .reflektor-karta p{ font-size:12.5px; }
-  .reflektor-x{ top:-10px; right:-7px; width:36px; height:36px; font-size:23px; }
+  .reflektor-x{ top:-10px; right:-7px; }
 }
 
 @media (prefers-reduced-motion:reduce){

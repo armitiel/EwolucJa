@@ -208,7 +208,7 @@ const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true }
           <p className="medrzec-tekst">{porada.tekst}</p>
         </div>
         <div className="medrzec-akcje">
-          <button type="button" onClick={schowaj} aria-label="Zamknij podpowiedź">
+          <button type="button" className="chmurka-x" onClick={schowaj} aria-label="Zamknij podpowiedź">
             <span aria-hidden="true">×</span>
           </button>
         </div>
