@@ -1,12 +1,6 @@
-:root {
-  --hud-cream-top: #fff9d9;
-  --hud-cream-bottom: #f1d997;
-  --hud-gold-light: #fff19a;
-  --hud-gold: #efb937;
-  --hud-gold-deep: #b86a1c;
-  --hud-shadow: #8d4818;
-  --hud-ink: #473653;
-}
+/* Tokeny --hud-* mieszkaja w ../tokeny.css (jedno zrodlo dla calej gry),
+   linkowanym PRZED tym plikiem w index.html i w scena-3d/index.html.
+   Zasady: docs/SYSTEM_STYLOW.md. */
 
 .scena3d-hint,
 .scena3d-runmode,

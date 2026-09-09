@@ -1,0 +1,79 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   TOKENY — jedyne miejsce, w ktorym ustala sie wyglad EwolucJA.
+
+   Zasady sa w docs/SYSTEM_STYLOW.md. W skrocie:
+   - nowy kolor, promien, cien czy rozmiar wchodzi TU, nie do reguly komponentu,
+   - komponent czyta `var(--token)`, nie wpisuje `#hex`,
+   - wyjatek per ekran robi sie przez NADPISANIE ZMIENNEJ w kontenerze
+     (tak jak dzis `--cta-*` w `.popup-postaci`), nie przez nowa wartosc w elemencie.
+
+   DLACZEGO W public/, A NIE W src/:
+   `hud.css` sceny 3D laduje sie z index.html PRZED bundlem Reacta (musi byc
+   w dokumencie przed pierwszym malowaniem — patrz komentarz w index.html).
+   Gdyby tokeny siedzialy w bundlu, HUD narysowalby pierwsza klatke bez nich.
+   Ten plik jest wiec linkowany w index.html PRZED hud.css i obowiazuje wszedzie:
+   w hubie, w Przygodzie, w minigrach, w HUD-zie i na samodzielnej stronie
+   /scena-3d/.
+
+   WERSJA: plik w public/ nie ma hasha w nazwie, wiec po KAZDEJ zmianie podbij
+   `?v=N` przy obu linkach (index.html oraz scena-3d/index.html) — dokladnie
+   ta sama zasada, co dla hud.css i WERSJA_SCENY. Bez tego przegladarka poda
+   stare tokeny z cache.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. FUNDAMENT — paleta, kroje, promienie, cienie, skala CTA ─────────
+   Przeniesione 1:1 z src/styles/ewolucja.css (wrzesien 2026). */
+:root{
+  --p-sky-1:#B7E3FF; --p-sky-2:#FFE0B5; --p-leaf:#5FA76F; --p-leaf-dk:#2F5841;
+  --p-dusk:#E89A3D; --p-amber:#F4C95D; --p-magic:#B886E8; --p-magic-dk:#7A4DC2;
+  --p-paper:#FBF1D6; --p-paper-2:#F4E3B8; --p-ink:#4e4d76; --p-ink-soft:#5A4F77;
+  --p-rose:#F08C8C; --p-shadow: rgba(78,77,118,.18);
+
+  /* Typografia: Display = Baloo 2 (kid-friendly + pelne PL znaki), Body = Nunito */
+  --font-display: 'Baloo 2', system-ui, sans-serif;
+  --font-body: 'Nunito', system-ui, sans-serif;
+
+  --r-card:22px; --r-pill:999px;
+
+  /* ─── SKALA CTA (jedno zrodlo prawdy dla WSZYSTKICH przyciskow akcji) ───
+     Wzorcem jest zielony przycisk ze zwoju zadania ("OTWORZ"): 56 px wysokosci,
+     21 px liter, na cala szerokosc karty. Kazdy glowny przycisk w grze ma
+     wygladac DOKLADNIE tak samo - dziecko uczy sie jednego ksztaltu "tu sie
+     klika", zamiast zgadywac przy kazdym ekranie.
+     Wczesniej kazdy ekran ustawial sobie wlasna wysokosc (47 / 50 / 52 / 54 /
+     56 / 62 px) i CTA w zakladce zadania bylo zauwazalnie mniejsze od tego na
+     zwoju. Teraz kazdy ekran siega po te zmienne; jesli gdzies trzeba inaczej,
+     nadpisuje sie ZMIENNA w kontenerze, a nie wysokosc pojedynczego guzika.
+
+     --cta-*      = przycisk glowny (zielony, „zrob to")
+     --cta-sec-*  = przycisk drugorzedny / odmowa („nie teraz", „wroc") */
+  --cta-h:56px; --cta-fs:21px; --cta-pad:12px 20px; --cta-r:18px;
+  --cta-sec-h:48px; --cta-sec-fs:16px;
+
+  --shadow-sm: 0 2px 0 rgba(78,77,118,.08), 0 4px 14px rgba(78,77,118,.10);
+  --shadow-md: 0 3px 0 rgba(78,77,118,.10), 0 10px 24px rgba(78,77,118,.14);
+  --shadow-lg: 0 6px 0 rgba(78,77,118,.10), 0 20px 40px rgba(78,77,118,.20);
+}
+
+/* Niski ekran (telefon w poziomie, male okno) i bardzo waski telefon: cala
+   skala CTA schodzi RAZEM, w jednym miejscu. Wczesniej kazdy ekran mial wlasny
+   media query z wlasnymi liczbami i po zmniejszeniu okna przyciski przestawaly
+   byc rowne. Stoi PO bazowym :root w tym samym pliku, wiec przy dopasowaniu
+   media wygrywa — ta sama specyficznosc, pozniej w kaskadzie. */
+@media (max-height:600px), (max-width:360px){
+  :root{ --cta-h:50px; --cta-fs:18px; --cta-pad:10px 16px; --cta-sec-h:44px; --cta-sec-fs:15px; }
+}
+
+/* ── 2. HUD SCENY 3D — komplet zlota i kremu ───────────────────────────
+   Przeniesione 1:1 z public/scena-3d/hud.css. Docelowo (krok 2 planu)
+   te wartosci stana sie ROLAMI wspolnymi z fundamentem — dzis to wciaz
+   osobny komplet, ale juz w jednym pliku, obok reszty. */
+:root {
+  --hud-cream-top: #fff9d9;
+  --hud-cream-bottom: #f1d997;
+  --hud-gold-light: #fff19a;
+  --hud-gold: #efb937;
+  --hud-gold-deep: #b86a1c;
+  --hud-shadow: #8d4818;
+  --hud-ink: #473653;
+}

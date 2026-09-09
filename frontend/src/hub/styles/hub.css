@@ -1,7 +1,8 @@
 /* ─────────────────────────────────────────────────────────────────────────
    hub.css — warstwa UI nad sceną 3D.
    Wszystkie klasy mają prefiks `hub-`, żeby nie mieszać się z `ewolucja.css`
-   ani z `adventure.css`. Tokeny kolorów i cieni bierzemy z :root w ewolucja.css.
+   ani z `adventure.css`. Tokeny kolorów i cieni bierzemy z public/tokeny.css
+   (zasady: docs/SYSTEM_STYLOW.md).
    Viewport: `position: fixed` + `100dvh` + safe-area — ten sam wzorzec co
    PageShell, bo bez tego dok wjeżdża pod pasek adresu na iOS.
    ───────────────────────────────────────────────────────────────────────── */

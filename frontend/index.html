@@ -11,6 +11,13 @@
        proste boki liter, a logo ma byc bakowate. Jedna grubosc (800) - to
        jeden napis na jednym ekranie, nie ma po co ciagnac calej rodziny. -->
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Sniglet:wght@800&family=Nunito:wght@300;400;500;600;700;800;900&family=Mali:wght@400;500;700&family=Caveat:wght@400;700&display=swap" rel="stylesheet" />
+  <!-- TOKENY — jedyne zrodlo wygladu (paleta, kroje, promienie, cienie, skala
+       CTA, zloto HUD-u). Musi stac PRZED hud.css, bo hud.css czyta var(--hud-*)
+       i var(--p-*) juz w pierwszej klatce. Po zmianie w tokeny.css podbij ?v=N
+       tu i w scena-3d/index.html — ta sama zasada co dla hud.css.
+       Zasady: docs/SYSTEM_STYLOW.md -->
+  <link rel="stylesheet" href="/tokeny.css?v=1" />
+
   <!-- HUD swiata 3D. Wpiety TUTAJ, a nie wstrzykiwany z Reacta: arkusz musi byc
        w dokumencie przed pierwszym malowaniem. Wstrzykniety z komponentu dociera
        o klatke za pozno, wiec HUD zdazy sie narysowac bez stylow - ikony w swoim
