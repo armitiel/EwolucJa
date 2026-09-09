@@ -10,17 +10,92 @@
 
 Pominięcie tego pliku = stracona godzina na debugowanie znanych problemów.
 
+## Agenci, komendy i strażnik — czytaj zanim zaczniesz
+
+W repo są wyspecjalizowani subagenci (`.claude/agents/`). Użyj właściwego
+zamiast robić wszystko samodzielnie:
+
+| agent | do czego |
+|---|---|
+| `scena-3d` | cokolwiek wewnątrz bundla sceny, mapa, znaki, animacje |
+| `nowa-minigra` | dodanie gry, martwy kafelek gry |
+| `deploy` | commit, push, produkcja |
+| `narrator-gama` | każdy tekst, który widzi lub słyszy dziecko |
+| `tester-e2e` | sprawdzenie przed wypchnięciem |
+
+Komendy (`.claude/commands/`): `/deploy`, `/nowa-gra`, `/scena-patch`, `/e2e`, `/systemy`.
+
+**Strażnik sceny** (`.claude/hooks/straznik-sceny.mjs`) blokuje bezpośrednią
+edycję `public/scena-3d/scena3d*.js` i przypomina o `WERSJA_SCENY` po każdej
+zmianie w `public/scena-3d/`. To nie jest przeszkoda do obejścia — bundle
+naprawdę nie jest kodem źródłowym.
+
+**Mapa systemów gry:** [`docs/SYSTEMY_GRY.md`](./docs/SYSTEMY_GRY.md) —
+kanały oddziaływania na dziecko, pętle zadaniowe, ekonomia, przepisy na nowy
+element i aktualne luki. Czytaj, zanim dołożysz cokolwiek, co odzywa się do gracza.
+
 ## Stack — szybka referencja
 
 - **Frontend:** Vite + React 18 + react-router-dom v6 (`frontend/`)
 - **Backend:** Express jako Vercel Function (`api/index.js` → `backend/src/server.js`)
 - **DB:** Neon Postgres (`POSTGRES_URL` w Vercel env)
+- **Błędy:** Sentry — `VITE_SENTRY_DSN` (front), `SENTRY_DSN` (back); patrz sekcja „Sentry" niżej
 - **TTS:** ElevenLabs (`ELEVENLABS_*`)
 - **AI (tekst):** Claude API (`ANTHROPIC_API_KEY`) — narracja, profile
 - **AI (obrazy):** patrz sekcja „Generowanie grafik" niżej — są DWA generatory
 - **Production URL:** https://ewolucja-azure.vercel.app
 - **Production branch:** `v2-postgres-vercel` (NIE `main`)
 - **Repo:** github.com/armitiel/EwolucJa
+
+## `tmp/` NIE jest śmietnikiem — pisze tam lokalny Postgres
+
+W `tmp/` leżał prawdziwy śmieć (979 MB porzuconych profili Chrome CDP,
+skasowane 2026-09-08), ale **`tmp/pg.log` to działający dziennik lokalnego
+Postgresa** z historią od sierpnia. Katalogu nie kasuj w całości — usuwaj
+z niego wyłącznie profile `chrome-cdp*` i `chrome-gpu`.
+
+Przy próbie usunięcia całego `tmp/` 2026-09-08 Postgres przeszedł restart
+z odtworzeniem (`redo done`, checkpoint bez straty danych) i wstał czysto.
+Drugi raz może nie być tak łagodnie.
+
+## `agents/world/*.md` to DANE URUCHOMIENIOWE, nie dokumentacja
+
+`backend/src/services/narrativeService.js` czyta przy starcie:
+
+```
+agents/world/zakatek_gama.md    -> WORLD_LORE
+agents/world/archetypes.md      -> ARCHETYPE_LORE
+```
+
+Katalog `agents/` wygląda na martwy (skrypt `game_master.py` nie jest nigdzie
+uruchamiany), ale **podkatalog `world/` jest wczytywany przez backend w czasie
+działania**. Przeniesienie go daje ciche `ENOENT` w logu i narrację bez lore —
+gra wstaje, tylko głupieje. Dokładnie to stało się 2026-09-08.
+
+`agents/world/quiz_osobowosci.md` jest dodatkowo źródłem prawdy dla quizu
+w `backend/src/api/onboarding.js` (sekcja 5) — zsynchronizowane ręcznie.
+
+## Gdzie co leży — reguły po porządkach z 2026-09-08
+
+| rzecz | miejsce | czego NIE robić |
+|---|---|---|
+| **tokeny wyglądu** (paleta, kroje, promienie, cienie, skala CTA, złoto HUD-u) | `frontend/public/tokeny.css` — linkowany w `index.html` PRZED `hud.css` | **nie wpisywać `#hex` w regule komponentu ani w `style={{}}`** — komponent czyta `var(--token)`; zasady i plan: [`docs/SYSTEM_STYLOW.md`](./docs/SYSTEM_STYLOW.md); po zmianie tokenów podbij `?v=N` w obu `index.html` |
+| dane treściowe | `frontend/src/data/` (JS) lub `frontend/src/hub/data/` (JSON) | nie zostawiać ich w korzeniu `src/` |
+| źródła graficzne (.psd/.ai/.psb) | `zrodla-graficzne/` w korzeniu repo | **nigdy pod `frontend/public/`** — wszystko stamtąd Vercel serwuje publicznie |
+| eksporty używane przez grę | `frontend/public/assets/` w formacie webowym | nie commitować źródeł obok |
+| kopie zapasowe | git | `.bak-*` w `public/` to bomba z opóźnionym zapłonem |
+| kod bez importów | `_do_usuniecia/` | nie zostawiać „na wszelki wypadek" w `src/` |
+
+**PUŁAPKA — backend importuje z frontendu.** `backend/src/api/cycles.js` robi
+`import { MENTOR_TASK_LIBRARY } from "../../../frontend/src/data/mentorTaskLibrary.js"`.
+Przeniesienie albo zmiana nazwy tego pliku **wywala produkcję**, a nic w
+`frontend/` o tym nie uprzedza. To jedyne takie miejsce w repo i dług
+do spłacenia (dane powinny być wspólną paczką albo tabelą w bazie).
+
+**Prototyp V1** (`src/App.jsx`, 1698 linii, stare krainy `dolina_selfie`…)
+wisi na `/play`, osiągalny tylko z pulpitu `/dev`. Od 2026-09-08 jest ładowany
+leniwie — jego 72 KB nie jedzie już w paczce startowej. Nie importuj go
+statycznie z powrotem.
 
 ## Konwencje kodu
 
@@ -205,3 +280,50 @@ tylko baza.
 
 Gdy panel Mentora ruszy: `DEMO_SAM_ZATWIERDZA = false` i tyle. Reszta toru
 (sprawdzanie, karta w zwoju, ekran nagrody) jest wspólna dla obu dróg.
+
+## Sentry — błędy z produkcji
+
+Wpięte 2026-09-08. Dwa osobne projekty w organizacji `armitiel` (region DE):
+`ewolucja-frontend` (przeglądarka dziecka) i `ewolucja-backend` (funkcja Vercela).
+
+| gdzie | plik | zmienna |
+|---|---|---|
+| front | `frontend/src/services/sentry.js`, importowany PIERWSZĄ linią `main.jsx` | `VITE_SENTRY_DSN` |
+| back | `api/sentry.js`, importowany PIERWSZYM importem `api/index.js` | `SENTRY_DSN` |
+
+**Kolejność importu jest wymaganiem, nie stylem.** SDK instrumentuje moduły
+(http, express, pg) w chwili `init` — init po imporcie serwera nie objąłby już
+żadnej trasy. To samo na froncie: globalne łapacze mają stać przed pierwszym
+renderem Reacta.
+
+**Bez DSN oba moduły są no-opem.** Lokalny `npm run dev` nie wysyła nic i nie
+wymaga konfiguracji — dlatego w `.env.example` `SENTRY_DSN` jest puste.
+
+**Flush w funkcji Vercela.** `api/index.js` czeka na koniec odpowiedzi
+(`finish`/`close`) i dopiero wtedy woła `Sentry.flush(2000)`. Bez tego Vercel
+zamraża funkcję, zanim zdarzenie wyjedzie — błąd byłby zgłoszony i przepadł.
+
+**Świadome decyzje — użytkownikiem jest dziecko 6-12 lat:**
+
+- **Session Replay wyłączony.** Nagrywanie ekranu małoletniego to zgoda
+  rodzica i wpis w polityce prywatności, nie efekt uboczny wpięcia SDK.
+- **`sendDefaultPii: false`** — żadnego IP, ciasteczek ani nagłówków.
+- **`tracesSampleRate: 0`** — scena 3D generowałaby lawinę spanów, a darmowy
+  plan ma na nie limit.
+
+**Mapy źródłowe.** `@sentry/vite-plugin` wgrywa je przy buildzie i kasuje
+z `dist/` (`filesToDeleteAfterUpload`) — same mapy w `dist/` Vercel
+serwowałby publicznie, czyli oddawał cały kod źródłowy gry. Wtyczka
+i `build.sourcemap` włączają się WYŁĄCZNIE, gdy w środowisku jest
+`SENTRY_AUTH_TOKEN` (produkcja Vercela). Bez tokena build przechodzi jak
+dotąd, tylko bez map.
+
+**Wtyczka ładuje się dynamicznie, i to nie jest ozdobnik.** Na tej maszynie
+`NODE_ENV=production`, więc `npm install` pomija devDependencies — statyczny
+`import` z `@sentry/vite-plugin` wywalałby lokalny build komunikatem
+o brakującym module, nijak niezwiązanym z prawdziwą przyczyną. Z tego samego
+powodu instalacja czegokolwiek deweloperskiego wymaga tu `--include=dev`.
+
+**Region ma znaczenie.** Organizacja siedzi w regionie europejskim, więc
+wtyczka dostaje `url: "https://de.sentry.io/"`. Domyślne `https://sentry.io/`
+zwraca 404 przy wgrywaniu map.
