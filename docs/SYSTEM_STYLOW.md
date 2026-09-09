@@ -150,7 +150,7 @@ z fundamentu korzysta.
 | 2 | **Warstwa ról** — `--tlo-*`, `--tekst-*`, `--akcent-*`, `--lamowka-*`, `--cien-*` zmapowane na prymitywy; `.adv-root` i `.game-hud` stają się motywami przemapowującymi role | „jedna zmiana idzie wszędzie" zaczyna działać naprawdę | fundament + HUD + Przygoda czytają role; cztery złota sprowadzone do jednej rampy `--zloto-*` | ✅ 9.09.2026 — rampa `--zloto-100…800`, `--p-amber`/`--hud-gold*`/`--adv-gold` jako aliasy; 16 ról w `:root`; motywy `.game-hud` i `.adv-root`; pierwsi konsumenci: `.game-hud-counter` (HUD) i `.adv-choice` (Przygoda). Masowe przepięcie komponentów na role = krok 3 |
 | 3 | **Nazwanie barw + skala odstępów** — z danych klastrowania: rampy złota, kremu, ochry, brązu, nocy, fioletu, czerwieni; `--o-1…8` | koniec bezimiennych wartości tam, gdzie ma to sens; `scripts/tokenizuj-barwy.mjs` podmienia użycia na `var()` | każda barwa z ≥ 7 użyciami ma token; odstępy tylko ze skali w nowym kodzie | ✅ 9.09.2026 — 47 nowych prymitywów w `tokeny.css` sekcja 0 (wartości 1:1 z arkuszy, zero zmian wizualnych; 4 odcienie ΔE < 4 scalone wg polityki z kroku 1); 695 podmian w 14 arkuszach, w tym 397 z alfa przez `color-mix`; `--hud-cream-top`, `--adv-panel`, `--tlo-jasne`, `--akcent-drugi-cien` wskazują na rampy. Kryterium „< 60 barw bez tokenu" **świadomie zmienione**: zostało 330 barw (604 użycia), ale każda ma ≤ 6 wystąpień — nazwanie ich wszystkich dałoby 330 tokenów, których nikt nie użyje drugi raz. Zasada od teraz: barwa dostaje token, gdy ma trzecie miejsce użycia (patrz §6). Skala `--o-*` = tylko definicje; stary kod nie jest przepisywany |
 | 4 | **Style inline w JSX → tokeny** — 290 wystąpień, zacząć od panelu Mentora (76) i `MissionView` (35); `App.jsx` (V1, 52) zostawić, bo jest martwy dla dziecka | panel Mentora przestaje być piątym światem | żaden żywy ekran nie ma `#hex` w `style={{}}` | ⏳ |
-| 5 | **Komponenty wspólne** — `.plansza-gry` (dziś `.kolo-fortuny` i `.puzzle-brama` dzielą 85% deklaracji), `.okno` (popup / mentor-notice / nagroda), `.kafel-okragly` (34× ten sam trzyelementowy zestaw) | jedna zmiana w elemencie wspólnym zamiast łapania każdego osobno | każdy z trzech ma jedną regułę bazową i modyfikatory | ⏳ |
+| 5 | **Komponenty wspólne** — `.plansza-gry` (dziś `.kolo-fortuny` i `.puzzle-brama` dzielą 85% deklaracji), `.okno` (popup / mentor-notice / nagroda), `.kafel-okragly` (34× ten sam trzyelementowy zestaw) | jedna zmiana w elemencie wspólnym zamiast łapania każdego osobno | każdy z trzech ma jedną regułę bazową i modyfikatory | ⏳ — **pierwszy zrobiony poza kolejnością: chmurka komunikatu** (9.09.2026). Mędrzec, lisek i Porada dnia miały trzy lamówki, trzy grubości, dwa tła i dwa krzyżyki; teraz różnią się jedną linią — `--chmurka-akcent` na kontenerze. Kontrakt: `tokeny.css` sekcja 7 + blok „chmurki komunikatów" w `hub.css`; krzyżyk to wspólny `.chmurka-x`. Wzorzec do powtórzenia przy `.okno` |
 | 6 | **Porządek `hud.css`** — bloki `@media` na koniec, potem scalenie 19 zablokowanych grup selektorów | plik, któremu da się wierzyć przy czytaniu | zero powtórzonych selektorów; sprawdzone na 340 i 390 px | ⏳ |
 
 Co jest celowo **poza** planem: paleta mapy (`mapa.json`) i palety sceny WebGL
@@ -196,6 +196,16 @@ i `public/scena-3d/index.html`) — inaczej przeglądarka poda stare tokeny z ca
 (`.okno`, `.plansza-gry`, `.kafel-okragly` po kroku 5). Jeśli nowy: reguła
 bazowa czyta wyłącznie role i skalę odstępów; warianty przez klasę
 modyfikującą, stany przez `.is-*` (tak jak dziś `.is-active`, `.is-open`).
+
+**…zmieniam wygląd chmurki (Mędrzec, lisek, Porada dnia).** To JEDEN
+komponent w dwóch technikach: karta DOM (`PodpowiedzMedrca`) i ścieżka SVG
+z dzióbkiem (`Reflektor` + `ksztaltChmurki.js`). Grubość lamówki, wypełnienie
+(„glina"), cień i krzyżyk stoją w `tokeny.css` sekcja 7 — zmiana tam idzie do
+wszystkich trzech naraz. Kolor jednej chmurki zmienia się przez
+`--chmurka-akcent` na jej kontenerze (`.medrzec-podpowiedz`,
+`.reflektor.jest-liskiem`, `.reflektor.jest-wizkorem`) — nigdy w regule
+lamówki. Nie wpisuj barwy w `style={{}}` komponentu: tak było i skończyło się
+trzema różnymi fioletami.
 
 **…muszę coś poprawić w `hud.css`.** Znajdź istniejącą regułę (Ctrl+F po
 selektorze — może być kilka trafień, obowiązuje ostatnia) i zmień ją tam.
