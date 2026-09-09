@@ -67,7 +67,7 @@ i przycisk w hubie to **jedna reguła**, którą kontener przebarwia.
 
 ---
 
-## 3. Pięć reguł — każda z powodem
+## 3. Sześć reguł — każda z powodem
 
 **1. Nowa wartość wchodzi do `tokeny.css`, nie do reguły komponentu.**
 Powód: przed scaleniem było 892 barw na 36 tokenów. 96% kolorów było wpisanych
@@ -96,15 +96,29 @@ Powód: reguła bazowa dopisana PO bloku media wygrywa z nim na wąskim ekranie
 nie da się dziś bezpiecznie scalić właśnie dlatego, że warianty na 340 i 390 px
 siedzą w środku pliku, a łatki pod nimi.
 
+**6. Przezroczystość to `color-mix`, nie osobna barwa.**
+`rgba(79,43,12,.5)` to ten sam brąz co `#4F2B0C`, tylko z alfa — a jednak
+przed krokiem 3 był dla wszystkich narzędzi osobnym kolorem, którego żadna
+zmiana rampy nie dosięgała. Zapis obowiązujący:
+`color-mix(in srgb, var(--braz-800) 50%, transparent)`. Ta sama barwa co
+`rgba`, ale idzie za tokenem. Nie twórz wariantów `--braz-800-50`. Jedyny
+wyjątek: definicja innego tokenu (`--cos: …`) dostaje tylko nieprzezroczysty
+`var()`, nigdy `color-mix` — gdyby JS kiedyś czytał `getPropertyValue`,
+dostałby funkcję zamiast koloru.
+
 ---
 
-## 4. Skala odstępów (do wprowadzenia w kroku 3)
+## 4. Skala odstępów (zdefiniowana w kroku 3, `tokeny.css` sekcja 6)
 
-Dziś: 29 wartości, najczęstsze `8` (87×), `12` (81×), `10` (77×), `2`, `14`,
-`6`, `7`, `9`, `18`… — czyli każda liczba, jaka przyszła do głowy przy
-konkretnym elemencie.
+Dziś: 38 różnych wartości w `padding`/`gap`/`margin` ośmiu głównych arkuszy
+(9.09.2026), najczęstsze `8` (83×), `12` (82×), `10` (79×), `2`, `14`, `6`,
+`7`, `9`, `18`… — czyli każda liczba, jaka przyszła do głowy przy konkretnym
+elemencie.
 
-Docelowo osiem stopni, z których siedem już jest najczęstsze w kodzie:
+Osiem stopni, z których siedem już jest najczęstsze w kodzie. **Nowy kod
+bierze odstęp ze skali. Stary nie jest przepisywany hurtem** — część
+„dziwnych" liczb to świadome dopasowanie do grafiki (obrys kafla, kadr
+ikony) i automat by je popsuł. Przepisuje się przy okazji dotykania reguły.
 
 ```
 --o-1: 2px    włos — obrysy, korekty optyczne
@@ -134,7 +148,7 @@ z fundamentu korzysta.
 | 0 | **Zasady na piśmie** — ten dokument + wskaźnik w CLAUDE.md | dalszy dryf zatrzymany: każdy agent i człowiek wie, gdzie wchodzi nowy kolor | plik istnieje, CLAUDE.md go wskazuje | ✅ 9.09.2026 |
 | 1 | **Jedno źródło tokenów** — `:root` z `ewolucja.css` i `hud.css` przeniesiony do `public/tokeny.css`, linkowany przed `hud.css` | jedno miejsce, w którym ustala się wygląd; HUD i React czytają te same nazwy | zero zmian wizualnych; `getComputedStyle(root)` zwraca te same wartości co przed | ✅ 9.09.2026 |
 | 2 | **Warstwa ról** — `--tlo-*`, `--tekst-*`, `--akcent-*`, `--lamowka-*`, `--cien-*` zmapowane na prymitywy; `.adv-root` i `.game-hud` stają się motywami przemapowującymi role | „jedna zmiana idzie wszędzie" zaczyna działać naprawdę | fundament + HUD + Przygoda czytają role; cztery złota sprowadzone do jednej rampy `--zloto-*` | ✅ 9.09.2026 — rampa `--zloto-100…800`, `--p-amber`/`--hud-gold*`/`--adv-gold` jako aliasy; 16 ról w `:root`; motywy `.game-hud` i `.adv-root`; pierwsi konsumenci: `.game-hud-counter` (HUD) i `.adv-choice` (Przygoda). Masowe przepięcie komponentów na role = krok 3 |
-| 3 | **Nazwanie 344 barw + skala odstępów** — z danych klastrowania: rampy złota, brązu (twarde cienie HUD-u), kremu, nocy; `--o-1…8` | koniec bezimiennych wartości; drugi przebieg `scripts/ujednolic-barwy.mjs` podmienia użycia na `var()` | mniej niż 60 barw bez tokenu; odstępy tylko ze skali w nowym kodzie | ⏳ |
+| 3 | **Nazwanie barw + skala odstępów** — z danych klastrowania: rampy złota, kremu, ochry, brązu, nocy, fioletu, czerwieni; `--o-1…8` | koniec bezimiennych wartości tam, gdzie ma to sens; `scripts/tokenizuj-barwy.mjs` podmienia użycia na `var()` | każda barwa z ≥ 7 użyciami ma token; odstępy tylko ze skali w nowym kodzie | ✅ 9.09.2026 — 47 nowych prymitywów w `tokeny.css` sekcja 0 (wartości 1:1 z arkuszy, zero zmian wizualnych; 4 odcienie ΔE < 4 scalone wg polityki z kroku 1); 695 podmian w 14 arkuszach, w tym 397 z alfa przez `color-mix`; `--hud-cream-top`, `--adv-panel`, `--tlo-jasne`, `--akcent-drugi-cien` wskazują na rampy. Kryterium „< 60 barw bez tokenu" **świadomie zmienione**: zostało 330 barw (604 użycia), ale każda ma ≤ 6 wystąpień — nazwanie ich wszystkich dałoby 330 tokenów, których nikt nie użyje drugi raz. Zasada od teraz: barwa dostaje token, gdy ma trzecie miejsce użycia (patrz §6). Skala `--o-*` = tylko definicje; stary kod nie jest przepisywany |
 | 4 | **Style inline w JSX → tokeny** — 290 wystąpień, zacząć od panelu Mentora (76) i `MissionView` (35); `App.jsx` (V1, 52) zostawić, bo jest martwy dla dziecka | panel Mentora przestaje być piątym światem | żaden żywy ekran nie ma `#hex` w `style={{}}` | ⏳ |
 | 5 | **Komponenty wspólne** — `.plansza-gry` (dziś `.kolo-fortuny` i `.puzzle-brama` dzielą 85% deklaracji), `.okno` (popup / mentor-notice / nagroda), `.kafel-okragly` (34× ten sam trzyelementowy zestaw) | jedna zmiana w elemencie wspólnym zamiast łapania każdego osobno | każdy z trzech ma jedną regułę bazową i modyfikatory | ⏳ |
 | 6 | **Porządek `hud.css`** — bloki `@media` na koniec, potem scalenie 19 zablokowanych grup selektorów | plik, któremu da się wierzyć przy czytaniu | zero powtórzonych selektorów; sprawdzone na 340 i 390 px | ⏳ |
@@ -157,10 +171,23 @@ drugiej reguły. Komponent czyta role (`--tlo-karty`, `--tekst`, `--lamowka`),
 a motyw na kontenerze (`.game-hud`, `.adv-root` w `tokeny.css`, sekcja 5)
 przemapowuje je. Jeśli motywowi brakuje roli — dopisz ją tam, nie w komponencie.
 
-**…potrzebuję nowego koloru, którego nie ma.** Sprawdź najpierw, czy nie ma go
-w promieniu ΔE 4 od istniejącego — `node scripts/ujednolic-barwy.mjs --sucho`
-pokaże, do której grupy by wpadł. Jeśli naprawdę nowy: prymityw do
-`tokeny.css`, rola nad nim, i dopiero `var(--rola)` w komponencie.
+**…potrzebuję nowego koloru, którego nie ma.** Najpierw rampy w `tokeny.css`
+sekcja 0 — prawie na pewno jest tam stopień, który pasuje (numer = ciemność,
+50 jasny → 950 ciemny). Potem sprawdź, czy nie leży w promieniu ΔE 4 od
+istniejącego — `node scripts/ujednolic-barwy.mjs --sucho` pokaże, do której
+grupy by wpadł. Jeśli naprawdę nowy: prymityw do rampy (z numerem między
+sąsiadami), rola nad nim, i dopiero `var(--rola)` w komponencie.
+
+**…widzę w arkuszu `#hex`, którego nie ma w tokenach.** To jedna z 330 barw
+o ≤ 6 użyciach, celowo zostawionych jako literały. Zasada trzeciego użycia:
+pierwsze i drugie miejsce może być literałem, przy trzecim barwa dostaje
+token w rampie i `node scripts/tokenizuj-barwy.mjs` podmienia wszystkie
+trzy. Skrypt jest bezstratny (podmienia tylko dokładne trafienia w token),
+więc można go puszczać po każdym dopisaniu do ramp.
+
+**…zmieniam `tokeny.css`.** Podbij `?v=N` przy obu linkach (`frontend/index.html`
+i `public/scena-3d/index.html`) — inaczej przeglądarka poda stare tokeny z cache.
+`hud.css` ma własne `?v=` na tej samej zasadzie.
 
 **…jeden ekran ma mieć mniejsze przyciski.** Kontener tego ekranu:
 `.moj-ekran { --cta-h: 48px; --cta-fs: 17px; }`. Nic w samym guziku.

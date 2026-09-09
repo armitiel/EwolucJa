@@ -79,7 +79,7 @@ w `backend/src/api/onboarding.js` (sekcja 5) — zsynchronizowane ręcznie.
 
 | rzecz | miejsce | czego NIE robić |
 |---|---|---|
-| **tokeny wyglądu** (paleta, kroje, promienie, cienie, skala CTA, złoto HUD-u) | `frontend/public/tokeny.css` — linkowany w `index.html` PRZED `hud.css` | **nie wpisywać `#hex` w regule komponentu ani w `style={{}}`** — komponent czyta `var(--token)`; zasady i plan: [`docs/SYSTEM_STYLOW.md`](./docs/SYSTEM_STYLOW.md); po zmianie tokenów podbij `?v=N` w obu `index.html` |
+| **tokeny wyglądu** (paleta, kroje, promienie, cienie, skala CTA, złoto HUD-u) | `frontend/public/tokeny.css` — linkowany w `index.html` PRZED `hud.css` | **nie wpisywać `#hex` w regule komponentu ani w `style={{}}`** — komponent czyta `var(--token)`; przezroczystość przez `color-mix(in srgb, var(--token) P%, transparent)`, nie `rgba`; zasady i plan: [`docs/SYSTEM_STYLOW.md`](./docs/SYSTEM_STYLOW.md); po zmianie tokenów podbij `?v=N` w obu `index.html`; po dopisaniu barwy do rampy: `node scripts/tokenizuj-barwy.mjs` (bezstratnie podmienia literały na `var()`) |
 | dane treściowe | `frontend/src/data/` (JS) lub `frontend/src/hub/data/` (JSON) | nie zostawiać ich w korzeniu `src/` |
 | źródła graficzne (.psd/.ai/.psb) | `zrodla-graficzne/` w korzeniu repo | **nigdy pod `frontend/public/`** — wszystko stamtąd Vercel serwuje publicznie |
 | eksporty używane przez grę | `frontend/public/assets/` w formacie webowym | nie commitować źródeł obok |

@@ -279,6 +279,24 @@ mcp__Windows-MCP__PowerShell({
 - Polskie znaki w commit message → ten sam problem co w cmd. Użyj transliteracji ("scrollu" zamiast "scroll'a", "wiekszy" zamiast "większy").
 - `Stop-Process -Name git -Force` ratuje gdy `index.lock` się zaciął: `Get-Process -Name git -ErrorAction SilentlyContinue | Stop-Process -Force; Remove-Item .git\index.lock -Force -EA SilentlyContinue`
 
+### Push „wisi" bez błędu — Git Credential Manager pyta o konto (sesja 2026-09-09)
+
+**Objaw:** `git push` nie kończy się przez minuty, bez żadnego komunikatu; w Task Managerze wisi `git-credential-manager.exe`. Przyczyna: w Menedżerze poświadczeń Windows jest kilka kont GitHub, więc GCM otwiera okno „wybierz konto" (`SelectAccountAsync`), którego agent nie widzi.
+
+**Fix na stałe (już wdrożony w tym repo):**
+```
+git config credential.https://github.com.username armitiel
+```
+Z ustawionym username GCM bierze poświadczenie tego konta bez pytania.
+
+**Test, czy push przejdzie bez pytań (nie zawiśnie):**
+```
+cmd /c "cd /d C:\Users\DELL\EwolucJA && set GIT_TERMINAL_PROMPT=0 && git -c credential.interactive=never push origin v2-postgres-vercel 2>&1"
+```
+Jeśli coś jest nie tak, ta forma zwraca błąd od razu zamiast wisieć. Zawieszony git zabij: `taskkill /F /IM git.exe /IM git-credential-manager.exe`.
+
+**Commit z długą wiadomością:** cmd łamie się na `|`, `&`, `%` i polskich znakach — wiadomość wpisz do pliku (`tmp\commit.txt`) i użyj `git commit -F tmp\commit.txt`.
+
 ### Mount sync — git nie widzi zmian z Edit/Write
 
 **Objaw świeży z tej sesji:** Edit zwraca sukces, plik na dysku ma zmiany, ale `git status` ich nie widzi (zwraca `working tree clean` lub ignoruje konkretny plik).
