@@ -9,12 +9,13 @@
 
   Czym jest: rzut z góry na `mapa.json` — plik, z którego scena bierze całą
   geometrię (ścieżkę, rzekę, most, bramę, drzewa, głazy, kwiaty, budynki i znaki minigier).
-  Bundle sceny jest zminifikowany i nie ma źródeł, więc `scripts/mapa-hook.py`
-  otworzył w nim te literały na odczyt z `globalThis.__SCENA3D_MAPA`. Tu tę mapę
-  rysujemy i zapisujemy z powrotem.
+  Scena (źródła: `frontend/scena-3d-src/`) czyta mapę z `globalThis.__SCENA3D_MAPA`.
+  Tu tę mapę rysujemy i zapisujemy z powrotem.
 
-  Dlaczego plan 2D, a nie klikanie w 3D: świat jest płaski (teren ma stałą
-  wysokość 0, wystaje tylko most), więc pozycja to para liczb X/Z. Rzut z góry
+  Dlaczego plan 2D, a nie klikanie w 3D: świat jest KULĄ, ale cała logika gry
+  liczy się na jej płaskim rozwinięciu ze środka mapy (rzut azymutalny
+  równoodległościowy — patrz `scena-3d-src/src/planeta.js`). Pozycja to więc
+  dalej para liczb X/Z (teren ma stałą wysokość 0, wystaje tylko most). Rzut z góry
   daje precyzję co do dziesiątej części metra i nie wymaga wciągania three.js
   do narzędzia. Podgląd 3D siedzi obok w iframe i czyta wersję roboczą
   z localStorage — dlatego zmiany widać bez zapisywania pliku.
@@ -877,9 +878,11 @@ function rysujWlasciwosci() {
     box.innerHTML = '<p class="pusty">Nic nie zaznaczone — poniżej ustawienia całego świata.</p><h2>Świat</h2>';
     poleTekst(box, 'promień', mapa.swiat?.promien, (v) => { mapa.swiat.promien = v; zmiana(); }, 'number');
     poleTekst(box, 'teren', mapa.swiat?.teren, (v) => { mapa.swiat.teren = v; zmiana(); }, 'number');
+    poleSuwak(box, 'promień kuli', mapa.swiat?.promienKuli ?? 8, { min:4, max:30, krok:.25 }, (v) => { mapa.swiat.promienKuli = v; zmiana(); });
     poleSuwak(box, 'szer. rzeki', mapa.rzeka?.szerokosc, { min:.4, max:4, krok:.1 }, (v) => { mapa.rzeka.szerokosc = v; zmiana(); });
     ustawieniaLuku(box);
     podpowiedz(box, 'Promień to granica chodzenia bohatera, teren to bok trawy pod sceną. Rzeka wyznacza, gdzie chodzić NIE można — z wyjątkiem mostu.');
+    podpowiedz(box, 'PLANETA: świat jest kulą, a ten plan to jej rozwinięcie ze środka (odległości od środka są prawdziwe, przy skraju rzeczy zbliżają się do siebie). „Promień kuli” mówi, jak mała jest planeta: 8 = cała mapa opasuje ją prawie dookoła, 20 = łagodna krzywizna.');
     return;
   }
 

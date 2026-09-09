@@ -1,5 +1,12 @@
 # narzedzia — łatki na zbudowany moduł sceny
 
+> **NIEAKTUALNE OD 2026-09-09.** Scena ma źródła w `frontend/scena-3d-src/`,
+> a wszystko, co robiły poniższe łatki (czarodziej, nurt rzeki, gałęzie,
+> gibanie drzew, cień, znaki…), jest tam zwykłym kodem. **Nie uruchamiaj
+> tych skryptów na nowym bundlu** — nie trafią (i mają wtedy przerwać), a jeśli
+> trafią, zepsują build. Zostają jako dokumentacja historii. Nadal aktualne:
+> `przemaluj-piorko.py` (tekstura modelu) i skrypty operujące na `mapa.json`.
+
 Scena 3D (`public/scena-3d/scena3d.js` i `scena3d.esm.js`) jest **zminifikowanym
 bundlem**, a nie kodem źródłowym. Zmian nie da się w nim czytać z diffa, więc
 każda wchodzi przez skrypt, który podmienia konkretne łańcuchy i **przerywa

@@ -20,7 +20,7 @@
  * Mówi tylko wtedy, gdy muzyka jest włączona: przycisk w HUD-zie jest dla
  * dziecka „ciszej w grze", a nie „ciszej, ale głos i tak wejdzie".
  */
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import bgMusic from "../services/bgMusic.js";
 import { ttsPlayer } from "../services/ttsPlayer.js";
 import DANE from "../hub/data/porady-zdrowia.v1.json";
@@ -47,7 +47,7 @@ function wybierzPorade() {
   return wybrana;
 }
 
-export default function PodpowiedzMedrca({ aktywna = true }) {
+const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true }, ref) {
   const [porada, setPorada] = useState(null);
   const licznik = useRef(0);
   const timerPokazu = useRef(null);
@@ -93,6 +93,32 @@ export default function PodpowiedzMedrca({ aktywna = true }) {
     timerUkrycia.current = window.setTimeout(schowaj, WIDOCZNA);
   }, [powtorz, schowaj]);
 
+  const pokazWymuszone = useCallback((id) => {
+    wymuszone.current = true;
+    pokaz(id);
+  }, [pokaz]);
+
+  const reset = useCallback(() => {
+    licznik.current = 0;
+    wymuszone.current = false;
+    try {
+      localStorage.removeItem(KLUCZ_OSTATNIA);
+      localStorage.removeItem(KLUCZ_HISTORIA);
+    } catch {}
+    return "Medrzec: limit i historia wyzerowane";
+  }, []);
+
+  const lista = useCallback(() => (DANE.porady || []).map((p) => p.id), []);
+
+  // Ten sam sterownik dostają hub, pulpit DEV i konsola. Dzięki temu testowa
+  // chmurka nie ma osobnej, łatwej do zerwania ścieżki renderowania.
+  useImperativeHandle(ref, () => ({
+    pokaz: pokazWymuszone,
+    schowaj,
+    reset,
+    lista,
+  }), [lista, pokazWymuszone, reset, schowaj]);
+
   useEffect(() => {
     if (!aktywna && !wymuszone.current) {
       // Panel przykrył hub: chowamy dymek i wstrzymujemy zegar, ale NIE zerujemy
@@ -131,24 +157,13 @@ export default function PodpowiedzMedrca({ aktywna = true }) {
   //   window.medrzec.lista()        - id wszystkich porad
   useEffect(() => {
     window.medrzec = {
-      pokaz: (id) => {
-        wymuszone.current = true;
-        pokaz(id);
-      },
+      pokaz: pokazWymuszone,
       schowaj,
-      reset: () => {
-        licznik.current = 0;
-        wymuszone.current = false;
-        try {
-          localStorage.removeItem(KLUCZ_OSTATNIA);
-          localStorage.removeItem(KLUCZ_HISTORIA);
-        } catch {}
-        return "Medrzec: limit i historia wyzerowane";
-      },
-      lista: () => (DANE.porady || []).map((p) => p.id),
+      reset,
+      lista,
     };
     return () => { delete window.medrzec; };
-  }, [pokaz, schowaj]);
+  }, [lista, pokazWymuszone, reset, schowaj]);
 
   // Lokalny podgląd wizualny: `/swiat?medrzec=woda`. Działa wyłącznie w
   // buildzie developerskim, więc nie tworzy ukrytego wejścia w produkcji.
@@ -161,13 +176,12 @@ export default function PodpowiedzMedrca({ aktywna = true }) {
     const pokazGdyWidacSwiat = () => {
       if (window.__chmuryWisza && Date.now() - start < 12000) return;
       window.clearInterval(zegar);
-      wymuszone.current = true;
-      pokaz(id);
+      pokazWymuszone(id);
     };
     const zegar = window.setInterval(pokazGdyWidacSwiat, 250);
     pokazGdyWidacSwiat();
     return () => window.clearInterval(zegar);
-  }, [pokaz]);
+  }, [pokazWymuszone]);
 
   useEffect(() => () => {
     window.clearTimeout(timerPokazu.current);
@@ -191,18 +205,20 @@ export default function PodpowiedzMedrca({ aktywna = true }) {
       <div className="medrzec-karta">
         <img className="medrzec-glowa" src="/wizhead.svg" alt="" aria-hidden="true" draggable="false" />
         <div className="medrzec-tresc">
-          <span className="medrzec-etykieta">Chwila dla ciała</span>
           <p className="medrzec-tekst">{porada.tekst}</p>
         </div>
         <div className="medrzec-akcje">
-          <button type="button" onClick={() => powtorz(porada.tekst)} aria-label="Posłuchaj jeszcze raz">
-            <span aria-hidden="true">♪</span>
-          </button>
           <button type="button" onClick={schowaj} aria-label="Zamknij podpowiedź">
             <span aria-hidden="true">×</span>
           </button>
         </div>
       </div>
+      <span className="medrzec-mysl-ogon" aria-hidden="true">
+        <span />
+        <span />
+      </span>
     </div>
   );
-}
+});
+
+export default PodpowiedzMedrca;

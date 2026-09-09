@@ -360,6 +360,7 @@ export default function Swiat() {
   useHudSkin();
 
   const scenaRef = useRef(null);
+  const medrzecRef = useRef(null);
   /**
    * Kafelek gwiazdek w HUD — CEL lecących iskier. Ref, bo mówimy o pozycji
    * elementu na ekranie i o jednorazowym podbiciu; przez stan Reacta nie da
@@ -2185,6 +2186,7 @@ export default function Swiat() {
       {/* Mędrzec odzywa się tylko w spokojnym hubie: nie nad panelem, nie nad
           zwojem i nie zanim rozsuną się chmury. */}
       <PodpowiedzMedrca
+        ref={medrzecRef}
         aktywna={!panel && !zwojOtwarty && !powitanie && !zaproszenie && !wskazowka && odsloniete}
       />
 
@@ -2483,6 +2485,10 @@ export default function Swiat() {
             onPokazWskazowke={(id) =>
               setWskazowka(wskazowkaPoId(id) || nastepnaWskazowka({ chodzenieOswojone: true }))
             }
+            onPokazMyslMedrca={() => {
+              setWskazowka(null);
+              medrzecRef.current?.pokaz();
+            }}
           />
         </Suspense>
       ) : null}

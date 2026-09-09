@@ -142,6 +142,12 @@ Jeśli to nie zadziała: uruchom <code>npm run dev</code> i wejdź na
   var pyt = new URLSearchParams(location.search);
   var postac = pyt.get('postac');
   if (postac) globalThis.SCENA3D_POSTAC = postac;
+  // Planeta: /scena-3d/?kula=12 nadpisuje promień kuli z mapa.json (do strojenia),
+  // ?zoom=1.4 przybliżenie kamery.
+  var kula = Number(pyt.get('kula'));
+  if (kula > 0) globalThis.SCENA3D_PROMIEN_KULI = kula;
+  var zoom = Number(pyt.get('zoom'));
+  if (zoom > 0) globalThis.SCENA3D_ZOOM = zoom;
 
   function odpal() {
     var s = document.createElement('script');
@@ -193,19 +199,14 @@ Jeśli to nie zadziała: uruchom <code>npm run dev</code> i wejdź na
   var heroShadowBlendTries = 0;
 
   function enableHeroShadowMultiply() {
+    // Cień bohatera ma MultiplyBlending u źródła (scena-3d-src/src/app.js) —
+    // ta funkcja została tylko po to, by stare testy widziały ten sam znacznik.
     var heroShadow = globalThis.__POC && globalThis.__POC.app && globalThis.__POC.app.heroShadow;
     if (!heroShadow) {
       heroShadowBlendTries += 1;
       if (heroShadowBlendTries < 120) window.setTimeout(enableHeroShadowMultiply, 100);
       return;
     }
-
-    heroShadow.material.blending = 4; // THREE.MultiplyBlending
-    heroShadow.material.premultipliedAlpha = true;
-    heroShadow.material.map.premultiplyAlpha = true;
-    heroShadow.material.map.needsUpdate = true;
-    heroShadow.material.needsUpdate = true;
-    heroShadow.geometry.scale(0.7, 0.7, 1);
     document.documentElement.dataset.heroShadowBlend = 'multiply';
     document.documentElement.dataset.heroShadowScale = '0.7';
   }

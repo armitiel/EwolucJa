@@ -51,7 +51,6 @@ export const WSKAZOWKI = [
      */
     panelCelu: "porada",
     postac: "/wizTip.webp",
-    imie: "Wizkor",
     tytul: "Porada dnia",
     // Bez przycisku w chmurce — dziecko ma dotknąć TEJ ikony, nie zielonego
     // guzika. Zdanie kończy się wskazaniem, obręcz pokazuje gdzie.
@@ -74,9 +73,9 @@ export const WSKAZOWKI = [
     promien: "50%",
     panelCelu: "gry",
     postac: "/lisPop.webp",
-    imie: "Lisek",
     tytul: "Pobawimy się?",
     tekst: "Tutaj czekają minigry. Wybierzemy jedną razem!",
+    linie: ["Tutaj czekają minigry.", "Wybierzemy jedną razem!"],
     /** Głos jest dodatkiem. Reflektor zawsze pokazuje to samo zdanie tekstem. */
     glos: "lisek",
     poCzasie: 90000,

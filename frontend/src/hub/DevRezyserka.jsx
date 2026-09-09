@@ -83,7 +83,9 @@ import { WSKAZOWKI, czyPoznana, zresetujWskazowki } from "./wskazowki.js";
  */
 function pozycjaZnaku(scena, znak) {
   const m = (scena?._app?.markers || []).find((z) => z && z.id === znak);
-  const p = m?.root?.position;
+  // Od planety (WERSJA_SCENY 40) `root.position` to punkt NA KULI; położenie
+  // w układzie mapy trzyma `mapa`. Starszy bundle z cache ma tylko `root`.
+  const p = m?.mapa || m?.root?.position;
   return p ? { x: p.x, z: p.z } : null;
 }
 
@@ -105,7 +107,8 @@ function Guzik({ children, onClick, ton = "" }) {
 }
 
 export default function DevRezyserka({
-  scenaRef, onZmiana, onOtworzGre, onOtworzPanel, onOtworzUkladanke, onKomunikat, onPokazWskazowke, onWylacz, zdarzenia = [],
+  scenaRef, onZmiana, onOtworzGre, onOtworzPanel, onOtworzUkladanke, onKomunikat,
+  onPokazWskazowke, onPokazMyslMedrca, onWylacz, zdarzenia = [],
 }) {
   const [otwarty, setOtwarty] = useState(false);
   const [, przerysuj] = useState(0);
@@ -545,6 +548,9 @@ export default function DevRezyserka({
           ))}
 
           <Grupa tytul="Wskazówki (chmurki)">
+            <Guzik onClick={() => { setOtwarty(false); onPokazMyslMedrca?.(); }}>
+              Pokaż: Myśl Mędrca
+            </Guzik>
             {WSKAZOWKI.map((w) => (
               <Guzik key={w.id} onClick={() => { setOtwarty(false); onPokazWskazowke?.(w.id); }}>
                 {`Pokaż: ${w.tytul}${czyPoznana(w.id) ? " ✓" : ""}`}

@@ -26,14 +26,15 @@
  * zna to miejsce (to robi `wskazowki.js`). Tutaj jest obraz i wyjścia.
  */
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { OGON_DLUGOSC, sciezkaChmurki } from "./ksztaltChmurki.js";
 import bgMusic from "../services/bgMusic.js";
 import { powiedzJakLisek, uciszLiska } from "./glosLiska.js";
 
 const ODSTEP = 10;          // ile światła/obręczy zostaje wokół celu
 const PRZERWA = 9;          // odstęp chmurki od obręczy — dzióbek ma jej DOTYKAĆ
-const SZER_DYMKA = 326;     // szerokość chmurki (przycinana do ekranu)
-const MARGINES = 12;        // ile chmurka ma trzymać się od krawędzi ekranu
+const SZER_DYMKA = 448;     // docelowa szerokość komponentu z Figmy
+const MARGINES = 16;        // ile chmurka ma trzymać się od krawędzi ekranu
 
 /**
  * Prostokąt do wskazania. Zwykle jest nim cały element, ale nie zawsze:
@@ -181,17 +182,26 @@ export default function Reflektor({ wskazowka, onZamknij }) {
   if (!wskazowka || !otwor) return null;
 
   const dymkowy = wskazowka.tryb !== "reflektor";
+  const lisek = wskazowka.glos === "lisek";
   const wysOkna = typeof window === "undefined" ? 0 : window.innerHeight;
-  const szerOkna = typeof window === "undefined" ? 360 : window.innerWidth;
+  // `.hub-root` jest na szerokim ekranie wyśrodkowaną, transformowaną planszą.
+  // `position:fixed` wewnątrz takiego rodzica liczy pozycję od planszy, podczas
+  // gdy `getBoundingClientRect()` celu zwraca współrzędne całego okna. Warstwę
+  // portalujemy do `body`, ale poziomo nadal trzymamy ją w granicach planszy.
+  const granice = typeof document === "undefined"
+    ? { left: 0, right: 360, width: 360 }
+    : (document.querySelector(".hub-root")?.getBoundingClientRect() || {
+        left: 0, right: window.innerWidth, width: window.innerWidth,
+      });
   const nadCelem = otwor.top > wysOkna * 0.45;
 
   // Chmurka trzyma się ekranu, ale dzióbek zostaje na celu — dlatego liczymy
   // je osobno. Przy skrajnej ikonie doku chmurka dosuwa się do krawędzi,
   // a dzióbek wędruje w jej stronę zamiast ciągnąć ją poza ekran.
-  const szerDymka = Math.min(SZER_DYMKA, szerOkna - MARGINES * 2);
+  const szerDymka = Math.min(SZER_DYMKA, granice.width - MARGINES * 2);
   const lewaDymka = Math.max(
-    MARGINES,
-    Math.min(otwor.srodekX - szerDymka / 2, szerOkna - MARGINES - szerDymka)
+    granice.left + MARGINES,
+    Math.min(otwor.srodekX - szerDymka / 2, granice.right - MARGINES - szerDymka)
   );
   const dziobekX = Math.max(18, Math.min(otwor.srodekX - lewaDymka - 13, szerDymka - 44));
 
@@ -223,9 +233,10 @@ export default function Reflektor({ wskazowka, onZamknij }) {
     <div key={klucz} className="reflektor-lapacz" style={styl} onClick={() => zamknij("obok")} />
   );
 
-  return (
+  return createPortal((
     <div
-      className={`reflektor${dymkowy ? " jest-dymkiem" : ""}`}
+      className={`reflektor${dymkowy ? " jest-dymkiem" : ""}${lisek ? " jest-liskiem" : " jest-wizkorem"}`}
+      style={{ "--reflektor-akcent": lisek ? "#ff8a17" : "#7b3fb0" }}
       role={dymkowy ? "status" : "dialog"}
       aria-live={dymkowy ? "polite" : undefined}
       aria-modal={dymkowy ? undefined : "true"}
@@ -295,7 +306,7 @@ export default function Reflektor({ wskazowka, onZamknij }) {
                 wDol: nadCelem,
               })}
               fill="url(#reflektor-wypelnienie)"
-              stroke="#4e4d76"
+              stroke="var(--reflektor-akcent)"
               strokeWidth="3"
               strokeLinejoin="round"
             />
@@ -312,30 +323,27 @@ export default function Reflektor({ wskazowka, onZamknij }) {
 
           <div className="reflektor-wnetrze" ref={wnetrzeRef}>
             <img
-              className={`reflektor-postac${wskazowka.glos === "lisek" ? " jest-liskiem" : ""}`}
+              className={`reflektor-postac${lisek ? " jest-liskiem" : ""}`}
               src={wskazowka.postac}
               alt=""
               aria-hidden="true"
               draggable="false"
             />
             <div className="reflektor-tresc">
-              {wskazowka.imie ? <span className="reflektor-imie">{wskazowka.imie}</span> : null}
               <h2>{wskazowka.tytul}</h2>
-              <p>{wskazowka.tekst}</p>
+              <p>
+                {wskazowka.linie?.length
+                  ? wskazowka.linie.map((linia, index) => (
+                      <React.Fragment key={linia}>
+                        {index ? <br /> : null}{linia}
+                      </React.Fragment>
+                    ))
+                  : wskazowka.tekst}
+              </p>
             </div>
-            {wskazowka.glos === "lisek" ? (
-              <button
-                type="button"
-                className="reflektor-glos"
-                onClick={(e) => { e.stopPropagation(); powtorzGlos(); }}
-                aria-label="Posłuchaj liska jeszcze raz"
-              >
-                <span aria-hidden="true">♪</span>
-              </button>
-            ) : null}
           </div>
         </div>
       </div>
     </div>
-  );
+  ), document.body);
 }

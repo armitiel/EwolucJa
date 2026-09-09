@@ -6,6 +6,10 @@
  * przebudowywać po podmianie sceny — wystarczy podbić WERSJA_SCENY (cache-busting,
  * bo pliki w `public/` nie mają hasha w nazwie).
  *
+ * ŹRÓDŁA SCENY: `frontend/scena-3d-src/` (build: `node scena-3d-src/build.mjs`).
+ * Od wersji 40 świat jest KULĄ (planetą) obracaną pod bohaterem — patrz
+ * `scena-3d-src/README.md`.
+ *
  * Kontrakt:
  *   <Scena3D apiRef={ref} onZdarzenie={fn} onBlad={fn} />
  *   ref.current → pełne API sceny (pauza/wznow/pokazZnak/stan/…) albo null
@@ -19,7 +23,7 @@ import { idPostaci } from "../utils/postac.js";
 // UWAGA: numer ma tylko ROSNĄĆ. Numery 3–13 zostały już wydane przeglądarce
 // z inną zawartością modułu (kolejne wersje znaków, gwiazdki, tempo ruchu),
 // więc cofnięcie go serwuje z cache starą scenę zamiast aktualnej.
-export const WERSJA_SCENY = "39";  // kregi znakow: mocniejsze, ze smuga po obwodzie
+export const WERSJA_SCENY = "45";  // PLANETA: mocniejsze bujanie drzew po uderzeniu
 const ZASOBY = "/scena-3d/assets/";
 
 /**
@@ -67,25 +71,16 @@ export function webglDostepny() {
  * każdym `resize()`, dlatego da się ją stroić na żywo: ustaw `SCENA3D_ZOOM`
  * w konsoli i zmień rozmiar okna, albo wejdź z `?zoom=1.4` w adresie.
  */
-export const ZOOM_DOMYSLNY = 1.2;    // 1,56 -> 1,38 -> 1,20; kadr o 15% szerszy niz poprzednio
+export const ZOOM_DOMYSLNY = 0.8;    // PLANETA: 1,2 -> 0,8 — kamera dalej, widac krzywizne i cala polane
 
 /**
- * Cień bohatera — poprawka przeniesiona z podglądu `/scena-3d/index.html`.
- *
- * Domyślnie plamka cienia rysuje się zwykłym alpha-blendem i przy jasnej
- * ziemi wygląda jak naklejona szara łata. MultiplyBlending (THREE = 4) mnoży
- * ją przez kolor podłoża, więc cień przyciemnia teren zamiast go zakrywać,
- * a skala 0,7 ściąga go pod stopy zamiast rozlewać wokół postaci.
- *
- * Robimy to tutaj, a nie w module sceny, bo `scena3d.js` jest gotowym
- * bundlem — grzebanie w nim rozjechałoby się z podglądem przy pierwszym
- * przebudowaniu.
+ * Cień bohatera. Od wersji 40 MultiplyBlending i skala 0,7 siedzą U ŹRÓDŁA
+ * (`scena-3d-src/src/app.js`), a scena oznacza cień `userData.dopracowany`.
+ * Funkcja została jako siatka bezpieczeństwa dla starszego bundla z cache.
  */
 function dopracujCienBohatera(scena, proba = 0) {
   const cien = scena?.heroShadow || globalThis.__POC?.app?.heroShadow;
   if (!cien) {
-    // Cień powstaje razem z modelem GLB, czyli po `utworzScena3D`. Czekamy,
-    // ale nie w nieskończoność — 12 s wystarczy nawet na wolne łącze.
     if (proba < 120) window.setTimeout(() => dopracujCienBohatera(scena, proba + 1), 100);
     return;
   }

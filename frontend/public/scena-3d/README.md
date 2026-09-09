@@ -1,5 +1,11 @@
 # Moduł 3D — mapka i postać (EwolucJA)
 
+> **Od 2026-09-09 (WERSJA_SCENY 40) świat jest KULĄ.** Bundle w tym
+> katalogu jest BUDOWANY ze źródeł: `frontend/scena-3d-src/` (build:
+> `node scena-3d-src/build.mjs`). Nie edytuj `scena3d*.js` i nie uruchamiaj
+> na nich skryptów z `narzedzia/` — patrz `scena-3d-src/README.md`.
+> Reszta tego pliku (API, zdarzenia, osadzenie) jest aktualna.
+
 Samodzielna scena WebGL: jedna animowana postać low-poly na spokojnej mapie
 izometrycznej, dwa świecące znaki (medal = wejście do minigry, liść = pamiątka).
 Moduł **nie dotyka** routingu aplikacji, kont, API ani danych dziecka i **nie

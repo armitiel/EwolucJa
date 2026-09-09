@@ -17,7 +17,7 @@ zamiast robić wszystko samodzielnie:
 
 | agent | do czego |
 |---|---|
-| `scena-3d` | cokolwiek wewnątrz bundla sceny, mapa, znaki, animacje |
+| `scena-3d` | cokolwiek w scenie 3D (źródła `scena-3d-src/`), planeta, mapa, znaki, animacje |
 | `nowa-minigra` | dodanie gry, martwy kafelek gry |
 | `deploy` | commit, push, produkcja |
 | `narrator-gama` | każdy tekst, który widzi lub słyszy dziecko |
@@ -28,7 +28,7 @@ Komendy (`.claude/commands/`): `/deploy`, `/nowa-gra`, `/scena-patch`, `/e2e`, `
 **Strażnik sceny** (`.claude/hooks/straznik-sceny.mjs`) blokuje bezpośrednią
 edycję `public/scena-3d/scena3d*.js` i przypomina o `WERSJA_SCENY` po każdej
 zmianie w `public/scena-3d/`. To nie jest przeszkoda do obejścia — bundle
-naprawdę nie jest kodem źródłowym.
+naprawdę nie jest kodem źródłowym; źródła są w `frontend/scena-3d-src/`.
 
 **Mapa systemów gry:** [`docs/SYSTEMY_GRY.md`](./docs/SYSTEMY_GRY.md) —
 kanały oddziaływania na dziecko, pętle zadaniowe, ekonomia, przepisy na nowy
@@ -160,14 +160,19 @@ i paletę fiolet–złoto pewniej niż jakikolwiek opis tekstowy.
 - Klucze wołaj **z maszyny autora** (Desktop Commander), nie z sandboxa —
   sekret nie musi nigdzie wyjeżdżać.
 
-## Scena 3D — zmiany wchodzą przez skrypty, nie przez edycję bundla
+## Scena 3D — źródła w `frontend/scena-3d-src/`, bundle to wynik builda
 
-`frontend/public/scena-3d/scena3d.js` i `scena3d.esm.js` to **zminifikowane
-bundle**, a nie kod źródłowy. Nie da się ich czytać z diffa. Każda zmiana
-wchodzi przez skrypt z `frontend/narzedzia/`, który podmienia konkretne
-łańcuchy i **przerywa pracę, jeśli wzorzec nie trafi dokładnie raz**. Te
-skrypty są jedyną czytelną dokumentacją tego, co siedzi w bundlu ponad
-oryginalny build — patrz `frontend/narzedzia/README.md`.
+Od 2026-09-09 scena ma kod źródłowy: `frontend/scena-3d-src/src/` (three.js,
+esbuild). `frontend/public/scena-3d/scena3d.js` i `scena3d.esm.js` to **wynik
+builda** — nie edytuj ich i nie uruchamiaj na nich skryptów z
+`frontend/narzedzia/` (relikty sprzed planety). Build: `cd frontend && node
+scena-3d-src/build.mjs` (cmd na Windowsie). Opis architektury — w tym rzutu
+mapy na kulę i kontraktu z Reactem — w `frontend/scena-3d-src/README.md`.
+
+**Świat jest KULĄ (planetą), ale logika gry jest płaska.** Ruch, kolizje,
+ścieżka, znaki, `mapa.json` i edytor liczą się w układzie (x, z); na sferę
+przenosi je `Planeta.ustaw(obj, x, z, h, obrotY)`. Kula obraca się pod
+bohaterem z opóźnieniem (mały margines ruchu), kamera stoi w miejscu.
 
 **Po KAŻDEJ zmianie w bundlu podbij `WERSJA_SCENY`** w
 `frontend/src/components/Scena3D.jsx`. Pliki w `public/` nie mają hasha
