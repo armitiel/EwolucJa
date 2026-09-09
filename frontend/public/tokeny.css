@@ -21,11 +21,28 @@
    stare tokeny z cache.
    ═══════════════════════════════════════════════════════════════════════ */
 
+/* ── 0. RAMPA ZLOTA — jedno zloto zamiast czterech ─────────────────────
+   Przed 9.09.2026 zloto istnialo w czterech wersjach, kazda w innym pliku:
+   #F4C95D (bursztyn UI), #EFB937 (HUD), #F5C45E (Przygoda), #FFD24A (mapa).
+   Nic nie pilnowalo, zeby dalej byly do siebie podobne. Teraz to JEDNA rampa,
+   a stare nazwy (--p-amber, --hud-gold, --adv-gold) sa jej aliasami — kod,
+   ktory ich uzywa, dziala bez zmian.
+   Przygoda schodzi z #F5C45E na #F4C95D (deltaE < 1 — nie do zobaczenia).
+   Mapa zostaje poza CSS-em: jej kolory siedza w mapa.json. */
+:root{
+  --zloto-100:#FFF19A;   /* gorna lamowka, rozblysk gwiazdki */
+  --zloto-300:#F4C95D;   /* bursztyn UI: nagrody, gwiazdki, chipy */
+  --zloto-400:#EFB937;   /* zloto wlasciwe HUD-u — srodek lamowki */
+  --zloto-600:#B86A1C;   /* dolna lamowka */
+  --zloto-800:#8D4818;   /* twardy cien 3 px pod zlotym kaflem */
+}
+
 /* ── 1. FUNDAMENT — paleta, kroje, promienie, cienie, skala CTA ─────────
-   Przeniesione 1:1 z src/styles/ewolucja.css (wrzesien 2026). */
+   Przeniesione 1:1 z src/styles/ewolucja.css (wrzesien 2026).
+   --p-amber od 9.09 wskazuje na rampe zlota (ta sama wartosc). */
 :root{
   --p-sky-1:#B7E3FF; --p-sky-2:#FFE0B5; --p-leaf:#5FA76F; --p-leaf-dk:#2F5841;
-  --p-dusk:#E89A3D; --p-amber:#F4C95D; --p-magic:#B886E8; --p-magic-dk:#7A4DC2;
+  --p-dusk:#E89A3D; --p-amber:var(--zloto-300); --p-magic:#B886E8; --p-magic-dk:#7A4DC2;
   --p-paper:#FBF1D6; --p-paper-2:#F4E3B8; --p-ink:#4e4d76; --p-ink-soft:#5A4F77;
   --p-rose:#F08C8C; --p-shadow: rgba(78,77,118,.18);
 
@@ -64,16 +81,81 @@
   :root{ --cta-h:50px; --cta-fs:18px; --cta-pad:10px 16px; --cta-sec-h:44px; --cta-sec-fs:15px; }
 }
 
-/* ── 2. HUD SCENY 3D — komplet zlota i kremu ───────────────────────────
-   Przeniesione 1:1 z public/scena-3d/hud.css. Docelowo (krok 2 planu)
-   te wartosci stana sie ROLAMI wspolnymi z fundamentem — dzis to wciaz
-   osobny komplet, ale juz w jednym pliku, obok reszty. */
+/* ── 2. HUD SCENY 3D — krem i atrament; zloto z rampy ──────────────────
+   Przeniesione z public/scena-3d/hud.css. Cztery z siedmiu nazw to od 9.09
+   aliasy rampy zlota (te same wartosci co wczesniej). Krem i atrament HUD-u
+   zostaja wlasne — leza miedzy odcieniami fundamentu i nie maja tam pary. */
 :root {
   --hud-cream-top: #fff9d9;
   --hud-cream-bottom: #f1d997;
-  --hud-gold-light: #fff19a;
-  --hud-gold: #efb937;
-  --hud-gold-deep: #b86a1c;
-  --hud-shadow: #8d4818;
+  --hud-gold-light: var(--zloto-100);
+  --hud-gold: var(--zloto-400);
+  --hud-gold-deep: var(--zloto-600);
+  --hud-shadow: var(--zloto-800);
   --hud-ink: #473653;
+}
+
+/* ── 3. PRZYGODA — noc i szklo (dawniej w adventure.css na .adv-root) ───
+   Definicje tokenow przeniesione tutaj; uklad (.adv-root: position, inset…)
+   zostal w adventure.css. Jeden selektor w dwoch plikach — celowo: tu wartosci,
+   tam geometria. --adv-gold to alias rampy (bylo #F5C45E, deltaE < 1). */
+.adv-root {
+  --adv-ink: #F2F6FF;
+  --adv-ink-soft: rgba(242, 246, 255, 0.76);
+  --adv-panel: rgba(14, 22, 42, 0.62);
+  --adv-panel-solid: rgba(14, 22, 42, 0.9);
+  --adv-edge: rgba(255, 255, 255, 0.16);
+  --adv-accent: #57C7D4;
+  --adv-gold: var(--zloto-300);
+  --adv-radius: 22px;
+}
+
+/* ── 4. ROLE — do czego kolor sluzy ─────────────────────────────────────
+   Komponent czyta ROLE, nie prymitywy. Rola mowi „to jest tlo karty",
+   a nie „to jest #FBF1D6" — dzieki temu motyw (nizej) moze ja przebarwic,
+   a przemalowanie calej gry to zmiana jednej linii tutaj.
+   Wartosci sa dzis 1:1 z prymitywami, wiec podpiecie komponentu pod role
+   NIE zmienia wygladu — zmienia tylko to, kto o nim decyduje. */
+:root{
+  /* tla */
+  --tlo-karty: var(--p-paper);          /* pergamin kart i paneli */
+  --tlo-karty-2: var(--p-paper-2);      /* dol gradientu karty, papier cieplejszy */
+  --tlo-jasne: #FFFDF4;                 /* cieply bialy — gora gradientu okna */
+
+  /* tekst */
+  --tekst: var(--p-ink);                /* fiolet zamiast czerni */
+  --tekst-cichy: var(--p-ink-soft);     /* drugorzedny, podpisy */
+  --tekst-odwrocony: #FFFFFF;           /* na kolorowym CTA */
+
+  /* akcenty — kazdy z twardym cieniem pod spodem (glina) */
+  --akcent-cta: var(--p-leaf);          --akcent-cta-cien: var(--p-leaf-dk);
+  --akcent-drugi: var(--p-dusk);        --akcent-drugi-cien: #B47322;
+  --akcent-magia: var(--p-magic);       --akcent-magia-gleboka: var(--p-magic-dk);
+  --akcent-nagrody: var(--zloto-300);   /* gwiazdki, monety, chipy nagrod */
+  --uwaga: var(--p-rose);               /* zycia, ostrzezenie, plakietka */
+
+  /* zlota lamowka i cien — HUD, okna postaci, przyciski „ghost" */
+  --lamowka-jasna: var(--zloto-100);
+  --lamowka: var(--zloto-400);
+  --lamowka-ciemna: var(--zloto-600);
+  --cien-twardy: var(--zloto-800);      /* 0 3px 0 pod kaflem — to robi „glina" */
+  --cien-miekki: var(--p-shadow);
+}
+
+/* ── 5. MOTYWY — te same role, inne wartosci ────────────────────────────
+   HUD i Przygoda nie sa osobnymi systemami. To kontenery, ktore przebarwiaja
+   role. Komponent z --tlo-karty w hubie dostaje pergamin, w HUD-zie krem,
+   w Przygodzie ciemne szklo — z JEDNEJ reguly. */
+.game-hud{
+  --tlo-karty: var(--hud-cream-top);
+  --tlo-karty-2: var(--hud-cream-bottom);
+  --tekst: var(--hud-ink);
+}
+.adv-root{
+  --tlo-karty: var(--adv-panel);
+  --tlo-karty-2: var(--adv-panel-solid);
+  --tekst: var(--adv-ink);
+  --tekst-cichy: var(--adv-ink-soft);
+  --akcent-nagrody: var(--adv-gold);
+  --lamowka: var(--adv-accent);         /* w Przygodzie krawedz jest cyjanowa, nie zlota */
 }

@@ -37,8 +37,10 @@
   background:
     linear-gradient(180deg, rgba(255, 251, 224, .97), rgba(241,217,151,.97)) padding-box,
     linear-gradient(180deg, var(--hud-gold-light), var(--hud-gold) 58%, var(--hud-gold-deep)) border-box;
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .82), 0 3px 0 var(--hud-shadow), 0 7px 13px rgba(62, 38, 16, .24);
-  color: var(--hud-ink);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .82), 0 3px 0 var(--cien-twardy), 0 7px 13px rgba(62, 38, 16, .24);
+  /* ROLA, nie prymityw: wewnatrz .game-hud --tekst to --hud-ink (motyw w tokeny.css).
+     Ta sama regula w hubie dalaby --p-ink. Pierwszy konsument warstwy rol (9.09). */
+  color: var(--tekst);
   text-decoration: none;
 }
 

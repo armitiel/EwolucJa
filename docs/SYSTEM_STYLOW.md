@@ -133,7 +133,7 @@ z fundamentu korzysta.
 |---|---|---|---|---|
 | 0 | **Zasady na piśmie** — ten dokument + wskaźnik w CLAUDE.md | dalszy dryf zatrzymany: każdy agent i człowiek wie, gdzie wchodzi nowy kolor | plik istnieje, CLAUDE.md go wskazuje | ✅ 9.09.2026 |
 | 1 | **Jedno źródło tokenów** — `:root` z `ewolucja.css` i `hud.css` przeniesiony do `public/tokeny.css`, linkowany przed `hud.css` | jedno miejsce, w którym ustala się wygląd; HUD i React czytają te same nazwy | zero zmian wizualnych; `getComputedStyle(root)` zwraca te same wartości co przed | ✅ 9.09.2026 |
-| 2 | **Warstwa ról** — `--tlo-*`, `--tekst-*`, `--akcent-*`, `--lamowka-*`, `--cien-*` zmapowane na prymitywy; `.adv-root` i `.game-hud` stają się motywami przemapowującymi role | „jedna zmiana idzie wszędzie" zaczyna działać naprawdę | fundament + HUD + Przygoda czytają role; cztery złota sprowadzone do jednej rampy `--zloto-*` | ⏳ |
+| 2 | **Warstwa ról** — `--tlo-*`, `--tekst-*`, `--akcent-*`, `--lamowka-*`, `--cien-*` zmapowane na prymitywy; `.adv-root` i `.game-hud` stają się motywami przemapowującymi role | „jedna zmiana idzie wszędzie" zaczyna działać naprawdę | fundament + HUD + Przygoda czytają role; cztery złota sprowadzone do jednej rampy `--zloto-*` | ✅ 9.09.2026 — rampa `--zloto-100…800`, `--p-amber`/`--hud-gold*`/`--adv-gold` jako aliasy; 16 ról w `:root`; motywy `.game-hud` i `.adv-root`; pierwsi konsumenci: `.game-hud-counter` (HUD) i `.adv-choice` (Przygoda). Masowe przepięcie komponentów na role = krok 3 |
 | 3 | **Nazwanie 344 barw + skala odstępów** — z danych klastrowania: rampy złota, brązu (twarde cienie HUD-u), kremu, nocy; `--o-1…8` | koniec bezimiennych wartości; drugi przebieg `scripts/ujednolic-barwy.mjs` podmienia użycia na `var()` | mniej niż 60 barw bez tokenu; odstępy tylko ze skali w nowym kodzie | ⏳ |
 | 4 | **Style inline w JSX → tokeny** — 290 wystąpień, zacząć od panelu Mentora (76) i `MissionView` (35); `App.jsx` (V1, 52) zostawić, bo jest martwy dla dziecka | panel Mentora przestaje być piątym światem | żaden żywy ekran nie ma `#hex` w `style={{}}` | ⏳ |
 | 5 | **Komponenty wspólne** — `.plansza-gry` (dziś `.kolo-fortuny` i `.puzzle-brama` dzielą 85% deklaracji), `.okno` (popup / mentor-notice / nagroda), `.kafel-okragly` (34× ten sam trzyelementowy zestaw) | jedna zmiana w elemencie wspólnym zamiast łapania każdego osobno | każdy z trzech ma jedną regułę bazową i modyfikatory | ⏳ |
@@ -147,9 +147,15 @@ osobna i dotyczy pipeline'u grafiki, nie interfejsu.
 
 ## 6. Co robić, gdy…
 
-**…chcę zmienić złoto w całej grze.** Jedna linia w `tokeny.css` (po kroku 2:
-rola `--lamowka-zloto`; dziś: `--hud-gold` dla HUD-u i `--p-amber` dla UI —
-to wciąż dwa miejsca, patrz krok 2). Podbij `?v=N` w obu `index.html`.
+**…chcę zmienić złoto w całej grze.** Rampa `--zloto-100…800` w `tokeny.css`,
+sekcja 0. `--p-amber`, `--hud-gold*`, `--hud-shadow` i `--adv-gold` to jej
+aliasy, więc zmiana stopnia rampy idzie do UI, HUD-u i Przygody naraz.
+Podbij `?v=N` w obu `index.html`.
+
+**…chcę, żeby komponent wyglądał inaczej w HUD-zie / w Przygodzie.** Nie pisz
+drugiej reguły. Komponent czyta role (`--tlo-karty`, `--tekst`, `--lamowka`),
+a motyw na kontenerze (`.game-hud`, `.adv-root` w `tokeny.css`, sekcja 5)
+przemapowuje je. Jeśli motywowi brakuje roli — dopisz ją tam, nie w komponencie.
 
 **…potrzebuję nowego koloru, którego nie ma.** Sprawdź najpierw, czy nie ma go
 w promieniu ΔE 4 od istniejącego — `node scripts/ujednolic-barwy.mjs --sucho`

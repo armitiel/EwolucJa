@@ -6,16 +6,10 @@
  * Wszystko respektuje `prefers-reduced-motion`.
  */
 
+/* Tokeny --adv-* (noc, szklo, cyjan) mieszkaja w public/tokeny.css, sekcja 3,
+   razem z motywem .adv-root, ktory przemapowuje role (--tlo-karty, --tekst…).
+   Tu zostaje tylko geometria kontenera. */
 .adv-root {
-  --adv-ink: #F2F6FF;
-  --adv-ink-soft: rgba(242, 246, 255, 0.76);
-  --adv-panel: rgba(14, 22, 42, 0.62);
-  --adv-panel-solid: rgba(14, 22, 42, 0.9);
-  --adv-edge: rgba(255, 255, 255, 0.16);
-  --adv-accent: #57C7D4;
-  --adv-gold: #F5C45E;
-  --adv-radius: 22px;
-
   position: fixed;
   inset: 0;
   overflow: hidden;
@@ -183,10 +177,12 @@
   padding: 14px 18px;
   border-radius: 18px;
   border: 1px solid var(--adv-edge);
-  background: var(--adv-panel);
+  /* ROLE zamiast --adv-*: motyw .adv-root w tokeny.css daje im nocne wartosci.
+     Pierwszy konsument warstwy rol w Przygodzie (9.09). */
+  background: var(--tlo-karty);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  color: var(--adv-ink);
+  color: var(--tekst);
   font-size: 17px;
   font-weight: 600;
   line-height: 1.35;
