@@ -14,11 +14,12 @@ backend/.env
 
 .env.production
 
-# Zrodla graficzne (PSD/AI/PSB) i katalog roboczy grafiki.
-# Leza w public/, wiec bez tego Vite kopiuje je do dist i Vercel serwuje
-# publicznie 148 MB plikow, ktorych aplikacja nigdy nie uzywa.
+# Zrodla graficzne (PSD/AI/PSB). Od 2026-09-08 stoja w zrodla-graficzne/
+# w korzeniu repo, a NIE pod frontend/public/ - patrz zrodla-graficzne/CZYTAJ.md.
+# Wszystko z public/ Vite kopiuje do dist, a Vercel serwuje publicznie; te pliki
+# waza 148 MB i aplikacja nie uzywa ani jednego z nich.
 # postacie.psd (103 MB) przekracza tez limit pliku na GitHubie.
-frontend/public/assets/EwolucJa/
+zrodla-graficzne/
 *.psd
 *.psb
 *.ai
