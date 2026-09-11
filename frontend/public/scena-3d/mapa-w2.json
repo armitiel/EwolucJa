@@ -11,7 +11,8 @@
       -6
     ],
     "cienie": true,
-    "terenKanciasty": true
+    "terenKanciasty": true,
+    "chmury": 6
   },
   "start": {
     "pos": [

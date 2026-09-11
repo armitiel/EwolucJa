@@ -123,6 +123,8 @@ export function wczytajMape() {
     terenKanciasty: M.swiat?.terenKanciasty ?? false,
     terenWyboje: M.swiat?.terenWyboje,
     terenNieregularnosc: M.swiat?.terenNieregularnosc,
+    // Ile obłoków na niebie (0 = brak; pierwszy świat nie ma żadnych).
+    chmury: M.swiat?.chmury ?? 0,
     terenBarwy: M.swiat?.terenBarwy || null,
     doba: {
       wlaczona: !!M.swiat?.cyklDnia,

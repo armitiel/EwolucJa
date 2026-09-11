@@ -31,7 +31,7 @@
  */
 import {
   Color, Mesh, PlaneGeometry, ShaderMaterial, Sprite, SpriteMaterial,
-  CanvasTexture, SRGBColorSpace, Vector3, Matrix4,
+  CanvasTexture, SRGBColorSpace, Vector3,
 } from "three";
 
 const zacisk = (x, a, b) => (x < a ? a : x > b ? b : x);
@@ -54,37 +54,40 @@ export const DOBA = {
   // Nieboskłon jest GRADIENTEM: osobna barwa przy horyzoncie i w zenicie.
   // Wzięte z concept artu (poranek / dzień / zachód / noc).
   niebo: {
-    dzien: 0x8fc9e4, zorza: 0xd98a5e, noc: 0x243147, silaZorzy: 0.78,
-    zenitDzien: 0x4f9fd6, horyzontDzien: 0xd7e8f2,
-    zenitZorza: 0x8d6aa8, horyzontZorza: 0xf5a25c,
-    zenitNoc: 0x141f3a, horyzontNoc: 0x2f4a78,
+    dzien: 0x8fc9e4, zorza: 0xd98a5e, noc: 0x243147, silaZorzy: 1.0,
+    zenitDzien: 0x48bdf0, horyzontDzien: 0xb9e6ee,
+    zenitPoranek: 0x80cee4, horyzontPoranek: 0xffc58c,
+    zenitZorza: 0x9b89bc, horyzontZorza: 0xffaa70,
+    zenitNoc: 0x172f63, horyzontNoc: 0x345b88,
   },
   // Słońce zmienia nie tylko BARWĘ, ale i OSTROŚĆ: w południe mała, twarda
   // tarcza, o zachodzie wielka miękka plama. Dlatego są dwa sprity —
   // rdzeń i poświata — a nie jedna tekstura z przezroczystością.
   slonceTarcza: {
     rdzen: 0xfffdf2, poswiataDzien: 0xffe9a8, poswiataZorza: 0xff9b45,
-    wielkosc: 1.5, rozmycieZorzy: 2.6,
+    wielkosc: 0.85, rozmycieZorzy: 0.7,
   },
-  ksiezyc: { barwa: 0xeef2ff, wielkosc: 1.9 },
+  ksiezyc: { barwa: 0xfff6dc, wielkosc: 1.15 },
   // Mnożnik barwy tekstury terenu. Biel = tekstura bez zmian (dzień).
   // Noc przesuwa zieleń w morski błękit, tak jak na concept arcie.
   // Teren: `barwa` to MNOŻNIK (biel = bez zmian), `emisja` to DODATEK.
   // Mnożnikiem nie da się rozjaśnić, a nocna trawa z concept artu jest
   // morska i świecąca — dlatego noc idzie emisją, a nie przyciemnianiem.
   ziemia: {
-    dzien: 0xffffff, zorza: 0xffc1a0, noc: 0xbcd8e4,
-    emisjaNoc: 0x12414f, emisjaZorza: 0x3a1d10,
+    dzien: 0xf5ffe6, zorza: 0xffd6aa, noc: 0x719bac,
+    emisjaNoc: 0x123c4b, emisjaZorza: 0x554728,
   },
-  slonce: { dzien: 0xffe0b0, zorza: 0xff9040, moc: 1.6 },
-  wypelnienie: { dzien: 0xfff2df, noc: 0xa8c0ff, mocDzien: 0.85, mocNoc: 0.72 },
+  slonce: { dzien: 0xfff0cf, zorza: 0xffb35e, moc: 1.8 },
+  wypelnienie: { dzien: 0xfff2df, noc: 0x91bde3, mocDzien: 0.7, mocNoc: 0.8 },
   hemisfera: {
     goraDzien: 0xd8e4ff, dolDzien: 0x55763f,
-    goraNoc: 0x44639b, dolNoc: 0x2f466a,
+    goraNoc: 0x75a9c9, dolNoc: 0x244455,
     zorzaGora: 0xffb070,
     mocDzien: 1.05, mocNoc: 0.78,
   },
-  ambient: { dzien: 0x8090c0, noc: 0x8497cc, mocDzien: 0.35, mocNoc: 0.5 },
+  ambient: { dzien: 0x8090c0, noc: 0x688cba, mocDzien: 0.3, mocNoc: 0.38 },
+  // Chmury: mnożnik barwy + odrobina emisji, żeby nocą nie znikały w czerni.
+  chmury: { dzien: 0xffffff, zorza: 0xffb089, noc: 0x7d93c4, emisjaNoc: 0x101d38 },
   gwiazdy: { krycie: 0.85 },
   // Progi na osi `t` (sinus wysokości słońca).
   progi: {
@@ -110,10 +113,11 @@ function scal(bazowe, nakladka) {
 
 const _a = new Color();
 const _b = new Color();
+const _c = new Color();
 const _px = new Vector3();
 const _py = new Vector3();
 const _pz = new Vector3();
-const _bazy = new Matrix4();
+
 
 /** Miękka tarcza: jasny rdzeń i gasnąca poświata. */
 function teksturaTarczy(rdzen = "#fff6d8", poswiata = "#ffd98a") {
@@ -137,18 +141,27 @@ function teksturaKsiezyca() {
   const c = document.createElement("canvas");
   c.width = c.height = 128;
   const x = c.getContext("2d");
-  const g = x.createRadialGradient(64, 64, 30, 64, 64, 62);
-  g.addColorStop(0, "rgba(238,242,255,0.34)");
-  g.addColorStop(1, "rgba(238,242,255,0)");
-  x.fillStyle = g;
-  x.fillRect(0, 0, 128, 128);
-  x.fillStyle = "#eef2ff";
+  x.fillStyle = "#fff6dc";
   x.beginPath();
-  x.arc(64, 64, 34, 0, 7);
+  x.arc(64, 64, 46, 0, Math.PI * 2);
   x.fill();
   x.globalCompositeOperation = "destination-out";
   x.beginPath();
-  x.arc(84, 56, 31, 0, 7);
+  x.arc(43, 48, 43, 0, Math.PI * 2);
+  x.fill();
+  const t = new CanvasTexture(c);
+  t.colorSpace = SRGBColorSpace;
+  return t;
+}
+
+/** Crisp solar disc, separate from its restrained atmospheric halo. */
+function teksturaSlonca() {
+  const c = document.createElement("canvas");
+  c.width = c.height = 256;
+  const x = c.getContext("2d");
+  x.fillStyle = "#ffffff";
+  x.beginPath();
+  x.arc(128, 128, 116, 0, Math.PI * 2);
   x.fill();
   const t = new CanvasTexture(c);
   t.colorSpace = SRGBColorSpace;
@@ -165,7 +178,7 @@ function teksturaKsiezyca() {
  */
 function nieboskLon() {
   const mat = new ShaderMaterial({
-    uniforms: { zenit: { value: new Color(0x243147) }, horyzont: { value: new Color(0x2f4a78) } },
+    uniforms: { zenit: { value: new Color(0x243147) }, horyzont: { value: new Color(0x2f4a78) }, chmury: { value: new Color(0xffffff) }, noc: { value: 0 }, aspekt: { value: 1 } },
     vertexShader: `
       varying vec2 vu;
       void main() { vu = uv; gl_Position = vec4(position.xy, 0.9999, 1.0); }
@@ -173,15 +186,41 @@ function nieboskLon() {
     fragmentShader: `
       uniform vec3 zenit;
       uniform vec3 horyzont;
+      uniform vec3 chmury;
+      uniform float noc;
+      uniform float aspekt;
       varying vec2 vu;
+      float oblok(vec2 p, vec2 center, float scale) {
+        vec2 q = (p-center)/scale;
+        float d = min(length((q-vec2(-0.38,0.0))/vec2(.44,.19)),
+                      length((q-vec2(.30,.01))/vec2(.50,.22)));
+        d = min(d, length((q-vec2(-.10,.16))/vec2(.30,.29)));
+        return 1.0-smoothstep(.94,1.04,d);
+      }
       void main() {
         // Horyzont jest nisko — stąd przesunięcie i potęga, a nie liniowy mix.
-        float h = clamp(vu.y * 1.12 - 0.06, 0.0, 1.0);
-        gl_FragColor = vec4(mix(horyzont, zenit, pow(h, 0.78)), 1.0);
+        float h = smoothstep(0.48, 1.0, vu.y);
+        vec3 sky = mix(horyzont, zenit, h);
+        vec2 p = vec2(vu.x * aspekt, vu.y);
+        float cloud = max(oblok(p, vec2(.18*aspekt,.79),.085),
+                          oblok(p, vec2(.83*aspekt,.83),.10));
+        cloud = max(cloud, oblok(p, vec2(.43*aspekt,.92),.065));
+        vec3 cloudShade = chmury * mix(.76, 1.08, smoothstep(.76,.88,vu.y));
+        sky = mix(sky, cloudShade, cloud * mix(.78,.25,noc));
+        // Stable sparse stars, independent of viewport resolution and camera zoom.
+        vec2 cells = vec2(vu.x*aspekt,vu.y)*38.0;
+        vec2 id = floor(cells);
+        float seed = fract(sin(dot(id,vec2(127.1,311.7)))*43758.5453);
+        vec2 point = fract(cells)-vec2(.3+seed*.4,.5);
+        float star = (1.0-smoothstep(.025,.075,length(point))) * step(.965,seed);
+        sky += vec3(.75,.83,1.0)*star*noc*(1.0-cloud)*smoothstep(.6,.8,vu.y);
+        gl_FragColor = vec4(sky, 1.0);
+        #include <colorspace_fragment>
       }
     `,
     depthTest: false,
     depthWrite: false,
+    toneMapped: false,
   });
   const m = new Mesh(new PlaneGeometry(2, 2), mat);
   m.frustumCulled = false;
@@ -215,14 +254,14 @@ export class Doba {
     const C = this.C;
     const sprit = (tex, rozmiar) => {
       const s = new Sprite(new SpriteMaterial({
-        map: tex, transparent: true, depthWrite: false, opacity: 0,
+        map: tex, transparent: true, depthWrite: false, opacity: 0, toneMapped: false,
         // depthTest ZOSTAJE — dzięki temu planeta zasłania zachodzące słońce.
       }));
       s.scale.setScalar(rozmiar);
       s.renderOrder = -1000;
       return s;
     };
-    this.rdzenSlonca = sprit(teksturaTarczy("#fffdf2", "rgba(255,249,214,0.55)"), C.slonceTarcza.wielkosc);
+    this.rdzenSlonca = sprit(teksturaSlonca(), C.slonceTarcza.wielkosc);
     this.poswiata = sprit(teksturaTarczy("#fff3c4", "#ffb257"), C.slonceTarcza.wielkosc * 2.2);
     this.tarczaKsiezyca = sprit(teksturaKsiezyca(), C.ksiezyc.wielkosc);
     // Start bez animacji: pierwsza klatka ma od razu właściwe światło.
@@ -247,7 +286,7 @@ export class Doba {
 
   /** Kładzie sprite w kadrze wg kierunku `dir` (świat), na głębokości `z`. */
   _wKadrze(sprite, dir, W, H, z) {
-    sprite.position.set(dir.dot(_px) * W, dir.dot(_py) * H, z);
+    sprite.position.set(dir.dot(_px) * W * 0.78, H * (0.54 + 0.30 * dir.y), z);
   }
 
   /** Przestawia słońce nad inny punkt planety (np. na potrzeby fabuły). */
@@ -272,6 +311,10 @@ export class Doba {
     const noc = 1 - gladko(C.progi.nocOd, C.progi.switOd + 0.10, t);
     const u = (t - C.progi.zorzaSrodek) / C.progi.zorzaSzerokosc;
     const zorza = Math.exp(-u * u);
+    this._sw.copy(this.slonceN).applyQuaternion(qPlanety).normalize();
+    if (this.kamera) this.kamera.matrixWorld.extractBasis(_px, _py, _pz);
+    // East/west side distinguishes sunrise from sunset without a clock.
+    const poranek = 1 - gladko(-0.25, 0.25, this._sw.dot(_px));
 
     // ŚWIATŁO SŁONECZNE. Kierunek bierzemy z układu planety i przenosimy do
     // świata — dzięki temu cień bohatera kładzie się w prawą stronę, a nisko
@@ -282,16 +325,16 @@ export class Doba {
 
     // WYPEŁNIENIE zmienia się w księżyc: chłodne i słabe, ale nigdy zgaszone —
     // po ciemku to ono trzyma sylwetkę bohatera czytelną.
-    this.wypelnienie.intensity = C.wypelnienie.mocNoc + (C.wypelnienie.mocDzien - C.wypelnienie.mocNoc) * dzien;
+    this.wypelnienie.intensity = C.wypelnienie.mocNoc + (C.wypelnienie.mocDzien - C.wypelnienie.mocNoc) * dzien + zorza * (0.5 + 0.35 * poranek);
     this.wypelnienie.color.copy(_a.set(C.wypelnienie.noc)).lerp(_b.set(C.wypelnienie.dzien), dzien);
 
     // Światło rozproszone nigdy nie schodzi poniżej `mocNoc` — to ono trzyma
     // ziemię czytelną po ciemku. Przy samym terminatorze dokładamy do niego
     // ciepło zorzy, żeby zmierzch był pomarańczowy, a nie po prostu ciemny.
-    this.hemisfera.intensity = C.hemisfera.mocNoc + (C.hemisfera.mocDzien - C.hemisfera.mocNoc) * dzien;
+    this.hemisfera.intensity = C.hemisfera.mocNoc + (C.hemisfera.mocDzien - C.hemisfera.mocNoc) * dzien + zorza * .65;
     this.hemisfera.color.copy(_a.set(C.hemisfera.goraNoc)).lerp(_b.set(C.hemisfera.goraDzien), dzien);
     if (C.hemisfera.zorzaGora) {
-      this.hemisfera.color.lerp(_b.set(C.hemisfera.zorzaGora), zorza * (1 - 0.6 * dzien) * 0.75);
+      this.hemisfera.color.lerp(_b.set(C.hemisfera.zorzaGora), zorza * (1 - 0.6 * dzien) * 0.35);
     }
     this.hemisfera.groundColor.copy(_a.set(C.hemisfera.dolNoc)).lerp(_b.set(C.hemisfera.dolDzien), dzien);
 
@@ -313,10 +356,14 @@ export class Doba {
     if (this.nieboskLon) {
       const u = this.nieboskLon.material.uniforms;
       const zorzaN = zorza * (1 - 0.55 * dzien) * C.niebo.silaZorzy;
+      u.noc.value = noc;
+      u.aspekt.value = this.kamera ? (this.kamera.right-this.kamera.left)/(this.kamera.top-this.kamera.bottom) : 1;
+      u.chmury.value.set(0x536d9b).lerp(_b.set(0xffffff), dzien)
+        .lerp(_b.set(0xffc499), zorza * .8);
       u.zenit.value.copy(_a.set(C.niebo.zenitNoc)).lerp(_b.set(C.niebo.zenitDzien), dzien)
-        .lerp(_b.set(C.niebo.zenitZorza), zorzaN);
+        .lerp(_b.set(C.niebo.zenitZorza).lerp(_c.set(C.niebo.zenitPoranek), poranek), zorzaN);
       u.horyzont.value.copy(_a.set(C.niebo.horyzontNoc)).lerp(_b.set(C.niebo.horyzontDzien), dzien)
-        .lerp(_b.set(C.niebo.horyzontZorza), zorzaN);
+        .lerp(_b.set(C.niebo.horyzontZorza).lerp(_c.set(C.niebo.horyzontPoranek), poranek), zorzaN);
     }
 
     // TEREN — sama tekstura zostaje, zmienia się mnożnik barwy. To dzięki
@@ -343,9 +390,10 @@ export class Doba {
       this._wKadrze(this.poswiata, this._sw, W, H, -50.5);
       // Rdzeń twardnieje w dzień i znika o zmierzchu; poświata robi odwrotnie
       // i przy okazji puchnie — stąd wrażenie, że słońce „mięknie" przy ziemi.
-      this.rdzenSlonca.material.opacity = dzien * 0.95;
-      this.rdzenSlonca.scale.setScalar(C.slonceTarcza.wielkosc * (0.85 + 0.15 * dzien));
-      this.poswiata.material.opacity = Math.max(dzien * 0.42, zorza * 0.9);
+      this.rdzenSlonca.material.opacity = gladko(-0.12, 0.02, t);
+      this.rdzenSlonca.material.color.set(0xffeb79).lerp(_b.set(C.slonceTarcza.rdzen), dzien);
+      this.rdzenSlonca.scale.setScalar(C.slonceTarcza.wielkosc * (1.0 + 0.18 * zorza));
+      this.poswiata.material.opacity = Math.max(dzien * 0.22, zorza * 0.38);
       this.poswiata.material.color.copy(_a.set(C.slonceTarcza.poswiataZorza))
         .lerp(_b.set(C.slonceTarcza.poswiataDzien), dzien);
       this.poswiata.scale.setScalar(C.slonceTarcza.wielkosc * (2.0 + C.slonceTarcza.rozmycieZorzy * zorza));
@@ -356,13 +404,22 @@ export class Doba {
       this.tarczaKsiezyca.visible = noc > 0.02;
     }
 
+    // CHMURY — gradient w wierzchołkach zostaje, zmienia się mnożnik.
+    // O zachodzie krawędzie i tak zapalają się same, bo to prawdziwe bryły
+    // stojące w prawdziwym świetle.
+    for (const m of this.chmuryMaterialy || []) {
+      m.color.copy(_a.set(C.chmury.noc)).lerp(_b.set(C.chmury.dzien), dzien)
+        .lerp(_b.set(C.chmury.zorza), zorza * (1 - 0.45 * dzien) * 0.85);
+      if (m.emissive) m.emissive.copy(_a.set(0x000000)).lerp(_b.set(C.chmury.emisjaNoc), noc);
+    }
+
     if (this.gwiazdy) {
       const krycie = C.gwiazdy.krycie * noc;
       this.gwiazdy.material.opacity = krycie;
       this.gwiazdy.visible = krycie > 0.02;
     }
 
-    const pora = dzien > 0.55 ? "dzien" : noc > 0.55 ? "noc" : "zmierzch";
+    const pora = noc > 0.55 ? "noc" : zorza > 0.35 ? (poranek > 0.5 ? "poranek" : "zmierzch") : "dzien";
     this.stan = { t, dzien, noc, zorza, pora };
     return pora;
   }

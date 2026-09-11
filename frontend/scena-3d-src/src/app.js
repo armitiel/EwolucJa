@@ -24,6 +24,7 @@ import { zbudujSwiat, sosna, drzewoLisciaste, plamaCienia, PALETA } from "./swia
 import { Znak } from "./znak.js";
 import { postac } from "./postacie.js";
 import { Doba } from "./doba.js";
+import { Chmury } from "./chmury.js";
 
 const DOTYK = typeof matchMedia !== "undefined" && matchMedia("(pointer:coarse)").matches;
 
@@ -214,11 +215,18 @@ export class Aplikacja {
         })
       : null;
     this._pora = null;
-    if (this.doba) {
-      // Słońce i księżyc są DZIEĆMI kamery, a renderer rysuje tylko to, co
-      // wisi pod sceną — bez tej linijki nie pojawiłyby się wcale.
+    // Obłoki — też dzieci kamery, więc NIE obracają się razem z terenem,
+    // tylko bardzo powoli dryfują w poprzek kadru.
+    this.chmury = this.mapa.chmury > 0 ? new Chmury({ ile: this.mapa.chmury }) : null;
+    if (this.doba || this.chmury) {
+      // Renderer rysuje tylko to, co wisi pod sceną — bez tej linijki dzieci
+      // kamery nie pojawiłyby się wcale.
       this.scene.add(this.camera);
-      this.doba.podepnijDoKamery(this.camera);
+    }
+    if (this.doba) this.doba.podepnijDoKamery(this.camera);
+    if (this.chmury) {
+      this.chmury.podepnijDoKamery(this.camera);
+      if (this.doba) this.doba.chmuryMaterialy = [this.chmury.material, this.chmury.materialOtoczki];
     }
 
     const sw = zbudujSwiat(this.mapa, this.planeta);
@@ -1424,6 +1432,7 @@ export class Aplikacja {
       // Plama pod bohaterem byłaby teraz drugim, nieprawdziwym cieniem.
       if (this.heroShadow) this.heroShadow.visible = false;
     }
+    if (this.chmury) this.chmury.aktualizuj(e, this.doba?.stan || null);
     if (this.doba) {
       const pora = this.doba.aktualizuj(this.hn, this.swiat.quaternion, e);
       if (pora !== this._pora) {
