@@ -12,9 +12,10 @@ import {
   PlaneGeometry, CylinderGeometry, ConeGeometry, IcosahedronGeometry, BoxGeometry,
   SphereGeometry, PointLight, Sprite, SpriteMaterial, AdditiveBlending, InstancedMesh,
   Vector2, Vector3, Euler, Quaternion, BufferAttribute, RepeatWrapping, DoubleSide,
-  Float32BufferAttribute, MathUtils, MultiplyBlending,
+  Float32BufferAttribute, MultiplyBlending, Matrix4, Color,
 } from "three";
 import { stycznaDo, doStycznej, przytnijDoPromienia } from "./planeta.js";
+import { naNormalne, potnijNaKuli, wstegaPoKuli } from "./wstega.js";
 
 export const PALETA = {
   grassA: "#8bb054", grassB: "#6b9a45", grassC: "#a3c368", cliff: "#6d5a44",
@@ -104,30 +105,6 @@ function kreskaNaKuli(t, punkty, i, r, szerPx, R, n) {
   }
 }
 
-function rysujSciezke(t, punkty, i, r, n, szer, los, R) {
-  t.strokeStyle = PALETA.pathEdge;
-  kreskaNaKuli(t, punkty, i, r, 1.9 * n * szer, R, n);
-  t.strokeStyle = PALETA.path;
-  kreskaNaKuli(t, punkty, i, r, 1.55 * n * szer, R, n);
-  for (let m = 2; m < punkty.length - 2; m += 3) {
-    const y = punkty[m];
-    const g = punkty[m + 1].clone().sub(punkty[m - 1]).normalize();
-    const p = poszerzenieNaKuli(y.x, y.y, g.x, g.y, R);
-    t.save();
-    t.translate(i(y.x) + (los() - 0.5) * 6, r(y.y) + (los() - 0.5) * 6);
-    t.rotate(Math.atan2(g.y, g.x));
-    t.fillStyle = los() > 0.4 ? PALETA.pathSlab : "#cfbd96";
-    t.globalAlpha = 0.85;
-    const S = (0.55 + los() * 0.25) * n * szer;
-    const E = (0.42 + los() * 0.2) * n * szer * p; // płytka szersza w poprzek, jak kreska
-    t.beginPath();
-    t.roundRect(-S / 2, -E / 2, S, E, 5);
-    t.fill();
-    t.restore();
-  }
-  t.globalAlpha = 1;
-}
-
 /**
  * Płótno z mapą (trawa, rzeka, ścieżka, gałęzie, kwiatki-kropki). Rozmiar
  * `teren` × `teren` jednostek mapy. Bez winiety — na kuli skraj mapy jest
@@ -203,25 +180,12 @@ export function teksturaTerenu(mapa, planeta) {
     for (const k of idxK) kreskaNaKuli(t, k.map((q) => rzm[q.ix]), i, r, 0.25 * n, R, n);
   }
 
-  // ścieżka główna
-  const Ct = mapa.sciezka;
-  const u = [];
-  for (let m = 0; m < Ct.length - 1; m++)
-    for (let y = 0; y < 1; y += 0.08)
-      u.push(new Vector2(MathUtils.lerp(Ct[m].x, Ct[m + 1].x, y), MathUtils.lerp(Ct[m].z, Ct[m + 1].z, y)));
-  for (const k of przytnijDoPromienia(u, rmax)) rysujSciezke(t, k, i, r, n, 1, los, R);
-
-  // gałęzie ścieżki (narzedzia/galezie-sciezki.py)
-  for (const g of mapa.galezie) {
-    const P = g && (g.sciezka || g.punkty);
-    if (!P || P.length < 2) continue;
-    const u2 = [];
-    for (let a2 = 0; a2 < P.length - 1; a2++)
-      for (let b = 0; b < 1; b += 0.08)
-        u2.push(new Vector2(MathUtils.lerp(P[a2][0], P[a2 + 1][0], b), MathUtils.lerp(P[a2][1], P[a2 + 1][1], b)));
-    u2.push(new Vector2(P[P.length - 1][0], P[P.length - 1][1]));
-    for (const k of przytnijDoPromienia(u2, rmax)) rysujSciezke(t, k, i, r, n, g.szerokosc || 0.75, los, R);
-  }
+  // ŚCIEŻKI TU JUŻ NIE MA. Od WERSJA_SCENY 49 ścieżka główna i gałęzie są
+  // geometrią — wstęgami geodezyjnymi z `wstega.js` (`zbudujSciezke` niżej).
+  // W płótnie dało się utrzymać stałą szerokość tylko przez poszerzanie
+  // kreski o 1/k, a to wysiada przy ~160° od środka mapy. Rzeka zostaje
+  // wypalona, bo jej brzeg jest miękki i rozjazd szerokości jest tam
+  // niewidoczny — a przy okazji `kreskaNaKuli` ma dalej jednego klienta.
 
   // drobne kropki-kwiatki w trawie
   for (let m = 0; m < 92; m++) {
@@ -386,6 +350,162 @@ function wstegaNurtu(P, planeta) {
     t2.offset.x = Math.sin(Date.now() * 18e-5) * 0.045;
   };
   return { mesh: grupa, tik };
+}
+
+/* ── ŚCIEŻKA: wstęgi geodezyjne ─────────────────────────────────────────────── */
+
+/**
+ * Połówki szerokości są dokładnie te, które miała kreska w płótnie
+ * (`szerPx / 2 / n` dla 1,9 i 1,55 jednostki), więc ścieżka wygląda tak
+ * samo — zmienia się tylko to, że teraz ta szerokość jest PRAWDZIWA
+ * w każdym miejscu planety, a nie tylko blisko środka mapy.
+ *
+ * Wysokości: teren ma 192×128 segmentów i zapada się względem idealnej
+ * kuli o ~0,0011, więc wszystko poniżej ~0,003 migocze. Trzy piętra
+ * (obrys → wypełnienie → płytki) dodatkowo rozdziela `polygonOffset`.
+ */
+const SCIEZKA = {
+  HW_OBRYS: 0.95,
+  HW_WYPELNIENIE: 0.775,
+  H_OBRYS: 0.005,
+  H_WYPELNIENIE: 0.009,
+  H_PLYTKI: 0.013,
+  KROK: 0.14,
+  CO_ILE_PLYTEK: 0.46,
+};
+
+/** Biała zaokrąglona płytka z alfą — kolor daje `instanceColor`. */
+function teksturaPlytki() {
+  const c = document.createElement("canvas");
+  c.width = c.height = 64;
+  const x = c.getContext("2d");
+  x.fillStyle = "#ffffff";
+  x.beginPath();
+  x.roundRect(2, 2, 60, 60, 13);
+  x.fill();
+  const t = new CanvasTexture(c);
+  t.colorSpace = SRGBColorSpace;
+  return t;
+}
+
+/**
+ * Ścieżka główna i gałęzie jako geometria na kuli.
+ *
+ * Dane wejściowe zostają płaskie — `mapa.sciezka` to dalej punkty (x, z)
+ * z `mapa.json`, a edytor rysuje je tak samo jak wcześniej. Zmienia się
+ * wyłącznie miejsce, w którym powstaje kształt: zamiast kreski w płótnie
+ * mamy wstęgę odsuniętą po powierzchni kuli (`wstegaPoKuli`).
+ *
+ * Przycinanie: wstęgi NIE obowiązuje `promienTresci` (0,72·πR) — ta granica
+ * broniła tekstury, a wstęga tekstury nie używa. `potnijNaKuli` tnie dopiero
+ * tuż przed antypodem, gdzie płaska mapa zwija się w punkt.
+ */
+export function zbudujSciezke(mapa, planeta) {
+  const grupa = new Group();
+  grupa.name = "sciezki";
+
+  const matObrys = new MeshLambertMaterial({
+    color: PALETA.pathEdge, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
+  });
+  const matWypelnienie = new MeshLambertMaterial({
+    color: PALETA.path, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4,
+  });
+
+  const trasy = [[mapa.sciezka, 1]];
+  for (const g of mapa.galezie || []) {
+    const P = g && (g.sciezka || g.punkty);
+    if (P && P.length >= 2) trasy.push([P, g.szerokosc || 0.75]);
+  }
+
+  const osie = [];
+  for (const [punkty, szer] of trasy) {
+    for (const kawalek of potnijNaKuli(naNormalne(punkty, planeta), planeta)) {
+      const wspolne = { juzNormalne: true, krok: SCIEZKA.KROK };
+      const obrys = wstegaPoKuli(kawalek, planeta, {
+        ...wspolne, polSzerokosc: SCIEZKA.HW_OBRYS * szer, wysokosc: SCIEZKA.H_OBRYS,
+      });
+      const wypelnienie = wstegaPoKuli(kawalek, planeta, {
+        ...wspolne, polSzerokosc: SCIEZKA.HW_WYPELNIENIE * szer, wysokosc: SCIEZKA.H_WYPELNIENIE,
+      });
+      if (obrys) grupa.add(wstegaMesh(obrys.geometry, matObrys));
+      if (wypelnienie) {
+        grupa.add(wstegaMesh(wypelnienie.geometry, matWypelnienie));
+        osie.push({ os: wypelnienie.os, szer });
+      }
+    }
+  }
+
+  const plytki = zbierzPlytki(osie);
+  if (plytki.length) grupa.add(zbudujPlytki(plytki, planeta));
+  return grupa;
+}
+
+function wstegaMesh(geometry, material) {
+  const m = new Mesh(geometry, material);
+  m.frustumCulled = false; // wstęga jest dzieckiem obracanej planety
+  return m;
+}
+
+/** Kamienne płytki rozsypane wzdłuż osi — ten sam detal, co miała tekstura. */
+function zbierzPlytki(osie) {
+  const out = [];
+  let o = 1337;
+  const los = () => (o = (o * 16807) % 2147483647) / 2147483647;
+  const coIle = Math.max(1, Math.round(SCIEZKA.CO_ILE_PLYTEK / SCIEZKA.KROK));
+  for (const { os, szer } of osie) {
+    for (let i = coIle; i < os.length - coIle; i += coIle) {
+      out.push({
+        n: os[i], przed: os[i - 1], po: os[i + 1],
+        wzdluz: (0.55 + los() * 0.25) * szer,
+        wpoprzek: (0.42 + los() * 0.2) * szer,
+        kolor: los() > 0.4 ? PALETA.pathSlab : "#cfbd96",
+        bok: (los() - 0.5) * 0.12,
+      });
+    }
+  }
+  return out;
+}
+
+function zbudujPlytki(plytki, planeta) {
+  const geo = new PlaneGeometry(1, 1);
+  geo.rotateX(-Math.PI / 2); // leży płasko: +X w poprzek, +Z wzdłuż biegu
+  const mat = new MeshLambertMaterial({
+    map: teksturaPlytki(), transparent: true, opacity: 0.85, alphaTest: 0.35,
+    polygonOffset: true, polygonOffsetFactor: -6, polygonOffsetUnits: -6,
+  });
+  const im = new InstancedMesh(geo, mat, plytki.length);
+  im.frustumCulled = false;
+
+  const M = new Matrix4();
+  const kolor = new Color();
+  const kier = new Vector3(), poprz = new Vector3(), wstecz = new Vector3();
+  const n = new Vector3(), bokV = new Vector3();
+  const X = new Vector3(), Y = new Vector3(), Z = new Vector3();
+
+  plytki.forEach((p, k) => {
+    stycznaDo(p.n, p.po, X.set(1, 0, 0), kier);
+    stycznaDo(p.n, p.przed, X.set(1, 0, 0), wstecz).negate();
+    kier.add(wstecz);
+    doStycznej(kier, p.n);
+    poprz.crossVectors(p.n, kier).normalize();
+
+    // rozsunięcie w bok — po powierzchni, nie po cięciwie
+    n.copy(p.n);
+    bokV.copy(poprz);
+    if (Math.abs(p.bok) > 1e-4) planeta.przesunPoKuli(n, bokV, p.bok);
+    kier.crossVectors(bokV, n).normalize(); // (n × t) × n = t
+
+    X.copy(bokV).multiplyScalar(p.wpoprzek);
+    Y.copy(n);
+    Z.copy(kier).multiplyScalar(p.wzdluz);
+    M.makeBasis(X, Y, Z);
+    M.setPosition(n.x * (planeta.R + SCIEZKA.H_PLYTKI), n.y * (planeta.R + SCIEZKA.H_PLYTKI), n.z * (planeta.R + SCIEZKA.H_PLYTKI));
+    im.setMatrixAt(k, M);
+    im.setColorAt(k, kolor.set(p.kolor));
+  });
+  im.instanceMatrix.needsUpdate = true;
+  if (im.instanceColor) im.instanceColor.needsUpdate = true;
+  return im;
 }
 
 /* ── ELEMENTY ŚWIATA ────────────────────────────────────────────────────────── */
@@ -676,6 +796,8 @@ export function zbudujSwiat(mapa, planeta) {
 
   const ziemia = zbudujTeren(mapa, planeta);
   s.add(ziemia);
+  const sciezki = zbudujSciezke(mapa, planeta);
+  s.add(sciezki);
   const nurt = zbudujNurt(mapa, planeta);
   s.add(nurt.mesh);
 
@@ -738,5 +860,5 @@ export function zbudujSwiat(mapa, planeta) {
   const kwiaty = zbudujKwiaty(mapa.kwiaty, planeta);
   if (kwiaty) kwiaty.meshe.forEach((m) => s.add(m));
 
-  return { group: s, ziemia, lantern: n, gate: r, bridge: t, obrotMostu, blockers, kwiaty, nurtTik: nurt.tik };
+  return { group: s, ziemia, sciezki, lantern: n, gate: r, bridge: t, obrotMostu, blockers, kwiaty, nurtTik: nurt.tik };
 }
