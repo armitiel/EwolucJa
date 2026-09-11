@@ -104,8 +104,11 @@ export function wczytajMape() {
       punktSciezki: M.latarnia?.punktSciezki ?? 6,
       ukryta: !!M.latarnia?.ukryta,
     },
-    most: { pos: [M.most?.pos?.[0] ?? -4.7, M.most?.pos?.[1] ?? 6.9] },
-    brama: { pos: [M.brama?.pos?.[0] ?? 0, M.brama?.pos?.[1] ?? -7.2] },
+    // `ukryty`/`ukryta` — tak samo jak latarnia: obiekt POWSTAJE (kod sceny
+    // trzyma do niego uchwyt), ale nie wchodzi do grupy planety. Nowy świat
+    // zaczyna od pustej kuli i dokłada rzeczy po kolei.
+    most: { pos: [M.most?.pos?.[0] ?? -4.7, M.most?.pos?.[1] ?? 6.9], ukryty: !!M.most?.ukryty },
+    brama: { pos: [M.brama?.pos?.[0] ?? 0, M.brama?.pos?.[1] ?? -7.2], ukryta: !!M.brama?.ukryta },
     rzeka: {
       szerokosc: M.rzeka?.szerokosc ?? 1.5,
       krzywe: krzyweRzeki,

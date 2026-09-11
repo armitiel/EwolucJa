@@ -315,6 +315,9 @@ export class Aplikacja {
 
   punktSciezki(s, e = new Vector3()) {
     const Ct = this.mapa.sciezka;
+    // Świat bez ścieżki (nowa planeta) — nie ma dokąd prowadzić, więc środek
+    // mapy. Bez tego `Ct[Ct.length - 1]` na pustej tablicy wywraca scenę.
+    if (!Ct.length) return e.set(0, 0, 0);
     s = clamp(s, 0, this.dlSciezki);
     let t = 0;
     for (let n = 0; n < this.odcinki.length; n++) {

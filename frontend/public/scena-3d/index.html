@@ -170,9 +170,20 @@ Jeśli to nie zadziała: uruchom <code>npm run dev</code> i wejdź na
       if (robocza) { globalThis.__SCENA3D_MAPA = JSON.parse(robocza); odpal(); return; }
     } catch (e) { console.warn('mapa robocza:', e); }
   }
-  fetch(kat + 'mapa.json', { cache: 'no-cache' })
+  // `?mapa=w2` bierze `mapa-w2.json` z tego samego katalogu. Tak stoi obok
+  // siebie kilka swiatow na jednym silniku: `mapa.json` zostaje nietknieta,
+  // a nowy swiat jest osobnym plikiem. Nazwa przepuszczana przez sito
+  // [a-z0-9-], zeby parametr z adresu nie siegnal poza ten katalog.
+  var nazwaMapy = (pyt.get('mapa') || '').toLowerCase().replace(/[^a-z0-9-]/g, '');
+  var plikMapy = (nazwaMapy && nazwaMapy !== 'podglad') ? 'mapa-' + nazwaMapy + '.json' : 'mapa.json';
+  fetch(kat + plikMapy, { cache: 'no-cache' })
     .then(function (r) { return r.ok ? r.json() : null; })
-    .then(function (m) { if (m) globalThis.__SCENA3D_MAPA = m; })
+    .then(function (m) {
+      if (!m) return;
+      globalThis.__SCENA3D_MAPA = m;
+      // Swiat moze narzucac bohatera (`"postac": "fox"`); `?postac=` wygrywa.
+      if (m.postac && !postac) globalThis.SCENA3D_POSTAC = m.postac;
+    })
     .catch(function () {})
     .then(odpal);
 })();

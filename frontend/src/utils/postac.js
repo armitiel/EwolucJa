@@ -36,6 +36,21 @@ export function idPostaci() {
 }
 
 /**
+ * Czy gracz wybrał postać SAM — parametrem w adresie albo wcześniejszym
+ * zapisem — czy tylko dostał domyślną. `idPostaci()` tego nie rozróżnia,
+ * bo zawsze coś zwraca; świat, który narzuca bohatera (`mapa.postac`),
+ * musi wiedzieć, czy ma prawo nadpisać wybór.
+ */
+export function postacWybranaJawnie() {
+  try {
+    if (new URLSearchParams(window.location.search).get("postac")) return true;
+    return !!localStorage.getItem(KLUCZ_POSTACI);
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Awatar bieżącej postaci albo `domyslny`, gdy postać swojego nie ma.
  * Domyślny podaje miejsce wywołania, bo każde ma inny: HUD używa portretu
  * w kółku, panel profilu — sylwetki na całą wysokość.

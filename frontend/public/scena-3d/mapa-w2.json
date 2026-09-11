@@ -1,0 +1,19 @@
+{
+  "wersja": 1,
+  "opis": "Nowa planeta (wariant 2) — pusta kula pod nowy sposob rozgrywki. Bohaterem jest lisek, wszystkie obiekty pierwszego swiata sa schowane. Otwierasz przez /scena-3d/?mapa=w2 albo edytujesz w /scena-3d/edytor.html.",
+  "postac": "fox",
+  "swiat": { "promien": 14, "teren": 40 },
+  "start": { "pos": [0, 0], "obrot": 0 },
+  "sciezka": [],
+  "sciezkaWezly": { "punkty": [], "gladkosc": 0.95, "probki": 16, "wezelLatarni": 0 },
+  "galezie": [],
+  "rzeka": { "szerokosc": 1.5, "krzywe": [] },
+  "most": { "pos": [0, 0], "ukryty": true },
+  "brama": { "pos": [0, 0], "ukryta": true },
+  "latarnia": { "pos": [0, 0], "punktSciezki": 0, "ukryta": true },
+  "drzewa": [],
+  "glazy": [],
+  "budynki": [],
+  "znaki": [],
+  "kwiaty": []
+}

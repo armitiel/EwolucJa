@@ -803,9 +803,11 @@ export function zbudujSwiat(mapa, planeta) {
 
   const Ct = mapa.sciezka;
   const t = most();
-  const obrotMostu = Math.atan2(Ct[2].x - Ct[1].x, Ct[2].z - Ct[1].z);
+  // Most stoi w poprzek ścieżki, więc kąt bierze z jej trzeciego węzła.
+  // Bez ścieżki (pusty świat) nie ma czego przecinać — zero i tyle.
+  const obrotMostu = Ct.length >= 3 ? Math.atan2(Ct[2].x - Ct[1].x, Ct[2].z - Ct[1].z) : 0;
   planeta.ustaw(t, mapa.most.pos[0], mapa.most.pos[1], 0, obrotMostu);
-  s.add(t);
+  if (!mapa.most.ukryty) s.add(t);
 
   const cn = mapa.latarnia.pos;
   const n = latarnia();
@@ -819,11 +821,13 @@ export function zbudujSwiat(mapa, planeta) {
 
   const r = brama();
   planeta.ustaw(r, mapa.brama.pos[0], mapa.brama.pos[1], 0, 0);
-  s.add(r);
-  blockers.push(
-    { x: mapa.brama.pos[0] - 1.3, z: mapa.brama.pos[1], r: 0.55 },
-    { x: mapa.brama.pos[0] + 1.3, z: mapa.brama.pos[1], r: 0.55 },
-  );
+  if (!mapa.brama.ukryta) {
+    s.add(r);
+    blockers.push(
+      { x: mapa.brama.pos[0] - 1.3, z: mapa.brama.pos[1], r: 0.55 },
+      { x: mapa.brama.pos[0] + 1.3, z: mapa.brama.pos[1], r: 0.55 },
+    );
+  }
 
   const drzewa = mapa.drzewa
     ? mapa.drzewa.map((d) => [(d.typ === "lisciaste" ? drzewoLisciaste : sosna)(d.skala ?? 1), d.pos[0], d.pos[1], d.obrot, d.skala ?? 1])

@@ -18,12 +18,12 @@
  * trzymamy w refach, żeby zmiana funkcji w rodzicu nie przeładowywała WebGL.
  */
 import React, { useEffect, useRef } from "react";
-import { idPostaci } from "../utils/postac.js";
+import { idPostaci, postacWybranaJawnie } from "../utils/postac.js";
 
 // UWAGA: numer ma tylko ROSNĄĆ. Numery 3–13 zostały już wydane przeglądarce
 // z inną zawartością modułu (kolejne wersje znaków, gwiazdki, tempo ruchu),
 // więc cofnięcie go serwuje z cache starą scenę zamiast aktualnej.
-export const WERSJA_SCENY = "49";  // PLANETA: sciezka to wstega geodezyjna (wstega.js), nie kreska w teksturze
+export const WERSJA_SCENY = "50";  // PLANETA: prop mapa= + most/brama do schowania (pusty swiat pod wariant)
 const ZASOBY = "/scena-3d/assets/";
 
 /**
@@ -98,7 +98,8 @@ function dopracujCienBohatera(scena, proba = 0) {
   }
 }
 
-export default function Scena3D({ apiRef, onZdarzenie, onBlad, spokojnyRuch, zoom = ZOOM_DOMYSLNY, className = "hub-scena" }) {
+export default function Scena3D({ apiRef, onZdarzenie, onBlad, spokojnyRuch, zoom = ZOOM_DOMYSLNY,
+  mapa = "/scena-3d/mapa.json", className = "hub-scena" }) {
   const hostRef = useRef(null);
   const zdarzenieRef = useRef(onZdarzenie);
   const bladRef = useRef(onBlad);
@@ -128,11 +129,20 @@ export default function Scena3D({ apiRef, onZdarzenie, onBlad, spokojnyRuch, zoo
         // wykonania modułu, nie przy tworzeniu sceny. Gdy pliku nie ma albo się
         // nie wczyta, bundle wraca do wartości wbudowanych — scena wygląda tak
         // jak przed edytorem, więc awaria mapy nie gasi świata.
+        //
+        // Prop `mapa` wskazuje PLIK, a domyślna wartość to dzisiejszy adres,
+        // więc hub nie widzi różnicy. Drugi świat na tym samym silniku to
+        // `<Scena3D mapa="/scena-3d/mapa-w2.json" />` i nic poza tym.
         try {
-          const odp = await fetch("/scena-3d/mapa.json", { cache: "no-cache" });
-          if (odp.ok) globalThis.__SCENA3D_MAPA = await odp.json();
+          const odp = await fetch(mapa, { cache: "no-cache" });
+          if (odp.ok) {
+            const dane = await odp.json();
+            globalThis.__SCENA3D_MAPA = dane;
+            // Świat może narzucać bohatera; jawny wybór gracza jest silniejszy.
+            if (dane.postac && !postacWybranaJawnie()) globalThis.SCENA3D_POSTAC = dane.postac;
+          }
         } catch (e) {
-          console.warn("[scena3d] mapa.json niedostępna, lecę na wbudowanej", e);
+          console.warn("[scena3d] mapa niedostępna, lecę na wbudowanej", mapa, e);
         }
 
         const adres = adresModulu();
