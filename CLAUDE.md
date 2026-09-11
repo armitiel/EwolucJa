@@ -92,7 +92,7 @@ Przeniesienie albo zmiana nazwy tego pliku **wywala produkcję**, a nic w
 `frontend/` o tym nie uprzedza. To jedyne takie miejsce w repo i dług
 do spłacenia (dane powinny być wspólną paczką albo tabelą w bazie).
 
-**Prototyp V1** (`src/App.jsx`, 1698 linii, stare krainy `dolina_selfie`…)
+**Prototyp V1** (`src/App.jsx`, 1698 linii — koncept porzucony)
 wisi na `/play`, osiągalny tylko z pulpitu `/dev`. Od 2026-09-08 jest ładowany
 leniwie — jego 72 KB nie jedzie już w paczce startowej. Nie importuj go
 statycznie z powrotem.
@@ -106,13 +106,24 @@ statycznie z powrotem.
 - **Czcionki:** Display = Baloo 2, Body = Nunito, Handwritten = Caveat/Fredoka.
 - **Styl 3D:** Stylized Claymorphism / Pixar — obłe kształty, żywe kolory, matowe tekstury.
 
-## Zasady GAMA-1 (z project_instructions)
+## Koncept gry — co jest naprawdę na ekranie
 
-1. **Profilowanie:** 6 archetypów (EM, ST, KR, LD, DT, MD), po quizie maks 7-8 pts każdy (balans).
-2. **Krainy:** Dolina Selfie, Las Pytań, Jaskinia Emocji, Wyspa Talentów, Przystań Współpracy, Góra Podsumowania.
-3. **Język:** Dzieci 6-12 lat, ciepły, tajemniczy, pełen przygód. Narrator w rodzaju żeńskim.
-4. **Ewolucja awatara:** Po każdej misji info o zdobytym ekwipunku (np. Gogle Wynalazcy dla KR).
-5. **Stan gry JSON:** Generuj wewnętrznie po każdej interakcji (ukryty od gracza).
+Źródło prawdy: **[`docs/KONCEPT_GRY.md`](./docs/KONCEPT_GRY.md)** (spisane
+z ekranów 2026-09-09). W skrócie: START → **Świat 3D**, czyli planeta z jedną
+polaną. Wizkor zleca: gwiazdki, odkrywanie trzech gier przez puzzle, zadanie
+poza ekranem (cechę losuje Koło Przeznaczenia, dowód idzie do Mentora). Lisek
+zaprasza do porady dnia. Dok: Minigry · Rozmowy · Zadania · Porada. Profil:
+awatar, imię, monety, mocne strony. Dom: „co już masz".
+
+Trasy bez dojścia z interfejsu (`/play`, `/przygoda`, stara aplikacja
+zakładkowa) **nie są częścią gry** — nie buduj na nich i nie opisuj ich jako
+gry. `project_instructions` w ustawieniach Cowork są nieaktualne wobec
+`KONCEPT_GRY.md` — do poprawki po stronie ustawień, nie repo.
+
+Kierunki rozwoju i granice dzisiejszej gry: [`docs/ROZWOJ_GRY.md`](./docs/ROZWOJ_GRY.md).
+
+Język: dzieci 6–12 lat, ciepły, tajemniczy, pełen przygód; narratorka w rodzaju
+żeńskim. Styl: Stylized 3D Claymorphism / Pixar.
 
 ## Co NIE działa (znane problemy)
 
@@ -208,7 +219,7 @@ Konsekwencje, o które łatwo się potknąć:
   liczy próg powrotu jako `powroty ? def.respawn : (def.respawnPierwszy ??
   def.respawn)` — wygaszenie samego `respawn` NIE wystarcza.
 - **Zakładka minigier filtruje po `gryWZakladce()`.** Gra spoza łańcucha misji
-  zachowuje się po staremu (kłódka + kraina z przygody).
+  zachowuje się po staremu (kłódka; warunek `wymaga` z katalogu).
 - Dopisanie kolejnej gry = jeden wpis w `MISJE` (teksty Wizkora, ikona,
   nagroda, id znaku) + wywołanie `zaliczWygrana("<id>")` w samej grze.
 

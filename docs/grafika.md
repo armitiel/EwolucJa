@@ -4,8 +4,8 @@ Dokument opisuje CAŁĄ drogę obrazka: od promptu albo pliku od Ciebie, przez
 odchudzanie, po miejsce w kodzie. Zawiera też błędy, które już popełniliśmy —
 żeby nie popełniać ich drugi raz.
 
-Prompty do konkretnej gry („Sekret pod puchem") leżą osobno w
-[`prompty-piorka.md`](prompty-piorka.md). Tutaj są zasady wspólne.
+Prompty dawnej gry w piórka („Sekret pod puchem", usunięta 2026-09-09) leżą w
+[`archiwum/prompty-piorka.md`](archiwum/prompty-piorka.md). Tutaj są zasady wspólne.
 
 ---
 
@@ -207,13 +207,13 @@ z `music.png`, gdzie została magentowa obwódka po nieprzezroczystym tle).
 ```
 frontend/public/
   star.png                      ikonki globalne (gwiazdka, music, avatary)
-  assets/piorka/                „Sekret pod puchem": piórka, obiekty
+  assets/piorka/                piórka i obiekty (gra usunięta; obrazków używa ekran startowy gier, Pamięć Mędrca, Lot Liska)
   assets/karty/                 „Pamięć Mędrca": symbole, rewers, scena stołu
   assets/wejscie/               ekran startowy: klucz, tło
   scena-3d/assets/*.glb         modele 3D (w tym karta.glb)
 docs/
   grafika.md                    ten plik
-  prompty-piorka.md             prompty i koncepty jednej gry
+  archiwum/prompty-piorka.md    prompty gry w piórka (gra usunięta; obrazki wciąż w użyciu)
 scripts/
   assety-piorka.py              piórka i obiekty do zgadywania
   assety-karty.py               symbole kart + scena stołu

@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "EwolucJA Game UI",
+  "scope": "React/CSS overlay UI above the WebGL world",
+  "sourceOfTruth": [
+    "frontend/src/styles/ewolucja.css",
+    "frontend/src/hub/styles/hub.css",
+    "frontend/public/scena-3d/hud.css",
+    "frontend/src/styles/nagroda.css"
+  ],
+  "tokens": {
+    "color": {
+      "sky1": "#B7E3FF",
+      "sky2": "#FFE0B5",
+      "leaf": "#5FA76F",
+      "leafDark": "#2F5841",
+      "dusk": "#E89A3D",
+      "amber": "#F4C95D",
+      "magic": "#B886E8",
+      "magicDark": "#7A4DC2",
+      "paper": "#FBF1D6",
+      "paper2": "#F4E3B8",
+      "ink": "#4E4D76",
+      "inkSoft": "#5A4F77",
+      "rose": "#F08C8C"
+    },
+    "font": {
+      "display": "Baloo 2",
+      "body": "Nunito",
+      "characterAccent": "Caveat"
+    },
+    "radius": {
+      "card": 22,
+      "characterModal": 28,
+      "pill": 999
+    },
+    "controlHeight": {
+      "primary": 56,
+      "secondary": 48,
+      "primaryCompact": 50,
+      "secondaryCompact": 44,
+      "close": 46
+    }
+  },
+  "components": {
+    "iconButtonClose": "red soft-clay close action, 46px target",
+    "iconButtonAudioMuted": "gold-rimmed audio state control",
+    "notificationBadge": "count and new-item dot states",
+    "resourceCounter": "spark, coin and progress HUD capsule",
+    "dockItem": "gold circular navigation item with persistent label",
+    "traitCard": "named child trait with progress and rank",
+    "notice": "safety, mentor guidance and activity instruction levels",
+    "gameCta": "single dominant green action",
+    "rewardTile": "locked and available reward states",
+    "conversationChoice": "Forum and Private channel choices",
+    "conversationModal": "purple-header modal composed from conversation choices",
+    "speechAndThoughtBubble": "separate talking and thinking semantics",
+    "panelHeader": "purple-gold title bar with close action",
+    "progress": "trait and coin progress treatments",
+    "hud": "persistent world navigation and resources",
+    "reflektor": "single-target contextual guidance",
+    "popupPostaci": "blocking character encounter or invitation",
+    "panelSheet": "browsable hub section",
+    "messageScroll": "persistent inbox and active task state",
+    "gameStart": "illustrated entry gate to a minigame",
+    "rewardScreen": "blocking completion and reward state",
+    "cloudCurtain": "first-load narrative transition"
+  },
+  "figma": {
+    "fileKey": "qE7JhXghNiFleaYlIRvf0j",
+    "fileUrl": "https://www.figma.com/design/qE7JhXghNiFleaYlIRvf0j/EwolucJA-UI-Kit",
+    "componentPage": "03 Game UI Components",
+    "componentPageNodeId": "10:2",
+    "collections": ["01 Primitives", "02 Semantic Colors", "03 Dimensions"]
+  },
+  "layers": {
+    "webgl": 0,
+    "hubSheet": 5,
+    "hud": 20,
+    "messageScroll": 40,
+    "guidance": 58,
+    "characterModal": 60,
+    "embeddedGame": 70,
+    "specialModal": 92,
+    "reward": 9999
+  },
+  "responsive": {
+    "desktopHubWidth": 480,
+    "desktopHubBreakpoint": 520,
+    "compactBreakpoint": 360,
+    "bubbleHorizontalMargin": "8-12px",
+    "safeArea": true,
+    "dynamicViewport": true
+  }
+}
