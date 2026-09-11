@@ -23,7 +23,7 @@ import { idPostaci, postacWybranaJawnie } from "../utils/postac.js";
 // UWAGA: numer ma tylko ROSNĄĆ. Numery 3–13 zostały już wydane przeglądarce
 // z inną zawartością modułu (kolejne wersje znaków, gwiazdki, tempo ruchu),
 // więc cofnięcie go serwuje z cache starą scenę zamiast aktualnej.
-export const WERSJA_SCENY = "50";  // PLANETA: prop mapa= + most/brama do schowania (pusty swiat pod wariant)
+export const WERSJA_SCENY = "51";  // PLANETA: cykl dnia i nocy (doba.js) za flaga swiat.cyklDnia
 const ZASOBY = "/scena-3d/assets/";
 
 /**

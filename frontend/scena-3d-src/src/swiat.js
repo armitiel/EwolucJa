@@ -204,11 +204,121 @@ export function teksturaTerenu(mapa, planeta) {
 }
 
 /**
- * Kula terenu. UV każdego wierzchołka liczone są z odwrotnego rzutu: punkt
- * kuli → punkt mapy → miejsce na płaskim płótnie. Poza mapą tekstura się
- * „przypina" do brzegu (ClampToEdge), czyli daje trawę.
+ * Teren FASETOWANY — ścianki zamiast malunku (`swiat.terenKanciasty`).
+ *
+ * ŻADNEJ TEKSTURY. Kolor siedzi w wierzchołkach (`vertexColors`), materiał ma
+ * `flatShading`, więc każda ścianka ma jedną normalną i jeden odcień. Lekkie
+ * wyboje (suma kilku sinusów po kierunku) łamią kulę na tyle, żeby sąsiednie
+ * ścianki łapały światło pod różnym kątem — i to jest cały efekt.
+ *
+ * IcosahedronGeometry, a NIE SphereGeometry: kula z południków ma na biegunie
+ * wachlarz trójkątów, co przy płaskim cieniowaniu robi gwiazdę dokładnie tam,
+ * gdzie stoi dziecko (środek mapy = biegun). Bryła foremna ma ścianki równe na
+ * całej kuli i żadnego bieguna. Jest NIEINDEKSOWANA, więc każda ścianka ma
+ * własne wierzchołki — dokładnie to, czego trzeba do koloru „na ściankę".
+ * Wysokość liczymy z KIERUNKU, więc powtórzone wierzchołki dostają tę samą
+ * wartość i między ściankami nie robią się szpary.
+ *
+ * Wyboje są celowo płytkie (0,05 przy R≈8): bohater chodzi po idealnej kuli,
+ * a nie po tym meshu, więc głębsze zaczęłyby go zatapiać w zboczu.
+ */
+function terenFasetowany(mapa, planeta) {
+  const R = planeta.R;
+  const gestosc = typeof mapa.terenKanciasty === "number" ? mapa.terenKanciasty : 5;
+  const amp = mapa.terenWyboje ?? 0.05;
+  const geo = new IcosahedronGeometry(R, gestosc);
+  const pos = geo.attributes.position;
+  const n = pos.count;
+
+  const wybój = (x, y, z) =>
+    Math.sin(4.8 * x + 0.7) * Math.sin(5.9 * z + 1.9) * 0.55 +
+    Math.sin(9.3 * y + 2.6) * Math.sin(7.7 * x + 0.3) * 0.30 +
+    Math.sin(15.1 * z + 4.2) * Math.sin(12.7 * y + 1.1) * 0.15;
+
+  // NIEREGULARNOŚĆ. Bryła foremna daje trójkąty równe co do jednego, a to
+  // widać jako siatkę. Rozrzucamy więc każdy wierzchołek STYCZNIE po kuli
+  // o losowy ułamek długości krawędzi — kształty przestają się powtarzać,
+  // a kula zostaje kulą.
+  //
+  // Klucz jest z ZAOKRĄGLONEGO kierunku, nie z indeksu: geometria jest
+  // nieindeksowana, więc ten sam wierzchołek występuje w kilku ściankach
+  // i każda jego kopia MUSI dostać identyczne przesunięcie. Inaczej między
+  // ściankami otwierają się szpary.
+  const nieregularnosc = mapa.terenNieregularnosc ?? 0.3;
+  // three.js dzieli krawędź na (detail + 1) części; krawędź dwudziestościanu
+  // rozpina ~1,107 rad, stąd kąt pojedynczej ścianki.
+  const katKrawedzi = 1.10715 / (gestosc + 1);
+  const rozrzut = nieregularnosc * katKrawedzi;
+
+  const mieszaj = (k) => {
+    let h = 2166136261;
+    for (let i = 0; i < k.length; i++) { h ^= k.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  };
+  const pamiec = new Map();
+  const t1 = new Vector3();
+  const t2 = new Vector3();
+  const pomoc = new Vector3();
+  const przesun = (d) => {
+    const klucz = `${Math.round(d.x * 1e4)},${Math.round(d.y * 1e4)},${Math.round(d.z * 1e4)}`;
+    const gotowe = pamiec.get(klucz);
+    if (gotowe) return d.copy(gotowe);
+    const h = mieszaj(klucz);
+    const r1 = ((h % 2048) / 2048) * 2 - 1;
+    const r2 = (((h >>> 11) % 2048) / 2048) * 2 - 1;
+    pomoc.set(0, 1, 0);
+    if (Math.abs(d.y) > 0.9) pomoc.set(1, 0, 0);
+    t1.crossVectors(d, pomoc).normalize();
+    t2.crossVectors(d, t1).normalize();
+    d.addScaledVector(t1, r1 * rozrzut).addScaledVector(t2, r2 * rozrzut).normalize();
+    pamiec.set(klucz, d.clone());
+    return d;
+  };
+
+  const v = new Vector3();
+  const wys = new Float32Array(n);
+  for (let i = 0; i < n; i++) {
+    v.fromBufferAttribute(pos, i).normalize();
+    if (rozrzut > 1e-6) przesun(v);
+    const h = wybój(v.x, v.y, v.z);
+    wys[i] = h;
+    v.multiplyScalar(R + amp * h);
+    pos.setXYZ(i, v.x, v.y, v.z);
+  }
+
+  // Kolor na ŚCIANKĘ (wierzchołki idą po trzy): średnia wysokość ścianki
+  // daje odcień, drobny szum rozbija regularność wzoru.
+  const kolory = new Float32Array(n * 3);
+  const c = new Color();
+  const jasna = new Color(mapa.terenBarwy?.jasna ?? 0x9ed163);
+  const ciemna = new Color(mapa.terenBarwy?.ciemna ?? 0x6ba23f);
+  for (let t = 0; t + 2 < n; t += 3) {
+    const sr = (wys[t] + wys[t + 1] + wys[t + 2]) / 3;
+    const szum = ((Math.sin((t + 1) * 12.9898) * 43758.5453) % 1 + 1) % 1;
+    const u = Math.min(1, Math.max(0, 0.5 + 0.55 * sr + (szum - 0.5) * 0.24));
+    c.copy(ciemna).lerp(jasna, u);
+    for (let k = 0; k < 3; k++) {
+      kolory[(t + k) * 3] = c.r;
+      kolory[(t + k) * 3 + 1] = c.g;
+      kolory[(t + k) * 3 + 2] = c.b;
+    }
+  }
+  geo.setAttribute("color", new Float32BufferAttribute(kolory, 3));
+  geo.computeVertexNormals();
+
+  const m = new Mesh(geo, new MeshLambertMaterial({ vertexColors: true, flatShading: true }));
+  m.name = "ground";
+  return m;
+}
+
+/**
+ * Kula terenu z wypaloną teksturą mapy (pierwszy świat). UV każdego
+ * wierzchołka liczone są z odwrotnego rzutu: punkt kuli → punkt mapy →
+ * miejsce na płaskim płótnie. Poza mapą tekstura się „przypina" do brzegu
+ * (ClampToEdge), czyli daje trawę.
  */
 export function zbudujTeren(mapa, planeta) {
+  if (mapa.terenKanciasty) return terenFasetowany(mapa, planeta);
   const R = planeta.R;
   const geo = new SphereGeometry(R, 192, 128);
   const pos = geo.attributes.position;

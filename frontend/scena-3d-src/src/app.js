@@ -15,7 +15,7 @@ import {
   Vector2, Vector3, Quaternion, Matrix4, Group, Mesh, RingGeometry, MeshBasicMaterial, DoubleSide,
   Raycaster, Clock, AnimationMixer, AnimationUtils, LoopOnce, Box3, CanvasTexture, SRGBColorSpace,
   EquirectangularReflectionMapping, PMREMGenerator, SphereGeometry, CylinderGeometry, BackSide,
-  ACESFilmicToneMapping, Points, PointsMaterial, BufferGeometry, Float32BufferAttribute,
+  ACESFilmicToneMapping, PCFSoftShadowMap, Points, PointsMaterial, BufferGeometry, Float32BufferAttribute,
 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Planeta, stycznaDo, doStycznej, obrocStyczna, katMiedzy, przytnijDoPromienia } from "./planeta.js";
@@ -23,6 +23,7 @@ import { wczytajMape } from "./mapa.js";
 import { zbudujSwiat, sosna, drzewoLisciaste, plamaCienia, PALETA } from "./swiat.js";
 import { Znak } from "./znak.js";
 import { postac } from "./postacie.js";
+import { Doba } from "./doba.js";
 
 const DOTYK = typeof matchMedia !== "undefined" && matchMedia("(pointer:coarse)").matches;
 
@@ -175,21 +176,50 @@ export class Aplikacja {
 
     this.scene = new Scene();
     this.scene.background = new Color(PALETA.night);
-    this.scene.add(new HemisphereLight(14214399, 5600831, 1.05));
-    const slonce = new DirectionalLight(16769200, 1.6);
-    slonce.position.set(-6, 12, 4);
-    this.scene.add(slonce);
-    this.scene.add(new AmbientLight(8425664, 0.35));
-    const wypelnienie = new DirectionalLight(16773855, 0.85);
-    wypelnienie.position.set(5, 7, 9);
-    this.scene.add(wypelnienie);
+    // Światła trzymamy na `this`, bo przy włączonym cyklu dnia (`doba.js`)
+    // zmieniają barwę i moc w każdej klatce. Wartości poniżej to PEŁNY DZIEŃ
+    // i są zarazem tym, co świat miał, zanim doba powstała.
+    this.hemisfera = new HemisphereLight(14214399, 5600831, 1.05);
+    this.scene.add(this.hemisfera);
+    this.slonce = new DirectionalLight(16769200, 1.6);
+    this.slonce.position.set(-6, 12, 4);
+    this.scene.add(this.slonce);
+    this.ambient = new AmbientLight(8425664, 0.35);
+    this.scene.add(this.ambient);
+    this.wypelnienie = new DirectionalLight(16773855, 0.85);
+    this.wypelnienie.position.set(5, 7, 9);
+    this.scene.add(this.wypelnienie);
 
     this.camera = new OrthographicCamera(-1, 1, 1, -1, 0.1, 160);
     this.camDir = new Vector3(4.2, 11.5, 8).normalize().multiplyScalar(26);
     // Kamera patrzy na wierzchołek kuli — tam planeta „przynosi" bohatera.
     this.camTarget = new Vector3(0, this.planeta.R + (Number(globalThis.SCENA3D_KAMERA_PODNIESIENIE) || KAMERA_PODNIESIENIE), 0);
     this.camPos = new Vector3();
-    this.scene.add(gwiazdy(this.camDir));
+    this.gwiazdy = gwiazdy(this.camDir);
+    this.scene.add(this.gwiazdy);
+
+    // DOBA — dzień i noc robione nogami. Słońce stoi nad punktem mapy
+    // `swiat.slonceNad`, a bohater, idąc, wychodzi spod niego. Bez flagi
+    // `swiat.cyklDnia` obiekt w ogóle nie powstaje i światła stoją jak stały.
+    this.doba = this.mapa.doba.wlaczona
+      ? new Doba({
+          scena: this.scene,
+          slonce: this.slonce,
+          wypelnienie: this.wypelnienie,
+          hemisfera: this.hemisfera,
+          ambient: this.ambient,
+          gwiazdy: this.gwiazdy,
+          slonceN: this.planeta.normalna(this.mapa.doba.nad[0], this.mapa.doba.nad[1]),
+          strojenie: this.mapa.doba.strojenie,
+        })
+      : null;
+    this._pora = null;
+    if (this.doba) {
+      // Słońce i księżyc są DZIEĆMI kamery, a renderer rysuje tylko to, co
+      // wisi pod sceną — bez tej linijki nie pojawiłyby się wcale.
+      this.scene.add(this.camera);
+      this.doba.podepnijDoKamery(this.camera);
+    }
 
     const sw = zbudujSwiat(this.mapa, this.planeta);
     this.swiat = sw.group;
@@ -197,6 +227,29 @@ export class Aplikacja {
     this.scene.add(this.swiat);
     this.lantern = sw.lantern;
     this.blockers = sw.blockers;
+    if (this.doba) this.doba.ziemia = this.ziemia;
+
+    // CIENIE. Domyślnie wyłączone — pierwszy świat ma plamy pod obiektami
+    // (`plamaCienia`) i ma tak zostać. Włączone: jedno światło rzuca cień na
+    // kulę, a przy niskim słońcu cienie robią się długie, jak na concept arcie.
+    if (this.mapa.cienie) {
+      this.renderer.shadowMap.enabled = true;
+      this.renderer.shadowMap.type = PCFSoftShadowMap;
+      this.slonce.castShadow = true;
+      const c = this.slonce.shadow;
+      c.mapSize.set(DOTYK ? 1024 : 2048, DOTYK ? 1024 : 2048);
+      c.camera.left = -14; c.camera.right = 14;
+      c.camera.top = 14; c.camera.bottom = -14;
+      c.camera.near = 2; c.camera.far = 62;
+      // Kula ma łagodne zbocza, więc bez `normalBias` całą nocną stronę
+      // pokryłby mory z samocieniowania.
+      c.normalBias = 0.05;
+      c.bias = -0.0004;
+      if (this.ziemia) this.ziemia.receiveShadow = true;
+      this.swiat.traverse((o) => {
+        if (o.isMesh && o !== this.ziemia) { o.castShadow = true; o.receiveShadow = true; }
+      });
+    }
     this.kwiaty = sw.kwiaty;
     this.nurtTik = sw.nurtTik;
 
@@ -1362,6 +1415,22 @@ export class Aplikacja {
     const tempo = spokojnyRuch ? 30 : TEMPO_OBROTU;
     this.swiat.quaternion.slerp(this.obrotCel, 1 - Math.exp(-tempo * e));
     this.korektaPolnocy(e);
+
+    // Światło liczymy PO obrocie planety — kierunek słońca w świecie wynika
+    // z tego, jak planeta stoi w tej klatce.
+    if (this.mapa.cienie && this.hero && !this._cienieBohatera) {
+      this._cienieBohatera = true;
+      this.hero.traverse((o) => { if (o.isMesh || o.isSkinnedMesh) o.castShadow = true; });
+      // Plama pod bohaterem byłaby teraz drugim, nieprawdziwym cieniem.
+      if (this.heroShadow) this.heroShadow.visible = false;
+    }
+    if (this.doba) {
+      const pora = this.doba.aktualizuj(this.hn, this.swiat.quaternion, e);
+      if (pora !== this._pora) {
+        this._pora = pora;
+        this.emit("doba:pora", { pora, ...this.doba.stan });
+      }
+    }
 
     this.camPos.copy(this.camTarget).add(this.camDir);
     this._kinoKlatka(e);

@@ -114,6 +114,21 @@ export function wczytajMape() {
       krzywe: krzyweRzeki,
       punkty: punktyRzeki(krzyweRzeki),
     },
+    // CYKL DNIA (patrz `doba.js`). Domyślnie WYŁĄCZONY — pierwszy świat ma
+    // zawsze południe i ma wyglądać dokładnie tak, jak wyglądał.
+    // `slonceNad` to punkt MAPY, nad którym stoi słońce; środek mapy = [0, 0].
+    // Cienie rzucane naprawdę (shadow map) zamiast plam pod obiektami.
+    cienie: !!M.swiat?.cienie,
+    // Teren z widocznymi ściankami — płaskie cieniowanie jak na concept arcie.
+    terenKanciasty: M.swiat?.terenKanciasty ?? false,
+    terenWyboje: M.swiat?.terenWyboje,
+    terenNieregularnosc: M.swiat?.terenNieregularnosc,
+    terenBarwy: M.swiat?.terenBarwy || null,
+    doba: {
+      wlaczona: !!M.swiat?.cyklDnia,
+      nad: [M.swiat?.slonceNad?.[0] ?? 0, M.swiat?.slonceNad?.[1] ?? 0],
+      strojenie: M.swiat?.doba || null,
+    },
     galezie: Array.isArray(M.galezie) ? M.galezie : [],
     drzewa: M.drzewa || null,
     glazy: M.glazy || null,
