@@ -1,6 +1,6 @@
 {
   "wersja": 1,
-  "opis": "Nowa planeta (wariant 2) — pusta kula pod nowy sposob rozgrywki. Bohaterem jest lisek, obiekty pierwszego swiata sa schowane, wlaczony cykl dnia (slonce stoi nad punktem [0,-6], wiec idac na poludnie wychodzisz w zmierzch i noc). Otwierasz przez /scena-3d/?mapa=w2.",
+  "opis": "Planeta wariantu 2 - pierwsza minuta wg docs/PIERWSZA_MINUTA.md. Slonce stoi nad srodkiem mapy, wiec kat od srodka = pora dnia: 0 poludnie, 90 terminator, 180 polnoc. Start 35 st, Kamienny Pak 78 st (ostatnia rzecz widoczna w dzien), swietliki 112/138/166 st.",
   "postac": "fox",
   "swiat": {
     "promien": 14,
@@ -8,16 +8,17 @@
     "cyklDnia": true,
     "slonceNad": [
       0,
-      -6
+      0
     ],
     "cienie": true,
     "terenKanciasty": true,
-    "chmury": 6
+    "chmury": 4,
+    "promienKuli": 11.0
   },
   "start": {
     "pos": [
-      0,
-      0
+      0.0,
+      6.72
     ],
     "obrot": 0
   },
@@ -58,7 +59,122 @@
   "drzewa": [],
   "glazy": [],
   "budynki": [],
-  "znaki": [],
+  "znaki": [
+    {
+      "id": "swietlik-1",
+      "file": "prog",
+      "label": "Swietlik",
+      "toast": "Swiatlo!",
+      "pos": [
+        1.4,
+        21.46
+      ],
+      "pora": "noc",
+      "zbiera": "swiatlo",
+      "scale": 1,
+      "height": 0.85,
+      "glow": 16771488,
+      "barwa": 16771488,
+      "jasnosc": 1.4,
+      "haloOpacity": 0.62,
+      "haloScale": 1.5,
+      "ringOpacity": 0,
+      "lightBase": 1.1,
+      "absorb": true,
+      "absorbLift": 1.6,
+      "respawn": 900,
+      "respawnPierwszy": 900,
+      "zasieg": 1.15,
+      "iskry": 24,
+      "iskrySila": 1.4
+    },
+    {
+      "id": "swietlik-2",
+      "file": "prog",
+      "label": "Swietlik",
+      "toast": "Swiatlo!",
+      "pos": [
+        -1.6,
+        26.45
+      ],
+      "pora": "noc",
+      "zbiera": "swiatlo",
+      "scale": 1,
+      "height": 0.85,
+      "glow": 16771488,
+      "barwa": 16771488,
+      "jasnosc": 1.4,
+      "haloOpacity": 0.62,
+      "haloScale": 1.5,
+      "ringOpacity": 0,
+      "lightBase": 1.1,
+      "absorb": true,
+      "absorbLift": 1.6,
+      "respawn": 900,
+      "respawnPierwszy": 900,
+      "zasieg": 1.15,
+      "iskry": 24,
+      "iskrySila": 1.4
+    },
+    {
+      "id": "swietlik-3",
+      "file": "prog",
+      "label": "Swietlik",
+      "toast": "Swiatlo!",
+      "pos": [
+        0.9,
+        31.86
+      ],
+      "pora": "noc",
+      "zbiera": "swiatlo",
+      "scale": 1,
+      "height": 0.85,
+      "glow": 16771488,
+      "barwa": 16771488,
+      "jasnosc": 1.4,
+      "haloOpacity": 0.62,
+      "haloScale": 1.5,
+      "ringOpacity": 0,
+      "lightBase": 1.1,
+      "absorb": true,
+      "absorbLift": 1.6,
+      "respawn": 900,
+      "respawnPierwszy": 900,
+      "zasieg": 1.15,
+      "iskry": 24,
+      "iskrySila": 1.4
+    },
+    {
+      "id": "kamienny-pak",
+      "file": "pak",
+      "label": "Kamienny Pak",
+      "toast": "",
+      "pos": [
+        0.0,
+        14.97
+      ],
+      "scale": 1.0,
+      "height": 0,
+      "reagujeNaSwiatlo": true,
+      "bezObrotu": true,
+      "obrotY": 0.5,
+      "bezUnoszenia": true,
+      "oddechSkali": 0,
+      "oddechDotyku": 0,
+      "bujanie": 0,
+      "animuj": false,
+      "glow": 16767392,
+      "haloOpacity": 0,
+      "haloScale": 2.4,
+      "ringOpacity": 0,
+      "lightBase": 0,
+      "jasnosc": 1.0,
+      "absorb": false,
+      "raz": true,
+      "zasieg": 1.9,
+      "zbrojenie": 3.0
+    }
+  ],
   "kwiaty": [
     {
       "wariant": 3,

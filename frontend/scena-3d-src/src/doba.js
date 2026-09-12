@@ -72,7 +72,7 @@ export const DOBA = {
   },
   ambient: { dzien: 0x8090c0, noc: 0x688cba, mocDzien: 0.3, mocNoc: 0.38 },
   // Chmury: mnożnik barwy + odrobina emisji, żeby nocą nie znikały w czerni.
-  chmury: { dzien: 0xffffff, zorza: 0xffb089, noc: 0x7d93c4, emisjaNoc: 0x101d38 },
+  chmury: { dzien: 0xffffff, zorza: 0xffc3a3, noc: 0x7895bd, emisjaNoc: 0x233b62 },
   gwiazdy: { krycie: 0.85 },
   // Progi na osi `t` (sinus wysokości słońca).
   progi: {
@@ -405,7 +405,7 @@ export class Doba {
     for (const m of this.chmuryMaterialy || []) {
       m.color.copy(_a.set(C.chmury.noc)).lerp(_b.set(C.chmury.dzien), dzien)
         .lerp(_b.set(C.chmury.zorza), zorza * (1 - 0.45 * dzien) * 0.85);
-      if (m.emissive) m.emissive.copy(_a.set(0x000000)).lerp(_b.set(C.chmury.emisjaNoc), noc);
+      if (m.emissive) m.emissive.copy(_a.set(C.chmury.emisjaNoc)).lerp(_b.set(0xc4d9ed), dzien).lerp(_b.set(0xc69685), zorza * .75);
     }
 
     if (this.gwiazdy) {

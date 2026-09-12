@@ -20,11 +20,12 @@ import {
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Planeta, stycznaDo, doStycznej, obrocStyczna, katMiedzy, przytnijDoPromienia } from "./planeta.js";
 import { wczytajMape } from "./mapa.js";
-import { zbudujSwiat, sosna, drzewoLisciaste, plamaCienia, PALETA } from "./swiat.js";
+import { zbudujSwiat, sosna, drzewoLisciaste, kamiennyPak, plamaCienia, PALETA } from "./swiat.js";
 import { Znak } from "./znak.js";
 import { postac } from "./postacie.js";
 import { Doba } from "./doba.js";
 import { Chmury } from "./chmury.js";
+import { Swiatlo } from "./swiatlo.js";
 
 const DOTYK = typeof matchMedia !== "undefined" && matchMedia("(pointer:coarse)").matches;
 
@@ -226,7 +227,7 @@ export class Aplikacja {
     if (this.doba) this.doba.podepnijDoKamery(this.camera);
     if (this.chmury) {
       this.chmury.podepnijDoKamery(this.camera);
-      if (this.doba) this.doba.chmuryMaterialy = [this.chmury.material, this.chmury.materialOtoczki];
+      if (this.doba) this.doba.chmuryMaterialy = [this.chmury.material];
     }
 
     const sw = zbudujSwiat(this.mapa, this.planeta);
@@ -409,6 +410,13 @@ export class Aplikacja {
   loadGLB(e) {
     // ZNAK-PROG: próg domu to sam blask na ziemi — pusta grupa zamiast modelu.
     if (e === "prog") return Promise.resolve({ scene: new Group(), animations: [] });
+    // ZNAK-PĄK: martwy obiekt pierwszej misji jest proceduralny, jak drzewa —
+    // ta sama fasetowana bryła co teren, więc należy do świata.
+    if (e === "pak") {
+      const g = new Group();
+      g.add(kamiennyPak(1));
+      return Promise.resolve({ scene: g, animations: [] });
+    }
     // ZNAK-DRZEWO: drzewa są proceduralne, więc znak-drzewo dostaje sosnę z generatora.
     if (e === "drzewo" || e === "drzewo-lisciaste") {
       const g = new Group();
@@ -598,6 +606,8 @@ export class Aplikacja {
     this.play("idle");
     // Dopiero po kalibracji (liczonej w układzie własnym) bohater trafia na kulę.
     this.swiat.add(this.hero);
+    // Światło, które bohater NIESIE — kule wokół niego i latarnia.
+    this.swiatlo = new Swiatlo(this.hero);
     this.debugAPI(e);
   }
 
@@ -1432,7 +1442,7 @@ export class Aplikacja {
       // Plama pod bohaterem byłaby teraz drugim, nieprawdziwym cieniem.
       if (this.heroShadow) this.heroShadow.visible = false;
     }
-    if (this.chmury) this.chmury.aktualizuj(e, this.doba?.stan || null);
+    if (this.chmury) this.chmury.aktualizuj(e, this.doba?.stan || null, this.moveSpeed || 0);
     if (this.doba) {
       const pora = this.doba.aktualizuj(this.hn, this.swiat.quaternion, e);
       if (pora !== this._pora) {
@@ -1447,11 +1457,45 @@ export class Aplikacja {
     this.camera.lookAt(this._kc.x, this._kc.y, this._kc.z);
 
     const l = spokojnyRuch ? 0.3 : 1;
+    const poraTeraz = this.doba?.stan || null;
     for (const u of this.markers || []) {
+      // BRAMA PORY DNIA. Próg 0,35 zamiast twardego „noc/dzień": świetliki
+      // zapalają się już o zmierzchu, a gasną dopiero po świcie, więc dziecko
+      // widzi, jak przychodzą i odchodzą, zamiast zastawać je gotowe.
+      if (u.def.pora && poraTeraz) {
+        u.ustawAktywny(u.def.pora === "noc" ? poraTeraz.noc > 0.35 : poraTeraz.dzien > 0.35);
+      }
       const d = this.planeta.odleglosc(this.hn, u.n);
       u.update(e, l, d);
-      if (d < (u.def.zasieg ?? 1) && !this._kino) u.def.absorb ? this.enterMarker(u) : this.touchMarker(u);
+      if (u.aktywny === false) continue;
+
+      // ODPOWIEDŹ ŚWIATA (brief §7, warstwa 3). Martwy obiekt reaguje na to,
+      // ILE światła niesie bohater — dzięki temu licznik czyta się z celu,
+      // a nie z cyfry. Zero światła = kamień, bez ruchu.
+      if (u.def.reagujeNaSwiatlo && this.swiatlo) {
+        const ile = this.swiatlo.ile;
+        const blisko = Math.max(0, 1 - d / 7);
+        const puls = ile >= 3 ? 1 : 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(this._czasGry * 2.4));
+        const moc = (ile / 3) * puls * (0.35 + 0.65 * blisko);
+        if (u.light) u.light.intensity = moc * 3.2;
+        if (u.halo?.material) u.halo.material.opacity = moc * 0.55;
+        if (ile === 0) { if (u.light) u.light.intensity = 0; if (u.halo?.material) u.halo.material.opacity = 0; }
+      }
+
+      if (d < (u.def.zasieg ?? 1) && !this._kino) {
+        // ZBIERANIE ŚWIATŁA. Gdy komplet już jest, świetlik zostaje na mapie —
+        // nie znika w nic, bo dziecko dostałoby karę za nadmiar.
+        if (u.def.zbiera === "swiatlo") {
+          if (this.swiatlo.komplet) continue;
+          if (u.state === "idle" && this.swiatlo.dodaj()) {
+            this.emit("swiatlo:zebrane", { ile: this.swiatlo.ile, komplet: this.swiatlo.komplet });
+          }
+        }
+        u.def.absorb ? this.enterMarker(u) : this.touchMarker(u);
+      }
     }
+    if (this.swiatlo) this.swiatlo.aktualizuj(e);
+    this._czasGry = (this._czasGry || 0) + e;
 
     if (this.heroShadowKotwica) {
       const gy = this.groundHeightAt(this.hp.x, this.hp.z);

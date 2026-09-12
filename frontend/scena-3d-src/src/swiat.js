@@ -12,7 +12,7 @@ import {
   PlaneGeometry, CylinderGeometry, ConeGeometry, IcosahedronGeometry, BoxGeometry,
   SphereGeometry, PointLight, Sprite, SpriteMaterial, AdditiveBlending, InstancedMesh,
   Vector2, Vector3, Euler, Quaternion, BufferAttribute, RepeatWrapping, DoubleSide,
-  Float32BufferAttribute, MultiplyBlending, Matrix4, Color,
+  Float32BufferAttribute, MultiplyBlending, Matrix4, Color, Raycaster,
 } from "three";
 import { stycznaDo, doStycznej, przytnijDoPromienia } from "./planeta.js";
 import { naNormalne, potnijNaKuli, wstegaPoKuli } from "./wstega.js";
@@ -27,6 +27,7 @@ export const KOLORY = {
   pine: 4029027, pineDark: 3105616, trunk: 7031344, leafTree: 7319118,
   rock: 9673884, rockDark: 7831426, wood: 9133628, woodDark: 7226150,
   rope: 13219465, lantern: 8018488, flame: 16767091, gate: 10127978, gateGlow: 16771496,
+  pakKamien: 0x6b6f78, pakKamienCiemny: 0x4f535c, pakZylka: 0xc9c4b4,
 };
 
 const matPlaski = (kolor, extra = {}) => new MeshLambertMaterial({ color: kolor, ...extra });
@@ -618,6 +619,53 @@ function zbudujPlytki(plytki, planeta) {
   return im;
 }
 
+/**
+ * KAMIENNY PĄK — martwy obiekt pierwszej misji.
+ *
+ * Zamknięty pąk z kamienia na spękanym kikucie, trzy razy wyższy od
+ * bohatera. Fasetowany płaskim cieniowaniem, jak teren — ma należeć do tego
+ * świata, a nie wyglądać jak przyklejony z innej gry.
+ *
+ * NIE MA ŻADNEJ ANIMACJI i to jest cały pomysł na jego „martwość": w świecie,
+ * gdzie trawa się kołysze, chmury dryfują, a planeta się obraca, BEZRUCH
+ * czyta się jako śmierć bez jednego słowa.
+ *
+ * Pąk, a nie uschnięte drzewo: pąk niesie w sobie „to się może otworzyć",
+ * uschnięte drzewo niesie „to się skończyło". Pierwsze zadaje pytanie.
+ */
+export function kamiennyPak(s = 1) {
+  const e = new Group();
+  e.name = "kamienny-pak";
+  const kamien = matKanciasty(KOLORY.pakKamien);
+  const kamienCiemny = matKanciasty(KOLORY.pakKamienCiemny);
+
+  // kikut — szeroki u dołu, żeby bryła siedziała w ziemi, a nie stała na niej
+  e.add(mesh(new CylinderGeometry(0.34 * s, 0.58 * s, 0.72 * s, 7), kamienCiemny, [0, 0.3 * s, 0]));
+  // kołnierz u nasady pąka
+  e.add(mesh(new CylinderGeometry(0.46 * s, 0.3 * s, 0.26 * s, 7), kamien, [0, 0.76 * s, 0]));
+
+  // trzy płatki — stożki odchylone na zewnątrz, obrócone co 120°
+  for (let i = 0; i < 3; i++) {
+    const kat = (i * Math.PI * 2) / 3 + 0.4;
+    const p = mesh(new ConeGeometry(0.42 * s, 1.9 * s, 5), i === 1 ? kamienCiemny : kamien,
+      [Math.cos(kat) * 0.19 * s, 1.72 * s, Math.sin(kat) * 0.19 * s],
+      [Math.cos(kat) * 0.13, kat, Math.sin(kat) * 0.13]);
+    e.add(p);
+  }
+  // rdzeń — wystaje ponad płatki, daje wyraźny szpic sylwetki na horyzoncie
+  e.add(mesh(new ConeGeometry(0.3 * s, 2.3 * s, 6), kamien, [0, 1.95 * s, 0]));
+
+  // martwe żyłki: cienkie jasne graniastosłupy wtopione w kamień
+  for (let i = 0; i < 3; i++) {
+    const kat = (i * Math.PI * 2) / 3 - 0.5;
+    e.add(mesh(new CylinderGeometry(0.035 * s, 0.02 * s, 1.5 * s, 4),
+      matKanciasty(KOLORY.pakZylka),
+      [Math.cos(kat) * 0.3 * s, 1.55 * s, Math.sin(kat) * 0.3 * s],
+      [Math.cos(kat) * 0.16, 0, Math.sin(kat) * 0.16]));
+  }
+  return e;
+}
+
 /* ── ELEMENTY ŚWIATA ────────────────────────────────────────────────────────── */
 
 export function sosna(s = 1) {
@@ -765,7 +813,22 @@ export function plamaCienia(s = 1, e = 0.35, rdzen = 0, mnozenie = false) {
 
 /* ── KWIATY (InstancedMesh) ──────────────────────────────────────────────────── */
 
-function zbudujKwiaty(DEF, planeta) {
+function zbudujKwiaty(DEF, planeta, ziemia) {
+  // Probe in planet-local space, so subsequent globe rotations cannot affect rooting.
+  const podloze = new Mesh(ziemia.geometry, ziemia.material);
+  podloze.updateMatrixWorld(true);
+  ziemia.geometry.computeBoundingSphere();
+  const zasieg = ziemia.geometry.boundingSphere.radius + 1;
+  const promien = new Raycaster();
+  const normalna = new Vector3();
+  const poczatek = new Vector3();
+  const kierunek = new Vector3();
+  function wysokoscGruntu(x, z) {
+    planeta.normalna(x, z, normalna);
+    promien.set(poczatek.copy(normalna).multiplyScalar(zasieg), kierunek.copy(normalna).negate());
+    const hit = promien.intersectObject(podloze, false)[0];
+    return (hit ? hit.point.dot(normalna) - planeta.R : 0) - .008;
+  }
   if (!DEF.length) return null;
   const PALETA_K = [
     { p: 0xfdf6e6, s: 0xf2c14a }, { p: 0xf7c948, s: 0xe08a1e }, { p: 0xf08fb4, s: 0xf6d76b },
@@ -779,8 +842,8 @@ function zbudujKwiaty(DEF, planeta) {
   const mLisc = new MeshLambertMaterial({ color: 0x6ea34a, flatShading: true });
   const gLodyga = new CylinderGeometry(0.008, 0.012, 1, 5);
   const gLisc = new SphereGeometry(0.058, 9, 6);
-  const gPlatek = new SphereGeometry(0.022, 6, 4);
-  const gSrodek = new SphereGeometry(0.019, 7, 5);
+  const gPlatek = new SphereGeometry(0.052, 10, 7);
+  const gSrodek = new SphereGeometry(0.040, 10, 7);
 
   function losownik(z) {
     let x = (z * 2654435761) % 4294967296;
@@ -801,8 +864,8 @@ function zbudujKwiaty(DEF, planeta) {
   const imSrodek = [];
   const kursor = [];
   PALETA_K.forEach((c, i) => {
-    imPlatek.push(new InstancedMesh(gPlatek, new MeshLambertMaterial({ color: c.p, flatShading: true }), Math.max(1, ilePerKolor[i] * 5)));
-    imSrodek.push(new InstancedMesh(gSrodek, new MeshLambertMaterial({ color: c.s, flatShading: true }), Math.max(1, ilePerKolor[i])));
+    imPlatek.push(new InstancedMesh(gPlatek, new MeshLambertMaterial({ color: c.p, flatShading: false }), Math.max(1, ilePerKolor[i] * 5)));
+    imSrodek.push(new InstancedMesh(gSrodek, new MeshLambertMaterial({ color: c.s, flatShading: false }), Math.max(1, ilePerKolor[i])));
     imPlatek[i].count = ilePerKolor[i] * 5;
     imSrodek[i].count = ilePerKolor[i];
     kursor.push(0);
@@ -829,9 +892,11 @@ function zbudujKwiaty(DEF, planeta) {
   const lista = DEF.map((k, i) => {
     const los = losownik(i + 1);
     const wariant = warianty[i];
-    const wysokosc = (0.13 + los() * 0.07) * (k.skala != null ? k.skala : 1);
+    // Scale is applied once by wRoot; a short stem supports the broad flower head.
+    const wysokosc = 0.085 + los() * 0.025;
     const kwiat = {
       x: k.pos[0], z: k.pos[1], wariant, h: wysokosc,
+      grunt: wysokoscGruntu(k.pos[0], k.pos[1]), gruntX: k.pos[0], gruntZ: k.pos[1],
       skala: (0.85 + los() * 0.5) * (k.skala != null ? k.skala : 1),
       obrotY: k.obrot != null ? k.obrot : los() * Math.PI * 2,
       bazaZ: (los() - 0.5) * 0.28, bazaX: (los() - 0.5) * 0.2, glowaX: -0.34 + los() * 0.14,
@@ -845,7 +910,11 @@ function zbudujKwiaty(DEF, planeta) {
   });
 
   function odswiez(k) {
-    planeta.ustaw(wKula, k.x, k.z, 0, 0);
+    if (k.x !== k.gruntX || k.z !== k.gruntZ) {
+      k.grunt = wysokoscGruntu(k.x, k.z);
+      k.gruntX = k.x; k.gruntZ = k.z;
+    }
+    planeta.ustaw(wKula, k.x, k.z, k.grunt, 0);
     wRoot.position.set(0, 0, 0);
     wRoot.rotation.set(k.bazaX + k.gib.z, k.obrotY, k.bazaZ - k.gib.x);
     wRoot.scale.setScalar(k.skala);
@@ -853,19 +922,19 @@ function zbudujKwiaty(DEF, planeta) {
     wLodyga.scale.set(1, k.h, 1);
     LISCIE.forEach((o, j) => {
       const n = wLisc[j];
-      n.position.set(o.strona * 0.075 * o.sk, k.h * o.wys, 0);
+      n.position.set(o.strona * 0.058 * o.sk, k.h * o.wys, 0);
       n.rotation.set(0, o.strona > 0 ? 0.25 : -0.25, o.obr);
-      n.scale.set(1.7 * o.sk, 0.2 * o.sk, 0.62 * o.sk);
+      n.scale.set(1.35 * o.sk, 0.22 * o.sk, 0.70 * o.sk);
     });
     wGlowa.position.set(0, k.h, 0);
     wGlowa.rotation.set(k.glowaX, 0, 0);
-    wSrodek.position.set(0, 0.006, 0);
-    wSrodek.scale.set(1, 0.75, 1);
+    wSrodek.position.set(0, 0.016, 0);
+    wSrodek.scale.set(1, 0.58, 1);
     k.katy.forEach((kat, j) => {
       const n = wPlatek[j];
-      n.position.set(Math.cos(kat) * 0.031, 0, Math.sin(kat) * 0.031);
-      n.rotation.set(0, -kat, 0.3);
-      n.scale.set(1.7, 0.42, 1);
+      n.position.set(Math.cos(kat) * 0.066, 0, Math.sin(kat) * 0.066);
+      n.rotation.set(0, -kat, 0.12);
+      n.scale.set(1.30, 0.38, 0.88);
     });
     wKula.updateMatrixWorld(true);
     imLodyga.setMatrixAt(k.iLodyga, wLodyga.matrixWorld);
@@ -971,7 +1040,7 @@ export function zbudujSwiat(mapa, planeta) {
     }
   }
 
-  const kwiaty = zbudujKwiaty(mapa.kwiaty, planeta);
+  const kwiaty = zbudujKwiaty(mapa.kwiaty, planeta, ziemia);
   if (kwiaty) kwiaty.meshe.forEach((m) => s.add(m));
 
   return { group: s, ziemia, sciezki, lantern: n, gate: r, bridge: t, obrotMostu, blockers, kwiaty, nurtTik: nurt.tik };

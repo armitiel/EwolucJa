@@ -302,6 +302,21 @@ export class Znak {
     this.planeta.ustaw(this.root, q[0], q[2], q[1], 0);
   }
 
+  /**
+   * Brama pory dnia. Znak z `def.pora` istnieje tylko w dzień albo tylko
+   * w nocy — świetlików nie ma, dopóki nie zapadnie zmrok.
+   *
+   * Celowo rusza `root.visible`, którego `setVisible()` NIE dotyka: dzięki
+   * temu brama i własna maszyna stanów znaku (absorb → gone → appear) nie
+   * walczą o tę samą flagę. `visible:false` na grupie gasi też światło
+   * punktowe w środku, więc zgaszony świetlik naprawdę nie świeci.
+   */
+  ustawAktywny(a) {
+    if (this.aktywny === a) return;
+    this.aktywny = a;
+    this.root.visible = a;
+  }
+
   setVisible(e) {
     this.spin.visible = e;
     this.halo.visible = e;
