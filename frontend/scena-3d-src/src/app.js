@@ -26,6 +26,7 @@ import { postac } from "./postacie.js";
 import { Doba } from "./doba.js";
 import { Chmury } from "./chmury.js";
 import { Swiatlo } from "./swiatlo.js";
+import { Dymki } from "./dymki.js";
 
 const DOTYK = typeof matchMedia !== "undefined" && matchMedia("(pointer:coarse)").matches;
 
@@ -224,7 +225,11 @@ export class Aplikacja {
       // kamery nie pojawiłyby się wcale.
       this.scene.add(this.camera);
     }
-    if (this.doba) this.doba.podepnijDoKamery(this.camera);
+    if (this.doba) {
+      this.doba.podepnijDoKamery(this.camera);
+      // Nieboskłon liczy gradient od krawędzi planety — musi znać jej promień.
+      this.doba.promienPlanety = this.planeta.R;
+    }
     if (this.chmury) {
       this.chmury.podepnijDoKamery(this.camera);
       if (this.doba) this.doba.chmuryMaterialy = [this.chmury.material];
@@ -260,6 +265,9 @@ export class Aplikacja {
       });
     }
     this.kwiaty = sw.kwiaty;
+    this.zasiewWlaczony = this.mapa.zasiew;
+    this._zasiewOstatnia = null;
+    this._zasiewDroga = 0;
     this.nurtTik = sw.nurtTik;
 
     // Most w układzie MAPY (do wysokości terenu i „czy stoję na moście").
@@ -608,6 +616,9 @@ export class Aplikacja {
     this.swiat.add(this.hero);
     // Światło, które bohater NIESIE — kule wokół niego i latarnia.
     this.swiatlo = new Swiatlo(this.hero);
+    // Kłębki spod łap. Wiszą na grupie PLANETY, nie na bohaterze — mają
+    // zostawać tam, gdzie odbiła się łapa.
+    this.dymki = new Dymki(this.swiat, this.planeta);
     this.debugAPI(e);
   }
 
@@ -1034,6 +1045,28 @@ export class Aplikacja {
     if (st.z > MAX) { st.z = MAX; st.vz *= -0.2; } else if (st.z < -MAX) { st.z = -MAX; st.vz *= -0.2; }
     if (Math.abs(st.x) < eps && Math.abs(st.z) < eps && Math.abs(st.vx) < epsV && Math.abs(st.vz) < epsV) st.x = st.z = st.vx = st.vz = 0;
   }
+  ustawZasiew(wlaczony) {
+    this.zasiewWlaczony = !!wlaczony;
+    this._zasiewOstatnia = null;
+    this._zasiewDroga = 0;
+  }
+  _zasiejZaLiskiem() {
+    if (!this.hero || !this.kwiaty || !this.zasiewWlaczony) return;
+    if (!this._zasiewOstatnia) { this._zasiewOstatnia = this.hn.clone(); return; }
+    const dystans = Math.acos(clamp(this.hn.dot(this._zasiewOstatnia),-1,1))*this.planeta.R;
+    this._zasiewOstatnia.copy(this.hn);
+    // Teleports and cutscene repositioning should not draw a flower trail.
+    if (dystans > 2 || this._kino || this.sequence) { this._zasiewDroga=0; return; }
+    if (dystans < .00001) return;
+    this._zasiewDroga += dystans;
+    if (this._zasiewDroga < .70) return;
+    this._zasiewDroga %= .70;
+    const n = this.planeta.punktObok(this.hn, this.hf, -.55, this._zasiewN ||= new Vector3());
+    const bok = (this._zasiewBok ||= new Vector3()).crossVectors(n,this.hf).normalize();
+    this.planeta.punktObok(n,bok,(this._zasiewStrona = !this._zasiewStrona) ? .18 : -.18,n);
+    const p = this.planeta.zKuli((this._zasiewP ||= new Vector3()).copy(n).multiplyScalar(this.planeta.R));
+    if (!this.onBridge(p.x,p.z) || this.mapa.most.ukryty) this.kwiaty.posadz(p.x,p.z,spokojnyRuch);
+  }
   _gibKwiaty(dt) {
     const K = this.kwiaty;
     if (!K) return;
@@ -1354,6 +1387,7 @@ export class Aplikacja {
     this._dtGib = e;
     this._gibDrzew(e);
     this._gibKwiaty(e);
+    this.kwiaty?.aktualizujZasiew(e, spokojnyRuch);
     if (!spokojnyRuch) this.nurtTik(e);
 
     if (this.stick?.active) {
@@ -1422,6 +1456,7 @@ export class Aplikacja {
     const a = (this.leanDip || 0) * Math.max(0, (this.lean || 0) / POCHYLENIE_MAX);
     this.heroLift = this.groundY + this.footOffset + a;
     this.syncHero();
+    this._zasiejZaLiskiem();
 
     // PLANETA dogania bohatera — to jest „obrót kuli na wszystkie strony".
     // Jak kula śledząca (trackball): najmniejszy obrót, który przenosi
@@ -1495,6 +1530,7 @@ export class Aplikacja {
       }
     }
     if (this.swiatlo) this.swiatlo.aktualizuj(e);
+    if (this.dymki) this.dymki.aktualizuj(e, this.hn, this.hf, this.doba?.stan || null);
     this._czasGry = (this._czasGry || 0) + e;
 
     if (this.heroShadowKotwica) {
@@ -1568,6 +1604,8 @@ export class Aplikacja {
   }
   ustawBohatera(e, t) {
     if (!this.hero) return false;
+    this._zasiewOstatnia = null;
+    this._zasiewDroga = 0;
     this.stopWalk();
     this.mode = "free";
     this.planeta.normalna(e, t, this.hn);
@@ -1691,6 +1729,7 @@ export class Aplikacja {
       pauza: this.paused,
       animacja: this.current,
       predkosc: +(this.moveSpeed || 0).toFixed(3),
+      zasiew: { wlaczony: this.zasiewWlaczony, ...this.kwiaty?.stanZasiewu() },
       bohater: this.hero ? { x: +this.hp.x.toFixed(2), z: +this.hp.z.toFixed(2) } : null,
       znaki: (this.markers || []).map((e) => ({ id: e.id, stan: e.state, dotkniecia: e.touches })),
     };

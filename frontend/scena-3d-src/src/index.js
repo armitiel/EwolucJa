@@ -41,6 +41,7 @@ export async function utworzScena3D(s = {}) {
     wznow: () => n.wznow(),
     ustawBohatera: (r, a) => n.ustawBohatera(r, a),
     ustawSpokojnyRuch: (r) => n.ustawSpokojnyRuch(r),
+    ustawZasiew: (r) => n.ustawZasiew(r),
     ustawPowrotZnaku: (r, a) => n.ustawPowrotZnaku(r, a),
     pokazZnak: (r) => n.pokazZnak(r),
     kino: (r, a) => n.kino(r, a),
@@ -72,7 +73,7 @@ export function zarejestrujElement(nazwa = "ewolucja-scena-3d") {
         klawiatura: !this.hasAttribute("bez-klawiatury"),
         spokojnyRuch: this.hasAttribute("spokojny-ruch") ? true : undefined,
       });
-      for (const n of ["pauza", "wznow", "ustawBohatera", "ustawSpokojnyRuch", "ustawPowrotZnaku", "pokazZnak", "stan"])
+      for (const n of ["pauza", "wznow", "ustawBohatera", "ustawSpokojnyRuch", "ustawZasiew", "ustawPowrotZnaku", "pokazZnak", "stan"])
         this[n] = (...i) => this._api[n](...i);
       this.dispatchEvent(new CustomEvent("scena3d:zamontowana", { bubbles: true }));
     }

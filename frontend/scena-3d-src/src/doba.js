@@ -17,7 +17,7 @@
  */
 import {
   Color, Mesh, PlaneGeometry, ShaderMaterial, Sprite, SpriteMaterial,
-  CanvasTexture, SRGBColorSpace, Vector3,
+  CanvasTexture, SRGBColorSpace, Vector3, Vector4,
 } from "three";
 
 const zacisk = (x, a, b) => (x < a ? a : x > b ? b : x);
@@ -39,12 +39,41 @@ const dogon = (teraz, cel, tempo, dt) => teraz + (cel - teraz) * (1 - Math.exp(-
 export const DOBA = {
   // Nieboskłon jest GRADIENTEM: osobna barwa przy horyzoncie i w zenicie.
   // Wzięte z concept artu (poranek / dzień / zachód / noc).
+  // TRZY przystanki, nie dwa: zenit, środek, horyzont. Dwa wystarczały na
+  // dzień, ale zachód z concept artu ma fiolet u góry, róż w środku i
+  // pomarańcz przy ziemi — liniowe przejście fiolet→pomarańcz daje brud,
+  // a nie zachód.
   niebo: {
+    // płaska barwa `scene.background` — widać ją tylko tam, gdzie nie sięga
+    // nieboskłon; zostaje dla bezpieczeństwa
     dzien: 0x8fc9e4, zorza: 0xd98a5e, noc: 0x243147, silaZorzy: 1.0,
-    zenitDzien: 0x48bdf0, horyzontDzien: 0xb9e6ee,
-    zenitPoranek: 0x80cee4, horyzontPoranek: 0xffc58c,
-    zenitZorza: 0x9b89bc, horyzontZorza: 0xffaa70,
-    zenitNoc: 0x172f63, horyzontNoc: 0x345b88,
+
+    /**
+     * CZTERY przystanki na fazę i wszystkie W WIDOCZNYM PASIE.
+     *
+     * Pierwsza wersja rozpinała gradient od 0,26 do 0,98 wysokości kadru,
+     * ale planeta zasłania dolne ~55% — więc dwie trzecie przejścia działy
+     * się za nią i na ekranie zostawał jeden płaski kolor. W concept arcie
+     * CAŁY przebieg barw mieści się nad horyzontem: przy ziemi złoto, wyżej
+     * koral, potem róż, a dopiero na górze fiolet albo błękit.
+     *
+     * `stopnie` mierzą odległość OD KRAWĘDZI PLANETY, w jej promieniach:
+     * 0 to sama linia horyzontu, 1 to promień planety nad nią. Dzięki temu
+     * ciepły pas trzyma się horyzontu na całej jego szerokości i nie
+     * rozjeżdża się przy zmianie kadru, zoomu ani promienia planety —
+     * a wysokość ekranu nie ma z tym nic wspólnego.
+     */
+    // UWAGA na skalę: planeta jest OGROMNA w kadrze (jej promień to ok. 2,6
+    // wysokości pół-kadru), więc od krawędzi do górnej ramki jest tylko
+    // ~0,1 promienia. Progi rzędu 0,4 czy 1,0 wypychały trzy z czterech
+    // barw poza ekran i zostawał jeden płaski pomarańcz.
+    stopnie: [0.0, 0.022, 0.052, 0.105],
+    gradient: {
+      dzien:   { horyzont: 0xdceef7, nisko: 0xa9d8f0, srodek: 0x6bb6e4, zenit: 0x3d93d6 },
+      poranek: { horyzont: 0xffe3b8, nisko: 0xfbbfa0, srodek: 0xf3a9be, zenit: 0x9cc4e4 },
+      zorza:   { horyzont: 0xffc46b, nisko: 0xf98e6b, srodek: 0xd97ba6, zenit: 0x8878a8 },
+      noc:     { horyzont: 0x2e5f82, nisko: 0x27467a, srodek: 0x1b2f5e, zenit: 0x131f47 },
+    },
   },
   // Miękki rdzeń i niezależna poświata: mleczne południe, złoty zachód.
   slonceTarcza: {
@@ -74,13 +103,27 @@ export const DOBA = {
   // Chmury: mnożnik barwy + odrobina emisji, żeby nocą nie znikały w czerni.
   chmury: { dzien: 0xffffff, zorza: 0xffc3a3, noc: 0x7895bd, emisjaNoc: 0x233b62 },
   gwiazdy: { krycie: 0.85 },
-  // Progi na osi `t` (sinus wysokości słońca).
+  /**
+   * Progi w STOPNIACH kąta od zenitu słońca, nie w kosinusie.
+   *
+   * Wcześniej fazy liczyły się z `t = cos(kąt)`, a `dt/dkąt = −sin(kąt)` jest
+   * NAJWIĘKSZE dokładnie przy terminatorze — czyli świt i zachód przelatywały
+   * najszybciej właśnie tam, gdzie mają trwać. W stopniach tempo jest równe
+   * na całej drodze, a progi czyta się wprost.
+   *
+   * Podział doby wzdłuż drogi (jedno okrążenie = 360°):
+   *   0–42°   pełny dzień          (23% okrążenia)
+   *   42–142° zachód / świt        (po 28% na stronę)
+   *   142–180° pełna noc           (21%)
+   * Przy marszu (okrążenie ~57 s) sam zachód trwa więc ok. 16 sekund.
+   */
   progi: {
-    switDo: 0.30,      // powyżej — pełny dzień
-    switOd: -0.06,     // poniżej — dnia już nie ma
-    nocOd: -0.38,      // poniżej — pełna noc
-    zorzaSrodek: 0.04, // gdzie najmocniej pali się pomarańcz
-    zorzaSzerokosc: 0.26,
+    dzienDo: 42,        // poniżej — pełny dzień
+    zmierzchDo: 96,     // powyżej — dnia już nie ma
+    nocOd: 84,          // powyżej — noc zaczyna narastać
+    nocPelna: 142,      // powyżej — pełna noc
+    zorzaSrodek: 92,    // gdzie najmocniej pali się pomarańcz
+    zorzaSzerokosc: 34,
   },
   tempo: 1.5,          // jak szybko światło dogania pozycję (1/s)
 };
@@ -102,6 +145,7 @@ const _c = new Color();
 const _px = new Vector3();
 const _py = new Vector3();
 const _pz = new Vector3();
+const _sr = new Vector3();   // rzut srodka planety do NDC (nieboskLon)
 
 
 /** Miękka tarcza: jasny rdzeń i gasnąca poświata. */
@@ -167,21 +211,42 @@ function teksturaSlonca() {
  */
 function nieboskLon() {
   const mat = new ShaderMaterial({
-    uniforms: { zenit: { value: new Color(0x243147) }, horyzont: { value: new Color(0x2f4a78) }, noc: { value: 0 }, aspekt: { value: 1 } },
+    uniforms: {
+      zenit: { value: new Color(0x243147) }, srodek: { value: new Color(0x2a3f63) },
+      nisko: { value: new Color(0x2c4670) }, horyzont: { value: new Color(0x2f4a78) },
+      stopnie: { value: new Vector4(0.0, 0.022, 0.052, 0.105) },
+      srodekPlanety: { value: new Vector4(0, 0, 1, 1) }, // xy = środek NDC, zw = promienie NDC
+      noc: { value: 0 }, aspekt: { value: 1 },
+    },
     vertexShader: `
       varying vec2 vu;
       void main() { vu = uv; gl_Position = vec4(position.xy, 0.9999, 1.0); }
     `,
     fragmentShader: `
       uniform vec3 zenit;
+      uniform vec3 srodek;
+      uniform vec3 nisko;
       uniform vec3 horyzont;
+      uniform vec4 stopnie;
+      uniform vec4 srodekPlanety;
       uniform float noc;
       uniform float aspekt;
       varying vec2 vu;
       void main() {
-        // Horyzont jest nisko — stąd przesunięcie i potęga, a nie liniowy mix.
-        float h = smoothstep(0.48, 1.0, vu.y);
-        vec3 sky = mix(horyzont, zenit, h);
+        // WYSOKOSC LICZONA OD HORYZONTU, nie od dolu ekranu.
+        // Planeta jest kula w srodku ukladu, wiec w rzucie ortograficznym
+        // jej sylwetka to elipsa o znanym srodku i promieniach. Odleglosc
+        // fragmentu od tej elipsy (w jej promieniach) daje "ile nad
+        // horyzontem" - i to wlasnie po tym idzie gradient. Cieply pas
+        // trzyma sie wtedy krawedzi planety na calej szerokosci, tak jak
+        // na concept arcie, i nie zalezy od zoomu ani od tego, ile kadru
+        // planeta zajmuje.
+        vec2 q = (vu * 2.0 - 1.0 - srodekPlanety.xy) / srodekPlanety.zw;
+        float h = clamp(length(q) - 1.0, 0.0, 4.0);
+        vec3 sky = horyzont;
+        sky = mix(sky, nisko,  smoothstep(stopnie.x, stopnie.y, h));
+        sky = mix(sky, srodek, smoothstep(stopnie.y, stopnie.z, h));
+        sky = mix(sky, zenit,  smoothstep(stopnie.z, stopnie.w, h));
         // BEZ CHMUR. Obloki sa brylami 3D (chmury.js) wiszacymi przed
         // nieboskLonem - malowanie ich tutaj dawalo plaskie plamy bez
         // objetosci i dublowalo te prawdziwe. NieboskLon to sam gradient.
@@ -304,10 +369,14 @@ export class Doba {
       ? faza + zacisk(C.slonceTarcza.spowolnienieZachodu, 0, .45) * Math.sin(2*faza)
       : faza;
     const t = this.t = Math.cos(luk);
-    const dzien = gladko(C.progi.switOd, C.progi.switDo, t);
-    const noc = 1 - gladko(C.progi.nocOd, C.progi.switOd + 0.10, t);
-    const u = (t - C.progi.zorzaSrodek) / C.progi.zorzaSzerokosc;
+    // KĄT od zenitu słońca w stopniach — to on, a nie `t`, rządzi fazami.
+    const st = Math.abs(luk) * 180 / Math.PI;
+    const dzien = 1 - gladko(C.progi.dzienDo, C.progi.zmierzchDo, st);
+    const noc = gladko(C.progi.nocOd, C.progi.nocPelna, st);
+    const u = (st - C.progi.zorzaSrodek) / C.progi.zorzaSzerokosc;
     const zorza = Math.exp(-u * u);
+    // Znak `luk` rozstrzyga, po której stronie słońca stoimy: ujemny to
+    // strona, z której słońce wschodzi.
     const poranek = 1 - gladko(-.2, .2, Math.sin(luk));
     if (this.kamera) this.kamera.matrixWorld.extractBasis(_px, _py, _pz);
     this._sw.set(_px.x, 0, _px.z).normalize().multiplyScalar(Math.sin(luk));
@@ -355,10 +424,26 @@ export class Doba {
       const zorzaN = zorza * (1 - 0.55 * dzien) * C.niebo.silaZorzy;
       u.noc.value = noc;
       u.aspekt.value = this.kamera ? (this.kamera.right-this.kamera.left)/(this.kamera.top-this.kamera.bottom) : 1;
-      u.zenit.value.copy(_a.set(C.niebo.zenitNoc)).lerp(_b.set(C.niebo.zenitDzien), dzien)
-        .lerp(_b.set(C.niebo.zenitZorza).lerp(_c.set(C.niebo.zenitPoranek), poranek), zorzaN);
-      u.horyzont.value.copy(_a.set(C.niebo.horyzontNoc)).lerp(_b.set(C.niebo.horyzontDzien), dzien)
-        .lerp(_b.set(C.niebo.horyzontZorza).lerp(_c.set(C.niebo.horyzontPoranek), poranek), zorzaN);
+      const G = C.niebo.gradient;
+      const st4 = C.niebo.stopnie;
+      u.stopnie.value.set(st4[0], st4[1], st4[2], st4[3]);
+      // Sylwetka planety w NDC: kamera ortograficzna, kula w środku układu,
+      // więc środek to rzut zera, a promienie to R podzielone przez połowę
+      // kadru. `promienPlanety` podajemy z zewnątrz (app.js zna `planeta.R`).
+      if (this.kamera && this.promienPlanety) {
+        const k = this.kamera;
+        const W = ((k.right - k.left) / 2) / (k.zoom || 1);
+        const H = ((k.top - k.bottom) / 2) / (k.zoom || 1);
+        _sr.set(0, 0, 0).project(k);
+        u.srodekPlanety.value.set(_sr.x, _sr.y, this.promienPlanety / W, this.promienPlanety / H);
+      }
+      // Ta sama recepta dla każdego przystanka: noc → dzień, a na wierzch
+      // zorza, która po wschodniej stronie jest różowo-brzoskwiniowa,
+      // a po zachodniej pomarańczowo-fioletowa.
+      for (const klucz of ["horyzont", "nisko", "srodek", "zenit"]) {
+        u[klucz].value.copy(_a.set(G.noc[klucz])).lerp(_b.set(G.dzien[klucz]), dzien)
+          .lerp(_b.set(G.zorza[klucz]).lerp(_c.set(G.poranek[klucz]), poranek), zorzaN);
+      }
     }
 
     // TEREN — sama tekstura zostaje, zmienia się mnożnik barwy. To dzięki

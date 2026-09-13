@@ -829,7 +829,7 @@ function zbudujKwiaty(DEF, planeta, ziemia) {
     const hit = promien.intersectObject(podloze, false)[0];
     return (hit ? hit.point.dot(normalna) - planeta.R : 0) - .008;
   }
-  if (!DEF.length) return null;
+  const REZERWA = 256; // Fixed capacity for the living trail; no per-flower draw calls.
   const PALETA_K = [
     { p: 0xfdf6e6, s: 0xf2c14a }, { p: 0xf7c948, s: 0xe08a1e }, { p: 0xf08fb4, s: 0xf6d76b },
     { p: 0x7aa6e8, s: 0xf3e07a }, { p: 0xb98ae0, s: 0xf6e08a },
@@ -857,15 +857,17 @@ function zbudujKwiaty(DEF, planeta, ziemia) {
   const ilePerKolor = PALETA_K.map(() => 0);
   warianty.forEach((w) => ilePerKolor[w]++);
 
-  const N = DEF.length;
+  const N = DEF.length + REZERWA;
   const imLodyga = new InstancedMesh(gLodyga, mLodyga, N);
   const imLisc = new InstancedMesh(gLisc, mLisc, N * 2);
+  imLodyga.count = DEF.length;
+  imLisc.count = DEF.length * 2;
   const imPlatek = [];
   const imSrodek = [];
   const kursor = [];
   PALETA_K.forEach((c, i) => {
-    imPlatek.push(new InstancedMesh(gPlatek, new MeshLambertMaterial({ color: c.p, flatShading: false }), Math.max(1, ilePerKolor[i] * 5)));
-    imSrodek.push(new InstancedMesh(gSrodek, new MeshLambertMaterial({ color: c.s, flatShading: false }), Math.max(1, ilePerKolor[i])));
+    imPlatek.push(new InstancedMesh(gPlatek, new MeshLambertMaterial({ color: c.p, flatShading: false }), (ilePerKolor[i] + REZERWA) * 5));
+    imSrodek.push(new InstancedMesh(gSrodek, new MeshLambertMaterial({ color: c.s, flatShading: false }), ilePerKolor[i] + REZERWA));
     imPlatek[i].count = ilePerKolor[i] * 5;
     imSrodek[i].count = ilePerKolor[i];
     kursor.push(0);
@@ -889,9 +891,9 @@ function zbudujKwiaty(DEF, planeta, ziemia) {
     wPlatek.push(n);
   }
 
-  const lista = DEF.map((k, i) => {
+  function utworzKwiat(k, i) {
     const los = losownik(i + 1);
-    const wariant = warianty[i];
+    const wariant = Math.max(0, Math.min(4, k.wariant | 0));
     // Scale is applied once by wRoot; a short stem supports the broad flower head.
     const wysokosc = 0.085 + los() * 0.025;
     const kwiat = {
@@ -907,7 +909,8 @@ function zbudujKwiaty(DEF, planeta, ziemia) {
     };
     kursor[wariant]++;
     return kwiat;
-  });
+  }
+  const lista = DEF.map(utworzKwiat);
 
   function odswiez(k) {
     if (k.x !== k.gruntX || k.z !== k.gruntZ) {
@@ -917,7 +920,8 @@ function zbudujKwiaty(DEF, planeta, ziemia) {
     planeta.ustaw(wKula, k.x, k.z, k.grunt, 0);
     wRoot.position.set(0, 0, 0);
     wRoot.rotation.set(k.bazaX + k.gib.z, k.obrotY, k.bazaZ - k.gib.x);
-    wRoot.scale.setScalar(k.skala);
+    const szerokosc = k.skala * (k.szerokoscWzrostu ?? 1);
+    wRoot.scale.set(szerokosc, k.skala * (k.wzrost ?? 1), szerokosc);
     wLodyga.position.set(0, k.h / 2, 0);
     wLodyga.scale.set(1, k.h, 1);
     LISCIE.forEach((o, j) => {
@@ -956,7 +960,65 @@ function zbudujKwiaty(DEF, planeta, ziemia) {
   oznacz();
   const meshe = [imLodyga, imLisc, ...imPlatek, ...imSrodek];
   meshe.forEach((m) => (m.frustumCulled = false));
-  return { lista, odswiez, oznacz, meshe };
+  const rosnace = new Set();
+  // Time, width, height: anticipation, fast stretch, squash, small rebound, settle.
+  // Scaling around the root keeps every pose planted in the ground.
+  const POP_DELAY = .10, POP_DURATION = .84;
+  const POP = [[0,0,0],[.14,1.12,.25],[.38,.82,1.35],
+    [.57,1.12,.90],[.75,.97,1.06],[1,1,1]];
+  let zasiane = 0, kolejny = 0;
+  function posadz(x, z, bezAnimacji = false) {
+    if (!Number.isFinite(x) || !Number.isFinite(z)) return false;
+    const n = planeta.normalna(x, z);
+    // Avoid piling up flowers on a path the fox has already walked.
+    if (lista.some(k => planeta.normalna(k.x, k.z, normalna).dot(n) > Math.cos(.32 / planeta.R))) return false;
+    let k;
+    if (zasiane < REZERWA) {
+      k = utworzKwiat({pos:[x,z],wariant:kolejny%5,skala:.7+(kolejny%4)*.10}, lista.length);
+      lista.push(k);
+      zasiane++;
+      imLodyga.count = lista.length;
+      imLisc.count = lista.length * 2;
+      imPlatek[k.wariant].count = kursor[k.wariant] * 5;
+      imSrodek[k.wariant].count = kursor[k.wariant];
+    } else {
+      // Reuse only old trail plants well away from the current player area.
+      k = lista.slice(DEF.length).find(k => !rosnace.has(k) &&
+        planeta.normalna(k.x,k.z,normalna).dot(n) < Math.cos(9/planeta.R));
+      if (!k) return false;
+      k.x=x; k.z=z;
+    }
+    kolejny++;
+    k.czasWzrostu=0;
+    k.wzrost=bezAnimacji ? 1 : 0;
+    k.szerokoscWzrostu=bezAnimacji ? 1 : 0;
+    k.gib.x=k.gib.z=k.gib.vx=k.gib.vz=0;
+    if (!bezAnimacji) rosnace.add(k);
+    odswiez(k);
+    oznacz();
+    return true;
+  }
+  function aktualizujZasiew(dt, bezAnimacji = false) {
+    if (!rosnace.size) return;
+    for (const k of rosnace) {
+      k.czasWzrostu += Math.max(0,dt);
+      const p = bezAnimacji ? 1 : Math.max(0,
+        Math.min(1,(k.czasWzrostu-POP_DELAY)/POP_DURATION));
+      let i=1;
+      while (i<POP.length-1 && p>POP[i][0]) i++;
+      const a=POP[i-1], b=POP[i];
+      const t=(p-a[0])/(b[0]-a[0]);
+      const s=t*t*(3-2*t);
+      k.szerokoscWzrostu=a[1]+(b[1]-a[1])*s;
+      k.wzrost=a[2]+(b[2]-a[2])*s;
+      odswiez(k);
+      if (p===1) rosnace.delete(k);
+    }
+    oznacz();
+  }
+  return { lista, odswiez, oznacz, meshe, posadz, aktualizujZasiew,
+    stanZasiewu: () => ({zasiane,rosnace:rosnace.size,limit:REZERWA}) };
+
 }
 
 /* ── SKŁADANIE ŚWIATA ───────────────────────────────────────────────────────── */

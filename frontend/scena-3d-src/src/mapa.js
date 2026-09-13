@@ -125,6 +125,7 @@ export function wczytajMape() {
     terenNieregularnosc: M.swiat?.terenNieregularnosc,
     // Ile obłoków na niebie (0 = brak; pierwszy świat nie ma żadnych).
     chmury: M.swiat?.chmury ?? 0,
+    zasiew: !!M.swiat?.zasiew,
     terenBarwy: M.swiat?.terenBarwy || null,
     doba: {
       wlaczona: !!M.swiat?.cyklDnia,
