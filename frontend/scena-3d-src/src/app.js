@@ -107,6 +107,12 @@ const KAMERA_PODNIESIENIE = -2;
  * w dużo niższym kadrze, a na liska zostaje półtora raza więcej pikseli.
  */
 const KAMERA_PODNIESIENIE_POZIOM = 1.4;
+/**
+ * To samo dla świata BEZ dolnego doku (`swiat.dolnyDok: false`). Nie ma czego
+ * omijać na dole ekranu, więc lisek schodzi niżej, a na niebo zostaje tyle
+ * samo miejsca w jeszcze niższym kadrze — czyli jeszcze większy bohater.
+ */
+const KAMERA_PODNIESIENIE_POZIOM_BEZ_DOKU = 2.4;
 
 const clamp = (s, e, t) => Math.max(e, Math.min(t, s));
 const dogon = (s, e, t, n) => s + (e - s) * (1 - Math.exp(-t * n));
@@ -1808,7 +1814,10 @@ export class Aplikacja {
     const R = this.planeta?.R || 8;
     const podniesienie = Number(globalThis.SCENA3D_KAMERA_PODNIESIENIE)
       || (poziomo
-        ? (Number(globalThis.SCENA3D_KAMERA_PODNIESIENIE_POZIOM) || KAMERA_PODNIESIENIE_POZIOM)
+        ? (Number(globalThis.SCENA3D_KAMERA_PODNIESIENIE_POZIOM)
+          || (this.mapa?.dolnyDok === false
+            ? KAMERA_PODNIESIENIE_POZIOM_BEZ_DOKU
+            : KAMERA_PODNIESIENIE_POZIOM))
         : KAMERA_PODNIESIENIE);
     if (this.camTarget && Math.abs(this.camTarget.y - (R + podniesienie)) > 1e-6) {
       this.camTarget.y = R + podniesienie;

@@ -128,6 +128,11 @@ export function wczytajMape() {
     // Przybliżenie kamery dla TEGO świata. Większa liczba = większy
     // bohater. `?zoom=` w adresie ma pierwszeństwo (do strojenia).
     zoom: M.swiat?.zoom,
+    // Czy ten świat ma DOLNY DOK z przyciskami. Bez niego kamera może
+    // spuścić bohatera niżej w kadrze (patrz `resize()` w app.js), bo nie ma
+    // czego omijać — a na leżącym telefonie to od razu większy lisek.
+    // Domyślnie `true`, żeby pierwszy świat nic nie zauważył.
+    dolnyDok: M.swiat?.dolnyDok !== false,
     zasiew: !!M.swiat?.zasiew,
     terenBarwy: M.swiat?.terenBarwy || null,
     doba: {

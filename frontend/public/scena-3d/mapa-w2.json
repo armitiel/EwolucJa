@@ -15,7 +15,8 @@
     "chmury": 4,
     "zasiew": true,
     "promienKuli": 11.0,
-    "zoom": 1.15
+    "zoom": 1.15,
+    "dolnyDok": false
   },
   "start": {
     "pos": [
