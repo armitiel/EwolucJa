@@ -39,10 +39,20 @@ if errorlevel 1 (
 )
 
 echo  [2/3] Backend :3001
-start "EwolucJA Backend" cmd /k "cd /d C:\Users\DELL\EwolucJA\backend && npm run dev"
+netstat -ano | findstr "LISTENING" | findstr ":3001" >nul
+if errorlevel 1 (
+  start "EwolucJA Backend" cmd /k "cd /d C:\Users\DELL\EwolucJA\backend && npm run dev"
+) else (
+  echo        juz dziala
+)
 
 echo  [3/3] Frontend :3000
-start "EwolucJA Frontend" cmd /k "cd /d C:\Users\DELL\EwolucJA\frontend && npm run dev"
+netstat -ano | findstr "LISTENING" | findstr ":3000" >nul
+if errorlevel 1 (
+  start "EwolucJA Frontend" cmd /k "cd /d C:\Users\DELL\EwolucJA\frontend && npm run dev"
+) else (
+  echo        juz dziala
+)
 
 echo.
 echo  Czekam, az Vite wstanie...
