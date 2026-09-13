@@ -155,3 +155,31 @@ Cykle czasowe (respawny, kino, nurt) — tylko w prawdziwej przeglądarce.
 - Krzywizna w edytorze: plan 2D pokazuje mapę płaską; przy skraju (>90° od
   środka) rzeczy na kuli są bliżej siebie, niż sugeruje plan.
 - Antypod (tył kuli) to gładka trawa — miejsce na drugą krainę.
+
+
+### Zasiew za bohaterem
+
+`mapa.swiat.zasiew: true` włącza roślinny ślad (włączony w `mapa-w2.json`).
+Co 0,70 jednostki rzeczywistego marszu nowa roślinka pojawia się 0,55 jednostki
+za bohaterem, lekko na przemian po lewej i prawej. Na postoju, podczas
+przestawiania bohatera i ujęć filmowych zasiew nie postępuje. Korzeń trafia
+w siatkę ziemi. Po 0,10 s opóźnienia wzrost trwa 0,84 s: spłaszczenie,
+wyciągnięcie do 135% wysokości, squash i małe odbicie. Szerokość i wysokość
+zmieniają się osobno;
+tryb ograniczonego ruchu ustawia od razu docelowy rozmiar.
+
+Około 45% zasiewów to większe, nieregularne płaty trawy. Pojedyncze źdźbło
+jest fasetowanym, lekko zagiętym liściem zwężającym się ku czubkowi. Zasiew
+losuje 11–18 liści oraz jeden z czterech układów złożonych z 1–4 połączonych
+kęp. Liście różnią się wysokością, szerokością, kierunkiem i jednym z trzech
+odcieni zieleni. Pozostałe zasiewy to różnokolorowe kwiatki.
+
+Pula mieści 256 nowych roślin, poza roślinami zapisanymi w mapie. Po jej
+zapełnieniu można ponownie wykorzystać tylko roślinę ze śladu oddaloną o ponad
+9 jednostek od zasiewu. Blisko istniejących roślin (0,32 jednostki) zasiew
+jest pomijany. Geometrie i 13 InstancedMesh pozostają wspólne i stałe.
+Zasiew jest tymczasowy: przeładowanie sceny przywraca mapę.
+
+Sterowanie integracji: `scena.ustawZasiew(false)` / `scena.ustawZasiew(true)`.
+`scena.stan().zasiew` zwraca `wlaczony`, `zasiane`, `rosnace`, `limit`,
+`trawy` i `kwiaty`.

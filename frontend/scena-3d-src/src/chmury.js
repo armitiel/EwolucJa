@@ -1,22 +1,45 @@
-/** Three fused, editable Blender clouds. Geometry is bundled, with no extra requests. */
-import { BufferGeometry, Color, Float32BufferAttribute, Group, Mesh, MeshLambertMaterial } from 'three';
-import modele from '../models/clouds.json';
+/** Żywe chmury 2.5D: wspólne low-poly obłoki składają się w zmienne sylwetki. */
+import {
+  BufferGeometry, Color, DynamicDrawUsage, Euler, Float32BufferAttribute, Group,
+  IcosahedronGeometry, InstancedMesh, Matrix4, MeshLambertMaterial, Quaternion, Vector3,
+} from 'three';
 
-function geometria(model) {
-  const g = new BufferGeometry();
-  g.setAttribute('position', new Float32BufferAttribute(model.position, 3));
-  g.setAttribute('normal', new Float32BufferAttribute(model.normal, 3));
+function geometriaObloku() {
+  const baza = new IcosahedronGeometry(1, 2);
+  const g = new BufferGeometry().copy(baza);
+  const pozycje = g.getAttribute('position');
   const colors = [];
-  const bottom = new Color(0xdceafb), top = new Color(0xfffdf5), c = new Color();
-  for (let i = 0; i < model.position.length; i += 3) {
-    const h = Math.max(0, Math.min(1, (model.position[i+1] + .25) / .95));
-    c.copy(bottom).lerp(top, Math.sqrt(h));
+  const dol = new Color(0xdceafb), gora = new Color(0xfffdf5), c = new Color();
+  for (let i=0; i<pozycje.count; i++) {
+    const h = Math.max(0,Math.min(1,(pozycje.getY(i)+1)/2));
+    c.copy(dol).lerp(gora,Math.sqrt(h));
     colors.push(c.r,c.g,c.b);
   }
-  g.setAttribute('color', new Float32BufferAttribute(colors,3));
+  g.setAttribute('color',new Float32BufferAttribute(colors,3));
+  g.computeVertexNormals();
   g.computeBoundingSphere();
+  baza.dispose();
   return g;
 }
+
+// x, y, z, szerokość, wysokość, głębokość. Nakładające się obłoki dają
+// trzy różne bazowe sylwetki, zanim dojdzie losowanie i animacja.
+const WZORY = [
+  [
+    [0,0,.04,1.02,.27,.48],[-.68,.05,0,.54,.30,.39],[.67,.06,.01,.55,.31,.40],
+    [-.34,.24,-.02,.52,.42,.42],[.16,.31,-.04,.62,.52,.48],[.57,.22,.02,.43,.36,.36],
+  ],
+  [
+    [0,0,.05,1.14,.25,.48],[-.80,.03,.01,.48,.27,.36],[.80,.04,.02,.49,.28,.37],
+    [-.47,.23,-.02,.55,.40,.41],[.02,.28,-.05,.60,.47,.46],[.48,.27,-.01,.58,.43,.43],
+    [.76,.18,.03,.35,.30,.32],
+  ],
+  [
+    [0,0,.06,.95,.27,.47],[-.62,.04,.02,.52,.29,.38],[.63,.05,.01,.52,.30,.39],
+    [-.39,.23,-.02,.46,.38,.39],[.02,.34,-.06,.58,.55,.48],[.43,.27,-.03,.48,.43,.40],
+    [-.12,.55,-.08,.36,.34,.34],[.66,.20,.03,.34,.29,.31],
+  ],
+];
 
 export const CHMURY = {
   ile: 4, skalaOd: .40, skalaDo: .58,
@@ -28,45 +51,86 @@ export class Chmury {
     const C = this.C = { ...CHMURY, ...opcje };
     this.grupa = new Group();
     this.grupa.name = 'chmury';
-    // Ambient transmission keeps the underside pale, without transparent shells.
     this.material = new MeshLambertMaterial({ vertexColors: true,
       emissive: 0xc4d9ed, emissiveIntensity: .65, flatShading: false });
-    this.geometrie = modele.map(geometria);
+    this.geometria = geometriaObloku();
+
     let seed = 20260912;
     const los = () => (seed = seed * 16807 % 2147483647) / 2147483647;
     this.sztuki = [];
+    let instancji = 0;
     for (let i=0; i<C.ile; i++) {
-      const mesh = new Mesh(this.geometrie[i%3], this.material);
-      mesh.frustumCulled = false;
-      mesh.rotation.set(.08, (los()-.5)*.28, (los()-.5)*.055);
+      const wzor = WZORY[i%WZORY.length].map((o,j) => ({
+        x:o[0]+(los()-.5)*.055, y:o[1]+(los()-.5)*.035, z:o[2]+(los()-.5)*.04,
+        sx:o[3]*(.94+los()*.12), sy:o[4]*(.92+los()*.16), sz:o[5]*(.94+los()*.12),
+        faza:los()*Math.PI*2, obrot:(los()-.5)*.18, indeks:instancji+j,
+      }));
       const skala = C.skalaOd + los()*(C.skalaDo-C.skalaOd);
-      this.grupa.add(mesh);
-      this.sztuki.push({mesh,skala,
+      this.sztuki.push({wzor,skala,
         x:-1.15+(i+.5)*2.3/C.ile,
         postep:(i+.4)/C.ile,
-        tempo:C.tempoOd+los()*(C.tempoDo-C.tempoOd)});
+        tempo:C.tempoOd+los()*(C.tempoDo-C.tempoOd),
+        faza:los()*Math.PI*2});
+      instancji += wzor.length;
     }
+
+    this.mesh = new InstancedMesh(this.geometria,this.material,instancji);
+    this.mesh.name = 'zywe-obloki';
+    this.mesh.frustumCulled = false;
+    this.mesh.instanceMatrix.setUsage(DynamicDrawUsage);
+    this.grupa.add(this.mesh);
+    this._czas = 0;
+    this._macierz = new Matrix4();
+    this._pozycja = new Vector3();
+    this._skala = new Vector3();
+    this._obrot = new Euler();
+    this._kwaternion = new Quaternion();
   }
+
   podepnijDoKamery(camera) { camera.add(this.grupa); this.kamera=camera; }
+
   aktualizuj(dt,stan,predkosc=0) {
     const k=this.kamera;
     if (!k) return;
+    const krok=Math.max(0,dt);
+    this._czas += krok;
     const W=(k.right-k.left)/2/(k.zoom||1), H=(k.top-k.bottom)/2/(k.zoom||1);
     for (const s of this.sztuki) {
-      // Orthographic camera: approach is expressed through scale and upward motion.
-      // A little wind remains while idle; walking makes the clouds approach faster.
-      s.postep=(s.postep + Math.max(0,dt)*s.tempo*(1+Math.min(2,Math.max(0,predkosc))*.45))%1;
+      // W kamerze ortograficznej perspektywę budują skala, tor od punktu
+      // zbiegu i coraz szerszy rozstaw obłoków.
+      s.postep=(s.postep+krok*s.tempo*(1+Math.min(2,Math.max(0,predkosc))*.45))%1;
       const p=s.postep;
-      const near=s.skala*Math.min(1,W/5.25)*2.4;
-      const emergence=Math.min(1,p/.10);
-      const size=near*(.24+.76*p*p)*emergence*emergence*(3-2*emergence);
-      s.mesh.scale.setScalar(size);
-      // At the end the WHOLE cloud is above the frame before it wraps to the horizon.
-      const radius=s.mesh.geometry.boundingSphere.radius;
-      const y=.48*H+p*(.60*H+near*radius*1.4);
-      const x=s.x*W*(.60+.28*p);
-      s.mesh.position.set(x,y,this.C.glebokosc);
+      const gladki=p*p*(3-2*p);
+      const pojawienie=Math.min(1,p/.10);
+      const near=s.skala*Math.min(1,W/5.25)*2.35;
+      const rozmiar=near*(.16+1.18*gladki)*pojawienie;
+      const wiatr=Math.sin(this._czas*.13+s.faza)*W*.026;
+      const cx=s.x*W*(.17+.70*gladki)+wiatr;
+      // Kwadrat postępu długo trzyma chmurę w kadrze, a dopiero końcówka
+      // unosi całą bryłę ponad górną krawędź.
+      const cy=.30*H+p*p*(.72*H+near*2.25);
+      const rozszerzenie=.78+.30*gladki;
 
+      for (const o of s.wzor) {
+        // Niesynchroniczne przesunięcia i skale zmieniają obrys chmury,
+        // ale pozostają na tyle małe, by nie wyglądała jak galareta.
+        const a=this._czas*.34+o.faza;
+        const bx=o.x+Math.sin(a)*.045+Math.sin(a*.47+s.faza)*.018;
+        const by=o.y+Math.cos(a*.81)*.025;
+        const bz=o.z+Math.sin(a*.63)*.025;
+        const pulsX=1+Math.sin(a*.73)*.055;
+        const pulsY=1+Math.cos(a*.59)*.045;
+        const pulsZ=1+Math.sin(a*.67+1.3)*.04;
+        this._pozycja.set(cx+bx*rozmiar*rozszerzenie,cy+by*rozmiar,
+          this.C.glebokosc+gladki*10+bz*rozmiar);
+        this._skala.set(o.sx*rozmiar*pulsX,o.sy*rozmiar*pulsY,o.sz*rozmiar*pulsZ);
+        this._obrot.set(.06+Math.sin(a*.41)*.025,(bx*.055)+Math.cos(a*.37)*.025,
+          o.obrot+Math.sin(a*.29)*.025);
+        this._kwaternion.setFromEuler(this._obrot);
+        this._macierz.compose(this._pozycja,this._kwaternion,this._skala);
+        this.mesh.setMatrixAt(o.indeks,this._macierz);
+      }
     }
+    this.mesh.instanceMatrix.needsUpdate=true;
   }
 }
