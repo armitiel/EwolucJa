@@ -665,11 +665,21 @@ export class Pnacze {
       p.mesh.visible = seg > 0;
       p.czubek.visible = p.front > 0.004;   // także na końcu: domyka czubek
       if (p.czubek.visible) {
-        const c = this.punkt(p, p.tHead, _v);
-        p.czubek.position.copy(c);
-        this.styczna(p, p.tHead, _w);
+        /**
+         * PRZERWA MIĘDZY SEGMENTAMI. Czubek szedł za `tHead`, które płynie
+         * ciągle, a rura kończy się na CAŁYM segmencie (`Math.floor`), bo
+         * `drawRange` nie umie narysować pół pierścienia. Czubek odrywał się
+         * więc od rury nawet o całą długość segmentu i w trakcie wzrostu
+         * widać było przerwę, znikającą dopiero przy przeskoku na kolejny
+         * segment. Stawiamy go na KOŃCU NARYSOWANEJ rury — przy N rzędu
+         * 170–240 segmentów krok jest poniżej procenta wysokości, a szpary
+         * nie ma wcale.
+         */
+        const tRys = p.t0 + (1 - p.t0) * (seg / p.N);
+        p.czubek.position.copy(this.punkt(p, tRys, _v));
+        this.styczna(p, tRys, _w);
         p.czubek.quaternion.setFromUnitVectors(_up, _w);
-        p.czubek.scale.setScalar(Math.max(0.001, this.promienPnacza(p, p.tHead) * 0.88));
+        p.czubek.scale.setScalar(Math.max(0.001, this.promienPnacza(p, tRys) * 0.88));
       }
     }
 
