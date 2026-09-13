@@ -44,6 +44,12 @@ const WZORY = [
 export const CHMURY = {
   ile: 4, skalaOd: .40, skalaDo: .58,
   tempoOd: .022, tempoDo: .028, glebokosc: -45,
+  // Rozstaw torów i to, jak mocno rozchodzą się ku bokom kadru w miarę
+  // zbliżania. Większe liczby = chmury kończą bieg przy krawędziach ekranu.
+  rozstaw: 1.45, rozsuwOd: .18, rozsuwDo: .95,
+  // 1 = obłok stoi prostopadle do promienia planety (na bokach kadru
+  // wyraźnie położony), 0 = zawsze poziomo jak dawniej.
+  pochylenie: 1, pochylenieMaks: .85,
 };
 
 export class Chmury {
@@ -67,7 +73,7 @@ export class Chmury {
       }));
       const skala = C.skalaOd + los()*(C.skalaDo-C.skalaOd);
       this.sztuki.push({wzor,skala,
-        x:-1.15+(i+.5)*2.3/C.ile,
+        x:-C.rozstaw+(i+.5)*2*C.rozstaw/C.ile,
         postep:(i+.4)/C.ile,
         tempo:C.tempoOd+los()*(C.tempoDo-C.tempoOd),
         faza:los()*Math.PI*2});
@@ -85,6 +91,7 @@ export class Chmury {
     this._skala = new Vector3();
     this._obrot = new Euler();
     this._kwaternion = new Quaternion();
+    this._srodek = new Vector3();
   }
 
   podepnijDoKamery(camera) { camera.add(this.grupa); this.kamera=camera; }
@@ -94,7 +101,15 @@ export class Chmury {
     if (!k) return;
     const krok=Math.max(0,dt);
     this._czas += krok;
+    const C=this.C;
     const W=(k.right-k.left)/2/(k.zoom||1), H=(k.top-k.bottom)/2/(k.zoom||1);
+    // ŚRODEK PLANETY W UKŁADZIE KAMERY. Obłoki są dziećmi kamery, a kamera
+    // jest ortograficzna — jej lokalne x, y to wprost miejsce na ekranie,
+    // w tych samych jednostkach co cx/cy niżej. Kula leży w zerze świata,
+    // więc wystarczy przenieść zero do układu kamery: z tego jednego punktu
+    // bierze się cała krzywizna, którą widać na horyzoncie.
+    const srodek=this._srodek.set(0,0,0);
+    k.worldToLocal(srodek);
     for (const s of this.sztuki) {
       // W kamerze ortograficznej perspektywę budują skala, tor od punktu
       // zbiegu i coraz szerszy rozstaw obłoków.
@@ -105,11 +120,22 @@ export class Chmury {
       const near=s.skala*Math.min(1,W/5.25)*2.35;
       const rozmiar=near*(.16+1.18*gladki)*pojawienie;
       const wiatr=Math.sin(this._czas*.13+s.faza)*W*.026;
-      const cx=s.x*W*(.17+.70*gladki)+wiatr;
+      const cx=s.x*W*(C.rozsuwOd+C.rozsuwDo*gladki)+wiatr;
       // Kwadrat postępu długo trzyma chmurę w kadrze, a dopiero końcówka
       // unosi całą bryłę ponad górną krawędź.
       const cy=.30*H+p*p*(.72*H+near*2.25);
       const rozszerzenie=.78+.30*gladki;
+      // NACHYLENIE WZGLĘDEM ŚRODKA PLANETY. Chmura nie wisi pionowo, tylko
+      // leży na niewidzialnej sferze: jej „góra" pokrywa się z promieniem
+      // planety. W środku kadru promień jest pionowy i nic się nie dzieje,
+      // a im dalej w bok, tym mocniej obłok się kładzie — tak samo, jak
+      // opada horyzont pod nim. Ponieważ tor odsuwa chmurę ku krawędzi,
+      // nachylenie narasta samo w miarę zbliżania.
+      const dx=cx-srodek.x;
+      const dy=Math.max(1e-3,cy-srodek.y);
+      const pochyl=Math.max(-C.pochylenieMaks,Math.min(C.pochylenieMaks,
+        Math.atan2(-dx,dy)*C.pochylenie));
+      const sinP=Math.sin(pochyl), cosP=Math.cos(pochyl);
 
       for (const o of s.wzor) {
         // Niesynchroniczne przesunięcia i skale zmieniają obrys chmury,
@@ -121,11 +147,16 @@ export class Chmury {
         const pulsX=1+Math.sin(a*.73)*.055;
         const pulsY=1+Math.cos(a*.59)*.045;
         const pulsZ=1+Math.sin(a*.67+1.3)*.04;
-        this._pozycja.set(cx+bx*rozmiar*rozszerzenie,cy+by*rozmiar,
+        // Obłok obraca się JAKO CAŁOŚĆ: to samo `pochyl` kręci rozstawem
+        // kulek wokół środka chmury i każdą kulką z osobna. Sam obrót
+        // instancji przechyliłby bryłki, zostawiając rozstaw poziomy —
+        // chmura wyglądałaby wtedy na rozjechaną, a nie położoną.
+        const ox=bx*rozmiar*rozszerzenie, oy=by*rozmiar;
+        this._pozycja.set(cx+ox*cosP-oy*sinP,cy+ox*sinP+oy*cosP,
           this.C.glebokosc+gladki*10+bz*rozmiar);
         this._skala.set(o.sx*rozmiar*pulsX,o.sy*rozmiar*pulsY,o.sz*rozmiar*pulsZ);
         this._obrot.set(.06+Math.sin(a*.41)*.025,(bx*.055)+Math.cos(a*.37)*.025,
-          o.obrot+Math.sin(a*.29)*.025);
+          o.obrot+pochyl+Math.sin(a*.29)*.025);
         this._kwaternion.setFromEuler(this._obrot);
         this._macierz.compose(this._pozycja,this._kwaternion,this._skala);
         this.mesh.setMatrixAt(o.indeks,this._macierz);

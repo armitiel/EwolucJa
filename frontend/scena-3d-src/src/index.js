@@ -15,7 +15,8 @@ import { szablon, wstrzyknijStyl } from "./ui.js";
 
 export const ZDARZENIA = [
   "gotowa", "minigra:start", "znak:dotkniety", "bohater:doszedl", "latarnia:reakcja",
-  "doba:pora", "swiatlo:zebrane", "pauza", "wznowienie", "zniszczona", "blad",
+  "doba:pora", "swiatlo:zebrane", "woda:nabrana", "fasola:podlana", "fasola:wspinaczka", "swiat:dalej",
+  "pauza", "wznowienie", "zniszczona", "blad",
 ];
 
 export async function utworzScena3D(s = {}) {

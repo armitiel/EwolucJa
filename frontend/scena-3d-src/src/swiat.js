@@ -15,6 +15,8 @@ import {
   BufferGeometry, Float32BufferAttribute, MultiplyBlending, Matrix4, Color, Raycaster,
 } from "three";
 import { stycznaDo, doStycznej, przytnijDoPromienia } from "./planeta.js";
+import { formyTerenu } from "./teren.js";
+import { materialTerenu } from "./shader-terenu.js";
 import { naNormalne, potnijNaKuli, wstegaPoKuli } from "./wstega.js";
 
 export const PALETA = {
@@ -205,25 +207,34 @@ export function teksturaTerenu(mapa, planeta) {
 }
 
 /**
- * Teren FASETOWANY — ścianki zamiast malunku (`swiat.terenKanciasty`).
+ * Teren PROCEDURALNY — kula bez tekstury (`swiat.terenKanciasty`).
  *
- * ŻADNEJ TEKSTURY. Kolor siedzi w wierzchołkach (`vertexColors`), materiał ma
- * `flatShading`, więc każda ścianka ma jedną normalną i jeden odcień. Lekkie
- * wyboje (suma kilku sinusów po kierunku) łamią kulę na tyle, żeby sąsiednie
- * ścianki łapały światło pod różnym kątem — i to jest cały efekt.
+ * ŻADNEJ TEKSTURY I ŻADNYCH `vertexColors`. Kolor liczy się w pikselu:
+ * `shader-terenu.js` bierze kierunek na kuli i maluje miękkie plamy zieleni
+ * (dwa tony + szarozielone przetarcie + kremowe rozjaśnienia). Geometria
+ * niesie tylko `wysForma` — jak wysoko/głęboko leży teren w danym punkcie —
+ * i z tego shader robi suchy wierzchołek wzgórza oraz piaskowy brzeg i
+ * błotniste dno niecki. Paleta zmienia się BEZ przebudowy geometrii.
+ *
+ * Powierzchnia jest GŁADKA: normalne uśredniamy ręcznie (patrz
+ * `gladkieNormalne`), bo plamę koloru ma nieść malunek, a nie siatka.
+ * `swiat.terenFasety: true` wraca do ścianek — ten sam wzór, płaskie
+ * cieniowanie.
+ *
+ * Lekkie wyboje (suma kilku sinusów po kierunku) zostają: łamią kulę na tyle,
+ * żeby światło miało po czym chodzić.
  *
  * IcosahedronGeometry, a NIE SphereGeometry: kula z południków ma na biegunie
  * wachlarz trójkątów, co przy płaskim cieniowaniu robi gwiazdę dokładnie tam,
  * gdzie stoi dziecko (środek mapy = biegun). Bryła foremna ma ścianki równe na
- * całej kuli i żadnego bieguna. Jest NIEINDEKSOWANA, więc każda ścianka ma
- * własne wierzchołki — dokładnie to, czego trzeba do koloru „na ściankę".
- * Wysokość liczymy z KIERUNKU, więc powtórzone wierzchołki dostają tę samą
- * wartość i między ściankami nie robią się szpary.
+ * całej kuli i żadnego bieguna. Jest NIEINDEKSOWANA — dlatego normalne trzeba
+ * sklejać ręcznie. Wysokość liczymy z KIERUNKU, więc powtórzone wierzchołki
+ * dostają tę samą wartość i między ściankami nie robią się szpary.
  *
  * Wyboje są celowo płytkie (0,05 przy R≈8): bohater chodzi po idealnej kuli,
  * a nie po tym meshu, więc głębsze zaczęłyby go zatapiać w zboczu.
  */
-function terenFasetowany(mapa, planeta) {
+function terenProceduralny(mapa, planeta) {
   const R = planeta.R;
   const gestosc = typeof mapa.terenKanciasty === "number" ? mapa.terenKanciasty : 5;
   const amp = mapa.terenWyboje ?? 0.05;
@@ -260,8 +271,8 @@ function terenFasetowany(mapa, planeta) {
   const t1 = new Vector3();
   const t2 = new Vector3();
   const pomoc = new Vector3();
-  const przesun = (d) => {
-    const klucz = `${Math.round(d.x * 1e4)},${Math.round(d.y * 1e4)},${Math.round(d.z * 1e4)}`;
+  const kluczKierunku = (d) => `${Math.round(d.x * 1e4)},${Math.round(d.y * 1e4)},${Math.round(d.z * 1e4)}`;
+  const przesun = (d, klucz) => {
     const gotowe = pamiec.get(klucz);
     if (gotowe) return d.copy(gotowe);
     const h = mieszaj(klucz);
@@ -276,57 +287,81 @@ function terenFasetowany(mapa, planeta) {
     return d;
   };
 
+  // FORMY TERENU (`teren.js`): wzgórza, niecki (w tym pod oczkiem wody) —
+  // ta sama funkcja, z której `app.groundHeightAt` liczy wysokość bohatera.
+  const formy = formyTerenu(mapa);
+  const mp = { x: 0, z: 0, h: 0 };
+  const forma = (d) => {
+    if (formy.pusta) return 0;
+    planeta.zKuli(d, mp);
+    return formy.h(mp.x, mp.z);
+  };
+
   const v = new Vector3();
-  const wys = new Float32Array(n);
+  // `wysForma` idzie do shadera (piasek w niecce, suchy szczyt wzgórza);
+  // `klucze` to tożsamość wierzchołka — po niej sklejamy normalne.
+  const wysForma = new Float32Array(n);
+  const klucze = new Array(n);
   for (let i = 0; i < n; i++) {
     v.fromBufferAttribute(pos, i).normalize();
-    if (rozrzut > 1e-6) przesun(v);
+    const klucz = kluczKierunku(v);
+    klucze[i] = klucz;
+    if (rozrzut > 1e-6) przesun(v, klucz);
     const h = wybój(v.x, v.y, v.z);
-    wys[i] = h;
-    v.multiplyScalar(R + amp * h);
+    const fh = forma(v);
+    wysForma[i] = fh;
+    // w niecce wyboje cichną (dno stawu ma być gładkie)
+    v.multiplyScalar(R + amp * (fh < -1e-4 ? h * 0.3 : h) + fh);
     pos.setXYZ(i, v.x, v.y, v.z);
   }
 
-  // Kolor na ŚCIANKĘ (wierzchołki idą po trzy): średnia wysokość ścianki
-  // daje odcień, drobny szum rozbija regularność wzoru.
-  const kolory = new Float32Array(n * 3);
-  const c = new Color();
-  const jasna = new Color(mapa.terenBarwy?.jasna ?? 0x9ed163);
-  const ciemna = new Color(mapa.terenBarwy?.ciemna ?? 0x6ba23f);
-  const kreda = mapa.kreda || 0;
-  const rozjasnienie = 1 + kreda * 0.2;
-  for (let t = 0; t + 2 < n; t += 3) {
-    const sr = (wys[t] + wys[t + 1] + wys[t + 2]) / 3;
-    const szum = ((Math.sin((t + 1) * 12.9898) * 43758.5453) % 1 + 1) % 1;
-    const u = Math.min(1, Math.max(0, 0.5 + 0.55 * sr + (szum - 0.5) * 0.24));
-    c.copy(ciemna).lerp(jasna, u);
-    // KREDA. Sam materiał jest matowy (Lambert), ale nasycona zieleń pod
-    // mocnym światłem czyta się jak satyna: ściany w słońcu blakną, te
-    // w cieniu zostają soczyste, i przez kulę idzie gradient nasycenia.
-    // Najkrócej to widać po średnim nasyceniu renderu: 0,47 przy pełnej
-    // zieleni, 0,36 przy `kreda` 0,25. Ściągamy barwę w stronę jej własnej
-    // jasności — czyli odbarwiamy, nie szarzymy na siłę — i lekko
-    // rozjaśniamy, bo kreda jest jaśniejsza od farby.
-    if (kreda > 0) {
-      const lum = 0.299 * c.r + 0.587 * c.g + 0.114 * c.b;
-      c.setRGB(
-        (c.r + (lum - c.r) * kreda) * rozjasnienie,
-        (c.g + (lum - c.g) * kreda) * rozjasnienie,
-        (c.b + (lum - c.b) * kreda) * rozjasnienie,
-      );
-    }
-    for (let k = 0; k < 3; k++) {
-      kolory[(t + k) * 3] = c.r;
-      kolory[(t + k) * 3 + 1] = c.g;
-      kolory[(t + k) * 3 + 2] = c.b;
-    }
-  }
-  geo.setAttribute("color", new Float32BufferAttribute(kolory, 3));
-  geo.computeVertexNormals();
+  geo.setAttribute("wysForma", new Float32BufferAttribute(wysForma, 1));
 
-  const m = new Mesh(geo, new MeshLambertMaterial({ vertexColors: true, flatShading: true }));
+  // NORMALNE. Geometria jest NIEINDEKSOWANA, więc `computeVertexNormals()`
+  // dałoby normalną na ściankę — czyli kulę fasetowaną, choćby materiał
+  // prosił o gładkie cieniowanie. Sklejamy więc ręcznie: normalne ścianek
+  // sumują się w koszyku wspólnego wierzchołka (klucz = kierunek SPRZED
+  // rozrzutu, ten sam dla wszystkich kopii), a potem wracają znormalizowane.
+  if (mapa.terenFasety) geo.computeVertexNormals();
+  else gladkieNormalne(geo, klucze);
+
+  const m = new Mesh(geo, materialTerenu({
+    barwy: mapa.terenBarwy || null,
+    strojenie: mapa.terenShader || null,
+    fasety: !!mapa.terenFasety,
+  }));
   m.name = "ground";
   return m;
+}
+
+/** Uśrednione normalne dla geometrii nieindeksowanej (klucz = tożsamość wierzchołka). */
+function gladkieNormalne(geo, klucze) {
+  const pos = geo.attributes.position;
+  const n = pos.count;
+  const a = new Vector3(), b = new Vector3(), c = new Vector3();
+  const ab = new Vector3(), ac = new Vector3(), nf = new Vector3();
+  const koszyki = new Map();
+  for (let t = 0; t + 2 < n; t += 3) {
+    a.fromBufferAttribute(pos, t);
+    b.fromBufferAttribute(pos, t + 1);
+    c.fromBufferAttribute(pos, t + 2);
+    nf.crossVectors(ab.subVectors(b, a), ac.subVectors(c, a)); // długość = 2× pole, czyli waga ścianki
+    for (let k = 0; k < 3; k++) {
+      const klucz = klucze[t + k];
+      let s = koszyki.get(klucz);
+      if (!s) koszyki.set(klucz, s = new Vector3());
+      s.add(nf);
+    }
+  }
+  const norm = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) {
+    const s = koszyki.get(klucze[i]);
+    nf.copy(s).normalize();
+    norm[i * 3] = nf.x;
+    norm[i * 3 + 1] = nf.y;
+    norm[i * 3 + 2] = nf.z;
+  }
+  geo.setAttribute("normal", new Float32BufferAttribute(norm, 3));
 }
 
 /**
@@ -336,7 +371,7 @@ function terenFasetowany(mapa, planeta) {
  * (ClampToEdge), czyli daje trawę.
  */
 export function zbudujTeren(mapa, planeta) {
-  if (mapa.terenKanciasty) return terenFasetowany(mapa, planeta);
+  if (mapa.terenKanciasty) return terenProceduralny(mapa, planeta);
   const R = planeta.R;
   const geo = new SphereGeometry(R, 192, 128);
   const pos = geo.attributes.position;

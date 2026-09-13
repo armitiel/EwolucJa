@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8"><title>Podgląd pnącza — EwolucJA</title>
+<style>
+html,body{margin:0;overflow:hidden;background:#bfe0f2;font:13px/1.4 system-ui,sans-serif}
+#panel{position:fixed;left:10px;top:10px;background:#ffffffd9;border-radius:10px;padding:10px 12px;min-width:190px}
+label{display:block;margin:6px 0 2px}
+input[type=range]{width:100%}
+#stan{margin-top:8px;font:11px ui-monospace,monospace;color:#345;white-space:pre-line}
+</style></head>
+<body>
+<div id="panel">
+  <label>Wzrost <output id="ou">1.00</output></label>
+  <input id="u" type="range" min="0" max="1" step="0.01" value="1">
+  <label>Obrót widoku</label>
+  <input id="a" type="range" min="0" max="6.28" step="0.01" value="0.6">
+  <label>Odległość</label>
+  <input id="d" type="range" min="2" max="26" step="0.1" value="12">
+  <label><input id="oz" type="checkbox" checked> liście, kwiaty, wąsy</label>
+  <label><input id="gora" type="checkbox"> widok z góry</label>
+  <div id="stan"></div>
+</div>
+<script type="module" src="./podglad-pnacza.bundle.js"></script>
+<script>
+addEventListener("load", () => {
+  const P = globalThis.__P, S = document.getElementById("stan");
+  const odswiez = () => { S.textContent = JSON.stringify(P.stan(), null, 1).replace(/[{}"]/g, ""); };
+  u.oninput = () => { ou.value = (+u.value).toFixed(2); P.wzrost(+u.value); odswiez(); };
+  a.oninput = () => P.obrot(+a.value);
+  d.oninput = () => P.dist(+d.value);
+  oz.onchange = () => { P.ozdoby(oz.checked); odswiez(); };
+  gora.onchange = () => P.widok(gora.checked);
+  odswiez();
+});
+</script>
+</body></html>

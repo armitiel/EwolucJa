@@ -1,6 +1,6 @@
 {
   "wersja": 1,
-  "opis": "Planeta wariantu 2 - pierwsza minuta wg docs/PIERWSZA_MINUTA.md. Slonce stoi nad srodkiem mapy, wiec kat od srodka = pora dnia: 0 poludnie, 90 terminator, 180 polnoc. Start 35 st, Magiczna Fasola 78 st (w miejscu dawnego Kamiennego Paka), oczko wody obok drogi, swietliki 112/138/166 st.",
+  "opis": "W3 — PLACEHOLDER kolejnego swiata, na ktory lisek trafia po wspieciu sie na fasole w W2. Na razie kopia W2 bez fasoli i oczka; do zaprojektowania.",
   "postac": "fox",
   "swiat": {
     "promien": 14,
@@ -11,7 +11,7 @@
       0
     ],
     "cienie": true,
-    "terenKanciasty": 8,
+    "terenKanciasty": true,
     "chmury": 4,
     "zasiew": true,
     "promienKuli": 8.5,
@@ -23,7 +23,7 @@
   "start": {
     "pos": [
       0.0,
-      6.72
+      3.0
     ],
     "obrot": 0
   },
@@ -64,92 +64,7 @@
   "drzewa": [],
   "glazy": [],
   "budynki": [],
-  "znaki": [
-    {
-      "id": "swietlik-1",
-      "file": "prog",
-      "label": "Swietlik",
-      "toast": "Swiatlo!",
-      "pos": [
-        1.4,
-        21.46
-      ],
-      "pora": "noc",
-      "zbiera": "swiatlo",
-      "scale": 1,
-      "height": 0.85,
-      "glow": 16771488,
-      "barwa": 16771488,
-      "jasnosc": 1.4,
-      "haloOpacity": 0.62,
-      "haloScale": 1.5,
-      "ringOpacity": 0,
-      "lightBase": 1.1,
-      "absorb": true,
-      "absorbLift": 1.6,
-      "respawn": 900,
-      "respawnPierwszy": 900,
-      "zasieg": 1.15,
-      "iskry": 24,
-      "iskrySila": 1.4
-    },
-    {
-      "id": "swietlik-2",
-      "file": "prog",
-      "label": "Swietlik",
-      "toast": "Swiatlo!",
-      "pos": [
-        -1.6,
-        26.45
-      ],
-      "pora": "noc",
-      "zbiera": "swiatlo",
-      "scale": 1,
-      "height": 0.85,
-      "glow": 16771488,
-      "barwa": 16771488,
-      "jasnosc": 1.4,
-      "haloOpacity": 0.62,
-      "haloScale": 1.5,
-      "ringOpacity": 0,
-      "lightBase": 1.1,
-      "absorb": true,
-      "absorbLift": 1.6,
-      "respawn": 900,
-      "respawnPierwszy": 900,
-      "zasieg": 1.15,
-      "iskry": 24,
-      "iskrySila": 1.4
-    },
-    {
-      "id": "swietlik-3",
-      "file": "prog",
-      "label": "Swietlik",
-      "toast": "Swiatlo!",
-      "pos": [
-        0.9,
-        31.86
-      ],
-      "pora": "noc",
-      "zbiera": "swiatlo",
-      "scale": 1,
-      "height": 0.85,
-      "glow": 16771488,
-      "barwa": 16771488,
-      "jasnosc": 1.4,
-      "haloOpacity": 0.62,
-      "haloScale": 1.5,
-      "ringOpacity": 0,
-      "lightBase": 1.1,
-      "absorb": true,
-      "absorbLift": 1.6,
-      "respawn": 900,
-      "respawnPierwszy": 900,
-      "zasieg": 1.15,
-      "iskry": 24,
-      "iskrySila": 1.4
-    }
-  ],
+  "znaki": [],
   "kwiaty": [
     {
       "wariant": 3,
@@ -1015,52 +930,5 @@
       "skala": 0.64,
       "obrot": 2.11
     }
-  ],
-  "fasola": {
-    "pos": [
-      0.0,
-      14.97
-    ],
-    "obrot": 0.5,
-    "zasieg": 1.9,
-    "dalej": "w3",
-    "opis": "Magiczna Fasola. Etap 0 = ziarno (model GLB fasola_1); kazda kropla z oczka = +1 etap; od etapu 1 roslina jest proceduralna (pnacze.js: splot 4-5 osobnych pnaczy, dochodza kolejno), wysokosc etapu z `wysokosc`; przy ostatnim etapie jedno pnacze splaszcza sie w grywalna wstege - po niej wspinaczka i przejscie do ?mapa=w3.",
-    "etapy": [
-      {
-        "file": "fasola_1",
-        "wysokosc": 0.45,
-        "nazwa": "ziarno"
-      },
-      {
-        "wysokosc": 1.0,
-        "nazwa": "kielek"
-      },
-      {
-        "wysokosc": 2.4,
-        "nazwa": "mlody ped"
-      },
-      {
-        "wysokosc": 5.0,
-        "nazwa": "skrecony ped"
-      },
-      {
-        "wysokosc": 9.0,
-        "nazwa": "gigant"
-      }
-    ],
-    "pnacze": {
-      "pnacza": 5,
-      "obroty": 2.0,
-      "ziarno": 1
-    }
-  },
-  "oczko": {
-    "pos": [
-      7.2,
-      15.5
-    ],
-    "promien": 1.4,
-    "ziarno": 3,
-    "opis": "Oczko wody - lisek wchodzi w nie, zeby nabrac krople dla fasoli."
-  }
+  ]
 }

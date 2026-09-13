@@ -15,6 +15,13 @@ const gotowa = utworzScena3D({
   spokojnyRuch: q.get("spokojnie") === "1" ? true : undefined,
 }).then((s) => {
   mostIframe(s);
+  // Szczyt fasoli: przejście do kolejnego świata (`?mapa=<cel>`), jeśli mapa go wskazuje.
+  s.on("swiat:dalej", ({ cel }) => {
+    if (!cel) return;
+    const u = new URL(location.href);
+    u.searchParams.set("mapa", cel);
+    setTimeout(() => location.assign(u.toString()), 900);
+  });
   globalThis.EwolucjaScena3D.scena = s;
   return s;
 });

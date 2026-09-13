@@ -125,26 +125,49 @@ export const DOBA = {
   chmury: { dzien: 0xffffff, zorza: 0xffc3a3, noc: 0x7895bd, emisjaNoc: 0x233b62 },
   gwiazdy: { krycie: 0.85 },
   /**
-   * Progi w STOPNIACH kąta od zenitu słońca, nie w kosinusie.
+   * Progi w STOPNIACH FAZY — czyli kąta od zenitu słońca liczonego wprost
+   * z pozycji bohatera (`faza`), a NIE z przegiętego `luk`.
    *
-   * Wcześniej fazy liczyły się z `t = cos(kąt)`, a `dt/dkąt = −sin(kąt)` jest
-   * NAJWIĘKSZE dokładnie przy terminatorze — czyli świt i zachód przelatywały
-   * najszybciej właśnie tam, gdzie mają trwać. W stopniach tempo jest równe
-   * na całej drodze, a progi czyta się wprost.
+   * Dwa razy się już na tym przejechaliśmy, więc po kolei:
    *
-   * Podział doby wzdłuż drogi (jedno okrążenie = 360°):
-   *   0–42°   pełny dzień          (23% okrążenia)
-   *   42–142° zachód / świt        (po 28% na stronę)
-   *   142–180° pełna noc           (21%)
-   * Przy marszu (okrążenie ~57 s) sam zachód trwa więc ok. 16 sekund.
+   * 1. Najpierw fazy liczyły się z `t = cos(kąt)`. `dt/dkąt = −sin(kąt)` jest
+   *    największe dokładnie przy terminatorze, więc świt i zachód przelatywały
+   *    najszybciej właśnie tam, gdzie mają trwać. Stąd przejście na stopnie.
+   * 2. Potem stopnie brały się z `luk`, czyli z fazy PO przegięciu
+   *    (`spowolnienieHoryzontu`). A przegięcie istnieje po to, żeby TARCZA
+   *    zwalniała przy horyzoncie — przy okazji rozciągało zmierzch i zjadało
+   *    dzień z nocą. Zmierzone: zamiast deklarowanych 23/56/21 wychodziło
+   *    14/72/13, a szczyt pomarańczy wypadał nie na terminatorze, tylko
+   *    ~11° za nim.
+   *
+   * Dlatego TARCZA dalej chodzi po `luk` (zachód ma prawo się dłużyć), a PORY
+   * DNIA liczą się z `faza`. Przegięcie jest zerowe w 0°, ±90° i ±180°, więc
+   * terminator wypada w obu układach w tym samym miejscu — rozjeżdżały się
+   * tylko odcinki pomiędzy.
+   *
+   * Podział doby wzdłuż drogi (jedno okrążenie = 360° fazy), po etykiecie
+   * `pora`, którą dostaje reszta sceny:
+   *   0–63°    dzień                35% okrążenia
+   *   63–117°  świt / zmierzch      30% (po 15% na stronę)
+   *   117–180° noc                  35%
+   * Strefy pełnego światła są węższe niż etykiety: `dzien` = 1 do 52°
+   * (29% doby), `noc` = 1 od 140° (22%).
+   *
+   * W świecie W2 (R = 8,5) okrążenie to 38,7 s marszu — czyli dzień ~13,5 s,
+   * jeden zmierzch ~5,8 s, noc ~13,6 s. Biegiem wszystko 2,5× krócej.
+   *
+   * Granicę dnia wyznacza `zorza > 0,35`, a granicę nocy `noc > 0,55`
+   * (patrz `pora` niżej). Przy zmianie progów sprawdź, czy noc zapala się
+   * ZANIM zgaśnie zorza — inaczej między nimi robi się szczelina, w której
+   * etykieta wraca na „dzien" w środku nocy.
    */
   progi: {
-    dzienDo: 42,        // poniżej — pełny dzień
-    zmierzchDo: 96,     // powyżej — dnia już nie ma
-    nocOd: 84,          // powyżej — noc zaczyna narastać
-    nocPelna: 142,      // powyżej — pełna noc
-    zorzaSrodek: 92,    // gdzie najmocniej pali się pomarańcz
-    zorzaSzerokosc: 34,
+    dzienDo: 52,        // poniżej — pełny dzień
+    zmierzchDo: 98,     // powyżej — dnia już nie ma
+    nocOd: 90,          // powyżej — noc zaczyna narastać (od terminatora)
+    nocPelna: 140,      // powyżej — pełna noc
+    zorzaSrodek: 90,    // szczyt pomarańczy = słońce dotyka horyzontu
+    zorzaSzerokosc: 26.4,
   },
   tempo: 1.5,          // jak szybko światło dogania pozycję (1/s)
 };
@@ -434,7 +457,9 @@ export class Doba {
     const luk = faza + zacisk(C.slonceTarcza.spowolnienieHoryzontu, 0, .45) * Math.sin(2 * faza);
     const t = this.t = Math.cos(luk);
     // KĄT od zenitu słońca w stopniach — to on, a nie `t`, rządzi fazami.
-    const st = Math.abs(luk) * 180 / Math.PI;
+    // Z `faza`, NIE z `luk`: przegięcie jest po to, żeby zwalniała TARCZA,
+    // a nie po to, żeby zmierzch zjadał dzień i noc (patrz `DOBA.progi`).
+    const st = Math.abs(faza) * 180 / Math.PI;
     const dzien = 1 - gladko(C.progi.dzienDo, C.progi.zmierzchDo, st);
     const noc = gladko(C.progi.nocOd, C.progi.nocPelna, st);
     const u = (st - C.progi.zorzaSrodek) / C.progi.zorzaSzerokosc;

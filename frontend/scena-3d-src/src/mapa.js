@@ -119,10 +119,17 @@ export function wczytajMape() {
     // `slonceNad` to punkt MAPY, nad którym stoi słońce; środek mapy = [0, 0].
     // Cienie rzucane naprawdę (shadow map) zamiast plam pod obiektami.
     cienie: !!M.swiat?.cienie,
-    // Teren z widocznymi ściankami — płaskie cieniowanie jak na concept arcie.
+    // Teren bez tekstury: kula z form terenu, malowana proceduralnie
+    // (`shader-terenu.js`). Liczba = gęstość podziału dwudziestościanu.
     terenKanciasty: M.swiat?.terenKanciasty ?? false,
     terenWyboje: M.swiat?.terenWyboje,
     terenNieregularnosc: M.swiat?.terenNieregularnosc,
+    // `true` = stare, płaskie cieniowanie (widoczne ścianki). Domyślnie
+    // powierzchnia jest gładka i cały charakter niesie plama koloru.
+    terenFasety: !!M.swiat?.terenFasety,
+    // Pokrętła shadera terenu (skala, ziarno, kontrast, szalwia, piasek,
+    // wzgorza, glebia) — wartości domyślne w `shader-terenu.js`.
+    terenShader: M.swiat?.terenShader || null,
     // Ile obłoków na niebie (0 = brak; pierwszy świat nie ma żadnych).
     chmury: M.swiat?.chmury ?? 0,
     // Przybliżenie kamery dla TEGO świata. Większa liczba = większy
@@ -137,16 +144,17 @@ export function wczytajMape() {
     // powierzchnie szybciej blakną w biel i tracą nasycenie — matowa,
     // kredowa zieleń potrzebuje niższej. Brak wpisu = 1,25 jak dotąd.
     ekspozycja: Number.isFinite(M.swiat?.ekspozycja) ? M.swiat.ekspozycja : 1.25,
-    // Ile odbarwić barwy terenu (0 = pełna zieleń, 1 = szarość). Matowy,
-    // kredowy wygląd bierze się z ALBEDO, nie ze świateł — patrz komentarz
-    // przy `kreda` w `terenFasetowany` (swiat.js).
-    kreda: Number.isFinite(M.swiat?.kreda) ? M.swiat.kreda : 0,
     // Gdzie kamera patrzy względem wierzchołka kuli, na ekranie PIONOWYM.
     // Ujemne podnosi planetę w kadrze, dodatnie ją spuszcza. Brak wpisu =
     // wartość domyślna silnika (`KAMERA_PODNIESIENIE` w app.js).
     kameraPodniesienie: Number.isFinite(M.swiat?.kameraPodniesienie)
       ? M.swiat.kameraPodniesienie : null,
     zasiew: !!M.swiat?.zasiew,
+    // MAGICZNA FASOLA (fasola.js): roślina rosnąca etapami od wody z oczka.
+    fasola: M.fasola || null,
+    oczko: M.oczko || null,
+    // FORMY TERENU (teren.js): wzgórza, niecki rysowane po kuli.
+    formyTerenu: M.formyTerenu || [],
     terenBarwy: M.swiat?.terenBarwy || null,
     doba: {
       wlaczona: !!M.swiat?.cyklDnia,

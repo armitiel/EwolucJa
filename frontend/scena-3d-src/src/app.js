@@ -26,6 +26,8 @@ import { postac } from "./postacie.js";
 import { Doba } from "./doba.js";
 import { Chmury } from "./chmury.js";
 import { Swiatlo } from "./swiatlo.js";
+import { Fasola, zbudujOczko, FASOLA } from "./fasola.js";
+import { formyTerenu } from "./teren.js";
 import { Dymki } from "./dymki.js";
 
 const DOTYK = typeof matchMedia !== "undefined" && matchMedia("(pointer:coarse)").matches;
@@ -116,6 +118,30 @@ const KAMERA_PODNIESIENIE_POZIOM = 0.127;
  * samo miejsca w jeszcze niższym kadrze — czyli jeszcze większy bohater.
  */
 const KAMERA_PODNIESIENIE_POZIOM_BEZ_DOKU = 0.218;
+
+/**
+ * KAMERA PRZY MAGICZNEJ FASOLI.
+ *
+ * Domyślne ujęcie patrzy na planetę z ~52° nad poziomem — świetne dla świata
+ * rozłożonego płasko na kuli, ale dziewięciometrowe pnącze widać z niego
+ * „od czubka": pionowa oś skraca się o `cos 52° ≈ 0,62`, więc ze splotu
+ * i zwojów ścieżki zostaje spirala oglądana z lotu ptaka.
+ *
+ * Przesunięcie rośliny gdziekolwiek po mapie tego NIE naprawia — planeta
+ * obraca się pod bohaterem, więc wszystko obok niego stoi na szczycie kuli
+ * i kamera widzi to pod tym samym kątem. Zmienić trzeba kamerę.
+ *
+ * Gdy lisek podchodzi do wyrośniętej fasoli (albo po niej wchodzi), kamera
+ * schodzi do ~27°, a cel podnosi się o kawałek wysokości rośliny. Azymut
+ * zostaje bez zmian, więc `camRight`/`camFwd` — czyli kierunki sterowania —
+ * się nie przekręcają. Przejście jest płynne, bez przeskoku kadru.
+ */
+const KAMERA_FASOLA_ELEWACJA = 0.47;   // rad (~27°) — docelowe wzniesienie kamery
+const KAMERA_FASOLA_BLISKO = 3.2;      // w tym promieniu efekt pełny
+const KAMERA_FASOLA_DALEKO = 7.5;      // dalej niż to — ujęcie domyślne
+const KAMERA_FASOLA_PODNIESIENIE = 0.45;  // ile wysokości rośliny podnosi cel
+const KAMERA_FASOLA_MAX = 5.5;         // ale nie więcej niż tyle jednostek
+const KAMERA_FASOLA_ODDALENIE = 0.22;  // o ile odjechać, żeby czubek zmieścił się w kadrze
 
 const clamp = (s, e, t) => Math.max(e, Math.min(t, s));
 const dogon = (s, e, t, n) => s + (e - s) * (1 - Math.exp(-t * n));
@@ -278,6 +304,7 @@ export class Aplikacja {
       if (this.doba) this.doba.chmuryMaterialy = [this.chmury.material];
     }
 
+    this.formy = formyTerenu(this.mapa);
     const sw = zbudujSwiat(this.mapa, this.planeta);
     this.swiat = sw.group;
     this.ziemia = sw.ziemia;
@@ -312,6 +339,13 @@ export class Aplikacja {
     this._zasiewOstatnia = null;
     this._zasiewDroga = 0;
     this.nurtTik = sw.nurtTik;
+
+    // MAGICZNA FASOLA + OCZKO WODY (fasola.js). Kropla, którą lisek niesie,
+    // to ten sam mechanizm co kule światła — jedna kula, błękitna.
+    this.oczko = this.mapa.oczko ? zbudujOczko(this.mapa.oczko, this.planeta) : null;
+    if (this.oczko) this.swiat.add(this.oczko.mesh);
+    this.fasola = this.mapa.fasola ? new Fasola(this.mapa.fasola, this.planeta, (f) => this.loadGLB(f)) : null;
+    if (this.fasola) this.swiat.add(this.fasola.root);
 
     // Most w układzie MAPY (do wysokości terenu i „czy stoję na moście").
     const mostQ = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), sw.obrotMostu);
@@ -384,6 +418,7 @@ export class Aplikacja {
     this.gotowa = this.loadHero()
       .then(() => this.loadMarkers())
       .then(() => this.loadBudynki())
+      .then(() => this.fasola?.gotowe)
       .then(() => {
         if (this.destroyed) return;
         this.$(".scena3d-loading")?.remove();
@@ -659,6 +694,9 @@ export class Aplikacja {
     this.swiat.add(this.hero);
     // Światło, które bohater NIESIE — kule wokół niego i latarnia.
     this.swiatlo = new Swiatlo(this.hero);
+    // Kropla wody (jedna) — ten sam obieg, inna barwa i nikłe światło.
+    this.kropla = new Swiatlo(this.hero, { ile: 1, barwa: 0x8fdcff, mocLatarni: 0.35, wielkoscKuli: 0.11, promienOrbity: 0.5, wysokosc: 0.6, tempoOrbity: 0.8 });
+    this.kropla.grupa.name = "kropla-bohatera";
     // Kłębki spod łap. Wiszą na grupie PLANETY, nie na bohaterze — mają
     // zostawać tam, gdzie odbiła się łapa.
     this.dymki = new Dymki(this.swiat, this.planeta);
@@ -863,9 +901,10 @@ export class Aplikacja {
   bridgeLocal(e, t, n) { return n.set(e, 0, t).applyMatrix4(this.bridgeInv); }
 
   groundHeightAt(e, t) {
+    const forma = this.formy ? this.formy.h(e, t) : 0;
     const n = this.bridgeLocal(e, t, this._blTmp || (this._blTmp = new Vector3()));
     const i = Math.abs(n.z);
-    if (Math.abs(n.x) > MOST_POL_SZER + 0.2 || i > MOST_POL_DL) return 0;
+    if (Math.abs(n.x) > MOST_POL_SZER + 0.2 || i > MOST_POL_DL) return forma;
     const r = MOST_LUK - 0.057 * (Math.min(i, MOST_PLASKI) / MOST_PLASKI) ** 2;
     const a = clamp((MOST_POL_DL - i) / (MOST_POL_DL - MOST_PLASKI), 0, 1);
     const o = clamp((MOST_POL_SZER + 0.2 - Math.abs(n.x)) / 0.3, 0, 1);
@@ -1481,6 +1520,8 @@ export class Aplikacja {
     } else if (this.sequence === "happy") {
       this.seqTimer += e;
       if (this.seqTimer > 1.55) { this.sequence = null; this.idleAtLantern = 0; this.play("idle", 0.3); }
+    } else if (this.sequence === "wspinaczka") {
+      this._wspinaczkaKlatka(e);
     }
 
     // pochylenie w biegu
@@ -1497,7 +1538,7 @@ export class Aplikacja {
     const r = this.clipY?.[this.current] ?? this.footOffset;
     this.footOffset = dogon(this.footOffset, r, 12, e);
     const a = (this.leanDip || 0) * Math.max(0, (this.lean || 0) / POCHYLENIE_MAX);
-    this.heroLift = this.groundY + this.footOffset + a;
+    this.heroLift = this.groundY + this.footOffset + a + (this._wspDodatek || 0);
     this.syncHero();
     this._zasiejZaLiskiem();
 
@@ -1529,7 +1570,9 @@ export class Aplikacja {
       }
     }
 
-    this.camPos.copy(this.camTarget).add(this.camDir);
+    this._kameraFasola(e);
+    this.camPos.copy(this.camTarget).add(this._camDirAkt || this.camDir);
+    this.camPos.y += this._camGora || 0;
     this._kinoKlatka(e);
     this.camera.position.copy(this.camPos);
     this.camera.lookAt(this._kc.x, this._kc.y, this._kc.z);
@@ -1573,6 +1616,8 @@ export class Aplikacja {
       }
     }
     if (this.swiatlo) this.swiatlo.aktualizuj(e);
+    if (this.kropla) this.kropla.aktualizuj(e);
+    this._fasolaTik(e);
     if (this.dymki) this.dymki.aktualizuj(e, this.hn, this.hf, this.doba?.stan || null);
     this._czasGry = (this._czasGry || 0) + e;
 
@@ -1628,6 +1673,117 @@ export class Aplikacja {
     const krok = yaw * (1 - Math.exp(-tempo * waga * e));
     this._qTmp.setFromAxisAngle(this._v2.set(0, 1, 0), krok);
     this.swiat.quaternion.premultiply(this._qTmp);
+  }
+
+  /* ── MAGICZNA FASOLA ──────────────────────────────────────────────────────── */
+
+  _fasolaTik(e) {
+    if (this.oczko) this.oczko.tik(e);
+    const F = this.fasola;
+    if (!F) return;
+    const d = this.planeta.odleglosc(this.hn, F.n);
+    F.update(e, d);
+    if (this._kino || this.sequence) return;
+    // NABIERANIE WODY: wejście w oczko z pustymi łapami.
+    if (this.oczko && this.kropla && !this.kropla.ile) {
+      const dw = this.planeta.odleglosc(this.hn, this.oczko.n);
+      if (dw < this.oczko.promien * 0.85) {
+        this.kropla.dodaj();
+        this.hint("Kropla wody!");
+        this.emit("woda:nabrana", {});
+        try { navigator.vibrate?.([12, 30, 12]); } catch {}
+      }
+    }
+    if (d < (F.def.zasieg ?? 1.9)) {
+      // PODLANIE: kropla wlatuje w roślinę, roślina rośnie o etap.
+      if (this.kropla?.ile && !F.gotowa && F.podlej()) {
+        this.kropla.oddaj();
+        this.hint(F.etap + 1 >= F.ostatni ? "Fasola sięga chmur!" : "Fasola rośnie!");
+        this.emit("fasola:podlana", { etap: F.etap + 1, etapow: F.ostatni });
+        this._wspUzbrojona = false;
+        try { navigator.vibrate?.([18, 40, 18]); } catch {}
+        if (this.input.lengthSq() < 0.02 && (this.moveSpeed || 0) < 0.05 && !this.walking) {
+          this.play("happy", 0.12);
+          this.sequence = "happy";
+          this.seqTimer = 0;
+        }
+      } else if (F.gotowa && d < 1.1 && this._wspUzbrojona) {
+        this._wspinaczkaStart();
+      }
+    } else if (d > 2.4) {
+      // Wspinaczka uzbraja się dopiero po odejściu: po ostatnim podlaniu
+      // dziecko ma zobaczyć całą roślinę, a po zejściu — nie wejść w pętlę.
+      this._wspUzbrojona = true;
+    }
+  }
+
+  /**
+   * WSPINACZKA: lisek idzie po zewnętrznej stronie łodygi wzdłuż jej krzywej
+   * (`fasola.sciezka(u)` → kąt, promień, wysokość), `czasWspinaczki` s, a na
+   * szczycie scena zgłasza `swiat:dalej` z celem z mapy (`fasola.dalej`).
+   * Na starcie kąt przechodzi płynnie z miejsca, gdzie stał lisek, do
+   * początku łodygi. Ruch liczony w układzie planety: punkt obok osi
+   * rośliny + wysokość nad ziemią, przód wzdłuż ruchu.
+   */
+  _wspinaczkaStart() {
+    const F = this.fasola;
+    this.stopWalk();
+    this.mode = "free";
+    this.sequence = "wspinaczka";
+    this.seqTimer = 0;
+    this._wsp = { kat0: 0 };
+    this._wspDodatek = 0;
+    // kąt startowy: tam, gdzie lisek stoi względem osi rośliny
+    const f0 = stycznaDo(F.n, this.hn, this.hf, this._v1);
+    const wsch = this._v2.set(1, 0, 0).applyQuaternion(this.planeta.ramka(F.def.pos[0], F.def.pos[1], this._qTmp));
+    doStycznej(wsch, F.n);
+    const kat0 = katMiedzy(wsch, f0, F.n);
+    // różnica do początku łodygi, znormalizowana do (-π, π]
+    let dk = kat0 - F.sciezka(0).kat;
+    dk = Math.atan2(Math.sin(dk), Math.cos(dk));
+    this._wsp.dk = dk;
+    this.play("run", 0.15);
+    this.emit("fasola:wspinaczka", { wysokosc: F.wysokosc, dalej: F.def.dalej || null });
+  }
+
+  _wspinaczkaKlatka(e) {
+    const F = this.fasola, W = this._wsp;
+    if (!F || !W) { this.sequence = null; return; }
+    this.seqTimer += e;
+    const t = Math.min(1, this.seqTimer / FASOLA.czasWspinaczki);
+    const u = t * t * (3 - 2 * t);
+    const sc = F.sciezka(u);
+    const kat = sc.kat + W.dk * (1 - Math.min(1, u / 0.12));
+    // punkt obok osi w kierunku `kat` (w ramce mapy w punkcie fasoli)
+    const ramka = this.planeta.ramka(F.def.pos[0], F.def.pos[1], this._qTmp);
+    const kier = this._v1.set(Math.cos(kat), 0, Math.sin(kat)).applyQuaternion(ramka);
+    doStycznej(kier, F.n);
+    // Punkt liczymy w RAMCE ROŚLINY (roślina jest sztywna i stoi w jednym
+    // miejscu), a dopiero wynik rzutujemy na kulę:  W = n·(R + h) + kier·r.
+    // Dawniej lisek szedł łukiem po powierzchni na odległość `r` i dopiero
+    // potem był podnoszony o `h` — czyli ramka rośliny zaginała się razem
+    // z kulą. Przy wąskiej spirali różnicy nie było widać, przy szerokiej
+    // wstędze (r ≈ 1,9) lisek odklejał się od ścieżki o ponad metr.
+    const Rk = this.planeta.R;
+    this._v2.copy(F.n).multiplyScalar(Rk + sc.h).addScaledVector(kier, sc.r);
+    const dl = Math.max(0.001, this._v2.length());
+    // przód: styczna ruchu po okręgu w stronę rosnącego kąta — d/dkat (cos, sin) = (−sin, cos) = kier × n
+    const przod = this._v3.crossVectors(kier, F.n).normalize();
+    this.hn.copy(this._v2).divideScalar(dl);
+    this.hf.copy(przod);
+    doStycznej(this.hf, this.hn);
+    this.aktualizujHp();
+    this._wspDodatek = dl - Rk;
+    if (t >= 1) {
+      this.sequence = null;
+      this.play("happy", 0.2);
+      const cel = F.def.dalej || null;
+      this.emit("swiat:dalej", { cel, z: "fasola" });
+      // bez celu (podgląd): lisek zostaje na ziemi obok łodygi
+      this._wspDodatek = 0;
+      this._wsp = null;
+      this._wspUzbrojona = false;
+    }
   }
 
   /* ── API publiczne ────────────────────────────────────────────────────────── */
@@ -1707,6 +1863,37 @@ export class Aplikacja {
     K.powrotDl = 0.45;
     return true;
   }
+  /**
+   * Ujęcie „z boku" przy fasoli — opis przy stałych `KAMERA_FASOLA_*`.
+   * Liczy tylko dwie liczby na klatkę: `_camDirAkt` (kierunek kamery) oraz
+   * `_camGora` (o ile podnieść cel). Wyłączane przez `mapa.fasola.kamera: false`.
+   */
+  _kameraFasola(e) {
+    if (!this._camDirAkt) {
+      this._camDirAkt = this.camDir.clone();
+      const poziom = Math.hypot(this.camDir.x, this.camDir.z);
+      this._camDirBok = new Vector3(this.camDir.x, poziom * Math.tan(KAMERA_FASOLA_ELEWACJA), this.camDir.z)
+        .normalize().multiplyScalar(this.camDir.length());
+      this._kamF = 0;
+      this._camGora = 0;
+    }
+    const F = this.fasola;
+    let cel = 0;
+    if (F && F.def.kamera !== false) {
+      // przy ziarnie nie ma czego pokazywać z boku — efekt narasta z rośliną
+      const dojrzala = Math.min(1, F.wysokosc / 2.5);
+      if (this.sequence === "wspinaczka") cel = 1;
+      else {
+        const d = this.planeta.odleglosc(this.hn, F.n);
+        cel = clamp(1 - (d - KAMERA_FASOLA_BLISKO) / (KAMERA_FASOLA_DALEKO - KAMERA_FASOLA_BLISKO), 0, 1) * dojrzala;
+      }
+    }
+    this._kamF = dogon(this._kamF, cel, e, 1.5);
+    this._camDirAkt.lerpVectors(this.camDir, this._camDirBok, this._kamF);
+    const wys = F ? F.wysokosc : 0;
+    this._camGora = this._kamF * Math.min(wys * KAMERA_FASOLA_PODNIESIENIE, KAMERA_FASOLA_MAX);
+  }
+
   _kinoWejscie() {
     try {
       const k = "ewolucja.kino.wejscie";
@@ -1718,10 +1905,12 @@ export class Aplikacja {
   _kinoKlatka(e) {
     if (!this._kc) this._kc = new Vector3();
     if (!this._kcT) this._kcT = new Vector3();
-    this._kc.set(this.camTarget.x, this.camTarget.y + 0.8, this.camTarget.z);
+    this._kc.set(this.camTarget.x, this.camTarget.y + 0.8 + (this._camGora || 0), this.camTarget.z);
     const K = this._kino;
     if (!K || !this.hero) {
-      if (this.camera.zoom !== 1) { this.camera.zoom = 1; this.camera.updateProjectionMatrix(); }
+      // przy fasoli odjeżdżamy, żeby czubek rośliny zmieścił się w kadrze
+      const z = 1 - KAMERA_FASOLA_ODDALENIE * (this._kamF || 0);
+      if (Math.abs(this.camera.zoom - z) > 1e-4) { this.camera.zoom = z; this.camera.updateProjectionMatrix(); }
       return;
     }
     K.t += e;
@@ -1773,6 +1962,7 @@ export class Aplikacja {
       animacja: this.current,
       predkosc: +(this.moveSpeed || 0).toFixed(3),
       zasiew: { wlaczony: this.zasiewWlaczony, ...this.kwiaty?.stanZasiewu() },
+      fasola: this.fasola ? { etap: this.fasola.etap, etapow: this.fasola.ostatni, gotowa: this.fasola.gotowa, kropla: !!this.kropla?.ile } : null,
       bohater: this.hero ? { x: +this.hp.x.toFixed(2), z: +this.hp.z.toFixed(2) } : null,
       znaki: (this.markers || []).map((e) => ({ id: e.id, stan: e.state, dotkniecia: e.touches })),
     };

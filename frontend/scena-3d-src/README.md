@@ -108,12 +108,155 @@ ustawione przed startem sceny). React nadpisuje przez `globalThis.SCENA3D_ZOOM`
 | `src/ui.js` | CSS i szkielet HTML sceny |
 | `src/index.js` | `utworzScena3D`, `zarejestrujElement`, `mostIframe`, `ZDARZENIA` |
 | `src/autostart.js` | wejście `scena3d.js` (podgląd `/scena-3d/`) |
+| `src/fasola.js` | Magiczna Fasola: ziarno (GLB), etapy podlewania, oczko wody, wspinaczka |
+| `src/pnacze.js` | proceduralna roślina — **splot 4–5 osobnych pnączy** + grywalna wstęga (niżej) |
+| `src/teren.js` | formy terenu (wzgórza, niecki) — jedna funkcja wysokości dla siatki i dla bohatera |
+| `src/shader-terenu.js` | **proceduralna skóra planety** — plamy zieleni liczone w pikselu (niżej) |
 
 Wszystko, co dawniej siedziało w skryptach-łatkach `narzedzia/*.py`
 (czarodziej, nurt rzeki, gałęzie ścieżki, gibanie drzew, kwiaty, cień pod
 nogi, znak-drzewo, próg domu, mrok w chatce, drzwi w kolizji, kino, smuga
 kręgu), jest teraz zwykłym kodem w tych plikach. Skrypty zostały jako
 historia — **nie uruchamiaj ich na nowym bundlu**.
+
+## Skóra planety — proceduralne plamy zieleni
+
+`swiat.terenKanciasty` (liczba = gęstość podziału dwudziestościanu) buduje
+kulę BEZ tekstury i bez `vertexColors`. Kolor liczy się w **pikselu**:
+`shader-terenu.js` wchodzi w `MeshLambertMaterial` przez `onBeforeCompile`
+i podmienia samo albedo.
+
+Dlaczego nie `ShaderMaterial`: `doba.js` mnoży `ziemia.material.color`
+(dzień → zorza → noc) i dodaje `emissive`, a przy `swiat.cienie` teren musi
+mieć pełny łańcuch `shadowmap`/`fog`/`lights`. W Lambercie to wszystko jest
+za darmo, a `diffuseColor.rgb *= barwa` zachowuje mnożnik doby dokładnie
+tak, jak działał na `vColor`.
+
+Wzór to value-noise 3D na hashu (bez tekstur, cztery oktawy), liczony
+z **lokalnego** kierunku na kuli — plama jest przybita do planety i kręci
+się razem z nią. Trzy warstwy: wielka plama (dwa tony zieleni), średnia
+(szarozielone przetarcia) i drobna (kremowe rozjaśnienia, skupione tam,
+gdzie zezwala warstwa średnia). Geometria niesie jeden atrybut —
+`wysForma` — i z niego shader robi suchy wierzchołek wzgórza oraz piaskowy
+brzeg i błotniste dno niecki. Zmiana palety NIE wymaga przebudowy siatki.
+
+**Progi w shaderze są ciasne i przesunięte w dół, i tak ma być.** Szum
+wartościowy skupia się wokół 0,5 (zmierzone na 20 tys. próbek: mediana
+0,50, 90. centyl 0,65, maksimum ~0,87), więc „naturalny" próg 0,6–0,95
+nie zapala się prawie nigdy. Zanim podniesiesz próg, zmierz rozkład.
+
+Powierzchnia jest **gładka**. Geometria dwudziestościanu jest
+nieindeksowana, więc `computeVertexNormals()` dałoby normalną na ściankę
+(czyli fasety, choćby materiał prosił o gładkie cieniowanie) —
+`gladkieNormalne()` w `swiat.js` skleja je ręcznie po kluczu wierzchołka
+(kierunek SPRZED rozrzutu, ten sam dla wszystkich kopii).
+`swiat.terenFasety: true` wraca do ścianek; wzór zostaje ten sam.
+
+Pokrętła — `mapa.swiat.terenShader`, domyślne wartości w
+`STROJENIE_TERENU`:
+
+| klucz | co | domyślnie |
+|---|---|---|
+| `moc` | **jak głośno**: 0 = jednolita zieleń, 1 = pełny wzór | 0,5 |
+| `skala` | ile plam na obwód kuli (większe = drobniejsze) | 4 |
+| `ziarno` | przesunięcie szumu — ten sam kod, inny świat | 0 |
+| `kontrast` | rozjazd między jasną a ciemną zielenią | 1,0 |
+| `szalwia` | siła szarozielonych przetarć | 0,45 |
+| `piasek` | siła kremowych rozjaśnień | 0,35 |
+| `wzgorza` | o ile wierzchołki wzgórz idą ku jasnej | 0,45 |
+| `glebia` | przy jakiej głębokości niecki kolor jest już dnem | 0,1 |
+
+`moc` to pokrętło od „za bardzo rzuca się w oczy" — zaczynaj zawsze od
+niego, a nie od palety. Ścisza wzór ku barwie `baza`; **brzeg oczka jest
+poza ściszaniem**, bo piasek nad wodą to informacja, nie ozdoba.
+
+Paleta — `mapa.swiat.terenBarwy`: `baza` (spokojna zieleń), `jasna`,
+`ciemna`, `szalwia`, `brzeg` (piasek), `dno`. Strojenie na żywo, bez przebudowy:
+`__POC.app.ziemia.material.userData.uniformyTerenu.uSkalaTeren.value = 9`.
+
+## Magiczna Fasola — jak zbudowane jest pnącze
+
+Roślina **nie jest jednym pniem**, który rośnie w górę. To 4–5 **osobnych
+pnączy**, każde z własnym splajnem, które pojawiają się kolejno i oplatają
+wspólną oś. Widok z góry w kolejnych etapach: 1 → 2 → 3 → 4–5 okręgów na
+pierścieniu, którego promień lekko rośnie wraz z dojrzewaniem.
+
+| pojęcie | gdzie | uwagi |
+|---|---|---|
+| `SZABLON` | `pnacze.js` | tabela pnączy: `t0` (wysokość wyrastania), `start` (przy jakim `u` rusza), `g` (grubość), `om` (mnożnik obrotów), `sciezkowa` |
+| `punkt(p, t)` | `pnacze.js` | splajn: oś + `cos/sin(kąt) · promienSplotu` + niski szum |
+| `promienOd` | `pnacze.js` | promień z falowaniem w innej fazie dla każdego pnącza — stąd przeplot i widoczne bruzdy |
+| `ustawWzrost(u)` | `pnacze.js` | `u ∈ [0,1]`; tanie: `setDrawRange` + czubki + macierze ozdób |
+| `_przelicz(u)` | `pnacze.js` | przeliczenie wierzchołków — **tylko** przy zmianie kroku dojrzałości (`PNACZE.krokiDojrzalosci`, domyślnie 14 razy na całe rośnięcie), bufory alokowane raz |
+
+**Etap 0–1 — ziarno i kiełek.** Etap 0 to ziarno (model GLB) **wkopane w kopczyk**
+ziemi: czasza + wianuszek grudek (`kopczyk()` w `fasola.js`), kopiec rośnie razem
+z rośliną. Etap 1 to sama łodyżka — JEDNO pnącze, cienkie (mnożnik dojrzałości
+`0,15 + 0,85·u^0,8`), z **dwoma liścieniami na czubku** (`kielek()` w `_ozdoby`,
+naprzeciw siebie, bez obrotu blaszki). Splot rusza dopiero od etapu 2 — progi
+`start` w `SZABLON` to 0 / 0,16 / 0,30 / 0,45 / 0,62.
+
+**Wysokość = `u · H` co do metra.** Pnącze rosnące od ziemi ma front wzrostu
+liniowy w `u`; boczne ruszają później i doganiają (`front = lok^0,72`). Gdyby
+front głównego pnącza też był wygładzany, etapy z mapy nie zgadzałyby się
+z rzeczywistą wysokością rośliny.
+
+**Ścieżka (ostatni etap).** Nie ma doklejonego mostu: jedno pnącze
+(`sciezkowa`) zmienia przekrój z koła w szeroką wstęgę (`_przekroj`, superelipsa),
+odchyla się na zewnątrz splotu i zagęszcza obroty. Front spłaszczenia wędruje
+od dołu do góry razem ze wzrostem. Liczbę zwojów wylicza `skokSciezki`
+(pionowy odstęp między zwojami w szerokościach wstęgi) — za gęsto i zwoje
+zasłaniają splot, za rzadko i podejście robi się strome. Odstępy NIE są równe:
+kąt ścieżki liczy się z tablicy całki `_tempo(t)` (`_przeliczSkret`), która
+zagęszcza zwoje ku górze (pień się zwęża) i faluje dwiema częstotliwościami —
+równe odstępy dawały efekt wiertła.
+
+**Kamera przy fasoli** (`app.js`, stałe `KAMERA_FASOLA_*`). Domyślne ujęcie
+patrzy na planetę z ~52° — dziewięciometrowe pnącze widać z niego „od czubka"
+(pionowa oś skraca się o `cos 52° ≈ 0,62`). Gdy lisek podchodzi do wyrośniętej
+fasoli albo po niej wchodzi, kamera płynnie schodzi do ~27°, podnosi cel o 45 %
+wysokości rośliny (maks. 5,5) i odjeżdża o 22 %, żeby czubek zmieścił się
+w kadrze. Azymut zostaje bez zmian, więc `camRight`/`camFwd` — kierunki
+sterowania — się nie przekręcają. Wyłącznik: `mapa.fasola.kamera: false`.
+
+Uwaga koncepcyjna: **przesunięcie rośliny po mapie tego nie naprawia**. Planeta
+obraca się pod bohaterem, więc wszystko obok niego stoi na szczycie kuli
+i kamera widzi to pod tym samym kątem — zmienić trzeba kamerę, nie pozycję.
+
+**Wspinaczka liczy się w ramce rośliny.** `W = n·(R + h) + kier·r`, dopiero
+wynik idzie na kulę. Dawniej lisek szedł łukiem po powierzchni na odległość `r`
+i dopiero potem był podnoszony o `h`, czyli ramka rośliny zaginała się razem
+z kulą; przy wąskiej spirali różnicy nie było widać, przy szerokiej wstędze
+(`r ≈ 1,9`) lisek odklejał się od ścieżki o ponad metr.
+
+**Kolizja jest osobna od grafiki.** `kolizja(probek)` daje oś wstęgi
+(punkty + wektor w bok + normalną) i szerokość; `siatkaKolizji()` — niską
+siatkę do fizyki; `przeszkodaSplotu()` — łańcuch odcinków oś–promień na
+centralny splot. Liście, kwiaty i wąsy nie biorą udziału w kolizji.
+Wspinaczka lisa (`fasola.sciezka(u)` → `{kat, r, h}`) idzie po **górnej
+powierzchni** wstęgi, a nie po abstrakcyjnej spirali obok łodygi.
+
+**Koszt.** Cała dorosła roślina to ok. 15 rysunków (5 rur + czubki +
+3 InstancedMesh liści + kwiaty + wąsy) i ~8,6 tys. trójkątów rur.
+Liczba segmentów wzdłuż krzywej idzie z widocznej długości; ścieżka dostaje
+ich najwięcej, wąsy najmniej.
+
+**Dane z mapy** (`mapa.fasola.pnacze`): `pnacza` (ile pnączy, 2–5; `pedy`
+działa dalej jako `pnacza = pedy + 1`), `obroty`, `grubosc` (promień CAŁEGO
+splotu u podstawy), `szerokosc` (wstęgi), `ziarno`.
+
+**Test wizualny (obowiązkowy po każdej zmianie kształtu).** Wyłącz ozdoby —
+`pnacze.pokazOzdoby(false)` — i sprawdź, czy roślina dalej czyta się jako
+kilka pnączy oplatających się wzajemnie. Jeśli wygląda jak jeden walec albo
+jak krzak, struktura jest zepsuta. Najszybciej:
+
+```
+node scena-3d-src/test/buduj-podglad.mjs      # bundluje test/podglad-pnacza.js
+# serwuj scena-3d-src/test/ i otwórz podglad-pnacza.html
+```
+
+Podgląd ma suwak wzrostu, przełącznik ozdób, widok z góry i licznik rysunków
+oraz trójkątów (`pnacze.stan()`). Bundla podglądu nie commitujemy.
 
 ## Kontrakt z Reactem (nie zmieniaj bez sprawdzenia użyć)
 
