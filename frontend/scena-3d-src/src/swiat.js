@@ -12,7 +12,7 @@ import {
   PlaneGeometry, CylinderGeometry, ConeGeometry, IcosahedronGeometry, BoxGeometry,
   SphereGeometry, PointLight, Sprite, SpriteMaterial, AdditiveBlending, InstancedMesh,
   Vector2, Vector3, Euler, Quaternion, BufferAttribute, RepeatWrapping, DoubleSide,
-  Float32BufferAttribute, MultiplyBlending, Matrix4, Color, Raycaster,
+  BufferGeometry, Float32BufferAttribute, MultiplyBlending, Matrix4, Color, Raycaster,
 } from "three";
 import { stycznaDo, doStycznej, przytnijDoPromienia } from "./planeta.js";
 import { naNormalne, potnijNaKuli, wstegaPoKuli } from "./wstega.js";
@@ -811,7 +811,7 @@ export function plamaCienia(s = 1, e = 0.35, rdzen = 0, mnozenie = false) {
   return g;
 }
 
-/* ── KWIATY (InstancedMesh) ──────────────────────────────────────────────────── */
+/* ── KWIATY I TRAWA (InstancedMesh) ─────────────────────────────────────────── */
 
 function zbudujKwiaty(DEF, planeta, ziemia) {
   // Probe in planet-local space, so subsequent globe rotations cannot affect rooting.
@@ -844,6 +844,78 @@ function zbudujKwiaty(DEF, planeta, ziemia) {
   const gLisc = new SphereGeometry(0.058, 9, 6);
   const gPlatek = new SphereGeometry(0.052, 10, 7);
   const gSrodek = new SphereGeometry(0.040, 10, 7);
+  const ZDZBLA = 18;
+  /**
+   * ŹDŹBŁO — bryła z modelu (`traw.fbx`), nie płatek.
+   *
+   * Poprzednie źdźbło było płaskim, dwustronnym liściem: z boku znikało, bo
+   * nie miało grubości. To jest pięciopierścieniowy graniastosłup, taki sam
+   * jak w modelu: wąski przy nasadzie, najszerszy mniej więcej w połowie,
+   * zwężony w czubku, i wygięty o jakieś 44° od pionu. Nasada siedzi w
+   * (0,0,0) i źdźbło rośnie w +Y, więc reszta kodu (skala h, obrót wokół Y)
+   * działa bez zmian; łuk idzie w +Z, a obrót instancji rozrzuca go dookoła.
+   *
+   * Denka przy nasadzie NIE MA — i tak jest pod ziemią.
+   */
+  const gTrawa = new BufferGeometry();
+  gTrawa.setAttribute("position", new Float32BufferAttribute([
+    -.09,-.006,-.048, -.222,.978,.954, -.22,.926,1.003,
+    -.116,-.016,.013, .092,.006,.048, .111,.017,-.013,
+    -.147,.949,1.022, -.147,1,.973, -.009,-.005,.031,
+    .013,.005,-.031, -.182,.938,1.012, -.183,.989,.963,
+    -.307,.65,.188, -.312,.621,.228, -.019,.694,.268,
+    -.022,.665,.306, -.163,.643,.267, -.159,.672,.228,
+    -.297,.86,.531, -.293,.821,.574, -.067,.902,.586,
+    -.066,.864,.627, -.175,.843,.6, -.177,.881,.558,
+    -.197,.361,-.049, -.219,.34,-.003, .061,.399,.021,
+    .046,.378,.065, -.083,.359,.031, -.065,.38,-.014,
+  ], 3));
+  /**
+   * GRADIENT wzdłuż źdźbła wypalony w wierzchołkach jako MNOŻNIK barwy:
+   * przy ziemi ciemno i chłodno, w czubku jaśniej i cieplej — tak jak trawa,
+   * której dolna część stoi we własnym cieniu. Mnożnik, a nie gotowy kolor,
+   * bo `instanceColor` dalej daje każdemu źdźbłu swój odcień z `barwyTrawy`;
+   * three.js mnoży jedno przez drugie, więc pęk zostaje różnorodny.
+   */
+  gTrawa.setAttribute("color", new Float32BufferAttribute([
+    .72,.78,.62, 1.113,1.094,.817, 1.096,1.081,.808,
+    .72,.78,.62, .726,.785,.623, .735,.792,.628,
+    1.103,1.087,.812, 1.12,1.1,.82, .72,.78,.62,
+    .726,.785,.623, 1.1,1.084,.81, 1.117,1.097,.818,
+    1.003,1.007,.762, .993,.999,.757, 1.019,1.019,.769,
+    1.009,1.011,.764, 1.001,1.005,.761, 1.011,1.013,.766,
+    1.075,1.064,.797, 1.062,1.053,.791, 1.088,1.075,.804,
+    1.076,1.065,.798, 1.069,1.059,.794, 1.082,1.069,.801,
+    .897,.922,.709, .889,.915,.704, .912,.934,.716,
+    .904,.927,.712, .896,.921,.708, .905,.928,.712,
+  ], 3));
+  gTrawa.setIndex([
+    10,11,1, 2,10,1, 6,7,11, 10,6,11, 19,18,12, 13,19,12,
+    2,1,18, 19,2,18, 21,20,7, 6,21,7, 15,14,20, 21,15,20,
+    21,22,16, 15,21,16, 6,10,22, 21,6,22, 22,19,13, 16,22,13,
+    10,2,19, 22,10,19, 18,23,17, 12,18,17, 1,11,23, 18,1,23,
+    23,20,14, 17,23,14, 11,7,20, 23,11,20, 25,24,0, 3,25,0,
+    13,12,24, 25,13,24, 27,26,14, 15,27,14, 4,5,26, 27,4,26,
+    27,28,8, 4,27,8, 15,16,28, 27,15,28, 28,25,3, 8,28,3,
+    16,13,25, 28,16,25, 24,29,9, 0,24,9, 12,17,29, 24,12,29,
+    29,26,5, 9,29,5, 17,14,26, 29,17,26,
+  ]);
+  /**
+   * Proporcje modelu kontra skala świata. Źdźbło z pliku jest szerokie na
+   * ~0,31 swojej długości i wygięte o 44° — jako samodzielny obiekt wygląda
+   * dobrze, ale w pęku, oglądanym z góry, takie łopatki układają się w rozetę
+   * zamiast w trawę. Ściskamy więc PRZEKRÓJ i ŁUK, zostawiając sylwetkę:
+   * wąska nasada, zgrubienie w połowie, zwężony czubek. Liczby w tablicy
+   * zostają surowe (to model), całe strojenie siedzi w tej jednej linii.
+   */
+  gTrawa.scale(1.05, 1, .4);
+  gTrawa.computeVertexNormals();
+  // Bryła ma grubość, więc `DoubleSide` nie jest już potrzebne — tylnych
+  // ścianek i tak nie widać, a rysowanie ich kosztuje przy 18 źdźbłach na pęk.
+  const mTrawa = new MeshLambertMaterial({ color: 0xffffff, flatShading: true, vertexColors: true });
+  // Odcienie podniesione o ~10%, bo gradient wierzchołkowy jest w średniej
+  // ciemniejszy od jedynki i bez tego cały pęk zszedłby w ciemną zieleń.
+  const barwyTrawy = [new Color(0x58913c), new Color(0x6fa84a), new Color(0x86bb58)];
 
   function losownik(z) {
     let x = (z * 2654435761) % 4294967296;
@@ -860,8 +932,10 @@ function zbudujKwiaty(DEF, planeta, ziemia) {
   const N = DEF.length + REZERWA;
   const imLodyga = new InstancedMesh(gLodyga, mLodyga, N);
   const imLisc = new InstancedMesh(gLisc, mLisc, N * 2);
+  const imTrawa = new InstancedMesh(gTrawa, mTrawa, REZERWA * ZDZBLA);
   imLodyga.count = DEF.length;
   imLisc.count = DEF.length * 2;
+  imTrawa.count = 0;
   const imPlatek = [];
   const imSrodek = [];
   const kursor = [];
@@ -882,6 +956,7 @@ function zbudujKwiaty(DEF, planeta, ziemia) {
   const wSrodek = new Group();
   const wLisc = [new Group(), new Group()];
   const wPlatek = [];
+  const wTrawa = [], wZdzblo = [];
   wKula.add(wRoot);
   wRoot.add(wGlowa, wLodyga, ...wLisc);
   wGlowa.add(wSrodek);
@@ -890,6 +965,14 @@ function zbudujKwiaty(DEF, planeta, ziemia) {
     wGlowa.add(n);
     wPlatek.push(n);
   }
+  for (let q = 0; q < ZDZBLA; q++) {
+    const korzen = new Group(), zdzblo = new Group();
+    korzen.add(zdzblo);
+    wRoot.add(korzen);
+    wTrawa.push(korzen);
+    wZdzblo.push(zdzblo);
+  }
+  const macierzZero = new Matrix4().makeScale(0, 0, 0);
 
   function utworzKwiat(k, i) {
     const los = losownik(i + 1);
@@ -897,7 +980,8 @@ function zbudujKwiaty(DEF, planeta, ziemia) {
     // Scale is applied once by wRoot; a short stem supports the broad flower head.
     const wysokosc = 0.085 + los() * 0.025;
     const kwiat = {
-      x: k.pos[0], z: k.pos[1], wariant, h: wysokosc,
+      x: k.pos[0], z: k.pos[1], typ: k.typ === "trawa" ? "trawa" : "kwiat",
+      wariant, h: wysokosc, iTrawa: k.iTrawa ?? null,
       grunt: wysokoscGruntu(k.pos[0], k.pos[1]), gruntX: k.pos[0], gruntZ: k.pos[1],
       skala: (0.85 + los() * 0.5) * (k.skala != null ? k.skala : 1),
       obrotY: k.obrot != null ? k.obrot : los() * Math.PI * 2,
@@ -910,6 +994,67 @@ function zbudujKwiaty(DEF, planeta, ziemia) {
     kursor[wariant]++;
     return kwiat;
   }
+
+  /**
+   * PĘK TRAWY — losowany raz, przy sadzeniu.
+   *
+   * Dawniej każdy pęk wychodził taki sam: źdźbła stały co złoty kąt, każde
+   * odchylone od środka o ten sam rząd wielkości i obrócone DOKŁADNIE w
+   * stronę swojego pochylenia. Z lotu ptaka dawało to idealną rozetę —
+   * powtórzoną przy każdej kępce. Teraz losujemy trzy rzeczy na CAŁY pęk
+   * (rozrzut, smukłość, rozchylenie), a twarz źdźbła odklejamy od kierunku
+   * pochylenia, więc dwa pęki obok siebie nie są tym samym obiektem.
+   */
+  function losujTrawa(k, seed) {
+    const los = losownik(seed);
+    const UKLADY = [
+      [[0,0]],
+      [[-.065,0],[.065,.012]],
+      [[-.078,-.026],[0,.042],[.082,-.022]],
+      [[-.10,-.012],[-.034,.038],[.038,.032],[.105,-.018]],
+    ];
+    const indeksUkladu = Math.floor(los() * UKLADY.length);
+    const uklad = UKLADY[indeksUkladu];
+    // Mniej źdźbeł niż przy płaskich liściach: bryła z grubością zasłania
+    // sąsiadki, więc gęsta kępka zlewa się w jedną zieloną plamę.
+    const ile = Math.min(ZDZBLA, 4 + uklad.length + Math.floor(los() * 4));
+    const obrotUkladu = los() * Math.PI * 2;
+    // Charakter pęku: jak szeroko siedzi, jak wysoki jest i jak mocno się
+    // rozkłada. Te trzy liczby robią większość różnicy między kępkami.
+    const rozrzut = .05 + los() * .075;
+    const smuklosc = .8 + los() * .55;
+    const rozchylenie = .5 + los() * 1.05;
+    k.ukladTrawy = indeksUkladu;
+    k.trawa = Array.from({ length: ZDZBLA }, (_, j) => {
+      const srodek = uklad[j % uklad.length];
+      const sx = srodek[0] * Math.cos(obrotUkladu) - srodek[1] * Math.sin(obrotUkladu);
+      const sz = srodek[0] * Math.sin(obrotUkladu) + srodek[1] * Math.cos(obrotUkladu);
+      const kat = obrotUkladu + j * 2.39996 + (los() - .5) * .95;
+      const promien = j < uklad.length ? los() * .022 : Math.sqrt(los()) * rozrzut;
+      // Samo źdźbło jest już wygięte, więc losowe pochylenie korzenia musi być
+      // DUŻO mniejsze niż przy dawnym, prawie prostym liściu — inaczej pęk
+      // kładzie się na ziemi zamiast stać.
+      const odchylenie = (.02 + los() * .13) * rozchylenie;
+      const kolor = Math.floor(los() * barwyTrawy.length);
+      if (k.iTrawa != null) imTrawa.setColorAt(k.iTrawa + j, barwyTrawy[kolor]);
+      return {
+        aktywne: j < ile,
+        x: sx + Math.cos(kat) * promien, z: sz + Math.sin(kat) * promien,
+        h: (.115 + los() * .09 + (1 - Math.min(1, promien / rozrzut)) * .03) * smuklosc,
+        szer: .75 + los() * .5,
+        // Łuk osobno od szerokości: w dawnym źdźble oś Z niosła tylko drobne
+        // odgięcie czubka, teraz niesie CAŁY łuk, więc skalowanie go
+        // szerokością robiłoby ze źdźbeł raz laski, raz obwarzanki.
+        luk: .75 + los() * .55,
+        // Twarz źdźbła ODKLEJONA od kierunku pochylenia. Gdy `obrot === kat`,
+        // każde źdźbło wygina się dokładnie na zewnątrz i pęk jest rozetą.
+        obrot: kat + (los() - .5) * 2.1,
+        pochylenieX: Math.sin(kat) * odchylenie + (los() - .5) * .1,
+        pochylenieZ: -Math.cos(kat) * odchylenie + (los() - .5) * .1,
+      };
+    });
+  }
+
   const lista = DEF.map(utworzKwiat);
 
   function odswiez(k) {
@@ -922,6 +1067,35 @@ function zbudujKwiaty(DEF, planeta, ziemia) {
     wRoot.rotation.set(k.bazaX + k.gib.z, k.obrotY, k.bazaZ - k.gib.x);
     const szerokosc = k.skala * (k.szerokoscWzrostu ?? 1);
     wRoot.scale.set(szerokosc, k.skala * (k.wzrost ?? 1), szerokosc);
+    if (k.typ === "trawa") {
+      imLodyga.setMatrixAt(k.iLodyga, macierzZero);
+      imLisc.setMatrixAt(k.iLisc[0], macierzZero);
+      imLisc.setMatrixAt(k.iLisc[1], macierzZero);
+      imSrodek[k.wariant].setMatrixAt(k.iSrodek, macierzZero);
+      for (let j = 0; j < 5; j++) imPlatek[k.wariant].setMatrixAt(k.iPlatki[j], macierzZero);
+      k.trawa.forEach((o, j) => {
+        const korzen = wTrawa[j], zdzblo = wZdzblo[j];
+        korzen.position.set(o.x, 0, o.z);
+        korzen.rotation.set(o.pochylenieX, 0, o.pochylenieZ);
+        // Nasada źdźbła siedzi w y=0 geometrii, więc podnoszenie o h/2 (co
+        // miało sens przy geometrii liczonej od środka) stawiało cały pęk
+        // NAD gruntem. Zamiast tego chowamy nasadę odrobinę pod ziemię —
+        // wtedy trawa wyrasta z darni, a nie stoi na niej.
+        zdzblo.position.set(0, -.09 * o.h, 0);
+        zdzblo.rotation.set(0, o.obrot, 0);
+        // WSZYSTKIE trzy osie idą przez `h`. Geometria jest znormalizowana do
+        // wysokości 1, więc skalowanie szerokości i łuku OSOBNO od wysokości
+        // (co uchodziło przy dawnym, prawie płaskim liściu) rozjeżdża
+        // proporcje: przy h = 0,15 źdźbło robiło się szersze i bardziej
+        // wygięte niż wysokie, czyli po prostu kładło się na ziemi. `szer`
+        // i `luk` są mnożnikami WZGLĘDEM wysokości, a nie osobną skalą.
+        zdzblo.scale.set(o.h * o.szer, o.h, o.h * o.luk);
+      });
+      wKula.updateMatrixWorld(true);
+      k.trawa.forEach((o, j) => imTrawa.setMatrixAt(k.iTrawa + j,
+        o.aktywne ? wZdzblo[j].matrixWorld : macierzZero));
+      return;
+    }
     wLodyga.position.set(0, k.h / 2, 0);
     wLodyga.scale.set(1, k.h, 1);
     LISCIE.forEach((o, j) => {
@@ -946,19 +1120,24 @@ function zbudujKwiaty(DEF, planeta, ziemia) {
     imLisc.setMatrixAt(k.iLisc[1], wLisc[1].matrixWorld);
     imSrodek[k.wariant].setMatrixAt(k.iSrodek, wSrodek.matrixWorld);
     for (let j = 0; j < 5; j++) imPlatek[k.wariant].setMatrixAt(k.iPlatki[j], wPlatek[j].matrixWorld);
+    if (k.iTrawa != null) {
+      for (let j = 0; j < ZDZBLA; j++) imTrawa.setMatrixAt(k.iTrawa + j, macierzZero);
+    }
   }
 
   lista.forEach(odswiez);
   function oznacz() {
     imLodyga.instanceMatrix.needsUpdate = true;
     imLisc.instanceMatrix.needsUpdate = true;
+    imTrawa.instanceMatrix.needsUpdate = true;
+    if (imTrawa.instanceColor) imTrawa.instanceColor.needsUpdate = true;
     for (let i = 0; i < PALETA_K.length; i++) {
       imPlatek[i].instanceMatrix.needsUpdate = true;
       imSrodek[i].instanceMatrix.needsUpdate = true;
     }
   }
   oznacz();
-  const meshe = [imLodyga, imLisc, ...imPlatek, ...imSrodek];
+  const meshe = [imLodyga, imLisc, imTrawa, ...imPlatek, ...imSrodek];
   meshe.forEach((m) => (m.frustumCulled = false));
   const rosnace = new Set();
   // Time, width, height: anticipation, fast stretch, squash, small rebound, settle.
@@ -972,22 +1151,33 @@ function zbudujKwiaty(DEF, planeta, ziemia) {
     const n = planeta.normalna(x, z);
     // Avoid piling up flowers on a path the fox has already walked.
     if (lista.some(k => planeta.normalna(k.x, k.z, normalna).dot(n) > Math.cos(.32 / planeta.R))) return false;
+    const seed = (kolejny + 1) * 7919;
+    // Jeden strumień losowy na roślinę: rodzaj i wielkość z tego samego
+    // ziarna. Wcześniej wielkość szła z `kolejny % 4`, więc co czwarty pęk
+    // był co do joty tej samej wielkości — widać to było jak wzór na tapecie.
+    const losRosliny = losownik(seed);
+    const typ = losRosliny() < .45 ? "trawa" : "kwiat";
+    const skalaRosliny = .62 + losRosliny() * .46;
     let k;
     if (zasiane < REZERWA) {
-      k = utworzKwiat({pos:[x,z],wariant:kolejny%5,skala:.7+(kolejny%4)*.10}, lista.length);
+      k = utworzKwiat({pos:[x,z],typ,wariant:kolejny%5,
+        skala:skalaRosliny,iTrawa:zasiane*ZDZBLA}, lista.length);
       lista.push(k);
       zasiane++;
       imLodyga.count = lista.length;
       imLisc.count = lista.length * 2;
       imPlatek[k.wariant].count = kursor[k.wariant] * 5;
       imSrodek[k.wariant].count = kursor[k.wariant];
+      imTrawa.count = zasiane * ZDZBLA;
     } else {
       // Reuse only old trail plants well away from the current player area.
       k = lista.slice(DEF.length).find(k => !rosnace.has(k) &&
         planeta.normalna(k.x,k.z,normalna).dot(n) < Math.cos(9/planeta.R));
       if (!k) return false;
       k.x=x; k.z=z;
+      k.typ=typ;
     }
+    if (k.typ === "trawa") losujTrawa(k, seed * 17 + 12345);
     kolejny++;
     k.czasWzrostu=0;
     k.wzrost=bezAnimacji ? 1 : 0;
@@ -1017,7 +1207,12 @@ function zbudujKwiaty(DEF, planeta, ziemia) {
     oznacz();
   }
   return { lista, odswiez, oznacz, meshe, posadz, aktualizujZasiew,
-    stanZasiewu: () => ({zasiane,rosnace:rosnace.size,limit:REZERWA}) };
+    stanZasiewu: () => {
+      const nowe = lista.slice(DEF.length, DEF.length + zasiane);
+      return {zasiane,rosnace:rosnace.size,limit:REZERWA,
+        trawy:nowe.filter(k => k.typ === "trawa").length,
+        kwiaty:nowe.filter(k => k.typ === "kwiat").length};
+    } };
 
 }
 
