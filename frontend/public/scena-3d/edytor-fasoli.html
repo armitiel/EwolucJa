@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8">
+<title>Edytor etapów fasoli — EwolucJA</title>
+<meta name="robots" content="noindex">
+<style>
+html,body{margin:0;overflow:hidden;background:#bfe0f2;font:13px/1.45 system-ui,sans-serif;color:#22303a}
+#panel{position:fixed;left:12px;top:12px;width:268px;max-height:calc(100vh - 24px);overflow:auto;
+  background:#ffffffe8;border-radius:12px;padding:12px 14px;box-shadow:0 6px 24px #0b2a3a24}
+h1{font-size:14px;margin:0 0 2px}
+p.opis{margin:0 0 10px;font-size:11.5px;color:#5a6b76}
+.etapy{display:flex;gap:4px;margin-bottom:10px}
+.etapy button{flex:1;padding:6px 0;border:1px solid #b9ccd6;background:#fff;border-radius:7px;cursor:pointer;font:600 12px system-ui}
+.etapy button.on{background:#3f8f3f;border-color:#3f8f3f;color:#fff}
+label{display:block;margin:9px 0 2px;font-size:12px}
+label b{font-weight:600}
+input[type=range]{width:100%}
+input[type=number]{width:66px;padding:2px 4px;border:1px solid #c3d2da;border-radius:5px}
+.rzad{display:flex;align-items:center;gap:8px}
+hr{border:0;border-top:1px solid #dfe8ed;margin:12px 0}
+#stan{font:11px/1.5 ui-monospace,monospace;color:#3a5060;background:#f2f7f9;border-radius:7px;padding:6px 8px;white-space:pre-line}
+#json{width:100%;height:132px;font:11px/1.4 ui-monospace,monospace;border:1px solid #c3d2da;border-radius:7px;padding:6px}
+button.akcja{width:100%;padding:7px 0;margin-top:6px;border:0;border-radius:8px;background:#2f6f9f;color:#fff;font:600 12px system-ui;cursor:pointer}
+.uwaga{font-size:11.5px;color:#8a5a2a;margin:8px 0 0}
+</style></head>
+<body>
+<div id="panel">
+  <h1>Etapy fasoli</h1>
+  <p class="opis">Ostatni etap ustala <b>skalę</b> całej rośliny. Wcześniejsze są jej ułamkiem — to jest <b>wycięcie</b>: widać tyle geometrii, ile urosło.</p>
+
+  <div class="etapy" id="etapy"></div>
+
+  <label><b>Wysokość etapu</b> <output id="ow"></output></label>
+  <div class="rzad">
+    <input id="w" type="range" min="0.1" max="24" step="0.05">
+    <input id="wn" type="number" min="0.1" max="40" step="0.05">
+  </div>
+  <p class="uwaga" id="uwagaZiarno" hidden>Etap 0 to model ziarna (GLB), nie pnącze — tu ustawiasz tylko jego wysokość.</p>
+
+  <hr>
+  <label>Obroty splotu <output id="oo"></output></label>
+  <input id="o" type="range" min="0.5" max="5" step="0.1">
+  <label>Pędy <output id="op"></output></label>
+  <input id="p" type="range" min="1" max="6" step="1">
+  <label><input id="oz" type="checkbox" checked> liście, kwiaty, wąsy</label>
+
+  <hr>
+  <label>Obrót widoku</label>
+  <input id="a" type="range" min="0" max="6.28" step="0.01" value="0.9">
+  <label><input id="auto" type="checkbox" checked> kadr dopasowany do wysokości</label>
+  <input id="d" type="range" min="2" max="60" step="0.5" value="14">
+
+  <hr>
+  <div id="stan"></div>
+  <textarea id="json" readonly></textarea>
+  <button class="akcja" id="kop">Kopiuj blok „fasola" do schowka</button>
+  <p class="uwaga">Wklej do <code>mapa-w2.json</code> → <code>fasola</code>. Edytor nie zapisuje pliku sam.</p>
+</div>
+<script type="module" src="./edytor-fasoli.bundle.js"></script>
+<script>
+addEventListener("load", async () => {
+  const E = globalThis.__E;
+  if (!E) { document.getElementById("stan").textContent = "Brak bundla — zbuduj: node scena-3d-src/test/buduj-edytor.mjs"; return; }
+  const s = await E.start();
+  const etapyBox = document.getElementById("etapy");
+  s.etapy.forEach((_, i) => {
+    const b = document.createElement("button");
+    b.textContent = i;
+    b.title = s.nazwyEtapow?.[i] || ("etap " + i);
+    b.onclick = () => { s.wybrany = i; E.etap(i); rysuj(); };
+    etapyBox.appendChild(b);
+  });
+  const odswiez = () => {
+    document.getElementById("stan").textContent =
+      JSON.stringify(E.info(), null, 1).replace(/[{}"]/g, "");
+    document.getElementById("json").value = E.json();
+  };
+  const rysuj = () => {
+    [...etapyBox.children].forEach((b, i) => b.classList.toggle("on", i === s.wybrany));
+    const v = s.etapy[s.wybrany];
+    w.value = v; wn.value = v; ow.value = (+v).toFixed(2);
+    document.getElementById("uwagaZiarno").hidden = s.wybrany !== 0;
+    odswiez();
+  };
+  const ustawW = (v) => {
+    v = Math.max(0.1, +v || 0.1);
+    ow.value = v.toFixed(2); w.value = v; wn.value = v;
+    E.wysokosc(s.wybrany, v); odswiez();
+  };
+  w.oninput = () => ustawW(w.value);
+  wn.oninput = () => ustawW(wn.value);
+  o.value = s.pnacze.obroty; oo.value = s.pnacze.obroty;
+  p.value = s.pnacze.pedy ?? 3; op.value = p.value;
+  o.oninput = () => { oo.value = o.value; E.param("obroty", +o.value); odswiez(); };
+  p.oninput = () => { op.value = p.value; E.param("pedy", +p.value); odswiez(); };
+  oz.onchange = () => E.ozdoby(oz.checked);
+  a.oninput = () => E.obrot(+a.value);
+  auto.onchange = () => { E.autoKadr(auto.checked); if (!auto.checked) E.dist(+d.value); };
+  d.oninput = () => { auto.checked = false; E.dist(+d.value); };
+  document.getElementById("kop").onclick = async () => {
+    try { await navigator.clipboard.writeText(E.json()); kop.textContent = "Skopiowane"; }
+    catch { document.getElementById("json").select(); kop.textContent = "Zaznaczone — Ctrl+C"; }
+    setTimeout(() => { kop.textContent = "Kopiuj blok „fasola\" do schowka"; }, 1600);
+  };
+  rysuj();
+});
+</script>
+</body></html>
