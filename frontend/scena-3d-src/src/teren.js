@@ -10,8 +10,14 @@
  * DANE (mapa.json):
  *   "formyTerenu": [
  *     { "typ": "wzgorze", "pos": [x, z], "promien": 4, "wysokosc": 0.6, "plaski": 0.3, "ziarno": 2 },
- *     { "typ": "niecka",  "pos": [x, z], "promien": 1.4, "glebokosc": 0.11, "stok": 0.9 }
+ *     { "typ": "niecka",  "pos": [x, z], "promien": 1.4, "glebokosc": 0.11, "stok": 0.9 },
+ *     { "typ": "wykop",   "pos": [x, z], "promien": 0.9, "glebokosc": 0.04, "stok": 0.7 }
  *   ]
+ * `fasola` z mapy dostaje wykop automatycznie (`fasola.grzadka {promien,
+ * glebokosc, stok, ziarno}` nadpisuje domyślne): płytkie zagłębienie, a kolor
+ * przekopanej ziemi maluje shader terenu z atrybutu `ziemiaForma` (waga
+ * 0..1 z `formy.ziemia(x, z)`) — per piksel, więc plama jest obła nawet na
+ * grubych ściankach.
  * `oczko` z mapy dostaje nieckę automatycznie (tafla leży W ziemi, nie na
  * niej). `ziarno` daje obły, nieregularny obrys (ten sam, co obrys oczka —
  * `mnoznikObrysu`), bez niego forma jest okrągła. `plaski` (0–1) to udział
@@ -56,6 +62,10 @@ const PROFILE = {
     const u = plaski >= 1 ? 0 : Math.max(0, (o - plaski) / (1 - plaski));
     return (f.wysokosc ?? 0.5) * (1 - gladko(u));
   },
+  /** Wykop: płytka grządka wykopanej ziemi (pod fasolą) — profil jak niecka. */
+  wykop(f, o) {
+    return PROFILE.niecka({ ...f, glebokosc: f.glebokosc ?? 0.04, stok: f.stok ?? 0.7 }, o);
+  },
   /** Niecka: płaskie dno do brzegu, potem stok do poziomu gruntu. */
   niecka(f, o) {
     const stok = f.stok ?? 0.9;
@@ -79,8 +89,12 @@ export function formyTerenu(mapa) {
     const o = mapa.oczko;
     formy.push({ typ: "niecka", pos: o.pos, promien: o.promien ?? 1.4, glebokosc: o.glebokosc ?? 0.11, stok: o.stok ?? 0.9, _mn: o.ziarno != null ? mnoznikObrysu(o.ziarno) : null, _zrodlo: "oczko" });
   }
+  if (mapa.fasola?.pos) {
+    const f = mapa.fasola, g = f.grzadka || {};
+    formy.push({ typ: "wykop", pos: f.pos, promien: g.promien ?? 1.05, glebokosc: g.glebokosc ?? 0.035, stok: g.stok ?? 0.8, _mn: mnoznikObrysu(g.ziarno ?? 4), _zrodlo: "fasola" });
+  }
   // zasięg każdej formy (do szybkiego odrzucania)
-  for (const f of formy) f._zasieg = f.promien * 1.35 * (f.typ === "niecka" ? 1 + (f.stok ?? 0.9) : 1);
+  for (const f of formy) f._zasieg = f.promien * 1.35 * (f.typ === "niecka" || f.typ === "wykop" ? 1 + (f.stok ?? 0.9) : 1);
   const h = (x, z) => {
     let s = 0;
     for (const f of formy) {
@@ -90,18 +104,29 @@ export function formyTerenu(mapa) {
     return s;
   };
   /**
-   * Strefa niecki dla kolorowania terenu: znormalizowana odległość od
-   * brzegu najbliższej niecki (< 1 dno, 1..1+stok stok) albo null.
+   * Strefa niecki/wykopu dla kolorowania terenu: {o, stok, typ} — znormalizowana
+   * odległość od brzegu najbliższej formy (< 1 dno, 1..1+stok stok) albo null.
    */
   const niecka = (x, z) => {
     let best = null;
     for (const f of formy) {
-      if (f.typ !== "niecka" || Math.abs(x - f.pos[0]) > f._zasieg || Math.abs(z - f.pos[1]) > f._zasieg) continue;
+      if ((f.typ !== "niecka" && f.typ !== "wykop") || Math.abs(x - f.pos[0]) > f._zasieg || Math.abs(z - f.pos[1]) > f._zasieg) continue;
       const o = odlegloscForma(f, x, z);
       const stok = f.stok ?? 0.9;
-      if (o < 1 + stok && (best === null || o < best.o)) best = { o, stok };
+      if (o < 1 + stok && (best === null || o < best.o)) best = { o, stok, typ: f.typ };
     }
     return best;
   };
-  return { h, niecka, formy, pusta: formy.length === 0 };
+  /** Waga przekopanej ziemi 0..1 (wykopy): 1 w środku, 0 za połową stoku. */
+  const ziemia = (x, z) => {
+    let w = 0;
+    for (const f of formy) {
+      if (f.typ !== "wykop" || Math.abs(x - f.pos[0]) > f._zasieg || Math.abs(z - f.pos[1]) > f._zasieg) continue;
+      const o = odlegloscForma(f, x, z);
+      const kraniec = 1 + (f.stok ?? 0.8) * 0.55;
+      w = Math.max(w, 1 - gladko((o - 0.75) / (kraniec - 0.75)));
+    }
+    return w;
+  };
+  return { h, niecka, ziemia, formy, pusta: formy.length === 0 };
 }

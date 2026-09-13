@@ -45,6 +45,13 @@ export const FASOLA = {
   odstepWspinaczki: 0.04, // lisek idzie PO wstędze, więc to tylko drobne odsunięcie
 };
 
+// WSKAŹNIKI. Krąg i kropla wynurzają się dopiero przy lisku: świat, który
+// świeci wskaźnikami bez przerwy, przestaje cokolwiek podpowiadać.
+const POLE_WIDOCZNOSCI = 3.4;            // metrów ZA kręgiem — tam zaczyna się wynurzanie
+const BARWA_KREGU_WODA = 0x8fd8ff;       // „przynieś wodę"
+const BARWA_KREGU_WSPINACZKA = 0xffe2a0; // „wejdź na mnie" (po ostatnim podlaniu)
+const klamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
+
 const matKanciasty = (kolor) => new MeshLambertMaterial({ color: kolor, flatShading: true });
 
 function mesh(geo, mat, pos = [0, 0, 0], rot = [0, 0, 0], skala = 1) {
@@ -57,23 +64,42 @@ function mesh(geo, mat, pos = [0, 0, 0], rot = [0, 0, 0], skala = 1) {
 }
 
 /**
- * Kopczyk ziemi pod rośliną — jedyne brązowe miejsce na zielonej planecie.
- * Ziarno jest w nim OKOPANE: kopiec ma wyraźną czaszę i wianuszek grudek,
- * a wraz ze wzrostem rośliny rośnie razem z nią (nabiega jak nabiegi korzeniowe).
+ * Grządka pod rośliną. Sama PLAMA przekopanej ziemi to teren: `teren.js`
+ * dodaje pod fasolą płytki `wykop`, a `shader-terenu.js` maluje go per piksel
+ * (tak samo jak brzeg stawu) — obły, postrzępiony, bez osobnej siatki. Tu jest
+ * tylko to, co wystaje: niski kopczyk pod ziarnem, grudki ziemi i kilka
+ * szarych, nieregularnych kamyków wokół. Kopiec rośnie razem z rośliną
+ * (nabiegi korzeniowe — patrz `update`).
  */
-function kopczyk(r = 0.55) {
+function kopczyk(r = 0.55, ziarno = 4, promienGrzadki = 1.05) {
+  let sd = (ziarno * 9301 + 49297) % 233280;
+  const los = () => (sd = (sd * 9301 + 49297) % 233280) / 233280;
   const g = new Group();
-  const czasza = mesh(new SphereGeometry(r, 10, 7), matKanciasty(FASOLA.barwaZiemia), [0, -r * 0.52, 0]);
-  czasza.scale.set(1.3, 0.5, 1.22);
-  g.add(czasza);
-  // wianuszek grudek — świeżo okopana ziemia
-  for (let i = 0; i < 7; i++) {
-    const a = (i / 7) * Math.PI * 2 + 0.4;
-    const d = r * (0.72 + (i % 3) * 0.13);
-    const s = r * (0.10 + (i % 4) * 0.032);
+  const rdzen = new Group(); // to, co rośnie z rośliną (kopiec + grudki); kamyki zostają
+  rdzen.name = "rdzen";
+  g.add(rdzen);
+  const czasza = mesh(new SphereGeometry(r, 10, 7), matKanciasty(FASOLA.barwaZiemia), [0, -r * 0.66, 0]);
+  czasza.scale.set(1.15, 0.42, 1.08);
+  rdzen.add(czasza);
+  // grudki ziemi — świeżo okopana
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * Math.PI * 2 + 0.4 + (los() - 0.5) * 0.5;
+    const d = r * (0.62 + los() * 0.3);
+    const s = r * (0.08 + los() * 0.07);
     const k = mesh(new IcosahedronGeometry(s, 0), matKanciasty(i % 2 ? 0x8a6a46 : 0x6d5232),
-      [Math.cos(a) * d, r * 0.02, Math.sin(a) * d], [0.4 + i, 0.9 * i, 0.2]);
+      [Math.cos(a) * d, r * 0.01, Math.sin(a) * d], [los() * 3, los() * 3, los() * 3]);
     k.scale.set(1.15, 0.65, 1);
+    rdzen.add(k);
+  }
+  // kamyki — dalej od środka, na obrzeżu wykopu
+  const barwy = [0x9c8f7c, 0x8b8072, 0xa8a08e];
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * Math.PI * 2 + (los() - 0.5) * 0.8 + 0.9;
+    const d = promienGrzadki * (0.8 + los() * 0.35);
+    const s = 0.05 + los() * 0.07;
+    const k = mesh(new IcosahedronGeometry(s, 0), matKanciasty(barwy[i % barwy.length]),
+      [Math.cos(a) * d, s * 0.25, Math.sin(a) * d], [los() * 3, los() * 3, los() * 3]);
+    k.scale.set(0.8 + los() * 0.6, 0.5 + los() * 0.35, 0.8 + los() * 0.6);
     g.add(k);
   }
   return g;
@@ -104,6 +130,103 @@ function teksturaKropli() {
   _teksturaKropli = new CanvasTexture(c);
   _teksturaKropli.colorSpace = SRGBColorSpace;
   return _teksturaKropli;
+}
+
+/**
+ * Ikona kropli — rysowana raz na canvasie, potem żyje jako sprite (zawsze
+ * przodem do kamery). Biały obrys, bo tło jest zielone i sama błękitna
+ * kropla ginęłaby na trawie.
+ */
+let _ikonaKropli = null;
+function teksturaIkonyKropli() {
+  if (_ikonaKropli) return _ikonaKropli;
+  const c = document.createElement("canvas");
+  c.width = c.height = 128;
+  const x = c.getContext("2d");
+  const ksztalt = () => {
+    x.beginPath();
+    x.moveTo(64, 12);
+    x.bezierCurveTo(78, 34, 110, 58, 110, 80);   // prawy bok w dół
+    x.arc(64, 80, 46, 0, Math.PI);               // okrągły spód
+    x.bezierCurveTo(18, 58, 50, 34, 64, 12);     // lewy bok w górę
+    x.closePath();
+  };
+  // miękki cień pod obrysem — odkleja kroplę od trawy
+  x.save();
+  x.shadowColor = "rgba(18,52,78,0.55)";
+  x.shadowBlur = 12;
+  x.shadowOffsetY = 3;
+  x.fillStyle = "rgba(255,255,255,0.95)";
+  ksztalt();
+  x.fill();
+  x.restore();
+  const g = x.createLinearGradient(0, 16, 0, 124);
+  g.addColorStop(0, "#dff6ff");
+  g.addColorStop(0.45, "#8fd8ff");
+  g.addColorStop(1, "#3aa6dd");
+  x.fillStyle = g;
+  ksztalt();
+  x.save();
+  x.clip();
+  x.fillRect(0, 0, 128, 128);
+  x.restore();
+  x.lineWidth = 7;
+  x.strokeStyle = "rgba(255,255,255,0.95)";
+  ksztalt();
+  x.stroke();
+  // refleks
+  x.beginPath();
+  x.ellipse(48, 78, 11, 16, -0.35, 0, Math.PI * 2);
+  x.fillStyle = "rgba(255,255,255,0.72)";
+  x.fill();
+  _ikonaKropli = new CanvasTexture(c);
+  _ikonaKropli.colorSpace = SRGBColorSpace;
+  return _ikonaKropli;
+}
+
+/**
+ * KRĄG AKTYWNOŚCI — wstęga leżąca na ziemi wzdłuż okręgu o promieniu
+ * `zasieg`, czyli dokładnie tam, gdzie `planeta.odleglosc` zaczyna
+ * przyjmować kroplę. Dwie rzeczy, których nie wolno uprościć:
+ *
+ *  • Okrąg jest okręgiem NA KULI, a nie na mapie. Rzut mapy ściska
+ *    odległości styczne (przy r≈9 do ~0,56), więc koło narysowane we
+ *    współrzędnych mapy wyszłoby elipsą przesuniętą względem strefy,
+ *    którą naprawdę liczy gra.
+ *  • Wysokość każdego wierzchołka bierzemy z PRAWDZIWEGO terenu
+ *    (`wysokoscGruntu`), bo teren jest fasetowany: krąg na jednej
+ *    wysokości tonąłby w jednej krawędzi trójkąta i wisiał nad drugą.
+ */
+const PRZESWIT_KREGU = 0.085;   // 0,055 zakopania korzenia + 3 cm nad darnią
+function siatkaKregu(planeta, root, r, wewn, gruntSrodka, wysokoscGruntu, punkty = 88) {
+  const pos = [], idx = [];
+  const R = planeta.R;
+  const v = new Vector3();
+  const m = { x: 0, z: 0, h: 0 };
+  root.updateMatrix();   // root.matrix: układ rośliny → układ planety
+  const wysokosc = (dx, dz) => {
+    const luk = Math.sqrt(Math.max(0, R * R - dx * dx - dz * dz)) - R;
+    if (!wysokoscGruntu) return luk + PRZESWIT_KREGU;
+    v.set(dx, luk, dz).applyMatrix4(root.matrix);
+    planeta.zKuli(v, m);
+    return luk + (wysokoscGruntu(m.x, m.z) - gruntSrodka) + PRZESWIT_KREGU;
+  };
+  for (let j = 0; j < punkty; j++) {
+    const t = (j / punkty) * Math.PI * 2;
+    for (const rr of [r * wewn, r]) {
+      const dx = Math.cos(t) * rr, dz = Math.sin(t) * rr;
+      pos.push(dx, wysokosc(dx, dz), dz);
+    }
+  }
+  for (let j = 0; j < punkty; j++) {
+    const a = j * 2, b = a + 1, c = ((j + 1) % punkty) * 2, d = c + 1;
+    idx.push(a, b, d, a, d, c);
+  }
+  const g = new BufferGeometry();
+  g.setAttribute("position", new Float32BufferAttribute(pos, 3));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  return g;
 }
 
 /**
@@ -232,8 +355,8 @@ export class Fasola {
     this.root.add(this.pnacze.group);
     // kopiec dobrany do grubości dojrzałej rośliny; przy ziarnie jest mały
     // i rośnie razem z pnączami (patrz `update`)
-    this.kopczyk = kopczyk(Math.max(0.5, this.pnacze.grubosc * 1.3));
-    this.kopczyk.scale.setScalar(0.4);
+    this.kopczyk = kopczyk(Math.max(0.5, this.pnacze.grubosc * 1.3), def.grzadka?.ziarno ?? 4, def.grzadka?.promien ?? 1.05);
+    this.kopczyk.getObjectByName("rdzen").scale.setScalar(0.4);
     this.root.add(this.kopczyk);
 
     // ziarno (etap 0): model GLB albo bryła zastępcza
@@ -248,6 +371,34 @@ export class Fasola {
     this.swiatlo = new PointLight(0xbfffb0, 0, 5, 2);
     this.swiatlo.position.y = 0.6;
     this.root.add(this.swiatlo);
+
+    // KRĄG AKTYWNOŚCI — dokładnie ten okrąg, który liczy `planeta.odleglosc`
+    // przy podlewaniu, więc dziecko widzi, gdzie „roślina słyszy".
+    this.zasieg = def.zasieg ?? 1.9;
+    this.kragMat = new MeshBasicMaterial({
+      color: BARWA_KREGU_WODA, transparent: true, opacity: 0,
+      side: DoubleSide, depthWrite: false, toneMapped: false,
+    });
+    this.krag = new Mesh(siatkaKregu(planeta, this.root, this.zasieg, 0.9, grunt, wysokoscGruntu), this.kragMat);
+    this.krag.renderOrder = 2;
+    this.krag.visible = false;
+    this.root.add(this.krag);
+
+    // IKONA KROPLI nad rośliną + kropelka, która co jakiś czas z niej spada.
+    // To spadanie niesie treść („polej mnie"); samo pulsowanie ikony mówi
+    // tylko „tu coś jest".
+    this.ikonaWody = new Sprite(new SpriteMaterial({
+      map: teksturaIkonyKropli(), transparent: true, opacity: 0,
+      depthWrite: false, toneMapped: false,
+    }));
+    this.ikonaWody.scale.set(0.62, 0.82, 1);
+    this.ikonaWody.visible = false;
+    this.root.add(this.ikonaWody);
+    this.kropelka = new Sprite(this.ikonaWody.material.clone());
+    this.kropelka.scale.set(0.24, 0.32, 1);
+    this.kropelka.visible = false;
+    this.root.add(this.kropelka);
+    this._kapanie = 0;
 
     this.rozbryzgi = [];
     this.gotowe = this._wczytajZiarno(loadGLB);
@@ -314,7 +465,44 @@ export class Fasola {
     }
   }
 
-  update(dt, dBohater = 99) {
+  /**
+   * Krąg aktywności i kropla. Oba mówią JEDNO zdanie naraz:
+   *   • roślina czeka na wodę  → błękit, kropla kapie nad kopczykiem,
+   *   • lisek niesie kroplę    → mocniej i szybciej (nagroda za znalezienie wody),
+   *   • roślina wyrośnie       → kropla znika, krąg złocieje w „wejdź na mnie".
+   * Poza `zasieg + POLE_WIDOCZNOSCI` wszystko jest wygaszone do zera.
+   */
+  _wskazniki(dt, dBohater, maKrople) {
+    const bliskosc = klamp01((this.zasieg + POLE_WIDOCZNOSCI - dBohater) / 2.2);
+    const doWspinaczki = this.gotowa;
+    const tempo = maKrople ? 3.4 : 2.1;
+    const puls = 0.72 + 0.28 * Math.sin(this.czas * tempo);
+    const moc = doWspinaczki ? 0.5 : (maKrople ? 0.7 : 0.4);
+    this.kragMat.color.setHex(doWspinaczki ? BARWA_KREGU_WSPINACZKA : BARWA_KREGU_WODA);
+    this.kragMat.opacity = moc * bliskosc * puls * (dBohater < this.zasieg ? 1.25 : 1);
+    this.krag.visible = this.kragMat.opacity > 0.004;
+
+    // kropla tylko wtedy, gdy roślina naprawdę czeka na wodę (nie w trakcie wzrostu)
+    const czeka = !doWspinaczki && !this.rosnie && bliskosc > 0.01;
+    this.ikonaWody.visible = czeka;
+    this.kropelka.visible = false;
+    if (!czeka) return;
+    const podstawa = Math.min(this.wysokosc, 1.7) + 0.62;
+    this._kapanie = (this._kapanie + dt * (maKrople ? 0.62 : 0.42)) % 1;
+    const k = this._kapanie;
+    const odbicie = k < 0.12 ? Math.sin((k / 0.12) * Math.PI) : 0;   // moment oderwania kropelki
+    this.ikonaWody.position.y = podstawa + Math.sin(this.czas * 2.4) * 0.07 - 0.06 * odbicie;
+    this.ikonaWody.scale.set(0.62 * (1 - 0.12 * odbicie), 0.82 * (1 + 0.12 * odbicie), 1);
+    this.ikonaWody.material.opacity = bliskosc * (maKrople ? 1 : 0.88);
+    if (k > 0.1 && k < 0.55) {
+      const u = (k - 0.1) / 0.45;
+      this.kropelka.visible = true;
+      this.kropelka.position.set(0, podstawa - 0.2 - (podstawa - 0.05) * u * u, 0);
+      this.kropelka.material.opacity = bliskosc * (u > 0.82 ? (1 - u) / 0.18 : 1);
+    }
+  }
+
+  update(dt, dBohater = 99, maKrople = false) {
     this.czas += dt;
     if (this.rosnie) {
       const r = this.rosnie;
@@ -342,7 +530,7 @@ export class Fasola {
     }
     if (this.kopczyk) {
       const k = 0.4 + 0.6 * (this.u * this.u * (3 - 2 * this.u));
-      this.kopczyk.scale.setScalar(k);
+      this.kopczyk.getObjectByName("rdzen").scale.setScalar(k);
     }
     if (!this.rosnie && this.etap > 0) {
       // oddech: lekkie kołysanie żywej rośliny (ziarno — nie)
@@ -355,6 +543,7 @@ export class Fasola {
     const puls = 0.6 + 0.4 * Math.sin(this.czas * 2.2);
     this.halo.material.opacity = baza * blisko * puls;
     this.swiatlo.intensity = (this.gotowa ? 2.2 : 0.6) * blisko * puls;
+    this._wskazniki(dt, dBohater, maKrople);
     for (let i = this.rozbryzgi.length - 1; i >= 0; i--) {
       const m = this.rozbryzgi[i];
       m.userData.life -= dt * 1.1;

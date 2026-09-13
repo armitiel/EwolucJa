@@ -301,6 +301,7 @@ function terenProceduralny(mapa, planeta) {
   // `wysForma` idzie do shadera (piasek w niecce, suchy szczyt wzgórza);
   // `klucze` to tożsamość wierzchołka — po niej sklejamy normalne.
   const wysForma = new Float32Array(n);
+  const ziemiaForma = new Float32Array(n); // przekopana ziemia (wykop pod fasolą) → shader
   const klucze = new Array(n);
   for (let i = 0; i < n; i++) {
     v.fromBufferAttribute(pos, i).normalize();
@@ -310,12 +311,14 @@ function terenProceduralny(mapa, planeta) {
     const h = wybój(v.x, v.y, v.z);
     const fh = forma(v);
     wysForma[i] = fh;
+    if (!formy.pusta) ziemiaForma[i] = formy.ziemia(mp.x, mp.z);
     // w niecce wyboje cichną (dno stawu ma być gładkie)
     v.multiplyScalar(R + amp * (fh < -1e-4 ? h * 0.3 : h) + fh);
     pos.setXYZ(i, v.x, v.y, v.z);
   }
 
   geo.setAttribute("wysForma", new Float32BufferAttribute(wysForma, 1));
+  geo.setAttribute("ziemiaForma", new Float32BufferAttribute(ziemiaForma, 1));
 
   // NORMALNE. Geometria jest NIEINDEKSOWANA, więc `computeVertexNormals()`
   // dałoby normalną na ściankę — czyli kulę fasetowaną, choćby materiał

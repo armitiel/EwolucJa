@@ -29,6 +29,8 @@ export const BARWY_TERENU = {
   szalwia: 0x7f8f71,  // szarozielone przetarcie (te chłodne plamy z concept artu)
   brzeg: 0xdcd69c,    // kremowy piasek — i przetarcia, i brzeg oczka
   dno: 0x7b7a55,      // błotniste dno niecki
+  ziemia: 0x6a4b33,   // przekopana ziemia (grządka fasoli)
+  ziemiaJasna: 0x8a6a48, // jej obsypany, suchszy brzeg
 };
 
 /** Pokrętła — mapa: `swiat.terenShader`. */
@@ -47,6 +49,7 @@ export const STROJENIE_TERENU = {
 const WSPOLNE = /* glsl */ `
 varying vec3 vKierTeren;
 varying float vWysTeren;
+varying float vZiemiaTeren;
 
 uniform vec3 uBazaTeren;
 uniform vec3 uJasnaTeren;
@@ -62,6 +65,8 @@ uniform float uSilaSzalwii;
 uniform float uSilaPiasku;
 uniform float uWzgorzaTeren;
 uniform float uGlebiaTeren;
+uniform vec3 uZiemiaTeren;
+uniform vec3 uZiemiaJasnaTeren;
 
 float hashTeren(vec3 p) {
   p = fract(p * 0.3183099 + vec3(0.71, 0.113, 0.419));
@@ -110,6 +115,8 @@ export function materialTerenu(opcje = {}) {
     uSzalwiaTeren: { value: new Color(B.szalwia) },
     uPiasekTeren: { value: new Color(B.brzeg) },
     uDnoTeren: { value: new Color(B.dno) },
+    uZiemiaTeren: { value: new Color(B.ziemia) },
+    uZiemiaJasnaTeren: { value: new Color(B.ziemiaJasna) },
     uSkalaTeren: { value: S.skala },
     uMocTeren: { value: S.moc },
     uZiarnoTeren: { value: S.ziarno },
@@ -128,11 +135,14 @@ export function materialTerenu(opcje = {}) {
     shader.vertexShader = shader.vertexShader
       .replace("#include <common>", `#include <common>
         attribute float wysForma;
+        attribute float ziemiaForma;
         varying vec3 vKierTeren;
-        varying float vWysTeren;`)
+        varying float vWysTeren;
+        varying float vZiemiaTeren;`)
       .replace("#include <begin_vertex>", `#include <begin_vertex>
         vKierTeren = normalize(position);
-        vWysTeren = wysForma;`);
+        vWysTeren = wysForma;
+        vZiemiaTeren = ziemiaForma;`);
 
     shader.fragmentShader = shader.fragmentShader
       .replace("#include <common>", `#include <common>
@@ -171,6 +181,13 @@ ${WSPOLNE}`)
         float wglab = clamp(-vWysTeren / uGlebiaTeren, 0.0, 1.0);
         barwa = mix(barwa, uPiasekTeren, smoothstep(0.06, 0.55, wglab + (drobne - 0.5) * 0.3));
         barwa = mix(barwa, uDnoTeren, smoothstep(0.5, 1.0, wglab));
+
+        // 6. PRZEKOPANA ZIEMIA (grządka fasoli): ta sama mechanika co brzeg
+        //    stawu — waga z geometrii, brzeg postrzępiony drobnym szumem,
+        //    środek ciemniejszy i wilgotny, obrzeże jaśniejsze i suche.
+        float ziem = clamp(vZiemiaTeren + (drobne - 0.5) * 0.45, 0.0, 1.0);
+        barwa = mix(barwa, uZiemiaJasnaTeren, smoothstep(0.12, 0.45, ziem));
+        barwa = mix(barwa, uZiemiaTeren, smoothstep(0.5, 0.95, ziem + (srednie - 0.5) * 0.2));
 
         diffuseColor.rgb *= barwa;
       }`);

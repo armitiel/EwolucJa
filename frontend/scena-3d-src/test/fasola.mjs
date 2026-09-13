@@ -14,9 +14,9 @@ for (let e = 1; e <= 4; e++) {
   await krok(`podlanie${e}`, () => {
     const a = __POC.app;
     const R = a.renderer.render; a.renderer.render = () => {};
-    a.ustawBohatera(6.2, 8.4); for (let i = 0; i < 30; i++) a.tick();
+    a.ustawBohatera(10.1, 4.7); for (let i = 0; i < 30; i++) a.tick();
     const kropla = !!a.kropla.ile;
-    a.ustawBohatera(0.9, 14.2); for (let i = 0; i < 130; i++) a.tick();
+    a.ustawBohatera(0.5, 3.6); for (let i = 0; i < 130; i++) a.tick();
     a.renderer.render = R; a.renderer.render(a.scene, a.camera);
     return { kropla, stan: __SCENA.stan().fasola, zd: a.zdarzenia.splice(0) };
   });
@@ -24,7 +24,7 @@ for (let e = 1; e <= 4; e++) {
 await krok("wspinaczka", () => {
   const a = __POC.app;
   const R = a.renderer.render; a.renderer.render = () => {};
-  a.ustawBohatera(6.2, 8.4); for (let i = 0; i < 20; i++) a.tick(); a.ustawBohatera(0.5, 14.3); for (let i = 0; i < 120; i++) a.tick();
+  a.ustawBohatera(10.1, 4.7); for (let i = 0; i < 20; i++) a.tick(); a.ustawBohatera(0.1, 3.7); for (let i = 0; i < 120; i++) a.tick();
   const wPolowie = { seq: a.sequence, lift: +a.heroLift.toFixed(2), pos: __POC.pos() };
   a.renderer.render = R; a.renderer.render(a.scene, a.camera);
   return { wPolowie, zd: a.zdarzenia.splice(0) };
