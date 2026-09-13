@@ -46,7 +46,7 @@ scena.add(lisek);
 
 const stan = {
   etapy: [0.45, 1.0, 2.4, 5.0, 9.0],
-  pnacze: { obroty: 2.0, pedy: 3, ziarno: 1 },
+  pnacze: { obroty: 2.0, pedy: 3, ziarno: 1, wygiecieOd: 0.5, wygiecieSila: 0.42, wygiecieOpad: 0.16 },
   wybrany: 4,
   obrot: 0.9,
   auto: true,
@@ -123,6 +123,15 @@ globalThis.__E = {
     }),
     pnacze: stan.pnacze,
   }, null, 2),
+  /** Odchylenie osi od pionu na kilku wysokościach — liczbowa kontrola wygięcia. */
+  krzywa: () => {
+    if (!P) return null;
+    const V = new Vector3();
+    return [0.25, 0.5, 0.75, 1].map((t) => {
+      P.os(t, V);
+      return { t, bok: +Math.hypot(V.x, V.z).toFixed(2), y: +V.y.toFixed(2) };
+    });
+  },
   info: () => (P ? {
     etap: stan.wybrany,
     H: +P.H.toFixed(2),

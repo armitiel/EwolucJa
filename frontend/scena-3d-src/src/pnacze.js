@@ -188,9 +188,17 @@ export class Pnacze {
    * @param {number} [o.grubosc]  promień CAŁEGO splotu u podstawy
    * @param {number} [o.szerokoscSciezki] szerokość grywalnej wstęgi
    * @param {number} [o.ziarno]   wariant (rozkład liści, drobne odchyłki)
+   * @param {number} [o.wygiecieOd]   od jakiej wysokości czubek zaczyna się wyginać
+   * @param {number} [o.wygiecieSila]  jak daleko odjeżdża od pionu (w `H`)
+   * @param {number} [o.wygiecieOpad]  ile wysokości zamienia się na wychylenie
    */
   constructor(o) {
     this.H = o.H;
+    // Krzywa wygięcia czubka — do strojenia z mapy i z edytora etapów, stąd
+    // na instancji, a nie tylko w `PNACZE`. Domyślne wartości bez zmian.
+    this.wygiecieOd = o.wygiecieOd ?? PNACZE.wygiecieOd;
+    this.wygiecieSila = o.wygiecieSila ?? PNACZE.wygiecieSila;
+    this.wygiecieOpad = o.wygiecieOpad ?? PNACZE.wygiecieOpad;
     this.obroty = o.obroty ?? 2.6;
     const ile = o.pnacza ?? (o.pedy != null ? o.pedy + 1 : this.H > 6 ? 5 : 4);
     this.ile = Math.max(2, Math.min(SZABLON.length, Math.round(ile)));
@@ -250,15 +258,15 @@ export class Pnacze {
     // chodzi o JEDEN kierunek, w którym góra rośliny konsekwentnie się kładzie.
     // Kierunek bierzemy z `faza[0]`, więc każda roślina przewiesza się gdzie
     // indziej, ale sama ze sobą jest zgodna.
-    const g = wygladz(zakres((t - PNACZE.wygiecieOd) / (1 - PNACZE.wygiecieOd)));
-    const wyg = g * PNACZE.wygiecieSila * this.H * this.dojrzalosc;
+    const g = wygladz(zakres((t - this.wygiecieOd) / Math.max(0.05, 1 - this.wygiecieOd)));
+    const wyg = g * this.wygiecieSila * this.H * this.dojrzalosc;
     const kier = this.faza[0] * 0.7;
     return cel.set(
       w * (Math.sin(t * 2.3 + this.faza[0]) + 0.5 * Math.sin(t * 5.3 + this.faza[2]) + 0.4 * t) * n * t
         + Math.cos(kier) * wyg,
       // Czubek nie tylko odjeżdża w bok — trochę „siada", więc wychylenie czyta
       // się jako przewieszenie, a nie jako pochylony maszt.
-      t * this.H * (1 - PNACZE.wygiecieOpad * g * this.dojrzalosc),
+      t * this.H * (1 - this.wygiecieOpad * g * this.dojrzalosc),
       w * (Math.cos(t * 1.9 + this.faza[1]) + 0.5 * Math.cos(t * 4.1 + this.faza[2]) - 0.32 * t) * n * t
         + Math.sin(kier) * wyg,
     );

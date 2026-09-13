@@ -224,6 +224,8 @@ export class Fasola {
     const P = def.pnacze || {};
     this.pnacze = new Pnacze({
       H: this.H, obroty: P.obroty, pnacza: P.pnacza, pedy: P.pedy, grubosc: P.grubosc,
+      // krzywa wygięcia czubka — strojona w `/scena-3d/edytor-fasoli.html`
+      wygiecieOd: P.wygiecieOd, wygiecieSila: P.wygiecieSila, wygiecieOpad: P.wygiecieOpad,
       szerokoscSciezki: P.szerokosc, ziarno: P.ziarno ?? 1,
     });
     this.u = 0;

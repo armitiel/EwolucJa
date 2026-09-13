@@ -44,6 +44,15 @@ button.akcja{width:100%;padding:7px 0;margin-top:6px;border:0;border-radius:8px;
   <label><input id="oz" type="checkbox" checked> liście, kwiaty, wąsy</label>
 
   <hr>
+  <p class="opis" style="margin:0 0 4px"><b>Krzywa wygięcia czubka.</b> Rośnie z dojrzałością, więc kiełek zawsze stoi prosto.</p>
+  <label>Od jakiej wysokości <output id="ogo"></output></label>
+  <input id="go" type="range" min="0" max="0.9" step="0.01">
+  <label>Siła wygięcia <output id="ogs"></output></label>
+  <input id="gs" type="range" min="0" max="1.2" step="0.01">
+  <label>Opad czubka <output id="ogp"></output></label>
+  <input id="gp" type="range" min="0" max="0.5" step="0.01">
+
+  <hr>
   <label>Obrót widoku</label>
   <input id="a" type="range" min="0" max="6.28" step="0.01" value="0.9">
   <label><input id="auto" type="checkbox" checked> kadr dopasowany do wysokości</label>
@@ -70,8 +79,9 @@ addEventListener("load", async () => {
     etapyBox.appendChild(b);
   });
   const odswiez = () => {
+    const k = (E.krzywa() || []).map((q) => `  t ${q.t}: bok ${q.bok}, y ${q.y}`).join("\n");
     document.getElementById("stan").textContent =
-      JSON.stringify(E.info(), null, 1).replace(/[{}"]/g, "");
+      JSON.stringify(E.info(), null, 1).replace(/[{}"]/g, "") + "\n odchylenie osi:\n" + k;
     document.getElementById("json").value = E.json();
   };
   const rysuj = () => {
@@ -93,6 +103,12 @@ addEventListener("load", async () => {
   o.oninput = () => { oo.value = o.value; E.param("obroty", +o.value); odswiez(); };
   p.oninput = () => { op.value = p.value; E.param("pedy", +p.value); odswiez(); };
   oz.onchange = () => E.ozdoby(oz.checked);
+  const wyg = [["go","ogo","wygiecieOd"],["gs","ogs","wygiecieSila"],["gp","ogp","wygiecieOpad"]];
+  wyg.forEach(([id, out, klucz]) => {
+    const el = document.getElementById(id), o = document.getElementById(out);
+    el.value = s.pnacze[klucz]; o.value = (+el.value).toFixed(2);
+    el.oninput = () => { o.value = (+el.value).toFixed(2); E.param(klucz, +el.value); odswiez(); };
+  });
   a.oninput = () => E.obrot(+a.value);
   auto.onchange = () => { E.autoKadr(auto.checked); if (!auto.checked) E.dist(+d.value); };
   d.oninput = () => { auto.checked = false; E.dist(+d.value); };
