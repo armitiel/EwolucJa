@@ -72,6 +72,23 @@ export const PNACZE = {
    */
   szczyt: 0.68,
   /**
+   * WYGIĘCIE CZUBKA. Sama oś rośliny ma tylko powolne wychylenie rosnące z `t`,
+   * więc gigant wychodził prawie prosty jak maszt — a ma się wyginać ku końcowi,
+   * tak jak na referencji: dół stoi, góra kładzie się w jedną stronę.
+   *
+   * `wygiecieOd` — od jakiej wysokości zaczyna się odkładać (0,5 = od połowy).
+   * `wygiecieSila` — jak daleko czubek odjeżdża od pionu, w wysokościach rośliny.
+   * `wygiecieOpad` — o ile czubek „siada", czyli ile wysokości zamienia się na
+   *   wychylenie. Bez tego roślina rośnie prosto w górę i tylko się przesuwa,
+   *   zamiast przewieszać.
+   *
+   * Wszystko mnożone przez `dojrzalosc`, więc kiełek stoi prosto, a wygięcie
+   * narasta razem z roślina — ostateczny kształt jest najbardziej wygięty.
+   */
+  wygiecieOd: 0.5,
+  wygiecieSila: 0.42,
+  wygiecieOpad: 0.16,
+  /**
    * Skok ścieżki: pionowy odstęp między zwojami, liczony w szerokościach wstęgi.
    * Za mało — zwoje zasłaniają splot i roślina wygląda jak wiertło; za dużo —
    * podejście robi się strome. 2,3 to kompromis (nachylenie ~18°).
@@ -228,10 +245,22 @@ export class Pnacze {
     // Amplituda rośnie z dojrzałością: kiełek stoi prosto, gigant się wygina.
     const w = 0.13 * this.H * (0.3 + 0.7 * this.dojrzalosc);
     const n = wygladz(zakres(t / 0.12));   // przy ziemi pień stoi prosto w kopczyku
+    // WYGIĘCIE CZUBKA (patrz `PNACZE.wygiecie*`). Osobny człon, nie mocniejszy
+    // szum: szum wygina roślinę w losowe strony i po drodze się znosi, a tu
+    // chodzi o JEDEN kierunek, w którym góra rośliny konsekwentnie się kładzie.
+    // Kierunek bierzemy z `faza[0]`, więc każda roślina przewiesza się gdzie
+    // indziej, ale sama ze sobą jest zgodna.
+    const g = wygladz(zakres((t - PNACZE.wygiecieOd) / (1 - PNACZE.wygiecieOd)));
+    const wyg = g * PNACZE.wygiecieSila * this.H * this.dojrzalosc;
+    const kier = this.faza[0] * 0.7;
     return cel.set(
-      w * (Math.sin(t * 2.3 + this.faza[0]) + 0.5 * Math.sin(t * 5.3 + this.faza[2]) + 0.4 * t) * n * t,
-      t * this.H,
-      w * (Math.cos(t * 1.9 + this.faza[1]) + 0.5 * Math.cos(t * 4.1 + this.faza[2]) - 0.32 * t) * n * t,
+      w * (Math.sin(t * 2.3 + this.faza[0]) + 0.5 * Math.sin(t * 5.3 + this.faza[2]) + 0.4 * t) * n * t
+        + Math.cos(kier) * wyg,
+      // Czubek nie tylko odjeżdża w bok — trochę „siada", więc wychylenie czyta
+      // się jako przewieszenie, a nie jako pochylony maszt.
+      t * this.H * (1 - PNACZE.wygiecieOpad * g * this.dojrzalosc),
+      w * (Math.cos(t * 1.9 + this.faza[1]) + 0.5 * Math.cos(t * 4.1 + this.faza[2]) - 0.32 * t) * n * t
+        + Math.sin(kier) * wyg,
     );
   }
 
