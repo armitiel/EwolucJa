@@ -142,6 +142,19 @@ const KAMERA_FASOLA_DALEKO = 7.5;      // dalej niż to — ujęcie domyślne
 const KAMERA_FASOLA_PODNIESIENIE = 0.45;  // ile wysokości rośliny podnosi cel
 const KAMERA_FASOLA_MAX = 5.5;         // ale nie więcej niż tyle jednostek
 const KAMERA_FASOLA_ODDALENIE = 0.22;  // o ile odjechać, żeby czubek zmieścił się w kadrze
+/**
+ * Ile najwyżej trzymamy ujęcie „z boku". Bez tego budżetu ujęcie było STANEM,
+ * nie spojrzeniem: dopóki lisek stał przy wyrośniętej roślinie, kamera
+ * siedziała na czubku, a bohater wyjeżdżał poza dolną krawędź. Gracz czekał
+ * wtedy na ruch, nie widząc ani siebie, ani którędy iść. Po tym czasie kamera
+ * wraca do liska, nawet jeśli ten dalej stoi pod fasolą.
+ *
+ * Budżet zeruje się, gdy lisek wyjdzie poza zasięg ORAZ przy każdym podlaniu —
+ * czyli każde nowe przyjście i każdy nowy etap wzrostu warte są jedno
+ * spojrzenie. Wspinaczka jest z tego wyjęta: tam szerokie ujęcie musi zostać.
+ */
+const KAMERA_FASOLA_CZAS = 2.2;        // sekundy spojrzenia na czubek
+const KAMERA_FASOLA_POWROT = 2.6;      // tempo wracania (szybsze niż wjazd 1,5)
 
 const clamp = (s, e, t) => Math.max(e, Math.min(t, s));
 const dogon = (s, e, t, n) => s + (e - s) * (1 - Math.exp(-t * n));
@@ -344,7 +357,9 @@ export class Aplikacja {
     // to ten sam mechanizm co kule światła — jedna kula, błękitna.
     this.oczko = this.mapa.oczko ? zbudujOczko(this.mapa.oczko, this.planeta) : null;
     if (this.oczko) this.swiat.add(this.oczko.mesh);
-    this.fasola = this.mapa.fasola ? new Fasola(this.mapa.fasola, this.planeta, (f) => this.loadGLB(f)) : null;
+    this.fasola = this.mapa.fasola
+      ? new Fasola(this.mapa.fasola, this.planeta, (f) => this.loadGLB(f), sw.wysokoscGruntu)
+      : null;
     if (this.fasola) this.swiat.add(this.fasola.root);
 
     // Most w układzie MAPY (do wysokości terenu i „czy stoję na moście").
@@ -1701,6 +1716,7 @@ export class Aplikacja {
         this.hint(F.etap + 1 >= F.ostatni ? "Fasola sięga chmur!" : "Fasola rośnie!");
         this.emit("fasola:podlana", { etap: F.etap + 1, etapow: F.ostatni });
         this._wspUzbrojona = false;
+        this._kamFCzas = 0;   // nowy etap = nowe spojrzenie na czubek
         try { navigator.vibrate?.([18, 40, 18]); } catch {}
         if (this.input.lengthSq() < 0.02 && (this.moveSpeed || 0) < 0.05 && !this.walking) {
           this.play("happy", 0.12);
@@ -1882,13 +1898,18 @@ export class Aplikacja {
     if (F && F.def.kamera !== false) {
       // przy ziarnie nie ma czego pokazywać z boku — efekt narasta z rośliną
       const dojrzala = Math.min(1, F.wysokosc / 2.5);
-      if (this.sequence === "wspinaczka") cel = 1;
+      if (this.sequence === "wspinaczka") { cel = 1; this._kamFCzas = 0; }
       else {
         const d = this.planeta.odleglosc(this.hn, F.n);
         cel = clamp(1 - (d - KAMERA_FASOLA_BLISKO) / (KAMERA_FASOLA_DALEKO - KAMERA_FASOLA_BLISKO), 0, 1) * dojrzala;
+        // BUDŻET CZASU — patrz `KAMERA_FASOLA_CZAS`. Spojrzenie, nie stan.
+        if (cel > 0.05) {
+          this._kamFCzas = (this._kamFCzas || 0) + e;
+          if (this._kamFCzas > KAMERA_FASOLA_CZAS) cel = 0;
+        } else this._kamFCzas = 0;
       }
     }
-    this._kamF = dogon(this._kamF, cel, e, 1.5);
+    this._kamF = dogon(this._kamF, cel, e, cel < this._kamF ? KAMERA_FASOLA_POWROT : 1.5);
     this._camDirAkt.lerpVectors(this.camDir, this._camDirBok, this._kamF);
     const wys = F ? F.wysokosc : 0;
     this._camGora = this._kamF * Math.min(wys * KAMERA_FASOLA_PODNIESIENIE, KAMERA_FASOLA_MAX);
