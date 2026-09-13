@@ -117,6 +117,10 @@ const _T = new Vector3(), _N = new Vector3(), _B = new Vector3(), _osY = new Vec
 const _a = new Vector3(), _b = new Vector3(), _c = new Vector3();
 
 const mat = (kolor, extra = {}) => new MeshLambertMaterial({ color: kolor, flatShading: true, ...extra });
+/** Pączek musi być SZERSZY od rury, inaczej widać kant jej przekroju. */
+const CZUBEK_SZER = 1.06;
+/** I cofnięty w głąb o ułamek promienia, żeby zatkał otwór, a nie stał za nim. */
+const CZUBEK_COFNIECIE = 0.45;
 const zakres = (x, a = 0, b = 1) => (x < a ? a : x > b ? b : x);
 const wygladz = (x) => x * x * (3 - 2 * x);
 
@@ -233,7 +237,10 @@ export class Pnacze {
     this.group = new Group();
     this.group.name = "pnacze";
 
-    this.matRura = mat(0xffffff, { vertexColors: true, flatShading: !PNACZE.gladkie });
+    // DoubleSide, bo rura nie ma denek: przy froncie wzrostu i przy samym
+    // czubku patrzy się prosto w jej wnętrze, a bez tylnych ścianek widać
+    // tam PRZEZ roślinę — koniec czyta się wtedy jak ucięta rurka.
+    this.matRura = mat(0xffffff, { vertexColors: true, flatShading: !PNACZE.gladkie, side: DoubleSide });
     this.matLisc = mat(0xffffff, { side: DoubleSide });
     this.matKwiat = mat(0xffffff, { vertexColors: true, side: DoubleSide });
 
@@ -459,11 +466,28 @@ export class Pnacze {
     p.col = g.attributes.color.array;
     this.group.add(m);
 
-    // czubek: pączek na froncie wzrostu
-    this.geoPaczka = this.geoPaczka || new SphereGeometry(1, 6, 5);
-    this.matCzubek = this.matCzubek || mat(PNACZE.barwaLisc);
-    const cz = new Mesh(this.geoPaczka, this.matCzubek);
-    cz.scale.set(0.8, 2.1, 0.8);
+    /**
+     * CZUBEK — pączek domykający front wzrostu.
+     *
+     * Rura jest otwarta z obu stron: `drawRange` przycina ją na całym
+     * pierścieniu, a dorobienie denka w dowolnym miejscu wymagałoby
+     * przebudowy siatki co klatkę. Zamiast tego koniec zatyka osobna bryłka.
+     * Żeby to nie wyglądało jak dwa różne obiekty, musi spełniać trzy rzeczy:
+     *
+     *  • BARWA swojego pnącza, nie liścia. Pączek był w `barwaLisc` — jaśniejszej
+     *    zieleni liści — więc czytał się jak doklejony element, a nie jak koniec
+     *    tej samej łodygi.
+     *  • SZERSZY od rury (`CZUBEK_SZER`), nie węższy. Przy 0,88 promienia
+     *    dookoła niego zostawał widoczny kant przekroju.
+     *  • COFNIĘTY w głąb rury (`CZUBEK_COFNIECIE`), żeby najszersze miejsce
+     *    kuli siedziało W otworze, a nie tuż za nim.
+     */
+    this.geoPaczka = this.geoPaczka || new SphereGeometry(1, 7, 6);
+    this.matCzubki = this.matCzubki || [];
+    const barwaCz = p.i === 0 ? PNACZE.barwaGlowna : PNACZE.barwaPed;
+    this.matCzubki[p.i] = this.matCzubki[p.i] || mat(barwaCz);
+    const cz = new Mesh(this.geoPaczka, this.matCzubki[p.i]);
+    cz.scale.set(0.92, 2.0, 0.92);
     const gr = new Group();
     gr.add(cz);
     gr.castShadow = true;
@@ -676,10 +700,13 @@ export class Pnacze {
          * nie ma wcale.
          */
         const tRys = p.t0 + (1 - p.t0) * (seg / p.N);
-        p.czubek.position.copy(this.punkt(p, tRys, _v));
+        const r = Math.max(0.001, this.promienPnacza(p, tRys));
         this.styczna(p, tRys, _w);
+        // cofnięcie W GŁĄB rury, żeby najszersze miejsce pączka siedziało
+        // w otworze — inaczej dookoła niego widać kant przekroju
+        p.czubek.position.copy(this.punkt(p, tRys, _v)).addScaledVector(_w, -r * CZUBEK_COFNIECIE);
         p.czubek.quaternion.setFromUnitVectors(_up, _w);
-        p.czubek.scale.setScalar(Math.max(0.001, this.promienPnacza(p, tRys) * 0.88));
+        p.czubek.scale.setScalar(r * CZUBEK_SZER);
       }
     }
 
@@ -795,6 +822,6 @@ export class Pnacze {
 
   zniszcz() {
     this.group.traverse((o) => { if (o.geometry) o.geometry.dispose(); });
-    for (const m of [this.matRura, this.matLisc, this.matKwiat, this.matCzubek]) m.dispose();
+    for (const m of [this.matRura, this.matLisc, this.matKwiat, ...(this.matCzubki || [])]) m?.dispose();
   }
 }
