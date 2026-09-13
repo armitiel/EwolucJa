@@ -125,6 +125,9 @@ export function wczytajMape() {
     terenNieregularnosc: M.swiat?.terenNieregularnosc,
     // Ile obłoków na niebie (0 = brak; pierwszy świat nie ma żadnych).
     chmury: M.swiat?.chmury ?? 0,
+    // Przybliżenie kamery dla TEGO świata. Większa liczba = większy
+    // bohater. `?zoom=` w adresie ma pierwszeństwo (do strojenia).
+    zoom: M.swiat?.zoom,
     zasiew: !!M.swiat?.zasiew,
     terenBarwy: M.swiat?.terenBarwy || null,
     doba: {

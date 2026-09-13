@@ -72,6 +72,8 @@ const KOREKTA_W_RUCHU = 0.45;
 const KOREKTA_W_SPOCZYNKU = 1.1;
 /** Domyślne przybliżenie kamery (1 = kadr pierwotnej sceny; mniej = dalej). */
 const ZOOM_DOMYSLNY = 0.8;
+/** Minimalna wysokość kadru w promieniach planety — patrz `resize()`. */
+const NIEBO_MIN = 1.35;
 /** Punkt, na który patrzy kamera, względem wierzchołka kuli (jednostki mapy).
  *  Dodatnie = kamera patrzy wyżej, więc planeta zjeżdża w dół ekranu;
  *  ujemne = planeta idzie do góry. -2: cała kula w kadrze, lisek trochę
@@ -1765,8 +1767,21 @@ export class Aplikacja {
     const n = Math.max(1, Math.round(e.height || innerHeight));
     this.renderer.setSize(t, n);
     const i = t / n;
-    const zoom3d = Number(globalThis.SCENA3D_ZOOM) || ZOOM_DOMYSLNY;
-    const r = (i < 1 ? 8.4 : 14) / zoom3d;
+    // Kolejność: adres (strojenie) → mapa świata → wartość domyślna.
+    const zadany = Number(globalThis.SCENA3D_ZOOM) || Number(this.mapa?.zoom) || ZOOM_DOMYSLNY;
+    const bazowa = i < 1 ? 8.4 : 14;
+
+    // OGRANICZNIK NIEBA. Przybliżenie powiększa bohatera, ale planeta rośnie
+    // razem z nim i przy wąskim albo niskim kadrze potrafi wypchnąć horyzont
+    // poza ekran — zostaje sam zielony ekran, bez nieba, słońca i księżyca.
+    // Pilnujemy więc, żeby kadr miał w pionie co najmniej `NIEBO_MIN` promieni
+    // planety; powyżej tego zoom jest przycinany. Na telefonie w pionie próg
+    // nie działa wcale (kadr jest wysoki), gryzie dopiero przy kwadratowych
+    // i szerokich oknach — i tam woli mniejszego bohatera niż brak świata.
+    const R = this.planeta?.R || 8;
+    const zoomMax = bazowa / (i * (NIEBO_MIN * R));
+    const zoom3d = Math.max(0.3, Math.min(zadany, zoomMax));
+    const r = bazowa / zoom3d;
     const a = r / i;
     this.camera.left = -r / 2;
     this.camera.right = r / 2;

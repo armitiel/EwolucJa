@@ -57,17 +57,22 @@ export const DOBA = {
      * CAŁY przebieg barw mieści się nad horyzontem: przy ziemi złoto, wyżej
      * koral, potem róż, a dopiero na górze fiolet albo błękit.
      *
-     * `stopnie` mierzą odległość OD KRAWĘDZI PLANETY, w jej promieniach:
-     * 0 to sama linia horyzontu, 1 to promień planety nad nią. Dzięki temu
-     * ciepły pas trzyma się horyzontu na całej jego szerokości i nie
-     * rozjeżdża się przy zmianie kadru, zoomu ani promienia planety —
-     * a wysokość ekranu nie ma z tym nic wspólnego.
+     * `stopnie` to UŁAMKI WIDOCZNEGO NIEBA, liczone od linii horyzontu:
+     * 0 to sama krawędź planety, 1 to górna ramka kadru. Shader dzieli
+     * odległość od sylwetki przez tę, jaka zostaje do góry ekranu, więc
+     * ten sam zestaw progów daje ten sam obraz na telefonie w pionie
+     * (dużo nieba) i na szerokim ekranie (mało nieba).
+     *
+     * Wcześniej progi były w PROMIENIACH PLANETY i to była pułapka: na
+     * telefonie planeta zajmuje dół kadru, nieba jest trzy razy więcej,
+     * a cały przebieg barw i tak kończył się tuż nad horyzontem — zostawał
+     * wąski tęczowy pasek i płaski błękit nad nim.
      */
     // UWAGA na skalę: planeta jest OGROMNA w kadrze (jej promień to ok. 2,6
     // wysokości pół-kadru), więc od krawędzi do górnej ramki jest tylko
     // ~0,1 promienia. Progi rzędu 0,4 czy 1,0 wypychały trzy z czterech
     // barw poza ekran i zostawał jeden płaski pomarańcz.
-    stopnie: [0.0, 0.022, 0.052, 0.105],
+    stopnie: [0.0, 0.16, 0.42, 1.0],
     gradient: {
       dzien:   { horyzont: 0xdceef7, nisko: 0xa9d8f0, srodek: 0x6bb6e4, zenit: 0x3d93d6 },
       poranek: { horyzont: 0xffe3b8, nisko: 0xfbbfa0, srodek: 0xf3a9be, zenit: 0x9cc4e4 },
@@ -146,6 +151,8 @@ const _px = new Vector3();
 const _py = new Vector3();
 const _pz = new Vector3();
 const _sr = new Vector3();   // rzut srodka planety do NDC (nieboskLon)
+const _tor = { x: 0, y: 0 };  // pozycja slonca w kadrze
+const _torK = { x: 0, y: 0 }; // pozycja ksiezyca w kadrze
 
 
 /** Miękka tarcza: jasny rdzeń i gasnąca poświata. */
@@ -214,8 +221,9 @@ function nieboskLon() {
     uniforms: {
       zenit: { value: new Color(0x243147) }, srodek: { value: new Color(0x2a3f63) },
       nisko: { value: new Color(0x2c4670) }, horyzont: { value: new Color(0x2f4a78) },
-      stopnie: { value: new Vector4(0.0, 0.022, 0.052, 0.105) },
+      stopnie: { value: new Vector4(0.0, 0.16, 0.42, 1.0) },
       srodekPlanety: { value: new Vector4(0, 0, 1, 1) }, // xy = środek NDC, zw = promienie NDC
+      wysokoscNieba: { value: 0.4 },  // ile zostaje od horyzontu do górnej ramki
       noc: { value: 0 }, aspekt: { value: 1 },
     },
     vertexShader: `
@@ -229,6 +237,7 @@ function nieboskLon() {
       uniform vec3 horyzont;
       uniform vec4 stopnie;
       uniform vec4 srodekPlanety;
+      uniform float wysokoscNieba;
       uniform float noc;
       uniform float aspekt;
       varying vec2 vu;
@@ -242,7 +251,10 @@ function nieboskLon() {
         // na concept arcie, i nie zalezy od zoomu ani od tego, ile kadru
         // planeta zajmuje.
         vec2 q = (vu * 2.0 - 1.0 - srodekPlanety.xy) / srodekPlanety.zw;
-        float h = clamp(length(q) - 1.0, 0.0, 4.0);
+        // Odleglosc od sylwetki, ZNORMALIZOWANA przez to, ile nieba w ogole
+        // widac. Dzieki temu 1.0 to zawsze gorna ramka kadru, niezaleznie
+        // od tego, czy telefon stoi w pionie, czy ekran jest szeroki.
+        float h = clamp((length(q) - 1.0) / max(wysokoscNieba, 0.001), 0.0, 1.6);
         vec3 sky = horyzont;
         sky = mix(sky, nisko,  smoothstep(stopnie.x, stopnie.y, h));
         sky = mix(sky, srodek, smoothstep(stopnie.y, stopnie.z, h));
@@ -329,6 +341,22 @@ export class Doba {
   podepnijDoKamery(camera) {
     camera.add(this.rdzenSlonca, this.poswiata, this.tarczaKsiezyca);
     this.kamera = camera;
+  }
+
+  /**
+   * Sylwetka planety w NDC i ile nieba zostaje nad nią.
+   *
+   * Kamera jest ortograficzna, a planeta to kula w środku układu, więc jej
+   * obrys to elipsa o znanym środku (rzut zera) i promieniach (R podzielone
+   * przez połowę kadru). `niebo` to odległość od tej elipsy do górnej ramki,
+   * mierzona w jej własnych promieniach — jedna liczba, z której korzystają
+   * i gradient nieba, i tor słońca.
+   */
+  _sylwetka(k, W, H) {
+    _sr.set(0, 0, 0).project(k);
+    const rx = (this.promienPlanety || 8) / W;
+    const ry = (this.promienPlanety || 8) / H;
+    return { cx: _sr.x, cy: _sr.y, rx, ry, niebo: Math.max(0.02, (1 - _sr.y) / ry - 1) };
   }
 
   /** Kładzie sprite w kadrze wg kierunku `dir` (świat), na głębokości `z`. */
@@ -434,8 +462,9 @@ export class Doba {
         const k = this.kamera;
         const W = ((k.right - k.left) / 2) / (k.zoom || 1);
         const H = ((k.top - k.bottom) / 2) / (k.zoom || 1);
-        _sr.set(0, 0, 0).project(k);
-        u.srodekPlanety.value.set(_sr.x, _sr.y, this.promienPlanety / W, this.promienPlanety / H);
+        const g2 = this._sylwetka(k, W, H);
+        u.srodekPlanety.value.set(g2.cx, g2.cy, g2.rx, g2.ry);
+        u.wysokoscNieba.value = g2.niebo;
       }
       // Ta sama recepta dla każdego przystanka: noc → dzień, a na wierzch
       // zorza, która po wschodniej stronie jest różowo-brzoskwiniowa,
@@ -464,11 +493,33 @@ export class Doba {
       k.matrixWorld.extractBasis(_px, _py, _pz); // prawo, góra, „ku widzowi"
       const W = ((k.right - k.left) / 2) / (k.zoom || 1);
       const H = ((k.top - k.bottom) / 2) / (k.zoom || 1);
-      // Elipsa w kadrze: lewy horyzont → środek wysoko → prawy horyzont.
-      const x = Math.sin(luk) * W * .76;
-      const y = H * (.46 + .35 * Math.cos(luk));
-      this.rdzenSlonca.position.set(x, y, -50);
-      this.poswiata.position.set(x, y, -50.5);
+      const g = this._sylwetka(k, W, H);
+
+      /**
+       * TOR SŁOŃCA jest liczony od HORYZONTU, nie od środka kadru.
+       *
+       * Stała elipsa (`x = sin·0,76·W`, `y = 0,46·H + …`) działała tylko przy
+       * jednym kształcie kadru: na telefonie w pionie H rośnie, nieba jest
+       * dużo więcej, a słońce i tak wędrowało nisko przy planecie. Teraz
+       * kierunek bierzemy z fazy, a ODLEGŁOŚĆ od środka planety liczymy jako
+       * „promień planety + ułamek widocznego nieba". Tarcza zawsze wstaje
+       * z krawędzi planety i zawsze sięga tej samej wysokości WIDOCZNEGO
+       * nieba — niezależnie od proporcji ekranu.
+       */
+      const wzniesienie = (kat) => {
+        const c = Math.max(0, Math.cos(kat));
+        return 0.02 + 0.74 * Math.pow(c, 0.62);
+      };
+      const wKadrze = (kat, wynik) => {
+        const d = 1 + g.niebo * wzniesienie(kat);
+        wynik.x = (g.cx + Math.sin(kat) * g.rx * d) * W;
+        wynik.y = (g.cy + Math.cos(kat) * g.ry * d) * H;
+        return wynik;
+      };
+      const poz = wKadrze(luk, _tor);
+      const x = poz.x;
+      this.rdzenSlonca.position.set(poz.x, poz.y, -50);
+      this.poswiata.position.set(poz.x, poz.y, -50.5);
       // Zachód zostaje złoty i widoczny aż tarcza schowa się za planetą.
       this.rdzenSlonca.material.opacity = gladko(-0.36, -0.12, t) * (0.94 - 0.12 * dzien);
       this.rdzenSlonca.material.color.set(0xffeb79).lerp(_b.set(C.slonceTarcza.rdzen), dzien);
@@ -478,8 +529,9 @@ export class Doba {
         .lerp(_b.set(C.slonceTarcza.poswiataDzien), dzien);
       this.poswiata.scale.setScalar(C.slonceTarcza.wielkosc * (2.7 + C.slonceTarcza.rozmycieZorzy * zorza));
 
-      // Księżyc stoi naprzeciw słońca — czyli tam, gdzie w dzień go nie ma.
-      this.tarczaKsiezyca.position.set(-x * .92, H * (.46 - .35 * Math.cos(luk)), -50);
+      // Księżyc stoi naprzeciw słońca — ten sam tor, przesunięty o pół doby.
+      const pozK = wKadrze(luk + Math.PI, _torK);
+      this.tarczaKsiezyca.position.set(pozK.x, pozK.y, -50);
       this.tarczaKsiezyca.material.opacity = noc * 0.95;
       this.tarczaKsiezyca.visible = noc > 0.02;
     }

@@ -13,7 +13,9 @@
     "cienie": true,
     "terenKanciasty": true,
     "chmury": 4,
-    "promienKuli": 11.0
+    "zasiew": true,
+    "promienKuli": 11.0,
+    "zoom": 1.15
   },
   "start": {
     "pos": [
