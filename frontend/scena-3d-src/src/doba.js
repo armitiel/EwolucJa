@@ -85,6 +85,12 @@ export const DOBA = {
     rdzen: 0xfffdf2, poswiataDzien: 0xffe9a8, poswiataZorza: 0xff9b45,
     wielkosc: 0.95, rozmycieZorzy: 0.7,
     spowolnienieZachodu: 0.35, // 0–0.45; 0.35 daje 30% tempa przy horyzoncie
+    // Tor tarczy (patrz `wKadrze`): jak daleko w bok sięga w jednostkach
+    // RAMKI (1,0 = krawędź ekranu), jak wysoko wchodzi w południe
+    // i jak głęboko zanurza się w horyzont przy samym zachodzie.
+    zasiegX: 0.93,
+    szczyt: 0.48,
+    zanurzenie: 0.05,
   },
   ksiezyc: { barwa: 0xfff6dc, wielkosc: 1.15 },
   // Mnożnik barwy tekstury terenu. Biel = tekstura bez zmian (dzień).
@@ -382,7 +388,12 @@ export class Doba {
    */
   aktualizuj(hn, qPlanety, dt = 0.016) {
     const C = this.C;
-    const along = hn.dot(this._orbita);
+    // ZNAK ustala, w ktora strone plynie doba. Ujemny sprawia, ze faza
+    // ROSNIE w miare wedrowki: dzien zaczyna sie ze sloncem po LEWEJ
+    // (faza < 0, wschod), przechodzi przez zenit i konczy sie po PRAWEJ
+    // (faza > 0, zachod). Ten sam znak odwraca cienie i kolejnosc barw
+    // nieba, wiec tarcza, swiatlo i zorza zostaja po tej samej stronie.
+    const along = -hn.dot(this._orbita);
     const above = hn.dot(this.slonceN);
     const cel = Math.hypot(along, above) > 1e-6
       ? Math.atan2(along, above) : (this.faza ?? 0);
@@ -496,24 +507,36 @@ export class Doba {
       const g = this._sylwetka(k, W, H);
 
       /**
-       * TOR SŁOŃCA jest liczony od HORYZONTU, nie od środka kadru.
+       * TOR SŁOŃCA — w POZIOMIE mierzony RAMKĄ, w PIONIE horyzontem.
        *
-       * Stała elipsa (`x = sin·0,76·W`, `y = 0,46·H + …`) działała tylko przy
-       * jednym kształcie kadru: na telefonie w pionie H rośnie, nieba jest
-       * dużo więcej, a słońce i tak wędrowało nisko przy planecie. Teraz
-       * kierunek bierzemy z fazy, a ODLEGŁOŚĆ od środka planety liczymy jako
-       * „promień planety + ułamek widocznego nieba". Tarcza zawsze wstaje
-       * z krawędzi planety i zawsze sięga tej samej wysokości WIDOCZNEGO
-       * nieba — niezależnie od proporcji ekranu.
+       * Poprzednia wersja szła po okręgu wokół planety, w jej promieniach —
+       * a sylwetka planety jest znacznie szersza od ekranu (na telefonie
+       * jej promień to ok. 3 połówki kadru). Słońce wylatywało więc poza
+       * ramkę na długo przed zachodem i po prostu znikało.
+       *
+       * Teraz:
+       *  • POZIOM: `sin(faza)` razy `zasiegX` w jednostkach RAMKI — ze
+       *    ZNAKIEM fazy, ktora rosnie w ciagu dnia: wschod po LEWEJ,
+       *    zachod po PRAWEJ. Przy
+       *    0,93 tarcza w skrajach chowa się ledwie za krawędź ekranu —
+       *    więc słońce widać przez całą dobę, a wschód i zachód dzieją się
+       *    przy bokach kadru.
+       *  • PION: najpierw znajdujemy, gdzie DOKŁADNIE POD SŁOŃCEM leży
+       *    horyzont (elipsa sylwetki), a potem podnosimy tarczę o ułamek
+       *    nieba, jakie w tym miejscu zostaje do górnej ramki.
+       *
+       * Dzięki temu tarcza wstaje z linii horyzontu i tam wraca, niezależnie
+       * od proporcji ekranu — a przy samym zachodzie chowa się za nią do
+       * połowy, zamiast gasnąć w powietrzu.
        */
-      const wzniesienie = (kat) => {
-        const c = Math.max(0, Math.cos(kat));
-        return 0.02 + 0.74 * Math.pow(c, 0.62);
-      };
+      const wzniesienie = (kat) => C.slonceTarcza.szczyt * Math.cos(kat) - C.slonceTarcza.zanurzenie;
       const wKadrze = (kat, wynik) => {
-        const d = 1 + g.niebo * wzniesienie(kat);
-        wynik.x = (g.cx + Math.sin(kat) * g.rx * d) * W;
-        wynik.y = (g.cy + Math.cos(kat) * g.ry * d) * H;
+        const xn = Math.sin(kat) * C.slonceTarcza.zasiegX;
+        // Wysokość horyzontu pod tym miejscem — z równania elipsy sylwetki.
+        const pod = 1 - Math.min(1, ((xn - g.cx) * (xn - g.cx)) / (g.rx * g.rx));
+        const yH = g.cy + g.ry * Math.sqrt(Math.max(0, pod));
+        wynik.x = xn * W;
+        wynik.y = (yH + Math.max(0, 1 - yH) * wzniesienie(kat)) * H;
         return wynik;
       };
       const poz = wKadrze(luk, _tor);
@@ -521,10 +544,12 @@ export class Doba {
       this.rdzenSlonca.position.set(poz.x, poz.y, -50);
       this.poswiata.position.set(poz.x, poz.y, -50.5);
       // Zachód zostaje złoty i widoczny aż tarcza schowa się za planetą.
-      this.rdzenSlonca.material.opacity = gladko(-0.36, -0.12, t) * (0.94 - 0.12 * dzien);
+      // Gaśnie dopiero GŁĘBOKO pod horyzontem — do tego czasu tarczę
+      // zasłania sama planeta, a nie przezroczystość.
+      this.rdzenSlonca.material.opacity = gladko(-0.52, -0.2, t) * (0.94 - 0.12 * dzien);
       this.rdzenSlonca.material.color.set(0xffeb79).lerp(_b.set(C.slonceTarcza.rdzen), dzien);
       this.rdzenSlonca.scale.setScalar(C.slonceTarcza.wielkosc * (1.0 + 0.18 * zorza));
-      this.poswiata.material.opacity = Math.max(dzien * 0.48, zorza * 0.46) * gladko(-0.42, -0.16, t);
+      this.poswiata.material.opacity = Math.max(dzien * 0.48, zorza * 0.46) * gladko(-0.58, -0.24, t);
       this.poswiata.material.color.copy(_a.set(C.slonceTarcza.poswiataZorza))
         .lerp(_b.set(C.slonceTarcza.poswiataDzien), dzien);
       this.poswiata.scale.setScalar(C.slonceTarcza.wielkosc * (2.7 + C.slonceTarcza.rozmycieZorzy * zorza));
