@@ -214,7 +214,10 @@ export class Aplikacja {
     this.renderer.setPixelRatio(Math.min(devicePixelRatio || 1, DOTYK ? 1.5 : 2));
     this.renderer.outputColorSpace = SRGBColorSpace;
     this.renderer.toneMapping = ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.25;
+    // ACES odbarwia jasne końce: przy wysokiej ekspozycji zielone facetki
+    // blakną w biel i kula czyta się jak szlifowany metal. W2 schodzi na 1,16
+    // (`swiat.ekspozycja`), pierwszy świat zostaje na dotychczasowych 1,25.
+    this.renderer.toneMappingExposure = this.mapa.ekspozycja;
 
     this.scene = new Scene();
     this.scene.background = new Color(PALETA.night);

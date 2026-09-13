@@ -133,6 +133,10 @@ export function wczytajMape() {
     // czego omijać — a na leżącym telefonie to od razu większy lisek.
     // Domyślnie `true`, żeby pierwszy świat nic nie zauważył.
     dolnyDok: M.swiat?.dolnyDok !== false,
+    // Ekspozycja mapowania tonalnego (ACES). Wyżej = jaśniej, ale jasne
+    // powierzchnie szybciej blakną w biel i tracą nasycenie — matowa,
+    // kredowa zieleń potrzebuje niższej. Brak wpisu = 1,25 jak dotąd.
+    ekspozycja: Number.isFinite(M.swiat?.ekspozycja) ? M.swiat.ekspozycja : 1.25,
     // Gdzie kamera patrzy względem wierzchołka kuli, na ekranie PIONOWYM.
     // Ujemne podnosi planetę w kadrze, dodatnie ją spuszcza. Brak wpisu =
     // wartość domyślna silnika (`KAMERA_PODNIESIENIE` w app.js).

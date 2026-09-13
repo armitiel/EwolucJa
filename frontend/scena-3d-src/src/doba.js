@@ -99,18 +99,30 @@ export const DOBA = {
   // Mnożnikiem nie da się rozjaśnić, a nocna trawa z concept artu jest
   // morska i świecąca — dlatego noc idzie emisją, a nie przyciemnianiem.
   ziemia: {
-    dzien: 0xf5ffe6, zorza: 0xffd6aa, noc: 0x719bac,
+    dzien: 0xf0f7e2, zorza: 0xffd6aa, noc: 0x719bac,
     emisjaNoc: 0x123c4b, emisjaZorza: 0x554728,
   },
-  slonce: { dzien: 0xfff0cf, zorza: 0xffb35e, moc: 1.8 },
-  wypelnienie: { dzien: 0xfff2df, noc: 0x91bde3, mocDzien: 0.7, mocNoc: 0.8 },
+  /**
+   * KREDOWO, NIE METALICZNIE. Materiał terenu to Lambert — bez odbić — ale
+   * przy mocy 1,8 facetka zwrócona do słońca dostawała w sumie 3,85 jednostki
+   * światła, czyli głęboko w zakres, gdzie ACES ściska kanały i zieleń blaknie
+   * w bladą biel. Zacienione ściany zostawały nasycone, więc przez kulę szedł
+   * gradient nasycenia sprzężony z jasnością — a to jest dokładnie ten sygnał,
+   * po którym oko czyta „metal". Niższe moce trzymają jasne facetki poniżej
+   * progu blaknięcia: zieleń zostaje zielenią, forma zostaje.
+   */
+  slonce: { dzien: 0xfff0cf, zorza: 0xffb35e, moc: 1.45 },
+  wypelnienie: { dzien: 0xfff2df, noc: 0x91bde3, mocDzien: 0.66, mocNoc: 0.8 },
   hemisfera: {
-    goraDzien: 0xd8e4ff, dolDzien: 0x55763f,
+    // Góra prawie neutralna, nie błękitna. Zimne niebo na jednych ścianach
+    // i ciepłe słońce na sąsiednich dawało rozjazd temperatury barwowej
+    // między facetkami — drugi po blaknięciu sygnał metalu.
+    goraDzien: 0xe8ecee, dolDzien: 0x55763f,
     goraNoc: 0x75a9c9, dolNoc: 0x244455,
     zorzaGora: 0xffb070,
-    mocDzien: 1.05, mocNoc: 0.78,
+    mocDzien: 1, mocNoc: 0.78,
   },
-  ambient: { dzien: 0x8090c0, noc: 0x688cba, mocDzien: 0.3, mocNoc: 0.38 },
+  ambient: { dzien: 0x9ba4b4, noc: 0x688cba, mocDzien: 0.28, mocNoc: 0.38 },
   // Chmury: mnożnik barwy + odrobina emisji, żeby nocą nie znikały w czerni.
   chmury: { dzien: 0xffffff, zorza: 0xffc3a3, noc: 0x7895bd, emisjaNoc: 0x233b62 },
   gwiazdy: { krycie: 0.85 },
