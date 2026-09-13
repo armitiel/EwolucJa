@@ -189,7 +189,13 @@ Jeśli to nie zadziała: uruchom <code>npm run dev</code> i wejdź na
   function odpal() {
     var s = document.createElement('script');
     s.type = 'module';
-    s.src = kat + 'scena3d.js';
+    // ZNACZNIK CZASU, a nie staly adres. `public/scena-3d/scena3d.js` nie ma
+    // hasha w nazwie, wiec przegladarka trzyma go w cache az do wygasniecia -
+    // i po przebudowie sceny widzisz STARY bundle, czasem sprzed kilku
+    // poprawek. W aplikacji Reacta rozwiazuje to `WERSJA_SCENY`, ale ta strona
+    // jest statyczna i nie ma skad go wziac. To jest harness do ogladania
+    // sceny, wiec wolimy pobrac plik za kazdym razem niz debugowac widmo.
+    s.src = kat + 'scena3d.js?v=' + Date.now();
     s.onerror = function () { document.getElementById('scena3d-info').style.display = 'grid'; };
     document.head.appendChild(s);
   }
