@@ -96,9 +96,12 @@ const NIEBO_NAD_BOHATEREM_POZIOM = 0.5;
 const PION_EKRANU = 0.596;
 /** Punkt, na który patrzy kamera, względem wierzchołka kuli (jednostki mapy).
  *  Dodatnie = kamera patrzy wyżej, więc planeta zjeżdża w dół ekranu;
- *  ujemne = planeta idzie do góry. -2: cała kula w kadrze, lisek trochę
- *  powyżej środka, dół planety tuż nad paskiem HUD. */
-const KAMERA_PODNIESIENIE = -2;
+ *  ujemne = planeta idzie do góry. Liczby są w PROMIENIACH PLANETY, nie
+ *  w jednostkach mapy — inaczej przy zmianie `swiat.promienKuli` kadr się
+ *  rozjeżdża: przy mniejszej kuli ten sam offset spycha liska pod krawędź.
+ *  -0,182 (czyli -2 przy kuli o promieniu 11): cała kula w kadrze, lisek
+ *  trochę powyżej środka, dół planety tuż nad paskiem HUD. */
+const KAMERA_PODNIESIENIE = -0.182;
 /**
  * To samo dla ekranu POZIOMEGO. Kadr jest wtedy niski i szeroki: gdyby lisek
  * stał tam, gdzie w pionie, na niebo nad nim nie zostaje miejsca i ogranicznik
@@ -106,13 +109,13 @@ const KAMERA_PODNIESIENIE = -2;
  * więc niżej w kadrze (kamera patrzy wyżej); to samo niebo mieści się wtedy
  * w dużo niższym kadrze, a na liska zostaje półtora raza więcej pikseli.
  */
-const KAMERA_PODNIESIENIE_POZIOM = 1.4;
+const KAMERA_PODNIESIENIE_POZIOM = 0.127;
 /**
  * To samo dla świata BEZ dolnego doku (`swiat.dolnyDok: false`). Nie ma czego
  * omijać na dole ekranu, więc lisek schodzi niżej, a na niebo zostaje tyle
  * samo miejsca w jeszcze niższym kadrze — czyli jeszcze większy bohater.
  */
-const KAMERA_PODNIESIENIE_POZIOM_BEZ_DOKU = 2.4;
+const KAMERA_PODNIESIENIE_POZIOM_BEZ_DOKU = 0.218;
 
 const clamp = (s, e, t) => Math.max(e, Math.min(t, s));
 const dogon = (s, e, t, n) => s + (e - s) * (1 - Math.exp(-t * n));
@@ -232,7 +235,8 @@ export class Aplikacja {
     this.camera = new OrthographicCamera(-1, 1, 1, -1, 0.1, 160);
     this.camDir = new Vector3(4.2, 11.5, 8).normalize().multiplyScalar(26);
     // Kamera patrzy na wierzchołek kuli — tam planeta „przynosi" bohatera.
-    this.camTarget = new Vector3(0, this.planeta.R + (Number(globalThis.SCENA3D_KAMERA_PODNIESIENIE) || KAMERA_PODNIESIENIE), 0);
+    // Wartość startowa; `resize()` i tak ją przelicza pod orientację ekranu.
+    this.camTarget = new Vector3(0, this.planeta.R * (1 + KAMERA_PODNIESIENIE), 0);
     this.camPos = new Vector3();
     this.gwiazdy = gwiazdy(this.camDir);
     this.scene.add(this.gwiazdy);
@@ -1815,10 +1819,10 @@ export class Aplikacja {
     const podniesienie = Number(globalThis.SCENA3D_KAMERA_PODNIESIENIE)
       || (poziomo
         ? (Number(globalThis.SCENA3D_KAMERA_PODNIESIENIE_POZIOM)
-          || (this.mapa?.dolnyDok === false
+          || R * (this.mapa?.dolnyDok === false
             ? KAMERA_PODNIESIENIE_POZIOM_BEZ_DOKU
             : KAMERA_PODNIESIENIE_POZIOM))
-        : KAMERA_PODNIESIENIE);
+        : (this.mapa?.kameraPodniesienie ?? R * KAMERA_PODNIESIENIE));
     if (this.camTarget && Math.abs(this.camTarget.y - (R + podniesienie)) > 1e-6) {
       this.camTarget.y = R + podniesienie;
       if (this.camPos) {

@@ -23,7 +23,7 @@ import { idPostaci, postacWybranaJawnie } from "../utils/postac.js";
 // UWAGA: numer ma tylko ROSNĄĆ. Numery 3–13 zostały już wydane przeglądarce
 // z inną zawartością modułu (kolejne wersje znaków, gwiazdki, tempo ruchu),
 // więc cofnięcie go serwuje z cache starą scenę zamiast aktualnej.
-export const WERSJA_SCENY = "55";  // PLANETA: swiat bez dolnego doku (swiat.dolnyDok) i nizszy kadr w poziomie
+export const WERSJA_SCENY = "56";  // PLANETA: mniejsza kula w W2, podniesienia kamery liczone w promieniach
 const ZASOBY = "/scena-3d/assets/";
 
 /**

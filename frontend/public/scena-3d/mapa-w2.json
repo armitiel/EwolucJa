@@ -14,7 +14,8 @@
     "terenKanciasty": true,
     "chmury": 4,
     "zasiew": true,
-    "promienKuli": 11.0,
+    "promienKuli": 8.5,
+    "kameraPodniesienie": -3,
     "zoom": 1.15,
     "dolnyDok": false
   },

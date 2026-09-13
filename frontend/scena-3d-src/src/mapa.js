@@ -133,6 +133,11 @@ export function wczytajMape() {
     // czego omijać — a na leżącym telefonie to od razu większy lisek.
     // Domyślnie `true`, żeby pierwszy świat nic nie zauważył.
     dolnyDok: M.swiat?.dolnyDok !== false,
+    // Gdzie kamera patrzy względem wierzchołka kuli, na ekranie PIONOWYM.
+    // Ujemne podnosi planetę w kadrze, dodatnie ją spuszcza. Brak wpisu =
+    // wartość domyślna silnika (`KAMERA_PODNIESIENIE` w app.js).
+    kameraPodniesienie: Number.isFinite(M.swiat?.kameraPodniesienie)
+      ? M.swiat.kameraPodniesienie : null,
     zasiew: !!M.swiat?.zasiew,
     terenBarwy: M.swiat?.terenBarwy || null,
     doba: {
