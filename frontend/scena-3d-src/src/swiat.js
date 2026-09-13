@@ -9,7 +9,7 @@
  */
 import {
   Group, Mesh, MeshLambertMaterial, MeshBasicMaterial, CanvasTexture, SRGBColorSpace,
-  PlaneGeometry, CylinderGeometry, ConeGeometry, IcosahedronGeometry, BoxGeometry,
+  PlaneGeometry, CylinderGeometry, ConeGeometry, IcosahedronGeometry, DodecahedronGeometry, BoxGeometry,
   SphereGeometry, PointLight, Sprite, SpriteMaterial, AdditiveBlending, InstancedMesh,
   Vector2, Vector3, Euler, Quaternion, BufferAttribute, RepeatWrapping, DoubleSide,
   BufferGeometry, Float32BufferAttribute, MultiplyBlending, Matrix4, Color, Raycaster,
@@ -720,39 +720,91 @@ export function kamiennyPak(s = 1) {
 
 /* ── ELEMENTY ŚWIATA ────────────────────────────────────────────────────────── */
 
+// Wspólne materiały utrzymują jedną paletę na całej planecie i ograniczają
+// przełączanie materiałów przy większej liczbie dekoracji.
+const MAT_NATURA = {
+  pien: matKanciasty(0x765331), pienJasny: matKanciasty(0x91673b),
+  igly: matKanciasty(0x3e793d), iglyCiemne: matKanciasty(0x2f6536),
+  lisc: matKanciasty(0x579442), liscJasny: matKanciasty(0x72aa4e),
+  skala: matKanciasty(0x918b78), skalaJasna: matKanciasty(0xaaa38d),
+  skalaCiemna: matKanciasty(0x716c60), mech: matKanciasty(0x668b45),
+};
+
 export function sosna(s = 1) {
   const e = new Group();
-  e.add(mesh(new CylinderGeometry(0.12 * s, 0.18 * s, 0.7 * s, 6), matKanciasty(KOLORY.trunk), [0, 0.35 * s, 0]));
-  [[1.05, 0.95], [0.82, 1.6], [0.58, 2.2]].forEach(([n, i], r) => {
-    e.add(mesh(new ConeGeometry(n * s, 1 * s, 7), matKanciasty(r % 2 ? KOLORY.pineDark : KOLORY.pine), [0, i * s, 0]));
+  e.name = "sosna-low-poly";
+  e.add(mesh(new CylinderGeometry(.105*s,.19*s,.88*s,6),MAT_NATURA.pien,[0,.44*s,0],[0,.18,0]));
+  [[1.02,.98],[.84,1.48],[.65,1.94],[.43,2.36]].forEach(([r,y],i) => {
+    const p=mesh(new ConeGeometry(r*s,.92*s,7),i%2?MAT_NATURA.iglyCiemne:MAT_NATURA.igly,
+      [0,y*s,0],[0,.18+i*.48,(i%2?-.025:.025)]);
+    p.scale.set(1,i===0?.82:.94,.88+(i%2)*.08);
+    e.add(p);
   });
   return e;
 }
 
 export function drzewoLisciaste(s = 1) {
   const e = new Group();
-  e.add(mesh(new CylinderGeometry(0.14 * s, 0.2 * s, 1.1 * s, 6), matKanciasty(KOLORY.trunk), [0, 0.55 * s, 0]));
-  e.add(mesh(new IcosahedronGeometry(1 * s, 1), matKanciasty(KOLORY.leafTree), [0, 1.7 * s, 0]));
-  e.add(mesh(new IcosahedronGeometry(0.5 * s, 1), matKanciasty(8371806), [0.5 * s, 1.3 * s, 0.25 * s]));
+  e.name = "drzewo-lisciaste-low-poly";
+  e.add(mesh(new CylinderGeometry(.13*s,.22*s,1.25*s,6),MAT_NATURA.pien,[0,.58*s,0],[0,.16,0]));
+  e.add(mesh(new CylinderGeometry(.065*s,.09*s,.66*s,5),MAT_NATURA.pienJasny,
+    [-.17*s,1.08*s,.02*s],[0,0,.58]));
+  e.add(mesh(new CylinderGeometry(.06*s,.085*s,.58*s,5),MAT_NATURA.pien,
+    [.19*s,1.12*s,.02*s],[.12,0,-.62]));
+  const korony = [
+    [-.45,1.66,.02,.66,.58,.62,0], [.38,1.70,.08,.70,.60,.64,1],
+    [-.05,2.12,-.02,.72,.68,.66,0], [.04,1.63,.38,.57,.52,.56,1],
+    [.62,1.48,-.04,.43,.40,.44,0],
+  ];
+  for (const [x,y,z,sx,sy,sz,jasna] of korony) {
+    const p=mesh(new IcosahedronGeometry(1,1),jasna?MAT_NATURA.liscJasny:MAT_NATURA.lisc,
+      [x*s,y*s,z*s],[.1+x*.2,.35+y*.13,z*.3]);
+    p.scale.set(sx*s,sy*s,sz*s);
+    e.add(p);
+  }
   return e;
 }
 
-/** Głaz z trzech ikosaedrów; `maly` = sam kamyk. */
-export function glaz(s = 1, maly = false) {
+/** Trzy układy skał; `maly` tworzy pojedynczy kamień satelitarny. */
+export function glaz(s = 1, maly = false, wariant = 0) {
   const e = new Group();
-  if (maly) {
-    const p = mesh(new IcosahedronGeometry(0.5 * s, 0), matKanciasty(KOLORY.rock), [0, 0.2 * s, 0], [0.6, 0.9, 0.3]);
-    p.scale.set(1.1, 0.72, 1);
+  wariant = ((wariant|0)%3+3)%3;
+  e.name = maly ? "kamyk-low-poly" : "skaly-low-poly";
+  e.userData.wariantSkaly = wariant;
+  const bryla = (r, detal, mat, pos, rot, skala) => {
+    const p=mesh(new DodecahedronGeometry(r*s,detal),mat,pos.map(v=>v*s),rot);
+    p.scale.set(...skala);
     e.add(p);
+    return p;
+  };
+  if (maly) {
+    const ksztalty = [[1.22,.55,.88],[.96,.72,1.18],[1.34,.48,.78]];
+    bryla(.48,wariant===1?1:0,wariant===2?MAT_NATURA.skalaCiemna:MAT_NATURA.skala,
+      [0,.16,0],[.45+wariant*.22,.9-wariant*.18,.2+wariant*.3],ksztalty[wariant]);
     return e;
   }
-  const a = mesh(new IcosahedronGeometry(0.5 * s, 0), matKanciasty(KOLORY.rock), [0, 0.34 * s, 0], [0.28, 0.8, 0.1]);
-  a.scale.set(1, 1.42, 0.96);
-  const b = mesh(new IcosahedronGeometry(0.33 * s, 0), matKanciasty(KOLORY.rock), [0.26 * s, 0.19 * s, 0.14 * s], [0.9, 0.35, 0.5]);
-  b.scale.set(1.12, 0.9, 1.05);
-  const c = mesh(new IcosahedronGeometry(0.2 * s, 0), matKanciasty(KOLORY.rockDark), [-0.34 * s, 0.12 * s, 0.26 * s], [0.5, 0.2, 0.4]);
-  c.scale.set(1.15, 0.8, 1);
-  e.add(a, b, c);
+  if (wariant===0) {
+    // Łamany monolit: niewiele elementów, duże trójkątne płaszczyzny.
+    bryla(.67,0,MAT_NATURA.skala,[0,.40,0],[.20,.73,.08],[1.12,.92,.86]);
+    bryla(.39,0,MAT_NATURA.skalaJasna,[.48,.22,.12],[.78,.18,.46],[1.06,.66,.92]);
+    bryla(.27,1,MAT_NATURA.skalaCiemna,[-.46,.16,.25],[.42,.62,.16],[1.18,.58,.88]);
+    bryla(.25,1,MAT_NATURA.mech,[-.08,.73,-.02],[0,.4,0],[1.25,.13,.82]);
+  } else if (wariant===1) {
+    // Niskie płyty: szeroki ciężar przy ziemi i wyraźne uskoki wysokości.
+    bryla(.60,0,MAT_NATURA.skalaCiemna,[0,.27,0],[.12,.42,.06],[1.34,.58,1.02]);
+    bryla(.46,0,MAT_NATURA.skalaJasna,[-.15,.50,.01],[.05,.86,-.10],[1.12,.48,.84]);
+    bryla(.34,1,MAT_NATURA.skala,[.50,.18,.19],[.64,.28,.52],[1.20,.55,.95]);
+    bryla(.23,0,MAT_NATURA.skalaJasna,[-.56,.13,-.10],[.32,.98,.16],[1.10,.48,.80]);
+    bryla(.28,1,MAT_NATURA.mech,[-.13,.69,.01],[0,.2,0],[1.38,.10,.72]);
+  } else {
+    // Rumowisko: więcej mniejszych brył, nieregularny obrys i gęsty środek.
+    bryla(.51,0,MAT_NATURA.skala,[0,.31,.02],[.30,.74,.14],[1.08,.78,.96]);
+    bryla(.42,0,MAT_NATURA.skalaJasna,[.44,.25,.08],[.78,.18,.54],[1.08,.69,.90]);
+    bryla(.37,0,MAT_NATURA.skalaCiemna,[-.43,.21,.17],[.42,.91,.22],[1.18,.62,.86]);
+    bryla(.29,1,MAT_NATURA.skala,[.18,.17,-.42],[.28,.36,.68],[1.24,.55,.82]);
+    bryla(.24,0,MAT_NATURA.skalaJasna,[-.19,.14,-.40],[.72,.52,.18],[1.04,.58,.94]);
+    bryla(.24,1,MAT_NATURA.mech,[.01,.60,-.02],[0,.4,0],[1.18,.12,.74]);
+  }
   return e;
 }
 
@@ -865,7 +917,12 @@ export function plamaCienia(s = 1, e = 0.35, rdzen = 0, mnozenie = false) {
 
 /* ── KWIATY I TRAWA (InstancedMesh) ─────────────────────────────────────────── */
 
-function zbudujKwiaty(DEF, planeta, ziemia) {
+/**
+ * Mierzy faktyczną wysokość fasetowanego terenu w układzie mapy. Dekoracje
+ * nie mogą bazować wyłącznie na idealnym promieniu planety, bo na horyzoncie
+ * nawet mała różnica odsłania szczelinę pod pniem lub kamieniem.
+ */
+function utworzMiernikGruntu(planeta, ziemia) {
   // Probe in planet-local space, so subsequent globe rotations cannot affect rooting.
   const podloze = new Mesh(ziemia.geometry, ziemia.material);
   podloze.updateMatrixWorld(true);
@@ -875,12 +932,15 @@ function zbudujKwiaty(DEF, planeta, ziemia) {
   const normalna = new Vector3();
   const poczatek = new Vector3();
   const kierunek = new Vector3();
-  function wysokoscGruntu(x, z) {
+  return function wysokoscGruntu(x, z) {
     planeta.normalna(x, z, normalna);
     promien.set(poczatek.copy(normalna).multiplyScalar(zasieg), kierunek.copy(normalna).negate());
     const hit = promien.intersectObject(podloze, false)[0];
     return (hit ? hit.point.dot(normalna) - planeta.R : 0) - .008;
-  }
+  };
+}
+
+function zbudujKwiaty(DEF, planeta, ziemia, wysokoscGruntu = utworzMiernikGruntu(planeta, ziemia)) {
   const REZERWA = 256; // Fixed capacity for the living trail; no per-flower draw calls.
   const PALETA_K = [
     { p: 0xfdf6e6, s: 0xf2c14a }, { p: 0xf7c948, s: 0xe08a1e }, { p: 0xf08fb4, s: 0xf6d76b },
@@ -1198,11 +1258,15 @@ function zbudujKwiaty(DEF, planeta, ziemia) {
   const POP = [[0,0,0],[.14,1.12,.25],[.38,.82,1.35],
     [.57,1.12,.90],[.75,.97,1.06],[1,1,1]];
   let zasiane = 0, kolejny = 0;
+  // Bufor na normalną sąsiada. NIE sięgaj po `normalna` z
+  // `utworzMiernikGruntu` — to zmienna lokalna tamtej funkcji i poza nią
+  // jest niezdefiniowana; wyjątek leciał aż z pętli renderowania i wieszał scenę.
+  const nSasiad = new Vector3();
   function posadz(x, z, bezAnimacji = false) {
     if (!Number.isFinite(x) || !Number.isFinite(z)) return false;
     const n = planeta.normalna(x, z);
     // Avoid piling up flowers on a path the fox has already walked.
-    if (lista.some(k => planeta.normalna(k.x, k.z, normalna).dot(n) > Math.cos(.32 / planeta.R))) return false;
+    if (lista.some(k => planeta.normalna(k.x, k.z, nSasiad).dot(n) > Math.cos(.32 / planeta.R))) return false;
     const seed = (kolejny + 1) * 7919;
     // Jeden strumień losowy na roślinę: rodzaj i wielkość z tego samego
     // ziarna. Wcześniej wielkość szła z `kolejny % 4`, więc co czwarty pęk
@@ -1224,7 +1288,7 @@ function zbudujKwiaty(DEF, planeta, ziemia) {
     } else {
       // Reuse only old trail plants well away from the current player area.
       k = lista.slice(DEF.length).find(k => !rosnace.has(k) &&
-        planeta.normalna(k.x,k.z,normalna).dot(n) < Math.cos(9/planeta.R));
+        planeta.normalna(k.x,k.z,nSasiad).dot(n) < Math.cos(9/planeta.R));
       if (!k) return false;
       k.x=x; k.z=z;
       k.typ=typ;
@@ -1284,6 +1348,7 @@ export function zbudujSwiat(mapa, planeta) {
 
   const ziemia = zbudujTeren(mapa, planeta);
   s.add(ziemia);
+  const wysokoscGruntu = utworzMiernikGruntu(planeta, ziemia);
   const sciezki = zbudujSciezke(mapa, planeta);
   s.add(sciezki);
   const nurt = zbudujNurt(mapa, planeta);
@@ -1324,33 +1389,42 @@ export function zbudujSwiat(mapa, planeta) {
     // Drzewo dostaje własną grupę-kotwicę na kuli; gibanie obraca WEWNĘTRZNĄ
     // grupę `l`, więc ramka kuli i wychył nie mieszają się ze sobą.
     const kotwica = new Group();
-    planeta.ustaw(kotwica, c, h, 0, obrot ?? 0);
+    const grunt = wysokoscGruntu(c, h);
+    // Pień wchodzi kilka centymetrów w teren, więc na stromym trójkącie nie
+    // odsłoni się jego płaska dolna ścianka.
+    planeta.ustaw(kotwica, c, h, grunt - .10 * (skala || 1), obrot ?? 0);
     kotwica.add(l);
     s.add(kotwica);
     blockers.push({ x: c, z: h, r: 0.75, drzewo: l, skalaDrzewa: skala || 1 });
     const u = plamaCienia(2.2, 0.3);
-    planeta.ustaw(u, c, h, 0, 0);
+    planeta.ustaw(u, c, h, grunt + .006, 0);
     s.add(u);
   }
 
   const glazy = mapa.glazy
-    ? mapa.glazy.map((g) => [g.pos[0], g.pos[1], g.skala ?? 1, g.obrot])
+    ? mapa.glazy.map((g) => [g.pos[0], g.pos[1], g.skala ?? 1, g.obrot, g.wariant ?? 0])
     : [[-1.8, 6.6, 1.1], [3.1, 3.4, 0.8], [-2.6, -4.6, 1], [1.9, -5.4, 0.7], [-5.6, 4, 0.9]];
-  for (const [l, c, h, obrot] of glazy) {
-    const u = glaz(h);
-    planeta.ustaw(u, l, c, 0, obrot != null ? obrot : l * 2.1);
+  const rozsypane = [
+    [[1.02,.58,.30,1.3],[-.72,.92,.25,2.6]],
+    [[.88,-.46,.28,.5],[-.82,.68,.24,2.2],[.52,.96,.22,1.4]],
+    [[1.02,.52,.30,1.3],[-.80,.90,.25,2.6],[.34,-.92,.27,.4],[-1.04,-.30,.20,1.8],[.86,-.58,.22,2.9]],
+  ];
+  for (const [l, c, h, obrot, wariant=0] of glazy) {
+    const u = glaz(h,false,wariant);
+    planeta.ustaw(u, l, c, wysokoscGruntu(l, c) - .08 * h, obrot != null ? obrot : l * 2.1);
     s.add(u);
     blockers.push({ x: l, z: c, r: 0.55 * h });
-    // kamyki wokół głazu — detal, nie kolizja
-    for (const [dx, dz, ds, dr] of [[1.05, 0.62, 0.34, 1.3], [-0.78, 1.02, 0.26, 2.6], [0.42, -0.95, 0.3, 0.4]]) {
-      const p = glaz(h * ds, true);
-      planeta.ustaw(p, l + dx * h, c + dz * h, 0, l + dr);
+    // Gęstość rozsypanych kamieni jest częścią wariantu; nie wpływają na kolizję.
+    for (const [i,[dx,dz,ds,dr]] of rozsypane[((wariant|0)%3+3)%3].entries()) {
+      const p = glaz(h*ds,true,wariant+i);
+      const px = l + dx * h, pz = c + dz * h;
+      planeta.ustaw(p, px, pz, wysokoscGruntu(px, pz) - .06 * h * ds, l + dr);
       s.add(p);
     }
   }
 
-  const kwiaty = zbudujKwiaty(mapa.kwiaty, planeta, ziemia);
+  const kwiaty = zbudujKwiaty(mapa.kwiaty, planeta, ziemia, wysokoscGruntu);
   if (kwiaty) kwiaty.meshe.forEach((m) => s.add(m));
 
-  return { group: s, ziemia, sciezki, lantern: n, gate: r, bridge: t, obrotMostu, blockers, kwiaty, nurtTik: nurt.tik };
+  return { group: s, ziemia, sciezki, lantern: n, gate: r, bridge: t, obrotMostu, blockers, kwiaty, nurtTik: nurt.tik, wysokoscGruntu };
 }

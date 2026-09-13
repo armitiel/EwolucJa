@@ -23,7 +23,7 @@ import { idPostaci, postacWybranaJawnie } from "../utils/postac.js";
 // UWAGA: numer ma tylko ROSNĄĆ. Numery 3–13 zostały już wydane przeglądarce
 // z inną zawartością modułu (kolejne wersje znaków, gwiazdki, tempo ruchu),
 // więc cofnięcie go serwuje z cache starą scenę zamiast aktualnej.
-export const WERSJA_SCENY = "69";  // Chmury nachylone wzgledem srodka planety; przebudowa z pelnym zrodlem (shader terenu wrocil)
+export const WERSJA_SCENY = "69";  // zasiew kwiatów za liskiem nie wywala już pętli renderowania (ReferenceError: normalna)
 const ZASOBY = "/scena-3d/assets/";
 
 /**

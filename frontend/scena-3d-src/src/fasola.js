@@ -200,8 +200,9 @@ export class Fasola {
    * @param {object} def wpis `fasola` z mapy
    * @param {Planeta} planeta
    * @param {(plik: string) => Promise<{scene: Group}>} loadGLB loader sceny
+   * @param {(x: number, z: number) => number} [wysokoscGruntu]
    */
-  constructor(def, planeta, loadGLB) {
+  constructor(def, planeta, loadGLB, wysokoscGruntu) {
     this.def = def;
     this.planeta = planeta;
     this.etap = 0;
@@ -210,7 +211,9 @@ export class Fasola {
     this.n = planeta.normalna(def.pos[0], def.pos[1]);
     this.root = new Group();
     this.root.name = "fasola";
-    planeta.ustaw(this.root, def.pos[0], def.pos[1], 0, def.obrot ?? 0);
+    const grunt = wysokoscGruntu ? wysokoscGruntu(def.pos[0], def.pos[1]) : 0;
+    // Korzenie i kopczyk chowają punkt styku nawet na krawędzi trójkąta terenu.
+    planeta.ustaw(this.root, def.pos[0], def.pos[1], grunt - .055, def.obrot ?? 0);
     const domyslne = [0.45, 0.9, 1.9, 3.2, 5.5];
     this.etapy = (def.etapy || []).map((e, i) => ({ def: e, wysokosc: e.wysokosc ?? domyslne[i] ?? 1 }));
     if (!this.etapy.length) for (let i = 0; i < 5; i++) this.etapy.push({ def: {}, wysokosc: domyslne[i] });
@@ -227,7 +230,7 @@ export class Fasola {
     this.root.add(this.pnacze.group);
     // kopiec dobrany do grubości dojrzałej rośliny; przy ziarnie jest mały
     // i rośnie razem z pnączami (patrz `update`)
-    this.kopczyk = kopczyk(Math.max(0.45, this.pnacze.grubosc * 0.95));
+    this.kopczyk = kopczyk(Math.max(0.5, this.pnacze.grubosc * 1.3));
     this.kopczyk.scale.setScalar(0.4);
     this.root.add(this.kopczyk);
 

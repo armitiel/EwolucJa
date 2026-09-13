@@ -66,6 +66,12 @@ export const PNACZE = {
   /** Od jakiego stopnia wzrostu jedno pnącze zaczyna się spłaszczać w ścieżkę. */
   uSciezki: 0.55,
   /**
+   * Od jakiej wysokości (`t`) wszystko zaczyna zbiegać się w szczyt: promień
+   * splotu, grubość pnączy, szerokość wstęgi i wielkość ozdób. Na czubku
+   * zostaje 6 % — pnącza schodzą do szpica, zamiast urywać się płasko.
+   */
+  szczyt: 0.68,
+  /**
    * Skok ścieżki: pionowy odstęp między zwojami, liczony w szerokościach wstęgi.
    * Za mało — zwoje zasłaniają splot i roślina wygląda jak wiertło; za dużo —
    * podejście robi się strome. 2,3 to kompromis (nachylenie ~18°).
@@ -79,11 +85,13 @@ export const PNACZE = {
  * progi dobrane pod etapy z mapy (u ≈ 0 / 0,11 / 0,27 / 0,56 / 1).
  */
 const SZABLON = [
-  { g: 1.00, t0: 0.00, start: 0.00, om: 1.00, zwezenie: 0.42 },
-  { g: 0.94, t0: 0.00, start: 0.16, om: 1.00, zwezenie: 0.38, sciezkowa: true },
-  { g: 0.88, t0: 0.04, start: 0.30, om: 1.09, zwezenie: 0.44 },
-  { g: 0.82, t0: 0.11, start: 0.45, om: 0.91, zwezenie: 0.44 },
-  { g: 0.60, t0: 0.20, start: 0.62, om: 1.18, zwezenie: 0.52 },
+  // Każda rura zaczyna się pod ziemią. Dzięki różnym głębokościom nasady
+  // nie tworzą jednego równego pierścienia, a otwarte końce są zawsze ukryte.
+  { g: 1.00, t0: -0.030, start: 0.00, om: 1.00, zwezenie: 0.42 },
+  { g: 0.94, t0: -0.042, start: 0.16, om: 1.00, zwezenie: 0.38, sciezkowa: true },
+  { g: 0.88, t0: -0.052, start: 0.30, om: 1.09, zwezenie: 0.44 },
+  { g: 0.82, t0: -0.038, start: 0.45, om: 0.91, zwezenie: 0.44 },
+  { g: 0.60, t0: -0.060, start: 0.62, om: 1.18, zwezenie: 0.52 },
 ];
 
 const _v = new Vector3(), _w = new Vector3(), _o = new Vector3();
@@ -173,6 +181,7 @@ export class Pnacze {
     this.szerokoscSciezki = o.szerokoscSciezki ?? Math.max(0.7, 0.10 * this.H);
     this.u = 0;
     this.krok = -1;
+    this.dojrzalosc = 0;
     this.ozdobyWidoczne = true;
 
     const r = los(o.ziarno ?? 1);
@@ -216,28 +225,36 @@ export class Pnacze {
 
   /** Wspólna oś splotu: pion z powolnym wychyleniem (roślina rośnie ku światłu). */
   os(t, cel = new Vector3()) {
-    const w = 0.075 * this.H;
-    const n = wygladz(zakres(t / 0.12));   // przy ziemi pień stoi prosto
+    // Amplituda rośnie z dojrzałością: kiełek stoi prosto, gigant się wygina.
+    const w = 0.13 * this.H * (0.3 + 0.7 * this.dojrzalosc);
+    const n = wygladz(zakres(t / 0.12));   // przy ziemi pień stoi prosto w kopczyku
     return cel.set(
-      w * (Math.sin(t * 2.3 + this.faza[0]) + 0.45 * Math.sin(t * 5.3 + this.faza[2])) * n * t,
+      w * (Math.sin(t * 2.3 + this.faza[0]) + 0.5 * Math.sin(t * 5.3 + this.faza[2]) + 0.4 * t) * n * t,
       t * this.H,
-      w * (Math.cos(t * 1.9 + this.faza[1]) + 0.45 * Math.cos(t * 4.1 + this.faza[2])) * n * t,
+      w * (Math.cos(t * 1.9 + this.faza[1]) + 0.5 * Math.cos(t * 4.1 + this.faza[2]) - 0.32 * t) * n * t,
     );
+  }
+
+  /** Zbieżność ku czubkowi — jedna funkcja dla całej rośliny (patrz `PNACZE.szczyt`). */
+  stozek(t) {
+    return 1 - 0.94 * wygladz(zakres((t - PNACZE.szczyt) / (1 - PNACZE.szczyt)));
   }
 
   /** Promień pierścienia splotu na wysokości `t` (rośnie z dojrzałością). */
   promienSplotu(t) {
     return this.rSplotu * (1 - 0.34 * t) * (1 + 0.17 * Math.sin(t * 4.3 + this.faza[1]))
-      * (0.62 + 0.38 * this.dojrzalosc);
+      * this.stozek(t) * (0.62 + 0.38 * this.dojrzalosc);
   }
 
   /** Grubość pojedynczego pnącza. */
   promienPnacza(p, t) {
     const lok = zakres((t - p.t0) / Math.max(0.001, 1 - p.t0));
-    // cieńsze tuż przy nasadzie — pęd wychodzi z innej łodygi, nie z powietrza
-    const nasada = 0.45 + 0.55 * wygladz(zakres(lok / 0.08));
+    // Wszystkie pnącza mają osobny nabieg korzeniowy i wchodzą pod ziemię.
+    // Liczymy go od lokalnego początku rury, żeby boczne pędy także były
+    // szerokie przy gruncie, niezależnie od różnej głębokości `t0`.
+    const nasada = 1 + 0.85 * this.dojrzalosc * (1 - wygladz(zakres(lok / 0.12)));
     const falowanie = 1 + 0.13 * Math.sin(t * 6.1 + p.faza * 3);
-    return this.rBaza * p.g * (1 - p.zwezenie * t) * falowanie
+    return this.rBaza * p.g * (1 - p.zwezenie * t) * falowanie * this.stozek(t)
       * (0.15 + 0.85 * Math.pow(this.dojrzalosc, 0.8)) * nasada;
   }
 
@@ -299,7 +316,7 @@ export class Pnacze {
     let r = R * p.skalaR * (1 + 0.26 * Math.sin(t * Math.PI * 2 * this.obroty * 0.8 + p.faza * 2));
     if (p.sciezkowa) {
       const s = this.splaszczenie(p, t);
-      r += s * (this.szerokoscSciezki * 0.34 + R * 0.35);
+      r += s * (this.szerokoscSciezki * 0.34 * this.stozek(t) + R * 0.35);
     }
     return r;
   }
@@ -308,7 +325,7 @@ export class Pnacze {
   punkt(p, t, cel = new Vector3()) {
     const a = this.kat(p, t), r = this.promienOd(p, t);
     this.os(t, cel);
-    const sz = p.szum;
+    const sz = p.szum * this.stozek(t);
     cel.x += Math.cos(a) * r + sz * Math.sin(t * 3.1 + p.faza * 1.7);
     cel.z += Math.sin(a) * r + sz * Math.cos(t * 2.6 + p.faza * 2.4);
     return cel;
@@ -343,9 +360,10 @@ export class Pnacze {
     const r = this.promienPnacza(p, t);
     const s = this.splaszczenie(p, t);
     if (s <= 0) return { w: r, h: r };
+    const szer = this.szerokoscSciezki * this.stozek(t);
     return {
-      w: r * (1 - s) + this.szerokoscSciezki * 0.5 * s,
-      h: Math.max(r * (1 - 0.55 * s), this.szerokoscSciezki * 0.10 * s),
+      w: r * (1 - s) + szer * 0.5 * s,
+      h: Math.max(r * (1 - 0.55 * s), szer * 0.10 * s),
     };
   }
 
@@ -381,7 +399,13 @@ export class Pnacze {
       for (let k = 0; k < p.obwod; k++) {
         const a = j * p.obwod + k, b = (j + 1) * p.obwod + k;
         const c = (j + 1) * p.obwod + ((k + 1) % p.obwod), d = j * p.obwod + ((k + 1) % p.obwod);
-        idx.push(a, b, d, b, c, d);
+        // UWAGA: kolejność wierzchołków decyduje o tym, w którą stronę patrzą
+        // normalne. Odwrotna (a, b, d) wywraca całą rurę na lewą stronę:
+        // `computeVertexNormals` liczy normalne do środka, światło pada „od
+        // spodu", a przy `FrontSide` widać wnętrze rury zamiast powierzchni —
+        // roślina wygląda, jakby miała dziury. Sprawdzian w `test/probe`:
+        // iloczyn wektorowy krawędzi ma mieć dodatni rzut na kierunek od osi.
+        idx.push(a, d, b, b, d, c);
       }
     }
     const g = new BufferGeometry();
@@ -512,7 +536,10 @@ export class Pnacze {
       this.ozdoby.push({
         im: w.im, i, p: m.p, t,
         // strefy z briefu: przy ziemi mniej i mniejszych liści, ku górze drobniejsze
-        s: m.s ?? bazaLiscia * (1 - 0.42 * t) * (0.5 + 0.5 * wygladz(zakres(t / 0.16))) * (0.85 + r() * 0.35),
+        // ozdoby też maleją ku czubkowi (`stozek`), inaczej na szpicu sterczą
+        // liście większe od samego pnącza
+        s: (m.s ?? bazaLiscia * (1 - 0.42 * t) * (0.5 + 0.5 * wygladz(zakres(t / 0.16))) * (0.85 + r() * 0.35))
+          * (0.3 + 0.7 * this.stozek(t)),
         obrot: m.obrot ?? (n % 2 - 0.5) * 1.7 + (r() - 0.5) * 0.9,
         tilt: m.tilt ?? 0.22 + r() * 0.5,
         rol: m.rol ?? (n % 2 ? 1 : -1) * (0.34 + r() * 0.34),
@@ -533,7 +560,7 @@ export class Pnacze {
       const t = zakres(0.48 + (n / ileKwiatow) * 0.5 + (r() - 0.5) * 0.06, p.t0 + 0.02, 0.98);
       this.ozdoby.push({
         im: imK, i: n, p, t,
-        s: 1.2 + 0.16 * H, obrot: (r() - 0.5) * 2.4, tilt: 0.55 + r() * 0.6, wysun: 0.02,
+        s: (1.2 + 0.16 * H) * (0.3 + 0.7 * this.stozek(t)), obrot: (r() - 0.5) * 2.4, tilt: 0.55 + r() * 0.6, wysun: 0.02,
         poz: new Vector3(), kw: new Quaternion(), pop: -1,
       });
     }
@@ -551,7 +578,7 @@ export class Pnacze {
       const t = zakres(0.12 + (n / ileWasow) * 0.8 + (r() - 0.5) * 0.08, p.t0 + 0.02, 0.97);
       this.ozdoby.push({
         im: imW, i: n, p, t,
-        s: (0.8 + 0.16 * H) * (0.7 + r() * 0.6), obrot: (r() - 0.5) * 3, tilt: 0.2 + r() * 0.7, wysun: 0.01,
+        s: (0.8 + 0.16 * H) * (0.7 + r() * 0.6) * (0.3 + 0.7 * this.stozek(t)), obrot: (r() - 0.5) * 3, tilt: 0.2 + r() * 0.7, wysun: 0.01,
         poz: new Vector3(), kw: new Quaternion(), pop: -1,
       });
     }
@@ -599,7 +626,7 @@ export class Pnacze {
       const seg = Math.floor(p.front * p.N);
       p.mesh.geometry.setDrawRange(0, seg * p.obwod * 6);
       p.mesh.visible = seg > 0;
-      p.czubek.visible = p.front > 0.004 && p.front < 0.999;
+      p.czubek.visible = p.front > 0.004;   // także na końcu: domyka czubek
       if (p.czubek.visible) {
         const c = this.punkt(p, p.tHead, _v);
         p.czubek.position.copy(c);

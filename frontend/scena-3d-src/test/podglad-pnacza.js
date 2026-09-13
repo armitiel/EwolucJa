@@ -35,7 +35,7 @@ scena.add(siatka);
 const P = new Pnacze({ H, obroty: 2.0, pnacza: 5, ziarno: 1 });
 scena.add(P.group);
 
-let u = 1, gora = false, ozdoby = true, obrot = 0.6, dist = H * 1.35, auto = true;
+let u = 1, gora = false, ozdoby = true, obrot = 0.6, dist = H * 1.35, auto = true, celY = null;
 const stosuj = () => { P.pokazOzdoby(ozdoby); P.ustawWzrost(u); };
 stosuj();
 
@@ -43,9 +43,9 @@ function klatka() {
   // kadr „auto" trzyma w obrazie tyle rośliny, ile już urosło
   const wys = Math.max(0.8, P.wysokosc);
   const d = auto ? Math.max(2.2, wys * 1.45) : dist;
-  const cel = new Vector3(0, wys * (gora ? 0.5 : 0.46), 0);
+  const cel = new Vector3(0, celY != null ? celY : wys * (gora ? 0.5 : 0.46), 0);
   if (gora) kamera.position.set(0.001, wys * 2.1, 0.001);
-  else kamera.position.set(Math.sin(obrot) * d, wys * 0.58, Math.cos(obrot) * d);
+  else kamera.position.set(Math.sin(obrot) * d, celY != null ? celY + d * 0.18 : wys * 0.58, Math.cos(obrot) * d);
   kamera.lookAt(cel);
   rend.render(scena, kamera);
 }
@@ -64,6 +64,7 @@ globalThis.__P = {
   obrot: (a) => { obrot = a; },
   dist: (d) => { dist = d; auto = !d; },
   auto: (v) => { auto = !!v; },
+  cel: (y) => { celY = y; },
   panel: (v) => { const e = document.getElementById("panel"); if (e) e.style.display = v ? "" : "none"; },
   klatka,
   stan: () => P.stan(),

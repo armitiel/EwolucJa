@@ -101,7 +101,8 @@ ustawione przed startem sceny). React nadpisuje przez `globalThis.SCENA3D_ZOOM`
 |---|---|
 | `src/planeta.js` | matematyka kuli (patrz wyżej) |
 | `src/mapa.js` | czytanie `__SCENA3D_MAPA` + wartości zapasowe prototypu |
-| `src/swiat.js` | teren, nurt rzeki, most, latarnia, brama, drzewa, głazy, kwiaty (InstancedMesh), plamy cienia |
+| `src/swiat.js` | teren, nurt rzeki, most, latarnia, brama, drzewa, głazy, rośliny (InstancedMesh), plamy cienia |
+| `src/chmury.js` | zmienne chmury 2.5D nadciągające od horyzontu w stronę widza |
 | `src/znak.js` | klasa `Znak` — halo, krąg ze smugą, iskry, cykle absorb/gone/appear, wędrówka czarodzieja |
 | `src/app.js` | `Aplikacja`: renderer, kamera, bohater (kalibracja stóp, run→walk), joystick/klawiatura/dotknięcie, gibanie drzew i kwiatów, kino, API |
 | `src/postacie.js` | rejestr `SCENA3D_POSTACIE` (chłopiec, lis) |
@@ -118,6 +119,21 @@ Wszystko, co dawniej siedziało w skryptach-łatkach `narzedzia/*.py`
 nogi, znak-drzewo, próg domu, mrok w chatce, drzwi w kolizji, kino, smuga
 kręgu), jest teraz zwykłym kodem w tych plikach. Skrypty zostały jako
 historia — **nie uruchamiaj ich na nowym bundlu**.
+
+### Chmury i dekoracje w2
+
+Chmura składa się z 6–8 animowanych obłoków low-poly. Cztery chmury używają
+łącznie jednego `InstancedMesh`; obłoki powoli zmieniają pozycję i proporcje,
+przez co zmienia się cały obrys. Kamera jest ortograficzna, więc perspektywę
+budują skala, rozsuwanie od punktu zbiegu i tor kończący się nad górną
+krawędzią. Marsz bohatera przyspiesza nadejście chmur.
+
+`mapa-w2.json` zawiera również stylizowane sosenki i drzewa liściaste z
+fasetowanymi koronami. Skały mają trzy warianty: łamany monolit, niskie płyty
+i gęste rumowisko. Wariant zmienia zarówno układ głównych brył, jak i liczbę
+rozsypanych kamieni; duże skały mają ostre fasety, a tylko drobne kamienie są
+łagodniejsze. Środek przy starcie bohatera pozostaje wolny, a obiekty mają
+kolizje i cienie.
 
 ## Skóra planety — proceduralne plamy zieleni
 
@@ -210,6 +226,25 @@ zasłaniają splot, za rzadko i podejście robi się strome. Odstępy NIE są r�
 kąt ścieżki liczy się z tablicy całki `_tempo(t)` (`_przeliczSkret`), która
 zagęszcza zwoje ku górze (pień się zwęża) i faluje dwiema częstotliwościami —
 równe odstępy dawały efekt wiertła.
+
+**Zbieżność ku czubkowi.** Jedna funkcja `stozek(t)` (od `PNACZE.szczyt = 0,68`
+w górę) skaluje promień splotu, grubość pnączy, szerokość wstęgi, amplitudę
+szumu i wielkość ozdób — na czubku zostaje 6 %, więc pnącza schodzą do szpica
+zamiast urywać się płasko. Szum trzeba było nią objąć osobno: bez tego cienkie
+końcówki rozjeżdżały się na boki zamiast się zbiegać.
+
+**Osadzenie w ziemi.** Pnącza rosnące od ziemi mają `t0 < 0` (zaczynają pod
+powierzchnią) i NABIEG korzeniowy — u dołu grubieją o 85 %, proporcjonalnie do
+dojrzałości (kiełek nabiegów nie ma). Pnącze wychodzące z innej łodygi zachowuje
+odwrotne zachowanie: zaczyna cienko.
+
+**Kolejność wierzchołków w rurze.** `idx.push(a, d, b, b, d, c)` — NIE `(a, b, d,
+b, c, d)`. Odwrotna kolejność wywraca całą rurę na lewą stronę: normalne patrzą
+do środka, światło pada „od spodu", a przy `FrontSide` widać wnętrze rury —
+roślina wygląda, jakby miała dziury. Sprawdzian liczbowy: dla każdego trójkąta
+iloczyn wektorowy krawędzi ma mieć DODATNI rzut na kierunek od osi pierścienia.
+Ten błąd siedział jeszcze w pierwotnym `_rura` i przez długi czas nie rzucał się
+w oczy przy wąskich rurkach.
 
 **Kamera przy fasoli** (`app.js`, stałe `KAMERA_FASOLA_*`). Domyślne ujęcie
 patrzy na planetę z ~52° — dziewięciometrowe pnącze widać z niego „od czubka"

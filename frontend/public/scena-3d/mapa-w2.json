@@ -61,8 +61,25 @@
     "punktSciezki": 0,
     "ukryta": true
   },
-  "drzewa": [],
-  "glazy": [],
+  "drzewa": [
+    { "typ": "lisciaste", "pos": [-4.2, 5.0], "skala": 0.92, "obrot": 0.35 },
+    { "typ": "sosna", "pos": [4.6, 4.5], "skala": 0.88, "obrot": 1.15 },
+    { "typ": "sosna", "pos": [-6.3, 1.1], "skala": 0.78, "obrot": 2.35 },
+    { "typ": "lisciaste", "pos": [6.4, 0.7], "skala": 0.82, "obrot": 0.8 },
+    { "typ": "lisciaste", "pos": [-3.7, -3.5], "skala": 0.84, "obrot": 1.9 },
+    { "typ": "sosna", "pos": [3.8, -4.6], "skala": 0.86, "obrot": 0.45 },
+    { "typ": "lisciaste", "pos": [0.2, -7.1], "skala": 0.74, "obrot": 2.75 }
+  ],
+  "glazy": [
+    { "pos": [-2.65, 4.35], "skala": 0.72, "obrot": 0.45, "wariant": 0 },
+    { "pos": [2.85, 5.45], "skala": 0.56, "obrot": 1.7, "wariant": 1 },
+    { "pos": [-5.15, 2.8], "skala": 0.52, "obrot": 2.4, "wariant": 2 },
+    { "pos": [5.25, 2.35], "skala": 0.68, "obrot": 0.9, "wariant": 0 },
+    { "pos": [-1.45, -2.75], "skala": 0.64, "obrot": 2.05, "wariant": 2 },
+    { "pos": [4.25, -1.55], "skala": 0.48, "obrot": 0.25, "wariant": 1 },
+    { "pos": [-4.75, -5.0], "skala": 0.66, "obrot": 1.3, "wariant": 1 },
+    { "pos": [1.45, -6.15], "skala": 0.58, "obrot": 2.85, "wariant": 2 }
+  ],
   "budynki": [],
   "znaki": [
     {
@@ -1056,8 +1073,8 @@
   },
   "oczko": {
     "pos": [
-      7.2,
-      15.5
+      10.1,
+      4.7
     ],
     "promien": 1.4,
     "ziarno": 3,
