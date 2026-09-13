@@ -15,6 +15,15 @@
   #scena-3d { position: fixed; inset: 0; }
   #scena3d-info { position: fixed; inset: 0; display: none; place-items: center; padding: 28px;
     color: #fff2cf; font: 600 15px/1.5 "Nunito", system-ui, sans-serif; text-align: center; }
+  /* hud.css ustawia kafelkom display:flex, wiec samo `hidden` by nie wystarczylo. */
+  .game-hud [hidden] { display: none !important; }
+  /* Awatar z uszami (lisek): kadr jest wyzszy niz kwadratowy medalion
+     chlopca, bo uszy wystaja POZA zloty pierscien. Gorny pasek nie ma na nie
+     miejsca (uszy wychodzily poza ekran), wiec zamiast podnosic obrazek
+     zostawiamy to samo pudelko i miescimy w nim calego liska - `contain`.
+     Pierscien wychodzi o ~10% mniejszy niz u chlopca, ale nic nie jest ucinane
+     i awatar stoi dokladnie tam, gdzie stal. */
+  .game-hud-profile img.ma-uszy { object-fit: contain; }
 </style>
 </head>
 <body>
@@ -27,7 +36,9 @@
     </a>
 
     <div class="game-hud-resources">
-      <span class="game-hud-counter game-hud-counter--coins" aria-label="Monety: 55 ze 100">
+      <!-- Monety schowane: w tym swiecie nie zbieramy po to, zeby miec wiecej.
+           Zdejmij `hidden`, zeby licznik wrocil. -->
+      <span class="game-hud-counter game-hud-counter--coins" hidden aria-label="Monety: 55 ze 100">
         <img src="/assets/hub-nav/moneta.png" alt="" aria-hidden="true">
         <strong>55</strong>
         <i class="game-hud-progress" aria-hidden="true"><i style="width: 55%"></i></i>
@@ -149,6 +160,21 @@ Jeśli to nie zadziała: uruchom <code>npm run dev</code> i wejdź na
   var zoom = Number(pyt.get('zoom'));
   if (zoom > 0) globalThis.SCENA3D_ZOOM = zoom;
 
+  // AWATAR W HUD-zie idzie za bohaterem, a nie za stala grafika. Ta sama
+  // tablica co w `src/utils/postac.js` (AWATARY) - brak wpisu = zostaje
+  // chlopiec z `profil-simple.png`, bo domyslna postac modulu to `adventurer`.
+  var AWATARY = { fox: '/fox_avatar.png' };
+  function ustawAwatar() {
+    var img = document.querySelector('.game-hud-profile img');
+    var plik = AWATARY[globalThis.SCENA3D_POSTAC];
+    if (img && plik) {
+      img.src = plik;
+      // Lisek ma uszy POZA zlotym pierscieniem, wiec kadr jest wyzszy niz
+      // kwadratowy medalion chlopca. Bez tego obrazek zostalby scisniety.
+      img.classList.add('ma-uszy');
+    }
+  }
+
   function odpal() {
     var s = document.createElement('script');
     s.type = 'module';
@@ -185,7 +211,7 @@ Jeśli to nie zadziała: uruchom <code>npm run dev</code> i wejdź na
       if (m.postac && !postac) globalThis.SCENA3D_POSTAC = m.postac;
     })
     .catch(function () {})
-    .then(odpal);
+    .then(function () { ustawAwatar(); odpal(); });
 })();
 </script>
 <script>
