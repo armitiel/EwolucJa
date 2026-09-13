@@ -159,6 +159,14 @@ Jeśli to nie zadziała: uruchom <code>npm run dev</code> i wejdź na
   if (kula > 0) globalThis.SCENA3D_PROMIEN_KULI = kula;
   var zoom = Number(pyt.get('zoom'));
   if (zoom > 0) globalThis.SCENA3D_ZOOM = zoom;
+  // ?podniesienie=2.2 - gdzie kamera patrzy wzgledem wierzcholka kuli. Ujemne
+  // podnosi liska w kadrze (cala planeta widoczna), dodatnie spycha go w dol
+  // i robi miejsce na niebo. Domyslnie zalezy od orientacji ekranu (app.js).
+  // ?podniesienie-poziom=3 rusza tylko wersje pozioma.
+  var pod = Number(pyt.get('podniesienie'));
+  if (Number.isFinite(pod) && pyt.get('podniesienie') !== null) globalThis.SCENA3D_KAMERA_PODNIESIENIE = pod;
+  var podP = Number(pyt.get('podniesienie-poziom'));
+  if (Number.isFinite(podP) && pyt.get('podniesienie-poziom') !== null) globalThis.SCENA3D_KAMERA_PODNIESIENIE_POZIOM = podP;
 
   // AWATAR W HUD-zie idzie za bohaterem, a nie za stala grafika. Ta sama
   // tablica co w `src/utils/postac.js` (AWATARY) - brak wpisu = zostaje

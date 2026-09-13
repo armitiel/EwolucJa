@@ -72,13 +72,41 @@ const KOREKTA_W_RUCHU = 0.45;
 const KOREKTA_W_SPOCZYNKU = 1.1;
 /** Domyślne przybliżenie kamery (1 = kadr pierwotnej sceny; mniej = dalej). */
 const ZOOM_DOMYSLNY = 0.8;
-/** Minimalna wysokość kadru w promieniach planety — patrz `resize()`. */
-const NIEBO_MIN = 1.35;
+/**
+ * Ile kadru musi zostać NAD bohaterem, w promieniach planety — patrz `resize()`.
+ * Horyzont (krawędź sylwetki kuli) leży jakieś 0,32 R nad liskiem, reszta to
+ * niebo ze słońcem i księżycem. Mierzymy nad BOHATEREM, a nie całą wysokość
+ * kadru, bo to, gdzie lisek stoi w kadrze, zmienia się z orientacją ekranu.
+ * Uwaga przy strojeniu: w poziomie lisek nie może zejść za nisko, bo dolne
+ * ćwierć ekranu zajmuje dok z przyciskami.
+ */
+const NIEBO_NAD_BOHATEREM = 0.573;
+/**
+ * To samo dla ekranu POZIOMEGO. Niżej niż w pionie, bo w niskim kadrze każdy
+ * promień nieba kosztuje bardzo dużo liska. 0,50 zostawia pas nieba mniej
+ * więcej na jedną ósmą wysokości ekranu — dość, żeby widać było słońce,
+ * księżyc i zmianę barw, ale bez połowy ekranu błękitu.
+ */
+const NIEBO_NAD_BOHATEREM_POZIOM = 0.5;
+/**
+ * Ile ekranowego pionu daje jedna jednostka świata w osi Y. Kamera patrzy
+ * z góry pod kątem (`camDir`), więc podniesienie celu o 1 przesuwa obraz
+ * o 0,596 — to składowa „góry" kamery po rzucie `lookAt` z tym kierunkiem.
+ */
+const PION_EKRANU = 0.596;
 /** Punkt, na który patrzy kamera, względem wierzchołka kuli (jednostki mapy).
  *  Dodatnie = kamera patrzy wyżej, więc planeta zjeżdża w dół ekranu;
  *  ujemne = planeta idzie do góry. -2: cała kula w kadrze, lisek trochę
  *  powyżej środka, dół planety tuż nad paskiem HUD. */
 const KAMERA_PODNIESIENIE = -2;
+/**
+ * To samo dla ekranu POZIOMEGO. Kadr jest wtedy niski i szeroki: gdyby lisek
+ * stał tam, gdzie w pionie, na niebo nad nim nie zostaje miejsca i ogranicznik
+ * musiałby ściąć zoom do ~0,44 — lisek robi się ziarnkiem maku. Spychamy go
+ * więc niżej w kadrze (kamera patrzy wyżej); to samo niebo mieści się wtedy
+ * w dużo niższym kadrze, a na liska zostaje półtora raza więcej pikseli.
+ */
+const KAMERA_PODNIESIENIE_POZIOM = 1.4;
 
 const clamp = (s, e, t) => Math.max(e, Math.min(t, s));
 const dogon = (s, e, t, n) => s + (e - s) * (1 - Math.exp(-t * n));
@@ -1769,17 +1797,41 @@ export class Aplikacja {
     const i = t / n;
     // Kolejność: adres (strojenie) → mapa świata → wartość domyślna.
     const zadany = Number(globalThis.SCENA3D_ZOOM) || Number(this.mapa?.zoom) || ZOOM_DOMYSLNY;
-    const bazowa = i < 1 ? 8.4 : 14;
+    const poziomo = i >= 1;
+    const bazowa = poziomo ? 14 : 8.4;
+
+    // GDZIE W KADRZE STOI LISEK. W pionie kamera patrzy PONIŻEJ wierzchołka
+    // kuli, więc lisek siedzi trochę nad środkiem i cała planeta wchodzi
+    // w kadr. W poziomie odwrotnie: kamera patrzy WYŻEJ, lisek zjeżdża do
+    // dolnej trzeciej, a zwolnione miejsce u góry bierze niebo. To ta zmiana
+    // pozwala przybliżyć — patrz ogranicznik niżej.
+    const R = this.planeta?.R || 8;
+    const podniesienie = Number(globalThis.SCENA3D_KAMERA_PODNIESIENIE)
+      || (poziomo
+        ? (Number(globalThis.SCENA3D_KAMERA_PODNIESIENIE_POZIOM) || KAMERA_PODNIESIENIE_POZIOM)
+        : KAMERA_PODNIESIENIE);
+    if (this.camTarget && Math.abs(this.camTarget.y - (R + podniesienie)) > 1e-6) {
+      this.camTarget.y = R + podniesienie;
+      if (this.camPos) {
+        this.camPos.copy(this.camTarget).add(this.camDir);
+        this.camera.position.copy(this.camPos);
+        this.camera.lookAt(this.camTarget);
+      }
+    }
 
     // OGRANICZNIK NIEBA. Przybliżenie powiększa bohatera, ale planeta rośnie
-    // razem z nim i przy wąskim albo niskim kadrze potrafi wypchnąć horyzont
-    // poza ekran — zostaje sam zielony ekran, bez nieba, słońca i księżyca.
-    // Pilnujemy więc, żeby kadr miał w pionie co najmniej `NIEBO_MIN` promieni
-    // planety; powyżej tego zoom jest przycinany. Na telefonie w pionie próg
-    // nie działa wcale (kadr jest wysoki), gryzie dopiero przy kwadratowych
-    // i szerokich oknach — i tam woli mniejszego bohatera niż brak świata.
-    const R = this.planeta?.R || 8;
-    const zoomMax = bazowa / (i * (NIEBO_MIN * R));
+    // razem z nim i potrafi wypchnąć horyzont poza ekran — zostaje sam zielony
+    // ekran, bez nieba, słońca i księżyca. Pilnujemy więc tego, co naprawdę
+    // ma znaczenie: ile kadru zostaje NAD BOHATEREM. Dawna reguła liczyła całą
+    // wysokość kadru i zakładała, że lisek stoi w jego środku — przy poziomym
+    // ekranie, gdzie stoi nisko, ścinała zoom bez potrzeby.
+    //
+    //   nad liskiem = połowa kadru + podniesienie * PION_EKRANU
+    //
+    // (podniesienie ujemne podnosi liska w kadrze, więc zabiera mu niebo).
+    const niebo = poziomo ? NIEBO_NAD_BOHATEREM_POZIOM : NIEBO_NAD_BOHATEREM;
+    const nadBohaterem = Math.max(0.5, niebo * R - podniesienie * PION_EKRANU);
+    const zoomMax = bazowa / (i * 2 * nadBohaterem);
     const zoom3d = Math.max(0.3, Math.min(zadany, zoomMax));
     const r = bazowa / zoom3d;
     const a = r / i;
