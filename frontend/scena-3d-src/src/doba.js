@@ -84,7 +84,7 @@ export const DOBA = {
   slonceTarcza: {
     rdzen: 0xfffdf2, poswiataDzien: 0xffe9a8, poswiataZorza: 0xff9b45,
     wielkosc: 0.95, rozmycieZorzy: 0.7,
-    spowolnienieZachodu: 0.35, // 0–0.45; 0.35 daje 30% tempa przy horyzoncie
+    spowolnienieHoryzontu: 0.35, // 0–0.45; 0.35 daje 30% tempa przy horyzoncie, 170% w zenicie
     // Tor tarczy (patrz `wKadrze`): jak daleko w bok sięga w jednostkach
     // RAMKI (1,0 = krawędź ekranu), jak wysoko wchodzi w południe
     // i jak głęboko zanurza się w horyzont przy samym zachodzie.
@@ -403,10 +403,25 @@ export class Doba {
       this.faza += dogon(0, delta, C.tempo, dt);
     }
     const faza = Math.atan2(Math.sin(this.faza), Math.cos(this.faza));
-    // Monotoniczne spowolnienie wokół prawego horyzontu; bez skoku na północy.
-    const luk = faza > 0
-      ? faza + zacisk(C.slonceTarcza.spowolnienieZachodu, 0, .45) * Math.sin(2*faza)
-      : faza;
+    /**
+     * ZWOLNIENIE PRZY HORYZONCIE. Chcemy, żeby wschód i zachód trwały dłużej
+     * niż przejście przez zenit, więc czas doby jest przeginany:
+     *
+     *   luk = faza + k * sin(2 * faza)        d(luk)/d(faza) = 1 + 2k * cos(2 * faza)
+     *
+     * Przy horyzoncie (faza = ±90°) cosinus to −1, więc tarcza idzie z tempem
+     * 1 − 2k; w południe i o północy 1 + 2k. Przy k = 0,35 to 30% i 170%.
+     *
+     * Wcześniej przegięcie działało TYLKO dla faza > 0. Wartość się zgadzała
+     * (sin(2·0) = 0, sin(2π) = 0), ale POCHODNA nie: dokładnie w zenicie i w
+     * nadirze tempo skakało z 1 na 1,7 — i to było widać jako szarpnięcie
+     * słońca i księżyca w połowie drogi. Ta sama formuła na całym okręgu jest
+     * gładka wszędzie, a przy okazji wydłuża tak samo wschód jak zachód.
+     *
+     * Monotoniczność (tarcza nigdy nie cofa się na niebie) wymaga k < 0,5 —
+     * stąd zacisk na 0,45.
+     */
+    const luk = faza + zacisk(C.slonceTarcza.spowolnienieHoryzontu, 0, .45) * Math.sin(2 * faza);
     const t = this.t = Math.cos(luk);
     // KĄT od zenitu słońca w stopniach — to on, a nie `t`, rządzi fazami.
     const st = Math.abs(luk) * 180 / Math.PI;
