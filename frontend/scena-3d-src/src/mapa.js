@@ -137,6 +137,10 @@ export function wczytajMape() {
     // powierzchnie szybciej blakną w biel i tracą nasycenie — matowa,
     // kredowa zieleń potrzebuje niższej. Brak wpisu = 1,25 jak dotąd.
     ekspozycja: Number.isFinite(M.swiat?.ekspozycja) ? M.swiat.ekspozycja : 1.25,
+    // Ile odbarwić barwy terenu (0 = pełna zieleń, 1 = szarość). Matowy,
+    // kredowy wygląd bierze się z ALBEDO, nie ze świateł — patrz komentarz
+    // przy `kreda` w `terenFasetowany` (swiat.js).
+    kreda: Number.isFinite(M.swiat?.kreda) ? M.swiat.kreda : 0,
     // Gdzie kamera patrzy względem wierzchołka kuli, na ekranie PIONOWYM.
     // Ujemne podnosi planetę w kadrze, dodatnie ją spuszcza. Brak wpisu =
     // wartość domyślna silnika (`KAMERA_PODNIESIENIE` w app.js).

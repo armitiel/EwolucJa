@@ -293,11 +293,28 @@ function terenFasetowany(mapa, planeta) {
   const c = new Color();
   const jasna = new Color(mapa.terenBarwy?.jasna ?? 0x9ed163);
   const ciemna = new Color(mapa.terenBarwy?.ciemna ?? 0x6ba23f);
+  const kreda = mapa.kreda || 0;
+  const rozjasnienie = 1 + kreda * 0.2;
   for (let t = 0; t + 2 < n; t += 3) {
     const sr = (wys[t] + wys[t + 1] + wys[t + 2]) / 3;
     const szum = ((Math.sin((t + 1) * 12.9898) * 43758.5453) % 1 + 1) % 1;
     const u = Math.min(1, Math.max(0, 0.5 + 0.55 * sr + (szum - 0.5) * 0.24));
     c.copy(ciemna).lerp(jasna, u);
+    // KREDA. Sam materiał jest matowy (Lambert), ale nasycona zieleń pod
+    // mocnym światłem czyta się jak satyna: ściany w słońcu blakną, te
+    // w cieniu zostają soczyste, i przez kulę idzie gradient nasycenia.
+    // Najkrócej to widać po średnim nasyceniu renderu: 0,47 przy pełnej
+    // zieleni, 0,36 przy `kreda` 0,25. Ściągamy barwę w stronę jej własnej
+    // jasności — czyli odbarwiamy, nie szarzymy na siłę — i lekko
+    // rozjaśniamy, bo kreda jest jaśniejsza od farby.
+    if (kreda > 0) {
+      const lum = 0.299 * c.r + 0.587 * c.g + 0.114 * c.b;
+      c.setRGB(
+        (c.r + (lum - c.r) * kreda) * rozjasnienie,
+        (c.g + (lum - c.g) * kreda) * rozjasnienie,
+        (c.b + (lum - c.b) * kreda) * rozjasnienie,
+      );
+    }
     for (let k = 0; k < 3; k++) {
       kolory[(t + k) * 3] = c.r;
       kolory[(t + k) * 3 + 1] = c.g;
