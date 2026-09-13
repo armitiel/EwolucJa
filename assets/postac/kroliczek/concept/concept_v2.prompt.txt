@@ -1,0 +1,23 @@
+STYLE: stylized 3D claymorphism, Pixar-like children's game art. Soft rounded
+forms, matte clay surface with a subtle soft-touch texture, no gloss, no plastic
+specular highlights, no glitter. Gentle volumetric shading, soft ambient
+occlusion in the creases. Clean silhouette readable at 40 pixels. Light comes
+from the upper left. Warm, friendly, calm — nothing sharp, nothing scary.
+No text, no letters, no numbers, no watermark, no border, no frame,
+no ground shadow, no background elements.
+
+PALETTE: cream #FBF1D6, sand #F4E3B8, warm white #FFFDF4,
+ink violet #4e4d76, soft violet #B886E8, deep violet #7A4DC2,
+amber #F4C95D, dusk orange #E89A3D, leaf green #5FA76F, sky blue #B7E3FF.
+
+RENDER STYLE OVERRIDE: low-poly stylized game asset — simple faceted geometry with visibly
+flat triangular facets, few polygons, chunky simplified shapes, flat solid colors per facet with soft
+gentle shading, no fur strands, no fine texture detail. Same palette, same friendly mood.
+
+SUBJECT: a small cute bunny, a secondary background creature that runs on all four legs like a real rabbit: compact rounded body, long upright ears with pink inner ears, small round fluffy tail, big round dark eyes with white highlights, cream-and-sand fur with a lighter cream belly, no clothes, no accessories
+
+Creature reference for 3D modeling: full body, standing calmly on all four legs on a flat
+invisible floor, seen from a three-quarter front view (slightly from above), head turned towards the
+camera, all four legs clearly separated and visible, tail held slightly away from the body, ears up,
+mouth closed in a gentle smile, no props. Centered with a small margin. PLAIN SOLID PURE WHITE
+background — flat white, no gradient, no glow, no vignette, no ground, no shadow under the creature.
