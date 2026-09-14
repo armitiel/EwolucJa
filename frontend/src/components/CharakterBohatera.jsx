@@ -1,17 +1,18 @@
 /**
  * CharakterBohatera — radarowy wykres 6 cech postaci + lista wartosci po prawej.
  * Mapowanie cecha -> profil:
- *   MAD (Madrosc)     ↔ ST (Strateg)
- *   ODW (Odwaga)      ↔ LD (Lider)
- *   CIE (Ciekawosc)   ↔ DT (Detektyw)
- *   SKU (Skupienie)   ↔ MD (Mediator)
- *   ZYC (Zyczliwosc)  ↔ EM (Empata)
- *   KRE (Kreatywnosc) ↔ KR (Kreator)
+ *   MAD (Madrosc)     ↔ ST (Myśliciel)
+ *   ODW (Odwaga)      ↔ LD (Śmiałek)
+ *   CIE (Ciekawosc)   ↔ DT (Odkrywca)
+ *   SKU (Skupienie)   ↔ MD (Spokojna Głowa)
+ *   ZYC (Zyczliwosc)  ↔ EM (Przyjaciel)
+ *   KRE (Kreatywnosc) ↔ KR (Wynalazca)
  *
  * Skala radara: max wartosc = max(scores) lub 10 (zeby polygon zawsze byl widoczny).
  */
 import React from "react";
 import { PROFILE_INFO } from "./ProfileAvatar.jsx";
+import { nazwaArchetypuGracza } from "../services/rodzaj.js";
 
 const TRAITS = [
   { code: "ST", short: "MĄD", name: "Mądrość",     color: "#7A4DC2", icon: "doc" },
@@ -28,7 +29,9 @@ export default function CharakterBohatera({ player, profile, onDetails }) {
   // Quiz baseline wypelnia ~30-50% radara, nie 100%. Dalsze misje rosna polygon.
   const maxScore = 50;
 
-  const archetypName = PROFILE_INFO[profile]?.name || "Detektyw";
+  // Nazwa w rodzaju pasujacym do dziecka — patrz `services/rodzaj.js`.
+  // Bez tego dziewczynka czyta na swojej karcie „Odkrywca".
+  const archetypName = nazwaArchetypuGracza(profile, player) || PROFILE_INFO[profile]?.name;
 
   return (
     <div className="card pop-in" style={{

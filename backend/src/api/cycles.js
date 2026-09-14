@@ -36,7 +36,7 @@ const PROFILE_INTROS = {
   EM: "Mędrzec uśmiecha się: dziś masz szansę zauważyć kogoś sercem. To też supermoc.",
   ST: "Mędrzec spogląda na mapę: dobry plan robi z małych rzeczy wielkie. Czas na ruch stratega.",
   KR: "Mędrzec mruga: Twoja wyobraźnia ma dziś robotę. Coś nowego chce się narodzić.",
-  LD: "Mędrzec kiwa głową: odwaga zaczyna się od jednego małego kroku. Gwardzista próbuje.",
+  LD: "Mędrzec kiwa głową: odwaga zaczyna się od jednego małego kroku. Śmiałek próbuje.",
   MD: "Mędrzec mówi spokojnie: czasem największa siła to umieć kogoś wysłuchać. Spróbuj dziś.",
 };
 

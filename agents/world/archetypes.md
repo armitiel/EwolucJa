@@ -1,10 +1,10 @@
 # Archetypy Bohaterów
 
-Każdy gracz po quizie wstępnym otrzymuje **jeden stały archetyp**. W MVP dostępny jest tylko **Tropiciel Tajemnic** — pozostałe są w planie i ich opis służy jako kontekst dla narratora i designu.
+Każdy gracz po quizie wstępnym otrzymuje **jeden stały archetyp**. W MVP dostępny jest tylko **Odkrywca** — pozostałe są w planie i ich opis służy jako kontekst dla narratora i designu.
 
 ---
 
-## 🦊 Tropiciel Tajemnic (DT — Detektyw) ★ MVP
+## 🦊 Odkrywca (DT — Detektyw) ★ MVP
 
 **Postać wizualna:** smukły lis-humanoid w długim płaszczu i kapeluszu z szerokim rondem. Jedno oko zasłonięte mosiężnym monoklem-lupą, drugie świeci ciepłym bursztynem. Płaszcz w odcieniu palonej miedzi. Stąpa cicho, zostawia świecące ślady stóp, które gasną po kilku sekundach.
 
@@ -18,7 +18,7 @@ Każdy gracz po quizie wstępnym otrzymuje **jeden stały archetyp**. W MVP dost
 
 **Pierwszy artefakt:** Kompas Cieni
 
-**Misje typowe dla Tropiciela:**
+**Misje typowe dla Odkrywcy:**
 - znajdź w domu trzy rzeczy, których historii nie znasz
 - zadaj komuś dorosłemu pytanie, którego nigdy mu nie zadałeś
 - posiedz 5 minut w ciszy i zapisz, co usłyszysz nowego
@@ -27,7 +27,7 @@ Każdy gracz po quizie wstępnym otrzymuje **jeden stały archetyp**. W MVP dost
 
 ---
 
-## ❤️ Zaklinacz Uczuć (EM — Empata) — wkrótce
+## ❤️ Przyjaciel (EM — Empata) — wkrótce
 
 **Postać wizualna:** drobna, eteryczna istota z elfickimi spiczastymi uszami. Skóra zmienia odcień zależnie od emocji w pobliżu (różowy = radość, błękit = spokój, fiolet = troska). Towarzyszy jej mała świecąca ćma.
 
@@ -50,7 +50,7 @@ Każdy gracz po quizie wstępnym otrzymuje **jeden stały archetyp**. W MVP dost
 
 ---
 
-## 🗺️ Mistrz Map (ST — Strateg) — wkrótce
+## 🗺️ Myśliciel (ST — Strateg) — wkrótce
 
 **Postać wizualna:** mądry gnom o krępej sylwetce, w długim płaszczu z dziesiątkami kieszeni pełnych zwojów. Mosiężne okulary z wymiennymi soczewkami (małe lupki na zawiasach). W łapie zwinięta mapa, która sama się rozwija w jego dotyku.
 
@@ -73,7 +73,7 @@ Każdy gracz po quizie wstępnym otrzymuje **jeden stały archetyp**. W MVP dost
 
 ---
 
-## ✨ Tkacz Snów (KR — Kreator) — wkrótce
+## ✨ Wynalazca (KR — Kreator) — wkrótce
 
 **Postać wizualna:** półprzezroczysta istota z gwiezdnego pyłu. Wewnątrz ciała krążą kolorowe iskry, które układają się w zmienne wzory. Z palców snują się świetliste nici, z których pleci obrazy w powietrzu.
 
@@ -96,7 +96,7 @@ Każdy gracz po quizie wstępnym otrzymuje **jeden stały archetyp**. W MVP dost
 
 ---
 
-## 🛡️ Gwardzista Odwagi (LD — Lider) — wkrótce
+## 🛡️ Śmiałek (LD — Lider) — wkrótce
 
 **Postać wizualna:** postawna, lekko zwierzęca sylwetka z lwią grzywą w ciepłych pomarańczach. Zbroja z miękkiej, matowej "gliny" (claymorphism) z krągłymi krawędziami. Stoi pewnie, pierś do przodu, ale uśmiech łagodny.
 
@@ -119,7 +119,7 @@ Każdy gracz po quizie wstępnym otrzymuje **jeden stały archetyp**. W MVP dost
 
 ---
 
-## 🌉 Strażnik Mostu (MD — Mediator) — wkrótce
+## 🌉 Spokojna Głowa (MD — Mediator) — wkrótce
 
 **Postać wizualna:** rozłożysta, spokojna postać z dwoma parami ramion (po jednej dla każdej "strony"). Skóra w odcieniu jasnego piaskowca. Włosy splecione w warkocz z dwóch kolorów. W rękach trzyma świetlistą wstęgę łączącą obie dłonie.
 

@@ -9,8 +9,8 @@ import { API_BASE, ARCHETYPES } from "../config.js";
 import { api, session } from "../services/api.js";
 
 const PROFILE_LABELS = {
-  EM: "Empata", ST: "Strateg", KR: "Kreator",
-  LD: "Lider", DT: "Detektyw", MD: "Mediator",
+  EM: "Przyjaciel", ST: "Myśliciel", KR: "Wynalazca",
+  LD: "Śmiałek", DT: "Odkrywca", MD: "Spokojna Głowa",
 };
 
 export default function DevPanel() {

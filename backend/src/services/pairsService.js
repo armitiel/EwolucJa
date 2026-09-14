@@ -78,7 +78,7 @@ export async function getActiveAssignmentForPlayer(_db, playerId) {
 /**
  * Widok dla ucznia PRZED matchem:
  *   - jego slowo (A lub B)
- *   - archetyp partnera jako podpowiedz (np. "Strateg")
+ *   - archetyp partnera jako podpowiedz (np. "Myśliciel")
  *   - status (pending / matched / completed)
  *   - jezeli matched: zadanie + role-specific instructions
  */

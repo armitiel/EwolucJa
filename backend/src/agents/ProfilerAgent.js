@@ -23,12 +23,12 @@ RAMY TEORETYCZNE:
 - Role Belbina: preferencje zespołowe
 
 6 PROFILI KOMPETENCYJNYCH:
-- EM (Empata): wrażliwość, życzliwość, dekodowanie emocji
-- ST (Strateg): logika, planowanie, odraczanie gratyfikacji
-- KR (Kreator): myślenie nieszablonowe, elastyczność poznawcza
-- LD (Lider): odwaga, inicjatywa, gotowość do ryzyka
-- DT (Detektyw): dociekliwość, eksploracja, ciekawość poznawcza
-- MD (Mediator): sprawiedliwość, mediacja, praca zespołowa
+- EM (Przyjaciel): wrażliwość, życzliwość, dekodowanie emocji
+- ST (Myśliciel): logika, planowanie, odraczanie gratyfikacji
+- KR (Wynalazca): myślenie nieszablonowe, elastyczność poznawcza
+- LD (Śmiałek): odwaga, inicjatywa, gotowość do ryzyka
+- DT (Odkrywca): dociekliwość, eksploracja, ciekawość poznawcza
+- MD (Spokojna Głowa): sprawiedliwość, mediacja, praca zespołowa
 
 ODPOWIADAJ ZAWSZE w formacie JSON. Używaj polskiego języka w treści, ale kluczy JSON po angielsku.`;
 

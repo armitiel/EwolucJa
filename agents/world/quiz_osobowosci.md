@@ -10,12 +10,12 @@ Radar w [`frontend/src/components/CharakterBohatera.jsx`](../../frontend/src/com
 
 | Cecha (label radaru) | Kolor radaru | Kod profilu | Archetyp (legacy alias) | Skrót |
 |---|---|---|---|---|
-| **Mądrość** | fiolet `#7A4DC2` | `ST` | `mistrz_map` (Strateg) | MĄD |
-| **Odwaga** | pomarańcz `#E89A3D` | `LD` | `gwardzista_odwagi` (Lider) | ODW |
-| **Ciekawość** | zieleń `#5FA76F` | `DT` | `tropiciel_tajemnic` (Detektyw) | CIE |
-| **Skupienie** | błękit `#378ADD` | `MD` | `straznik_mostu` (Mediator) | SKU |
-| **Życzliwość** | róż `#E4779C` | `EM` | `zaklinacz_uczuc` (Empata) | ŻYC |
-| **Kreatywność** | żółty `#EF9F27` | `KR` | `tkacz_snow` (Kreator) | KRE |
+| **Mądrość** | fiolet `#7A4DC2` | `ST` | `mistrz_map` (Myśliciel) | MĄD |
+| **Odwaga** | pomarańcz `#E89A3D` | `LD` | `gwardzista_odwagi` (Śmiałek) | ODW |
+| **Ciekawość** | zieleń `#5FA76F` | `DT` | `tropiciel_tajemnic` (Odkrywca) | CIE |
+| **Skupienie** | błękit `#378ADD` | `MD` | `straznik_mostu` (Spokojna Głowa) | SKU |
+| **Życzliwość** | róż `#E4779C` | `EM` | `zaklinacz_uczuc` (Przyjaciel) | ŻYC |
+| **Kreatywność** | żółty `#EF9F27` | `KR` | `tkacz_snow` (Wynalazca) | KRE |
 
 **Źródła prawdy:**
 - `TRAITS[]` — [`frontend/src/components/CharakterBohatera.jsx:16-23`](../../frontend/src/components/CharakterBohatera.jsx#L16-L23)

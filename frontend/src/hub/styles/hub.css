@@ -3473,3 +3473,155 @@
 @media (prefers-reduced-motion:reduce){
   .porada-lisek{ transition:none }
 }
+
+/* ── PORADA DNIA (panels/PoradaPanel.jsx) ──────────────────────────────────
+   Gorna czesc jest jednym dzisiejszym odkryciem, dolna — spokojnym archiwum.
+   Rozdziela je nie kolejna karta, tylko zmiana powierzchni i wyrazny koniec
+   pergaminu. Ilustracja jest wspolna dla calej rodziny porad prozdrowotnych,
+   wiec nie mnozymy osobnych grafik dla kazdego wpisu biblioteki. */
+.porada-dnia{
+  display:flex; flex-direction:column; gap:0;
+  margin:-18px -18px 0;
+  color:var(--p-ink,#4e4d76);
+}
+
+.porada-swieza{
+  overflow:hidden;
+  border:0; border-bottom:2px solid color-mix(in srgb,var(--zloto-450) 58%,transparent);
+  border-radius:0 0 26px 26px;
+  background:linear-gradient(180deg,var(--biel-ciepla),var(--krem-100));
+  box-shadow:0 7px 16px color-mix(in srgb,var(--braz-900) 12%,transparent);
+}
+.porada-swieza-ilustracja{
+  position:relative; height:clamp(132px,22dvh,170px);
+  margin:0; overflow:hidden;
+  border-bottom:2px solid color-mix(in srgb,var(--zloto-450) 64%,transparent);
+  background:var(--krem-100);
+}
+.porada-swieza-ilustracja img{
+  display:block; width:100%; height:100%; object-fit:cover;
+  object-position:48% 48%;
+}
+.porada-swieza-tresc{
+  display:flex; flex-direction:column; gap:11px;
+  padding:14px 30px 22px;
+}
+.porada-swieza header{ display:flex; flex-direction:column; gap:6px; }
+.porada-swieza h3,
+.porada-szczegol h3{
+  margin:0; font-family:var(--font-display,"Baloo 2"),system-ui,sans-serif;
+  font-size:23px; line-height:1.12; color:var(--ochra-750);
+}
+.porada-swieza p,
+.porada-szczegol p{ margin:0; font-size:15.5px; line-height:1.48; }
+
+.porada-znacznik{
+  align-self:flex-start; padding:4px 11px; border-radius:999px;
+  background:color-mix(in srgb,var(--zloto-250) 57%,transparent);
+  color:var(--ochra-600);
+  font-size:11px; font-weight:900; letter-spacing:.08em; text-transform:uppercase;
+}
+.porada-swieza footer{
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  margin-top:2px; padding-bottom:4px;
+}
+.porada-czas{
+  font-family:var(--font-display,"Baloo 2"),system-ui,sans-serif;
+  font-size:14px; font-weight:800; color:var(--ochra-600);
+}
+
+/* Odsłuch jest jasna kapsula z osobnym zielonym znakiem — tak jak w makiecie.
+   Nie wyglada jak akcja zaliczajaca zadanie, tylko jak sterowanie dzwiekiem. */
+.porada-czytaj{
+  display:inline-flex; align-items:center; gap:11px;
+  min-height:58px; min-width:182px; padding:5px 18px 5px 6px;
+  border:2px solid color-mix(in srgb,var(--zloto-450) 50%,transparent);
+  border-radius:999px; cursor:pointer;
+  background:linear-gradient(180deg,var(--biel-ciepla),var(--krem-100));
+  box-shadow:0 4px 0 color-mix(in srgb,var(--ochra-500) 34%,transparent),
+             0 8px 14px color-mix(in srgb,var(--braz-900) 10%,transparent);
+  color:var(--fiolet-800);
+  font-family:var(--font-display,"Baloo 2"),system-ui,sans-serif;
+  font-size:18px; font-weight:800; line-height:1;
+  transition:transform .14s ease,box-shadow .14s ease,filter .14s ease;
+}
+.porada-czytaj-znak{
+  display:grid; place-items:center; flex:none;
+  width:46px; height:46px; border-radius:50%;
+  border:2px solid color-mix(in srgb,var(--zloto-100) 82%,transparent);
+  background:linear-gradient(180deg,#8cdf45,#3ca40d);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.4),0 3px 0 var(--p-leaf-dk);
+  color:#fff;
+  filter:drop-shadow(0 2px 2px color-mix(in srgb,var(--braz-900) 16%,transparent));
+}
+.porada-czytaj:active{
+  transform:translateY(3px);
+  box-shadow:0 1px 0 color-mix(in srgb,var(--ochra-500) 34%,transparent);
+}
+.porada-czytaj:focus-visible,
+.porada-historia li button:focus-visible{
+  outline:3px solid color-mix(in srgb,var(--p-magic-dk) 44%,transparent);
+  outline-offset:3px;
+}
+
+.porada-szczegol{
+  display:flex; flex-direction:column; gap:11px;
+  padding:18px 16px;
+  border:2px solid color-mix(in srgb,var(--zloto-450) 60%,transparent);
+  border-radius:22px;
+  background:linear-gradient(180deg,var(--biel-ciepla),var(--krem-100));
+  box-shadow:0 3px 0 color-mix(in srgb,var(--braz-800) 16%,transparent),
+             0 10px 22px color-mix(in srgb,var(--braz-900) 12%,transparent);
+}
+
+/* Archiwum dostaje osobna, chlodniejsza powierzchnie na cala szerokosc ciala
+   szuflady. Dzieki temu nie wyglada jak dalszy ciag dzisiejszej porady. */
+.porada-historia{
+  margin:24px 0 0; padding:18px 30px 26px;
+  border-top:2px solid color-mix(in srgb,var(--fiolet-200) 55%,transparent);
+  background:linear-gradient(180deg,
+    color-mix(in srgb,var(--fiolet-200) 20%,var(--biel-ciepla)),
+    color-mix(in srgb,var(--fiolet-200) 10%,var(--piasek)));
+  box-shadow:inset 0 10px 22px color-mix(in srgb,var(--fiolet-800) 6%,transparent);
+}
+.porada-historia-head{
+  display:grid; grid-template-columns:38px auto 1fr; align-items:center; gap:10px;
+  margin:0 0 12px;
+}
+.porada-historia-head img{
+  width:38px; height:38px; object-fit:contain;
+  filter:drop-shadow(0 2px 2px color-mix(in srgb,var(--braz-900) 18%,transparent));
+}
+.porada-historia-head h3{
+  margin:0; font-family:var(--font-display,"Baloo 2"),system-ui,sans-serif;
+  font-size:18px; line-height:1.15; color:var(--fiolet-800);
+}
+.porada-historia-head > span{
+  height:2px; min-width:20px; border-radius:2px;
+  background:color-mix(in srgb,var(--zloto-450) 72%,transparent);
+}
+.porada-historia ul{
+  list-style:none; margin:0; padding:0; display:flex; flex-direction:column;
+}
+.porada-historia li{ border-bottom:1px solid color-mix(in srgb,var(--fiolet-800) 14%,transparent); }
+.porada-historia li:last-child{ border-bottom:none; }
+.porada-historia li button{
+  display:block; width:100%; padding:11px 4px;
+  border:0; border-radius:12px; background:transparent;
+  color:var(--p-ink,#4e4d76); text-align:left; cursor:pointer;
+  font-family:var(--font-body,"Nunito"),system-ui,sans-serif;
+}
+.porada-historia-tekst{ display:flex; flex-direction:column; gap:2px; }
+.porada-historia li button strong{ font-size:14px; line-height:1.25; font-weight:800; }
+.porada-historia li button small{ font-size:12px; color:var(--ochra-450); }
+.porada-historia li button:active{
+  background:color-mix(in srgb,var(--biel-ciepla) 58%,transparent);
+}
+
+.porada-pusto{ margin:0; font-size:13.5px; line-height:1.45; color:var(--ochra-450); }
+.porada-stopka{ margin:14px 0 0; font-size:12px; line-height:1.4; color:var(--ochra-450); }
+
+@media (max-height:680px){
+  .porada-swieza-ilustracja{ height:120px; }
+  .porada-swieza-tresc{ padding-top:12px; }
+}

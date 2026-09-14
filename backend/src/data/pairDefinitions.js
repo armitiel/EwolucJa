@@ -4,12 +4,12 @@
  * Po znalezieniu sie razem wprowadzaja wspolne haslo -> aktywuje zadanie z 2 rolami.
  *
  * Mapowanie archetypow:
- *   DT = Detektyw (Badacz w feedu)
- *   ST = Strateg
- *   LD = Lider
- *   EM = Empata
- *   KR = Kreator
- *   MD = Strażnik (Mediator w naszych kodach)
+ *   DT = Odkrywca (Badacz w feedu)
+ *   ST = Myśliciel
+ *   LD = Śmiałek
+ *   EM = Przyjaciel
+ *   KR = Wynalazca
+ *   MD = Spokojna Głowa (Mediator w naszych kodach)
  */
 
 export const PAIR_DEFINITIONS = [

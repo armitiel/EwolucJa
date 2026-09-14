@@ -6,7 +6,7 @@ Każdy gracz po quizie wstępnym dostaje jeden stały archetyp. Rozwija się w *
 |---------|--------|------------------|--------------|
 | 1       | I      | **Iskra**        | 50 pkt       |
 | 2       | II     | **Wędrowiec**    | 70 pkt       |
-| 3       | III    | **Tropiciel**    | 90 pkt       |
+| 3       | III    | **Odkrywca**    | 90 pkt       |
 | 4       | IV     | **Mędrczyni**    | 120 pkt      |
 
 Tygodniowy ekwipunek: **3 gry digital** (10–15 pkt każda) + **1 misja realna z dorosłym** (15–25 pkt) + **1 trop ukryty** (bonus 5–10 pkt). Punkty resetują się po piątku 20:00 — co tydzień nowy poziom, nowe wyzwania.
@@ -15,7 +15,7 @@ Wypełnienie cyklu (≥80% celu w 4 tygodnie) = **ewolucja awatara** + rzadki ar
 
 ---
 
-## 🦊 Tropiciel Tajemnic (DT — Detektyw)
+## 🦊 Odkrywca (DT — Detektyw)
 
 **Co rozwija:** dociekliwość, uważność, dekodowanie świata, sztuka stawiania pytań.
 
@@ -35,7 +35,7 @@ Wypełnienie cyklu (≥80% celu w 4 tygodnie) = **ewolucja awatara** + rzadki ar
 - 📜 **Trop z reala** (20 pkt) — zadaj komuś dorosłemu pytanie, którego nigdy nie zadałeś.
 - ✨ **Trop ukryty** (10 pkt) — zrób mapę pokoju z trzema „ukrytymi skarbami".
 
-### Poziom III — Tropiciel (Tydzień 3, cel 90 pkt)
+### Poziom III — Odkrywca (Tydzień 3, cel 90 pkt)
 *„Łączę ślady w jedną historię."*
 - 🎮 **Łańcuch Dedukcji** (6 min, 18 pkt) — ułóż 5 wskazówek w kolejności i wskaż winowajcę.
 - 🎮 **Detektyw Liczb** (6 min, 18 pkt) — w ciągu liczb znajdź wzór, podaj następną.
@@ -55,7 +55,7 @@ Wypełnienie cyklu (≥80% celu w 4 tygodnie) = **ewolucja awatara** + rzadki ar
 
 ---
 
-## ❤️ Zaklinacz Uczuć (EM — Empata)
+## ❤️ Przyjaciel (EM — Empata)
 
 **Co rozwija:** empatia, wrażliwość, dekodowanie emocji, łagodność.
 
@@ -75,7 +75,7 @@ Wypełnienie cyklu (≥80% celu w 4 tygodnie) = **ewolucja awatara** + rzadki ar
 - 📜 **Misja realna** (20 pkt) — zauważ, jak czuje się ktoś bliski, powiedz mu coś miłego.
 - ✨ **Trop** (10 pkt) — napisz krótki list lub liścik do kogoś.
 
-### Poziom III — Tropiciel (90 pkt)
+### Poziom III — Odkrywca (90 pkt)
 *„Pomagam, gdy ktoś sam nie wie, czego mu trzeba."*
 - 🎮 **Konflikt w Lesie** (6 min, 18 pkt) — dwie postacie się kłócą, znajdź 3 sposoby, by je pogodzić.
 - 🎮 **Termometr Słów** (6 min, 18 pkt) — z 10 zdań posortuj te „zimne" i „ciepłe".
@@ -95,7 +95,7 @@ Wypełnienie cyklu (≥80% celu w 4 tygodnie) = **ewolucja awatara** + rzadki ar
 
 ---
 
-## 🗺️ Mistrz Map (ST — Strateg)
+## 🗺️ Myśliciel (ST — Strateg)
 
 **Co rozwija:** logika, planowanie, odraczanie gratyfikacji, samokontrola.
 
@@ -115,7 +115,7 @@ Wypełnienie cyklu (≥80% celu w 4 tygodnie) = **ewolucja awatara** + rzadki ar
 - 📜 **Misja realna** (20 pkt) — policz, ile drobnych dobrych rzeczy stało się dziś, zapisz.
 - ✨ **Trop** (10 pkt) — zrób listę „TODO" i odhacz 3 rzeczy.
 
-### Poziom III — Tropiciel (90 pkt)
+### Poziom III — Odkrywca (90 pkt)
 *„Łączę cele i kroki w jeden plan."*
 - 🎮 **Wieża Strategii** (6 min, 18 pkt) — zbuduj wieżę z 10 klocków planując ruchy.
 - 🎮 **Logiczny Most** (6 min, 18 pkt) — z 5 podpowiedzi wywnioskuj, kto co posiada.
@@ -135,7 +135,7 @@ Wypełnienie cyklu (≥80% celu w 4 tygodnie) = **ewolucja awatara** + rzadki ar
 
 ---
 
-## ✨ Tkacz Snów (KR — Kreator)
+## ✨ Wynalazca (KR — Kreator)
 
 **Co rozwija:** myślenie nieszablonowe, elastyczność, ekspresja, ciekawość.
 
@@ -155,7 +155,7 @@ Wypełnienie cyklu (≥80% celu w 4 tygodnie) = **ewolucja awatara** + rzadki ar
 - 📜 **Misja realna** (20 pkt) — narysuj, jak wygląda muzyka, którą lubisz.
 - ✨ **Trop** (10 pkt) — wymyśl alternatywne zakończenie ulubionej bajki.
 
-### Poziom III — Tropiciel (90 pkt)
+### Poziom III — Odkrywca (90 pkt)
 *„Tworzę światy, których nie było."*
 - 🎮 **Dziwne Wynalazki** (6 min, 18 pkt) — zaprojektuj 3 dziwne urządzenia z opisem zastosowania.
 - 🎮 **Mapa Krainy** (6 min, 18 pkt) — narysuj mapę krainy, której nazwa się układa z liter Twojego imienia.
@@ -175,7 +175,7 @@ Wypełnienie cyklu (≥80% celu w 4 tygodnie) = **ewolucja awatara** + rzadki ar
 
 ---
 
-## 🛡️ Gwardzista Odwagi (LD — Lider)
+## 🛡️ Śmiałek (LD — Lider)
 
 **Co rozwija:** odwaga, inicjatywa, asertywność, troska o innych.
 
@@ -195,7 +195,7 @@ Wypełnienie cyklu (≥80% celu w 4 tygodnie) = **ewolucja awatara** + rzadki ar
 - 📜 **Misja realna** (20 pkt) — zaproponuj rodzeństwu/klasie coś nowego, przekonaj ich.
 - ✨ **Trop** (10 pkt) — przyznaj się do czegoś trudnego (z głową w górze).
 
-### Poziom III — Tropiciel (90 pkt)
+### Poziom III — Odkrywca (90 pkt)
 *„Idę pierwszy z troski, nie z pychy."*
 - 🎮 **Drużyna w Lesie** (6 min, 18 pkt) — dobierz 3 towarzyszy do misji, każdemu daj zadanie.
 - 🎮 **Bitwa Słów** (6 min, 18 pkt) — symulacja sporu: znajdź słowa, które łączą, nie dzielą.
@@ -215,7 +215,7 @@ Wypełnienie cyklu (≥80% celu w 4 tygodnie) = **ewolucja awatara** + rzadki ar
 
 ---
 
-## 🌉 Strażnik Mostu (MD — Mediator)
+## 🌉 Spokojna Głowa (MD — Mediator)
 
 **Co rozwija:** mediacja, sprawiedliwość, słuchanie obu stron, łączenie.
 
@@ -235,7 +235,7 @@ Wypełnienie cyklu (≥80% celu w 4 tygodnie) = **ewolucja awatara** + rzadki ar
 - 📜 **Misja realna** (20 pkt) — zauważ, jakich słów używa ktoś, z kim się nie zgadzasz.
 - ✨ **Trop** (10 pkt) — powiedz komuś, że rozumiesz, choć myślisz inaczej.
 
-### Poziom III — Tropiciel (90 pkt)
+### Poziom III — Odkrywca (90 pkt)
 *„Znajduję most, którego nikt nie widział."*
 - 🎮 **Wioska w Konflikcie** (6 min, 18 pkt) — 4 mieszkańców, 3 spory — zaproponuj rozwiązanie dla każdego.
 - 🎮 **Złoty Środek** (6 min, 18 pkt) — z 5 propozycji wybierz tę, która uwzględnia wszystkich.

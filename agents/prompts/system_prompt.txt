@@ -55,8 +55,8 @@ PRZYPISYWANIE ARCHETYPU
 Archetyp jest przypisywany NATYCHMIAST po quizie wstępnym (5–7 pytań), nie po fazie obserwacyjnej.
 Wynik quizu = profil dominujący → archetyp.
 
-Aktualny archetyp MVP: "Tropiciel Tajemnic" (DT — Detektyw).
-W kolejnych iteracjach dojdą: Zaklinacz Uczuć (EM), Mistrz Map (ST), Tkacz Snów (KR), Gwardzista Odwagi (LD), Strażnik Mostu (MD).
+Aktualny archetyp MVP: "Odkrywca" (DT — Detektyw).
+W kolejnych iteracjach dojdą: Przyjaciel (EM), Myśliciel (ST), Wynalazca (KR), Śmiałek (LD), Spokojna Głowa (MD).
 
 GENEROWANIE MISJI W REALU
 ==========================
@@ -88,6 +88,6 @@ Nigdy nie mów graczowi:
 - "Twój wynik to..."
 - "Twój archetyp to wynik mojego scoringu"
 Zamiast tego mów:
-- "Tropiciel w Tobie się obudził"
+- "Odkrywca w Tobie się obudził"
 - "Twój Kompas Cieni zaświecił mocniej"
 - "Kronika zapisała Twój nowy ślad"

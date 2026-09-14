@@ -14,7 +14,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "DT",
     "kind": "task",
     "title": "Misja: pięć kolorów",
-    "body": "Rozejrzyj się dookoła. Znajdź pięć rzeczy w tym samym kolorze. Lupa Tropiciela widzi to, co inni przegapiają.",
+    "body": "Rozejrzyj się dookoła. Znajdź pięć rzeczy w tym samym kolorze. Lupa Odkrywcy widzi to, co inni przegapiają.",
     "points_reward": 25,
     "competency_focus": [
       "DT"
@@ -169,7 +169,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "DT",
     "kind": "task",
     "title": "Trening pamięci: pięć rzeczy",
-    "body": "Wybierz dowolne pięć przedmiotów ze swojego pokoju. Patrz na nie 20 sekund. Odwróć się. Czy pamiętasz wszystkie? Lupa Tropiciela ma dobry trening.",
+    "body": "Wybierz dowolne pięć przedmiotów ze swojego pokoju. Patrz na nie 20 sekund. Odwróć się. Czy pamiętasz wszystkie? Lupa Odkrywcy ma dobry trening.",
     "points_reward": 30,
     "competency_focus": [
       "DT"
@@ -605,7 +605,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "EM",
     "kind": "task",
     "title": "Powiedz jedno dobre o sobie",
-    "body": "Empata mowi dobrze o innych. Dzis powiedz jedna dobra rzecz o sobie - w glowie albo na glos. 'Jestem dobra/dobry, bo...'. Tyle wystarczy.",
+    "body": "Przyjaciel mowi dobrze o innych. Dzis powiedz jedna dobra rzecz o sobie - w glowie albo na glos. 'Jestem dobra/dobry, bo...'. Tyle wystarczy.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
@@ -765,7 +765,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "EM",
     "kind": "task",
     "title": "Zaproponuj wspolny spacer",
-    "body": "Zaproponuj komus bliskiemu: 'pojdziemy razem na krotki spacer?'. Ruch + obecnosc + powietrze. Empata kwitnie w takich momentach.",
+    "body": "Zaproponuj komus bliskiemu: 'pojdziemy razem na krotki spacer?'. Ruch + obecnosc + powietrze. Przyjaciel kwitnie w takich momentach.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
@@ -910,7 +910,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "EM",
     "kind": "task",
     "title": "Tancz z radoscia przez minute",
-    "body": "Wlacz ulubiona piosenke. Tancz bez patrzenia, czy ktos widzi. Radosc to tez emocja - Empata tez ma do niej prawo, mocno i glosno.",
+    "body": "Wlacz ulubiona piosenke. Tancz bez patrzenia, czy ktos widzi. Radosc to tez emocja - Przyjaciel tez ma do niej prawo, mocno i glosno.",
     "points_reward": 25,
     "competency_focus": [
       "EM"
@@ -1007,7 +1007,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Krok pierwszy, krok drugi",
-    "body": "Misja: weź jedną zwykłą czynność, na przykład mycie rąk, i powiedz na głos trzy kroki po kolei. Strateg wie, że nawet proste rzeczy mają mapę.",
+    "body": "Misja: weź jedną zwykłą czynność, na przykład mycie rąk, i powiedz na głos trzy kroki po kolei. Myśliciel wie, że nawet proste rzeczy mają mapę.",
     "points_reward": 30,
     "competency_focus": [
       "ST"
@@ -1039,7 +1039,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Trzy zdania o dzisiaj",
-    "body": "Powiedz wieczorem trzy zdania: co było łatwe, co trudne, co ciekawe. Strateg porządkuje dzień jak zwoje w kieszeniach płaszcza.",
+    "body": "Powiedz wieczorem trzy zdania: co było łatwe, co trudne, co ciekawe. Myśliciel porządkuje dzień jak zwoje w kieszeniach płaszcza.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1087,7 +1087,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Sekwencja trzech małych zadań",
-    "body": "Wybierz trzy małe zadania i zrób je dokładnie w takiej kolejności, w jakiej je wymyślisz. Strateg czuje, jak kroki układają się w drogę.",
+    "body": "Wybierz trzy małe zadania i zrób je dokładnie w takiej kolejności, w jakiej je wymyślisz. Myśliciel czuje, jak kroki układają się w drogę.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1119,7 +1119,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Zegnij papier trzy razy",
-    "body": "Misja: weź kartkę i zegnij ją na pół trzy razy z rzędu. Policz, ile masz teraz warstw. Strateg lubi, gdy liczby się układają.",
+    "body": "Misja: weź kartkę i zegnij ją na pół trzy razy z rzędu. Policz, ile masz teraz warstw. Myśliciel lubi, gdy liczby się układają.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1151,7 +1151,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Wytrzymaj minutę ciszy",
-    "body": "Misja cierpliwości: spróbuj wytrzymać jedną minutę zupełnej ciszy. Strateg wie, że cisza to też strategia.",
+    "body": "Misja cierpliwości: spróbuj wytrzymać jedną minutę zupełnej ciszy. Myśliciel wie, że cisza to też strategia.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1247,7 +1247,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Jedna rzecz, z której jestem dumny",
-    "body": "Wieczorem powiedz jedną rzecz, z której jesteś dziś dumny. Może być malutka. Strateg liczy każdy krok, nie tylko ostatni.",
+    "body": "Wieczorem powiedz jedną rzecz, z której jesteś dziś dumny. Może być malutka. Myśliciel liczy każdy krok, nie tylko ostatni.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1312,7 +1312,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Trzy kamienie milowe dnia",
-    "body": "Wieczorem nazwij trzy kamienie milowe z dziś. Cokolwiek, co czuło się jak krok do przodu. Strateg buduje drogę z takich kamieni.",
+    "body": "Wieczorem nazwij trzy kamienie milowe z dziś. Cokolwiek, co czuło się jak krok do przodu. Myśliciel buduje drogę z takich kamieni.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1328,7 +1328,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Trzy razy podskocz, raz przykucnij",
-    "body": "Misja sekwencji ruchu: trzy podskoki, jeden przykuck, powtórz cztery razy. Strateg porządkuje też ciało, nie tylko myśli.",
+    "body": "Misja sekwencji ruchu: trzy podskoki, jeden przykuck, powtórz cztery razy. Myśliciel porządkuje też ciało, nie tylko myśli.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1360,7 +1360,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Znajdź wzór wokół siebie",
-    "body": "Rozejrzyj się i znajdź jeden powtarzający się wzór: w płytkach, na firanie, na talerzu. Strateg widzi powtórzenia tam, gdzie inni widzą chaos.",
+    "body": "Rozejrzyj się i znajdź jeden powtarzający się wzór: w płytkach, na firanie, na talerzu. Myśliciel widzi powtórzenia tam, gdzie inni widzą chaos.",
     "points_reward": 30,
     "competency_focus": [
       "ST",
@@ -1393,7 +1393,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Posegreguj coś na trzy kupki",
-    "body": "Misja porządku: weź kredki, klocki albo skarpetki i posegreguj na trzy kupki według własnego pomysłu. Strateg lubi swoje systemy.",
+    "body": "Misja porządku: weź kredki, klocki albo skarpetki i posegreguj na trzy kupki według własnego pomysłu. Myśliciel lubi swoje systemy.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1425,7 +1425,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Wypij wodę trzema łykami",
-    "body": "Wypij szklankę wody dokładnie trzema łykami. Policz na głos. Strateg lubi, gdy zwykłe czynności mają strukturę.",
+    "body": "Wypij szklankę wody dokładnie trzema łykami. Policz na głos. Myśliciel lubi, gdy zwykłe czynności mają strukturę.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1489,7 +1489,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Eksperyment z czasem",
-    "body": "Misja: zgadnij, ile to jest minuta. Zamknij oczy i otwórz, gdy myślisz, że minęła. Sprawdź na zegarze. Strateg ćwiczy poczucie czasu.",
+    "body": "Misja: zgadnij, ile to jest minuta. Zamknij oczy i otwórz, gdy myślisz, że minęła. Sprawdź na zegarze. Myśliciel ćwiczy poczucie czasu.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1553,7 +1553,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Liczby wokół ciebie",
-    "body": "Misja obserwacji: rozejrzyj się i znajdź pięć różnych liczb wokół siebie. Na zegarze, książce, koszulce. Strateg czyta świat przez liczby.",
+    "body": "Misja obserwacji: rozejrzyj się i znajdź pięć różnych liczb wokół siebie. Na zegarze, książce, koszulce. Myśliciel czyta świat przez liczby.",
     "points_reward": 25,
     "competency_focus": [
       "ST",
@@ -1570,7 +1570,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Trzy razy głęboki oddech",
-    "body": "Misja: zrób trzy razy z rzędu wdech na cztery, wydech na sześć. Strateg uczy się, że oddech to też sekwencja.",
+    "body": "Misja: zrób trzy razy z rzędu wdech na cztery, wydech na sześć. Myśliciel uczy się, że oddech to też sekwencja.",
     "points_reward": 25,
     "competency_focus": [
       "ST",
@@ -1683,7 +1683,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Wybierz tempo poranka",
-    "body": "Wybierz dziś tempo poranka: żółw, koń czy ptak. Spróbuj się tego trzymać. Strateg lubi wiedzieć, w jakim rytmie idzie.",
+    "body": "Wybierz dziś tempo poranka: żółw, koń czy ptak. Spróbuj się tego trzymać. Myśliciel lubi wiedzieć, w jakim rytmie idzie.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1699,7 +1699,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Powiedz najpierw co, potem dlaczego",
-    "body": "Misja: gdy dziś o coś prosisz, najpierw powiedz co chcesz, potem dlaczego. Strateg uczy się układać myśli w prostą sekwencję.",
+    "body": "Misja: gdy dziś o coś prosisz, najpierw powiedz co chcesz, potem dlaczego. Myśliciel uczy się układać myśli w prostą sekwencję.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1715,7 +1715,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Pięć kroków powolnego marszu",
-    "body": "Misja: zrób pięć bardzo powolnych kroków, licząc je na głos. Czuj, co się dzieje w stopach. Strateg czasem zwalnia, by zobaczyć więcej.",
+    "body": "Misja: zrób pięć bardzo powolnych kroków, licząc je na głos. Czuj, co się dzieje w stopach. Myśliciel czasem zwalnia, by zobaczyć więcej.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1763,7 +1763,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Powtórz to, czego się uczysz",
-    "body": "Misja: weź coś, czego się dziś uczysz, i powtórz to trzy razy w innych słowach. Strateg utrwala wiedzę przez powtórzenie z różnych stron.",
+    "body": "Misja: weź coś, czego się dziś uczysz, i powtórz to trzy razy w innych słowach. Myśliciel utrwala wiedzę przez powtórzenie z różnych stron.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1779,7 +1779,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Zagadka licz po dwa",
-    "body": "Misja: licz od dwa do dwudziestu, dodając po dwa: dwa, cztery, sześć. Sprawdź, jak szybko ci idzie. Strateg lubi rytm liczb.",
+    "body": "Misja: licz od dwa do dwudziestu, dodając po dwa: dwa, cztery, sześć. Sprawdź, jak szybko ci idzie. Myśliciel lubi rytm liczb.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1843,7 +1843,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Trzy razy się uśmiechnij",
-    "body": "Misja: uśmiechnij się dziś świadomie trzy razy do innej osoby. Policz w głowie. Strateg liczy też ciepło.",
+    "body": "Misja: uśmiechnij się dziś świadomie trzy razy do innej osoby. Policz w głowie. Myśliciel liczy też ciepło.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1859,7 +1859,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Trzy nowe rzeczy, które umiem",
-    "body": "Misja: wymień trzy rzeczy, które dziś umiesz lepiej niż miesiąc temu. Małe też się liczą. Strateg zbiera dowody postępu.",
+    "body": "Misja: wymień trzy rzeczy, które dziś umiesz lepiej niż miesiąc temu. Małe też się liczą. Myśliciel zbiera dowody postępu.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -2627,7 +2627,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "LD",
     "kind": "task",
     "title": "Zapytaj cichego kolegę",
-    "body": "Misja: znajdź dziś osobę, która mało mówi w grupie. Zapytaj: „co o tym myślisz?”. Posłuchaj. Liderzy nie tylko mówią — pomagają mówić innym.",
+    "body": "Misja: znajdź dziś osobę, która mało mówi w grupie. Zapytaj: „co o tym myślisz?”. Posłuchaj. Śmiałkowie nie tylko mówią — pomagają mówić innym.",
     "points_reward": 30,
     "competency_focus": [
       "LD"
@@ -2707,7 +2707,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "LD",
     "kind": "task",
     "title": "Przyznaj się do błędu",
-    "body": "Najtrudniejsza misja Lidera: powiedz „pomyliłem się” albo „przepraszam”. Z głową w górze, nie w dół. Liderzy, którzy potrafią przeprosić, są najsilniejsi.",
+    "body": "Najtrudniejsza misja Śmiałka: powiedz „pomyliłem się” albo „przepraszam”. Z głową w górze, nie w dół. Śmiałkowie, którzy potrafią przeprosić, są najsilniejsi.",
     "points_reward": 30,
     "competency_focus": [
       "LD"
@@ -2723,7 +2723,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "LD",
     "kind": "task",
     "title": "Twoja grzywa, twoje tempo",
-    "body": "Mały Gwardzisto, nie musisz prowadzić od rana. Czasem grzywa potrzebuje rozkręcić się powoli. Zacznij dziś od jednej cichej rzeczy, którą lubisz.",
+    "body": "Mały Śmiałku, nie musisz prowadzić od rana. Czasem grzywa potrzebuje rozkręcić się powoli. Zacznij dziś od jednej cichej rzeczy, którą lubisz.",
     "points_reward": 30,
     "competency_focus": [
       "LD"
@@ -2739,7 +2739,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "LD",
     "kind": "task",
     "title": "Powiedz, czego się boisz",
-    "body": "Odważna misja: powiedz dziś komuś bliskiemu „boję się tego”. Bez wstydu. Lider, który mówi o strachu, daje innym pozwolenie, żeby też się przyznali.",
+    "body": "Odważna misja: powiedz dziś komuś bliskiemu „boję się tego”. Bez wstydu. Śmiałek, który mówi o strachu, daje innym pozwolenie, żeby też się przyznali.",
     "points_reward": 30,
     "competency_focus": [
       "LD"
@@ -2755,7 +2755,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "LD",
     "kind": "task",
     "title": "Zaproś kogoś do drużyny",
-    "body": "Misja drużyny: znajdź dziś osobę, która stoi z boku. Powiedz: „chodź z nami”. Bez wielkiego przedstawiania. Lider robi miejsce, a nie chowa miejsce.",
+    "body": "Misja drużyny: znajdź dziś osobę, która stoi z boku. Powiedz: „chodź z nami”. Bez wielkiego przedstawiania. Śmiałek robi miejsce, a nie chowa miejsce.",
     "points_reward": 30,
     "competency_focus": [
       "LD"
@@ -2771,7 +2771,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "LD",
     "kind": "task",
     "title": "Zapytaj rodzica o jego dzień",
-    "body": "Odwrócona misja: zapytaj dziś rodzica: „jak ci było dzisiaj?”. I posłuchaj. Lider też dba o dorosłych. To dziwnie piękne, gdy dziecko pyta jako pierwsze.",
+    "body": "Odwrócona misja: zapytaj dziś rodzica: „jak ci było dzisiaj?”. I posłuchaj. Śmiałek też dba o dorosłych. To dziwnie piękne, gdy dziecko pyta jako pierwsze.",
     "points_reward": 30,
     "competency_focus": [
       "LD"
@@ -2803,7 +2803,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "LD",
     "kind": "task",
     "title": "Dziś prowadzi ktoś inny",
-    "body": "Misja pokory: niech dziś ktoś inny wybierze grę, film albo trasę spaceru. Powiedz: „wybierz ty”. I idź. Lider, który umie iść za kimś, jest bardzo silny.",
+    "body": "Misja pokory: niech dziś ktoś inny wybierze grę, film albo trasę spaceru. Powiedz: „wybierz ty”. I idź. Śmiałek, który umie iść za kimś, jest bardzo silny.",
     "points_reward": 30,
     "competency_focus": [
       "LD"
@@ -2819,7 +2819,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "LD",
     "kind": "task",
     "title": "Komplement w twarz",
-    "body": "Misja ciepła: powiedz dziś komuś prosto w twarz coś dobrego. Konkretnie. „Podoba mi się, jak rysujesz”. „Pomogłaś mi wczoraj, pamiętam”. Lider rozdaje światło.",
+    "body": "Misja ciepła: powiedz dziś komuś prosto w twarz coś dobrego. Konkretnie. „Podoba mi się, jak rysujesz”. „Pomogłaś mi wczoraj, pamiętam”. Śmiałek rozdaje światło.",
     "points_reward": 30,
     "competency_focus": [
       "LD"
@@ -2835,7 +2835,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "LD",
     "kind": "task",
     "title": "Powiedz „nie wiem”",
-    "body": "Trudna misja Lidera: kiedy ktoś dziś zapyta cię o coś, czego nie wiesz, powiedz: „nie wiem, ale sprawdzę”. Liderzy, którzy mówią „nie wiem”, są wiarygodni.",
+    "body": "Trudna misja Śmiałka: kiedy ktoś dziś zapyta cię o coś, czego nie wiesz, powiedz: „nie wiem, ale sprawdzę”. Śmiałkowie, którzy mówią „nie wiem”, są wiarygodni.",
     "points_reward": 30,
     "competency_focus": [
       "LD"
@@ -2867,7 +2867,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "LD",
     "kind": "task",
     "title": "Pierwsza pomoc na podwórku",
-    "body": "Misja Gwardzisty: jeśli ktoś dziś się przewróci, zapłacze, zgubi coś — bądź pierwszą/pierwszym, która/który podejdzie. Nie z fanfarami. Po cichu. „Pomóc ci?”.",
+    "body": "Misja Śmiałka: jeśli ktoś dziś się przewróci, zapłacze, zgubi coś — bądź pierwszą/pierwszym, która/który podejdzie. Nie z fanfarami. Po cichu. „Pomóc ci?”.",
     "points_reward": 30,
     "competency_focus": [
       "LD",
@@ -2884,7 +2884,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "LD",
     "kind": "task",
     "title": "Spróbuj czegoś, w czym jesteś słaby",
-    "body": "Misja odwagi: dziś zrób krótko coś, w czym ci nie wychodzi. Rysuj, śpiewaj, biegaj, licz. Krzywo? Świetnie. Lider, który próbuje, uczy innych próbować.",
+    "body": "Misja odwagi: dziś zrób krótko coś, w czym ci nie wychodzi. Rysuj, śpiewaj, biegaj, licz. Krzywo? Świetnie. Śmiałek, który próbuje, uczy innych próbować.",
     "points_reward": 30,
     "competency_focus": [
       "LD"
@@ -2900,7 +2900,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "LD",
     "kind": "task",
     "title": "Zaufaj komuś dziś",
-    "body": "Misja zaufania: dziś poproś kogoś o pomoc w czymś, co normalnie chciałabyś/chciałbyś zrobić sama/sam. Lider, który prosi o pomoc, daje innym poczuć, że są ważni.",
+    "body": "Misja zaufania: dziś poproś kogoś o pomoc w czymś, co normalnie chciałabyś/chciałbyś zrobić sama/sam. Śmiałek, który prosi o pomoc, daje innym poczuć, że są ważni.",
     "points_reward": 30,
     "competency_focus": [
       "LD"
@@ -2964,7 +2964,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "LD",
     "kind": "task",
     "title": "Bądź pierwszy w dobrej sprawie",
-    "body": "Misja dnia: zrób dziś jedną rzecz pierwsza/pierwszy, której nikt nie zauważy. Pozbierać śmieć, wytrzeć stół, ustąpić miejsca. Cicho. Lider, którego nie widać, też świeci.",
+    "body": "Misja dnia: zrób dziś jedną rzecz pierwsza/pierwszy, której nikt nie zauważy. Pozbierać śmieć, wytrzeć stół, ustąpić miejsca. Cicho. Śmiałek, którego nie widać, też świeci.",
     "points_reward": 30,
     "competency_focus": [
       "LD"
@@ -2980,7 +2980,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "LD",
     "kind": "task",
     "title": "Stań w drugim rzędzie",
-    "body": "Misja pokory: dziś w grze, w klasie, w grupie — stań specjalnie w drugim rzędzie. Pozwól komuś być z przodu. Patrz, jak to jest. Co czujesz? Lider widzi też z tyłu.",
+    "body": "Misja pokory: dziś w grze, w klasie, w grupie — stań specjalnie w drugim rzędzie. Pozwól komuś być z przodu. Patrz, jak to jest. Co czujesz? Śmiałek widzi też z tyłu.",
     "points_reward": 30,
     "competency_focus": [
       "LD"
@@ -3012,7 +3012,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "LD",
     "kind": "task",
     "title": "Twoja odwaga nie musi krzyczeć",
-    "body": "Posłuchaj, mały Gwardzisto: czasem najodważniejszą rzeczą jest milczeć, gdy inni krzyczą. Czasem powiedzieć „nie wiem”. Czasem wrócić do kogoś i przeprosić. Odwaga ma wiele twarzy.",
+    "body": "Posłuchaj, mały Śmiałku: czasem najodważniejszą rzeczą jest milczeć, gdy inni krzyczą. Czasem powiedzieć „nie wiem”. Czasem wrócić do kogoś i przeprosić. Odwaga ma wiele twarzy.",
     "points_reward": 30,
     "competency_focus": [
       "LD"

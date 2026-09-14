@@ -6,46 +6,46 @@
 
 export const PROFILES_META = {
   "DT": {
-    "name": "Tropiciel Tajemnic",
+    "name": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań",
     "color": "#5FA76F",
-    "short": "Detektyw"
+    "short": "Odkrywca"
   },
   "EM": {
-    "name": "Zaklinacz Uczuć",
+    "name": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów",
     "color": "#E4779C",
-    "short": "Empata"
+    "short": "Przyjaciel"
   },
   "ST": {
-    "name": "Mistrz Map",
+    "name": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb",
     "color": "#7A4DC2",
-    "short": "Strateg"
+    "short": "Myśliciel"
   },
   "KR": {
-    "name": "Tkacz Snów",
+    "name": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów",
     "color": "#EF9F27",
-    "short": "Kreator"
+    "short": "Wynalazca"
   },
   "LD": {
-    "name": "Gwardzista Odwagi",
+    "name": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń",
     "color": "#E89A3D",
-    "short": "Lider"
+    "short": "Śmiałek"
   },
   "MD": {
-    "name": "Strażnik Mostu",
+    "name": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu",
     "color": "#378ADD",
-    "short": "Mediator"
+    "short": "Spokojna Głowa"
   }
 };
 
@@ -68,7 +68,7 @@ export const DAILY_TIPS = [
       "rytual_poranny",
       "uwaznosc"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -90,7 +90,7 @@ export const DAILY_TIPS = [
       "rozmowa",
       "ciekawosc"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -112,7 +112,7 @@ export const DAILY_TIPS = [
       "wyciszenie",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -125,7 +125,7 @@ export const DAILY_TIPS = [
     "subcategory": "rytmy_dnia",
     "audience": "rodzic",
     "title": "Spokojne śniadanie bez ekranu",
-    "body": "Tropiciel potrzebuje świeżej głowy. Spróbuj dziś włączyć śniadanie bez bajek — usłyszysz pytania, które inaczej giną w hałasie.",
+    "body": "Odkrywca potrzebuje świeżej głowy. Spróbuj dziś włączyć śniadanie bez bajek — usłyszysz pytania, które inaczej giną w hałasie.",
     "icon": "rodzic",
     "tone": "leaf",
     "time": "2 min",
@@ -134,7 +134,7 @@ export const DAILY_TIPS = [
       "rytmy",
       "bez_ekranu"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -156,7 +156,7 @@ export const DAILY_TIPS = [
       "pamiec",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -178,7 +178,7 @@ export const DAILY_TIPS = [
       "niebo",
       "rytual_poranny"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -200,7 +200,7 @@ export const DAILY_TIPS = [
       "wieczor",
       "zmeczenie"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -212,7 +212,7 @@ export const DAILY_TIPS = [
     "category": "mentor",
     "subcategory": "rytmy_dnia",
     "audience": "rodzic",
-    "title": "Sen Tropiciela",
+    "title": "Sen Odkrywcy",
     "body": "Dziecko 6-12 lat potrzebuje 9-11 godzin snu. Jeśli rano jest rozdrażnione, sprawdź najpierw godzinę zaśnięcia — nie typ HD.",
     "icon": "rodzic",
     "tone": "paper",
@@ -222,7 +222,7 @@ export const DAILY_TIPS = [
       "rytmy",
       "wellbeing"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -244,7 +244,7 @@ export const DAILY_TIPS = [
       "wyciszenie",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -266,7 +266,7 @@ export const DAILY_TIPS = [
       "zmiana",
       "rytual_poranny"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -288,7 +288,7 @@ export const DAILY_TIPS = [
       "kreatywnosc",
       "bez_ekranu"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -310,7 +310,7 @@ export const DAILY_TIPS = [
       "wieczor",
       "refleksja"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -332,7 +332,7 @@ export const DAILY_TIPS = [
       "rozmowa",
       "akceptacja"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -354,7 +354,7 @@ export const DAILY_TIPS = [
       "wyobraznia",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -367,7 +367,7 @@ export const DAILY_TIPS = [
     "subcategory": "rytmy_dnia",
     "audience": "dziecko",
     "title": "Co dziś zje twój brzuszek?",
-    "body": "Zanim usiądziesz do śniadania, posłuchaj brzucha. Jest głodny czy tylko śpiący? Tropiciel zna sygnały swojego ciała.",
+    "body": "Zanim usiądziesz do śniadania, posłuchaj brzucha. Jest głodny czy tylko śpiący? Odkrywca zna sygnały swojego ciała.",
     "icon": "krysztal",
     "tone": "amber",
     "time": "1 min",
@@ -376,7 +376,7 @@ export const DAILY_TIPS = [
       "cialo",
       "rytual_poranny"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -398,7 +398,7 @@ export const DAILY_TIPS = [
       "pamiec",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -420,7 +420,7 @@ export const DAILY_TIPS = [
       "obserwacja",
       "rytual_poranny"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -442,7 +442,7 @@ export const DAILY_TIPS = [
       "wyciszenie",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -464,7 +464,7 @@ export const DAILY_TIPS = [
       "cisza",
       "poranek"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -486,7 +486,7 @@ export const DAILY_TIPS = [
       "obserwacja",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -508,7 +508,7 @@ export const DAILY_TIPS = [
       "rytual_poranny",
       "intencja"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -521,7 +521,7 @@ export const DAILY_TIPS = [
     "subcategory": "rytmy_dnia",
     "audience": "rodzic",
     "title": "Ruch w środku dnia",
-    "body": "WHO zaleca 60 minut ruchu dziennie. Nie musi to być sport — wystarczy spacer, taniec w kuchni, podchody po klatce. Ciało Tropiciela też tropi.",
+    "body": "WHO zaleca 60 minut ruchu dziennie. Nie musi to być sport — wystarczy spacer, taniec w kuchni, podchody po klatce. Ciało Odkrywcy też tropi.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "2 min",
@@ -530,7 +530,7 @@ export const DAILY_TIPS = [
       "rytmy",
       "wellbeing"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -552,7 +552,7 @@ export const DAILY_TIPS = [
       "refleksja",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -574,7 +574,7 @@ export const DAILY_TIPS = [
       "poranek",
       "bliskosc"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -596,7 +596,7 @@ export const DAILY_TIPS = [
       "wyobraznia",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -618,7 +618,7 @@ export const DAILY_TIPS = [
       "obserwacja",
       "rytual_poranny"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -640,7 +640,7 @@ export const DAILY_TIPS = [
       "kreatywnosc",
       "zabawa"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -662,7 +662,7 @@ export const DAILY_TIPS = [
       "wyciszenie",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -684,7 +684,7 @@ export const DAILY_TIPS = [
       "rytmy",
       "wellbeing"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -706,7 +706,7 @@ export const DAILY_TIPS = [
       "refleksja",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -728,7 +728,7 @@ export const DAILY_TIPS = [
       "roslina",
       "rytual_poranny"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -741,7 +741,7 @@ export const DAILY_TIPS = [
     "subcategory": "relacje",
     "audience": "rodzic",
     "title": "Rozmowa bez ekranu",
-    "body": "Spróbuj dziś wieczorem 15 minut rozmowy bez tła z telewizora czy telefonu. Tropiciel najlepiej tropi, gdy nie ma szumu.",
+    "body": "Spróbuj dziś wieczorem 15 minut rozmowy bez tła z telewizora czy telefonu. Odkrywca najlepiej tropi, gdy nie ma szumu.",
     "icon": "rodzic",
     "tone": "rose",
     "time": "2 min",
@@ -750,7 +750,7 @@ export const DAILY_TIPS = [
       "rozmowa",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -772,7 +772,7 @@ export const DAILY_TIPS = [
       "rytual_poranny",
       "spokoj"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -794,7 +794,7 @@ export const DAILY_TIPS = [
       "wyobraznia",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -816,7 +816,7 @@ export const DAILY_TIPS = [
       "pytania",
       "uwaga"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -838,7 +838,7 @@ export const DAILY_TIPS = [
       "refleksja",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -860,7 +860,7 @@ export const DAILY_TIPS = [
       "obserwacja",
       "rytual_poranny"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -873,7 +873,7 @@ export const DAILY_TIPS = [
     "subcategory": "rytmy_dnia",
     "audience": "rodzic",
     "title": "Woda zamiast słodyczy",
-    "body": "Tropiciel pełen pytań szybko się odwadnia. Postaw na stole szklankę wody w zasięgu ręki. Mózg lepiej pracuje nawodniony.",
+    "body": "Odkrywca pełen pytań szybko się odwadnia. Postaw na stole szklankę wody w zasięgu ręki. Mózg lepiej pracuje nawodniony.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "1 min",
@@ -882,7 +882,7 @@ export const DAILY_TIPS = [
       "wellbeing",
       "rytmy"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -904,7 +904,7 @@ export const DAILY_TIPS = [
       "sen",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -926,7 +926,7 @@ export const DAILY_TIPS = [
       "intencja",
       "rytual_poranny"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -948,7 +948,7 @@ export const DAILY_TIPS = [
       "wieczor",
       "bliskosc"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -970,7 +970,7 @@ export const DAILY_TIPS = [
       "obserwacja",
       "rytual_poranny"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -992,7 +992,7 @@ export const DAILY_TIPS = [
       "wyobraznia",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1014,7 +1014,7 @@ export const DAILY_TIPS = [
       "poranek",
       "kreatywnosc"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1036,7 +1036,7 @@ export const DAILY_TIPS = [
       "zapach",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1058,7 +1058,7 @@ export const DAILY_TIPS = [
       "rytual_poranny",
       "sen"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1080,7 +1080,7 @@ export const DAILY_TIPS = [
       "pytania",
       "szczerosc"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1093,7 +1093,7 @@ export const DAILY_TIPS = [
     "subcategory": "cisza_skupienie",
     "audience": "rodzic",
     "title": "Jedna rzecz po drugiej",
-    "body": "Tropiciel źle znosi pośpiech. Spróbuj rano nie wydawać trzech poleceń naraz. Najpierw zęby, potem ubranie. To wystarczy.",
+    "body": "Odkrywca źle znosi pośpiech. Spróbuj rano nie wydawać trzech poleceń naraz. Najpierw zęby, potem ubranie. To wystarczy.",
     "icon": "rodzic",
     "tone": "paper",
     "time": "1 min",
@@ -1102,7 +1102,7 @@ export const DAILY_TIPS = [
       "rytual_poranny",
       "spokoj"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1124,7 +1124,7 @@ export const DAILY_TIPS = [
       "sen",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1137,7 +1137,7 @@ export const DAILY_TIPS = [
     "subcategory": "rytmy_dnia",
     "audience": "rodzic",
     "title": "Świeże powietrze rano",
-    "body": "Otwórz na pięć minut okno przy śniadaniu. Świeże powietrze wybudza ciekawość lepiej niż druga kawa. Tropiciel potrzebuje tlenu.",
+    "body": "Otwórz na pięć minut okno przy śniadaniu. Świeże powietrze wybudza ciekawość lepiej niż druga kawa. Odkrywca potrzebuje tlenu.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "1 min",
@@ -1146,7 +1146,7 @@ export const DAILY_TIPS = [
       "rytmy",
       "wellbeing"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1168,7 +1168,7 @@ export const DAILY_TIPS = [
       "wyobraznia",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1190,7 +1190,7 @@ export const DAILY_TIPS = [
       "rytual_poranny",
       "ruch"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1212,7 +1212,7 @@ export const DAILY_TIPS = [
       "rozmowa",
       "sluchanie"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1234,7 +1234,7 @@ export const DAILY_TIPS = [
       "dzwieki",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1256,7 +1256,7 @@ export const DAILY_TIPS = [
       "swiatlo",
       "rytual_poranny"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1269,7 +1269,7 @@ export const DAILY_TIPS = [
     "subcategory": "granice_dt",
     "audience": "rodzic",
     "title": "Cicha godzina przed snem",
-    "body": "Godzina przed snem bez ekranu i bez dyskusji o trudnych sprawach. Tropiciel potrzebuje wyciszenia, żeby zasnąć spokojnie.",
+    "body": "Godzina przed snem bez ekranu i bez dyskusji o trudnych sprawach. Odkrywca potrzebuje wyciszenia, żeby zasnąć spokojnie.",
     "icon": "rodzic",
     "tone": "paper",
     "time": "2 min",
@@ -1278,7 +1278,7 @@ export const DAILY_TIPS = [
       "sen",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1300,7 +1300,7 @@ export const DAILY_TIPS = [
       "rytual_poranny",
       "ciekawosc"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1322,7 +1322,7 @@ export const DAILY_TIPS = [
       "oddech",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1344,7 +1344,7 @@ export const DAILY_TIPS = [
       "rytmy",
       "spokoj"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1366,7 +1366,7 @@ export const DAILY_TIPS = [
       "artefakt",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1388,7 +1388,7 @@ export const DAILY_TIPS = [
       "obserwacja",
       "rytual_poranny"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1401,7 +1401,7 @@ export const DAILY_TIPS = [
     "subcategory": "nudy_jako_paliwo",
     "audience": "rodzic",
     "title": "Nuda po szkole",
-    "body": "Po szkole nie zapełniaj od razu czasu zajęciami. 30 minut nudy daje mózgowi reset. Tropiciel po szkole potrzebuje pustki.",
+    "body": "Po szkole nie zapełniaj od razu czasu zajęciami. 30 minut nudy daje mózgowi reset. Odkrywca po szkole potrzebuje pustki.",
     "icon": "rodzic",
     "tone": "paper",
     "time": "2 min",
@@ -1410,7 +1410,7 @@ export const DAILY_TIPS = [
       "szkola",
       "regeneracja"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1432,7 +1432,7 @@ export const DAILY_TIPS = [
       "refleksja",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1445,7 +1445,7 @@ export const DAILY_TIPS = [
     "subcategory": "relacje",
     "audience": "rodzic",
     "title": "Twoje zmęczenie to też dane",
-    "body": "Jeśli jesteś dziś wykończona, to normalne. Tropiciel pyta dużo i potrafi zmęczyć. Możesz powiedzieć: dziś mama jest cicha. To uczciwe.",
+    "body": "Jeśli jesteś dziś wykończona, to normalne. Odkrywca pyta dużo i potrafi zmęczyć. Możesz powiedzieć: dziś mama jest cicha. To uczciwe.",
     "icon": "rodzic",
     "tone": "rose",
     "time": "2 min",
@@ -1454,7 +1454,7 @@ export const DAILY_TIPS = [
       "szczerosc",
       "wellbeing"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1476,7 +1476,7 @@ export const DAILY_TIPS = [
       "cisza",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1489,7 +1489,7 @@ export const DAILY_TIPS = [
     "subcategory": "pamiec_szczegoly",
     "audience": "dziecko",
     "title": "Sowa widzi za siebie",
-    "body": "Sowa potrafi obrócić głowę o 270 stopni. Tropiciele uczą się od niej: czasem warto popatrzeć tam, gdzie inni w ogóle nie patrzą.",
+    "body": "Sowa potrafi obrócić głowę o 270 stopni. Odkrywcy uczą się od niej: czasem warto popatrzeć tam, gdzie inni w ogóle nie patrzą.",
     "icon": "zwoj",
     "tone": "magic",
     "time": "1 min",
@@ -1498,7 +1498,7 @@ export const DAILY_TIPS = [
       "podsumowanie",
       "rytual_poranny"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1510,7 +1510,7 @@ export const DAILY_TIPS = [
     "category": "mentor",
     "subcategory": "granice_dt",
     "audience": "rodzic",
-    "title": "Miesiąc obok Tropiciela",
+    "title": "Miesiąc obok Odkrywcy",
     "body": "Miesiąc razem z dociekliwym dzieckiem to wyczyn. Zauważ, co zmieniło się w was — w nim, ale też w tobie. Ciekawość zaraża obie strony.",
     "icon": "rodzic",
     "tone": "rose",
@@ -1520,7 +1520,7 @@ export const DAILY_TIPS = [
       "relacje",
       "wieczor"
     ],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   },
@@ -1541,7 +1541,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -1552,7 +1552,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "mentor",
     "title": "Wieczorne pytanie zamiast pytania o oceny",
-    "body": "Zapytaj dzis dziecko: 'jaki dzis miales/mialas moment cieply?'. Empata otwiera sie przez emocje, nie przez ranking dnia. Sluchaj bez poprawek.",
+    "body": "Zapytaj dzis dziecko: 'jaki dzis miales/mialas moment cieply?'. Przyjaciel otwiera sie przez emocje, nie przez ranking dnia. Sluchaj bez poprawek.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "2 min",
@@ -1562,7 +1562,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "rozmowa_sluchanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -1583,7 +1583,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "rytual_kojacy",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -1594,7 +1594,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "medrzec",
     "title": "Czyje to byly dzis uczucia?",
-    "body": "Empata chlonie cudze emocje. Pomysl: czy smutek, ktory dzis czulas, czules, byl naprawde Twoj? A moze ktos obok byl smutny? Oddychaj - to nie wszystko Twoje.",
+    "body": "Przyjaciel chlonie cudze emocje. Pomysl: czy smutek, ktory dzis czulas, czules, byl naprawde Twoj? A moze ktos obok byl smutny? Oddychaj - to nie wszystko Twoje.",
     "icon": "medrzec",
     "tone": "rose",
     "time": "2 min",
@@ -1604,7 +1604,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "granica_empaty",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -1615,7 +1615,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "mentor",
     "title": "Poranny przedsionek emocji",
-    "body": "Zanim wyjdziecie z domu, dajcie sobie 30 sekund ciszy. Empata potrzebuje wewnetrznego progu, by nie wchodzic w swiat z nadmiarem. Oddech razem - w ciszy.",
+    "body": "Zanim wyjdziecie z domu, dajcie sobie 30 sekund ciszy. Przyjaciel potrzebuje wewnetrznego progu, by nie wchodzic w swiat z nadmiarem. Oddech razem - w ciszy.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "1 min",
@@ -1625,7 +1625,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "rytual_kojacy",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -1646,7 +1646,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -1667,7 +1667,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -1688,7 +1688,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "granica_empaty",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -1709,7 +1709,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "emocje_rozpoznanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -1720,7 +1720,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "mentor",
     "title": "Zapytaj o kolor jej serca dzis rano",
-    "body": "Zamiast 'jak sie czujesz?' - sprobuj: 'jakiego koloru jest Twoje serce dzis rano?'. Empata odpowie szczerze, bo ma swoj jezyk. Nie oceniaj koloru - tylko go przyjmij.",
+    "body": "Zamiast 'jak sie czujesz?' - sprobuj: 'jakiego koloru jest Twoje serce dzis rano?'. Przyjaciel odpowie szczerze, bo ma swoj jezyk. Nie oceniaj koloru - tylko go przyjmij.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "1 min",
@@ -1730,7 +1730,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "rozmowa_sluchanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -1751,7 +1751,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -1772,7 +1772,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -1783,7 +1783,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "mentor",
     "title": "Niedziela bez 'co dzis robilismy zle'",
-    "body": "Empata juz sama analizuje swoje bledy. Dzis wieczorem opowiedzcie tylko o trzech cieplych momentach z tygodnia. Reszta poczeka.",
+    "body": "Przyjaciel juz sama analizuje swoje bledy. Dzis wieczorem opowiedzcie tylko o trzech cieplych momentach z tygodnia. Reszta poczeka.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "2 min",
@@ -1793,7 +1793,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "rozmowa_sluchanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -1814,7 +1814,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "rytual_kojacy",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -1835,7 +1835,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "granica_empaty",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -1846,7 +1846,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "mentor",
     "title": "Sprawdz, czy spala gleboko",
-    "body": "Empata czesto sni duzo i intensywnie. Jesli dziecko jest dzis rano przytulone do Was bardziej niz zwykle - zwolnijcie tempo. Daj 5 dodatkowych minut na rozbudzenie.",
+    "body": "Przyjaciel czesto sni duzo i intensywnie. Jesli dziecko jest dzis rano przytulone do Was bardziej niz zwykle - zwolnijcie tempo. Daj 5 dodatkowych minut na rozbudzenie.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "1 min",
@@ -1856,7 +1856,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "rytmy_dnia",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -1877,7 +1877,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -1898,7 +1898,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "empatia_komus",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -1909,7 +1909,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "mentor",
     "title": "Wieczorne 'odkladanie' cudzego",
-    "body": "Powiedzcie razem przed snem: 'co bylo moje, zostaje. co bylo cudze, oddaje swiatu.' Empata potrzebuje rytualu rozdzielania. To go uspokaja.",
+    "body": "Powiedzcie razem przed snem: 'co bylo moje, zostaje. co bylo cudze, oddaje swiatu.' Przyjaciel potrzebuje rytualu rozdzielania. To go uspokaja.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "2 min",
@@ -1919,7 +1919,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "granica_empaty",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -1940,7 +1940,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -1961,7 +1961,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "emocje_rozpoznanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -1971,8 +1971,8 @@ export const DAILY_TIPS = [
     "day": 12,
     "slot": "poranek",
     "category": "mentor",
-    "title": "Empata potrzebuje cichego sniadania",
-    "body": "Bajka w tle, telewizor, glosne radio - to dla Empaty juz za duzo bodzcow z rana. Sprobujcie dzis zjesc w ciszy lub przy cichej muzyce. Zobaczcie roznice.",
+    "title": "Przyjaciel potrzebuje cichego sniadania",
+    "body": "Bajka w tle, telewizor, glosne radio - to dla Przyjaciela juz za duzo bodzcow z rana. Sprobujcie dzis zjesc w ciszy lub przy cichej muzyce. Zobaczcie roznice.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "1 min",
@@ -1982,7 +1982,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "rytual_kojacy",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2003,7 +2003,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2024,7 +2024,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "granica_empaty",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2034,7 +2034,7 @@ export const DAILY_TIPS = [
     "day": 13,
     "slot": "wieczor",
     "category": "mentor",
-    "title": "Pytanie, ktore otwiera Empate",
+    "title": "Pytanie, ktore otwiera Przyjaciela",
     "body": "Zamiast 'jak bylo w szkole?' - sprobuj: 'kto dzis byl dla Ciebie mily?' albo 'kogo dzis bylo Ci zal?'. Te pytania trafiaja do jej jezyka.",
     "icon": "rodzic",
     "tone": "amber",
@@ -2045,7 +2045,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "rozmowa_sluchanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2066,7 +2066,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "samotnosc",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2077,7 +2077,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "mentor",
     "title": "Polowa drogi - zobaczcie, co sie zmienilo",
-    "body": "Dwa tygodnie razem. Zapytajcie sie nawzajem rano: 'co juz mi sie udalo zauwazyc w sobie?'. Empata kwitnie, gdy ktos widzi jej drobne kroki.",
+    "body": "Dwa tygodnie razem. Zapytajcie sie nawzajem rano: 'co juz mi sie udalo zauwazyc w sobie?'. Przyjaciel kwitnie, gdy ktos widzi jej drobne kroki.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "2 min",
@@ -2087,7 +2087,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "rozmowa_sluchanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2108,7 +2108,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2129,7 +2129,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "empatia_komus",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2140,7 +2140,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "mentor",
     "title": "Gdy dziecko placze 'za innych'",
-    "body": "Jesli Empata placze nad smutna bajka lub historia kolegi - nie mowcie 'to tylko film'. Powiedzcie: 'masz dobre, czujace serce'. Walidacja, nie odcinanie.",
+    "body": "Jesli Przyjaciel placze nad smutna bajka lub historia kolegi - nie mowcie 'to tylko film'. Powiedzcie: 'masz dobre, czujace serce'. Walidacja, nie odcinanie.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "2 min",
@@ -2150,7 +2150,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "empatia_komus",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2171,7 +2171,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "rytual_kojacy",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2192,7 +2192,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "granica_empaty",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2203,7 +2203,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "mentor",
     "title": "Dzis sprawdzcie zapas wody",
-    "body": "Empata zapomina pic - bo jest w glowie u innych. Wreczcie rano butelke i krotko: 'twoja na dzis'. Drobny gest, duza zmiana w samopoczuciu.",
+    "body": "Przyjaciel zapomina pic - bo jest w glowie u innych. Wreczcie rano butelke i krotko: 'twoja na dzis'. Drobny gest, duza zmiana w samopoczuciu.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "1 min",
@@ -2213,7 +2213,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "rytmy_dnia",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2224,7 +2224,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "mentor",
     "title": "Wieczor ze swieca lub lampka nocna",
-    "body": "Empata zasypia lepiej w cieplym, miekkim swietle niz w jasnym. Wieczorem zgascie gorne swiatlo. Zostawcie tylko jedna lampke. Swiat sam sie ucisza.",
+    "body": "Przyjaciel zasypia lepiej w cieplym, miekkim swietle niz w jasnym. Wieczorem zgascie gorne swiatlo. Zostawcie tylko jedna lampke. Swiat sam sie ucisza.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "1 min",
@@ -2234,7 +2234,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "rytmy_dnia",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2255,7 +2255,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2276,7 +2276,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "emocje_rozpoznanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2287,7 +2287,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "mentor",
     "title": "Gdy zaczyna sie przeladowanie",
-    "body": "Jesli Empata rano placze 'bez powodu' - czesto to za duzo bodzcow z poprzedniego dnia. Zwolnijcie tempo. Mniej rozmow. Wiecej ciszy. To nie kaprys.",
+    "body": "Jesli Przyjaciel rano placze 'bez powodu' - czesto to za duzo bodzcow z poprzedniego dnia. Zwolnijcie tempo. Mniej rozmow. Wiecej ciszy. To nie kaprys.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "2 min",
@@ -2297,7 +2297,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "emocje_rozpoznanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2318,7 +2318,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2339,7 +2339,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2350,7 +2350,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "mentor",
     "title": "Wspolne 'co dzis czulam, co dzis czules'",
-    "body": "Zaproponujcie wieczorny rytual: jedno zdanie kazdy - 'dzis czulam/czulem...'. Mama, tata tez. Empata uczy sie, ze uczucia maja wszyscy. To uziemia.",
+    "body": "Zaproponujcie wieczorny rytual: jedno zdanie kazdy - 'dzis czulam/czulem...'. Mama, tata tez. Przyjaciel uczy sie, ze uczucia maja wszyscy. To uziemia.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "2 min",
@@ -2360,7 +2360,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "rytual_kojacy",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2381,7 +2381,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "granica_empaty",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2391,8 +2391,8 @@ export const DAILY_TIPS = [
     "day": 24,
     "slot": "poranek",
     "category": "mentor",
-    "title": "Empata + ruch = rownowaga",
-    "body": "Empata ma duzo emocji w ciele. 15 minut ruchu rano - taniec, skakanie, rower - to nie 'sport', to regulacja emocji. Sprobujcie dzis.",
+    "title": "Przyjaciel + ruch = rownowaga",
+    "body": "Przyjaciel ma duzo emocji w ciele. 15 minut ruchu rano - taniec, skakanie, rower - to nie 'sport', to regulacja emocji. Sprobujcie dzis.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "1 min",
@@ -2402,7 +2402,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "rytmy_dnia",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2423,7 +2423,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "rytmy_dnia",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2444,7 +2444,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "empatia_komus",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2465,7 +2465,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "emocje_rozpoznanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2486,7 +2486,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "rytual_kojacy",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2507,7 +2507,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "emocje_rozpoznanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2518,7 +2518,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "mentor",
     "title": "Daj jej, daj mu wybor koloru ubrania",
-    "body": "Empata czuje przez kolor. Daj dziecku rano wybor: dwie bluzki, w dwoch kolorach. Decyzja kolorem to maly trening 'co mi dzis sluzy'.",
+    "body": "Przyjaciel czuje przez kolor. Daj dziecku rano wybor: dwie bluzki, w dwoch kolorach. Decyzja kolorem to maly trening 'co mi dzis sluzy'.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "1 min",
@@ -2528,7 +2528,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "rytual_kojacy",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2549,7 +2549,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2570,7 +2570,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2581,7 +2581,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "mentor",
     "title": "Zauwazcie postep, nie idealnosc",
-    "body": "Cztery tygodnie razem. Powiedzcie dziecku konkretnie: 'widze, ze ostatnio lepiej mowisz, co czujesz' albo 'widze, ze umiesz powiedziec nie'. Empata kwitnie od dostrzegania.",
+    "body": "Cztery tygodnie razem. Powiedzcie dziecku konkretnie: 'widze, ze ostatnio lepiej mowisz, co czujesz' albo 'widze, ze umiesz powiedziec nie'. Przyjaciel kwitnie od dostrzegania.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "2 min",
@@ -2591,7 +2591,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "emocje_rozpoznanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2612,7 +2612,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "emocje_rozpoznanie",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2623,7 +2623,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "mentor",
     "title": "Serca bijące w rytmie",
-    "body": "Gdy dwie osoby długo siedzą obok siebie, ich serca zaczynają bić w podobnym rytmie. Empata wyczuwa to wcześniej niż wszyscy.",
+    "body": "Gdy dwie osoby długo siedzą obok siebie, ich serca zaczynają bić w podobnym rytmie. Przyjaciel wyczuwa to wcześniej niż wszyscy.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "1 min",
@@ -2633,7 +2633,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "rytual_kojacy",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2654,7 +2654,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "rytual_kojacy",
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -2676,7 +2676,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "elastycznosc_plan_b",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -2686,8 +2686,8 @@ export const DAILY_TIPS = [
     "day": 2,
     "slot": "poranek",
     "category": "mentor",
-    "title": "Dziecko-Strateg lubi wiedzieć co dalej",
-    "body": "Rodzicu, rano powiedz krótko, co będzie po kolei: śniadanie, ubieranie, droga. Twoje dziecko-Strateg wycisza się, gdy zna trasę.",
+    "title": "Dziecko-Myśliciel lubi wiedzieć co dalej",
+    "body": "Rodzicu, rano powiedz krótko, co będzie po kolei: śniadanie, ubieranie, droga. Twoje dziecko-Myśliciel wycisza się, gdy zna trasę.",
     "icon": "rodzic",
     "tone": "paper",
     "time": "1 min",
@@ -2697,7 +2697,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "rytm_rytual_dnia",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -2719,7 +2719,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "liczby_logika",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -2730,7 +2730,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "mentor",
     "title": "Gdy plan się sypie, nie znika",
-    "body": "Rodzicu, jeśli dzisiejszy plan dziecka się rozsypał, powiedz: plan B to też plan. Strateg uczy się, że mapy się rysuje wielokrotnie.",
+    "body": "Rodzicu, jeśli dzisiejszy plan dziecka się rozsypał, powiedz: plan B to też plan. Myśliciel uczy się, że mapy się rysuje wielokrotnie.",
     "icon": "rodzic",
     "tone": "paper",
     "time": "1 min",
@@ -2740,7 +2740,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "elastycznosc_plan_b",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -2751,7 +2751,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "mentor",
     "title": "Dawaj wybór z dwóch ścieżek",
-    "body": "Rodzicu, rano zaproponuj wybór: czerwona koszulka czy zielona, owsianka czy kanapka. Strateg potrzebuje czuć, że decyduje o własnej mapie.",
+    "body": "Rodzicu, rano zaproponuj wybór: czerwona koszulka czy zielona, owsianka czy kanapka. Myśliciel potrzebuje czuć, że decyduje o własnej mapie.",
     "icon": "rodzic",
     "tone": "paper",
     "time": "1 min",
@@ -2761,7 +2761,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "planowanie",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -2782,7 +2782,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "planowanie",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -2793,7 +2793,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "mentor",
     "title": "Pochwal proces, nie tylko wynik",
-    "body": "Rodzicu, gdy dziecko coś planuje, powiedz: widzę, że rozkładasz to na kroki. Strateg rośnie, gdy widzi, że droga się liczy bardziej niż meta.",
+    "body": "Rodzicu, gdy dziecko coś planuje, powiedz: widzę, że rozkładasz to na kroki. Myśliciel rośnie, gdy widzi, że droga się liczy bardziej niż meta.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "1 min",
@@ -2803,7 +2803,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "nagroda_proces",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -2824,7 +2824,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "planowanie",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -2845,7 +2845,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "perfekcjonizm_antidote",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -2856,7 +2856,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "mentor",
     "title": "Pozwól dziecku planować weekend",
-    "body": "Rodzicu, daj dziecku-Strategowi szansę zaplanować jedną rzecz na weekend od początku do końca. Nawet drobiazg. Buduje to poczucie kompetencji.",
+    "body": "Rodzicu, daj dziecku-Myślicielowi szansę zaplanować jedną rzecz na weekend od początku do końca. Nawet drobiazg. Buduje to poczucie kompetencji.",
     "icon": "rodzic",
     "tone": "paper",
     "time": "1 min",
@@ -2866,7 +2866,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "planowanie",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -2887,7 +2887,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "planowanie",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -2898,7 +2898,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "mentor",
     "title": "Sen jest drogą do jutra",
-    "body": "Rodzicu, przypomnij dziecku, że sen 9–13 godzin to nie strata czasu, tylko cicha podróż mózgu. Strateg odpoczywa, by jutro lepiej planować.",
+    "body": "Rodzicu, przypomnij dziecku, że sen 9–13 godzin to nie strata czasu, tylko cicha podróż mózgu. Myśliciel odpoczywa, by jutro lepiej planować.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "1 min",
@@ -2908,7 +2908,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "zdrowie_strateg",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -2929,7 +2929,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "perfekcjonizm_antidote",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -2950,7 +2950,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "elastycznosc_plan_b",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -2961,7 +2961,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "mentor",
     "title": "Nie poprawiaj każdego planu",
-    "body": "Rodzicu, gdy dziecko pokaże swój plan, nie poprawiaj od razu. Zapytaj: a co potem? Strateg uczy się myśleć dalej, gdy ma przestrzeń.",
+    "body": "Rodzicu, gdy dziecko pokaże swój plan, nie poprawiaj od razu. Zapytaj: a co potem? Myśliciel uczy się myśleć dalej, gdy ma przestrzeń.",
     "icon": "rodzic",
     "tone": "paper",
     "time": "1 min",
@@ -2971,7 +2971,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "planowanie",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -2992,7 +2992,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "mapy_kolejnosc",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -3003,7 +3003,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "mentor",
     "title": "Frustracja, gdy plan się sypie",
-    "body": "Rodzicu, gdy dziecko-Strateg wpada w złość, że coś poszło nie po jego planie, usiądź obok i powiedz: rozumiem, mapa się zmieniła. Pomóż przerysować.",
+    "body": "Rodzicu, gdy dziecko-Myśliciel wpada w złość, że coś poszło nie po jego planie, usiądź obok i powiedz: rozumiem, mapa się zmieniła. Pomóż przerysować.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "1 min",
@@ -3013,7 +3013,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "elastycznosc_plan_b",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -3034,7 +3034,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "odraczanie_gratyfikacji",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -3055,7 +3055,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "planowanie",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -3066,7 +3066,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "mentor",
     "title": "Pytaj o jak, nie o czemu",
-    "body": "Rodzicu, gdy dziecko coś planuje, pytaj raczej jak chcesz to zrobić niż czemu tak. Strateg rozkwita w pytaniach o sposób.",
+    "body": "Rodzicu, gdy dziecko coś planuje, pytaj raczej jak chcesz to zrobić niż czemu tak. Myśliciel rozkwita w pytaniach o sposób.",
     "icon": "rodzic",
     "tone": "paper",
     "time": "1 min",
@@ -3076,7 +3076,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "planowanie",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -3097,7 +3097,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "planowanie",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -3108,7 +3108,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "mentor",
     "title": "Krótkie ostrzeżenia o zmianie",
-    "body": "Rodzicu, gdy plan dnia się zmieni, uprzedź dziecko z wyprzedzeniem. Strateg trzyma się map, więc nagła zmiana boli mocniej.",
+    "body": "Rodzicu, gdy plan dnia się zmieni, uprzedź dziecko z wyprzedzeniem. Myśliciel trzyma się map, więc nagła zmiana boli mocniej.",
     "icon": "rodzic",
     "tone": "paper",
     "time": "1 min",
@@ -3118,7 +3118,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "planowanie",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -3139,7 +3139,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "planowanie",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -3150,7 +3150,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "mentor",
     "title": "Nie ratuj zbyt szybko",
-    "body": "Rodzicu, gdy dziecko utyka na zadaniu, daj chwilę więcej niż zwykle. Strateg uczy się przez próbowanie kolejnych kroków.",
+    "body": "Rodzicu, gdy dziecko utyka na zadaniu, daj chwilę więcej niż zwykle. Myśliciel uczy się przez próbowanie kolejnych kroków.",
     "icon": "rodzic",
     "tone": "paper",
     "time": "1 min",
@@ -3160,7 +3160,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "odraczanie_gratyfikacji",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -3171,7 +3171,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "medrzec",
     "title": "Trzy rzeczy, które wiem o sobie",
-    "body": "Mędrzec pyta: wymień trzy rzeczy, które wiesz o sobie dzisiaj. Nawet drobne. Strateg zbiera wiedzę o sobie jak zwoje.",
+    "body": "Mędrzec pyta: wymień trzy rzeczy, które wiesz o sobie dzisiaj. Nawet drobne. Myśliciel zbiera wiedzę o sobie jak zwoje.",
     "icon": "medrzec",
     "tone": "paper",
     "time": "2 min",
@@ -3181,7 +3181,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "planowanie",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -3192,7 +3192,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "mentor",
     "title": "Pochwal próbę, nie tylko sukces",
-    "body": "Rodzicu, dziś pochwal próbę: spróbowałeś, mimo że nie wyszło. Strateg uczy się wtedy, że próbowanie ma wartość samo w sobie.",
+    "body": "Rodzicu, dziś pochwal próbę: spróbowałeś, mimo że nie wyszło. Myśliciel uczy się wtedy, że próbowanie ma wartość samo w sobie.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "1 min",
@@ -3202,7 +3202,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "nagroda_proces",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -3223,7 +3223,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "planowanie",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -3234,7 +3234,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "mentor",
     "title": "Krótkie listy, nie wielkie cele",
-    "body": "Rodzicu, dla dziecka-Stratega lepsza jest krótka, zrobiona lista niż długi, niezrealizowany cel. Tnij rzeczy na małe kawałki.",
+    "body": "Rodzicu, dla dziecka-Myśliciela lepsza jest krótka, zrobiona lista niż długi, niezrealizowany cel. Tnij rzeczy na małe kawałki.",
     "icon": "rodzic",
     "tone": "paper",
     "time": "1 min",
@@ -3244,7 +3244,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "planowanie",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -3265,7 +3265,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "mapy_kolejnosc",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -3275,8 +3275,8 @@ export const DAILY_TIPS = [
     "day": 27,
     "slot": "poranek",
     "category": "mentor",
-    "title": "Strateg potrzebuje przerw",
-    "body": "Rodzicu, między zadaniami daj dziecku-Strategowi krótką pauzę. Pięć minut bez planu, bez ekranu. Mózg porządkuje wtedy mapy w tle.",
+    "title": "Myśliciel potrzebuje przerw",
+    "body": "Rodzicu, między zadaniami daj dziecku-Myślicielowi krótką pauzę. Pięć minut bez planu, bez ekranu. Mózg porządkuje wtedy mapy w tle.",
     "icon": "rodzic",
     "tone": "paper",
     "time": "1 min",
@@ -3286,7 +3286,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "planowanie",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -3307,7 +3307,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "planowanie",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -3328,7 +3328,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "elastycznosc_plan_b",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -3349,7 +3349,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "planowanie",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -3360,7 +3360,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "kraina",
     "title": "Mrówki budują autostrady",
-    "body": "Mrówki potrafią znaleźć najkrótszą drogę między dwoma punktami — bez żadnej mapy. Strateg patrzy na świat podobnie: szuka prostej linii w gąszczu kresek.",
+    "body": "Mrówki potrafią znaleźć najkrótszą drogę między dwoma punktami — bez żadnej mapy. Myśliciel patrzy na świat podobnie: szuka prostej linii w gąszczu kresek.",
     "icon": "map",
     "tone": "magic",
     "time": "2 min",
@@ -3370,7 +3370,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "mapy_kolejnosc",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -3381,7 +3381,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "mentor",
     "title": "Następna mapa już się rysuje",
-    "body": "Rodzicu, dziś powiedz dziecku: skończyliśmy tę mapę razem. Następna już się rysuje. Strateg odpoczywa lepiej, gdy wie, że droga ma ciąg dalszy.",
+    "body": "Rodzicu, dziś powiedz dziecku: skończyliśmy tę mapę razem. Następna już się rysuje. Myśliciel odpoczywa lepiej, gdy wie, że droga ma ciąg dalszy.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "2 min",
@@ -3391,7 +3391,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "planowanie",
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -3413,7 +3413,7 @@ export const DAILY_TIPS = [
       "wyobraznia",
       "poranek"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3435,7 +3435,7 @@ export const DAILY_TIPS = [
       "skarbnica",
       "rytual"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3448,7 +3448,7 @@ export const DAILY_TIPS = [
     "subcategory": "proces_nie_wynik",
     "audience": "rodzic",
     "title": "Pochwal próbowanie, nie efekt",
-    "body": "Zamiast 'ładnie narysowałeś', spróbuj 'widzę, że próbowałeś czegoś nowego'. Dla Kreatora ważna jest droga, nie ocena końcowa.",
+    "body": "Zamiast 'ładnie narysowałeś', spróbuj 'widzę, że próbowałeś czegoś nowego'. Dla Wynalazcy ważna jest droga, nie ocena końcowa.",
     "icon": "mentor",
     "tone": "rose",
     "time": "2 min",
@@ -3457,7 +3457,7 @@ export const DAILY_TIPS = [
       "proces",
       "komunikacja"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3479,7 +3479,7 @@ export const DAILY_TIPS = [
       "wyobraznia",
       "kolor"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3491,8 +3491,8 @@ export const DAILY_TIPS = [
     "category": "mentor",
     "subcategory": "rytmy_dnia",
     "audience": "rodzic",
-    "title": "Kreator zapomina o ciele",
-    "body": "Dzieci-Kreatorzy w zapale tworzenia potrafią pominąć obiad. Łagodne przypomnienia o jedzeniu i wodzie są ważniejsze niż zegar.",
+    "title": "Wynalazca zapomina o ciele",
+    "body": "Dzieci-Wynalazcy w zapale tworzenia potrafią pominąć obiad. Łagodne przypomnienia o jedzeniu i wodzie są ważniejsze niż zegar.",
     "icon": "mentor",
     "tone": "leaf",
     "time": "2 min",
@@ -3501,7 +3501,7 @@ export const DAILY_TIPS = [
       "woda",
       "rytm_dnia"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3514,7 +3514,7 @@ export const DAILY_TIPS = [
     "subcategory": "balagan_porzadek",
     "audience": "rodzic",
     "title": "Bałagan to ślad pracy, nie nieporządek",
-    "body": "Po sesji tworzenia warto ustalić prosty rytuał: pięć minut zbierania razem. Nie kara, tylko zamknięcie procesu. Kreator potrzebuje granicy.",
+    "body": "Po sesji tworzenia warto ustalić prosty rytuał: pięć minut zbierania razem. Nie kara, tylko zamknięcie procesu. Wynalazca potrzebuje granicy.",
     "icon": "mentor",
     "tone": "leaf",
     "time": "2 min",
@@ -3523,7 +3523,7 @@ export const DAILY_TIPS = [
       "rytual",
       "sprzatanie"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3545,7 +3545,7 @@ export const DAILY_TIPS = [
       "pustynia",
       "sekret"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3567,7 +3567,7 @@ export const DAILY_TIPS = [
       "dzielo",
       "uwaga"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3589,7 +3589,7 @@ export const DAILY_TIPS = [
       "zapisywanie",
       "wartosc"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3611,7 +3611,7 @@ export const DAILY_TIPS = [
       "uwaga",
       "dzien"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3623,8 +3623,8 @@ export const DAILY_TIPS = [
     "category": "mentor",
     "subcategory": "rytmy_dnia",
     "audience": "rodzic",
-    "title": "Sen Kreatora porządkuje pomysły",
-    "body": "Dzieci 6-12 lat potrzebują 9-13 godzin snu. Dla małego Kreatora to czas, w którym mózg porządkuje wszystko, co wymyślił w dzień.",
+    "title": "Sen Wynalazcy porządkuje pomysły",
+    "body": "Dzieci 6-12 lat potrzebują 9-13 godzin snu. Dla małego Wynalazcy to czas, w którym mózg porządkuje wszystko, co wymyślił w dzień.",
     "icon": "mentor",
     "tone": "leaf",
     "time": "2 min",
@@ -3633,7 +3633,7 @@ export const DAILY_TIPS = [
       "wellbeing",
       "regeneracja"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3655,7 +3655,7 @@ export const DAILY_TIPS = [
       "sprzatanie",
       "system"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3677,7 +3677,7 @@ export const DAILY_TIPS = [
       "sen",
       "wyobraznia"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3699,7 +3699,7 @@ export const DAILY_TIPS = [
       "tworzenie",
       "wzor"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3721,7 +3721,7 @@ export const DAILY_TIPS = [
       "kraina",
       "pustynia"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3743,7 +3743,7 @@ export const DAILY_TIPS = [
       "proces",
       "akceptacja"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3765,7 +3765,7 @@ export const DAILY_TIPS = [
       "na_potem",
       "wybor"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3787,7 +3787,7 @@ export const DAILY_TIPS = [
       "szkola",
       "wyobraznia"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3800,7 +3800,7 @@ export const DAILY_TIPS = [
     "subcategory": "rytmy_dnia",
     "audience": "rodzic",
     "title": "Skład dnia daje przestrzeń na tworzenie",
-    "body": "Kreator kwitnie, gdy ma czas wolny bez planu, ale też stałe ramy: posiłki, sen, ruch. Wolność rośnie w przewidywalności.",
+    "body": "Wynalazca kwitnie, gdy ma czas wolny bez planu, ale też stałe ramy: posiłki, sen, ruch. Wolność rośnie w przewidywalności.",
     "icon": "mentor",
     "tone": "leaf",
     "time": "2 min",
@@ -3809,7 +3809,7 @@ export const DAILY_TIPS = [
       "przestrzen",
       "ramy"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3831,7 +3831,7 @@ export const DAILY_TIPS = [
       "sluchanie",
       "muzyka"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3844,7 +3844,7 @@ export const DAILY_TIPS = [
     "subcategory": "relacje_inspiracja",
     "audience": "rodzic",
     "title": "Krytyka rodzeństwa boli najbardziej",
-    "body": "Gdy rodzeństwo śmieje się z dzieła Kreatora, nie minimalizuj. Powiedz: 'wiem, że to bolało'. Walidacja chroni odwagę tworzenia.",
+    "body": "Gdy rodzeństwo śmieje się z dzieła Wynalazcy, nie minimalizuj. Powiedz: 'wiem, że to bolało'. Walidacja chroni odwagę tworzenia.",
     "icon": "mentor",
     "tone": "rose",
     "time": "2 min",
@@ -3853,7 +3853,7 @@ export const DAILY_TIPS = [
       "rodzenstwo",
       "walidacja"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3875,7 +3875,7 @@ export const DAILY_TIPS = [
       "razem",
       "rytual"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3897,7 +3897,7 @@ export const DAILY_TIPS = [
       "pustynia",
       "kraina"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3919,7 +3919,7 @@ export const DAILY_TIPS = [
       "szacunek",
       "mysli"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3941,7 +3941,7 @@ export const DAILY_TIPS = [
       "co_by_bylo",
       "wyobraznia"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3963,7 +3963,7 @@ export const DAILY_TIPS = [
       "polaczenia",
       "myslenie"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -3976,7 +3976,7 @@ export const DAILY_TIPS = [
     "subcategory": "rytmy_dnia",
     "audience": "rodzic",
     "title": "Ruch lekarstwem na natłok pomysłów",
-    "body": "WHO zaleca 60 minut ruchu dziennie. Dla Kreatora to nie obowiązek, lecz reset. Po bieganiu, skakaniu, tańcu wraca jasna głowa.",
+    "body": "WHO zaleca 60 minut ruchu dziennie. Dla Wynalazcy to nie obowiązek, lecz reset. Po bieganiu, skakaniu, tańcu wraca jasna głowa.",
     "icon": "mentor",
     "tone": "leaf",
     "time": "2 min",
@@ -3985,7 +3985,7 @@ export const DAILY_TIPS = [
       "wellbeing",
       "reset"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4007,7 +4007,7 @@ export const DAILY_TIPS = [
       "taniec",
       "ruch"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4029,7 +4029,7 @@ export const DAILY_TIPS = [
       "pierwsza",
       "ochrona"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4051,7 +4051,7 @@ export const DAILY_TIPS = [
       "glos",
       "co_by_bylo"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4073,7 +4073,7 @@ export const DAILY_TIPS = [
       "wieczor",
       "zapis"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4095,7 +4095,7 @@ export const DAILY_TIPS = [
       "wielblad",
       "pomysl"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4117,7 +4117,7 @@ export const DAILY_TIPS = [
       "stol",
       "przestrzen"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4139,7 +4139,7 @@ export const DAILY_TIPS = [
       "sniadanie",
       "slowa"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4152,7 +4152,7 @@ export const DAILY_TIPS = [
     "subcategory": "rytmy_dnia",
     "audience": "rodzic",
     "title": "Woda obok stanowiska pracy",
-    "body": "Dzieci-Kreatorzy często są rozkojarzone i zapominają pić. Postaw butelkę obok ich miejsca pracy. Bez upominania, po prostu blisko.",
+    "body": "Dzieci-Wynalazcy często są rozkojarzone i zapominają pić. Postaw butelkę obok ich miejsca pracy. Bez upominania, po prostu blisko.",
     "icon": "mentor",
     "tone": "leaf",
     "time": "2 min",
@@ -4161,7 +4161,7 @@ export const DAILY_TIPS = [
       "wellbeing",
       "drobne"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4183,7 +4183,7 @@ export const DAILY_TIPS = [
       "galeria",
       "dom"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4205,7 +4205,7 @@ export const DAILY_TIPS = [
       "dzien",
       "tygodnia"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4227,7 +4227,7 @@ export const DAILY_TIPS = [
       "ocena",
       "proces"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4249,7 +4249,7 @@ export const DAILY_TIPS = [
       "wraca",
       "wartosc"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4271,7 +4271,7 @@ export const DAILY_TIPS = [
       "oddech",
       "pomysl"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4284,7 +4284,7 @@ export const DAILY_TIPS = [
     "subcategory": "rytmy_dnia",
     "audience": "rodzic",
     "title": "Wieczorne wyciszenie po dniu pomysłów",
-    "body": "Po dniu pełnym tworzenia mózg małego Kreatora jest pełen iskier. Ciepła woda, książka, ciemniejsze światło pomaga łagodnie zakończyć dzień.",
+    "body": "Po dniu pełnym tworzenia mózg małego Wynalazcy jest pełen iskier. Ciepła woda, książka, ciemniejsze światło pomaga łagodnie zakończyć dzień.",
     "icon": "mentor",
     "tone": "leaf",
     "time": "2 min",
@@ -4293,7 +4293,7 @@ export const DAILY_TIPS = [
       "sen",
       "wieczor"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4315,7 +4315,7 @@ export const DAILY_TIPS = [
       "sniadanie",
       "humor"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4337,7 +4337,7 @@ export const DAILY_TIPS = [
       "pamiec",
       "skarbnica"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4359,7 +4359,7 @@ export const DAILY_TIPS = [
       "smak",
       "brzmienie"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4372,7 +4372,7 @@ export const DAILY_TIPS = [
     "subcategory": "relacje_inspiracja",
     "audience": "rodzic",
     "title": "Inspiracja z natury, nie z ekranów",
-    "body": "Krótki spacer, okno, balkon. Dla Kreatora świat realny daje więcej iskier niż długie oglądanie filmów. Patrzcie razem na chmury, drzewa, deszcze.",
+    "body": "Krótki spacer, okno, balkon. Dla Wynalazcy świat realny daje więcej iskier niż długie oglądanie filmów. Patrzcie razem na chmury, drzewa, deszcze.",
     "icon": "mentor",
     "tone": "leaf",
     "time": "2 min",
@@ -4381,7 +4381,7 @@ export const DAILY_TIPS = [
       "inspiracja",
       "spacer"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4403,7 +4403,7 @@ export const DAILY_TIPS = [
       "ksztalt",
       "wyobraznia"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4425,7 +4425,7 @@ export const DAILY_TIPS = [
       "skarbnica",
       "plan"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4447,7 +4447,7 @@ export const DAILY_TIPS = [
       "kolor",
       "uczucia"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4469,7 +4469,7 @@ export const DAILY_TIPS = [
       "nauka",
       "wartosc"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4482,7 +4482,7 @@ export const DAILY_TIPS = [
     "subcategory": "iskra_pomyslu",
     "audience": "dziecko",
     "title": "Sny mają więcej kolorów",
-    "body": "Naukowcy mówią, że w snach widzimy kolory, których na jawie nikt nie potrafi narysować. Kreatorzy noszą te kolory w sobie cały dzień.",
+    "body": "Naukowcy mówią, że w snach widzimy kolory, których na jawie nikt nie potrafi narysować. Wynalazcy noszą te kolory w sobie cały dzień.",
     "icon": "artifact",
     "tone": "amber",
     "time": "1 min",
@@ -4491,7 +4491,7 @@ export const DAILY_TIPS = [
       "artefakt",
       "kronika"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4513,7 +4513,7 @@ export const DAILY_TIPS = [
       "podsumowanie",
       "razem"
     ],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -4524,7 +4524,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "medrzec",
     "title": "Twoje serce wie, co dobre",
-    "body": "Dobry dzień, mały Gwardzisto. Zanim wstaniesz, połóż rękę na piersi. Posłuchaj jednej rzeczy, którą serce ci podpowie. To twój pierwszy krok.",
+    "body": "Dobry dzień, mały Śmiałku. Zanim wstaniesz, połóż rękę na piersi. Posłuchaj jednej rzeczy, którą serce ci podpowie. To twój pierwszy krok.",
     "icon": "medrzec",
     "tone": "amber",
     "time": "1 min",
@@ -4534,7 +4534,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "odwaga_mala",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -4555,7 +4555,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "inicjatywa_grupa",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -4566,7 +4566,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "mentor",
     "title": "Rodzicu: nie tłum jego głosu",
-    "body": "Drogi Rodzicu, dziecko-Lider potrzebuje słyszeć: „dobrze, że masz zdanie”. Spróbuj dziś nie przerywać, gdy mówi coś z przekonaniem. Pyta o pozwolenie tylko wtedy, gdy je dasz.",
+    "body": "Drogi Rodzicu, dziecko-Śmiałek potrzebuje słyszeć: „dobrze, że masz zdanie”. Spróbuj dziś nie przerywać, gdy mówi coś z przekonaniem. Pyta o pozwolenie tylko wtedy, gdy je dasz.",
     "icon": "rodzic",
     "tone": "magic",
     "time": "2 min",
@@ -4576,7 +4576,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -4587,7 +4587,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "medrzec",
     "title": "Dziś jestem dla kogoś",
-    "body": "Mały Gwardzisto, zacznij dzień od myśli: „dziś jestem dla kogoś”. Nie musisz wiedzieć dla kogo. Życie ci podpowie. Tarcza Słońca rozgrzewa twoją pierś.",
+    "body": "Mały Śmiałku, zacznij dzień od myśli: „dziś jestem dla kogoś”. Nie musisz wiedzieć dla kogo. Życie ci podpowie. Tarcza Słońca rozgrzewa twoją pierś.",
     "icon": "artifact",
     "tone": "amber",
     "time": "1 min",
@@ -4597,7 +4597,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -4618,7 +4618,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -4629,7 +4629,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "mentor",
     "title": "Rodzicu: daj mu wybór",
-    "body": "Drogi Rodzicu, Lider rośnie, gdy decyduje. Daj dziecku dziś jeden prawdziwy wybór: co na śniadanie, jaką trasę do szkoły, jaką książkę wieczorem. Decyzja buduje serce.",
+    "body": "Drogi Rodzicu, Śmiałek rośnie, gdy decyduje. Daj dziecku dziś jeden prawdziwy wybór: co na śniadanie, jaką trasę do szkoły, jaką książkę wieczorem. Decyzja buduje serce.",
     "icon": "rodzic",
     "tone": "magic",
     "time": "2 min",
@@ -4639,7 +4639,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -4650,7 +4650,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "medrzec",
     "title": "Sen to też zbroja",
-    "body": "Posłuchaj, mały Gwardzisto: lider, który nie śpi, traci tarczę. Idź spać tak, żeby spać 9 do 13 godzin. To nie jest słabość. To naładowanie grzywy.",
+    "body": "Posłuchaj, mały Śmiałku: lider, który nie śpi, traci tarczę. Idź spać tak, żeby spać 9 do 13 godzin. To nie jest słabość. To naładowanie grzywy.",
     "icon": "medrzec",
     "tone": "rose",
     "time": "1 min",
@@ -4660,7 +4660,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "regeneracja_lidera",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -4681,7 +4681,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "odwaga_mala",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -4702,7 +4702,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -4713,7 +4713,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "medrzec",
     "title": "Pierś do przodu, oczy miękkie",
-    "body": "Gwardzisto, ustaw się dziś tak: pierś do przodu, ramiona w dół, oczy miękkie. Ciało powie sercu: „jestem gotowa, jestem gotowy”. I dzień zacznie się dobrze.",
+    "body": "Śmiałku, ustaw się dziś tak: pierś do przodu, ramiona w dół, oczy miękkie. Ciało powie sercu: „jestem gotowa, jestem gotowy”. I dzień zacznie się dobrze.",
     "icon": "pulse",
     "tone": "amber",
     "time": "1 min",
@@ -4723,7 +4723,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -4734,7 +4734,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "mentor",
     "title": "Rodzicu: pochwal odwagę, nie wynik",
-    "body": "Drogi Rodzicu, dziś wieczorem powiedz dziecku konkretnie: „widziałam, że było ci trudno i zrobiłaś to”. To zdanie buduje Lidera bardziej niż „brawo”.",
+    "body": "Drogi Rodzicu, dziś wieczorem powiedz dziecku konkretnie: „widziałam, że było ci trudno i zrobiłaś to”. To zdanie buduje Śmiałka bardziej niż „brawo”.",
     "icon": "rodzic",
     "tone": "magic",
     "time": "2 min",
@@ -4744,7 +4744,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -4765,7 +4765,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "granica_lidera",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -4776,7 +4776,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "medrzec",
     "title": "Tydzień pierwszy — co czuję?",
-    "body": "Minął tydzień z Mędrzecą. Połóż dłoń na piersi. Powiedz na głos: „jestem Gwardzistą Odwagi”. Posłuchaj, jak to brzmi. Twoja tarcza już lśni jaśniej.",
+    "body": "Minął tydzień z Mędrzecą. Połóż dłoń na piersi. Powiedz na głos: „jestem Śmiałkiem”. Posłuchaj, jak to brzmi. Twoja tarcza już lśni jaśniej.",
     "icon": "artifact",
     "tone": "magic",
     "time": "1 min",
@@ -4786,7 +4786,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -4797,7 +4797,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "medrzec",
     "title": "Mała odwaga to też odwaga",
-    "body": "Posłuchaj, mały Gwardzisto: nie musisz dziś robić niczego wielkiego. Powiedzieć „dzień dobry” pani, której się boisz — to też odwaga. Liczy się każdy krok.",
+    "body": "Posłuchaj, mały Śmiałku: nie musisz dziś robić niczego wielkiego. Powiedzieć „dzień dobry” pani, której się boisz — to też odwaga. Liczy się każdy krok.",
     "icon": "medrzec",
     "tone": "amber",
     "time": "1 min",
@@ -4807,7 +4807,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "odwaga_mala",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -4828,7 +4828,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -4839,7 +4839,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "mentor",
     "title": "Rodzicu: pokaż swoją odwagę",
-    "body": "Drogi Rodzicu, Lider uczy się odwagi od ciebie. Opowiedz dziecku przy śniadaniu: „dziś trochę się boję czegoś, ale i tak zrobię”. To więcej warte niż wykład.",
+    "body": "Drogi Rodzicu, Śmiałek uczy się odwagi od ciebie. Opowiedz dziecku przy śniadaniu: „dziś trochę się boję czegoś, ale i tak zrobię”. To więcej warte niż wykład.",
     "icon": "rodzic",
     "tone": "magic",
     "time": "2 min",
@@ -4849,7 +4849,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "odwaga_mala",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -4870,7 +4870,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -4881,7 +4881,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "medrzec",
     "title": "Woda — sekret grzywy",
-    "body": "Czy wiesz, że twój mózg składa się w 75% z wody? Gwardzista, który zapomina pić, traci blask grzywy. Mędrzec mówi: woda to ciche paliwo odwagi.",
+    "body": "Czy wiesz, że twój mózg składa się w 75% z wody? Śmiałek, który zapomina pić, traci blask grzywy. Mędrzec mówi: woda to ciche paliwo odwagi.",
     "icon": "pulse",
     "tone": "amber",
     "time": "1 min",
@@ -4891,7 +4891,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "regeneracja_lidera",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -4902,7 +4902,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "medrzec",
     "title": "Komu dziś pomogłam/pomogłem?",
-    "body": "Wieczorne pytanie: czyją tarczą byłam/byłem dziś? Choćby raz, choćby na chwilę. Lider liczy nie krzyki, ale tarcze. Zaśnij z tą myślą.",
+    "body": "Wieczorne pytanie: czyją tarczą byłam/byłem dziś? Choćby raz, choćby na chwilę. Śmiałek liczy nie krzyki, ale tarcze. Zaśnij z tą myślą.",
     "icon": "medrzec",
     "tone": "amber",
     "time": "1 min",
@@ -4912,7 +4912,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "pomoc_proaktywna",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -4923,7 +4923,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "mentor",
     "title": "Rodzicu: zapytaj o trudne",
-    "body": "Drogi Rodzicu, dziś wieczorem zapytaj: „co dziś było najtrudniejsze?”. Nie „jak w szkole?”. Pytanie konkretne otwiera Lidera. Słuchaj bez rad — najpierw słuchaj.",
+    "body": "Drogi Rodzicu, dziś wieczorem zapytaj: „co dziś było najtrudniejsze?”. Nie „jak w szkole?”. Pytanie konkretne otwiera Śmiałka. Słuchaj bez rad — najpierw słuchaj.",
     "icon": "rodzic",
     "tone": "magic",
     "time": "2 min",
@@ -4933,7 +4933,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -4954,7 +4954,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -4965,7 +4965,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "medrzec",
     "title": "Czy zostawiłam/zostawiłem miejsce?",
-    "body": "Wieczorne pytanie Mędrzec: czy dziś zostawiłam/zostawiłem komuś miejsce, żeby też był ważny? Lider, który nie zostawia miejsca, staje się małym tyranem. A ty nie jesteś tyranem.",
+    "body": "Wieczorne pytanie Mędrzec: czy dziś zostawiłam/zostawiłem komuś miejsce, żeby też był ważny? Śmiałek, który nie zostawia miejsca, staje się małym tyranem. A ty nie jesteś tyranem.",
     "icon": "medrzec",
     "tone": "rose",
     "time": "1 min",
@@ -4975,7 +4975,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -4986,7 +4986,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "medrzec",
     "title": "Jeden krok, nie dziesięć",
-    "body": "Gwardzisto, dziś poranny sekret: nie planuj dziesięciu rzeczy. Wybierz jeden krok odwagi. Tylko jeden. Mały. Konkretny. Zrobisz go i basta.",
+    "body": "Śmiałku, dziś poranny sekret: nie planuj dziesięciu rzeczy. Wybierz jeden krok odwagi. Tylko jeden. Mały. Konkretny. Zrobisz go i basta.",
     "icon": "pulse",
     "tone": "amber",
     "time": "1 min",
@@ -4996,7 +4996,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5017,7 +5017,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5028,7 +5028,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "mentor",
     "title": "Rodzicu: nie naprawiaj zbyt szybko",
-    "body": "Drogi Rodzicu, gdy Lider opowiada o konflikcie, nie biegnij od razu z rozwiązaniem. Zapytaj: „jak chcesz to rozegrać?”. Dziecko-Lider potrzebuje próbować, nie być prowadzonym.",
+    "body": "Drogi Rodzicu, gdy Śmiałek opowiada o konflikcie, nie biegnij od razu z rozwiązaniem. Zapytaj: „jak chcesz to rozegrać?”. Dziecko-Śmiałek potrzebuje próbować, nie być prowadzonym.",
     "icon": "rodzic",
     "tone": "magic",
     "time": "2 min",
@@ -5038,7 +5038,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5049,7 +5049,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "medrzec",
     "title": "Dwa tygodnie tarczy",
-    "body": "Mały Gwardzisto, jesteś już dwa tygodnie ze mną. Twoja Tarcza Słońca jest cieplejsza. Połóż dłoń na piersi. Czujesz? To nie ja zrobiłam — to ty.",
+    "body": "Mały Śmiałku, jesteś już dwa tygodnie ze mną. Twoja Tarcza Słońca jest cieplejsza. Połóż dłoń na piersi. Czujesz? To nie ja zrobiłam — to ty.",
     "icon": "artifact",
     "tone": "magic",
     "time": "1 min",
@@ -5059,7 +5059,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5070,7 +5070,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "medrzec",
     "title": "Półmetek — przystań na chwilę",
-    "body": "Połowa drogi za nami, Gwardzisto. Dziś rano nie biegnij. Usiądź na łóżku przez minutę. Posłuchaj oddechu. Lider, który umie przystanąć, idzie dalej.",
+    "body": "Połowa drogi za nami, Śmiałku. Dziś rano nie biegnij. Usiądź na łóżku przez minutę. Posłuchaj oddechu. Śmiałek, który umie przystanąć, idzie dalej.",
     "icon": "medrzec",
     "tone": "rose",
     "time": "1 min",
@@ -5080,7 +5080,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "granica_lidera",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5101,7 +5101,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "odwaga_mala",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5112,7 +5112,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "medrzec",
     "title": "Krok w stronę, której się boisz",
-    "body": "Posłuchaj, mały Gwardzisto: tam, gdzie się trochę boisz, ale wiesz, że jest dobrze, tam idź. Nie tam, gdzie jest niebezpiecznie. Tam, gdzie jest TRUDNO, ale DOBRZE.",
+    "body": "Posłuchaj, mały Śmiałku: tam, gdzie się trochę boisz, ale wiesz, że jest dobrze, tam idź. Nie tam, gdzie jest niebezpiecznie. Tam, gdzie jest TRUDNO, ale DOBRZE.",
     "icon": "medrzec",
     "tone": "amber",
     "time": "1 min",
@@ -5122,7 +5122,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "odwaga_mala",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5133,7 +5133,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "mentor",
     "title": "Rodzicu: zapytaj kogo dziś wspierał",
-    "body": "Drogi Rodzicu, dziś wieczorem zamiast „jakie oceny”, zapytaj: „komu dziś pomogłaś, kogo wsparłeś?”. To pytanie kieruje Lidera na to, co naprawdę ważne.",
+    "body": "Drogi Rodzicu, dziś wieczorem zamiast „jakie oceny”, zapytaj: „komu dziś pomogłaś, kogo wsparłeś?”. To pytanie kieruje Śmiałka na to, co naprawdę ważne.",
     "icon": "rodzic",
     "tone": "magic",
     "time": "2 min",
@@ -5143,7 +5143,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5154,7 +5154,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "kraina",
     "title": "Ognisko w piersi",
-    "body": "W Niebie Marzeń pali się ognisko Gwardzistów. Wyobraź sobie, że masz takie małe ognisko w piersi. Grzeje cię i grzeje innych. Niesiesz je dziś przez dzień.",
+    "body": "W Niebie Marzeń pali się ognisko Śmiałków. Wyobraź sobie, że masz takie małe ognisko w piersi. Grzeje cię i grzeje innych. Niesiesz je dziś przez dzień.",
     "icon": "artifact",
     "tone": "magic",
     "time": "1 min",
@@ -5164,7 +5164,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5185,7 +5185,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5196,7 +5196,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "medrzec",
     "title": "Dziś idę bez krzyku",
-    "body": "Mały Gwardzisto, dziś spróbuj: cokolwiek się stanie, najpierw oddech, potem słowa. Lwia grzywa nie musi ryczeć. Może mówić cicho i też być słyszana.",
+    "body": "Mały Śmiałku, dziś spróbuj: cokolwiek się stanie, najpierw oddech, potem słowa. Lwia grzywa nie musi ryczeć. Może mówić cicho i też być słyszana.",
     "icon": "medrzec",
     "tone": "amber",
     "time": "1 min",
@@ -5206,7 +5206,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5227,7 +5227,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "odwaga_mala",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5238,7 +5238,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "mentor",
     "title": "Rodzicu: powierz mu odpowiedzialność",
-    "body": "Drogi Rodzicu, daj dziś Liderowi jedno małe zadanie tylko dla niego: nakryć stół, przypilnować młodszego, kupić chleb. Odpowiedzialność rozwija tarczę bardziej niż słowa.",
+    "body": "Drogi Rodzicu, daj dziś Śmiałkowi jedno małe zadanie tylko dla niego: nakryć stół, przypilnować młodszego, kupić chleb. Odpowiedzialność rozwija tarczę bardziej niż słowa.",
     "icon": "rodzic",
     "tone": "magic",
     "time": "2 min",
@@ -5248,7 +5248,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5259,7 +5259,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "kraina",
     "title": "Mędrzec patrzy z chmury",
-    "body": "Wyobraź sobie, że Mędrzec patrzy z chmury i widzi twój dzień. Co mówi? Nie krzyczy. Mówi: „widzę cię, mała Gwardzistko, mały Gwardzisto. Jesteś w porządku”.",
+    "body": "Wyobraź sobie, że Mędrzec patrzy z chmury i widzi twój dzień. Co mówi? Nie krzyczy. Mówi: „widzę cię, mała Śmiałku, mały Śmiałku. Jesteś w porządku”.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
@@ -5269,7 +5269,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5280,7 +5280,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "medrzec",
     "title": "Zbroja z gliny, nie z żelaza",
-    "body": "Posłuchaj, mały Gwardzisto: twoja zbroja jest z miękkiej gliny, nie z twardego żelaza. To dlatego, że odwaga ma być ciepła, a nie zimna. Można w niej oddychać.",
+    "body": "Posłuchaj, mały Śmiałku: twoja zbroja jest z miękkiej gliny, nie z twardego żelaza. To dlatego, że odwaga ma być ciepła, a nie zimna. Można w niej oddychać.",
     "icon": "artifact",
     "tone": "rose",
     "time": "1 min",
@@ -5290,7 +5290,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "odwaga_mala",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5311,7 +5311,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5322,7 +5322,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "medrzec",
     "title": "Trzy tygodnie — gdzie urosłaś/urosłeś?",
-    "body": "Mały Gwardzisto, trzy tygodnie ze mną. Zatrzymaj się rano i zauważ jedną rzecz, w której jesteś inaczej niż na początku. Może bardziej spokojnie. Może bardziej śmiało.",
+    "body": "Mały Śmiałku, trzy tygodnie ze mną. Zatrzymaj się rano i zauważ jedną rzecz, w której jesteś inaczej niż na początku. Może bardziej spokojnie. Może bardziej śmiało.",
     "icon": "pulse",
     "tone": "magic",
     "time": "1 min",
@@ -5332,7 +5332,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5353,7 +5353,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5363,8 +5363,8 @@ export const DAILY_TIPS = [
     "day": 22,
     "slot": "poranek",
     "category": "medrzec",
-    "title": "Lider odpoczywa jak lew",
-    "body": "Posłuchaj, Gwardzisto: lwy odpoczywają wiele godzin dziennie. Tylko wtedy są silne. Dziś zaplanuj jedną rzecz, którą zrobisz powoli, dla siebie. Bez celu. Po prostu.",
+    "title": "Śmiałek odpoczywa jak lew",
+    "body": "Posłuchaj, Śmiałku: lwy odpoczywają wiele godzin dziennie. Tylko wtedy są silne. Dziś zaplanuj jedną rzecz, którą zrobisz powoli, dla siebie. Bez celu. Po prostu.",
     "icon": "medrzec",
     "tone": "rose",
     "time": "1 min",
@@ -5374,7 +5374,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "granica_lidera",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5385,7 +5385,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "medrzec",
     "title": "Jak inni odebrali mój głos?",
-    "body": "Wieczorne pytanie: gdy dziś coś powiedziałam/powiedziałem stanowczo, jak inni zareagowali? Nie chodzi o to, czy się zgodzili. Chodzi o to, jak się czuli. Lider patrzy także na to.",
+    "body": "Wieczorne pytanie: gdy dziś coś powiedziałam/powiedziałem stanowczo, jak inni zareagowali? Nie chodzi o to, czy się zgodzili. Chodzi o to, jak się czuli. Śmiałek patrzy także na to.",
     "icon": "medrzec",
     "tone": "rose",
     "time": "1 min",
@@ -5395,7 +5395,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5406,7 +5406,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "mentor",
     "title": "Rodzicu: nie nazywaj jej/jego „dominującą””",
-    "body": "Drogi Rodzicu, słowa lepią dzieci. Zamiast „uparta/uparty”, powiedz: „masz mocne zdanie”. Zamiast „dominująca”, powiedz: „wiesz, czego chcesz”. Lider słyszy etykiety długo.",
+    "body": "Drogi Rodzicu, słowa lepią dzieci. Zamiast „uparta/uparty”, powiedz: „masz mocne zdanie”. Zamiast „dominująca”, powiedz: „wiesz, czego chcesz”. Śmiałek słyszy etykiety długo.",
     "icon": "rodzic",
     "tone": "magic",
     "time": "2 min",
@@ -5416,7 +5416,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5437,7 +5437,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5447,7 +5447,7 @@ export const DAILY_TIPS = [
     "day": 24,
     "slot": "poranek",
     "category": "kraina",
-    "title": "Drużyna Gwardzistów wokół ciebie",
+    "title": "Drużyna Śmiałków wokół ciebie",
     "body": "W Niebie Marzeń jest cała drużyna takich jak ty. Wyobraź sobie, że stoją wokół ciebie dzisiaj rano. Nie jesteś sam, nie jesteś sama. Idziesz w drużynie, nawet kiedy idziesz sam.",
     "icon": "artifact",
     "tone": "magic",
@@ -5458,7 +5458,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5469,7 +5469,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "medrzec",
     "title": "Tarcza po dniu — schowaj ją",
-    "body": "Wieczorem powiedz na głos: „dzisiaj odkładam tarczę”. Połóż dłoń na piersi, jakbyś ją zsuwała/zsuwał. Lider, który zasypia, nie musi pilnować świata. Świat poczeka do rana.",
+    "body": "Wieczorem powiedz na głos: „dzisiaj odkładam tarczę”. Połóż dłoń na piersi, jakbyś ją zsuwała/zsuwał. Śmiałek, który zasypia, nie musi pilnować świata. Świat poczeka do rana.",
     "icon": "artifact",
     "tone": "rose",
     "time": "1 min",
@@ -5479,7 +5479,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "regeneracja_lidera",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5490,7 +5490,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "medrzec",
     "title": "Twoje serce — twój kompas",
-    "body": "Posłuchaj, Gwardzisto: gdy nie wiesz, jak postąpić, połóż dłoń na piersi i zapytaj: „co jest dobre?”. Nie „co jest łatwe”, nie „co inni powiedzą”. Co jest DOBRE. Tam jest twój kompas.",
+    "body": "Posłuchaj, Śmiałku: gdy nie wiesz, jak postąpić, połóż dłoń na piersi i zapytaj: „co jest dobre?”. Nie „co jest łatwe”, nie „co inni powiedzą”. Co jest DOBRE. Tam jest twój kompas.",
     "icon": "medrzec",
     "tone": "amber",
     "time": "1 min",
@@ -5500,7 +5500,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5511,7 +5511,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "mentor",
     "title": "Rodzicu: nie obciążaj jej/go całą rodziną",
-    "body": "Drogi Rodzicu, uwaga: Lider łatwo bierze na siebie problemy całej rodziny. Powiedz dziś: „to nie jest twoja sprawa, ja sobie z tym poradzę”. Dziecko-Lider potrzebuje to słyszeć.",
+    "body": "Drogi Rodzicu, uwaga: Śmiałek łatwo bierze na siebie problemy całej rodziny. Powiedz dziś: „to nie jest twoja sprawa, ja sobie z tym poradzę”. Dziecko-Śmiałek potrzebuje to słyszeć.",
     "icon": "rodzic",
     "tone": "magic",
     "time": "2 min",
@@ -5521,7 +5521,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5532,7 +5532,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "medrzec",
     "title": "Nie musisz dziś wygrać",
-    "body": "Mały Gwardzisto, dzisiejszy poranny szept Mędrzec: nie musisz dziś niczego wygrać. Nie musisz być najlepsza/najlepszy. Wystarczy, że będziesz sobą. Tyle.",
+    "body": "Mały Śmiałku, dzisiejszy poranny szept Mędrzec: nie musisz dziś niczego wygrać. Nie musisz być najlepsza/najlepszy. Wystarczy, że będziesz sobą. Tyle.",
     "icon": "medrzec",
     "tone": "rose",
     "time": "1 min",
@@ -5542,7 +5542,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5563,7 +5563,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5574,7 +5574,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "kraina",
     "title": "Słońce nad Niebem Marzeń",
-    "body": "Spójrz dziś rano w okno. Gdziekolwiek jesteś — słońce nad Niebem Marzeń wschodzi razem ze słońcem u ciebie. To samo słońce świeci wszystkim Gwardzistom na świecie.",
+    "body": "Spójrz dziś rano w okno. Gdziekolwiek jesteś — słońce nad Niebem Marzeń wschodzi razem ze słońcem u ciebie. To samo słońce świeci wszystkim Śmiałkum na świecie.",
     "icon": "artifact",
     "tone": "magic",
     "time": "1 min",
@@ -5584,7 +5584,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5605,7 +5605,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5626,7 +5626,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5637,7 +5637,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "mentor",
     "title": "Rodzicu: planuj z nią/nim, nie za nią/nim",
-    "body": "Drogi Rodzicu, jesteście prawie na końcu. Spróbuj dziś zaplanować dzień RAZEM z Liderem. „Co dziś robimy? Kiedy? Jak?”. Współplanowanie ćwiczy odpowiedzialność lepiej niż rozkazywanie.",
+    "body": "Drogi Rodzicu, jesteście prawie na końcu. Spróbuj dziś zaplanować dzień RAZEM z Śmiałkiem. „Co dziś robimy? Kiedy? Jak?”. Współplanowanie ćwiczy odpowiedzialność lepiej niż rozkazywanie.",
     "icon": "rodzic",
     "tone": "magic",
     "time": "2 min",
@@ -5647,7 +5647,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5668,7 +5668,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "rodzic",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5679,7 +5679,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "medrzec",
     "title": "Lwy odpoczywają, by walczyć",
-    "body": "Lew śpi nawet 20 godzin dziennie, by potem działać z całą mocą. Liderzy też wiedzą: odpoczynek nie jest słabością — jest paliwem odwagi.",
+    "body": "Lew śpi nawet 20 godzin dziennie, by potem działać z całą mocą. Śmiałkowie też wiedzą: odpoczynek nie jest słabością — jest paliwem odwagi.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
@@ -5689,7 +5689,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5700,7 +5700,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "kraina",
     "title": "Pod Niebem Marzeń — zawsze",
-    "body": "Drogi/Droga Gwardzisto, kończymy 30 dni. Pamiętaj: pod Niebem Marzeń zawsze znajdziesz dla siebie miejsce. Tarcza Słońca nigdy nie znika. Idziesz pierwsza, idziesz pierwszy — nie z pychy, z troski.",
+    "body": "Drogi/Droga Śmiałku, kończymy 30 dni. Pamiętaj: pod Niebem Marzeń zawsze znajdziesz dla siebie miejsce. Tarcza Słońca nigdy nie znika. Idziesz pierwsza, idziesz pierwszy — nie z pychy, z troski.",
     "icon": "artifact",
     "tone": "magic",
     "time": "1 min",
@@ -5710,7 +5710,7 @@ export const DAILY_TIPS = [
     ],
     "audience": "dziecko",
     "subcategory": "asertywnosc",
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -5732,7 +5732,7 @@ export const DAILY_TIPS = [
       "spokoj",
       "ja"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -5753,7 +5753,7 @@ export const DAILY_TIPS = [
       "emocje",
       "granica"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -5774,7 +5774,7 @@ export const DAILY_TIPS = [
       "perspektywa",
       "most"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -5795,7 +5795,7 @@ export const DAILY_TIPS = [
       "sen",
       "rytm"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -5816,7 +5816,7 @@ export const DAILY_TIPS = [
       "granica",
       "odpoczynek"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -5837,7 +5837,7 @@ export const DAILY_TIPS = [
       "granica",
       "ochrona"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -5858,7 +5858,7 @@ export const DAILY_TIPS = [
       "emocje",
       "ja"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -5879,7 +5879,7 @@ export const DAILY_TIPS = [
       "slowa",
       "modelowanie"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -5900,7 +5900,7 @@ export const DAILY_TIPS = [
       "sluchanie",
       "uwaga"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -5913,7 +5913,7 @@ export const DAILY_TIPS = [
     "subcategory": "rytmy_dnia",
     "audience": "rodzic",
     "title": "Woda, ruch, regularne posiłki",
-    "body": "Mediator daje innym dużo uwagi. Pilnujcie podstaw: woda przy ręce, 60 minut ruchu, jedzenie o stałych porach. Ciało pierwsze, potem słuchanie.",
+    "body": "Spokojna Głowa daje innym dużo uwagi. Pilnujcie podstaw: woda przy ręce, 60 minut ruchu, jedzenie o stałych porach. Ciało pierwsze, potem słuchanie.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "2 min",
@@ -5922,7 +5922,7 @@ export const DAILY_TIPS = [
       "rytm",
       "woda"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -5943,7 +5943,7 @@ export const DAILY_TIPS = [
       "oddech",
       "klepsydra"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -5964,7 +5964,7 @@ export const DAILY_TIPS = [
       "emocje",
       "rytual"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -5985,7 +5985,7 @@ export const DAILY_TIPS = [
       "zamek",
       "cisza"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6006,7 +6006,7 @@ export const DAILY_TIPS = [
       "pochwala",
       "granica"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6027,7 +6027,7 @@ export const DAILY_TIPS = [
       "klucz",
       "wstega"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6048,7 +6048,7 @@ export const DAILY_TIPS = [
       "ekran",
       "wieczor"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6069,7 +6069,7 @@ export const DAILY_TIPS = [
       "racja",
       "perspektywa"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6090,7 +6090,7 @@ export const DAILY_TIPS = [
       "walidacja",
       "sluchanie"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6111,7 +6111,7 @@ export const DAILY_TIPS = [
       "granica",
       "uczucia"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6132,7 +6132,7 @@ export const DAILY_TIPS = [
       "emocje",
       "granica"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6153,7 +6153,7 @@ export const DAILY_TIPS = [
       "dystans",
       "perspektywa"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6166,7 +6166,7 @@ export const DAILY_TIPS = [
     "subcategory": "rytmy_dnia",
     "audience": "rodzic",
     "title": "Stała pora snu — most do jutra",
-    "body": "Mediator potrzebuje przewidywalności wieczora. Ta sama godzina, te same czynności (mycie zębów, książka, światło). Rytuał uspokaja wrażliwy system nerwowy.",
+    "body": "Spokojna Głowa potrzebuje przewidywalności wieczora. Ta sama godzina, te same czynności (mycie zębów, książka, światło). Rytuał uspokaja wrażliwy system nerwowy.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "2 min",
@@ -6174,7 +6174,7 @@ export const DAILY_TIPS = [
       "sen",
       "rytual"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6195,7 +6195,7 @@ export const DAILY_TIPS = [
       "slowa",
       "otwarcie"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6216,7 +6216,7 @@ export const DAILY_TIPS = [
       "granica",
       "zgoda"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6237,7 +6237,7 @@ export const DAILY_TIPS = [
       "waga",
       "spokoj"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6258,7 +6258,7 @@ export const DAILY_TIPS = [
       "pytanie",
       "wieczor"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6279,7 +6279,7 @@ export const DAILY_TIPS = [
       "ochrona",
       "wizualizacja"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6292,7 +6292,7 @@ export const DAILY_TIPS = [
     "subcategory": "cudza_emocja_a_moja",
     "audience": "rodzic",
     "title": "Nazwijcie emocje, które weszły dziś do domu",
-    "body": "„Z czyich emocji dzisiaj coś przyniosłeś?”. Mediatorzy często nieświadomie przenoszą cudze uczucia. Nazwanie ich pomaga zostawić je za drzwiami.",
+    "body": "„Z czyich emocji dzisiaj coś przyniosłeś?”. Spokojne Głowy często nieświadomie przenoszą cudze uczucia. Nazwanie ich pomaga zostawić je za drzwiami.",
     "icon": "rodzic",
     "tone": "rose",
     "time": "2 min",
@@ -6300,7 +6300,7 @@ export const DAILY_TIPS = [
       "emocje",
       "rytual"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6321,7 +6321,7 @@ export const DAILY_TIPS = [
       "zamek",
       "lustro"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6342,7 +6342,7 @@ export const DAILY_TIPS = [
       "polmetek",
       "rytm"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6363,7 +6363,7 @@ export const DAILY_TIPS = [
       "echo",
       "sluchanie"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6384,7 +6384,7 @@ export const DAILY_TIPS = [
       "sygnaly",
       "przeciazenie"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6405,7 +6405,7 @@ export const DAILY_TIPS = [
       "bycie",
       "odpoczynek"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6418,7 +6418,7 @@ export const DAILY_TIPS = [
     "subcategory": "slowa_lacznikow",
     "audience": "rodzic",
     "title": "Unikajmy „musisz” i „powinieneś”",
-    "body": "Zamiast „musisz przeprosić” — „jak myślisz, co teraz pomogłoby?”. Mediator uczy się przez modelowanie, nie nakaz. Wasze słowa to jego słownik.",
+    "body": "Zamiast „musisz przeprosić” — „jak myślisz, co teraz pomogłoby?”. Spokojna Głowa uczy się przez modelowanie, nie nakaz. Wasze słowa to jej słownik.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "2 min",
@@ -6426,7 +6426,7 @@ export const DAILY_TIPS = [
       "jezyk",
       "modelowanie"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6447,7 +6447,7 @@ export const DAILY_TIPS = [
       "perspektywa",
       "prawda"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6468,7 +6468,7 @@ export const DAILY_TIPS = [
       "ruch",
       "cialo"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6489,7 +6489,7 @@ export const DAILY_TIPS = [
       "granica",
       "samowiedza"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6510,7 +6510,7 @@ export const DAILY_TIPS = [
       "rytual",
       "cialo"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6531,7 +6531,7 @@ export const DAILY_TIPS = [
       "slowa",
       "trik"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6544,7 +6544,7 @@ export const DAILY_TIPS = [
     "subcategory": "granica_mediatora",
     "audience": "rodzic",
     "title": "Nie czyńcie dziecka swoim powiernikiem",
-    "body": "Nawet jeśli dziecko świetnie słucha — Wasze trudne sprawy dorosłe omawiajcie z innym dorosłym. Mediator-dziecko musi mieć dzieciństwo.",
+    "body": "Nawet jeśli dziecko świetnie słucha — Wasze trudne sprawy dorosłe omawiajcie z innym dorosłym. Spokojna Głowa-dziecko musi mieć dzieciństwo.",
     "icon": "rodzic",
     "tone": "rose",
     "time": "2 min",
@@ -6552,7 +6552,7 @@ export const DAILY_TIPS = [
       "ochrona",
       "granica"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6573,7 +6573,7 @@ export const DAILY_TIPS = [
       "zamek",
       "klepsydra"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6594,7 +6594,7 @@ export const DAILY_TIPS = [
       "walidacja",
       "powtorzenie"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6615,7 +6615,7 @@ export const DAILY_TIPS = [
       "emocje",
       "granica"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6628,7 +6628,7 @@ export const DAILY_TIPS = [
     "subcategory": "rytmy_dnia",
     "audience": "rodzic",
     "title": "Posiłki o stałych porach — kotwica dnia",
-    "body": "Mediator dużo daje innym. Regularne pory jedzenia (śniadanie, drugie śniadanie, obiad, podwieczorek, kolacja) trzymają układ nerwowy w pionie.",
+    "body": "Spokojna Głowa dużo daje innym. Regularne pory jedzenia (śniadanie, drugie śniadanie, obiad, podwieczorek, kolacja) trzymają układ nerwowy w pionie.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "2 min",
@@ -6636,7 +6636,7 @@ export const DAILY_TIPS = [
       "jedzenie",
       "rytm"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6657,7 +6657,7 @@ export const DAILY_TIPS = [
       "wstega",
       "spokoj"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6678,7 +6678,7 @@ export const DAILY_TIPS = [
       "perspektywa",
       "rozmowa"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6699,7 +6699,7 @@ export const DAILY_TIPS = [
       "zabawa",
       "dziecko"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6720,7 +6720,7 @@ export const DAILY_TIPS = [
       "skala",
       "emocje"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6741,7 +6741,7 @@ export const DAILY_TIPS = [
       "most",
       "granica"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6762,7 +6762,7 @@ export const DAILY_TIPS = [
       "granica",
       "doroslych"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6783,7 +6783,7 @@ export const DAILY_TIPS = [
       "sluchanie",
       "twarz"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6796,7 +6796,7 @@ export const DAILY_TIPS = [
     "subcategory": "rytmy_dnia",
     "audience": "rodzic",
     "title": "Sygnały, że dziecko jest „pełne”",
-    "body": "Mediator pełen cudzych spraw mówi mniej, gryzie paznokcie, ma mokre oczy bez powodu. To moment na ciszę, kąpiel, przytulenie — bez wypytywania.",
+    "body": "Spokojna Głowa pełna cudzych spraw mówi mniej, gryzie paznokcie, ma mokre oczy bez powodu. To moment na ciszę, kąpiel, przytulenie — bez wypytywania.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "2 min",
@@ -6804,7 +6804,7 @@ export const DAILY_TIPS = [
       "sygnaly",
       "regulacja"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6825,7 +6825,7 @@ export const DAILY_TIPS = [
       "razem",
       "wstega"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6846,7 +6846,7 @@ export const DAILY_TIPS = [
       "modelowanie",
       "konflikt"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6867,7 +6867,7 @@ export const DAILY_TIPS = [
       "nie",
       "granica"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6888,7 +6888,7 @@ export const DAILY_TIPS = [
       "pytanie",
       "ja"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6909,7 +6909,7 @@ export const DAILY_TIPS = [
       "oddech",
       "spokoj"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6930,7 +6930,7 @@ export const DAILY_TIPS = [
       "zdrowie",
       "lekarz"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6943,7 +6943,7 @@ export const DAILY_TIPS = [
     "subcategory": "perspektywa",
     "audience": "dziecko",
     "title": "Mosty starsze od miast",
-    "body": "Najstarszy znany most ma ponad 3500 lat — wciąż stoi. Mediator wie, że jeden dobrze postawiony most łączy ludzi przez stulecia.",
+    "body": "Najstarszy znany most ma ponad 3500 lat — wciąż stoi. Spokojna Głowa wie, że jeden dobrze postawiony most łączy ludzi przez stulecia.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "1 min",
@@ -6951,7 +6951,7 @@ export const DAILY_TIPS = [
       "zamek",
       "podsumowanie"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6972,7 +6972,7 @@ export const DAILY_TIPS = [
       "ochrona",
       "podsumowanie"
     ],
-    "profileName": "Strażnik Mostu",
+    "profileName": "Spokojna Głowa",
     "cecha": "Skupienie",
     "kraina": "Zamek Czasu"
   },
@@ -6990,7 +6990,7 @@ export const DAILY_TIPS = [
     "tone": "magic",
     "time": "1 min",
     "tags": ["wzor", "liczby", "obserwacja"],
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -7008,7 +7008,7 @@ export const DAILY_TIPS = [
     "tone": "amber",
     "time": "1 min",
     "tags": ["plan", "kolejnosc", "poranek"],
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -7026,7 +7026,7 @@ export const DAILY_TIPS = [
     "tone": "leaf",
     "time": "1 min",
     "tags": ["ciekawostka", "liczby", "natura"],
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -7044,7 +7044,7 @@ export const DAILY_TIPS = [
     "tone": "magic",
     "time": "1 min",
     "tags": ["plan", "wyobraznia", "poranek"],
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -7062,7 +7062,7 @@ export const DAILY_TIPS = [
     "tone": "magic",
     "time": "1 min",
     "tags": ["ciekawostka", "liczby", "historia"],
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -7080,7 +7080,7 @@ export const DAILY_TIPS = [
     "tone": "paper",
     "time": "1 min",
     "tags": ["porzadek", "wyobraznia"],
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -7093,12 +7093,12 @@ export const DAILY_TIPS = [
     "subcategory": "liczby_logika",
     "audience": "dziecko",
     "title": "Sekundy są szybkie",
-    "body": "A czy wiesz, że w jedną minutę twoje serce uderza około 80 razy? Liczy bez przerwy, dzień i noc. Strateg lubi, gdy coś idzie miarowo.",
+    "body": "A czy wiesz, że w jedną minutę twoje serce uderza około 80 razy? Liczy bez przerwy, dzień i noc. Myśliciel lubi, gdy coś idzie miarowo.",
     "icon": "krysztal",
     "tone": "rose",
     "time": "1 min",
     "tags": ["ciekawostka", "cialo", "liczby"],
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -7111,12 +7111,12 @@ export const DAILY_TIPS = [
     "subcategory": "planowanie",
     "audience": "dziecko",
     "title": "Dwa zadania to dużo",
-    "body": "Mędrzec mówi: kiedy masz dwa zadania, wybierz jedno na początek. Nie wszystko naraz. Strateg wie, że kolejność to też plan.",
+    "body": "Mędrzec mówi: kiedy masz dwa zadania, wybierz jedno na początek. Nie wszystko naraz. Myśliciel wie, że kolejność to też plan.",
     "icon": "medrzec",
     "tone": "amber",
     "time": "1 min",
     "tags": ["wybor", "poranek", "plan"],
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -7134,7 +7134,7 @@ export const DAILY_TIPS = [
     "tone": "magic",
     "time": "1 min",
     "tags": ["wdziecznosc", "wieczor", "liczby"],
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -7152,7 +7152,7 @@ export const DAILY_TIPS = [
     "tone": "magic",
     "time": "1 min",
     "tags": ["intencja", "wyobraznia"],
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -7170,7 +7170,7 @@ export const DAILY_TIPS = [
     "tone": "leaf",
     "time": "1 min",
     "tags": ["ciekawostka", "natura", "ksztalty"],
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -7188,7 +7188,7 @@ export const DAILY_TIPS = [
     "tone": "amber",
     "time": "1 min",
     "tags": ["poranek", "krok", "odwaga"],
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -7201,12 +7201,12 @@ export const DAILY_TIPS = [
     "subcategory": "liczby_logika",
     "audience": "dziecko",
     "title": "Mózg uczy się we śnie",
-    "body": "A czy wiesz, że we śnie mózg porządkuje to, co poznałeś w ciągu dnia? Twój sen też jest częścią planu. Strateg odpoczywa, by jutro myśleć jaśniej.",
+    "body": "A czy wiesz, że we śnie mózg porządkuje to, co poznałeś w ciągu dnia? Twój sen też jest częścią planu. Myśliciel odpoczywa, by jutro myśleć jaśniej.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "1 min",
     "tags": ["ciekawostka", "sen", "mozg"],
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -7219,12 +7219,12 @@ export const DAILY_TIPS = [
     "subcategory": "mapy_kolejnosc",
     "audience": "dziecko",
     "title": "Najpierw to, co najtrudniejsze",
-    "body": "Mędrzec radzi: spróbuj zacząć od trudniejszej rzeczy, gdy głowa jest świeża. Łatwe poczeka. Strateg wie, że poranek ma najwięcej siły.",
+    "body": "Mędrzec radzi: spróbuj zacząć od trudniejszej rzeczy, gdy głowa jest świeża. Łatwe poczeka. Myśliciel wie, że poranek ma najwięcej siły.",
     "icon": "map",
     "tone": "paper",
     "time": "1 min",
     "tags": ["kolejnosc", "poranek", "moc"],
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -7242,7 +7242,7 @@ export const DAILY_TIPS = [
     "tone": "magic",
     "time": "2 min",
     "tags": ["wieczor", "tydzien", "refleksja"],
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -7260,7 +7260,7 @@ export const DAILY_TIPS = [
     "tone": "amber",
     "time": "1 min",
     "tags": ["plan_b", "wieczor", "elastycznosc"],
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -7273,12 +7273,12 @@ export const DAILY_TIPS = [
     "subcategory": "liczby_logika",
     "audience": "dziecko",
     "title": "Gwiazdy układają się we wzory",
-    "body": "A czy wiesz, że ludzie od tysięcy lat łączą gwiazdy w obrazki, żeby się nie zgubić? Strateg lubi, gdy świat ma rysunek do odczytania.",
+    "body": "A czy wiesz, że ludzie od tysięcy lat łączą gwiazdy w obrazki, żeby się nie zgubić? Myśliciel lubi, gdy świat ma rysunek do odczytania.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "1 min",
     "tags": ["ciekawostka", "gwiazdy", "wzor"],
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -7296,7 +7296,7 @@ export const DAILY_TIPS = [
     "tone": "paper",
     "time": "1 min",
     "tags": ["pamiec", "plan", "poranek"],
-    "profileName": "Mistrz Map",
+    "profileName": "Myśliciel",
     "cecha": "Mądrość",
     "kraina": "Góry Liczb"
   },
@@ -7314,7 +7314,7 @@ export const DAILY_TIPS = [
     "tone": "rose",
     "time": "1 min",
     "tags": ["emocje", "cialo", "ciekawostka"],
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -7332,7 +7332,7 @@ export const DAILY_TIPS = [
     "tone": "rose",
     "time": "1 min",
     "tags": ["empatia", "ciekawostka", "drobny_gest"],
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -7350,7 +7350,7 @@ export const DAILY_TIPS = [
     "tone": "paper",
     "time": "1 min",
     "tags": ["sluchanie", "empatia", "obecnosc"],
-    "profileName": "Zaklinacz Uczuć",
+    "profileName": "Przyjaciel",
     "cecha": "Życzliwość",
     "kraina": "Morze Słów"
   },
@@ -7368,7 +7368,7 @@ export const DAILY_TIPS = [
     "tone": "magic",
     "time": "1 min",
     "tags": ["wyobraznia", "co_gdyby", "zabawa"],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -7386,7 +7386,7 @@ export const DAILY_TIPS = [
     "tone": "amber",
     "time": "1 min",
     "tags": ["ciekawostka", "wynalazcy", "pytanie"],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -7404,7 +7404,7 @@ export const DAILY_TIPS = [
     "tone": "rose",
     "time": "1 min",
     "tags": ["tworczosc", "ciekawostka", "swoboda"],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -7422,7 +7422,7 @@ export const DAILY_TIPS = [
     "tone": "leaf",
     "time": "1 min",
     "tags": ["co_gdyby", "natura", "ciekawostka"],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -7440,7 +7440,7 @@ export const DAILY_TIPS = [
     "tone": "amber",
     "time": "1 min",
     "tags": ["ciekawostka", "wynalazcy", "blad"],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -7453,12 +7453,12 @@ export const DAILY_TIPS = [
     "subcategory": "iskra_pomyslu",
     "audience": "dziecko",
     "title": "Wyobraźnia jest jak mięsień",
-    "body": "Mędrzec szepcze: im częściej coś sobie wyobrażasz, tym szybciej przychodzą nowe obrazy. Kreator ćwiczy umysł zabawą.",
+    "body": "Mędrzec szepcze: im częściej coś sobie wyobrażasz, tym szybciej przychodzą nowe obrazy. Wynalazca ćwiczy umysł zabawą.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "1 min",
     "tags": ["wyobraznia", "cwiczenie", "pomysl"],
-    "profileName": "Tkacz Snów",
+    "profileName": "Wynalazca",
     "cecha": "Kreatywność",
     "kraina": "Pustynia Pomysłów"
   },
@@ -7476,7 +7476,7 @@ export const DAILY_TIPS = [
     "tone": "amber",
     "time": "1 min",
     "tags": ["odwaga", "ciekawostka", "mozg"],
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -7489,12 +7489,12 @@ export const DAILY_TIPS = [
     "subcategory": "odwaga_mala",
     "audience": "dziecko",
     "title": "Pierwszy krok zawsze jest najtrudniejszy",
-    "body": "Mędrzec mówi: drugi krok jest już lżejszy od pierwszego, a trzeci sam się robi. Lider zaczyna, nawet jeśli się trochę boi.",
+    "body": "Mędrzec mówi: drugi krok jest już lżejszy od pierwszego, a trzeci sam się robi. Śmiałek zaczyna, nawet jeśli się trochę boi.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
     "tags": ["odwaga", "krok", "inicjatywa"],
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -7512,7 +7512,7 @@ export const DAILY_TIPS = [
     "tone": "rose",
     "time": "1 min",
     "tags": ["odwaga", "glos", "asertywnosc"],
-    "profileName": "Gwardzista Odwagi",
+    "profileName": "Śmiałek",
     "cecha": "Odwaga",
     "kraina": "Niebo Marzeń"
   },
@@ -7530,7 +7530,7 @@ export const DAILY_TIPS = [
     "tone": "leaf",
     "time": "1 min",
     "tags": ["ciekawostka", "natura", "obserwacja"],
-    "profileName": "Tropiciel Tajemnic",
+    "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
   }

@@ -28,22 +28,22 @@ Czas w Zakątku biegnie inaczej. Gracz wchodzi tam **kilka razy w tygodniu**, na
 Zakątek Gamma dzieli się na **sześć regionów**, każdy odpowiada innej kompetencji miękkiej:
 
 ### 🌲 Las Pytań (DT — Detektyw)
-Tu rosną pytania jak grzyby po deszczu. Niektóre szepczą, niektóre świecą po zmroku. Tropiciel Tajemnic czuje się tu jak u siebie. Las Pytań uczy: **dociekliwość, eksploracja, ciekawość poznawcza**.
+Tu rosną pytania jak grzyby po deszczu. Niektóre szepczą, niektóre świecą po zmroku. Odkrywca czuje się tu jak u siebie. Las Pytań uczy: **dociekliwość, eksploracja, ciekawość poznawcza**.
 
 ### 🌊 Morze Słów (EM — Empata)
-Fale niosą historie z dalekich brzegów. Każda muszla brzmi czyimś sercem. Tu mieszka Zaklinacz Uczuć. Morze Słów uczy: **wrażliwość, dekodowanie emocji, życzliwość**.
+Fale niosą historie z dalekich brzegów. Każda muszla brzmi czyimś sercem. Tu mieszka Przyjaciel. Morze Słów uczy: **wrażliwość, dekodowanie emocji, życzliwość**.
 
 ### ⛰️ Góry Liczb (ST — Strateg)
-Strome szczyty mierzone krokami. Każdy zakręt to plan, każda przełęcz — decyzja. Tu wędruje Mistrz Map. Góry Liczb uczą: **logika, planowanie, odraczanie gratyfikacji**.
+Strome szczyty mierzone krokami. Każdy zakręt to plan, każda przełęcz — decyzja. Tu wędruje Myśliciel. Góry Liczb uczą: **logika, planowanie, odraczanie gratyfikacji**.
 
 ### 🏰 Zamek Czasu (MD — Mediator)
-W komnatach drzemią zapomniane chwile. Krużganki łączą tych, co się posprzeczali. Strażnik Mostu zna tu każdy korytarz. Zamek uczy: **mediacja, sprawiedliwość, godzenie konfliktów**.
+W komnatach drzemią zapomniane chwile. Krużganki łączą tych, co się posprzeczali. Spokojna Głowa zna tu każdy korytarz. Zamek uczy: **mediacja, sprawiedliwość, godzenie konfliktów**.
 
 ### 🌵 Pustynia Pomysłów (KR — Kreator)
-Ziarna nowych myśli przesypują się w wietrze. Każda diuna ma kształt, którego nikt jeszcze nie nazwał. Tu marzy Tkacz Snów. Pustynia uczy: **myślenie nieszablonowe, elastyczność, oryginalność**.
+Ziarna nowych myśli przesypują się w wietrze. Każda diuna ma kształt, którego nikt jeszcze nie nazwał. Tu marzy Wynalazca. Pustynia uczy: **myślenie nieszablonowe, elastyczność, oryginalność**.
 
 ### ☁️ Niebo Marzeń (LD — Lider)
-Chmury, na których można usiąść z łokciami w gwiazdach. Stąd widać wszystko. Tu prowadzi Gwardzista Odwagi. Niebo uczy: **odwaga, inicjatywa, gotowość do ryzyka**.
+Chmury, na których można usiąść z łokciami w gwiazdach. Stąd widać wszystko. Tu prowadzi Śmiałek. Niebo uczy: **odwaga, inicjatywa, gotowość do ryzyka**.
 
 ## Mieszkańcy
 
@@ -73,7 +73,7 @@ Słownik, którym mówi GAMA-1 — żeby wszystkie misje brzmiały spójnie:
 - **echo** = zapisana odpowiedź dorosłego, dowód misji
 - **Kronika** = ogólny zapis postępów dziecka
 - **plecak** = inwentarz artefaktów
-- **Kompas Cieni** = wewnętrzny instynkt Tropiciela
+- **Kompas Cieni** = wewnętrzny instynkt Odkrywcy
 - **Świecące Piórko** = drobna mid-week nagroda dopaminowa
 - **Mentor** = dorosły opiekun (rodzic/nauczyciel) widziany jako jedna postać
 - **rozdział** = etap narracyjny w spójnym świecie (zastępuje "krainę" jako logiczny stage)

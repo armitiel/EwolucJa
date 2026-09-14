@@ -84,12 +84,12 @@ pięcioosiowy system cech schodzi do warstwy wewnętrznej):
 
 | kod | typ | archetyp |
 |---|---|---|
-| `ST` | Mądrość | Mistrz Map |
-| `MD` | Skupienie / łączenie | Strażnik Mostu |
-| `EM` | Życzliwość | Zaklinacz Uczuć |
-| `KR` | Kreatywność | Tkacz Snów |
-| `DT` | Ciekawość | Tropiciel Tajemnic |
-| `LD` | Odwaga | Gwardzista Odwagi |
+| `ST` | Mądrość | Myśliciel |
+| `MD` | Skupienie / łączenie | Spokojna Głowa |
+| `EM` | Życzliwość | Przyjaciel |
+| `KR` | Kreatywność | Wynalazca |
+| `DT` | Ciekawość | Odkrywca |
+| `LD` | Odwaga | Śmiałek |
 
 Test ma formę **obrazkową**: każda odpowiedź to ilustracja w stylu gry plus
 podpis 2–4 słowa, pytanie czyta Wizkor. Pełna specyfikacja i treść pytań:

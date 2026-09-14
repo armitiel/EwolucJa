@@ -83,12 +83,12 @@ const LAND_CARD_BORDER = {
 };
 
 const PROFILE_LABELS = {
-  EM: { name: "Empata", icon: "❤️", color: "#e74c3c" },
-  ST: { name: "Strateg", icon: "🧠", color: "#3498db" },
-  KR: { name: "Kreator", icon: "🎨", color: "#e67e22" },
-  LD: { name: "Lider", icon: "🛡️", color: "#2ecc71" },
-  DT: { name: "Detektyw", icon: "🔍", color: "#9b59b6" },
-  MD: { name: "Mediator", icon: "🕊️", color: "#1abc9c" },
+  EM: { name: "Przyjaciel", icon: "❤️", color: "#e74c3c" },
+  ST: { name: "Myśliciel", icon: "🧠", color: "#3498db" },
+  KR: { name: "Wynalazca", icon: "🎨", color: "#e67e22" },
+  LD: { name: "Śmiałek", icon: "🛡️", color: "#2ecc71" },
+  DT: { name: "Odkrywca", icon: "🔍", color: "#9b59b6" },
+  MD: { name: "Spokojna Głowa", icon: "🕊️", color: "#1abc9c" },
 };
 
 const PROFILE_DESCRIPTIONS = {

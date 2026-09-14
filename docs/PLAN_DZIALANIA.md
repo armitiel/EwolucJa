@@ -138,7 +138,7 @@ część w realu → prosty ślad.
 | **MD** | `dwie-strony-jednej-rzeczy` | Most | Znajdź rzecz, którą dwie osoby widzą inaczej. / Powtórz każdej, co powiedziała druga. | obie odpowiedzi albo zdjęcie dwóch rysunków | 10 |
 | **EM** | `cieplo-bez-slow` | Ciepły ślad | Zrób komuś coś dobrego tak, / żeby nie wiedział, że to ty. | zdjęcie tego, co zostawiłeś, albo jedno zdanie | 10 |
 | **KR** | `stworz-z-trzech` | Trzy części | Weź trzy rzeczy, które do siebie nie pasują. / Zrób z nich jedną. | zdjęcie albo powiedz, do czego służy | 20 |
-| **DT** | `trop-w-domu` | Tropiciel | Znajdź w domu rzecz starszą od ciebie. / Dowiedz się, skąd się wzięła. | zdjęcie znaleziska albo jego historia | 15 |
+| **DT** | `trop-w-domu` | Odkrywca | Znajdź w domu rzecz starszą od ciebie. / Dowiedz się, skąd się wzięła. | zdjęcie znaleziska albo jego historia | 15 |
 | **LD** | `pierwszy-glos` | Pierwszy głos | Zaproponuj coś, zanim zrobi to ktoś inny. / Jeden raz dzisiaj. | co zaproponowałeś albo zdjęcie efektu | 10 |
 
 Część w grze (Część A) dla każdego: ST — Wizkor pokazuje mapę polany z jednym

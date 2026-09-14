@@ -8,20 +8,20 @@
  *   <ProfileAvatar profile="EM" size={48} />  // dla TopBar / list items
  *
  * Profile codes:
- *   DT = Detektyw (lis)       LD = Lider (lew)
- *   EM = Empata (zolw)        MD = Mediator (osmiornica)
- *   ST = Strateg (sowa)
- *   KR = Kreator (panda)
+ *   DT = Odkrywca (lis)       LD = Śmiałek (lew)
+ *   EM = Przyjaciel (zolw)        MD = Spokojna Głowa (osmiornica)
+ *   ST = Myśliciel (sowa)
+ *   KR = Wynalazca (panda)
  */
 import React from "react";
 
 export const PROFILE_INFO = {
-  DT: { name: "Detektyw", emoji: "🔍", color: "#D85A30", glow: "rgba(216,90,48,.28)",  svg: "/lis.svg",        svgMini: "/avatary-10.svg", animal: "Lis" },
-  EM: { name: "Empata",   emoji: "💚", color: "#E4779C", glow: "rgba(228,119,156,.28)", svg: "/zolw.svg",       svgMini: "/avatary-12.svg", animal: "Żółw" },
-  ST: { name: "Strateg",  emoji: "🦉", color: "#378ADD", glow: "rgba(55,138,221,.28)",  svg: "/sowa.svg",       svgMini: "/avatary-09.svg", animal: "Sowa" },
-  KR: { name: "Kreator",  emoji: "✨", color: "#EF9F27", glow: "rgba(239,159,39,.28)",  svg: "/panda.svg",      svgMini: "/avatary-07.svg", animal: "Panda" },
-  LD: { name: "Lider",    emoji: "🦁", color: "#E89A3D", glow: "rgba(232,154,61,.28)",  svg: "/lew.svg",        svgMini: "/avatary-11.svg", animal: "Lew" },
-  MD: { name: "Mediator", emoji: "🛡️", color: "#1D9E75", glow: "rgba(29,158,117,.28)",  svg: "/osmiornica.svg", svgMini: "/avatary-08.svg", animal: "Ośmiornica" },
+  DT: { name: "Odkrywca", emoji: "🔍", color: "#D85A30", glow: "rgba(216,90,48,.28)",  svg: "/lis.svg",        svgMini: "/avatary-10.svg", animal: "Lis" },
+  EM: { name: "Przyjaciel",   emoji: "💚", color: "#E4779C", glow: "rgba(228,119,156,.28)", svg: "/zolw.svg",       svgMini: "/avatary-12.svg", animal: "Żółw" },
+  ST: { name: "Myśliciel",  emoji: "🦉", color: "#378ADD", glow: "rgba(55,138,221,.28)",  svg: "/sowa.svg",       svgMini: "/avatary-09.svg", animal: "Sowa" },
+  KR: { name: "Wynalazca",  emoji: "✨", color: "#EF9F27", glow: "rgba(239,159,39,.28)",  svg: "/panda.svg",      svgMini: "/avatary-07.svg", animal: "Panda" },
+  LD: { name: "Śmiałek",    emoji: "🦁", color: "#E89A3D", glow: "rgba(232,154,61,.28)",  svg: "/lew.svg",        svgMini: "/avatary-11.svg", animal: "Lew" },
+  MD: { name: "Spokojna Głowa", emoji: "🛡️", color: "#1D9E75", glow: "rgba(29,158,117,.28)",  svg: "/osmiornica.svg", svgMini: "/avatary-08.svg", animal: "Ośmiornica" },
 };
 
 function ProfileAvatarBase({ profile = "DT", size = 120, variant = "full" }) {

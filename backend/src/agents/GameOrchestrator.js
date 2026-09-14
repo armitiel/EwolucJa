@@ -297,8 +297,8 @@ export class GameOrchestrator {
    */
   async generateCharacterDescription({ playerName, scores, title, topProfiles, equipment, gender }) {
     const profileNames = {
-      EM: "Empata", ST: "Strateg", KR: "Kreator",
-      LD: "Lider", DT: "Detektyw", MD: "Mediator",
+      EM: "Przyjaciel", ST: "Myśliciel", KR: "Wynalazca",
+      LD: "Śmiałek", DT: "Odkrywca", MD: "Spokojna Głowa",
     };
 
     const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);

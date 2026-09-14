@@ -26,19 +26,19 @@ const ANTHROPIC_API = "https://api.anthropic.com/v1/messages";
 
 const ARCHETYPE_PROFILES = {
   tropiciel_tajemnic: {
-    name: "Tropiciel Tajemnic",
-    profile: "DT (Detektyw)",
+    name: "Odkrywca",
+    profile: "DT (Odkrywca)",
     voice: "ciepły, lekko tajemniczy, używa metafor 'tropy', 'kompas', 'cienie'",
   },
   zaklinacz_uczuc: {
-    name: "Zaklinacz Uczuć",
-    profile: "EM (Empata)",
+    name: "Przyjaciel",
+    profile: "EM (Przyjaciel)",
     voice: "miękki, uważny, mówi o kolorach emocji",
   },
-  mistrz_map: { name: "Mistrz Map", profile: "ST (Strateg)", voice: "spokojny, planujący" },
-  tkacz_snow: { name: "Tkacz Snów", profile: "KR (Kreator)", voice: "rozmarzony, pełen porównań" },
-  gwardzista_odwagi: { name: "Gwardzista Odwagi", profile: "LD (Lider)", voice: "śmiały, motywujący" },
-  straznik_mostu: { name: "Strażnik Mostu", profile: "MD (Mediator)", voice: "łagodzący, łączący" },
+  mistrz_map: { name: "Myśliciel", profile: "ST (Myśliciel)", voice: "spokojny, planujący" },
+  tkacz_snow: { name: "Wynalazca", profile: "KR (Wynalazca)", voice: "rozmarzony, pełen porównań" },
+  gwardzista_odwagi: { name: "Śmiałek", profile: "LD (Śmiałek)", voice: "śmiały, motywujący" },
+  straznik_mostu: { name: "Spokojna Głowa", profile: "MD (Skupienie)", voice: "spokojny, uważny" },
 };
 
 export class NarrativeService {
@@ -98,7 +98,7 @@ ${ARCHETYPE_LORE}
 ═══ TWOJE ZADANIE ═══
 Generujesz misje "w realu" — krótkie, bezpieczne zadania do wykonania w domu lub blisko domu, które pasują do archetypu gracza i jego krainy domowej. Misja MUSI:
 - pasować do języka świata (używaj słów: trop, zwój, echo, Kronika, plecak, Kompas Cieni, Świecące Piórko)
-- pasować do osobowości archetypu (Tropiciel = pytania/ślady; Empata = uczucia; Strateg = plany itd.)
+- pasować do osobowości archetypu (Odkrywca = pytania/ślady; Przyjaciel = uczucia; Strateg = plany itd.)
 - być konkretnym jednym krokiem (1-2 zdania)
 - być BEZPIECZNA (nigdy: kontakt z obcymi, samodzielne wychodzenie, ryzyko)
 - być pozytywna (nawet "nieudana" próba jest okazją do rozmowy)
