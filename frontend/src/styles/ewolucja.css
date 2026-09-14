@@ -587,6 +587,34 @@ h3.title{ font-size: 22px; margin:0; }
   transform-origin: center; opacity:0;
 }
 
+/* ─── Kadr ekranu (PageShell) ──────────────────────────────────────────────
+   Geometria zeszla tu ze stylu inline w `PageShell.jsx`: inline wygrywa
+   z kazda regula CSS, wiec dopoki tam siedziala, zaden ekran nie mogl miec
+   wlasnego ukladu na szerokim monitorze. Wartosci sa te same, co byly. */
+.page-scena{ top:0; bottom:0; left:0; right:0; max-width:480px; margin:0 auto; }
+
+/* Ramka — ten sam kadr, co swiat 3D (`.hub-root` w `hub/styles/hub.css`):
+   szare pierscienie zamiast zlotych, proporcja 1,7:1, srodek ekranu.
+   Prog 760 px, a nie 520 jak w hubie: tam w ramce siedzi plansza 3D, ktora
+   wyglada dobrze juz na tablecie; tutaj w ramce ma stanac uklad DWUKOLUMNOWY
+   i ponizej 760 px kolumna tekstu zrobilaby sie za waska na przyciski. */
+@media (min-width:760px){
+  .page-scena.jest-ramka{
+    --ramka-luz: clamp(14px, 2.6vmin, 34px);
+    top:var(--ramka-luz); bottom:var(--ramka-luz);
+    left:50%; right:auto; margin:0;
+    width:min(calc(100vw - 2*var(--ramka-luz)), calc((100dvh - 2*var(--ramka-luz)) * 1.7), 1600px);
+    max-width:none;
+    transform:translateX(-50%);
+    border-radius:clamp(20px, 2.6vmin, 34px);
+    box-shadow:
+      0 0 0 3px var(--szarosc-200),
+      0 0 0 5px color-mix(in srgb, var(--szarosc-400) 70%, transparent),
+      0 26px 64px color-mix(in srgb, var(--szarosc-900) 34%, transparent),
+      0 6px 16px color-mix(in srgb, var(--szarosc-900) 16%, transparent);
+  }
+}
+
 /* ─── Ekran startowy (Landing) ─────────────────────────────────────────────
    Jeden ekran zamiast dwoch: ilustracja jest tlem, tresc siedzi na niej u dolu.
    Zaslona to nie ozdoba — bez niej podpis i przyciski leza na trawie i chmurach,
@@ -669,7 +697,11 @@ h3.title{ font-size: 22px; margin:0; }
   margin:0; max-width:300px; text-align:center;
   font-size:19px; line-height:1.25; color:var(--p-ink-soft);
 }
-.start-cta{ width:100%; max-width:360px; margin-top:14px; display:flex; flex-direction:column; gap:10px; }
+/* Odstepy: `margin-top` odsuwa caly blok od podpisu pod logo, `gap` rozsuwa
+   dwa przyciski. 10 px sklejalo je w jeden slup - na telefonie palec trafia
+   wtedy w granice miedzy nimi. Desktop dostaje odrobine wiecej (blok stoi
+   w wysokim, pustym kadrze, wiec ciasny slup rzuca sie w oczy). */
+.start-cta{ width:100%; max-width:360px; margin-top:22px; display:flex; flex-direction:column; gap:14px; }
 /* `hub-btn` nie ma wariantu „na cala szerokosc" — w hubie siedzi w siatkach
    i w rzedach. Tutaj ma byc jednym, szerokim celem dla palca, wiec dokladamy
    TYLKO szerokosc; wysokosc i litery ida ze skali `--cta-*`, zeby ekran startu
@@ -694,6 +726,65 @@ h3.title{ font-size: 22px; margin:0; }
    Rozroznia go kolor i grubosc — kreska pod spodem robila z niego trzeci
    przycisk tuz pod dwoma prawdziwymi. */
 .start-dorosly a{ display:block; margin-top:2px; color:var(--p-magic-dk); font-weight:800; text-decoration:none; }
+
+/* ─── Ekran powitalny na desktopie ─────────────────────────────────────────
+   Na telefonie ilustracja jest tlem, a tresc lezy POD nia. Na monitorze ten
+   sam uklad daje slup obrazka posrodku i dwa pasy pustego gradientu po
+   bokach — ekran wyglada jak telefon polozony na stole. Dlatego szeroki kadr
+   dostaje wlasny uklad: ilustracja po prawej, kolumna z logo i przyciskami
+   po lewej, a pod spodem ta sama ilustracja rozmyta, zeby ramka nie miala
+   martwego pola. Bez nowego pliku graficznego — to jeden i ten sam obrazek
+   w trzech rolach. */
+@media (min-width:760px){
+  .start-ekran{ border-radius:inherit; }
+  /* Tlo otoczenia: rozmyty, przeskalowany kadr tej samej ilustracji.
+     `scale` jest konieczne — blur wciaga przezroczystosc przy krawedziach
+     i bez powiekszenia widac po bokach jasna obwodke. */
+  .start-ekran::before{
+    content:""; position:absolute; inset:0; z-index:0;
+    background:url('/assets/wejscie/tlo-start-lis.webp') center 40%/cover no-repeat;
+    filter:blur(30px) saturate(.8) brightness(1.1);
+    transform:scale(1.15);
+  }
+  /* Ilustracja wlasciwa: pelna wysokosc kadru, dosunieta do prawej krawedzi.
+     Lewa krawedz gasnie maska, zeby obrazek nie konczyl sie pionowa kreska
+     w polowie ekranu — tak samo, jak na telefonie gasnie jego dol. */
+  .start-tlo{
+    top:0; bottom:0; left:auto; right:0;
+    width:min(62%, 860px); height:100%;
+    object-fit:cover; object-position:50% 42%;
+    -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 30%);
+    mask-image:linear-gradient(90deg, transparent 0, #000 30%);
+  }
+  /* Zaslona obraca sie o cwierc obrotu: kremowa po lewej, przezroczysta po
+     prawej. Jej jedyne zadanie jest to samo, co na telefonie — zeby tekst
+     mial na czym stac. */
+  .start-zaslona{
+    top:0; bottom:0; left:0; right:auto;
+    width:min(66%, 780px); height:auto;
+    background:linear-gradient(90deg,
+      var(--p-paper) 0%,
+      color-mix(in srgb, var(--p-paper) 94%, transparent) 40%,
+      color-mix(in srgb, var(--p-paper) 52%, transparent) 72%,
+      transparent 100%);
+  }
+  /* Kolumna tresci: do lewej i w pionowej osi kadru. `margin-top:auto` z wersji
+     telefonu musi zniknac, inaczej blok dalej klei sie do dolu. */
+  .start-tresc{
+    margin:auto 0; width:min(50%, 520px);
+    align-items:flex-start; text-align:left; gap:10px;
+    padding:0 0 0 clamp(34px, 6vw, 92px);
+  }
+  /* Logo ma miejsce, wiec rosnie — to jedyna rzecz, ktora dziecko zapamieta
+     z tego ekranu. Skala idzie z szerokosci kadru, nie z vw: przy ramce
+     okno bywa duzo szersze niz sam ekran gry. */
+  .start-logo{ font-size:clamp(52px, 5.2vw, 74px); }
+  .start-logo-iskra{ width:30px; height:30px; right:-16px; top:-14px; }
+  .start-haslo{ max-width:360px; text-align:left; font-size:22px; }
+  .start-cta{ max-width:330px; margin-top:28px; gap:16px; }
+  .start-dorosly{ text-align:left; margin-top:10px; }
+  .start-dorosly a{ display:inline; margin-left:6px; }
+}
 
 /* ─── Ekran logowania kodem ───────────────────────────────────────────────── */
 .kod-ekran{

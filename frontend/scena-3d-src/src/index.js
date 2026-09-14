@@ -43,6 +43,20 @@ export async function utworzScena3D(s = {}) {
     ustawBohatera: (r, a) => n.ustawBohatera(r, a),
     ustawSpokojnyRuch: (r) => n.ustawSpokojnyRuch(r),
     ustawZasiew: (r) => n.ustawZasiew(r),
+    // Mały, trwały ślad powrotów w W2. Korzysta z istniejącego sadzenia,
+    // które osadza rośliny na faktycznej powierzchni terenu.
+    ustawSladyPrzygod: (ile, bezAnimacji = false) => {
+      const cel = Math.max(0, Math.min(7, Math.floor(Number(ile) || 0)));
+      if (!n.kwiaty) return;
+      const start = globalThis.__SCENA3D_MAPA?.start?.pos || [0, 6.72];
+      for (let k = n._sladyPrzygod || 0; k < cel; k++) {
+        for (let j = 0; j < 5; j++) {
+          const kat = (k * 5 + j) / 35 * Math.PI * 2;
+          n.kwiaty.posadz(start[0] + Math.cos(kat) * 2.5, start[1] + Math.sin(kat) * 2.5, bezAnimacji);
+        }
+      }
+      n._sladyPrzygod = Math.max(n._sladyPrzygod || 0, cel);
+    },
     ustawPowrotZnaku: (r, a) => n.ustawPowrotZnaku(r, a),
     pokazZnak: (r) => n.pokazZnak(r),
     kino: (r, a) => n.kino(r, a),

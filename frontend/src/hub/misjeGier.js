@@ -37,7 +37,7 @@
  * `zadanieGwiazdek.js`.
  */
 import { bonusMonet, dodajMonety } from "../services/monety.js";
-import { czyOdblokowana as czyPuzzleUlozone } from "./puzzleGier.js";
+import { biezacePuzzle, czyOdblokowana as czyPuzzleUlozone } from "./puzzleGier.js";
 
 const KLUCZ = "ewolucja.misje.gier";
 
@@ -290,7 +290,16 @@ function zapisz(zapis) {
   } catch {}
 }
 
-function zStanu(def, wpis) {
+/**
+ * Gra, której układankę dziecko WŁAŚNIE zdobywa: od rozsypania kawałków po
+ * polanie do ułożenia obrazka (`null`, gdy żadna). Liczone raz i podawane
+ * dalej, bo `stanMisji` pytałoby o to samo dla każdej misji z łańcucha.
+ */
+function idEtapuPuzzli() {
+  try { return biezacePuzzle()?.id || null; } catch { return null; }
+}
+
+function zStanu(def, wpis, etapPuzzli = idEtapuPuzzli()) {
   const ujawniona = !!wpis?.ujawniona;
   /* `znaleziona` to STARA nazwa tej samej flagi — z czasów, gdy grę odkrywało
      wbiegnięcie w znak, a nie ułożenie układanki. Czytamy obie, żeby zapis
@@ -299,6 +308,18 @@ function zStanu(def, wpis) {
   const wygrana = !!wpis?.wygrana;
   const wyplacona = !!wpis?.wyplacona;
   const wyplaconaUlozenie = !!(wpis?.wyplaconaUlozenie || wpis?.wyplaconaZnalezienie);
+  /**
+   * JEDNO ZADANIE NA RAZ (decyzja właściciela, 2026-09-14). Dopóki trwa etap
+   * puzzli JAKIEJŚ gry, wszystkie POZOSTAŁE gry łańcucha schodzą z drogi:
+   * ich skrót znika z mapy, a kafel w skrzyni gaśnie. Nie dlatego, że dziecko
+   * ma ich nie dostać — dostało je na stałe i wrócą w tej samej sekundzie,
+   * w której obrazek się ułoży — tylko dlatego, że polana ma w danym momencie
+   * mówić o jednej rzeczy. Zdobyta gra obok rozsypanych kawałków to wybór
+   * między „zagram w to, co umiem" a „poszukam czegoś nowego", a
+   * sześciolatek prawie zawsze wybierze pierwsze i etap puzzli nie ruszy
+   * z miejsca.
+   */
+  const inneZadanieTrwa = !!etapPuzzli && etapPuzzli !== def.id;
   return {
     id: def.id,
     def,
@@ -324,17 +345,30 @@ function zStanu(def, wpis) {
      * i to w jedynym momencie, w którym miałoby ochotę zagrać w nią jeszcze
      * raz. Cel nowej misji leży teraz w trawie jako kawałki puzzli i niczym
      * się z drzwiami nie myli (decyzja właściciela, 2026-08-22).
+     *
+     * Jedno zawężenie doszło 2026-09-14: skrót znika na CZAS ETAPU PUZZLI
+     * innej gry i wraca, gdy tamten obrazek się ułoży — patrz
+     * `inneZadanieTrwa` wyżej. To nie jest powrót do starego chowania „aż do
+     * rozliczenia wszystkich misji": tam znak przepadał na całe godziny gry,
+     * tutaj na jedno zbieranie.
      */
-    naMapie: ujawniona && czyPuzzleUlozone(def.id),
+    naMapie: ujawniona && czyPuzzleUlozone(def.id) && !inneZadanieTrwa,
     /** Gra siedzi w zakładce od ułożenia obrazka — i tam zostaje. */
     wZakladce: odkryta,
+    /**
+     * Kafel w skrzyni jest, ale się nie odpala — bo trwa zdobywanie innej
+     * gry. `wZakladce` zostaje prawdą: gra jest zdobyta i ma być widoczna,
+     * inaczej dziecko pomyślałoby, że mu ją zabrano.
+     */
+    wstrzymanaZadaniem: odkryta && inneZadanieTrwa,
   };
 }
 
 /** Stany wszystkich misji, w kolejności z `MISJE`. */
 export function stanMisji() {
   const zapis = czytaj();
-  return MISJE.map((def) => zStanu(def, zapis[def.id]));
+  const etap = idEtapuPuzzli();
+  return MISJE.map((def) => zStanu(def, zapis[def.id], etap));
 }
 
 /** Stan jednej misji (albo `null`, gdy takiej gry nie ma w łańcuchu). */
@@ -365,6 +399,21 @@ export function znakiNaMapie() {
 /** Identyfikatory gier dostępnych w zakładce minigier. */
 export function gryWZakladce() {
   return stanMisji().filter((m) => m.wZakladce).map((m) => m.id);
+}
+
+/**
+ * Gra, którą dziecko TERAZ odblokowuje (etap puzzli), albo `null`. Skrzynia
+ * z grami pyta o to, żeby wiedzieć, które kafle wygasić i czyim tytułem
+ * wytłumaczyć blokadę.
+ */
+export function misjaOdblokowywana() {
+  const id = idEtapuPuzzli();
+  return id ? stanGry(id) : null;
+}
+
+/** Identyfikatory zdobytych gier, które na czas cudzego etapu puzzli milczą. */
+export function gryWstrzymane() {
+  return stanMisji().filter((m) => m.wstrzymanaZadaniem).map((m) => m.id);
 }
 
 function zmien(id, latka) {

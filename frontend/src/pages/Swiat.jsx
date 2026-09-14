@@ -1873,10 +1873,18 @@ export default function Swiat() {
    * do najbliższego przerysowania z zupełnie innego powodu.
    */
   useEffect(() => {
-    const przelicz = () => setPuzzleHud(biezacePuzzle());
+    const przelicz = () => {
+      setPuzzleHud(biezacePuzzle());
+      /* JEDNO ZADANIE NA RAZ. Etap puzzli zdejmuje z polany skróty do gier
+         już zdobytych (`naMapie` w `misjeGier`), więc mapa musi przeliczyć
+         się na TO zdarzenie, nie dopiero przy najbliższej zmianie misji:
+         start zbierania i ułożenie obrazka nie ruszają stanu misji wcale,
+         a to właśnie one otwierają i zamykają etap. */
+      try { odswiezZnakiMisji(); } catch {}
+    };
     window.addEventListener(PUZZLE_ZMIANA, przelicz);
     return () => window.removeEventListener(PUZZLE_ZMIANA, przelicz);
-  }, []);
+  }, [odswiezZnakiMisji]);
 
   /**
    * Każde nowe zaproszenie zaczyna od poziomu domyślnego — czyli tego
@@ -2025,6 +2033,11 @@ export default function Swiat() {
           onZdarzenie={naZdarzenieSceny}
           onBlad={() => setScenaMartwa(true)}
           className={`hub-scena${scenaGotowa ? " is-ready" : ""}`}
+          /* Kadr jak w W2 (`wariant/Wariant.jsx`). Prop MUSI byc jawny: Scena3D
+             ustawia z niego `globalThis.SCENA3D_ZOOM`, a ten ma pierwszenstwo
+             przed `swiat.zoom` z mapy — bez tego wartosc z `mapa.json` nigdy
+             nie dochodzi do glosu i zostaje domyslne 0,8. */
+          zoom={1.05}
         />
       )}
 
@@ -2301,6 +2314,10 @@ export default function Swiat() {
         onPowrot={powrotPanelu}
         testId="hub-sheet"
         powrot={!!powrotPanelu}
+        /* Profil to JEDNA karta (awatar, imie, mocne strony), nie lista —
+           dlatego jedzie jako okno na srodku, a nie szuflada z dolu. Reszta
+           paneli zostaje szufladami: maja co przewijac. */
+        wariant={panel === "profil" ? "popup" : null}
         /* Czat sam dzieli sobie wysokość (strumień przewija się, pole pisania
            stoi na dole). Reszta paneli to listy — te przewijają się w całości. */
         wypelnia={panel === "czat"}

@@ -176,6 +176,17 @@ Dwie rzeczy warto znać przed zmianą:
 - **Kolejność jest zabezpieczona przez dane, nie przez flagę.**
   `zaliczWygrana` nie ruszy misji, której układanka nie została ułożona —
   samo `odkryta` jest dowodem i przeżywa zamknięcie apki.
+- **Jedno zadanie na dany moment** (decyzja właściciela, 2026-09-14).
+  Dopóki trwa etap puzzli którejkolwiek gry, POZOSTAŁE gry łańcucha schodzą
+  z drogi: ich skrót znika z polany (`naMapie` → `false`), a kafel w skrzyni
+  gaśnie i po dotknięciu mówi, co jest teraz do zrobienia. Gra NIE jest
+  odbierana — `wZakladce` zostaje prawdą, kafel stoi na wierzchu z własną
+  ikoną, tylko przygaszony (`wstrzymanaZadaniem`). Wszystko wraca w tej samej
+  sekundzie, w której obrazek się ułoży. Powód: zdobyta gra obok rozsypanych
+  kawałków to wybór między „zagram w to, co umiem" a „poszukam czegoś nowego",
+  a sześciolatek prawie zawsze wybierze pierwsze i etap puzzli nie ruszy
+  z miejsca. To NIE jest powrót do chowania znaku „aż do rozliczenia
+  wszystkich misji" — tam znak przepadał na godziny gry, tu na jedno zbieranie.
 
 Brama z puzzli (`puzzleGier.js`) staje **raz, przed pierwszą partią**, nie przed
 każdą — druga byłaby karą za chęć grania. Rozmiary siatek: karty 2×2,

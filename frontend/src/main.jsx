@@ -31,6 +31,7 @@ import Landing from "./pages/Landing.jsx";
 import Onboarding from "./pages/Onboarding.jsx";
 import Przygoda from "./pages/Przygoda.jsx";
 import Swiat from "./pages/Swiat.jsx";
+import Wariant from "./wariant/Wariant.jsx";
 import MissionView from "./pages/MissionView.jsx";
 import Games from "./pages/Games.jsx";
 import Backpack from "./pages/Backpack.jsx";
@@ -84,6 +85,8 @@ function AppRoutes() {
       {/* Hub 3D: scena z public/scena-3d jako tlo, sekcje UI jako panele nad nia.
           To jest BAZA gry — tu ladujemy po logowaniu i tu wracaja stare adresy. */}
       <Route path="/swiat" element={<Swiat />} />
+      <Route path="/w2" element={<Wariant />} />
+      <Route path="/w2/mentor" element={<Wariant />} />
       {/* Stare adresy pozostają kompatybilne, ale wracają do huba 3D — to jest baza.
           `/mapa` to dawna Mapa Iskier: plaski ekran z punktami krain, ktory byl
           baza przed scena 3D. Ekran zostal usuniety, ale ADRES musi zyc dalej —

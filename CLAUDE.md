@@ -10,6 +10,23 @@
 
 Pominięcie tego pliku = stracona godzina na debugowanie znanych problemów.
 
+## Po co jest ta gra — czytaj jako pierwsze
+
+**[docs/OPIS_PROJEKTU.md](./docs/OPIS_PROJEKTU.md)** — dla kogo, zasada
+nadrzędna („zbieramy, żeby zobaczyć, co stanie się ze światem"), co jest
+sercem gry (zadanie poza ekranem z dowodem dla Mentora), co jest zakazane,
+z czego projekt ma żyć i pod jakim kątem patrzy każda rola. Każdy agent
+ocenia swoją zmianę wobec tego pliku, zanim ją zrobi.
+
+## Wersja aktualna — którędy idzie dziecko
+
+**[docs/WERSJA_AKTUALNA.md](./docs/WERSJA_AKTUALNA.md)** — obowiązujący łańcuch
+wejścia: `START (/)` → `onboarding` → **świat W2 (`/w2`)**, a dalej porady
+i zadania dobierane po typie oraz profil awatara pod kliknięciem. Tor W1
+(`/swiat`) zostaje żywy jako poprzednia wersja; jego elementy przenosimy do W2
+pojedynczo. Zanim przepniesz jakąkolwiek trasę albo ekran — zmień najpierw ten
+plik.
+
 ## Agenci, komendy i strażnik — czytaj zanim zaczniesz
 
 W repo są wyspecjalizowani subagenci (`.claude/agents/`). Użyj właściwego
@@ -22,8 +39,22 @@ zamiast robić wszystko samodzielnie:
 | `deploy` | commit, push, produkcja |
 | `narrator-gama` | każdy tekst, który widzi lub słyszy dziecko |
 | `tester-e2e` | sprawdzenie przed wypchnięciem |
+| `strateg-produktu` | kierunek, nowa funkcja, cennik, koszt na użytkownika, metryki — czyj problem to rozwiązuje i kto za to zapłaci |
 
-Komendy (`.claude/commands/`): `/deploy`, `/nowa-gra`, `/scena-patch`, `/e2e`, `/systemy`.
+**Panel zadań poza ekranem** (dodany 2026-09-13) — osobna ósemka do treści,
+nie do kodu: `rodzic-1-3`, `rodzic-4-8`, `pedagog`, `psycholog`, `socjolog`,
+`swieze-spojrzenie`, `projektant-zadan`, `copywriter`. Wspólny brief z
+formatami i twardymi regułami: [`docs/PANEL_ZADAN.md`](./docs/PANEL_ZADAN.md).
+Głos świata zostaje przy `narrator-gama` — panel dowozi substancję, narrator
+robi ostatnie przejście.
+
+Komendy (`.claude/commands/`): `/deploy`, `/nowa-gra`, `/scena-patch`, `/e2e`,
+`/systemy`, `/panel-zadan`.
+
+**Gdy mechanizm subagentów nie jest dostępny** (np. sesja Cowork z podpiętym
+folderem, a nie Claude Code w tym katalogu): pliki z `.claude/agents/` czytaj
+jako role i przechodź przez nie po kolei samodzielnie. To ten sam brief,
+tylko bez równoległości.
 
 **Strażnik sceny** (`.claude/hooks/straznik-sceny.mjs`) blokuje bezpośrednią
 edycję `public/scena-3d/scena3d*.js` i przypomina o `WERSJA_SCENY` po każdej

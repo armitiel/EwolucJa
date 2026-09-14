@@ -32,6 +32,14 @@ const SCIEZKI = {
       <path d="M18.2 8.4h1.4a1.4 1.4 0 0 1 1.4 1.4v6.4a2.2 2.2 0 0 1-2.2 2.2" />
     </>
   ),
+  // Ołówek — „popraw to, co tu stoi". Dziś przy imieniu w profilu; ten sam
+  // język co reszta: 24x24, kontur, currentColor, grubość 1.8.
+  olowek: (
+    <>
+      <path d="M4.6 19.4h3.1L18.3 8.8a2.2 2.2 0 0 0 0-3.1l-.0-.0a2.2 2.2 0 0 0-3.1 0L4.6 16.3Z" />
+      <path d="M13.9 6.6l3.5 3.5" />
+    </>
+  ),
   porada: (
     <>
       <circle cx="12" cy="12" r="4.1" />

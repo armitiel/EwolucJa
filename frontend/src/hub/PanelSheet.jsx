@@ -28,7 +28,7 @@ export const SlotNaglowka = createContext(null);
  * przejście z Gier na Czat skakało o 82 px. Wszystkie szuflady mają jedną
  * wysokość, a miejsce dla rozmowy bierze się z jej wnętrza.
  */
-export default function PanelSheet({ open, kicker = null, title, onClose, onPowrot = null, children, testId, wypelnia = false, powrot = false }) {
+export default function PanelSheet({ open, kicker = null, title, onClose, onPowrot = null, children, testId, wypelnia = false, powrot = false, wariant = null }) {
   const arkuszRef = useRef(null);
   // `Swiat` zeruje aktywny panel od razu, a arkusz jeszcze przez moment zjeżdża.
   // Zapamiętujemy więc ikonę otwartego panelu, żeby Porada podczas animacji
@@ -36,6 +36,13 @@ export default function PanelSheet({ open, kicker = null, title, onClose, onPowr
   const ostatniTrybPowrotuRef = useRef(powrot);
   if (open) ostatniTrybPowrotuRef.current = powrot;
   const pokazPowrot = open ? powrot : ostatniTrybPowrotuRef.current;
+  // TO SAMO dla wariantu wygladu, i z tego samego powodu. Bez tego popup
+  // profilu przy zamykaniu tracil klase `jest-popup` w tej samej klatce, w
+  // ktorej zaczynal znikac — wracal wiec do stylu szuflady i zamiast zapasc
+  // sie w srodku ekranu, odjezdzal po skosie w dolny rog.
+  const ostatniWariantRef = useRef(wariant);
+  if (open) ostatniWariantRef.current = wariant;
+  const wariantWidoczny = open ? wariant : ostatniWariantRef.current;
   // Stan, nie ref: portal musi się przerysować, gdy węzeł już istnieje.
   const [slot, setSlot] = useState(null);
 
@@ -64,7 +71,7 @@ export default function PanelSheet({ open, kicker = null, title, onClose, onPowr
       />
       <section
         ref={arkuszRef}
-        className={`hub-sheet${open ? " is-open" : ""}`}
+        className={`hub-sheet${wariantWidoczny ? ` jest-${wariantWidoczny}` : ""}${open ? " is-open" : ""}`}
         role="dialog"
         aria-modal="false"
         aria-label={title}

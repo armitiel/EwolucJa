@@ -186,15 +186,21 @@ export default function PopupPostaci({
 
         {dodatek ? <div className="popup-postaci-dodatek">{dodatek}</div> : null}
 
-        <button
-          type="button"
-          ref={przyciskRef}
-          className="hub-btn hub-btn-primary popup-postaci-akcja"
-          onClick={() => (onAkcja || onZamknij)?.()}
-          data-testid="popup-postaci-akcja"
-        >
-          {przycisk}
-        </button>
+        {/* Brak `przycisk` = okno NIE MA glownego wyjscia, bo wyborem jest sam
+            `dodatek` (tak dziala poznanie w W2: dziecko stuka w odpowiedz
+            i okno idzie dalej). Pusty zielony pasek pod pytaniem wygladal jak
+            zepsuty przycisk, wiec go nie rysujemy. */}
+        {przycisk ? (
+          <button
+            type="button"
+            ref={przyciskRef}
+            className="hub-btn hub-btn-primary popup-postaci-akcja"
+            onClick={() => (onAkcja || onZamknij)?.()}
+            data-testid="popup-postaci-akcja"
+          >
+            {przycisk}
+          </button>
+        ) : null}
 
         {/* Odmowa jest lżejsza od zgody i stoi niżej — pierwszy pod kciukiem
             ma być ten przycisk, który prowadzi dalej. Ten sam układ, co

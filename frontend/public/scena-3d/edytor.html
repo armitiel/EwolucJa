@@ -64,6 +64,11 @@
   .lista{display:flex; flex-direction:column; gap:3px}
   .lista button{text-align:left; font-weight:600; font-size:12.5px; padding:5px 8px; display:flex; gap:6px}
   .lista button.akt{background:#EFE3FA; border-color:var(--magia2)}
+  .lista .grupa{display:flex; gap:3px}
+  .lista .grupa .nazwa{flex:1}
+  .lista .grupa .oko{flex:none; font-size:11px; font-weight:800; color:var(--atrament2); padding:5px 7px}
+  .lista .podgrupa{margin-left:12px; border-left:2px solid var(--kant); padding-left:6px;
+    display:flex; flex-direction:column; gap:3px}
   .lista .znacznik{width:9px; height:9px; border-radius:50%; align-self:center; flex:none}
   .pole{display:grid; grid-template-columns:80px 1fr; gap:6px; align-items:center; margin-bottom:6px}
   .pole label{font-size:11.5px; color:var(--atrament2); font-weight:700}
@@ -84,6 +89,11 @@
   .przyciski-rzad{display:flex; gap:6px; flex-wrap:wrap; margin:6px 0}
   .przyciski-rzad button{flex:1; font-size:12px; padding:5px 6px}
   .auto{display:flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:var(--atrament2)}
+  /* Plakietka z nazwa otwartego pliku. Edytor dlugo umial tylko `mapa.json`,
+     wiec nikt nie pytal, ktory swiat ma na ekranie; przy kilku mapach to
+     pierwsza rzecz, ktora trzeba widziec bez klikania. */
+  .plik-mapy{font-weight:800; font-size:12px; color:var(--magia); background:#EFE3FA;
+    border:1px solid rgba(122,77,194,.35); border-radius:999px; padding:5px 10px; white-space:nowrap}
   svg.lapa{cursor:grab}
   svg.lapa-trzyma{cursor:grabbing}
 </style>
@@ -92,6 +102,7 @@
 
 <header>
   <h1>Edytor mapy</h1>
+  <span class="plik-mapy" id="plik-mapy" title="Inna mape otwierasz adresem ?mapa=w2"></span>
   <button id="btn-cofnij" title="Ctrl+Z">Cofnij</button>
   <button id="btn-widok" title="Wróć do widoku całej mapy">Dopasuj widok</button>
   <button id="btn-plik">Wczytaj plik…</button>
@@ -145,6 +156,31 @@
    których edytor nie zna, przechodzą przez niego nietknięte.                  */
 
 const KLUCZ = 'scena3d.mapa';
+/* KTORA MAPA. `?mapa=w2` otwiera `mapa-w2.json` — ten sam parametr i to samo
+   sito [a-z0-9-], co w scenie (`index.html`), zeby adres nie siegnal poza ten
+   katalog. Bez parametru zostaje `mapa.json`, czyli pierwszy swiat.
+
+   Wersja robocza w localStorage jest JEDNA, bo podglad 3D czyta ja spod
+   sztywnego klucza. Dlatego trzymamy przy niej nazwe pliku: roboczy W2 nie
+   otworzy sie jako W1 (i odwrotnie) — inaczej edytor pokazuje jeden swiat,
+   a nazwa w naglowku mowi o drugim. */
+const NAZWA_MAPY = (new URLSearchParams(location.search).get('mapa') || '')
+  .toLowerCase().replace(/[^a-z0-9-]/g, '');
+const PLIK_MAPY = NAZWA_MAPY && NAZWA_MAPY !== 'podglad' ? 'mapa-' + NAZWA_MAPY + '.json' : 'mapa.json';
+const KLUCZ_PLIKU = KLUCZ + '.plik';
+
+/* GRUPA KWIATOW. Kwiatow jest blisko sto i jako osobne uchwyty zaslanialy caly
+   plan, a ich pola trafienia przechwytywaly kliki w to, co pod nimi. Zamknieta
+   grupa rysuje je drobno, przygaszone i BEZ pola trafienia; otwarta wraca do
+   pelnych uchwytow, wiec kwiat da sie przesunac, przemalowac i skasowac.
+   Stan siedzi w localStorage, NIE w mapie — to ustawienie widoku, nie
+   wlasciwosc swiata, i nie ma prawa wjechac do pliku. */
+const KLUCZ_KWIATOW = 'scena3d.edytor.kwiaty';
+const kwiatyGrupa = { pokaz: true, otwarta: false };
+try { Object.assign(kwiatyGrupa, JSON.parse(localStorage.getItem(KLUCZ_KWIATOW) || '{}')); } catch (e) { console.warn(e); }
+function zapiszUiKwiatow() {
+  try { localStorage.setItem(KLUCZ_KWIATOW, JSON.stringify(kwiatyGrupa)); } catch (e) { console.warn(e); }
+}
 /**
  * MODELE — co da się postawić na mapie.
  *
@@ -197,11 +233,15 @@ async function wczytaj({ zSerwera = false } = {}) {
   if (!zSerwera) {
     try {
       const robocza = localStorage.getItem(KLUCZ);
-      if (robocza) { ustaw(JSON.parse(robocza), 'wersja robocza z tej przeglądarki'); return; }
+      const zPliku = localStorage.getItem(KLUCZ_PLIKU) || 'mapa.json';
+      if (robocza && zPliku === PLIK_MAPY) {
+        ustaw(JSON.parse(robocza), 'wersja robocza z tej przeglądarki · ' + PLIK_MAPY);
+        return;
+      }
     } catch (e) { console.warn(e); }
   }
-  const odp = await fetch('mapa.json', { cache: 'no-cache' });
-  ustaw(await odp.json(), 'mapa.json z serwera');
+  const odp = await fetch(PLIK_MAPY, { cache: 'no-cache' });
+  ustaw(await odp.json(), PLIK_MAPY + ' z serwera');
 }
 
 function ustaw(m, skad) {
@@ -222,7 +262,10 @@ function zapisz({ bezHistorii = false } = {}) {
     historia.push(JSON.stringify(mapa));
     if (historia.length > 60) historia.shift();
   }
-  try { localStorage.setItem(KLUCZ, JSON.stringify(mapa)); } catch (e) { console.warn(e); }
+  try {
+    localStorage.setItem(KLUCZ, JSON.stringify(mapa));
+    localStorage.setItem(KLUCZ_PLIKU, PLIK_MAPY);
+  } catch (e) { console.warn(e); }
   autozapis();
 }
 
@@ -239,7 +282,7 @@ function pobierz() {
   const blob = new Blob([JSON.stringify(mapa, null, 2)], { type:'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'mapa.json';
+  a.download = PLIK_MAPY;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
 }
@@ -252,14 +295,14 @@ function pobierz() {
  */
 async function zapiszWProjekcie({ cicho = false } = {}) {
   try {
-    const odp = await fetch('/__mapa', {
+    const odp = await fetch('/__mapa?plik=' + encodeURIComponent(PLIK_MAPY), {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(mapa),
     });
     const dane = await odp.json();
     $('#info').textContent = dane.ok
-      ? 'zapisane → public/scena-3d/mapa.json  (' + new Date().toLocaleTimeString('pl') + ')'
+      ? 'zapisane → public/scena-3d/' + PLIK_MAPY + '  (' + new Date().toLocaleTimeString('pl') + ')'
       : 'błąd zapisu: ' + dane.blad;
     return dane.ok;
   } catch (e) {
@@ -549,14 +592,28 @@ function rysuj() {
   if (mapa.most) {
     const p = mapa.most.pos, a = sc[1], b = sc[2];
     const kat = a && b ? Math.atan2(b[0]-a[0], b[1]-a[1]) * 180 / Math.PI : 0;
+    /* Most i brama bywaja WYLACZONE z mapy (`ukryty` / `ukryta`) — tak stoi
+       swiat W2, ktory nie ma ani rzeki, ani bramy. Rysowane pelna barwa
+       siedzialy wtedy na srodku planu jak prawdziwe przeszkody i zaslanialy
+       to, co naprawde jest w swiecie. Pokazujemy je wiec tak, jak zgaszona
+       latarnie: przerywanym obrysem, bez wypelnienia — dalej klikalne, wiec
+       da sie je wlaczyc z powrotem. */
+    const mostSchowany = !!mapa.most.ukryty;
     uchwyt('most', 0, el('rect', { x:p[0]-1, y:p[1]-2.1, width:2, height:4.2, rx:.2,
-      fill:'#C9A06A', stroke:'#8a6636', 'stroke-width':.06,
+      fill: mostSchowany ? 'none' : '#C9A06A',
+      stroke: mostSchowany ? '#9c8a63' : '#8a6636', 'stroke-width':.06,
+      'stroke-dasharray': mostSchowany ? '.22 .18' : null,
+      opacity: mostSchowany ? .5 : 1,
       transform:`rotate(${-kat} ${p[0]} ${p[1]})` }));
   }
   if (mapa.brama) {
     const p = mapa.brama.pos;
+    const bramaSchowana = !!mapa.brama.ukryta;
     uchwyt('brama', 0, el('rect', { x:p[0]-1.6, y:p[1]-.35, width:3.2, height:.7, rx:.25,
-      fill:'#B58A5B', stroke:'#7a5734', 'stroke-width':.06 }));
+      fill: bramaSchowana ? 'none' : '#B58A5B',
+      stroke: bramaSchowana ? '#9c8a63' : '#7a5734', 'stroke-width':.06,
+      'stroke-dasharray': bramaSchowana ? '.22 .18' : null,
+      opacity: bramaSchowana ? .5 : 1 }));
   }
   if (mapa.latarnia) {
     const p = mapa.latarnia.pos;
@@ -596,6 +653,31 @@ function rysuj() {
     el('line', { x1:o.pos[0], y1:o.pos[1], x2:o.pos[0] + Math.sin(k) * r, y2:o.pos[1] + Math.cos(k) * r,
       stroke:kolor, 'stroke-width':.09, 'stroke-linecap':'round' });
   };
+  /* OCZKO WODY i FASOLA — dwa filary swiata W2, wiec musza byc na planie.
+     Oba to pojedyncze obiekty w mapie (jak latarnia czy most), nie pozycje
+     w tablicy. Rysujemy je PRZED drzewami, zeby kregi lezaly pod bryłami,
+     a nie na nich.
+
+     Przerywane kolo przy fasoli to `zasieg` — dokladnie ten promien, w ktorym
+     scena przyjmuje krople i zaczyna wspinaczke (i ktory dziecko widzi jako
+     krag aktywnosci). Kolo przy oczku to jego `promien`; lisek nabiera wody
+     juz na 85 % tej odleglosci. */
+  if (mapa.oczko) {
+    const p = mapa.oczko.pos;
+    uchwyt('oczko', 0, el('circle', { cx:p[0], cy:p[1], r: mapa.oczko.promien ?? 1.4,
+      fill:'#8FCBE8', 'fill-opacity':.7, stroke:'#2E7AB8', 'stroke-width':.1 }));
+    el('text', { x:p[0], y:p[1] + .16, 'font-size':.42, fill:'#1c5a86', 'text-anchor':'middle',
+      'pointer-events':'none' }).textContent = 'woda';
+  }
+  if (mapa.fasola) {
+    const p = mapa.fasola.pos;
+    el('circle', { cx:p[0], cy:p[1], r: mapa.fasola.zasieg ?? 1.9, fill:'none',
+      stroke:'#6FB84A', 'stroke-width':.09, 'stroke-dasharray':'.32 .26' });
+    kreskaObrotu(mapa.fasola, 1.1, '#3f7a2a');
+    uchwyt('fasola', 0, el('circle', { cx:p[0], cy:p[1], r:.46,
+      fill:'#6FB84A', stroke:'#3f7a2a', 'stroke-width':.11 }));
+  }
+
   (mapa.drzewa || []).forEach((d, i) => {
     uchwyt('drzewo', i, el('circle', {
       cx:d.pos[0], cy:d.pos[1], r:.75 * (d.skala ?? 1),
@@ -611,11 +693,16 @@ function rysuj() {
 
   // Kwiat jest mały, więc uchwyt musi być większy niż sam obiekt — inaczej
   // nie dałoby się w niego trafić palcem przy oddalonym widoku.
-  (mapa.kwiaty || []).forEach((k, i) => {
+  if (kwiatyGrupa.pokaz) (mapa.kwiaty || []).forEach((k, i) => {
     const odmiana = KWIATY_ODMIANY[k.wariant ?? 0] || KWIATY_ODMIANY[0];
-    uchwyt('kwiat', i, el('circle', {
-      cx:k.pos[0], cy:k.pos[1], r:.3 * (k.skala ?? 1), fill:odmiana.kolor,
-      stroke:'#5c8c3a', 'stroke-width':.07 }));
+    const otw = kwiatyGrupa.otwarta;
+    const kolko = el('circle', {
+      cx:k.pos[0], cy:k.pos[1], r:(otw ? .3 : .15) * (k.skala ?? 1), fill:odmiana.kolor,
+      stroke:'#5c8c3a', 'stroke-width': otw ? .07 : .03, opacity: otw ? 1 : .5 });
+    // Zamknieta grupa to dywan do ogladania, nie do klikania — bez tego kwiaty
+    // dalej lapalyby kazde klikniecie w teren pod nimi.
+    if (otw) uchwyt('kwiat', i, kolko);
+    else kolko.style.pointerEvents = 'none';
   });
 
   (mapa.budynki || []).forEach((b, i) => {
@@ -648,8 +735,8 @@ function rysuj() {
 }
 
 /** Pola, po ktorych „skaluje sie" dany typ — kazdy ma inna jednostke. */
-const POLE_SKALI = { znak:'scale', drzewo:'skala', glaz:'skala', budynek:'wysokosc' };
-const POLE_OBROTU = { znak:'obrotY', budynek:'obrot', drzewo:'obrot', glaz:'obrot', start:'obrot' };
+const POLE_SKALI = { znak:'scale', drzewo:'skala', glaz:'skala', budynek:'wysokosc', oczko:'promien' };
+const POLE_OBROTU = { znak:'obrotY', budynek:'obrot', drzewo:'obrot', glaz:'obrot', start:'obrot', fasola:'obrot' };
 
 /**
  * Czy silnik w ogóle POSŁUCHA zadanego kąta znaku.
@@ -694,13 +781,15 @@ function promienRysunku(typ, o) {
   if (typ === 'drzewo') return .75 * (o.skala ?? 1);
   if (typ === 'glaz') return .55 * (o.skala ?? 1);
   if (typ === 'budynek') return o.promien ?? 1.4;
+  if (typ === 'fasola') return o.zasieg ?? 1.9;
+  if (typ === 'oczko') return o.promien ?? 1.4;
   return .5;
 }
 
 /* ── Lista obiektów ──────────────────────────────────────────────────────── */
 const KOLORY = { znak:'#FFD269', budynek:'#E2B98C', drzewo:'#4E8F5E', glaz:'#B9B3A6',
                  latarnia:'#FFE08A', brama:'#B58A5B', most:'#C9A06A', kwiat:'#F08FB4',
-                 galaz:'#CDA96F' };
+                 galaz:'#CDA96F', fasola:'#6FB84A', oczko:'#8FCBE8' };
 
 // Te same pięć odmian, co w scenie (`scena3d.js`, tablica PALETA przy kwiatach).
 // Kolejność jest znacząca: `wariant` to indeks w tej tablicy.
@@ -729,8 +818,7 @@ function rysujListe() {
   (mapa.budynki || []).forEach((b, i) => dodaj('budynek', i, b.file));
   (mapa.drzewa || []).forEach((d, i) => dodaj('drzewo', i, 'drzewo ' + (i + 1) + ' · ' + d.typ));
   (mapa.glazy || []).forEach((g, i) => dodaj('glaz', i, 'głaz ' + (i + 1)));
-  (mapa.kwiaty || []).forEach((k, i) =>
-    dodaj('kwiat', i, 'kwiat ' + (i + 1) + ' · ' + (KWIATY_ODMIANY[k.wariant ?? 0] || KWIATY_ODMIANY[0]).nazwa));
+  wierszKwiatow(lista, dodaj);
   (mapa.galezie || []).forEach((g, i) =>
     dodaj('galaz', i + ':1', 'gałąź ' + (i + 1) + ' · od węzła ' + (g.od ?? 0)));
   // Dopisek „(ukryta)" jest jedynym miejscem, w którym widać ten stan bez
@@ -738,8 +826,65 @@ function rysujListe() {
   // szukał latarni, gdy zniknie ze sceny.
   if (mapa.latarnia) dodaj('latarnia', 0, mapa.latarnia.ukryta ? 'latarnia (ukryta)' : 'latarnia');
   if (mapa.start) dodaj('start', 0, 'start liska');
-  if (mapa.brama) dodaj('brama', 0, 'brama');
-  if (mapa.most) dodaj('most', 0, 'most');
+  if (mapa.fasola) dodaj('fasola', 0, 'magiczna fasola');
+  if (mapa.oczko) dodaj('oczko', 0, 'oczko wody');
+  if (mapa.brama) dodaj('brama', 0, mapa.brama.ukryta ? 'brama (ukryta)' : 'brama');
+  if (mapa.most) dodaj('most', 0, mapa.most.ukryty ? 'most (ukryty)' : 'most');
+}
+
+/**
+ * Jeden wiersz zamiast stu: „kwiaty · 96" otwiera grupe, przycisk obok chowa ja
+ * z planu. Dopiero otwarta grupa wypisuje pojedyncze kwiaty i pozwala je
+ * zaznaczac — zamknieta trzyma je z dala od klikniec w reszte swiata.
+ */
+function wierszKwiatow(lista, dodaj) {
+  const ile = (mapa.kwiaty || []).length;
+  if (!ile) return;
+  const wiersz = document.createElement('div');
+  wiersz.className = 'grupa';
+
+  const nazwa = document.createElement('button');
+  nazwa.className = 'nazwa' + (kwiatyGrupa.otwarta ? ' akt' : '');
+  const kropka = document.createElement('span');
+  kropka.className = 'znacznik';
+  kropka.style.background = KOLORY.kwiat;
+  nazwa.append(kropka, document.createTextNode((kwiatyGrupa.otwarta ? '▾ ' : '▸ ') + 'kwiaty · ' + ile));
+  nazwa.title = kwiatyGrupa.otwarta
+    ? 'Zwiń grupę — kwiaty przestaną łapać kliknięcia'
+    : 'Otwórz grupę, żeby edytować pojedyncze kwiaty';
+  nazwa.onclick = () => {
+    kwiatyGrupa.otwarta = !kwiatyGrupa.otwarta;
+    if (kwiatyGrupa.otwarta) kwiatyGrupa.pokaz = true;
+    else if (wybor && wybor.typ === 'kwiat') wybor = null;
+    zapiszUiKwiatow();
+    rysuj();
+  };
+
+  const oko = document.createElement('button');
+  oko.className = 'oko';
+  oko.textContent = kwiatyGrupa.pokaz ? 'widać' : 'ukryte';
+  oko.title = 'Kwiaty na planie edytora — w scenie są zawsze';
+  oko.onclick = () => {
+    kwiatyGrupa.pokaz = !kwiatyGrupa.pokaz;
+    if (!kwiatyGrupa.pokaz) {
+      kwiatyGrupa.otwarta = false;
+      if (wybor && wybor.typ === 'kwiat') wybor = null;
+    }
+    zapiszUiKwiatow();
+    rysuj();
+  };
+
+  wiersz.append(nazwa, oko);
+  lista.appendChild(wiersz);
+  if (!kwiatyGrupa.otwarta) return;
+
+  const pod = document.createElement('div');
+  pod.className = 'podgrupa';
+  lista.appendChild(pod);
+  (mapa.kwiaty || []).forEach((k, i) => {
+    dodaj('kwiat', i, 'kwiat ' + (i + 1) + ' · ' + (KWIATY_ODMIANY[k.wariant ?? 0] || KWIATY_ODMIANY[0]).nazwa);
+    pod.appendChild(lista.lastChild);   // `dodaj` dokleja do listy — przenosimy pod nagłówek grupy
+  });
 }
 
 /* ── Panel właściwości ───────────────────────────────────────────────────── */
@@ -753,6 +898,8 @@ function obiektWyboru() {
   if (typ === 'kwiat') return mapa.kwiaty?.[idx];
   if (typ === 'start') return mapa.start;
   if (typ === 'latarnia') return mapa.latarnia;
+  if (typ === 'fasola') return mapa.fasola;
+  if (typ === 'oczko') return mapa.oczko;
   if (typ === 'brama') return mapa.brama;
   if (typ === 'most') return mapa.most;
   if (typ === 'sciezka') return { pos: wezly()[idx] };
@@ -881,6 +1028,28 @@ function rysujWlasciwosci() {
     poleSuwak(box, 'promień kuli', mapa.swiat?.promienKuli ?? 8, { min:4, max:30, krok:.25 }, (v) => { mapa.swiat.promienKuli = v; zmiana(); });
     poleSuwak(box, 'szer. rzeki', mapa.rzeka?.szerokosc, { min:.4, max:4, krok:.1 }, (v) => { mapa.rzeka.szerokosc = v; zmiana(); });
     ustawieniaLuku(box);
+
+    /* USTAWIENIA ŚWIATA W2. Edytor powstal dla pierwszej mapy i o tych polach
+       nie wiedzial — a to one decyduja o tym, czy swiat ma dzien i noc, chmury,
+       kwiaty za liskiem i jak blisko stoi kamera. Brak ich w panelu znaczyl, ze
+       jedyna droga do nich bylo recznie grzebanie w JSON-ie. */
+    const nagl = document.createElement('h2');
+    nagl.textContent = 'Niebo, teren, kamera';
+    box.appendChild(nagl);
+    const sw = (mapa.swiat ||= {});
+    poleTak(box, 'cykl dnia i nocy', sw.cyklDnia, (v) => { sw.cyklDnia = v; zmiana(); });
+    polePara(box, 'słońce nad X / Z', (sw.slonceNad ||= [0, 0]));
+    poleTak(box, 'cienie', sw.cienie, (v) => { sw.cienie = v; zmiana(); });
+    poleSuwak(box, 'kanciastość terenu', sw.terenKanciasty ?? 0, { min:0, max:16, krok:1 }, (v) => { sw.terenKanciasty = Math.round(v); zmiana(); });
+    poleSuwak(box, 'chmury', sw.chmury ?? 0, { min:0, max:12, krok:1 }, (v) => { sw.chmury = Math.round(v); zmiana(); });
+    poleTak(box, 'kwiaty za liskiem (zasiew)', sw.zasiew, (v) => { sw.zasiew = v; zmiana(); });
+    poleSuwak(box, 'zoom kamery', sw.zoom ?? 1, { min:.6, max:2, krok:.01 }, (v) => { sw.zoom = v; zmiana(); });
+    poleSuwak(box, 'podniesienie kamery', sw.kameraPodniesienie ?? 0, { min:-8, max:8, krok:.25 }, (v) => { sw.kameraPodniesienie = v; zmiana(); });
+    poleSuwak(box, 'ekspozycja', sw.ekspozycja ?? 1, { min:.6, max:2, krok:.01 }, (v) => { sw.ekspozycja = v; zmiana(); });
+    poleTak(box, 'dolny dok HUD-u', sw.dolnyDok, (v) => { sw.dolnyDok = v; zmiana(); });
+    podpowiedz(box, 'Słońce nad punktem mapy wyznacza porę dnia: kąt od środka mapy to zegar — 0° to południe, 90° zmierzch, 180° noc. Przy wyłączonym cyklu dnia świat stoi w jednej porze.');
+    podpowiedz(box, 'Kanciastość dzieli teren na fasety (0 = gładka kula). Podniesienie kamery jest w metrach i bywa ujemne — kamera schodzi wtedy niżej, bliżej trawy.');
+
     podpowiedz(box, 'Promień to granica chodzenia bohatera, teren to bok trawy pod sceną. Rzeka wyznacza, gdzie chodzić NIE można — z wyjątkiem mostu.');
     podpowiedz(box, 'PLANETA: świat jest kulą, a ten plan to jej rozwinięcie ze środka (odległości od środka są prawdziwe, przy skraju rzeczy zbliżają się do siebie). „Promień kuli” mówi, jak mała jest planeta: 8 = cała mapa opasuje ją prawie dookoła, 20 = łagodna krzywizna.');
     return;
@@ -941,6 +1110,20 @@ function rysujWlasciwosci() {
     poleSuwak(box, 'skala', o.skala ?? 1, { min:.5, max:2.5 }, (v) => { o.skala = v; zmiana(); });
     poleSuwak(box, 'obrót [rad]', o.obrot ?? 0, { min:-3.15, max:3.15, krok:.01 }, (v) => { o.obrot = v; zmiana(); });
     podpowiedz(box, 'Kwiat nie blokuje chodzenia. Bez ustawionego kąta obrót losuje się z numeru kwiatu — suwak przejmuje nad nim kontrolę. Skala mnoży i wzrost, i główkę.');
+  }
+  if (wybor.typ === 'fasola') {
+    poleSuwak(box, 'obrót [rad]', o.obrot ?? 0, { min:-3.15, max:3.15, krok:.01 }, (v) => { o.obrot = v; zmiana(); });
+    poleSuwak(box, 'zasięg podlewania', o.zasieg ?? 1.9, { min:.8, max:4, krok:.1 }, (v) => { o.zasieg = v; zmiana(); });
+    poleTekst(box, 'świat po wspinaczce', o.dalej ?? '', (v) => { if (v) o.dalej = v; else delete o.dalej; zmiana(); });
+    podpowiedz(box, 'Zasięg to promień, w którym roślina przyjmuje kroplę i w którym zaczyna się wspinaczka — dziecko widzi go w scenie jako krąg aktywności. „Świat po wspinaczce” to nazwa mapy, na którą przenosi szczyt (np. w3); pusto = szczyt nigdzie nie prowadzi.');
+    podpowiedz(box, 'Etapy rośliny — wysokości, model ziarna, krzywa wygięcia — stroi się osobno, w /scena-3d/edytor-fasoli.html. Tu ustawiasz tylko, GDZIE roślina stoi i jak daleko słyszy.');
+  }
+  if (wybor.typ === 'oczko') {
+    poleSuwak(box, 'promień', o.promien ?? 1.4, { min:.6, max:4, krok:.1 }, (v) => { o.promien = v; zmiana(); });
+    poleSuwak(box, 'głębokość', o.glebokosc ?? .11, { min:.04, max:.4, krok:.01 }, (v) => { o.glebokosc = v; zmiana(); });
+    poleSuwak(box, 'obrys (ziarno)', o.ziarno ?? 1, { min:1, max:12, krok:1 }, (v) => { o.ziarno = Math.round(v); zmiana(); });
+    podpowiedz(box, 'Lisek nabiera wody, wchodząc w oczko — liczy się 85 % promienia. Niecka i piaskowy brzeg dorabiają się w terenie same, więc po przesunięciu oczka teren przeliczy się przy następnym wczytaniu sceny.');
+    podpowiedz(box, '„Obrys” to ziarno losowe nieregularnego kształtu brzegu. Zmieniaj, aż kształt się spodoba — na geometrię gry nie wpływa.');
   }
   if (wybor.typ === 'start') {
     poleSuwak(box, 'obrót [rad]', mapa.start.obrot ?? 0, { min:-3.15, max:3.15, krok:.01 },
@@ -1107,6 +1290,11 @@ function dodajWPunkcie(x, z) {
     wybor = { typ:'glaz', idx: mapa.glazy.length - 1 };
   } else if (tryb === 'kwiat') {
     (mapa.kwiaty ||= []).push({ wariant: Math.floor(Math.random() * KWIATY_ODMIANY.length), pos:[x, z], skala:1 });
+    // Postawiony kwiat musi byc widoczny i chwytliwy od razu, inaczej narzedzie
+    // wyglada na zepsute: klikasz, a na planie nic sie nie da ruszyc.
+    kwiatyGrupa.pokaz = true;
+    kwiatyGrupa.otwarta = true;
+    zapiszUiKwiatow();
     wybor = { typ:'kwiat', idx: mapa.kwiaty.length - 1 };
   } else if (tryb === 'sciezka') {
     zapewnijWezly();
@@ -1487,6 +1675,9 @@ $('#plik').onchange = async (ev) => {
   const f = ev.target.files[0];
   if (f) ustaw(JSON.parse(await f.text()), 'plik ' + f.name);
 };
+
+$('#plik-mapy').textContent = PLIK_MAPY + (NAZWA_MAPY ? '' : '  (pierwszy świat)');
+document.title = 'Edytor mapy — ' + PLIK_MAPY;
 
 rysujNarzedzia();
 odswiezModele();

@@ -105,6 +105,8 @@ export default function AppDataProvider({ children }) {
 
   // Inicjalny load — gdy id pojawia sie w sesji
   useEffect(() => {
+    // W2 ma odizolowany zapis. Nie generuj w tle misji w dotychczasowym koncie.
+    if (location.pathname.startsWith('/w2')) { setLoading(false); return; }
     const id = session.getPlayer();
     if (id && id !== lastPlayerIdRef.current) {
       lastPlayerIdRef.current = id;

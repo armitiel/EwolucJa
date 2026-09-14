@@ -5,6 +5,13 @@
  * Mockup zakłada renderowanie w ramce telefonu 390×844, ale w produkcji
  * uruchamiamy fullscreen w przeglądarce — używamy całej szerokości viewport
  * z miękkim ograniczeniem do 480px na desktopie (czytelnie i blisko mockupu).
+ *
+ * `ramka` (2026-09-14) zdejmuje to ograniczenie i daje ekranowi tę samą
+ * szarą ramkę i ten sam kadr 1,7:1, co świat 3D (`.hub-root` w `hub.css`).
+ * Włącza ją ekran, który na desktopie ma WŁASNY układ, a nie rozciągniętą
+ * kolumnę telefonu — dziś tylko `Landing`. Geometria zeszła ze stylu
+ * inline do klasy `.page-scena`, bo inline wygrywa z każdą regułą CSS
+ * i media query nie miałaby jak jej ruszyć.
  */
 import React from "react";
 import { useNavigate } from "react-router-dom";
@@ -38,7 +45,7 @@ function DemoBanner() {
   );
 }
 
-export default function PageShell({ children, dark = false, showClouds = true, sky = "default", skyVars = null }) {
+export default function PageShell({ children, dark = false, showClouds = true, sky = "default", skyVars = null, ramka = false }) {
   // sky: 'default' | 'night' | 'dawn'
   // skyVars: optional object { '--sky-top': '#...', '--sky-mid': '#...', '--sky-bot': '#...' } - nadpisuje gradient
   const skyClass = ["sky-bg"];
@@ -56,13 +63,13 @@ export default function PageShell({ children, dark = false, showClouds = true, s
       <DemoBanner />
       <div className={`page-bg ${dark ? "night" : ""}`} />
       <div
+        className={`page-scena${ramka ? " jest-ramka" : ""}`}
         style={{
           // Position fixed + inset 0 = viewport zawsze ten sam rozmiar, niezaleznie od URL-bara iOS.
           // Zapobiega reflow przy scrollu (poprzednio 100dvh sie zmienialo gdy URL-bar slidoval).
+          // Bok, szerokosc i marginesy siedza w `.page-scena` (ewolucja.css) —
+          // inline zostaje tylko to, czego zaden ekran nie nadpisuje.
           position: "fixed",
-          top: 0, bottom: 0, left: 0, right: 0,
-          maxWidth: 480,
-          margin: "0 auto",
           display: "flex",
           flexDirection: "column",
           background: "transparent",

@@ -13,8 +13,9 @@ import path from "node:path";
  *
  * Wtyczka żyje TYLKO w serwerze deweloperskim (`configureServer`), więc nie
  * wchodzi do produkcyjnego builda i na Vercelu nie istnieje. Zapisuje wyłącznie
- * jeden konkretny plik i tylko wtedy, gdy treść parsuje się jako JSON i ma
- * kształt mapy — nie chcę końcówki, która przyjmie cokolwiek.
+ * mapy z `public/scena-3d` (nazwa przepuszczona przez sito) i tylko wtedy, gdy
+ * treść parsuje się jako JSON i ma kształt mapy — nie chcę końcówki, która
+ * przyjmie cokolwiek ani takiej, która sięgnie poza ten katalog.
  */
 function zapisMapy() {
   return {
@@ -34,11 +35,22 @@ function zapisMapy() {
             if (!mapa || typeof mapa !== "object" || !Array.isArray(mapa.sciezka)) {
               throw new Error("to nie wygląda na mapę (brak tablicy `sciezka`)");
             }
-            const plik = path.resolve(serwer.config.root, "public/scena-3d/mapa.json");
+            // KTORY PLIK. Edytor dopisuje `?plik=mapa-w2.json`, bo swiatow jest
+            // kilka i kazdy siedzi w osobnym pliku. Sito na nazwe jest tu po to,
+            // zeby koncowka nie umiala tknac niczego poza mapami w tym jednym
+            // katalogu: parametr z adresu to wejscie, ktoremu sie nie ufa.
+            const pyt = new URL(req.url || "/", "http://localhost").searchParams;
+            const nazwa = (pyt.get("plik") || "mapa.json").trim();
+            if (!/^mapa(-[a-z0-9-]{1,24})?\.json$/.test(nazwa)) {
+              throw new Error(`niedozwolona nazwa mapy: ${nazwa}`);
+            }
+            const katalog = path.resolve(serwer.config.root, "public/scena-3d");
+            const plik = path.resolve(katalog, nazwa);
+            if (path.dirname(plik) !== katalog) throw new Error("mapa poza public/scena-3d");
             fs.writeFileSync(plik, JSON.stringify(mapa, null, 2), "utf8");
             res.setHeader("content-type", "application/json");
-            res.end(JSON.stringify({ ok: true, plik: "public/scena-3d/mapa.json" }));
-            serwer.config.logger.info(`[mapa] zapisana (${cialo.length} B)`);
+            res.end(JSON.stringify({ ok: true, plik: `public/scena-3d/${nazwa}` }));
+            serwer.config.logger.info(`[mapa] ${nazwa} zapisana (${cialo.length} B)`);
           } catch (e) {
             res.statusCode = 400;
             res.setHeader("content-type", "application/json");

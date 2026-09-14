@@ -16,13 +16,20 @@
  * siebie ma jeden rytm, a różni je tylko ilustracja.
  *
  * Powód blokady pokazujemy dopiero po dotknięciu kafla, jako krótki komunikat.
+ *
+ * JEDNO ZADANIE NA RAZ (2026-09-14). Kiedy trwa etap puzzli którejś gry,
+ * pozostałe gry łańcucha są w skrzyni WIDOCZNE, ale zgaszone — dotknięcie
+ * mówi, co dziecko ma teraz do zrobienia, zamiast otwierać partię obok
+ * niedokończonego zbierania. Kafel zostaje na wierzchu (a nie znika),
+ * bo zdobytej gry się nie zabiera: ma być widać, że czeka.
  */
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GameIcon } from "../../adventure/components/icons.jsx";
 import { useAdventureDane } from "../../adventure/engine/useAdventure.js";
 import KATALOG from "../data/minigry.v1.json";
-import { gryWZakladce, MISJE, ZDARZENIE_ZMIANY as MISJE_ZMIANA } from "../misjeGier.js";
+import { gryWZakladce, misjaOdblokowywana, MISJE, ZDARZENIE_ZMIANY as MISJE_ZMIANA } from "../misjeGier.js";
+import { ZDARZENIE_ZMIANY as PUZZLE_ZMIANA } from "../puzzleGier.js";
 import { oznaczMinigryObejrzane } from "../nowosci.js";
 
 /**
@@ -40,10 +47,21 @@ export default function MinigryPanel({ onGra, onZamknij, onKomunikat }) {
   // Odkrycie może paść przy otwartej zakładce (znak dotknięty, panel wraca),
   // więc czytamy listę na zdarzenie, a nie tylko przy montowaniu.
   const [odkryte, setOdkryte] = useState(() => gryWZakladce());
+  /* Gra, którą dziecko właśnie odblokowuje (etap puzzli) albo `null`.
+     Nasłuch na OBA zdarzenia: start zbierania i ułożenie obrazka ogłasza
+     moduł puzzli, a zlecenie i rozliczenie — moduł misji. */
+  const [teraz, setTeraz] = useState(() => misjaOdblokowywana());
   useEffect(() => {
-    const odswiez = () => setOdkryte(gryWZakladce());
+    const odswiez = () => {
+      setOdkryte(gryWZakladce());
+      setTeraz(misjaOdblokowywana());
+    };
     window.addEventListener(MISJE_ZMIANA, odswiez);
-    return () => window.removeEventListener(MISJE_ZMIANA, odswiez);
+    window.addEventListener(PUZZLE_ZMIANA, odswiez);
+    return () => {
+      window.removeEventListener(MISJE_ZMIANA, odswiez);
+      window.removeEventListener(PUZZLE_ZMIANA, odswiez);
+    };
   }, []);
 
   /**
@@ -64,15 +82,26 @@ export default function MinigryPanel({ onGra, onZamknij, onKomunikat }) {
           // liczylo sie samo odblokowanie krainy, wiec kafel zapalal sie na
           // pelny kolor, a dotkniecie konczylo sie suchym "Wkrotce". Kafel
           // obiecywal cos, czego nie ma.
-          otwarta: Boolean(gra.trasa) && (!gra.wymaga || (state.unlocked || []).includes(gra.wymaga)),
+          otwarta:
+            Boolean(gra.trasa) &&
+            (!gra.wymaga || (state.unlocked || []).includes(gra.wymaga)) &&
+            !(teraz && ID_MISJI.has(gra.id) && gra.id !== teraz.id),
+          /* Po co osobna flaga, skoro `otwarta` już jest fałszem: komunikat
+             po dotknięciu ma powiedzieć CO ROBIĆ TERAZ, a nie „otworzy się
+             w krainie X". To dwa różne powody blokady i dwa różne zdania. */
+          wstrzymana: Boolean(teraz && ID_MISJI.has(gra.id) && gra.id !== teraz.id),
           kraina: gra.wymaga ? adventure.locations?.[gra.wymaga]?.name || gra.wymaga : null,
         })),
-    [adventure, state.unlocked, odkryte]
+    [adventure, state.unlocked, odkryte, teraz]
   );
 
   function uruchom(gra) {
     if (!gra.trasa) {
       onKomunikat?.(`${gra.tytul} jeszcze powstaje`);
+      return;
+    }
+    if (gra.wstrzymana) {
+      onKomunikat?.(`Najpierw ułóż obrazek: ${teraz?.def?.tytul || "trwające zadanie"}`);
       return;
     }
     if (!gra.otwarta) {
@@ -106,7 +135,11 @@ export default function MinigryPanel({ onGra, onZamknij, onKomunikat }) {
                 czy gra jest otwarta - a rozroznia je ilustracja. */}
             <span className="hub-tile-in">
               <span className="hub-tile-ikona">
-                {gra.otwarta && gra.ikona ? (
+                {/* Gra WSTRZYMANA pokazuje swoją ikonę, nie kłódkę: kłódka
+                    znaczy „jeszcze nie twoje", a ta gra jest już zdobyta —
+                    tylko czeka na swoją kolej. Różnicę niesie samo
+                    przygaszenie kafla (`is-locked` w `hub.css`). */}
+                {(gra.otwarta || gra.wstrzymana) && gra.ikona ? (
                   <img src={gra.ikona} alt="" aria-hidden="true" draggable="false" />
                 ) : (
                   <GameIcon name="lock" size={38} />

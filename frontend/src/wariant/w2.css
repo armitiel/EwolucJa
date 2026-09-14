@@ -1,0 +1,199 @@
+/* W2 używa palety, fontów i przycisków gry; nie tworzy drugiego systemu. */
+.w2, .w2-okno {
+  color:var(--tekst); font-family:var(--font-body); font-size:16px; line-height:1.5;
+}
+.w2 { position:fixed; inset:0; height:100dvh; overflow:hidden; background:var(--p-sky-1); }
+
+/* ── szeroki ekran: ta sama RAMKA co w hubie ──
+   Wzorzec i pełne uzasadnienie: `hub/styles/hub.css`, sekcja „RAMKA i EKRAN
+   WEWNĘTRZNY". W skrócie: `.w2` przestaje być pełnoekranowy i staje się
+   ekranem wewnętrznym, a `transform` robi z niego blok zawierający dla
+   potomków `position: fixed` (HUD, okna Wizkora, popup postaci) — dzięki temu
+   liczą się od krawędzi ramki, nie okna.
+   `height:auto` jest konieczne: `100dvh` z reguły wyżej biłoby się z górnym
+   i dolnym luzem i ramka wystawałaby poza okno.
+   Górny pasek sam siada w rogach (`.game-hud-resources` ma `margin-left:auto`),
+   a dok centruje reguła `.game-hud-dock{margin-inline:auto}` z `hub.css`. */
+@media (min-width:520px){
+  .w2{
+    --ramka-luz: clamp(14px, 2.6vmin, 34px);
+    top: var(--ramka-luz); bottom: var(--ramka-luz);
+    left: 50%; right: auto; height: auto;
+    width: min(
+      calc(100vw - 2 * var(--ramka-luz)),
+      calc((100dvh - 2 * var(--ramka-luz)) * 1.7),
+      1600px
+    );
+    transform: translateX(-50%);
+    border-radius: clamp(20px, 2.6vmin, 34px);
+    /* Rant NEUTRALNY, nie zloty: ramka jest obudowa ekranu, a nie elementem
+       swiata gry. Zlota lamowka czytala sie jak kolejny zloty kafel HUD-u
+       i konkurowala z planeta. Cien tez zszedl z fioletu nocy na neutralna
+       ciemnosc — fioletowa poswiata pod szarym rantem wygladalaby na resztke. */
+    box-shadow:
+      0 0 0 3px var(--szarosc-200),
+      0 0 0 5px color-mix(in srgb, var(--szarosc-400) 70%, transparent),
+      0 26px 64px color-mix(in srgb, var(--szarosc-900) 34%, transparent),
+      0 6px 16px color-mix(in srgb, var(--szarosc-900) 16%, transparent);
+  }
+}
+.w2 *, .w2-okno * { box-sizing:border-box; }
+.w2-scena { position:absolute; inset:0; }
+/* Elementy przeniesione z poprzedniej wersji (klasy `hub-*`, `profil-*`,
+   `game-hud-*`) mają własny, gotowy wygląd w `hub.css` / `scena-3d/hud.css`.
+   Ta reguła jest od nich bardziej szczegółowa (`.w2 button` = 0,1,1), więc
+   bez wyłączenia zamalowywała im tło, rant i cień — pinetka muzyki robiła się
+   blada, a kafle doku płaskie. */
+.w2 button:not([class*="hub-"]):not([class*="profil-"]):not([class*="game-hud"]),
+.w2-okno button:not([class*="hub-"]):not([class*="profil-"]):not([class*="game-hud"]) {
+  font:800 15px/1.3 var(--font-body); cursor:pointer; min-height:44px;
+  padding:var(--o-4) var(--o-5); border:1px solid var(--lamowka);
+  border-radius:var(--r-card); color:var(--tekst);
+  background:linear-gradient(var(--biel-ciepla),var(--krem-100));
+  box-shadow:0 3px 0 var(--krem-cien-2);
+}
+.w2 button:focus-visible, .w2-okno :focus-visible { outline:3px solid var(--fiolet-500); outline-offset:4px; }
+.w2 button:not([class*="hub-"]):not([class*="profil-"]):not([class*="game-hud"]):active, .w2-okno button:not([class*="hub-"]):not([class*="profil-"]):not([class*="game-hud"]):active { transform:translateY(2px); box-shadow:none; }
+.w2 button:disabled, .w2-okno button:disabled { opacity:.65; cursor:default; }
+.w2 .w2-cta, .w2-okno .w2-cta {
+  display:block; width:100%; min-height:var(--cta-h); border-radius:var(--cta-r);
+  font:800 var(--cta-fs)/1.15 var(--font-display); padding:var(--cta-pad);
+  color:var(--cta-tekst); border:3px solid var(--lamowka-jasna);
+  background:var(--cta-lico);
+  box-shadow:0 4px 0 var(--cta-rant-barwa),inset 0 2px 0 var(--lamowka-jasna);
+  text-shadow:var(--cta-tekst-cien);
+}
+.w2 .w2-link, .w2-okno .w2-link { background:transparent; border-color:transparent; box-shadow:none; text-decoration:underline; text-underline-offset:3px; }
+.w2-pasek { position:absolute; top:max(var(--o-5),env(safe-area-inset-top)); left:max(var(--o-5),env(safe-area-inset-left)); right:max(var(--o-5),env(safe-area-inset-right)); display:flex; align-items:center; justify-content:space-between; gap:var(--o-4); pointer-events:none; }
+.w2-pasek>* { pointer-events:auto; }
+.w2-pasek .w2-profil { display:flex; align-items:center; gap:var(--o-3); max-width:35%; padding:var(--o-2) var(--o-5) var(--o-2) var(--o-2); }
+.w2-profil img { width:44px; height:44px; object-fit:contain; }
+.w2-profil span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.w2-wersja { font-weight:800; font-size:13px; color:var(--biel-ciepla); text-shadow:0 1px 5px var(--noc-900); }
+.w2-dol { position:absolute; bottom:max(var(--o-5),env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%); width:min(560px,calc(100% - 32px)); display:grid; gap:var(--o-5); pointer-events:none; }
+.w2-dol>* { pointer-events:auto; }
+.w2-chmurka { display:grid; grid-template-columns:80px 1fr; align-items:center; gap:var(--o-4); padding:var(--o-5) var(--o-6); border-radius:var(--r-card); border:2px solid var(--fiolet-500); background:linear-gradient(var(--biel-ciepla),var(--krem-100) 88%,var(--krem-cien-1)); box-shadow:0 4px 0 color-mix(in srgb,var(--fiolet-500) 35%,transparent),0 12px 30px var(--cien-miekki); text-align:center; }
+.w2-chmurka img { width:80px; max-height:120px; object-fit:contain; }
+.w2-chmurka p { margin:0 0 var(--o-3); font-weight:700; }
+.w2 .w2-nadtytul, .w2-okno .w2-nadtytul { font-size:12px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; color:var(--fiolet-500); }
+.w2-dok { display:flex; justify-content:center; gap:var(--o-3); }
+.w2-dok button { flex:1; max-width:170px; }
+.w2-okno { margin:auto; width:min(520px,calc(100% - 32px)); max-height:calc(100dvh - 32px); padding:0; border:2px solid var(--lamowka); border-radius:var(--r-card); background:var(--krem-100); box-shadow:0 16px 50px color-mix(in srgb,var(--noc-900) 35%,transparent); overscroll-behavior:contain; }
+.w2-okno::backdrop { background:color-mix(in srgb,var(--noc-900) 42%,transparent); backdrop-filter:blur(3px); }
+.w2-okno>header { display:flex; align-items:center; justify-content:space-between; gap:var(--o-4); padding:var(--o-4) var(--o-5); background:linear-gradient(var(--fiolet-600),var(--noc-800)); color:var(--krem-100); border-bottom:2px solid var(--lamowka); position:sticky; top:0; z-index:1; }
+.w2 h2, .w2 h3, .w2-okno h2, .w2-okno h3 { font-family:var(--font-display); font-weight:800; line-height:1.15; margin:0; }
+.w2-okno h2 { font-size:26px; }
+.w2-okno h3 { font-size:25px; }
+.w2-okno .w2-x { flex:0 0 44px; width:44px; height:44px; padding:0; border-radius:50%; font:900 30px/1 var(--font-body); background:linear-gradient(var(--p-rose),var(--czerwien-500)); color:var(--krem-100); border:2px solid var(--krem-400); box-shadow:0 3px 0 var(--czerwien-700); }
+.w2-okno-tresc { padding:var(--o-7); }
+.w2-stos { display:flex; flex-direction:column; gap:var(--o-5); }
+.w2-stos>p, .w2-karta>p, .w2-stos>h3 { margin:0; }
+.w2-portret { width:80px; height:88px; object-fit:contain; align-self:center; }
+.w2-okno label { display:flex; flex-direction:column; gap:var(--o-3); font-weight:800; }
+.w2-okno label span, .w2-okno small { font-size:13px; font-weight:600; color:var(--tekst-cichy); }
+.w2-okno input:not([type=radio]), .w2-okno textarea, .w2-okno select { width:100%; min-height:44px; border:1px solid var(--lamowka); border-radius:12px; padding:var(--o-4); color:var(--tekst); background:var(--biel-ciepla); font:inherit; }
+.w2-okno textarea { resize:vertical; }
+.w2-okno fieldset { border:0; padding:0; margin:0; }
+.w2-okno legend { font-weight:800; margin-bottom:var(--o-3); }
+.w2-dwie { display:grid; grid-template-columns:1fr 1fr; gap:var(--o-4); }
+.w2-okno button[aria-pressed=true] { border-color:var(--fiolet-500); box-shadow:inset 0 0 0 2px var(--fiolet-500); background:var(--biel-ciepla); }
+.w2-okno .w2-wybor { text-align:left; padding:var(--o-5); }
+.w2-notatka { padding:var(--o-5); border:1px dashed var(--lamowka); background:var(--biel-ciepla); border-radius:16px; font-size:14px; }
+.w2-kroki { display:grid; gap:var(--o-5); padding-left:var(--o-6); margin:0; }
+.w2-kroki li { padding-left:var(--o-3); }
+.w2-kroki li::marker { font-weight:900; color:var(--fiolet-500); }
+.w2-okno .w2-radio { display:flex; flex-direction:row; align-items:center; gap:var(--o-4); border:1px solid var(--lamowka); background:var(--biel-ciepla); border-radius:16px; padding:var(--o-5); cursor:pointer; }
+.w2-radio input { accent-color:var(--fiolet-500); width:20px; height:20px; flex-shrink:0; }
+.w2-karta { display:flex; flex-direction:column; gap:var(--o-4); background:var(--biel-ciepla); padding:var(--o-5); border:1px solid var(--lamowka); border-radius:var(--r-card); }
+.w2-okno blockquote { border-left:3px solid var(--fiolet-500); margin:0; padding:var(--o-4); overflow-wrap:anywhere; }
+.w2-okno summary { cursor:pointer; padding:var(--o-4) 0; font-weight:800; }
+.w2-memory { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--o-4); }
+.w2-memory button { min-height:88px; color:var(--krem-100); font-size:36px; background:linear-gradient(var(--fiolet-500),var(--fiolet-800)); }
+.w2-memory button.odkryta { color:var(--fiolet-500); background:var(--biel-ciepla); }
+.w2-ladowanie { position:absolute; top:42%; left:var(--o-5); right:var(--o-5); text-align:center; font-weight:800; }
+.w2-awaria { position:absolute; top:22%; left:50%; transform:translateX(-50%); width:min(440px,90%); text-align:center; }
+.w2-blad { position:fixed; z-index:10; top:80px; left:var(--o-5); right:var(--o-5); padding:var(--o-5); color:var(--czerwien-700); background:var(--biel-ciepla); border:2px solid var(--czerwien-700); border-radius:var(--r-card); }
+@media (max-width:560px) {
+  .w2-wersja { display:none; }
+  .w2-pasek .w2-profil { max-width:52%; }
+  .w2-dol { gap:var(--o-4); }
+  .w2-chmurka { grid-template-columns:48px 1fr; padding:var(--o-5); gap:var(--o-3); font-size:14px; --cta-h:48px; --cta-fs:19px; }
+  .w2-chmurka img { width:48px; }
+  .w2-dok { gap:var(--o-3); }
+  .w2-dok button { font-size:13px; padding:var(--o-3); }
+  .w2-okno { width:calc(100% - 20px); max-height:calc(100dvh - 20px); }
+  .w2-okno-tresc { padding:var(--o-5); }
+  .w2-okno h2 { font-size:23px; }
+}
+@media (max-height:500px) and (min-width:560px) {
+  .w2-dol { left:auto; right:max(var(--o-5),env(safe-area-inset-right)); transform:none; width:350px; gap:var(--o-3); }
+  .w2-chmurka { grid-template-columns:40px 1fr; padding:var(--o-4); font-size:13px; --cta-h:44px; --cta-fs:17px; }
+  .w2-chmurka img { width:40px; }
+  .w2-chmurka .w2-nadtytul { display:none; }
+  .w2-dok button { font-size:12px; padding:var(--o-3); }
+  .w2-okno-tresc { padding:var(--o-5); }
+  .w2-portret { height:56px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .w2 *, .w2-okno * { scroll-behavior:auto !important; transition:none !important; }
+}
+
+/* Tytuł okna na środku, krzyżyk przy krawędzi — jak w profilu poprzedniego
+   świata. Nagłówek był dotąd rozstrzelony (`space-between`), więc tytuł
+   siedział przy lewym rancie i okno czytało się jak panel, nie jak karta. */
+.w2-okno>header { justify-content:center; text-align:center; padding-inline:calc(44px + var(--o-5)); }
+.w2-okno .w2-x { position:absolute; right:var(--o-4); top:50%; transform:translateY(-50%); }
+.w2-okno .w2-x:active { transform:translateY(calc(-50% + 2px)); }
+
+/* Style profilu NIE mieszkają tutaj — korzystamy z arkusza poprzedniej
+   wersji (`src/hub/styles/hub.css`, sekcja „profil w języku zakładki
+   Minigry"), który importuje `ProfilAwatara.jsx`. Jedno źródło wyglądu
+   dla obu światów. */
+
+
+/* ── Poznanie w oknie postaci ─────────────────────────────────────────────
+   Pierwsze spotkanie z Wizkorem nosi okno z `hub/PopupPostaci.jsx` (to samo,
+   co powitania na /swiat). Pole imienia i wybory siedzą w jego slocie
+   `dodatek`, więc biorą papier, złoto i fiolet TAMTEJ karty, a nie kremowe
+   przyciski W2 — inaczej w jednym oknie stałyby dwa systemy przycisków.
+   Selektory bez prefiksu `.w2`: okno postaci to osobna warstwa `position:fixed`
+   poza drzewem `.w2`. */
+.w2-poznanie { display:grid; gap:10px; }
+.w2-poznanie-imie {
+  width:100%; min-height:52px; padding:10px 16px;
+  border:2.5px solid color-mix(in srgb,var(--hud-gold,#E3B341) 70%,transparent);
+  border-radius:16px; background:rgba(255,255,255,.72);
+  font:800 19px/1.2 var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  color:var(--p-ink,#4e4d76); text-align:center;
+}
+.w2-poznanie-imie::placeholder { color:color-mix(in srgb,var(--p-ink,#4e4d76) 45%,transparent); font-weight:700; }
+.w2-poznanie-grupa { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.w2-poznanie-wybory { display:grid; gap:10px; }
+.w2-poznanie-grupa button,
+.w2-poznanie-wybory button {
+  min-height:52px; padding:10px 14px; cursor:pointer;
+  border:2.5px solid color-mix(in srgb,var(--hud-gold,#E3B341) 70%,transparent);
+  border-radius:16px; background:rgba(255,255,255,.72);
+  box-shadow:0 3px 0 color-mix(in srgb,var(--braz-400,#B08247) 35%,transparent);
+  font:800 17px/1.2 var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  color:var(--p-ink,#4e4d76);
+}
+.w2-poznanie-wybory button { text-align:left; }
+.w2-poznanie-grupa button:active,
+.w2-poznanie-wybory button:active { transform:translateY(2px); box-shadow:none; }
+/* Wybrana grupa = fiolet magii, ten sam co wstęga z imieniem postaci. */
+.w2-poznanie-grupa button[aria-pressed=true] {
+  border-color:var(--hud-gold,#E3B341);
+  background:linear-gradient(180deg,#a878e6 0%,var(--p-magic-dk,#5a3499) 100%);
+  color:#fff; text-shadow:0 2px 0 color-mix(in srgb,var(--fiolet-800,#3d1f70) 85%,transparent);
+}
+.w2-poznanie-imie:focus-visible,
+.w2-poznanie-grupa button:focus-visible,
+.w2-poznanie-wybory button:focus-visible { outline:3px solid var(--p-magic,#7A4DC2); outline-offset:3px; }
+@media (max-width:380px) {
+  .w2-poznanie-imie { min-height:48px; font-size:17px; }
+  .w2-poznanie-grupa button, .w2-poznanie-wybory button { min-height:48px; font-size:15.5px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .w2-poznanie-grupa button:active, .w2-poznanie-wybory button:active { transform:none; }
+}

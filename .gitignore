@@ -50,3 +50,11 @@ frontend/audio-zrodla/
 
 # logi pomocnicze narzedzi
 frontend/.codex-hints-*.log
+
+# Smieci robocze, ktore od 2026-09 wracaly w kazdym `git status`:
+# katalog roboczy generatora 3D, kopie sprzed refaktorow, wyklejki z rozmow.
+.tripo/
+Claude outputs/
+*.bak-przed-kinem
+.claude/settings.json.bak
+*.blend1

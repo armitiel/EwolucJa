@@ -59,8 +59,21 @@ const TRANSITIONS = [
  * `player_id`. Imię jest tymczasowe — do zmiany, gdy wróci ekran powitalny
  * albo gdy profil zacznie się budować z decyzji w fabule.
  */
-const POMIN_ONBOARDING = true;
+// 2026-09-14: onboarding WRACA. Kanon wejscia: START -> onboarding -> /swiat
+// (docs/WERSJA_AKTUALNA.md). Bez niego zaden gracz nie ma typu, a porady
+// i zadania nie maja wedlug czego sie dobierac.
+const POMIN_ONBOARDING = false;
 const IMIE_TYMCZASOWE = "Wędrowiec";
+// Dokad prowadzi koniec onboardingu. Jedno miejsce, bo tor swiata bywa
+// przepinany (`/swiat` <-> `/w2`) i nie chcemy go szukac po pliku.
+// 2026-09-14: z powrotem na `/swiat` — patrz komentarz przy `SWIAT`
+// w `Landing.jsx`. Typ z quizu i tak idzie przez localStorage (`KLUCZ_TYP`),
+// wiec przepiecie toru niczego mu nie zabiera.
+const SWIAT_PO_QUIZIE = "/swiat";
+// Most miedzy kontem (baza) a torem W2, ktory ma wlasny, odizolowany zapis
+// w localStorage i nie wola AppData. Typ zapisany tutaj pozwala W2 dobrac
+// pierwsze przygody bez pytania dziecka drugi raz o to samo.
+export const KLUCZ_TYP = "ewolucja.profil.typ";
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -110,7 +123,7 @@ export default function Onboarding() {
       } catch (err) {
         console.warn("[Onboarding] cichy start bez konta:", err);
       } finally {
-        navigate("/swiat", { replace: true });
+        navigate(SWIAT_PO_QUIZIE, { replace: true });
       }
     })();
   }, [przelot, navigate, refreshAll]);
@@ -173,6 +186,7 @@ export default function Onboarding() {
       // KRYTYCZNE: po submit (nowe imie + archetype + coins) odswiez cala AppData,
       // inaczej TopBar/Profile/WorldHub pokazuja stale dane z "Uczen 0 coinow"
       try { await refreshAll(); } catch {}
+      try { if (res?.profile) localStorage.setItem(KLUCZ_TYP, res.profile); } catch {}
       setResult(res);
       setStep("result");
       try { await api.generateMission(playerId); } catch {}
@@ -475,7 +489,7 @@ export default function Onboarding() {
         )}
 
         {step === "result" && result && (
-          <CelebrationThenArchetype result={result} onEnter={() => navigate("/swiat")} />
+          <CelebrationThenArchetype result={result} onEnter={() => navigate(SWIAT_PO_QUIZIE)} />
         )}
       </div>
     </PageShell>

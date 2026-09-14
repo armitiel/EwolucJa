@@ -20,6 +20,13 @@ import { ttsPlayer } from "../services/ttsPlayer";
 import bgMusic from "../services/bgMusic.js";
 import PageShell from "../components/PageShell.jsx";
 
+// Kanon wejscia (docs/WERSJA_AKTUALNA.md): START -> onboarding -> `/swiat`.
+// 2026-09-14: przepiete z `/w2` na `/swiat`. Oprawa 3D z W2 (planeta, doba,
+// kadry kamery, slonce) siedzi juz w mapie W1, wiec `/swiat` niesie i nowy
+// swiat, i hub z lancuchem misji. `/w2` zyje dalej pod swoim adresem —
+// to tam zostaje limit sesji i karta profilu, dopoki nie przejda tutaj.
+const SWIAT = "/swiat";
+
 export default function Landing() {
   const navigate = useNavigate();
   const playerId = session.getPlayer();
@@ -32,12 +39,16 @@ export default function Landing() {
     // sekund i bez niej dziecko dostawalo w tym czasie ciemne tlo huba —
     // kurtyna zyje w `index.html`, wiec przy wejsciu przez router (a nie przez
     // przeladowanie strony) trzeba ja postawic recznie.
-    if (dokad === "/swiat") { try { window.__zbudujChmury?.(); } catch {} }
+    if (dokad === "/swiat" || dokad === "/w2") { try { window.__zbudujChmury?.(); } catch {} }
     navigate(dokad);
   }
 
+  // `ramka`: na szerokim ekranie ten ekran ma WLASNY uklad dwukolumnowy
+  // w tym samym szarym kadrze, co swiat 3D — patrz `.page-scena.jest-ramka`
+  // i blok „Ekran powitalny na desktopie" w `styles/ewolucja.css`. Na
+  // telefonie nie zmienia sie nic: ta sama kolumna 480 px, co dotad.
   return (
-    <PageShell showClouds={false}>
+    <PageShell showClouds={false} ramka>
       <div className="start-ekran">
         {/* Nowa nazwa pliku, a nie podmiana starego: pliki w `public/` nie maja
             hasha, wiec nadpisanie `tlo-start.webp` zostawiloby dzieciom stary
@@ -59,11 +70,12 @@ export default function Landing() {
             </svg>
           </h1>
 
-          {/* Trzy slowa, bo to jedyna linijka, ktora dziecko przeczyta zanim
-              kliknie. Dluzsze haslo lamalo sie tu na trzy wiersze i zaczynalo
-              konkurowac z logo. */}
+          {/* Dwa slowa pod logo. To nie jest haslo reklamowe, tylko PODPIS —
+              mowi doroslemu, ktory stoi obok, czym ta apka w ogole jest,
+              zanim dziecko kliknie START. Dluzsza linijka lamala sie tu
+              na trzy wiersze i zaczynala konkurowac z logo. */}
           <p className="start-haslo t-hand">
-            Baw się i ucz
+            Gra Edukacyjna
           </p>
 
           {/* Przyciski z rodziny HUD-u (`hub-btn`), a nie lzejsze `btn` z ekranow
@@ -74,7 +86,7 @@ export default function Landing() {
                 gwiazdka — dziecko musialo je przeczytac, zeby wiedziec, gdzie
                 klika. „START" rozpoznaje sie z odleglosci, a dokad prowadzi,
                 decyduje sesja, nie tekst. */}
-            <button className="hub-btn hub-btn-primary" onClick={() => wejdz(playerId ? "/swiat" : "/onboarding")}>
+            <button className="hub-btn hub-btn-primary" onClick={() => wejdz(playerId ? SWIAT : "/onboarding")}>
               START
             </button>
 

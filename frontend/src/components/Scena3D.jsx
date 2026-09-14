@@ -23,7 +23,7 @@ import { idPostaci, postacWybranaJawnie } from "../utils/postac.js";
 // UWAGA: numer ma tylko ROSNĄĆ. Numery 3–13 zostały już wydane przeglądarce
 // z inną zawartością modułu (kolejne wersje znaków, gwiazdki, tempo ruchu),
 // więc cofnięcie go serwuje z cache starą scenę zamiast aktualnej.
-export const WERSJA_SCENY = "73";  // grządka fasoli malowana shaderem terenu (wykop + ziemiaForma) + kamyki; bundle z pełnych bieżących źródeł
+export const WERSJA_SCENY = "75";  // W2: ślady przygód na polanie; Fasola pozostaje osobnym prototypem
 const ZASOBY = "/scena-3d/assets/";
 
 /**
@@ -98,11 +98,13 @@ function dopracujCienBohatera(scena, proba = 0) {
   }
 }
 
-export default function Scena3D({ apiRef, onZdarzenie, onBlad, spokojnyRuch, zoom = ZOOM_DOMYSLNY,
+export default function Scena3D({ apiRef, onZdarzenie, onBlad, onGotowa, przygotujMape, spokojnyRuch, zoom = ZOOM_DOMYSLNY,
   mapa = "/scena-3d/mapa.json", className = "hub-scena" }) {
   const hostRef = useRef(null);
   const zdarzenieRef = useRef(onZdarzenie);
   const bladRef = useRef(onBlad);
+  const gotowaRef = useRef(onGotowa);
+  gotowaRef.current = onGotowa;
   zdarzenieRef.current = onZdarzenie;
   bladRef.current = onBlad;
 
@@ -136,7 +138,8 @@ export default function Scena3D({ apiRef, onZdarzenie, onBlad, spokojnyRuch, zoo
         try {
           const odp = await fetch(mapa, { cache: "no-cache" });
           if (odp.ok) {
-            const dane = await odp.json();
+            const surowe = await odp.json();
+            const dane = przygotujMape ? przygotujMape(surowe) : surowe;
             globalThis.__SCENA3D_MAPA = dane;
             // Świat może narzucać bohatera; jawny wybór gracza jest silniejszy.
             if (dane.postac && !postacWybranaJawnie()) globalThis.SCENA3D_POSTAC = dane.postac;
@@ -145,7 +148,7 @@ export default function Scena3D({ apiRef, onZdarzenie, onBlad, spokojnyRuch, zoo
           console.warn("[scena3d] mapa niedostępna, lecę na wbudowanej", mapa, e);
         }
 
-        const adres = adresModulu();
+        const adres = `${adresModulu()}&mapa=${encodeURIComponent(mapa)}`;
         const modul = await import(/* @vite-ignore */ adres);
         if (!zywe || !hostRef.current) return;
 
@@ -168,6 +171,7 @@ export default function Scena3D({ apiRef, onZdarzenie, onBlad, spokojnyRuch, zoo
         }
         if (apiRef) apiRef.current = scena;
         dopracujCienBohatera(scena);
+        gotowaRef.current?.(scena);
       } catch (err) {
         console.warn("[Scena3D] nie udało się uruchomić sceny:", err);
         bladRef.current?.(err);

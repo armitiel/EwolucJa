@@ -94,6 +94,14 @@
   --braz-900:#3E2610;
   --braz-950:#1A1008;    /* niemal czern, cieple */
 
+  /* szarosc — JEDYNA neutralna rodzina w tej palecie. Reszta tokenow jest
+     ciepla (zloto, krem, braz, ochra), wiec szarosci nie da sie z nich zmieszac
+     bez zolciutkiego nalotu. Uzywana tam, gdzie element jest OBUDOWA, a nie
+     czescia swiata gry — dzis: rant ramki ekranu wewnetrznego na desktopie. */
+  --szarosc-200:#CBCBCB;  /* jasny rant — pierwszy pierscien */
+  --szarosc-400:#9B9B9B;  /* ciemniejszy rant — drugi pierscien, cien rantu */
+  --szarosc-900:#14161A;  /* neutralna ciemnosc pod cien rzucany */
+
   /* noc — ciemne tla okien, overlay, Przygoda */
   --noc-700:#251D4A;     /* fioletowa noc, jasniejsza — tla nagrod, tutorial */
   --noc-800:#241D3C;     /* fioletowa noc — tla okien w hubie */

@@ -201,92 +201,7 @@
     }
   ],
   "budynki": [],
-  "znaki": [
-    {
-      "id": "swietlik-1",
-      "file": "prog",
-      "label": "Swietlik",
-      "toast": "Swiatlo!",
-      "pos": [
-        1.4,
-        21.46
-      ],
-      "pora": "noc",
-      "zbiera": "swiatlo",
-      "scale": 1,
-      "height": 0.85,
-      "glow": 16771488,
-      "barwa": 16771488,
-      "jasnosc": 1.4,
-      "haloOpacity": 0.62,
-      "haloScale": 1.5,
-      "ringOpacity": 0,
-      "lightBase": 1.1,
-      "absorb": true,
-      "absorbLift": 1.6,
-      "respawn": 900,
-      "respawnPierwszy": 900,
-      "zasieg": 1.15,
-      "iskry": 24,
-      "iskrySila": 1.4
-    },
-    {
-      "id": "swietlik-2",
-      "file": "prog",
-      "label": "Swietlik",
-      "toast": "Swiatlo!",
-      "pos": [
-        -1.6,
-        26.45
-      ],
-      "pora": "noc",
-      "zbiera": "swiatlo",
-      "scale": 1,
-      "height": 0.85,
-      "glow": 16771488,
-      "barwa": 16771488,
-      "jasnosc": 1.4,
-      "haloOpacity": 0.62,
-      "haloScale": 1.5,
-      "ringOpacity": 0,
-      "lightBase": 1.1,
-      "absorb": true,
-      "absorbLift": 1.6,
-      "respawn": 900,
-      "respawnPierwszy": 900,
-      "zasieg": 1.15,
-      "iskry": 24,
-      "iskrySila": 1.4
-    },
-    {
-      "id": "swietlik-3",
-      "file": "prog",
-      "label": "Swietlik",
-      "toast": "Swiatlo!",
-      "pos": [
-        0.9,
-        31.86
-      ],
-      "pora": "noc",
-      "zbiera": "swiatlo",
-      "scale": 1,
-      "height": 0.85,
-      "glow": 16771488,
-      "barwa": 16771488,
-      "jasnosc": 1.4,
-      "haloOpacity": 0.62,
-      "haloScale": 1.5,
-      "ringOpacity": 0,
-      "lightBase": 1.1,
-      "absorb": true,
-      "absorbLift": 1.6,
-      "respawn": 900,
-      "respawnPierwszy": 900,
-      "zasieg": 1.15,
-      "iskry": 24,
-      "iskrySila": 1.4
-    }
-  ],
+  "znaki": [],
   "kwiaty": [
     {
       "wariant": 3,
@@ -1205,5 +1120,94 @@
     "promien": 1.4,
     "ziarno": 3,
     "opis": "Oczko wody - lisek wchodzi w nie, zeby nabrac krople dla fasoli."
+  },
+  "znakiWylaczone": {
+    "opis": "Swietliki wylaczone 13.09 na prosbe autora (poki co) - zeby wrocily, przenies wpisy z powrotem do \"znaki\".",
+    "znaki": [
+      {
+        "id": "swietlik-1",
+        "file": "prog",
+        "label": "Swietlik",
+        "toast": "Swiatlo!",
+        "pos": [
+          1.4,
+          21.46
+        ],
+        "pora": "noc",
+        "zbiera": "swiatlo",
+        "scale": 1,
+        "height": 0.85,
+        "glow": 16771488,
+        "barwa": 16771488,
+        "jasnosc": 1.4,
+        "haloOpacity": 0.62,
+        "haloScale": 1.5,
+        "ringOpacity": 0,
+        "lightBase": 1.1,
+        "absorb": true,
+        "absorbLift": 1.6,
+        "respawn": 900,
+        "respawnPierwszy": 900,
+        "zasieg": 1.15,
+        "iskry": 24,
+        "iskrySila": 1.4
+      },
+      {
+        "id": "swietlik-2",
+        "file": "prog",
+        "label": "Swietlik",
+        "toast": "Swiatlo!",
+        "pos": [
+          -1.6,
+          26.45
+        ],
+        "pora": "noc",
+        "zbiera": "swiatlo",
+        "scale": 1,
+        "height": 0.85,
+        "glow": 16771488,
+        "barwa": 16771488,
+        "jasnosc": 1.4,
+        "haloOpacity": 0.62,
+        "haloScale": 1.5,
+        "ringOpacity": 0,
+        "lightBase": 1.1,
+        "absorb": true,
+        "absorbLift": 1.6,
+        "respawn": 900,
+        "respawnPierwszy": 900,
+        "zasieg": 1.15,
+        "iskry": 24,
+        "iskrySila": 1.4
+      },
+      {
+        "id": "swietlik-3",
+        "file": "prog",
+        "label": "Swietlik",
+        "toast": "Swiatlo!",
+        "pos": [
+          0.9,
+          31.86
+        ],
+        "pora": "noc",
+        "zbiera": "swiatlo",
+        "scale": 1,
+        "height": 0.85,
+        "glow": 16771488,
+        "barwa": 16771488,
+        "jasnosc": 1.4,
+        "haloOpacity": 0.62,
+        "haloScale": 1.5,
+        "ringOpacity": 0,
+        "lightBase": 1.1,
+        "absorb": true,
+        "absorbLift": 1.6,
+        "respawn": 900,
+        "respawnPierwszy": 900,
+        "zasieg": 1.15,
+        "iskry": 24,
+        "iskrySila": 1.4
+      }
+    ]
   }
 }

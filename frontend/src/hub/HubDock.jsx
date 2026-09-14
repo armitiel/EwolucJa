@@ -27,10 +27,21 @@ const SEKCJE = [
  * `is-miga`). Steruje tym świat — np. po słowach Wizkora „czeka w twoich
  * Zadaniach" mruga zakładka, żeby słowo skleiło się z przyciskiem.
  */
-export default function HubDock({ aktywny, onWybor, plakietki = {}, migajaca = null }) {
+/**
+ * `sekcje` = lista id do pokazania. Domyślnie wszystkie cztery. Świat W2
+ * wystawia na razie samą „Poradę", bo reszta wejść nie ma tam jeszcze treści —
+ * a ikona prowadząca donikąd uczy, że nie warto tu zaglądać.
+ */
+export default function HubDock({ aktywny, onWybor, plakietki = {}, migajaca = null, sekcje = null }) {
+  const widoczne = sekcje ? SEKCJE.filter((s) => sekcje.includes(s.id)) : SEKCJE;
   return (
-    <nav className="game-hud-dock" aria-label="Sekcje świata">
-      {SEKCJE.map((sekcja) => {
+    <nav className="game-hud-dock" aria-label="Sekcje świata"
+      /* Siatka ma na stałe cztery kolumny po ~107 px. Przy podzbiorze zostaje
+         ta sama szerokość kolumny, a zwęża się cały pasek — inaczej jedna
+         ikona rozciąga się na 430 px razem ze swoją kremową podkładką
+         (`.game-hud-dock button::before`) i czyta się jak drugie tło. */
+      style={sekcje ? { gridTemplateColumns: `repeat(${widoczne.length}, 107px)`, width: 'auto' } : undefined}>
+      {widoczne.map((sekcja) => {
         const czyAktywny = aktywny === sekcja.id;
         const znak = plakietki[sekcja.id];
         const kropka = znak === true;

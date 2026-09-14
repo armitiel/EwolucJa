@@ -28,7 +28,7 @@ import {
   Group, Mesh, MeshLambertMaterial, MeshBasicMaterial, Box3, Vector3, Quaternion,
   SphereGeometry, IcosahedronGeometry,
   RingGeometry, DoubleSide, AdditiveBlending, Sprite, SpriteMaterial,
-  CanvasTexture, SRGBColorSpace, PointLight, BufferGeometry, Float32BufferAttribute,
+  CanvasTexture, SRGBColorSpace, PointLight, Color, BufferGeometry, Float32BufferAttribute,
 } from "three";
 import { Pnacze } from "./pnacze.js";
 import { mnoznikObrysu } from "./teren.js";
@@ -92,17 +92,60 @@ function kopczyk(r = 0.55, ziarno = 4, promienGrzadki = 1.05) {
     rdzen.add(k);
   }
   // kamyki — dalej od środka, na obrzeżu wykopu
-  const barwy = [0x9c8f7c, 0x8b8072, 0xa8a08e];
+  // brązowe, tuż przy ziarnie (jak na koncepcie: ziarno obłożone grudami)
+  const barwy = [0x7d5a3c, 0x6b4c31, 0x8f6a47];
   for (let i = 0; i < 6; i++) {
     const a = (i / 6) * Math.PI * 2 + (los() - 0.5) * 0.8 + 0.9;
-    const d = promienGrzadki * (0.8 + los() * 0.35);
-    const s = 0.05 + los() * 0.07;
+    const d = r * (0.55 + los() * 0.35);
+    const s = 0.06 + los() * 0.08;
     const k = mesh(new IcosahedronGeometry(s, 0), matKanciasty(barwy[i % barwy.length]),
       [Math.cos(a) * d, s * 0.25, Math.sin(a) * d], [los() * 3, los() * 3, los() * 3]);
     k.scale.set(0.8 + los() * 0.6, 0.5 + los() * 0.35, 0.8 + los() * 0.6);
     g.add(k);
   }
   return g;
+}
+
+/**
+ * FOSFORYZUJĄCE ZIARNO. Model z Tripo ma bladą, „pastelową" teksturę; zieleń
+ * podbijamy DWA razy: (1) sama tekstura — piksele, w których zieleń dominuje,
+ * dostają więcej nasycenia i jasności (kamyki i ziemia w modelu zostają
+ * bez zmian), (2) materiał — emisja przez tę samą mapę, więc świeci tylko to,
+ * co zielone. Efekt: ziarno jest jaśniejsze od trawy i lekko żarzy się
+ * od środka, a po zmroku zostaje widoczne.
+ */
+function rozswietlZiarno(o) {
+  const m = o.material;
+  if (!m || !m.map || m.userData.rozswietlone) return;
+  m.userData.rozswietlone = true;
+  const img = m.map.image;
+  if (img && img.width) {
+    const c = document.createElement("canvas");
+    c.width = img.width; c.height = img.height;
+    const x = c.getContext("2d");
+    x.drawImage(img, 0, 0);
+    const d = x.getImageData(0, 0, c.width, c.height);
+    const px = d.data;
+    for (let i = 0; i < px.length; i += 4) {
+      const r = px[i], g = px[i + 1], b = px[i + 2];
+      const zielen = g - Math.max(r, b);          // jak bardzo piksel jest zielony
+      if (zielen <= 6) continue;
+      const w = Math.min(1, zielen / 40);         // miękkie wejście, bez ostrych krawędzi
+      px[i]     = Math.min(255, r * (1 - 0.35 * w) + 30 * w);
+      px[i + 1] = Math.min(255, g * (1 + 0.28 * w) + 22 * w);
+      px[i + 2] = Math.min(255, b * (1 - 0.55 * w));
+    }
+    x.putImageData(d, 0, 0);
+    const t = new CanvasTexture(c);
+    t.colorSpace = m.map.colorSpace;
+    t.flipY = m.map.flipY;
+    t.wrapS = m.map.wrapS; t.wrapT = m.map.wrapT;
+    m.map = t;
+  }
+  m.emissive = new Color(0x8cff5e);
+  m.emissiveMap = m.map;
+  m.emissiveIntensity = 0.55;
+  m.needsUpdate = true;
 }
 
 /** Bryła zastępcza ziarna (etap 0), gdy nie ma modelu GLB. */
@@ -418,7 +461,7 @@ export class Fasola {
         box.setFromObject(scena);
         const c = box.getCenter(new Vector3());
         scena.position.set(-c.x, -box.min.y - e.wysokosc * 0.22, -c.z);   // wkopane w kopczyk
-        scena.traverse((o) => { if (o.isMesh) o.castShadow = true; });
+        scena.traverse((o) => { if (o.isMesh) { o.castShadow = true; rozswietlZiarno(o); } });
       } catch (err) {
         console.warn("[fasola] brak modelu ziarna", e.def.file, "— bryła zastępcza");
         scena = null;

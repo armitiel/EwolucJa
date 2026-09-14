@@ -311,6 +311,44 @@
   border-radius:27px 27px 0 0;
 }
 .hub-sheet-grip{ display:none; }
+
+/* ── WARIANT „popup": okno na srodku zamiast szuflady z dolu ──
+   Szuflada jest forma dla LIST (gry, rozmowy, zadania): ma co przewijac i dok
+   nad soba. Profil to jedna karta, wiec wjazd z dolu na 78% ekranu robil z niej
+   pusta plachte z trescia stloczona u gory. `jest-popup` przestawia TEN SAM
+   komponent na okno: hugujace tresc, z PELNYM obrysem (szuflada nie ma dolnej
+   krawedzi, bo wychodzi poza ekran) i z wejsciem przez skale, nie przez wjazd.
+   `pointer-events` musi byc sterowane recznie: zamkniete okno zostaje na srodku
+   z zerowym kryciem, wiec bez tego lapaloby kliniecia w swiat pod soba. */
+.hub-sheet.jest-popup{
+  top:50%; right:auto; bottom:auto; left:50%;
+  width:min(92%, 420px); height:auto; max-height:min(86%, 760px);
+  border:3px solid transparent; border-radius:30px;
+  /* Srodek okna zostaje w srodku ekranu przez CALA animacje — zmienia sie
+     tylko skala i krycie. Dzieki temu popup wylania sie i zapada w tym samym
+     punkcie, zamiast dojezdzac skads do srodka. */
+  transform-origin:center center;
+  transform:translate(-50%,-50%) scale(.86);
+  opacity:0; pointer-events:none;
+  transition:transform .26s cubic-bezier(.2,.9,.3,1.06), opacity .2s ease;
+  box-shadow:
+    0 0 0 3px var(--braz-600),
+    0 26px 54px color-mix(in srgb, var(--braz-950) 30%, transparent),
+    inset 0 2px 0 rgba(255,255,255,.76);
+}
+.hub-sheet.jest-popup.is-open{ transform:translate(-50%,-50%) scale(1); opacity:1; pointer-events:auto; }
+/* Zloty wlos i dolna poswiata domykaja sie dookola — w szufladzie oba byly
+   przyciete od dolu, bo tam krawedzi nie ma. */
+.hub-sheet.jest-popup::before{
+  border-bottom:2px solid color-mix(in srgb, var(--krem-500) 50%, transparent);
+  border-radius:27px;
+}
+.hub-sheet.jest-popup .hub-sheet-head{ border-radius:27px 27px 0 0; }
+/* Tresc hugu­je zawartosc i zaczyna sie przewijac dopiero przy `max-height`:
+   bazowe `flex:1` w oknie o wysokosci `auto` zapadloby sie do zera. Dolny
+   zapas 156 px byl na dok stojacy NAD szuflada — popup stoi na srodku, dok go
+   nie dotyka, wiec wraca zwykly odstep. */
+.hub-sheet.jest-popup .hub-sheet-body.screen-scroll{ flex:0 1 auto; padding-bottom:18px; }
 /* Naglowek to PAS przez caly arkusz, nie pigulka w srodku. Wczesniej tonal w
    tym samym pergaminie, co tresc pod nim - dziecko nie mialo sie czego zlapac
    wzrokiem przy otwarciu panelu. Wlasne, ciemne tlo i zlota linia pod spodem
@@ -571,6 +609,41 @@
 .profil-imie{
   font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
   font-size:23px; font-weight:800; line-height:1.15;
+}
+
+/* Imię z ołówkiem obok. Przycisk jest mały i cichy: to poprawka literówki
+   w imieniu, a nie funkcja, po którą dziecko przychodzi do profilu. */
+.profil-imie-rzad{ display:inline-flex; align-items:center; gap:8px; }
+.profil-edycja{
+  flex:none; width:30px; height:30px; padding:0; display:grid; place-items:center;
+  border-radius:50%; cursor:pointer; color:var(--p-magic-dk,#7A4DC2);
+  background:rgba(255,255,255,.85);
+  border:1.6px solid color-mix(in srgb, var(--zloto-200) 88%, transparent);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.72),0 2px 0 color-mix(in srgb, var(--braz-550) 34%, transparent);
+}
+.profil-edycja:active{ transform:translateY(2px); box-shadow:none; }
+
+/* Awatar, ktory JEST juz plakietka (W2: `fox_avatar.png`, `avatary-XX.svg`
+   — okragly medalion ze zlotym rantem) nie dostaje drugiego rantu. Zlota
+   obwodka z `.profil-awatar` czytala sie jako druga ramka wokol pierwszej:
+   dwa kregi jeden w drugim, bez powodu. Zostaje jedna, ta z grafiki. */
+.profil-awatar--plakietka{ background:none; }
+
+/* Pole imienia stoi DOKLADNIE tam, gdzie napis — ten sam krok pisma i ta
+   sama wysokosc wiersza, zeby kafel nie podskoczyl przy wejsciu w edycje. */
+.profil-imie-pole{
+  font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
+  font-size:23px; font-weight:800; line-height:1.15; text-align:center;
+  width:min(240px, 72vw); max-width:100%; padding:4px 12px;
+  color:var(--p-magic-dk,#7A4DC2);
+  background:rgba(255,255,255,.92);
+  border:1.8px solid color-mix(in srgb, var(--zloto-200) 88%, transparent);
+  border-radius:14px; outline:none;
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.72);
+}
+.profil-imie-pole:focus{
+  border-color:color-mix(in srgb, var(--zloto-300) 92%, transparent);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.72),0 0 0 3px color-mix(in srgb, var(--zloto-200) 38%, transparent);
 }
 
 /* Cecha na kaflu: nazwa, pasek, liczba w pigułce. `min-height` z kafla gry
@@ -1367,11 +1440,80 @@
 }
 @keyframes hubToast{ from{ opacity:0; transform:translate(-50%,10px); } to{ opacity:1; transform:translate(-50%,0); } }
 
-/* ── szeroki ekran: hub trzyma szerokość telefonu, jak reszta aplikacji ── */
+/* ── szeroki ekran: RAMKA i EKRAN WEWNĘTRZNY ──
+   Historia tego miejsca w trzech krokach. (1) Do 14.09.2026 w kolumnie 480 px
+   siedział CAŁY hub razem ze sceną — na desktopie telefon w ramce, planeta
+   w pionowym kadrze, dwa pasy tła po bokach. (2) Klatkę zdjęliśmy z planszy
+   i daliśmy samemu interfejsowi. (3) Teraz plansza dostaje własną ramkę:
+   `.hub-root` przestaje być pełnoekranowy i staje się EKRANEM WEWNĘTRZNYM —
+   prostokątem odsuniętym od krawędzi okna, z zaokrąglonymi rogami i złotą
+   obwódką, a dookoła zostaje niebo z `html` (`styles/ewolucja.css`).
+
+   `transform: translateX(-50%)` nie służy tu tylko centrowaniu: robi z
+   `.hub-root` BLOK ZAWIERAJĄCY dla potomków `position: fixed`. Dzięki temu HUD,
+   szuflada, zwój wiadomości i chmurka wskazówki liczą się od krawędzi RAMKI,
+   a nie okna — bez tego wychodziłyby poza ekran wewnętrzny i wisiały na tle.
+   `overflow:hidden` z reguły bazowej przycina do nich zaokrąglone rogi.
+
+   Szerokość: nie więcej niż okno bez luzu, nie więcej niż 1,7 × wysokość
+   ramki (żeby na panoramicznym monitorze nie zrobił się pasek) i nie więcej
+   niż 1600 px. Wysokość bierze się z górnego i dolnego luzu. */
 @media (min-width:520px){
-  /* `inset:0` ustawia też right:0 — bez `right:auto` hub zwężałby się do połowy
-     okna zamiast trzymać 480 px na środku. */
-  .hub-root{ left:50%; right:auto; width:480px; transform:translateX(-50%); box-shadow:0 0 60px rgba(0,0,0,.4); }
+  .hub-root{
+    --ramka-luz: clamp(14px, 2.6vmin, 34px);
+    top: var(--ramka-luz); bottom: var(--ramka-luz);
+    left: 50%; right: auto;
+    width: min(
+      calc(100vw - 2 * var(--ramka-luz)),
+      calc((100dvh - 2 * var(--ramka-luz)) * 1.7),
+      1600px
+    );
+    transform: translateX(-50%);
+    border-radius: clamp(20px, 2.6vmin, 34px);
+    /* Rant NEUTRALNY, nie zloty: ramka jest obudowa ekranu, a nie elementem
+       swiata gry. Zlota lamowka czytala sie jak kolejny zloty kafel HUD-u
+       i konkurowala z planeta. Cien tez zszedl z fioletu nocy na neutralna
+       ciemnosc — fioletowa poswiata pod szarym rantem wygladalaby na resztke. */
+    box-shadow:
+      0 0 0 3px var(--szarosc-200),
+      0 0 0 5px color-mix(in srgb, var(--szarosc-400) 70%, transparent),
+      0 26px 64px color-mix(in srgb, var(--szarosc-900) 34%, transparent),
+      0 6px 16px color-mix(in srgb, var(--szarosc-900) 16%, transparent);
+  }
+
+  /* GÓRNY PASEK W ROGACH. HUD wypełnia całą ramkę (`inset:0` z reguły
+     bazowej), więc czip profilu siada w lewym górnym rogu ekranu wewnętrznego,
+     a liczniki z pinetką muzyki w prawym — `.game-hud-resources` ma już
+     `margin-left:auto`, więc rogi robią się same, bez dodatkowej reguły. */
+
+  /* Dok zostaje na środku: ma stałe `width: min(100%, 430px)`, więc w kolumnie
+     flex bez tego przykleiłby się do lewej krawędzi ramki. */
+  .game-hud-dock{ margin-inline: auto; }
+
+  /* Szuflada trzyma szerokość telefonu i stoi na środku ramki — jej `50%`
+     liczy się od `.hub-root`, czyli od ekranu wewnętrznego. */
+  .hub-sheet{ left: calc(50% - 240px); right: auto; width: 480px; }
+
+  /* PODKŁAD POD DOKIEM trzyma szerokość UI, nie ramki.
+     `hud.css` rozlewa go poza kolumnę telefonu (`left/right: -12vw`, a przy
+     otwartej szufladzie `-16vw`) — to bleed policzony tak, żeby na telefonie
+     pionowe krawędzie gradientu wypadły ZA ekranem i nie było czego zobaczyć
+     jako linii cięcia. Na desktopie te same `16vw` to ponad dwieście pikseli
+     w każdą stronę, a `.game-hud-bottom` rozciąga się teraz na całą ramkę —
+     więc kremowy pas szedł przez całą planszę i miał ostrą górną krawędź.
+     Zwężamy go do tej samej kolumny co szuflada. Maska gasi boki w poziomie,
+     bo sam gradient jest tylko pionowy: bez niej w miejsce jednego szerokiego
+     pasa weszłyby dwa pionowe cięcia na krawędziach kolumny. */
+  .game-hud-bottom::before{
+    left: calc(50% - 240px); right: calc(50% - 240px);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14%, #000 86%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 14%, #000 86%, transparent 100%);
+  }
+  /* Ta sama szerokość dla stanu z otwartą szufladą — `hud.css` nadpisuje tam
+     `left/right` regułą o wyższej specyficzności, więc trzeba ją dogonić. */
+  .game-hud.ma-szuflade .game-hud-bottom::before{
+    left: calc(50% - 240px); right: calc(50% - 240px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce){
