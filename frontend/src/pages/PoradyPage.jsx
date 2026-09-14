@@ -12,6 +12,8 @@
  * Endpoint mentora: GET /api/players/:id/hints/all
  */
 import React, { useEffect, useMemo, useState } from "react";
+import { odmien, rodzajGracza } from "../services/rodzaj.js";
+import { dzienPrzygody } from "../services/dzienGry.js";
 import { useNavigate } from "react-router-dom";
 import { api, session } from "../services/api.js";
 import { useAppData } from "../contexts/AppData.jsx";
@@ -53,18 +55,7 @@ const SLOT_META = {
   wieczor:  { label: "Wieczór",  emoji: "🌙", color: "#E6D6FA", ring: "#7A4DC2", tone: "magic" },
 };
 
-// Liczba dni od rejestracji ucznia (1 = dzien rejestracji, max 30).
-// Dzien rejestracji = od razu 3 porady (poranek/poludnie/wieczor) gotowe.
-function daysSinceRegistration(player) {
-  if (!player?.registered_at) return 1;
-  const reg = new Date(player.registered_at);
-  const today = new Date();
-  // Liczymy na podstawie pelnych dni kalendarzowych (resetujemy godziny)
-  reg.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
-  const diffDays = Math.floor((today.getTime() - reg.getTime()) / 86400000) + 1;
-  return Math.max(1, Math.min(30, diffDays));
-}
+// Dzien przygody liczy `services/dzienGry.js` — ten sam licznik, co w panelu Porada.
 
 // Tracking przeczytanych porad:
 //  - localStorage (instant, offline fallback, działa zanim backend odpowie)
@@ -126,7 +117,7 @@ function PoradaGlyph({ kind = "medrzec", size = 56, tone = "magic" }) {
 // Klikalna - otwiera modal z pelna trescia (zachowuje onOpen).
 // FreshTipCard - duza purple-card karta porady aktualnego slotu.
 // Cala karta jest klikalna (otwiera modal). Brak CTA i bookmarka - sama karta to call-to-tap.
-function FreshTipCard({ tip, onOpen, read = false }) {
+function FreshTipCard({ tip, onOpen, read = false, rodzaj }) {
   return (
     <button onClick={() => onOpen?.(tip)} style={{
       position: "relative", borderRadius: 28, overflow: "hidden",
@@ -180,11 +171,11 @@ function FreshTipCard({ tip, onOpen, read = false }) {
           <h3 className="t-display" style={{
             margin: 0, fontSize: 24, lineHeight: 1.15, fontWeight: 700, color: "rgb(252, 244, 221)",
           }}>
-            „{tip.title}"
+            „{odmien(tip.title, rodzaj)}"
           </h3>
           <div style={{ marginTop: 8, fontSize: 13.5, lineHeight: 1.45, opacity: 0.9,
             display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-            {tip.body}
+            {odmien(tip.body, rodzaj)}
           </div>
         </div>
       </div>
@@ -192,7 +183,7 @@ function FreshTipCard({ tip, onOpen, read = false }) {
   );
 }
 
-function HistoryTipCard({ tip, dayLabel, onOpen, read = false }) {
+function HistoryTipCard({ tip, dayLabel, onOpen, read = false, rodzaj }) {
   const slot = SLOT_META[tip.slot] || SLOT_META.poludnie;
   return (
     <button onClick={() => onOpen?.(tip)} style={{
@@ -211,14 +202,14 @@ function HistoryTipCard({ tip, dayLabel, onOpen, read = false }) {
           <span style={{ fontSize: 9, fontWeight: 800, color: slot.ring, letterSpacing: 1 }}>{slot.emoji} {dayLabel}</span>
           {read && <span style={{ fontSize: 9, fontWeight: 800, color: "var(--p-ink-soft)" }}>· ✓ przeczytane</span>}
         </div>
-        <div className="t-display" style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.2, marginTop: 2, display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{tip.title}</div>
+        <div className="t-display" style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.2, marginTop: 2, display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{odmien(tip.title, rodzaj)}</div>
       </div>
       <span style={{ fontSize: 16, color: "var(--p-ink-soft)", flex: "none" }}>›</span>
     </button>
   );
 }
 
-function TipModal({ tip, onClose }) {
+function TipModal({ tip, onClose, rodzaj }) {
   if (!tip) return null;
   const slot = SLOT_META[tip.slot] || SLOT_META.poludnie;
   return (
@@ -253,8 +244,8 @@ function TipModal({ tip, onClose }) {
             {slot.emoji} {slot.label.toUpperCase()} · DZIEŃ {tip.day}
           </span>
         </div>
-        <h3 className="t-display" style={{ margin: "4px 0 12px", fontSize: 22, lineHeight: 1.18, fontWeight: 700 }}>{tip.title}</h3>
-        <div style={{ fontSize: 15, lineHeight: 1.5, color: "var(--p-ink)" }}>{tip.body}</div>
+        <h3 className="t-display" style={{ margin: "4px 0 12px", fontSize: 22, lineHeight: 1.18, fontWeight: 700 }}>{odmien(tip.title, rodzaj)}</h3>
+        <div style={{ fontSize: 15, lineHeight: 1.5, color: "var(--p-ink)" }}>{odmien(tip.body, rodzaj)}</div>
       </div>
     </div>
   );
@@ -442,7 +433,8 @@ export default function PoradyPage() {
 
   const profile = player ? profileCode(player.archetype) : null;
   // Dni od rejestracji: dzien 1 to dzisiaj (od razu 3 porady)
-  const today = useMemo(() => daysSinceRegistration(player), [player]);
+  const dzienGry = useMemo(() => dzienPrzygody(player), [player]);
+  const rodzaj = useMemo(() => rodzajGracza(player), [player]);
   const { slot: nowSlot, order: nowOrder } = useMemo(() => currentSlotInfo(), []);
 
   // Soft prompt push: pokazany RAZ, po 3+ otwartych poradach.
@@ -641,9 +633,16 @@ export default function PoradyPage() {
         `}</style>
         {tab === "porady" && (
           <div className="porady-tab-content" key="tab-porady" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            {/* Ktory to dzien przygody — ten sam licznik, co w panelu Porada. */}
+            <div style={{ display: "flex", justifyContent: "flex-end", margin: "0 4px -6px" }}>
+              <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.2, textTransform: "uppercase", color: "var(--p-ink-soft)" }}>
+                Dzień {dzienGry} przygody
+              </span>
+            </div>
+
             {/* Najnowsza porada — duza purple card na gorze, zawsze dostepna */}
             {freshTip && (
-              <FreshTipCard tip={freshTip} onOpen={handleOpenTip} read={readTips.has(freshTip.id)} />
+              <FreshTipCard tip={freshTip} onOpen={handleOpenTip} read={readTips.has(freshTip.id)} rodzaj={rodzaj} />
             )}
 
             {/* OCZEKUJACE - sloty dnia jeszcze przed nami, z ikona zegarka */}
@@ -672,7 +671,7 @@ export default function PoradyPage() {
                     <div key={day} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                       <div style={{ fontSize: 11, fontWeight: 800, color: "var(--p-magic-dk)", letterSpacing: 1.2, textTransform: "uppercase", padding: "0 4px" }}>Dzień {day}</div>
                       {tips.map((t) => (
-                        <HistoryTipCard key={t.id} tip={t} dayLabel={`Dzień ${t.day}`} onOpen={handleOpenTip} read={readTips.has(t.id)} />
+                        <HistoryTipCard key={t.id} tip={t} dayLabel={`Dzień ${t.day}`} onOpen={handleOpenTip} read={readTips.has(t.id)} rodzaj={rodzaj} />
                       ))}
                     </div>
                   ))}
@@ -712,7 +711,7 @@ export default function PoradyPage() {
           </div>
         )}
       </div>
-      {openTip && <TipModal tip={openTip} onClose={() => setOpenTip(null)} />}
+      {openTip && <TipModal tip={openTip} onClose={() => setOpenTip(null)} rodzaj={rodzaj} />}
       {showPushPrompt && <PushPrompt onEnable={handleEnablePush} onSkip={handleSkipPush} />}
       <TabBar current="home" />
     </PageShell>

@@ -2723,7 +2723,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "LD",
     "kind": "task",
     "title": "Twoja grzywa, twoje tempo",
-    "body": "Mały Śmiałku, nie musisz prowadzić od rana. Czasem grzywa potrzebuje rozkręcić się powoli. Zacznij dziś od jednej cichej rzeczy, którą lubisz.",
+    "body": "{Mały|Mała} {Śmiałku|Śmiałko}, nie musisz prowadzić od rana. Czasem grzywa potrzebuje rozkręcić się powoli. Zacznij dziś od jednej cichej rzeczy, którą lubisz.",
     "points_reward": 30,
     "competency_focus": [
       "LD"
@@ -2787,7 +2787,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "LD",
     "kind": "task",
     "title": "Pomysł, którego się boisz",
-    "body": "Misja głosu: powiedz dziś na głos pomysł, którego trochę się wstydzisz. Może wymyśliłaś/wymyśliłeś coś dziwnego. Powiedz go jednej osobie. Pomysły rosną, gdy się je wypuszcza.",
+    "body": "Misja głosu: powiedz dziś na głos pomysł, którego trochę się wstydzisz. Może {wymyśliłeś|wymyśliłaś} coś dziwnego. Powiedz go jednej osobie. Pomysły rosną, gdy się je wypuszcza.",
     "points_reward": 30,
     "competency_focus": [
       "LD"
@@ -2996,7 +2996,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "LD",
     "kind": "task",
     "title": "Dziękuję komuś, kto pomaga niewidocznie",
-    "body": "Misja wdzięczności: znajdź dziś kogoś, kto codziennie robi coś dla ciebie, a nigdy mu nie podziękowałaś/podziękowałeś. Pani sprzątająca, kierowca, babcia. Powiedz krótkie „dziękuję”.",
+    "body": "Misja wdzięczności: znajdź dziś kogoś, kto codziennie robi coś dla ciebie, a nigdy mu nie {podziękowałeś|podziękowałaś}. Pani sprzątająca, kierowca, babcia. Powiedz krótkie „dziękuję”.",
     "points_reward": 30,
     "competency_focus": [
       "LD"
@@ -3012,7 +3012,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "LD",
     "kind": "task",
     "title": "Twoja odwaga nie musi krzyczeć",
-    "body": "Posłuchaj, mały Śmiałku: czasem najodważniejszą rzeczą jest milczeć, gdy inni krzyczą. Czasem powiedzieć „nie wiem”. Czasem wrócić do kogoś i przeprosić. Odwaga ma wiele twarzy.",
+    "body": "Posłuchaj, {mały|mała} {Śmiałku|Śmiałko}: czasem najodważniejszą rzeczą jest milczeć, gdy inni krzyczą. Czasem powiedzieć „nie wiem”. Czasem wrócić do kogoś i przeprosić. Odwaga ma wiele twarzy.",
     "points_reward": 30,
     "competency_focus": [
       "LD"
@@ -3060,7 +3060,7 @@ export const ADDITIONAL_TASKS = [
     "id": "LD-TASK-043",
     "profile": "LD",
     "kind": "task",
-    "title": "Powiedz komuś, kim się stałaś/stałeś",
+    "title": "Powiedz komuś, kim się {stałeś|stałaś}",
     "body": "Ostatnia wielka misja: powiedz komu bliskiemu jedno zdanie: „uczę się być odważna/odważny z troski, nie z pychy”. Może nie zrozumieją od razu. Ale ty będziesz wiedzieć.",
     "points_reward": 30,
     "competency_focus": [
@@ -3543,8 +3543,8 @@ export const ADDITIONAL_TASKS = [
     "id": "MD-TASK-040",
     "profile": "MD",
     "kind": "task",
-    "title": "Misja: powiedz, co się nauczyłaś/nauczyłeś",
-    "body": "Komuś bliskiemu opowiedz jedną rzecz, którą zrozumiałaś/zrozumiałeś przez te 30 dni o sobie albo o ludziach. Dzielenie się to też most.",
+    "title": "Misja: powiedz, co się {nauczyłeś|nauczyłaś}",
+    "body": "Komuś bliskiemu opowiedz jedną rzecz, którą {zrozumiałeś|zrozumiałaś} przez te 30 dni o sobie albo o ludziach. Dzielenie się to też most.",
     "points_reward": 25,
     "competency_focus": [
       "MD"

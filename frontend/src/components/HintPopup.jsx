@@ -7,6 +7,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { api, session } from "../services/api.js";
 import { fx } from "../services/soundFx.js";
+import { odmien, rodzajGracza } from "../services/rodzaj.js";
 // Coin/Sparkle uzywane przez RewardScreen wewnetrznie; tu nie potrzebne
 import { useAppData } from "../contexts/AppData.jsx";
 import RewardScreen from "./RewardScreen.jsx";
@@ -21,7 +22,7 @@ export default function HintPopup() {
   const [queue, setQueue] = useState([]);
   const [current, setCurrent] = useState(null);
   // Dostep do refreshAll - gdy task/reward przychodzi, AppData musi zaladowac nowa misje + nowe coiny
-  const { refreshAll } = useAppData();
+  const { refreshAll, player } = useAppData();
 
   // Czy jestesmy na sciezce mentora / dev? Jezeli tak - nie pokazujemy hintow ucznia
   const isMentorRoute = MENTOR_PATHS.some((p) => location.pathname.startsWith(p));
@@ -150,12 +151,12 @@ export default function HintPopup() {
 
         {current.title && (
           <h2 className="t-display" style={{ fontSize: 22, margin: "0 0 8px", color: "#3B2A12" }}>
-            {current.title}
+            {odmien(current.title, rodzajGracza(player))}
           </h2>
         )}
 
         <p className="t-hand" style={{ fontSize: 18, color: "#5C4220", margin: "0 0 6px", lineHeight: 1.35 }}>
-          „{current.body}"
+          „{odmien(current.body, rodzajGracza(player))}"
         </p>
 
         {/* mentor_name celowo nie pokazywany w popupie - nie zaglosujemy imienia mentora dziecku */}

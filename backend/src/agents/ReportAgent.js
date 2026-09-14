@@ -170,7 +170,7 @@ JSON:
             date: new Date().toISOString().split("T")[0],
             scores: { EM: 5, ST: 5, KR: 3, LD: 4, DT: 4, MD: 5 },
             dominant_profiles: ["EM", "MD"],
-            hybrid_title: "Strażnik Pokoju",
+            hybrid_title: "Cichy Pomocnik",
             casel_analysis: {
               self_awareness: { level: "średni", evidence: "Tryb demo" },
               self_management: { level: "średni", evidence: "Tryb demo" },

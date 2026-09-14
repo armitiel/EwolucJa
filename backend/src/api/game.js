@@ -16,16 +16,37 @@ const SCORING = {
   "9_A": { LD: 2 }, "9_B": { ST: 1 }, "9_C": { EM: 2 },
 };
 
+// Nazwy par (dwie najmocniejsze cechy). Kopia tabeli z
+// `frontend/src/data/paryProfili.js` — tam jest komentarz, skąd te nazwy.
+// Token `{męski|żeński}` rozwija `nazwaPary()` niżej; baza nie ma dziś kolumny
+// z rodzajem, więc bez podpowiedzi z klienta wychodzi forma męska.
 const HYBRID_TITLES = {
-  "DT_KR": "Wizjoner Tajemnic", "EM_MD": "Strażnik Pokoju",
-  "LD_ST": "Generał Przygody", "KR_ST": "Architekt Przyszłości",
-  "DT_EM": "Odkrywca Serc", "KR_LD": "Mistrz Inwencji",
-  "LD_MD": "Kapitan Drużyny", "DT_ST": "Łamacz Kodów",
-  "EM_KR": "Artysta Emocji", "DT_MD": "Dyplomata Wiedzy",
-  "EM_LD": "Odważne Serce", "MD_ST": "Mędrzec Pokoju",
-  "EM_ST": "Cierpliwy Opiekun", "KR_MD": "Twórczy Mediator",
-  "DT_LD": "Śmiały Tropiciel",
+  "DT_KR": "{Pomysłowy Badacz|Pomysłowa Badaczka}",
+  "EM_MD": "{Cichy Pomocnik|Cicha Pomocnica}",
+  "LD_ST": "{Mądry Dowódca|Mądra Dowódczyni}",
+  "KR_ST": "{Konstruktor Pomysłów|Konstruktorka Pomysłów}",
+  "DT_EM": "{Ciekawski Kompan|Ciekawska Kompanka}",
+  "KR_LD": "{Odważny Majsterkowicz|Odważna Majsterkowiczka}",
+  "LD_MD": "{Opanowany Bohater|Opanowana Bohaterka}",
+  "DT_ST": "{Detektyw Zagadek|Detektywka Zagadek}",
+  "EM_KR": "{Artysta Serca|Artystka Serca}",
+  "DT_MD": "{Uważny Obserwator|Uważna Obserwatorka}",
+  "EM_LD": "Odważne Serce",
+  "MD_ST": "{Cierpliwy Planista|Cierpliwa Planistka}",
+  "EM_ST": "{Mądry Pocieszyciel|Mądra Pocieszycielka}",
+  "KR_MD": "{Cichy Twórca|Cicha Twórczyni}",
+  "DT_LD": "{Śmiały Zwiadowca|Śmiała Zwiadowczyni}",
 };
+
+const NAZWA_ZAPASOWA = "{Bohater Nieznanych Krain|Bohaterka Nieznanych Krain}";
+
+/** Rozwija token `{męski|żeński}` — ta sama zasada, co `odmien()` na froncie. */
+function nazwaPary(klucz, rodzaj) {
+  const wzor = HYBRID_TITLES[klucz] || NAZWA_ZAPASOWA;
+  const zenski = String(rodzaj || "").toLowerCase();
+  const k = zenski === "zenski" || zenski === "girl" || zenski === "k";
+  return wzor.replace(/\{([^{}|]*)\|([^{}|]*)\}/g, (_, m, z) => (k ? z : m));
+}
 
 function clamp(val, min = 0, max = 10) {
   return Math.max(min, Math.min(max, val));
@@ -88,13 +109,14 @@ export function gameRoutes(db) {
 
   // POST /api/game/finalize — Generowanie profilu końcowego
   router.post("/finalize", (req, res) => {
-    const { player_id } = req.body;
+    // `rodzaj` jest opcjonalny: klient zna wybór z onboardingu, baza jeszcze nie.
+    const { player_id, rodzaj } = req.body;
     const player = getPlayer(db, player_id);
     if (!player) return res.status(404).json({ error: "Gracz nie znaleziony" });
 
     const sorted = Object.entries(player.scores).sort((a, b) => b[1] - a[1]);
     const topTwo = [sorted[0][0], sorted[1][0]].sort().join("_");
-    const title = HYBRID_TITLES[topTwo] || "Bohater Nieznanych Krain";
+    const title = nazwaPary(topTwo, rodzaj);
 
     player.final_profile = {
       dominant_profiles: [sorted[0][0], sorted[1][0]],

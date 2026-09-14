@@ -1,26 +1,30 @@
 /**
  * poradaZBiblioteki — świeża porada dnia dla dziecka i jej historia.
  *
- * SKĄD SIĘ BIERZE. Z biblioteki `dailyTipsData.js` (355 wpisów, 6 archetypów),
- * ale wyłącznie z wpisów `audience: "dziecko"`. To nie jest drobiazg: 189 z 355
+ * SKĄD SIĘ BIERZE. Z biblioteki `dailyTipsData.js` (387 wpisów, 6 profili),
+ * ale wyłącznie z wpisów `audience: "dziecko"`. To nie jest drobiazg: 189 z 387
  * porad napisano DO RODZICA („Gdy dziecko o coś pyta, zanim odpowiesz…") i w
- * panelu dziecka brzmiałyby jak instrukcja obsługi samego siebie.
+ * panelu dziecka brzmiałyby jak instrukcja obsługi samego siebie. Porady
+ * rodzica nie mają dziś gdzie trafić w grze — naturalne miejsce to panel
+ * Mentora — więc leżą w danych i czekają, zamiast wchodzić dziecku na ekran.
  *
- * KTÓRA. Profil dziecka × dzień miesiąca × pora dnia — tak samo jak `todaysTip()`
- * w bibliotece. Wybór jest DETERMINISTYCZNY: odświeżenie ekranu nie losuje
+ * KTÓRA. Profil dziecka × dzień przygody (`services/dzienGry.js`) × pora dnia —
+ * ten sam licznik, z którego korzysta `todaysTip()` w bibliotece. Wybór jest DETERMINISTYCZNY: odświeżenie ekranu nie losuje
  * nowej porady. Zmienia ją dopiero nowa pora dnia albo nowy dzień, więc karta
  * nie działa jak automat do gry.
  *
- * DZIURY W SIATCE. Dla dziecka wypada 27–30 porad na profil przy 30 dniach × 3
- * porach, czyli większość slotów jest pusta. Schodzimy wtedy po kolei: ta sama
- * doba w innej porze → najbliższy następny dzień, który cokolwiek ma (cyklicznie).
- * Pusty ekran nie jest opcją; profil ST ma dziś tylko 21 z 30 dni obsadzonych.
+ * DZIURY W SIATCE. Od 14.09.2026 każdy profil ma poradę na KAŻDY z 30 dni
+ * (32 brakujące dopisane — wcześniej ST miał obsadzone 21 dni z 30). Pory dnia
+ * dalej są dziurawe: 33 porady na profil to 33 z 90 slotów. Dlatego schodzimy
+ * po kolei: ta sama doba w innej porze → najbliższy następny dzień, który
+ * cokolwiek ma (cyklicznie). Pusty ekran nie jest opcją.
  *
  * HISTORIA siedzi w dwóch miejscach naraz. localStorage działa offline i od
  * razu, backend (`viewed_tips`) przenosi ją między urządzeniami. Przy starcie
  * scalamy oba zbiory — tak samo robi `pages/PoradyPage.jsx`.
  */
 import { DAILY_TIPS, PROFILES_META } from "../dailyTipsData.js";
+import { dzienPrzygody } from "../services/dzienGry.js";
 
 const KLUCZ_HISTORIA = "ewolucja.porady.biblioteka";
 const HISTORIA_MAX = 60;
@@ -51,10 +55,8 @@ export function poraTeraz(data = new Date()) {
   return "wieczor";
 }
 
-/** Biblioteka jest cyklem 30-dniowym, więc dzień miesiąca wystarcza za licznik. */
-function dzienCyklu(data) {
-  return ((data.getDate() - 1) % 30) + 1;
-}
+/** Licznik dnia przygody mieszka w `services/dzienGry.js` — tu tylko przelot dalej. */
+export { dzienPrzygody };
 
 function kolejnoscPor(pora) {
   const i = Math.max(0, SLOTY.indexOf(pora));
@@ -78,11 +80,11 @@ export function poradaPoId(id) {
  * Porada na teraz. Zwraca wpis z biblioteki albo `null`, gdy profil nie ma ani
  * jednej porady dla dziecka (dziś nie zdarza się to żadnemu z sześciu).
  */
-export function swiezaPorada(profil, data = new Date()) {
+export function swiezaPorada(profil, player = null, data = new Date()) {
   const pula = dlaDziecka(kodProfilu(profil));
   if (!pula.length) return null;
   const pory = kolejnoscPor(poraTeraz(data));
-  const start = dzienCyklu(data);
+  const start = dzienPrzygody(player, data);
   for (let krok = 0; krok < 30; krok += 1) {
     const dzien = ((start - 1 + krok) % 30) + 1;
     for (const pora of pory) {

@@ -197,22 +197,31 @@ MECHANIKA KOŃCOWA:
 2. Wybierz 2 najwyższe wyniki → profil hybrydowy.
 3. Wygeneruj tytuł na podstawie tabeli poniżej.
 
-TABELA TYTUŁÓW HYBRYDOWYCH:
-  DT + KR = "Wizjoner Tajemnic"
-  EM + MD = "Strażnik Pokoju"
-  LD + ST = "Generał Przygody"
-  ST + KR = "Architekt Przyszłości"
-  EM + DT = "Odkrywca Serc"
-  LD + KR = "Mistrz Inwencji"
-  LD + MD = "Kapitan Drużyny"
-  ST + DT = "Łamacz Kodów"
-  EM + KR = "Artysta Emocji"
-  MD + DT = "Dyplomata Wiedzy"
+TABELA TYTUŁÓW HYBRYDOWYCH (aktualna od 14.09.2026):
+Zapis "{forma męska|forma żeńska}" — wybierz formę zgodną z rodzajem dziecka.
+Źródło prawdy: frontend/src/data/paryProfili.js
+
+  DT + KR = "{Pomysłowy Badacz|Pomysłowa Badaczka}"
+  EM + MD = "{Cichy Pomocnik|Cicha Pomocnica}"
+  LD + ST = "{Mądry Dowódca|Mądra Dowódczyni}"
+  ST + KR = "{Konstruktor Pomysłów|Konstruktorka Pomysłów}"
+  EM + DT = "{Ciekawski Kompan|Ciekawska Kompanka}"
+  LD + KR = "{Odważny Majsterkowicz|Odważna Majsterkowiczka}"
+  LD + MD = "{Opanowany Bohater|Opanowana Bohaterka}"
+  ST + DT = "{Detektyw Zagadek|Detektywka Zagadek}"
+  EM + KR = "{Artysta Serca|Artystka Serca}"
+  MD + DT = "{Uważny Obserwator|Uważna Obserwatorka}"
   EM + LD = "Odważne Serce"
-  ST + MD = "Mędrzec Pokoju"
-  EM + ST = "Cierpliwy Opiekun"
-  KR + MD = "Twórczy Mediator"
-  LD + DT = "Śmiały Tropiciel"
+  ST + MD = "{Cierpliwy Planista|Cierpliwa Planistka}"
+  EM + ST = "{Mądry Pocieszyciel|Mądra Pocieszycielka}"
+  KR + MD = "{Cichy Twórca|Cicha Twórczyni}"
+  LD + DT = "{Śmiały Zwiadowca|Śmiała Zwiadowczyni}"
+
+NIE UŻYWAJ starych tytułów ("Wizjoner Tajemnic", "Strażnik Pokoju", "Generał
+Przygody", "Odkrywca Serc", "Śmiały Tropiciel", "Twórczy Mediator", "Cierpliwy
+Opiekun", "Mędrzec Pokoju", "Kapitan Drużyny", "Architekt Przyszłości",
+"Dyplomata Wiedzy", "Mistrz Inwencji", "Łamacz Kodów", "Artysta Emocji").
+Odwoływały się do archetypów, których już nie ma, albo nie dawały się odmienić.
 
 FORMAT RAPORTU DLA UCZNIA:
 "Brawo, [IMIĘ]! Przeszedłeś/przeszłaś wszystkie krainy i Twoje prawdziwe

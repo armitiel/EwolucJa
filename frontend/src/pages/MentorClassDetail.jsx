@@ -8,6 +8,7 @@ import { Sparkle } from "../components/art.jsx";
 import ProfileAvatar, { PROFILE_INFO } from "../components/ProfileAvatar.jsx";
 import { mentorApi } from "../services/mentorApi.js";
 import { pickTaskForGenerator } from "../data/mentorTaskLibrary.js";
+import { odmienDlaImienia } from "../services/rodzaj.js";
 
 export default function MentorClassDetail() {
   const { id } = useParams();
@@ -699,7 +700,7 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
                 </div>
               ) : (
                 data.missions.slice(0, 10).map((m) => (
-                  <MissionCard key={m.id} mission={m}
+                  <MissionCard key={m.id} mission={m} imie={studentName}
                     onVerify={async (decision, points) => {
                       try { await mentorApi.verifyMission(m.id, decision, null, points); await load(); }
                       catch (e) { alert(e.message); }
@@ -740,7 +741,7 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
                     <div style={{ fontSize: 12, fontWeight: 700, color: "#7A4D10", paddingRight: 28 }}>
                       {h.kind === "artifact" ? "🎁" : h.kind === "message" ? "💬" : "💡"} {h.title || h.kind}
                     </div>
-                    <div style={{ fontSize: 12, color: "var(--p-ink)", marginTop: 2 }}>{h.body}</div>
+                    <div style={{ fontSize: 12, color: "var(--p-ink)", marginTop: 2 }}>{odmienDlaImienia(h.body, studentName)}</div>
                     <div style={{ fontSize: 10, color: "var(--p-ink-soft)", marginTop: 4 }}>
                       {new Date(h.sent_at).toLocaleString("pl-PL")} · {h.viewed_at ? "✓ widziane" : "niewidziane"}
                     </div>
@@ -758,7 +759,7 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
 }
 
 // Karta misji w modal mentora - pokazuje status, dowod, akcje verify (z customowa liczba punktow)
-function MissionCard({ mission, onVerify, onDelete }) {
+function MissionCard({ mission, onVerify, onDelete, imie }) {
   const status = mission.status;
   const proof = mission.submitted_proof;
   const verification = mission.gm_verification;
@@ -776,7 +777,7 @@ function MissionCard({ mission, onVerify, onDelete }) {
     }}>
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div className="t-display" style={{ fontSize: 14, lineHeight: 1.15, color: "var(--p-ink)" }}>{mission.title || "Misja"}</div>
+          <div className="t-display" style={{ fontSize: 14, lineHeight: 1.15, color: "var(--p-ink)" }}>{odmienDlaImienia(mission.title, imie) || "Misja"}</div>
           <div style={{ fontSize: 11, color: "var(--p-ink-soft)", fontWeight: 700, marginTop: 2 }}>
             {new Date(mission.generated_at).toLocaleDateString("pl-PL")}
           </div>
@@ -821,7 +822,7 @@ function MissionCard({ mission, onVerify, onDelete }) {
           boxShadow: "inset 0 0 0 1.2px rgba(168,122,42,.22)",
           fontSize: 12.5, color: "var(--p-ink)", lineHeight: 1.4,
         }}>
-          {mission.body}
+          {odmienDlaImienia(mission.body, imie)}
         </div>
       )}
 

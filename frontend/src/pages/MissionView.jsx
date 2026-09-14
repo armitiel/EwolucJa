@@ -13,13 +13,16 @@ import { Sparkle, ScrollIcon, MissionScroll } from "../components/art.jsx";
 import MentorBubble from "../components/MentorBubble.jsx";
 import RewardScreen from "../components/RewardScreen.jsx";
 import { fx } from "../services/soundFx.js";
+import { odmien, rodzajGracza } from "../services/rodzaj.js";
 import { ttsPlayer } from "../services/ttsPlayer.js";
 import bgMusic from "../services/bgMusic.js";
 
 export default function MissionView() {
   const navigate = useNavigate();
   // Misja z globalnego kontekstu - byla zaladowana razem z domem, brak czekania
-  const { mission, error: ctxError, refreshAll } = useAppData();
+  const { mission, player, error: ctxError, refreshAll } = useAppData();
+  // Teksty z biblioteki niosą tokeny {męski|żeński} — nigdy nie trafiają na ekran surowe.
+  const rodzaj = useMemo(() => rodzajGracza(player), [player]);
   const [step, setStep] = useState(0);
   const [answer, setAnswer] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -98,8 +101,8 @@ export default function MissionView() {
 
   const narrationText = useMemo(() => {
     if (!mission) return "";
-    return [mission.narrative_intro, mission.body].filter(Boolean).join(" ");
-  }, [mission]);
+    return odmien([mission.narrative_intro, mission.body].filter(Boolean).join(" "), rodzaj);
+  }, [mission, rodzaj]);
 
   async function handleSubmit() {
     if (!mission || (!answer.trim() && !mediaUrl)) return;
@@ -293,10 +296,10 @@ export default function MissionView() {
                 {/* TYTUL + TRESC MISJI - wyszarzone gdy zapieczetowane (zadanie juz wykonane) */}
                 <div style={{ opacity: mission.status === "submitted" ? 0.5 : 1, transition: "opacity .4s ease" }}>
                   <h2 className="t-display" style={{ fontSize: 18, lineHeight: 1.2, margin: "0 0 8px", color: "#3B2A12", textAlign: "center" }}>
-                    {mission.title}
+                    {odmien(mission.title, rodzaj)}
                   </h2>
                   <p className="t-hand" style={{ fontSize: 15, lineHeight: 1.35, margin: 0, color: "#5C4220", textAlign: "center" }}>
-                    {mission.body}
+                    {odmien(mission.body, rodzaj)}
                   </p>
                 </div>
 

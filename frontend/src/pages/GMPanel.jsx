@@ -3,6 +3,7 @@ import { api, session } from "../services/api.js";
 import PageShell from "../components/PageShell.jsx";
 import NarratorVoice from "../components/NarratorVoice.jsx";
 import { Avatar, MoonPhase } from "../components/art.jsx";
+import { odmienDlaImienia } from "../services/rodzaj.js";
 
 export default function GMPanel() {
   const [account, setAccount] = useState(null);
@@ -265,7 +266,12 @@ function ChildCard({ playerId }) {
         <div style={{ fontSize: 11, color: "var(--p-ink-soft)" }}>Cykl #1</div>
         <div className="prog magic" style={{ marginTop: 6 }}><i style={{ width: "60%" }} /></div>
         <div className="t-hand" style={{ fontSize: 16, marginTop: 4, color: "var(--p-ink-soft)" }}>
-          {(child.backpack || []).length > 0 ? `zdobył: ${child.backpack[child.backpack.length - 1].artifact_name}` : "jeszcze nic nie zdobył"}
+          {odmienDlaImienia(
+            (child.backpack || []).length > 0
+              ? `{zdobył|zdobyła}: ${child.backpack[child.backpack.length - 1].artifact_name}`
+              : "jeszcze nic nie {zdobył|zdobyła}",
+            child.player_name,
+          )}
         </div>
       </div>
     </div>
@@ -280,8 +286,8 @@ function MissionVerifyCard({ mission, onVerify }) {
       <p style={{ fontSize: 11, color: "var(--p-ink-soft)", margin: 0 }}>
         {mission.player_name} · cykl {mission.cycle_id?.slice(-6)}
       </p>
-      <h3 className="t-display" style={{ fontSize: 17, margin: "4px 0" }}>{mission.title}</h3>
-      <p style={{ fontSize: 14, color: "var(--p-ink-soft)", marginBottom: 8 }}>{mission.body}</p>
+      <h3 className="t-display" style={{ fontSize: 17, margin: "4px 0" }}>{odmienDlaImienia(mission.title, mission.player_name)}</h3>
+      <p style={{ fontSize: 14, color: "var(--p-ink-soft)", marginBottom: 8 }}>{odmienDlaImienia(mission.body, mission.player_name)}</p>
       {proofText && (
         <div style={{ background: "rgba(184,134,232,.12)", borderRadius: 12, padding: "8px 10px", marginBottom: 10 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>

@@ -8,6 +8,8 @@ import { ttsPlayer } from "./services/ttsPlayer";
 import agentAPI from "./services/agentAPI";
 import { TASK_EQUIPMENT_MAP, EQUIPMENT_DEFS } from "./components/AvatarSVG";
 import { GROWTH_TIPS, DAILY_MISSIONS } from "./growthData";
+import { kluczPary, nazwaPary } from "./data/paryProfili.js";
+import { rodzajZImienia } from "./services/rodzaj.js";
 import detectGender from "./utils/detectGender";
 import bgMusic from "./services/bgMusic";
 
@@ -100,16 +102,7 @@ const PROFILE_DESCRIPTIONS = {
   MD: "Potrafisz połączyć ludzi nawet wtedy, gdy się kłócą. Słuchasz obu stron, szukasz kompromisów i budujesz mosty. Dzięki Tobie grupa trzyma się razem — jesteś klejem, który wszystko łączy.",
 };
 
-const HYBRID_TITLES = {
-  DT_KR: "Wizjoner Tajemnic", EM_MD: "Strażnik Pokoju",
-  LD_ST: "Generał Przygody", KR_ST: "Architekt Przyszłości",
-  DT_EM: "Odkrywca Serc", KR_LD: "Mistrz Inwencji",
-  LD_MD: "Kapitan Drużyny", DT_ST: "Łamacz Kodów",
-  EM_KR: "Artysta Emocji", DT_MD: "Dyplomata Wiedzy",
-  EM_LD: "Odważne Serce", MD_ST: "Mędrzec Pokoju",
-  EM_ST: "Cierpliwy Opiekun", KR_MD: "Twórczy Mediator",
-  DT_LD: "Śmiały Tropiciel",
-};
+// Nazwy par mieszkają w `data/paryProfili.js` — jedna tabela dla obu rodzajów.
 
 const SCORING = {
   "1_A": { DT: 2 }, "1_B": { LD: 2 }, "1_C": { ST: 2 }, "1_D": { KR: 1 },
@@ -596,8 +589,8 @@ function getDailyMission(profile) {
 function FinalScreen({ scores, playerName, avatarConfig, equipment }) {
   const [showTips, setShowTips] = useState(null);
   const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-  const topTwo = [sorted[0][0], sorted[1][0]].sort().join("_");
-  const title = HYBRID_TITLES[topTwo] || "Bohater Nieznanych Krain";
+  const topTwo = kluczPary(sorted[0][0], sorted[1][0]);
+  const title = nazwaPary(topTwo, rodzajZImienia(playerName));
   const lowest = sorted[sorted.length - 1];
   const lowestLabel = PROFILE_LABELS[lowest[0]];
   const topProfiles = [sorted[0][0], sorted[1][0]];
@@ -608,7 +601,7 @@ function FinalScreen({ scores, playerName, avatarConfig, equipment }) {
     { ...getDailyMission(weakProfile), profile: weakProfile, type: "grow" },
   ];
 
-  const finalNarration = `Brawo, ${playerName}! Przeszedłeś wszystkie krainy i Twoje prawdziwe supermoce się ujawniły! Jesteś ${title}! To znaczy, że łączysz w sobie niezwykłe talenty ${PROFILE_LABELS[sorted[0][0]].name} i ${PROFILE_LABELS[sorted[1][0]].name}!`;
+  const finalNarration = `Brawo, ${playerName}! ${rodzajZImienia(playerName) === "zenski" ? "Przeszłaś" : "Przeszedłeś"} wszystkie krainy i Twoje prawdziwe supermoce się ujawniły! Jesteś ${title}! To znaczy, że łączysz w sobie niezwykłe talenty ${PROFILE_LABELS[sorted[0][0]].name} i ${PROFILE_LABELS[sorted[1][0]].name}!`;
 
   return (
     <div>

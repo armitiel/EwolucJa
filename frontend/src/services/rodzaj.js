@@ -29,6 +29,26 @@ const MESKIE_NA_A = new Set([
 export const RODZAJ = { MESKI: "meski", ZENSKI: "zenski" };
 
 /**
+ * Wybór z onboardingu („Twój bohater to dziewczynka czy chłopiec?"). Trzyma się
+ * w localStorage obok etapu szkolnego — tam, gdzie już siedzi wszystko, co gra
+ * wie o dziecku przed pierwszą odpowiedzią backendu.
+ */
+export const KLUCZ_RODZAJ = "ewolucja.profil.rodzaj";
+
+export function rodzajBohatera() {
+  try {
+    const z = localStorage.getItem(KLUCZ_RODZAJ);
+    return z === RODZAJ.ZENSKI ? RODZAJ.ZENSKI : z === RODZAJ.MESKI ? RODZAJ.MESKI : null;
+  } catch {
+    return null;
+  }
+}
+
+export function zapiszRodzajBohatera(rodzaj) {
+  try { localStorage.setItem(KLUCZ_RODZAJ, rodzaj === RODZAJ.ZENSKI ? RODZAJ.ZENSKI : RODZAJ.MESKI); } catch {}
+}
+
+/**
  * Nazwy archetypów w obu rodzajach. Kolejność: [męski, żeński].
  * `MD` celowo ma dwa razy to samo — „Spokojna Głowa" to wyrażenie, nie nazwa
  * osoby, więc odmienia się tak samo niezależnie od tego, kto je nosi.
@@ -50,8 +70,15 @@ export function rodzajZImienia(imie) {
   return /[aą]$/.test(pierwsze) ? RODZAJ.ZENSKI : RODZAJ.MESKI;
 }
 
-/** Rodzaj dla gracza: zapis wygrywa z heurystyką, heurystyka z domyślnym męskim. */
+/**
+ * Rodzaj dla gracza. Kolejność: wybór dziecka z onboardingu → zapis na koncie →
+ * końcówka imienia → rodzaj męski. Heurystyka jest ostatnią deską ratunku,
+ * a nie pierwszym pomysłem: dziecko, które odpowiedziało na pytanie, ma być
+ * potraktowane tak, jak odpowiedziało.
+ */
 export function rodzajGracza(player) {
+  const wybor = rodzajBohatera();
+  if (wybor) return wybor;
   const zapis = String(player?.gender || player?.rodzaj || "").toLowerCase();
   if (zapis === "girl" || zapis === "zenski" || zapis === "k") return RODZAJ.ZENSKI;
   if (zapis === "boy" || zapis === "meski" || zapis === "m") return RODZAJ.MESKI;
@@ -71,4 +98,37 @@ export function nazwaArchetypu(kod, rodzaj = RODZAJ.MESKI) {
 /** Skrót dla komponentów: gracz → gotowa nazwa. */
 export function nazwaArchetypuGracza(kod, player) {
   return nazwaArchetypu(kod, rodzajGracza(player));
+}
+
+/**
+ * ODMIANA TEKSTU. W treściach porad i zadań piszemy pary w klamrach:
+ *
+ *   "Dobry dzień, {mały|mała} {Śmiałku|Śmiałko}."
+ *
+ * Pierwsza forma jest męska, druga żeńska. Tekst bez klamer przechodzi bez
+ * zmian, więc stare wpisy działają dalej — a te z klamrami czyta się w pliku
+ * danych tak samo dobrze jak w grze, bo widać obie formy naraz.
+ *
+ * Alternatywą byłoby trzymanie dwóch wersji każdego zdania. Przy 355 poradach
+ * to dwa razy więcej tekstu do napisania i do poprawienia przy każdej zmianie.
+ */
+export function odmien(tekst, rodzaj = RODZAJ.MESKI) {
+  if (!tekst || tekst.indexOf("{") === -1) return tekst || "";
+  const zenski = rodzaj === RODZAJ.ZENSKI;
+  return String(tekst).replace(/\{([^{}|]*)\|([^{}|]*)\}/g, (_, m, z) => (zenski ? z : m));
+}
+
+/** Skrót: tekst odmieniony pod konkretnego gracza. */
+export function odmienDlaGracza(tekst, player) {
+  return odmien(tekst, rodzajGracza(player));
+}
+
+/**
+ * Odmiana po samym imieniu — dla ekranów DOROSŁEGO (panel Mentora, panel GM),
+ * gdzie nie ma obiektu gracza, tylko podpisane imię dziecka. Trafia gorzej niż
+ * `odmienDlaGracza` (nie widzi zapisanego wyboru z onboardingu), ale i tak jest
+ * lepsza niż zostawienie mentorowi surowego `{Śmiałku|Śmiałko}` na ekranie.
+ */
+export function odmienDlaImienia(tekst, imie) {
+  return odmien(tekst, rodzajZImienia(imie));
 }

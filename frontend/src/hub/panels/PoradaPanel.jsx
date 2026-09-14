@@ -19,7 +19,7 @@ import React, { Suspense, lazy, useCallback, useEffect, useMemo, useState } from
 import { api, session } from "../../services/api.js";
 import { zdarzenie } from "../../services/analityka.jsx";
 import { useAppData } from "../../contexts/AppData.jsx";
-import { nazwaArchetypuGracza } from "../../services/rodzaj.js";
+import { nazwaArchetypuGracza, odmienDlaGracza } from "../../services/rodzaj.js";
 import { GameIcon } from "../../adventure/components/icons.jsx";
 import { oznaczPoradyObejrzane } from "../nowosci.js";
 import { powiedzJakLisek, uciszLiska } from "../glosLiska.js";
@@ -58,7 +58,7 @@ function PoradaDnia({ onPowrot }) {
 
   // Porada wybierana RAZ na wejście do panelu. Gdyby liczyła się przy każdym
   // renderze, przejście przez granicę pory dnia podmieniałoby kartę pod palcem.
-  const swieza = useMemo(() => swiezaPorada(profil), [profil]);
+  const swieza = useMemo(() => swiezaPorada(profil, player), [profil, player]);
   const [historia, setHistoria] = useState(() => czytajHistorie());
   const [otwarta, setOtwarta] = useState(null);
 
@@ -119,9 +119,9 @@ function PoradaDnia({ onPowrot }) {
       <div className="hub-pane porada-dnia" data-testid="hub-pane-porada">
         <article className="porada-szczegol" data-testid="porada-szczegol">
           <span className="porada-znacznik">{PORA_NAZWA[p.slot] || "Porada"} · {etykietaDnia(otwarta.kiedy)}</span>
-          <h3>{p.title}</h3>
-          <p>{p.body}</p>
-          <button type="button" className="porada-czytaj" onClick={() => przeczytaj(p.body)}>
+          <h3>{odmienDlaGracza(p.title, player)}</h3>
+          <p>{odmienDlaGracza(p.body, player)}</p>
+          <button type="button" className="porada-czytaj" onClick={() => przeczytaj(odmienDlaGracza(p.body, player))}>
             <span className="porada-czytaj-znak" aria-hidden="true">
               <GameIcon name="play" size={26} />
             </span>
@@ -149,14 +149,14 @@ function PoradaDnia({ onPowrot }) {
           <div className="porada-swieza-tresc">
             <header>
               <span className="porada-znacznik">Małe odkrycie</span>
-              <h3>{swieza.title}</h3>
+              <h3>{odmienDlaGracza(swieza.title, player)}</h3>
             </header>
-            <p>{swieza.body}</p>
+            <p>{odmienDlaGracza(swieza.body, player)}</p>
             <footer>
               <button
                 type="button"
                 className="porada-czytaj"
-                onClick={() => przeczytaj(swieza.body)}
+                onClick={() => przeczytaj(odmienDlaGracza(swieza.body, player))}
               >
                 <span className="porada-czytaj-znak" aria-hidden="true">
                   <GameIcon name="play" size={26} />
@@ -183,7 +183,7 @@ function PoradaDnia({ onPowrot }) {
               <li key={w.id}>
                 <button type="button" onClick={() => otworz(w)} data-testid={`porada-historia-${w.id}`}>
                   <span className="porada-historia-tekst">
-                    <strong>{w.porada.title}</strong>
+                    <strong>{odmienDlaGracza(w.porada.title, player)}</strong>
                     <small>{etykietaDnia(w.kiedy)}</small>
                   </span>
                 </button>
@@ -191,11 +191,11 @@ function PoradaDnia({ onPowrot }) {
             ))}
           </ul>
         ) : (
-          <p className="porada-pusto">
-            Na razie pusto. Każda kolejna porada zostaje tutaj — będzie do czego wracać.
+          <p className="porada-pusto porada-pusto-historia">
+            Poznane rady pojawią się tutaj.
           </p>
         )}
-        {meta ? (
+        {wpisy.length && meta ? (
           <p className="porada-stopka">
             Porady dobrane dla Ciebie: {nazwaArchetypuGracza(profil, player)} · {meta.cecha}. W zapasie jest ich {ilePorad(profil)}.
           </p>

@@ -4,6 +4,8 @@
  * Wygenerowano przez scripts/migrate-tips-to-tasks.mjs.
  */
 
+import { dzienPrzygody } from "./services/dzienGry.js";
+
 export const PROFILES_META = {
   "DT": {
     "name": "Odkrywca",
@@ -59,7 +61,7 @@ export const DAILY_TIPS = [
     "subcategory": "obserwacja",
     "audience": "dziecko",
     "title": "Pierwsze spojrzenie dnia",
-    "body": "Zanim wstaniesz, popatrz uważnie na sufit. Co widzisz, czego wczoraj nie zauważyłeś? Każdy nowy dzień to nowa zagadka.",
+    "body": "Zanim wstaniesz, popatrz uważnie na sufit. Co widzisz, czego wczoraj nie {zauważyłeś|zauważyłaś}? Każdy nowy dzień to nowa zagadka.",
     "icon": "krysztal",
     "tone": "leaf",
     "time": "1 min",
@@ -1225,7 +1227,7 @@ export const DAILY_TIPS = [
     "subcategory": "pamiec_szczegoly",
     "audience": "dziecko",
     "title": "Dźwiękowy ślad dnia",
-    "body": "Jaki dźwięk zapamiętałeś z dziś? Może śmiech kogoś, może dzwonek. Dźwięki są jak ślady — niewidoczne, ale prawdziwe.",
+    "body": "Jaki dźwięk {zapamiętałeś|zapamiętałaś} z dziś? Może śmiech kogoś, może dzwonek. Dźwięki są jak ślady — niewidoczne, ale prawdziwe.",
     "icon": "zwoj",
     "tone": "magic",
     "time": "1 min",
@@ -1357,7 +1359,7 @@ export const DAILY_TIPS = [
     "subcategory": "obserwacja",
     "audience": "dziecko",
     "title": "Kompas Cieni świeci",
-    "body": "Twój artefakt — Kompas Cieni — świeci wieczorem najmocniej. Pokazuje, że dziś też coś odkryłeś. Nawet jeśli wydaje ci się, że nie.",
+    "body": "Twój artefakt — Kompas Cieni — świeci wieczorem najmocniej. Pokazuje, że dziś też coś {odkryłeś|odkryłaś}. Nawet jeśli wydaje ci się, że nie.",
     "icon": "artifact",
     "tone": "magic",
     "time": "2 min",
@@ -1804,7 +1806,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "kraina",
     "title": "Muszla Echa przypomni Ci, kim jestes",
-    "body": "Przyloz dlon do ucha jak do muszli. Co slyszysz? Swoj oddech. Swoje serce. To Ty - pelna, gotowa na dzien.",
+    "body": "Przyloz dlon do ucha jak do muszli. Co slyszysz? Swoj oddech. Swoje serce. To Ty - {pełny, gotowy|pełna, gotowa} na dzień.",
     "icon": "artifact",
     "tone": "magic",
     "time": "1 min",
@@ -3668,7 +3670,7 @@ export const DAILY_TIPS = [
     "subcategory": "iskra_pomyslu",
     "audience": "dziecko",
     "title": "Twoje łóżko leci dziś w kosmos",
-    "body": "Wstajesz z łóżka jak astronauta. Jakie planety odwiedziłeś we śnie? Powiedz jedną nazwę, choć wymyśloną.",
+    "body": "Wstajesz z łóżka jak astronauta. Jakie planety {odwiedziłeś|odwiedziłaś} we śnie? Powiedz jedną nazwę, choć wymyśloną.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "1 min",
@@ -4394,7 +4396,7 @@ export const DAILY_TIPS = [
     "subcategory": "iskra_pomyslu",
     "audience": "dziecko",
     "title": "Jakim kształtem jest twój sen?",
-    "body": "Właśnie się obudziłeś. Twój sen miał kształt? Trójkąt? Spirala? Chmura? Powiedz po cichu w głowie.",
+    "body": "Właśnie {obudziłeś|obudziłaś} się. Twój sen miał kształt? Trójkąt? Spirala? Chmura? Powiedz po cichu w głowie.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "1 min",
@@ -4438,7 +4440,7 @@ export const DAILY_TIPS = [
     "subcategory": "iskra_pomyslu",
     "audience": "dziecko",
     "title": "Jaki kolor ma dziś twój humor?",
-    "body": "Nie 'wesoły' ani 'zły'. Kolor. Pomarańczowy? Granatowy w kropki? Powiedz, jaki kolor wybrałabyś dziś na swoją koszulkę.",
+    "body": "Nie 'wesoły' ani 'zły'. Kolor. Pomarańczowy? Granatowy w kropki? Powiedz, jaki kolor {wybrałbyś|wybrałabyś} dziś na swoją koszulkę.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "1 min",
@@ -4713,7 +4715,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "medrzec",
     "title": "Pierś do przodu, oczy miękkie",
-    "body": "Śmiałku, ustaw się dziś tak: pierś do przodu, ramiona w dół, oczy miękkie. Ciało powie sercu: „jestem gotowa, jestem gotowy”. I dzień zacznie się dobrze.",
+    "body": "Śmiałku, ustaw się dziś tak: pierś do przodu, ramiona w dół, oczy miękkie. Ciało powie sercu: „jestem {gotowy|gotowa}”. I dzień zacznie się dobrze.",
     "icon": "pulse",
     "tone": "amber",
     "time": "1 min",
@@ -5448,7 +5450,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "kraina",
     "title": "Drużyna Śmiałków wokół ciebie",
-    "body": "W Niebie Marzeń jest cała drużyna takich jak ty. Wyobraź sobie, że stoją wokół ciebie dzisiaj rano. Nie jesteś sam, nie jesteś sama. Idziesz w drużynie, nawet kiedy idziesz sam.",
+    "body": "W Niebie Marzeń jest cała drużyna takich jak ty. Wyobraź sobie, że stoją wokół ciebie dzisiaj rano. Nie jesteś {sam|sama}. Idziesz w drużynie, nawet kiedy idziesz {sam|sama}.",
     "icon": "artifact",
     "tone": "magic",
     "time": "1 min",
@@ -7201,7 +7203,7 @@ export const DAILY_TIPS = [
     "subcategory": "liczby_logika",
     "audience": "dziecko",
     "title": "Mózg uczy się we śnie",
-    "body": "A czy wiesz, że we śnie mózg porządkuje to, co poznałeś w ciągu dnia? Twój sen też jest częścią planu. Myśliciel odpoczywa, by jutro myśleć jaśniej.",
+    "body": "A czy wiesz, że we śnie mózg porządkuje to, co {poznałeś|poznałaś} w ciągu dnia? Twój sen też jest częścią planu. Myśliciel odpoczywa, by jutro myśleć jaśniej.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "1 min",
@@ -7533,6 +7535,696 @@ export const DAILY_TIPS = [
     "profileName": "Odkrywca",
     "cecha": "Ciekawość",
     "kraina": "Las Pytań"
+  },
+  {
+    "id": "DT-D02-S2-LUKA",
+    "profile": "DT",
+    "day": 2,
+    "slot": "poludnie",
+    "category": "medrzec",
+    "subcategory": "obserwacja",
+    "audience": "dziecko",
+    "title": "Najmniejsza rzecz w pokoju",
+    "body": "Rozejrzyj się i znajdź najmniejszą rzecz w pokoju. Naprawdę najmniejszą. Weź ją do ręki i popatrz chwilę. Mędrzec mówi: małe rzeczy czekają najdłużej, aż ktoś je zauważy.",
+    "icon": "krysztal",
+    "tone": "leaf",
+    "time": "1 min",
+    "tags": [
+      "obserwacja",
+      "szczegoly",
+      "dom"
+    ],
+    "profileName": "Odkrywca",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
+    "id": "DT-D13-S2-LUKA",
+    "profile": "DT",
+    "day": 13,
+    "slot": "poludnie",
+    "category": "medrzec",
+    "subcategory": "pytania",
+    "audience": "dziecko",
+    "title": "Pytanie, które zabierasz ze sobą",
+    "body": "Wymyśl dziś jedno pytanie, na które nikt w domu nie zna odpowiedzi. Nie szukaj jej od razu. Noś je w kieszeni jak kamyk i sprawdź wieczorem, czy nadal cię ciekawi.",
+    "icon": "medrzec",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "pytania",
+      "ciekawosc"
+    ],
+    "profileName": "Odkrywca",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
+    "id": "DT-D16-S2-LUKA",
+    "profile": "DT",
+    "day": 16,
+    "slot": "poludnie",
+    "category": "kraina",
+    "subcategory": "natura",
+    "audience": "dziecko",
+    "title": "Paprocie znały dinozaury",
+    "body": "W Lesie Pytań rosną paprocie starsze niż kwiaty. Prawdziwe też takie są — rosły, zanim pojawiły się dinozaury. Jeśli zobaczysz dziś paproć, przyjrzyj się, jak rozwija liść ze spirali.",
+    "icon": "artifact",
+    "tone": "leaf",
+    "time": "2 min",
+    "tags": [
+      "natura",
+      "kraina",
+      "rosliny"
+    ],
+    "profileName": "Odkrywca",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
+    "id": "DT-D18-S2-LUKA",
+    "profile": "DT",
+    "day": 18,
+    "slot": "poludnie",
+    "category": "medrzec",
+    "subcategory": "pamiec_szczegoly",
+    "audience": "dziecko",
+    "title": "Droga z zamkniętymi oczami",
+    "body": "Pomyśl o drodze, którą chodzisz najczęściej. Ile jest po niej drzew? Dziś, idąc, policz je naprawdę. Mędrzec mówi: znane miejsca kryją najwięcej niespodzianek.",
+    "icon": "map",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "pamiec",
+      "obserwacja",
+      "droga"
+    ],
+    "profileName": "Odkrywca",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
+    "id": "DT-D21-S2-LUKA",
+    "profile": "DT",
+    "day": 21,
+    "slot": "poludnie",
+    "category": "medrzec",
+    "subcategory": "cisza_skupienie",
+    "audience": "dziecko",
+    "title": "Najdalszy dźwięk, jaki słyszysz",
+    "body": "Zamknij oczy i poszukaj najdalszego dźwięku, jaki słyszysz. Auto? Wiatr? Czyjś głos? Posłuchaj go chwilę, aż ucichnie. Potem wróć do dźwięku swojego oddechu.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "cisza",
+      "sluchanie",
+      "uwaznosc"
+    ],
+    "profileName": "Odkrywca",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
+    "id": "DT-D29-S2-LUKA",
+    "profile": "DT",
+    "day": 29,
+    "slot": "poludnie",
+    "category": "medrzec",
+    "subcategory": "rytmy_dnia",
+    "audience": "dziecko",
+    "title": "Kto wstał dziś wcześniej niż ty",
+    "body": "Pomyśl, kto dziś wstał przed tobą. Ptak, kot, sąsiad z psem, ktoś w domu? Mędrzec mówi: świat zaczyna się kręcić, zanim zdążysz otworzyć oczy.",
+    "icon": "medrzec",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "rytmy",
+      "obserwacja",
+      "dom"
+    ],
+    "profileName": "Odkrywca",
+    "cecha": "Ciekawość",
+    "kraina": "Las Pytań"
+  },
+  {
+    "id": "EM-D05-S1-LUKA",
+    "profile": "EM",
+    "day": 5,
+    "slot": "poranek",
+    "category": "medrzec",
+    "subcategory": "empatia_komus",
+    "audience": "dziecko",
+    "title": "Jedno dobre zdanie na start dnia",
+    "body": "Mędrzec mówi, że ciepłe słowo działa najmocniej, gdy nikt się go nie spodziewa. Powiedz dziś komuś jedną prawdziwą rzecz, którą w nim lubisz. Zobacz, co zrobi jego twarz.",
+    "icon": "medrzec",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "dobre_slowo",
+      "poranek",
+      "empatia"
+    ],
+    "profileName": "Przyjaciel",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
+    "id": "EM-D14-S2-LUKA",
+    "profile": "EM",
+    "day": 14,
+    "slot": "poludnie",
+    "category": "medrzec",
+    "subcategory": "granica_empaty",
+    "audience": "dziecko",
+    "title": "Nie musisz naprawiać każdego smutku",
+    "body": "Czasem ktoś obok jest smutny i nic na to nie poradzisz. To nie Twoja wina. Możesz po prostu być blisko i milczeć. Mędrzec mówi: obecność też pomaga, nawet bez słów.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "granice",
+      "obecnosc",
+      "spokoj"
+    ],
+    "profileName": "Przyjaciel",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
+    "id": "EM-D18-S2-LUKA",
+    "profile": "EM",
+    "day": 18,
+    "slot": "poludnie",
+    "category": "kraina",
+    "subcategory": "empatia",
+    "audience": "dziecko",
+    "title": "Latarnia na brzegu Morza Słów",
+    "body": "Na brzegu Morza Słów stoi latarnia, która świeci tylko dla tych, którzy zgubili drogę. Poszukaj dziś kogoś, kto stoi trochę z boku, i zaproś go do siebie. Bądź czyjąś latarnią.",
+    "icon": "map",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "latarnia",
+      "zaproszenie",
+      "kraina"
+    ],
+    "profileName": "Przyjaciel",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
+    "id": "EM-D23-S2-LUKA",
+    "profile": "EM",
+    "day": 23,
+    "slot": "poludnie",
+    "category": "medrzec",
+    "subcategory": "granica_empaty",
+    "audience": "dziecko",
+    "title": "Wolno Ci powiedzieć nie",
+    "body": "Bycie dobrym nie znaczy zgadzać się na wszystko. Możesz lubić kogoś i jednocześnie powiedzieć mu nie. Pomyśl dziś o jednej rzeczy, na którą wolisz się nie zgodzić.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "granice",
+      "nie",
+      "spokoj"
+    ],
+    "profileName": "Przyjaciel",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
+    "id": "EM-D29-S1-LUKA",
+    "profile": "EM",
+    "day": 29,
+    "slot": "poranek",
+    "category": "medrzec",
+    "subcategory": "emocje_rozpoznanie",
+    "audience": "dziecko",
+    "title": "Twarze mówią szybciej niż usta",
+    "body": "A czy wiesz, że ludzie pokazują nastrój ramionami, zanim cokolwiek powiedzą? Popatrz dziś rano na kogoś w domu i zgadnij, jak się czuje. Potem możesz go po prostu zapytać.",
+    "icon": "medrzec",
+    "tone": "rose",
+    "time": "1 min",
+    "tags": [
+      "obserwacja",
+      "nastroj",
+      "pytanie"
+    ],
+    "profileName": "Przyjaciel",
+    "cecha": "Życzliwość",
+    "kraina": "Morze Słów"
+  },
+  {
+    "id": "ST-D01-S1-LUKA",
+    "profile": "ST",
+    "day": 1,
+    "slot": "poranek",
+    "category": "medrzec",
+    "subcategory": "liczby_logika",
+    "audience": "dziecko",
+    "title": "Ile kroków do drzwi",
+    "body": "Mędrzec szepcze: pomiędzy Tobą a drzwiami jest jakaś liczba kroków. Nikt jej dziś nie zna. Policz je po drodze i zapamiętaj — to Twoja liczba na dziś.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "liczby",
+      "krok"
+    ],
+    "profileName": "Myśliciel",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D05-S2-LUKA",
+    "profile": "ST",
+    "day": 5,
+    "slot": "poludnie",
+    "category": "medrzec",
+    "subcategory": "planowanie",
+    "audience": "dziecko",
+    "title": "Co robisz najpierw",
+    "body": "Mędrzec pyta jedno: co robisz jako pierwsze? Nie całą listę, tylko pierwszą rzecz. Kiedy wiesz, od czego zaczynasz, reszta dnia robi się lżejsza.",
+    "icon": "zwoj",
+    "tone": "paper",
+    "time": "1 min",
+    "tags": [
+      "kolejnosc",
+      "start"
+    ],
+    "profileName": "Myśliciel",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D12-S2-LUKA",
+    "profile": "ST",
+    "day": 12,
+    "slot": "poludnie",
+    "category": "kraina",
+    "subcategory": "liczby_logika",
+    "audience": "dziecko",
+    "title": "Echo w dolinie liczy za Ciebie",
+    "body": "W Górach Liczb echo wraca tym później, im dalej jest ściana. Tak samo działa burza: policz sekundy między błyskiem a grzmotem. Co trzy sekundy to mniej więcej kilometr.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "echo",
+      "sekundy",
+      "burza"
+    ],
+    "profileName": "Myśliciel",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D16-S2-LUKA",
+    "profile": "ST",
+    "day": 16,
+    "slot": "poludnie",
+    "category": "medrzec",
+    "subcategory": "mapy_kolejnosc",
+    "audience": "dziecko",
+    "title": "Droga w drugą stronę",
+    "body": "Mędrzec podpowiada: przypomnij sobie drogę, którą chodzisz często, ale od końca do początku. Ta sama trasa, odwrócona, wygląda jak zupełnie nowe miejsce.",
+    "icon": "map",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "trasa",
+      "pamiec"
+    ],
+    "profileName": "Myśliciel",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D19-S1-LUKA",
+    "profile": "ST",
+    "day": 19,
+    "slot": "poranek",
+    "category": "medrzec",
+    "subcategory": "liczby_logika",
+    "audience": "dziecko",
+    "title": "Pary chodzą wszędzie",
+    "body": "Mędrzec szepcze: niektóre rzeczy chodzą parami — buty, rękawiczki, skarpetki. Rozejrzyj się dziś i znajdź trzy pary. Potem pomyśl, ile to razem sztuk.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "pary",
+      "liczenie"
+    ],
+    "profileName": "Myśliciel",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D23-S2-LUKA",
+    "profile": "ST",
+    "day": 23,
+    "slot": "poludnie",
+    "category": "kraina",
+    "subcategory": "mapy_kolejnosc",
+    "audience": "dziecko",
+    "title": "Ścieżki w Górach nie idą prosto",
+    "body": "W Górach Liczb ścieżki wiją się zakosami, bo tak wchodzi się łatwiej niż prosto pod górę. Prawdziwe górskie szlaki robią dokładnie to samo. Poszukaj dziś drogi, która kręci nieprzypadkowo.",
+    "icon": "map",
+    "tone": "amber",
+    "time": "2 min",
+    "tags": [
+      "sciezka",
+      "zakosy"
+    ],
+    "profileName": "Myśliciel",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D25-S2-LUKA",
+    "profile": "ST",
+    "day": 25,
+    "slot": "poludnie",
+    "category": "medrzec",
+    "subcategory": "planowanie",
+    "audience": "dziecko",
+    "title": "Rzecz, która zajmuje minutę",
+    "body": "Mędrzec radzi: jeśli coś zajmuje mniej niż minutę, zrób to od razu. Odstawiony kubek, zamknięta szuflada. Znajdź dziś jedną taką rzecz i miej ją z głowy.",
+    "icon": "zwoj",
+    "tone": "paper",
+    "time": "1 min",
+    "tags": [
+      "minuta",
+      "porzadek"
+    ],
+    "profileName": "Myśliciel",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D27-S3-LUKA",
+    "profile": "ST",
+    "day": 27,
+    "slot": "wieczor",
+    "category": "medrzec",
+    "subcategory": "liczby_logika",
+    "audience": "dziecko",
+    "title": "Policz dzisiejsze decyzje",
+    "body": "Mędrzec szepcze wieczorem: dzisiaj coś {wybrałeś|wybrałaś} sam na sam ze sobą. Może dwa razy, może pięć. Policz w głowie te momenty — było ich więcej, niż się wydaje.",
+    "icon": "medrzec",
+    "tone": "paper",
+    "time": "1 min",
+    "tags": [
+      "wieczor",
+      "decyzje"
+    ],
+    "profileName": "Myśliciel",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "ST-D29-S2-LUKA",
+    "profile": "ST",
+    "day": 29,
+    "slot": "poludnie",
+    "category": "medrzec",
+    "subcategory": "planowanie",
+    "audience": "dziecko",
+    "title": "Jedna rzecz odłożona na jutro",
+    "body": "Mędrzec mówi: nie wszystko musi się udać dzisiaj. Wybierz jedną rzecz, która spokojnie poczeka do jutra, i zostaw ją tam. Reszta dnia zrobi się cichsza.",
+    "icon": "zwoj",
+    "tone": "paper",
+    "time": "1 min",
+    "tags": [
+      "jutro",
+      "spokoj"
+    ],
+    "profileName": "Myśliciel",
+    "cecha": "Mądrość",
+    "kraina": "Góry Liczb"
+  },
+  {
+    "id": "KR-D02-S1-LUKA",
+    "profile": "KR",
+    "day": 2,
+    "slot": "poranek",
+    "category": "medrzec",
+    "subcategory": "iskra_pomyslu",
+    "audience": "dziecko",
+    "title": "Ułóż trzy rzeczy w nowy sposób",
+    "body": "Weź trzy przedmioty ze swojego pokoju i ustaw je obok siebie tak, jak nigdy dotąd. Potem spójrz i nazwij to, co powstało. Maszyna? Miasto? Nie ma złej odpowiedzi.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "uklad",
+      "przedmioty",
+      "pokoj"
+    ],
+    "profileName": "Wynalazca",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D06-S1-LUKA",
+    "profile": "KR",
+    "day": 6,
+    "slot": "poranek",
+    "category": "medrzec",
+    "subcategory": "slowa_jezyk",
+    "audience": "dziecko",
+    "title": "Wymyśl nazwę dla czegoś bez nazwy",
+    "body": "Znajdź coś, co nie ma własnego imienia: rysa na ścianie, zagięcie w kocu, kałuża przy bramie. Daj temu nazwę i powiedz ją na głos jeden raz.",
+    "icon": "medrzec",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "nazywanie",
+      "slowa",
+      "otoczenie"
+    ],
+    "profileName": "Wynalazca",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D11-S2-LUKA",
+    "profile": "KR",
+    "day": 11,
+    "slot": "poludnie",
+    "category": "kraina",
+    "subcategory": "iskra_pomyslu",
+    "audience": "dziecko",
+    "title": "Warsztat pod wydmą",
+    "body": "Pod największą wydmą stoi warsztat pełen części, które do niczego nie pasują. Znajdź dwie rzeczy w domu, które też do siebie nie pasują, i połóż je razem. Zobacz, co ci to podpowie.",
+    "icon": "artifact",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "warsztat",
+      "laczenie",
+      "czesci"
+    ],
+    "profileName": "Wynalazca",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D14-S1-LUKA",
+    "profile": "KR",
+    "day": 14,
+    "slot": "poranek",
+    "category": "medrzec",
+    "subcategory": "slowa_jezyk",
+    "audience": "dziecko",
+    "title": "Ułóż zdanie z pięciu słów",
+    "body": "Wybierz pięć pierwszych słów, które usłyszysz albo zobaczysz dziś rano. Ułóż z nich jedno zdanie, nawet dziwaczne. Im dziwniejsze, tym lepiej.",
+    "icon": "medrzec",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "zdanie",
+      "slowa",
+      "zbieranie"
+    ],
+    "profileName": "Wynalazca",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D22-S1-LUKA",
+    "profile": "KR",
+    "day": 22,
+    "slot": "poranek",
+    "category": "medrzec",
+    "subcategory": "iskra_pomyslu",
+    "audience": "dziecko",
+    "title": "Przestaw jedną rzecz w pokoju",
+    "body": "Przesuń dziś jeden przedmiot w swoim pokoju na zupełnie inne miejsce. Potem stań w drzwiach i popatrz. Czasem jeden ruch zmienia całą resztę.",
+    "icon": "krysztal",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "przestawianie",
+      "pokoj",
+      "zmiana"
+    ],
+    "profileName": "Wynalazca",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "KR-D24-S2-LUKA",
+    "profile": "KR",
+    "day": 24,
+    "slot": "poludnie",
+    "category": "kraina",
+    "subcategory": "slowa_jezyk",
+    "audience": "dziecko",
+    "title": "Nocna mapa Pustyni",
+    "body": "Nocą piasek układa się w nowe kształty i rano mapa nigdy nie wygląda tak samo. Wymyśl dziś nazwę jednego miejsca, które chcesz tam znaleźć.",
+    "icon": "map",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "mapa",
+      "nazywanie",
+      "pustynia"
+    ],
+    "profileName": "Wynalazca",
+    "cecha": "Kreatywność",
+    "kraina": "Pustynia Pomysłów"
+  },
+  {
+    "id": "LD-D02-S2-LUKA",
+    "profile": "LD",
+    "day": 2,
+    "slot": "poludnie",
+    "category": "medrzec",
+    "subcategory": "odwaga_mala",
+    "audience": "dziecko",
+    "title": "Najmniejszy krok, jaki widzisz",
+    "body": "Dobry dzień, {mały|mała} {Śmiałku|Śmiałko}. Pomyśl o czymś, co dziś trochę cię onieśmiela. A teraz znajdź w tym najmniejszą część — tak małą, że aż śmieszną. Zrób tylko ją.",
+    "icon": "medrzec",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "maly_krok",
+      "start"
+    ],
+    "profileName": "Śmiałek",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
+    "id": "LD-D04-S2-LUKA",
+    "profile": "LD",
+    "day": 4,
+    "slot": "poludnie",
+    "category": "medrzec",
+    "subcategory": "asertywnosc",
+    "audience": "dziecko",
+    "title": "Nie chcę — to całe zdanie",
+    "body": "Mędrzec mówi: czasem najodważniejsze słowo jest krótkie. Możesz powiedzieć spokojnie: nie chcę. Bez tłumaczenia się, bez krzyku. Poćwicz je dziś raz, cicho, dla siebie.",
+    "icon": "medrzec",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "nie",
+      "granice"
+    ],
+    "profileName": "Śmiałek",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
+    "id": "LD-D11-S2-LUKA",
+    "profile": "LD",
+    "day": 11,
+    "slot": "poludnie",
+    "category": "kraina",
+    "subcategory": "granica_lidera",
+    "audience": "dziecko",
+    "title": "Most z chmur ma barierki",
+    "body": "W Niebie Marzeń każdy most ma barierki — nie po to, by przeszkadzać, ale by dało się iść spokojnie. Ty też masz swoje. Pomyśl o jednej rzeczy, na którą dziś się nie zgadzasz. To twoja barierka.",
+    "icon": "map",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "granice",
+      "kraina"
+    ],
+    "profileName": "Śmiałek",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
+    "id": "LD-D23-S2-LUKA",
+    "profile": "LD",
+    "day": 23,
+    "slot": "poludnie",
+    "category": "medrzec",
+    "subcategory": "odwaga_mala",
+    "audience": "dziecko",
+    "title": "Zapytaj o coś, czego nie wiesz",
+    "body": "A czy wiesz, że pytanie bywa odważniejsze niż odpowiedź? Kto pyta, przyznaje, że czegoś nie wie — i idzie dalej. Zadaj dziś komuś jedno prawdziwe pytanie.",
+    "icon": "medrzec",
+    "tone": "amber",
+    "time": "1 min",
+    "tags": [
+      "pytanie",
+      "ciekawosc"
+    ],
+    "profileName": "Śmiałek",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
+    "id": "LD-D28-S2-LUKA",
+    "profile": "LD",
+    "day": 28,
+    "slot": "poludnie",
+    "category": "medrzec",
+    "subcategory": "regeneracja_lidera",
+    "audience": "dziecko",
+    "title": "Co dziś było trudne, a mimo to",
+    "body": "To dobra pora na jedno pytanie. Co dziś było trudne, a mimo to {zrobiłeś|zrobiłaś} to po swojemu? Nie musisz nikomu mówić. Wystarczy, że ty o tym wiesz.",
+    "icon": "krysztal",
+    "tone": "magic",
+    "time": "1 min",
+    "tags": [
+      "uznanie",
+      "pytanie"
+    ],
+    "profileName": "Śmiałek",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
+  },
+  {
+    "id": "LD-D29-S2-LUKA",
+    "profile": "LD",
+    "day": 29,
+    "slot": "poludnie",
+    "category": "kraina",
+    "subcategory": "regeneracja_lidera",
+    "audience": "dziecko",
+    "title": "Latawiec też siada na ziemi",
+    "body": "W Niebie Marzeń latawce nie latają całą noc. Opadają powoli i leżą w trawie do rana. Ty też możesz dziś opaść. Jutro wiatr wróci sam, bez twojej pomocy.",
+    "icon": "artifact",
+    "tone": "magic",
+    "time": "2 min",
+    "tags": [
+      "odpoczynek",
+      "kraina",
+      "latawiec"
+    ],
+    "profileName": "Śmiałek",
+    "cecha": "Odwaga",
+    "kraina": "Niebo Marzeń"
   }
 ];
 
@@ -7552,8 +8244,10 @@ export function tip(profile, day, slot) {
   return DAILY_TIPS.find(t => t.profile === profile && t.day === day && t.slot === slot) || null;
 }
 
-export function todaysTip(profile, date = new Date(), slot = null) {
-  const day = ((date.getDate() - 1) % 30) + 1;
+// Dzien liczy `services/dzienGry.js` — od rejestracji dziecka, nie z kalendarza.
+// Bez `player` (podglad, konto goscia) modul spada na dzien miesiaca.
+export function todaysTip(profile, player = null, date = new Date(), slot = null) {
+  const day = dzienPrzygody(player, date);
   if (slot) {
     const t = tip(profile, day, slot);
     if (t) return t;

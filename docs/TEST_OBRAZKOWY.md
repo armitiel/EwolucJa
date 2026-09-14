@@ -9,6 +9,30 @@ punktacji i pierścienia sąsiedztwa). Implementacja: `backend/src/api/onboardin
 
 ---
 
+> ## AKTUALIZACJA 14.09 (wieczór) — decyzje właściciela po obradach panelu
+>
+> Sekcję **§4 (sześć pytań)** zastępuje `docs/TEST_OBRAZKOWY_PANEL.md`.
+> Reszta tego dokumentu (punktacja, pola profilu, weta) obowiązuje dalej.
+> Implementacja treści: `backend/src/api/quizObrazkowy.js`.
+>
+> 1. **`MD` to Skupienie**, nie mediacja. Archetyp: **Spokojna Głowa**
+>    (id `straznik_mostu` zostaje jako legacy). Etykieta radaru „Skupienie"
+>    bez zmian — to archetyp dojechał do etykiety, nie odwrotnie.
+> 2. **Pytamy o bohatera, nie o dziecko.** „Co robi twój bohater?" w każdym
+>    poleceniu Wizkora.
+> 3. **Format: trzy pytania → pierwsza mała czynność w świecie → trzy
+>    pytania.** Pasek postępu znika; postęp widać w świecie — po każdym
+>    wyborze na polanie przybywa jeden element.
+> 4. **Etap szkolny wybiera dziecko na starcie**, jednym obrazkowym
+>    pytaniem, z cichym trzecim wyjściem („nie wiem" → wersja
+>    trzykafelkowa). Serwer filtruje komplet: `GET /onboarding/quiz?etap=1-3`.
+> 5. **Klasy 1–3: więcej obrazka, mniej tekstu.** Ten sam komplet pytań, ale
+>    podpis pod kafelkiem jest schowany — zostaje sam obrazek, a słowo
+>    dziecko dostaje po dotknięciu (lektorem). Dla 4–8 podpis widoczny od razu.
+> 6. **Lektor nie blokuje kafelków** i czyta wyłącznie pytanie. Podpisy
+>    zostają nieme — efekt świeżości u 6–9-latków wchodziłby wprost w cechę
+>    główną, a przy losowanej kolejności kafelków różnie dla każdego dziecka.
+
 ## 1. Decyzje, pod które to jest zaprojektowane
 
 1. Zostaje **sześć typów**: `ST` Mądrość, `MD` Skupienie/łączenie,
