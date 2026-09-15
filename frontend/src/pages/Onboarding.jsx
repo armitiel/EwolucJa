@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { RODZAJ, zapiszRodzajBohatera } from "../services/rodzaj.js";
+import { zapiszRodzajBohatera, rodzajStartowy } from "../services/rodzaj.js";
 import { useNavigate } from "react-router-dom";
 import { api, session } from "../services/api.js";
 import { useAppData } from "../contexts/AppData.jsx";
@@ -37,30 +37,6 @@ function profileCodeFrom(v) {
   if (!v) return null;
   if (PROFILE_INFO[v]) return v;
   return LEGACY_TO_PROFILE[v] || null;
-}
-
-// Prosty znak postaci do małego kafelka. Celowo tylko kilka dużych kształtów:
-// pełny portret 3D w tym rozmiarze zamieniał się w nieczytelną miniaturę.
-function IkonaPostaci({ wariant }) {
-  const bohaterka = wariant === "bohaterka";
-  return (
-    <svg className="ob-rodzaj-ilustracja" viewBox="0 0 88 72" aria-hidden="true" focusable="false">
-      <path d="M16 72c1-15 12-24 28-24s27 9 28 24H16Z" fill="#138B91" />
-      <path d="m34 51 10 12 10-12" fill="none" stroke="#F4B63F" strokeWidth="6" strokeLinejoin="round" />
-      {bohaterka && <circle cx="67" cy="27" r="12" fill="#74411F" />}
-      <circle cx="24" cy="33" r="6" fill="#F2B47E" />
-      <circle cx="64" cy="33" r="6" fill="#F2B47E" />
-      <circle cx="44" cy="31" r="21" fill="#FFD0A3" />
-      {bohaterka ? (
-        <path d="M24 31C20 15 30 6 44 6c15 0 24 9 21 27l-7-7c-9 0-17-4-22-10-1 8-5 13-12 15Z" fill="#74411F" />
-      ) : (
-        <path d="M24 28C24 13 34 7 44 8l6-6 2 7 9-4-3 9c5 3 7 8 6 14l-7-7c-8 2-17 1-25-4-1 5-4 9-8 11Z" fill="#74411F" />
-      )}
-      <circle cx="36" cy="32" r="2.8" fill="#3C2B25" />
-      <circle cx="52" cy="32" r="2.8" fill="#3C2B25" />
-      <path d="M38 40c4 4 8 4 12 0" fill="none" stroke="#9D4B3F" strokeWidth="2.5" strokeLinecap="round" />
-    </svg>
-  );
 }
 
 // Krotkie teksty przejsciowe miedzy odpowiedzia a kolejnym pytaniem.
@@ -124,15 +100,10 @@ export default function Onboarding() {
   const initialPlayerId = (() => { try { return session.getPlayer(); } catch { return null; } })();
   const [step, setStep] = useState("name");
   const [name, setName] = useState("");
-  // RODZAJ BOHATERA. Nazwa typu jest rzeczownikiem osobowym („Odkrywca" /
-  // „Odkrywczyni"), więc gra musi wiedzieć, w jakim rodzaju ma mówić. Pytamy
-  // o BOHATERA, nie o dziecko — tak samo jak reszta testu, i bez wchodzenia
-  // w metryczkę. Przedtem rodzaj zgadywała końcówka imienia; teraz zgadywanie
-  // zostaje tylko dla tych, którzy tu nie dotrą (np. wejście przez /dolacz).
-  // Brak domyślnego wyboru jest celowy: dziecko wskazuje postać samo.
-  // Nie odtwarzamy tu także starego wyboru z localStorage po ponownym wejściu
-  // w onboarding, żeby żaden kafelek nie wyglądał na wybrany „za dziecko”.
-  const [rodzaj, setRodzaj] = useState(null);
+  // RODZAJ BOHATERA. Gra nie pyta juz o plec wyborem postaci — rodzaj
+  // (w jakim mowi do dziecka i jak nazywa jego archetyp) wykrywa sie z
+  // imienia przy przejsciu dalej: `rodzajStartowy(name)`. Imie testowe albo
+  // dziwne dostaje rodzaj meski (ON) jako domyslny — patrz services/rodzaj.js.
   const [playerId, setPlayerId] = useState(initialPlayerId);
   const [quiz, setQuiz] = useState(null);
   const [answers, setAnswers] = useState({});
@@ -182,23 +153,39 @@ export default function Onboarding() {
     }
   }, [przelot, step, quiz]);
 
+  const czyBrakGracza = (err) => /gracz nie znaleziony/i.test(String(err?.message || ""));
+
+  async function utworzGraczaDoQuizu() {
+    const player = await api.createPlayer(name.trim() || IMIE_TYMCZASOWE);
+    session.setPlayer(player.player_id);
+    setPlayerId(player.player_id);
+    return player.player_id;
+  }
+
+  async function aktywnyGraczDoQuizu() {
+    const existingId = session.getPlayer();
+    if (!existingId) return utworzGraczaDoQuizu();
+    try {
+      await api.getPlayer(existingId);
+      return existingId;
+    } catch (err) {
+      if (!czyBrakGracza(err)) throw err;
+      return utworzGraczaDoQuizu();
+    }
+  }
+
   async function handleStart(e) {
     e.preventDefault();
-    if (!name.trim() || !rodzaj) return;
+    if (!name.trim()) return;
     ttsPlayer.unlock();
-    if (rodzaj) zapiszRodzajBohatera(rodzaj);
+    zapiszRodzajBohatera(rodzajStartowy(name));
     setLoading(true);
     setError(null);
     try {
-      // Jezeli player istnieje juz w sesji (np. z /dolacz join flow) - uzyj go,
-      // nie tworz drugiego. Inaczej tworzymy orphan w klasie bez archetype.
-      const existingId = session.getPlayer();
-      let pid = existingId;
-      if (!pid) {
-        const player = await api.createPlayer(name.trim());
-        pid = player.player_id;
-        session.setPlayer(pid);
-      }
+      // Zapis z /dolacz zachowujemy, ale najpierw sprawdzamy, czy gracz nadal
+      // istnieje. Lokalny identyfikator potrafi przeżyć reset bazy i dopiero
+      // ostatnia odpowiedź ujawniała wtedy martwą sesję.
+      const pid = await aktywnyGraczDoQuizu();
       setPlayerId(pid);
       setStep("quiz");
     } catch (err) {
@@ -244,14 +231,25 @@ export default function Onboarding() {
     setLoading(true);
     try {
       const payload = Object.entries(finalAnswers).map(([q, a]) => ({ question_id: q, answer_id: a }));
-      const res = await api.submitQuiz(playerId, payload, name.trim(), etapSzkolny());
+      let pid = playerId || session.getPlayer();
+      let res;
+      try {
+        res = await api.submitQuiz(pid, payload, name.trim(), etapSzkolny());
+      } catch (err) {
+        if (!czyBrakGracza(err)) throw err;
+        // Ostatnia osłona na wypadek resetu bazy już w trakcie sześciu pytań.
+        // Nowy zapis dostaje ten sam komplet odpowiedzi, więc dziecko nie musi
+        // powtarzać całego quizu.
+        pid = await utworzGraczaDoQuizu();
+        res = await api.submitQuiz(pid, payload, name.trim(), etapSzkolny());
+      }
       // KRYTYCZNE: po submit (nowe imie + archetype + coins) odswiez cala AppData,
       // inaczej TopBar/Profile/WorldHub pokazuja stale dane z "Uczen 0 coinow"
       try { await refreshAll(); } catch {}
       try { if (res?.profile) localStorage.setItem(KLUCZ_TYP, res.profile); } catch {}
       setResult(res);
       setStep("result");
-      try { await api.generateMission(playerId); } catch {}
+      try { await api.generateMission(pid); } catch {}
     } catch (err) {
       setError(err.message);
     } finally {
@@ -286,7 +284,7 @@ export default function Onboarding() {
           tlo `.ob-ekran`, bo ma wypelniac caly kadr razem z paskiem gornym,
           a nie tylko kolumne tresci. */}
       <div className="ob-tlo" aria-hidden="true" />
-      <div className="topbar" style={{ position: "relative", zIndex: 1 }}>
+      {step !== "result" && <div className="topbar" style={{ position: "relative", zIndex: 1 }}>
         <button className="ob-wroc" onClick={() => navigate("/")}>‹ Wróć</button>
         <div style={{ flex: 1 }} />
         {/* Pasek postepu i licznik siedza w JEDNEJ ciemnej podkladce
@@ -311,7 +309,7 @@ export default function Onboarding() {
             </span>
           )}
         </div>
-      </div>
+      </div>}
 
       {devMode && step === "quiz" && (
         <button
@@ -327,7 +325,10 @@ export default function Onboarding() {
           ⚙️ DEV → wynik
         </button>
       )}
-      <div className="screen-scroll" style={{ flex: 1, padding: "16px 18px 120px", WebkitOverflowScrolling: "touch" }}>
+      <div
+        className={`screen-scroll${step === "result" ? " ob-scroll-wynik" : ""}`}
+        style={{ flex: 1, padding: "16px 18px 120px", WebkitOverflowScrolling: "touch" }}
+      >
         {step === "name" && (
           /* Wizkor wychodzi PONAD karte — tak samo jak w oknie postaci
              i w zaproszeniu do minigry. Grafika ma plaskie ciecie u dolu:
@@ -353,32 +354,8 @@ export default function Onboarding() {
                 />
               </div>
 
-              <div className="ob-pole ob-pole--rodzaj">
-                <span className="ob-pole-etykieta" id="ob-wybierz-postac">Wybierz postać</span>
-                <div className="ob-rodzaj" role="group" aria-labelledby="ob-wybierz-postac">
-                  <button
-                    type="button"
-                    className={`ob-rodzaj-opcja${rodzaj === RODZAJ.ZENSKI ? " jest-wybrana" : ""}`}
-                    aria-pressed={rodzaj === RODZAJ.ZENSKI}
-                    aria-label="Bohaterka"
-                    onClick={() => setRodzaj(RODZAJ.ZENSKI)}
-                  >
-                    <IkonaPostaci wariant="bohaterka" />
-                  </button>
-                  <button
-                    type="button"
-                    className={`ob-rodzaj-opcja${rodzaj === RODZAJ.MESKI ? " jest-wybrana" : ""}`}
-                    aria-pressed={rodzaj === RODZAJ.MESKI}
-                    aria-label="Bohater"
-                    onClick={() => setRodzaj(RODZAJ.MESKI)}
-                  >
-                    <IkonaPostaci wariant="bohater" />
-                  </button>
-                </div>
-              </div>
-
               <div className="ob-akcja">
-                <button type="submit" className="hub-btn hub-btn-primary" disabled={loading || !name.trim() || !rodzaj}>
+                <button type="submit" className="hub-btn hub-btn-primary" disabled={loading || !name.trim()}>
                   {loading ? "Otwieram bramę…" : "Dalej"}
                 </button>
               </div>
@@ -481,9 +458,8 @@ export default function Onboarding() {
                     onClick={() => selectAnswer(quiz.questions[questionIdx].question_id, a.answer_id)}
                     disabled={loading || !!pickedAnswerId}
                   >
-                    {/* TRZY STANY, JEDEN KAFELEK. `obraz` to docelowa ilustracja
-                        (24 sztuki, jeszcze niewygenerowane), `podpis` to dwa,
-                        cztery slowa pod nia — backend oddaje oba od 14.09.
+                    {/* TRZY STANY, JEDEN KAFELEK. `obraz` to ilustracja scenki,
+                        `podpis` to dwa, cztery slowa pod nia — backend oddaje oba.
                         Dopoki pliku nie ma, kafelek pokazuje podpis i pod nim
                         pelne zdanie; gdy obrazek wejdzie, zdanie schodzi do
                         lektora na dotkniecie i zostaje sam podpis. Zaden
@@ -542,38 +518,61 @@ function ArchetypeReveal({ result, onEnter }) {
   const profileCode = profileCodeFrom(result.profile || result.archetype) || "DT";
   const info = PROFILE_INFO[profileCode];
   const lore = PROFILE_LORE[profileCode];
+  const dlugaNazwa = info.name.length > 12;
+
+  // Ten sam scroll obsluguje pytania i wynik. Ostatnie pytanie bywa dluzsze,
+  // wiec bez resetu pozycja przechodzila na karte i ucinala gore medalionu.
+  useEffect(() => {
+    document.querySelector(".screen-scroll")?.scrollTo({ top: 0, behavior: "auto" });
+  }, []);
+
   return (
-    <div className="pop-in" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
-      <p style={{ opacity: 0.75, fontSize: 12, fontWeight: 800, letterSpacing: 1.5, margin: 0, color: "var(--p-magic-dk)" }}>
-        TWOJA POSTAĆ PRZYPISANA DO DALSZEJ GRY TO:
-      </p>
-
-      <div style={{ position: "relative", filter: `drop-shadow(0 16px 32px ${info.glow})` }}>
-        <ProfileAvatar profile={profileCode} size={208} />
-        <div style={{ position: "absolute", top: -6, right: -10 }}>
-          <Sparkle size={22} />
+    <div
+      className="ob-reveal pop-in"
+      data-profile={profileCode}
+      style={{
+        "--ob-profile": info.color,
+        "--ob-profile-glow": info.glow,
+        "--ob-medalion": info.revealBg,
+        "--ob-medalion-dk": info.revealBgDark,
+        "--ob-badge": info.revealBadge || info.color,
+      }}
+    >
+      <section className="ob-reveal-card" aria-labelledby="ob-reveal-name">
+        <div className="ob-reveal-medalion">
+          <div className="ob-reveal-stars" aria-hidden="true">
+            <span className="ob-reveal-star s1"><Sparkle size={25} /></span>
+            <span className="ob-reveal-star s2"><Sparkle size={18} /></span>
+            <span className="ob-reveal-star s3"><Sparkle size={14} /></span>
+            <span className="ob-reveal-star s4"><Sparkle size={21} /></span>
+            <span className="ob-reveal-star s5"><Sparkle size={12} /></span>
+          </div>
+          <div className="ob-reveal-avatar">
+            <ProfileAvatar profile={profileCode} size={236} variant="reveal" />
+          </div>
         </div>
-        <div style={{ position: "absolute", bottom: 10, left: -16 }}>
-          <Sparkle size={16} delay={0.5} />
+
+        <img className="ob-reveal-laurel jest-lewy" src="/assets/onboarding/ornament-zlote-liscie-v1.png" alt="" aria-hidden="true" />
+        <img className="ob-reveal-laurel jest-prawy" src="/assets/onboarding/ornament-zlote-liscie-v1.png" alt="" aria-hidden="true" />
+        <img className="ob-reveal-corner-leaf jest-lewy" src="/assets/onboarding/ornament-zlote-liscie-v1.png" alt="" aria-hidden="true" />
+        <img className="ob-reveal-corner-leaf jest-prawy" src="/assets/onboarding/ornament-zlote-liscie-v1.png" alt="" aria-hidden="true" />
+        <div className="ob-reveal-chip">Twój archetyp</div>
+        <h2
+          id="ob-reveal-name"
+          className={`ob-reveal-name${dlugaNazwa ? " jest-dluga" : ""}`}
+        >
+          {info.name}
+        </h2>
+
+        <div className="ob-reveal-copy">
+          <blockquote className="ob-reveal-tagline">„{lore.tagline}”</blockquote>
+          <div className="ob-reveal-divider" aria-hidden="true"><Sparkle size={18} /></div>
+          <p className="ob-reveal-description">{lore.description}</p>
+          <button className="hub-btn hub-btn-primary ob-reveal-cta" onClick={onEnter}>
+            Wyrusz w drogę
+          </button>
         </div>
-      </div>
-
-      <h2 className="t-display" style={{ fontSize: 36, margin: "4px 0 0", textAlign: "center", color: info.color, letterSpacing: -.5 }}>
-        {info.name}
-      </h2>
-      <p className="t-hand" style={{ fontSize: 20, color: "var(--p-ink-soft)", margin: 0, textAlign: "center", maxWidth: 320, fontStyle: "italic" }}>
-        „{lore.tagline}"
-      </p>
-
-      <div className="card card-paper" style={{ width: "100%", maxWidth: 380 }}>
-        <p style={{ fontSize: 14, lineHeight: 1.5, margin: 0, color: "var(--p-ink-soft)" }}>
-          {lore.description}
-        </p>
-      </div>
-
-      <button className="hub-btn hub-btn-primary" style={{ width: "100%", maxWidth: 380 }} onClick={onEnter}>
-        Wyrusz w drogę ✦
-      </button>
+      </section>
     </div>
   );
 }

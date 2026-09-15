@@ -71,6 +71,46 @@ export function rodzajZImienia(imie) {
 }
 
 /**
+ * Imiona testowe / zastępcze, które nie są prawdziwym imieniem dziecka
+ * ("test", "aaa", "gracz"...). Dla nich gra nie zgaduje rodzaju po końcówce
+ * (żeby "ala"-podobny śmieć nie robił z gracza dziewczynki), tylko przyjmuje
+ * męski jako domyślny.
+ */
+const IMIONA_TESTOWE = new Set([
+  "test", "testy", "testowy", "testowa", "tester", "aaa", "bbb", "ccc", "abc",
+  "abcd", "qwerty", "asdf", "asd", "qwe", "xxx", "xyz", "admin", "user", "gracz",
+  "dziecko", "imie", "nick", "ktos", "nikt", "anonim", "null", "undefined",
+  "none", "lol", "haha", "dupa", "aaaa", "bbbb",
+]);
+
+/**
+ * Czy wpisany tekst wygląda na prawdziwe imię, a nie na wpis testowy albo
+ * przypadkowy stukot w klawiaturę. Sito jest luźne — ma odsiać oczywisty
+ * śmieć, nie recenzować imion.
+ */
+export function czyImieWyglada(imie) {
+  const i = String(imie || "").trim().toLowerCase();
+  if (!i) return false;
+  const p = i.split(/[\s-]/)[0];               // pierwszy człon ("Anna Maria" -> "anna")
+  if (p.length < 2) return false;               // jednoliterowe
+  if (/[0-9]/.test(p)) return false;            // cyfry w imieniu
+  if (/^(.)\1+$/.test(p)) return false;         // same powtórzone znaki: "aaa", "xxxx"
+  if (!/[aeiouyąęó]/.test(p)) return false;    // brak samogłoski ("qwrt")
+  if (IMIONA_TESTOWE.has(p)) return false;
+  return true;
+}
+
+/**
+ * Rodzaj przyjmowany na starcie, gdy gra pyta wyłącznie o imię (bez wyboru
+ * postaci). Dla imienia, które nie wygląda na prawdziwe, wynik to męski (ON) —
+ * świadomy domyślny. Dla sensownego imienia decyduje końcówka.
+ */
+export function rodzajStartowy(imie) {
+  if (!czyImieWyglada(imie)) return RODZAJ.MESKI;
+  return rodzajZImienia(imie);
+}
+
+/**
  * Rodzaj dla gracza. Kolejność: wybór dziecka z onboardingu → zapis na koncie →
  * końcówka imienia → rodzaj męski. Heurystyka jest ostatnią deską ratunku,
  * a nie pierwszym pomysłem: dziecko, które odpowiedziało na pytanie, ma być
