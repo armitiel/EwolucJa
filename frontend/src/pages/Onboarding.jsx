@@ -571,7 +571,7 @@ function ArchetypeReveal({ result, onEnter }) {
           </div>
           <p className="ob-reveal-description">{lore.description}</p>
           <button className="hub-btn hub-btn-primary ob-reveal-cta" onClick={onEnter}>
-            Wyrusz w drogę
+            Start
           </button>
         </div>
       </section>
