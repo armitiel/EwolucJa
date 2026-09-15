@@ -58,7 +58,9 @@
   /* Rezerwa nad karta = cala widoczna wysokosc czarodzieja. Obraz ma
      stosunek 560:599, wiec 1,03 szerokosci wystarcza z zapasem; mniej
      i czubek kapelusza wchodzi pod pasek z krokami. */
-  margin-top:calc(var(--ob-wizkor) * 1.03);
+  /* +16px: staly zapas nad glowa, zeby czubek kapelusza nie stykal sie
+     z gorna krawedzia kadru nawet przy ciasnym ukladzie desktopowym. */
+  margin-top:calc(var(--ob-wizkor) * 1.03 + 16px);
   padding:30px 20px 22px;
   border:3px solid transparent;
   border-radius:28px;
@@ -465,8 +467,8 @@
      zeby nie wisiala przy gornej krawedzi kadru. */
   /* safe center: gdy tresc jest wyzsza od kadru, nie ucina gory (Wizkor) */
   .ob-ekran{ min-height:100%; justify-content:safe center; }
-  .ob-karta{ --ob-wizkor:186px; width:min(100%, 480px); padding:30px 26px 24px; }
-  .ob-karta.wizkor-maly{ --ob-wizkor:132px; }
+  .ob-karta{ --ob-wizkor:178px; width:min(100%, 480px); padding:28px 26px 22px; }
+  .ob-karta.wizkor-maly{ --ob-wizkor:126px; }
   .ob-tytul{ font-size:34px; }
   .ob-pytanie{ font-size:23px; margin-bottom:2px; }
   /* Odpowiedzi z obrazkami: na desktopie o rozmiarze kafelka decyduje
@@ -474,8 +476,11 @@
      w kadrze bez przewijania i bez ucinania dolnego rzedu. */
   .ob-odpowiedzi.ma-obrazki .ob-kafelek-obraz{
     aspect-ratio:auto; width:auto; max-width:100%;
-    height:clamp(96px, 15vh, 150px); margin-inline:auto;
+    height:clamp(88px, 13.5vh, 132px); margin-inline:auto;
   }
+  /* Na desktopie onboarding nie ma dolnej nawigacji — 120px paddingu
+     z inline'u tylko kradnie wysokosc i wpychalo tresc w scroll. */
+  .ob-scroll:not(.ob-scroll-wynik){ padding-bottom:36px !important; }
   .ob-scroll-wynik{ padding-block:34px 52px !important; }
   .ob-reveal{ padding-top:202px; }
   .ob-reveal-card{ width:min(100%, 414px); }

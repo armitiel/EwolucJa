@@ -326,7 +326,7 @@ export default function Onboarding() {
         </button>
       )}
       <div
-        className={`screen-scroll${step === "result" ? " ob-scroll-wynik" : ""}`}
+        className={`screen-scroll ob-scroll${step === "result" ? " ob-scroll-wynik" : ""}`}
         style={{ flex: 1, padding: "16px 18px 120px", WebkitOverflowScrolling: "touch" }}
       >
         {step === "name" && (
