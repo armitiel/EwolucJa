@@ -593,7 +593,7 @@ function CelebrationThenArchetype({ result, onEnter }) {
       setCoinCount(Math.round(REWARD * t));
       if (t >= 1) clearInterval(tick);
     }, 40);
-    // NIE robimy auto-przejscia - gracz musi kliknac 'Zobacz, kim jestes ->'
+    // NIE robimy auto-przejscia - gracz musi kliknac 'Odkryj swoja sile ->'
     return () => clearInterval(tick);
   }, [phase]);
 
@@ -726,7 +726,7 @@ function CelebrationThenArchetype({ result, onEnter }) {
         style={{ maxWidth: 360, marginTop: 10, position: "relative", zIndex: 1 }}
         onClick={() => setPhase("archetype")}
       >
-        Zobacz, kim jesteś →
+        Odkryj swoją siłę →
       </button>
 
       <div style={{ position: "relative", zIndex: 1 }}>
