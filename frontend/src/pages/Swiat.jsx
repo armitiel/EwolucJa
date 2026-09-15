@@ -573,13 +573,12 @@ export default function Swiat() {
     if (typeof rozsun !== "function") { setOdsloniete(true); return undefined; }
     rozsun(() => {
       setOdsloniete(true);
-      // Najazd kamery na bohatera po wejsciu z quizu ("Start") — DOPIERO gdy
-      // chmury zeszly, inaczej caly ruch przepadlby za kurtyna.
+      // Najazd kamery na bohatera gra ZA KAZDYM razem po rozsunieciu chmur —
+      // niezaleznie od tego, jak dziecko weszlo do swiata (quiz, odswiezenie,
+      // powrot). Dopiero po zejsciu kurtyny, inaczej ruch przepadlby za nia.
       try {
-        if (window.__kinoWejsciaWymus) {
-          window.__kinoWejsciaWymus = false;
-          scenaRef.current?.kinoWejsciaTeraz?.();
-        }
+        window.__kinoWejsciaWymus = false;
+        scenaRef.current?.kinoWejsciaTeraz?.();
       } catch {}
     });
     return undefined;

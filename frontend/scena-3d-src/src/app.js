@@ -1831,19 +1831,10 @@ export class Aplikacja {
     return true;
   }
   _kinoWejscie() {
-    // Wejscie z quizu (przycisk "Start") ustawia window.__kinoWejsciaWymus.
-    // Wtedy NIE gramy najazdu tu, na "gotowa" — scena jest jeszcze pod kurtyna
-    // z chmur i caly ruch przepadlby za nia. Najazd odpala Swiat przez
-    // `kinoWejsciaTeraz()` DOPIERO po rozsunieciu chmur; flage czysci Swiat.
-    // Pozostale wejscia (odswiezenie, powrot z minigry) graja jak dotad:
-    // raz na sesje.
-    try { if (window.__kinoWejsciaWymus) return; } catch {}
-    try {
-      const k = "ewolucja.kino.wejscie";
-      if (sessionStorage.getItem(k)) return;
-      sessionStorage.setItem(k, "1");
-    } catch {}
-    this.kino("wejscie");
+    // Najazd wejscia odpala teraz WYLACZNIE Swiat, przez `kinoWejsciaTeraz()`,
+    // i to ZA KAZDYM razem PO rozsunieciu chmur (inaczej ruch szedlby za
+    // kurtyna). Tu, na zdarzeniu "gotowa" — czyli jeszcze pod chmurami — nie
+    // robimy nic, zeby dwie animacje kamery (_kino i _wejscie) sie nie bily.
   }
   /**
    * Najazd wejscia (Swiat wola po rozsunieciu chmur): kamera zaczyna niemal
@@ -1852,7 +1843,10 @@ export class Aplikacja {
    * camDir`, zoom 1 — wiec wtapia sie w normalny kadr bez przeskoku.
    */
   kinoWejsciaTeraz() {
-    if (spokojnyRuch || !this.hero) return false;
+    // Bez blokady spokojnyRuch — najazd ma grac ZAWSZE po rozsunieciu chmur
+    // (decyzja wlasciciela). Jesli kiedys ma respektowac reduce-motion, wroci
+    // tu warunek na spokojnyRuch albo skrocona wersja bez orbity.
+    if (!this.hero) return false;
     const azDef = Math.atan2(this.camDir.x, this.camDir.z);
     this._wejscie = {
       t: 0,
