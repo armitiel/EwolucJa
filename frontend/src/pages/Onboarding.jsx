@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { RODZAJ, zapiszRodzajBohatera } from "../services/rodzaj.js";
 import { useNavigate } from "react-router-dom";
 import { api, session } from "../services/api.js";
 import { useAppData } from "../contexts/AppData.jsx";
@@ -7,6 +8,13 @@ import NarratorVoice from "../components/NarratorVoice.jsx";
 import PageShell from "../components/PageShell.jsx";
 import { Avatar, Sparkle, Coin, CoinPill } from "../components/art.jsx";
 import ProfileAvatar, { PROFILE_INFO } from "../components/ProfileAvatar.jsx";
+// Jezyk wizualny gry — kremowa karta, zloty rant, guziki `hub-btn`. Do 14.09
+// ten ekran byl pisany stylem inline i mial wlasna palete: fioletowa ramke
+// 2,5 px i gradient na wybranej odpowiedzi, czyli ksztalty nieobecne nigdzie
+// indziej w grze. Ekran startowy i HUD mowia jednym jezykiem, a test siedzacy
+// miedzy nimi wygladal jak formularz z innej aplikacji.
+import "../styles/onboarding.css";
+import { KLUCZ_ETAP, KLUCZ_TYP, etapSzkolny } from "../hub/profilStartowy.js";
 import StarBurst from "../components/StarBurst.jsx";
 import Loading from "../components/Loading.jsx";
 import { fx } from "../services/soundFx.js";
@@ -29,6 +37,30 @@ function profileCodeFrom(v) {
   if (!v) return null;
   if (PROFILE_INFO[v]) return v;
   return LEGACY_TO_PROFILE[v] || null;
+}
+
+// Prosty znak postaci do małego kafelka. Celowo tylko kilka dużych kształtów:
+// pełny portret 3D w tym rozmiarze zamieniał się w nieczytelną miniaturę.
+function IkonaPostaci({ wariant }) {
+  const bohaterka = wariant === "bohaterka";
+  return (
+    <svg className="ob-rodzaj-ilustracja" viewBox="0 0 88 72" aria-hidden="true" focusable="false">
+      <path d="M16 72c1-15 12-24 28-24s27 9 28 24H16Z" fill="#138B91" />
+      <path d="m34 51 10 12 10-12" fill="none" stroke="#F4B63F" strokeWidth="6" strokeLinejoin="round" />
+      {bohaterka && <circle cx="67" cy="27" r="12" fill="#74411F" />}
+      <circle cx="24" cy="33" r="6" fill="#F2B47E" />
+      <circle cx="64" cy="33" r="6" fill="#F2B47E" />
+      <circle cx="44" cy="31" r="21" fill="#FFD0A3" />
+      {bohaterka ? (
+        <path d="M24 31C20 15 30 6 44 6c15 0 24 9 21 27l-7-7c-9 0-17-4-22-10-1 8-5 13-12 15Z" fill="#74411F" />
+      ) : (
+        <path d="M24 28C24 13 34 7 44 8l6-6 2 7 9-4-3 9c5 3 7 8 6 14l-7-7c-8 2-17 1-25-4-1 5-4 9-8 11Z" fill="#74411F" />
+      )}
+      <circle cx="36" cy="32" r="2.8" fill="#3C2B25" />
+      <circle cx="52" cy="32" r="2.8" fill="#3C2B25" />
+      <path d="M38 40c4 4 8 4 12 0" fill="none" stroke="#9D4B3F" strokeWidth="2.5" strokeLinecap="round" />
+    </svg>
+  );
 }
 
 // Krotkie teksty przejsciowe miedzy odpowiedzia a kolejnym pytaniem.
@@ -73,7 +105,13 @@ const SWIAT_PO_QUIZIE = "/swiat";
 // Most miedzy kontem (baza) a torem W2, ktory ma wlasny, odizolowany zapis
 // w localStorage i nie wola AppData. Typ zapisany tutaj pozwala W2 dobrac
 // pierwsze przygody bez pytania dziecka drugi raz o to samo.
-export const KLUCZ_TYP = "ewolucja.profil.typ";
+/**
+ * Klucze zapisu profilu mieszkaja w `hub/profilStartowy.js` — czyta je takze
+ * os etapow i dwa pulpity dev, a import calej tej strony po dwa ciagi znakow
+ * wciagalby do huba komponent z lektorem i quizem. Reeksport zostaje, bo
+ * starsze miejsca importuja je stad.
+ */
+export { KLUCZ_TYP, KLUCZ_ETAP, etapSzkolny };
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -86,6 +124,15 @@ export default function Onboarding() {
   const initialPlayerId = (() => { try { return session.getPlayer(); } catch { return null; } })();
   const [step, setStep] = useState("name");
   const [name, setName] = useState("");
+  // RODZAJ BOHATERA. Nazwa typu jest rzeczownikiem osobowym („Odkrywca" /
+  // „Odkrywczyni"), więc gra musi wiedzieć, w jakim rodzaju ma mówić. Pytamy
+  // o BOHATERA, nie o dziecko — tak samo jak reszta testu, i bez wchodzenia
+  // w metryczkę. Przedtem rodzaj zgadywała końcówka imienia; teraz zgadywanie
+  // zostaje tylko dla tych, którzy tu nie dotrą (np. wejście przez /dolacz).
+  // Brak domyślnego wyboru jest celowy: dziecko wskazuje postać samo.
+  // Nie odtwarzamy tu także starego wyboru z localStorage po ponownym wejściu
+  // w onboarding, żeby żaden kafelek nie wyglądał na wybrany „za dziecko”.
+  const [rodzaj, setRodzaj] = useState(null);
   const [playerId, setPlayerId] = useState(initialPlayerId);
   const [quiz, setQuiz] = useState(null);
   const [answers, setAnswers] = useState({});
@@ -131,14 +178,15 @@ export default function Onboarding() {
   useEffect(() => {
     if (przelot) return;
     if (step === "quiz" && !quiz) {
-      api.getQuiz().then(setQuiz).catch((e) => setError(e.message));
+      api.getQuiz(etapSzkolny()).then(setQuiz).catch((e) => setError(e.message));
     }
   }, [przelot, step, quiz]);
 
   async function handleStart(e) {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim() || !rodzaj) return;
     ttsPlayer.unlock();
+    if (rodzaj) zapiszRodzajBohatera(rodzaj);
     setLoading(true);
     setError(null);
     try {
@@ -154,7 +202,14 @@ export default function Onboarding() {
       setPlayerId(pid);
       setStep("quiz");
     } catch (err) {
-      setError(err.message);
+      /* ZAWIESZKA NA OSTATNIM PYTANIU. Blad wysylki ustawial tylko `error`,
+         ktory rysowal sie WYLACZNIE na ekranie imienia — na szostym pytaniu
+         dziecko zostawalo z zaznaczonym kafelkiem, wszystkimi pozostalymi
+         wygaszonymi (`pickedAnswerId` blokuje klikanie) i bez zadnej
+         informacji. Zdejmujemy zaznaczenie i pokazujemy blad TAM, GDZIE
+         dziecko stoi, razem z przyciskiem ponowienia. */
+      setPickedAnswerId(null);
+      setError(err.message || "Nie udało się wysłać odpowiedzi.");
     } finally {
       setLoading(false);
     }
@@ -178,11 +233,18 @@ export default function Onboarding() {
     }, 1100);
   }
 
+  /* Ostatni komplet odpowiedzi — do ponowienia, gdy wysylka padnie. Bez tego
+     „Sprobuj jeszcze raz" nie mialoby czego wyslac: `answers` w stanie nie
+     zawiera tej odpowiedzi, ktora wlasnie domknela test (leci inline). */
+  const ostatniaProbaRef = useRef(null);
+
   async function submitQuiz(finalAnswers) {
+    ostatniaProbaRef.current = finalAnswers;
+    setError(null);
     setLoading(true);
     try {
       const payload = Object.entries(finalAnswers).map(([q, a]) => ({ question_id: q, answer_id: a }));
-      const res = await api.submitQuiz(playerId, payload, name.trim());
+      const res = await api.submitQuiz(playerId, payload, name.trim(), etapSzkolny());
       // KRYTYCZNE: po submit (nowe imie + archetype + coins) odswiez cala AppData,
       // inaczej TopBar/Profile/WorldHub pokazuja stale dane z "Uczen 0 coinow"
       try { await refreshAll(); } catch {}
@@ -219,27 +281,32 @@ export default function Onboarding() {
   if (przelot) return <Loading text="Otwieram świat…" />;
 
   return (
-    <PageShell>
+    <PageShell ramka>
+      {/* Tlo calego onboardingu — zmierzchowa polana. Osobna warstwa, a nie
+          tlo `.ob-ekran`, bo ma wypelniac caly kadr razem z paskiem gornym,
+          a nie tylko kolumne tresci. */}
+      <div className="ob-tlo" aria-hidden="true" />
       <div className="topbar" style={{ position: "relative", zIndex: 1 }}>
-        <button className="btn btn-ghost btn-sm" onClick={() => navigate("/")}>‹ Wróć</button>
+        <button className="ob-wroc" onClick={() => navigate("/")}>‹ Wróć</button>
         <div style={{ flex: 1 }} />
-        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-            {Array.from({ length: totalSteps }).map((_, i) => (
-              <div
-                key={i}
-                style={{
-                  width: i === currentStepIdx ? 28 : 8,
-                  height: 8,
-                  borderRadius: 4,
-                  background: i <= currentStepIdx ? "var(--p-magic-dk)" : "rgba(78,77,118,.20)",
-                  transition: "all .25s",
-                }}
-              />
-            ))}
-          </div>
+        {/* Pasek postepu i licznik siedza w JEDNEJ ciemnej podkladce
+            (`.ob-kroki`), bo leza na zdjeciu, a nie na papierze: zlote kropki
+            na rozswietlonym niebie po prostu znikaly. Kontrast bierze sie
+            z podkladki, wiec trzyma sie przy kazdej tapecie.
+
+            Docelowo kropki znikaja w calosci — postep ma byc widoczny jako
+            swiat, a nie jako licznik (decyzja wlasciciela,
+            `docs/TEST_OBRAZKOWY.md`) — ale to wchodzi razem z ukladem
+            trzy pytania + czynnosc + trzy. */}
+        <div className="ob-kroki">
+          {Array.from({ length: totalSteps }).map((_, i) => (
+            <div
+              key={i}
+              className={`ob-krok${i === currentStepIdx ? " jest-teraz" : i < currentStepIdx ? " jest-zrobiony" : ""}`}
+            />
+          ))}
           {step === "quiz" && quiz && (
-            <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.2, color: "var(--p-magic-dk)", whiteSpace: "nowrap" }}>
+            <span className="ob-licznik">
               {questionIdx + 1} / {quiz.questions.length}
             </span>
           )}
@@ -262,98 +329,88 @@ export default function Onboarding() {
       )}
       <div className="screen-scroll" style={{ flex: 1, padding: "16px 18px 120px", WebkitOverflowScrolling: "touch" }}>
         {step === "name" && (
-          <form onSubmit={handleStart} className="pop-in" style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-            <h1 className="t-display" style={{ fontSize: 34, margin: "8px 0 4px", color: "var(--p-ink)", lineHeight: 1.18, letterSpacing: "-0.3px" }}>
-              Witaj w Zakątku&nbsp;Gamma
-            </h1>
-            <p className="t-hand" style={{ margin: "4px 0 8px", fontSize: 20, color: "var(--p-ink-soft)", lineHeight: 1.5 }}>
-              Zanim wyruszymy — powiedz, jak się nazywasz?
-            </p>
+          /* Wizkor wychodzi PONAD karte — tak samo jak w oknie postaci
+             i w zaproszeniu do minigry. Grafika ma plaskie ciecie u dolu:
+             siada ono na gornej krawedzi karty i chowa sie pod jej rantem,
+             wiec czyta sie to jako jedna bryla, a nie jako obrazek doklejony
+             nad prostokatem. Ta sama zasada rzadzi glowa Medrca. */
+          <div className="ob-ekran pop-in">
+            <form onSubmit={handleStart} className="ob-karta">
+              <img className="ob-wizkor" src="/wizPop.webp" alt="" aria-hidden="true" draggable="false" />
 
-            <div style={{ position: "relative", marginTop: 6 }}>
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                maxLength={16}
-                autoFocus
-                style={{
-                  width: "100%",
-                  fontSize: 24,
-                  fontFamily: "var(--font-display, 'Fredoka'), sans-serif",
-                  fontWeight: 700,
-                  padding: "18px 20px",
-                  border: "2.5px solid var(--p-magic-dk)",
-                  borderRadius: 18,
-                  background: "rgba(255,255,255,.85)",
-                  outline: "none",
-                  boxSizing: "border-box",
-                }}
+              <h1 className="ob-tytul">Witaj, wędrowcze</h1>
+              <p className="ob-podtytul">Zanim ruszymy w drogę — powiedz, jak masz na imię?</p>
+              <div className="ob-przerywnik" aria-hidden="true" />
+
+              <div className="ob-pole">
+                <label className="ob-pole-etykieta" htmlFor="ob-imie">Twoje imię</label>
+                <input
+                  id="ob-imie"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  maxLength={16}
+                  autoFocus
+                />
+              </div>
+
+              <div className="ob-pole ob-pole--rodzaj">
+                <span className="ob-pole-etykieta" id="ob-wybierz-postac">Wybierz postać</span>
+                <div className="ob-rodzaj" role="group" aria-labelledby="ob-wybierz-postac">
+                  <button
+                    type="button"
+                    className={`ob-rodzaj-opcja${rodzaj === RODZAJ.ZENSKI ? " jest-wybrana" : ""}`}
+                    aria-pressed={rodzaj === RODZAJ.ZENSKI}
+                    aria-label="Bohaterka"
+                    onClick={() => setRodzaj(RODZAJ.ZENSKI)}
+                  >
+                    <IkonaPostaci wariant="bohaterka" />
+                  </button>
+                  <button
+                    type="button"
+                    className={`ob-rodzaj-opcja${rodzaj === RODZAJ.MESKI ? " jest-wybrana" : ""}`}
+                    aria-pressed={rodzaj === RODZAJ.MESKI}
+                    aria-label="Bohater"
+                    onClick={() => setRodzaj(RODZAJ.MESKI)}
+                  >
+                    <IkonaPostaci wariant="bohater" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="ob-akcja">
+                <button type="submit" className="hub-btn hub-btn-primary" disabled={loading || !name.trim() || !rodzaj}>
+                  {loading ? "Otwieram bramę…" : "Dalej"}
+                </button>
+              </div>
+
+              <NarratorVoice
+                text="Witaj, wędrowcze… Zanim ruszymy w tę przygodę — powiedz mi, jak masz na imię?"
+                land="dolina_selfie"
+                tone="warm"
+                speed={0.95}
+                pauseBefore={500}
+                inlinePauses
+                autoPlayDelay={1200}
+                autoPlay
               />
-              <span
-                style={{
-                  position: "absolute",
-                  top: -10,
-                  left: 18,
-                  background: "var(--p-magic-dk)",
-                  color: "#fff",
-                  fontSize: 11,
-                  fontWeight: 800,
-                  padding: "2px 10px",
-                  borderRadius: 6,
-                  letterSpacing: 1,
-                }}
-              >
-                TWOJE IMIĘ
-              </span>
-            </div>
 
-            <button type="submit" className="btn btn-magic btn-block" disabled={loading || !name.trim()}>
-              {loading ? "Otwieram bramę…" : "Dalej →"}
-            </button>
-
-            <NarratorVoice
-              text="Witaj w Zakątku Gamma… Zanim ruszymy w tę przygodę — powiedz mi, jak masz na imię?"
-              land="dolina_selfie"
-              tone="warm"
-              speed={0.95}
-              pauseBefore={500}
-              inlinePauses
-              autoPlayDelay={1200}
-              autoPlay
-            />
-
-            {error && <p style={{ color: "#B85B47" }}>{error}</p>}
-          </form>
+              {error && <p className="ob-blad">{error}</p>}
+            </form>
+          </div>
         )}
 
         {step === "quiz" && quiz && (
-          <div className="pop-in" key={questionIdx} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            {/* Czarodziej-narrator (wiz2) — duzy podczas intro 1. pytania, mniejszy przy kolejnych (2x wzgledem poprzedniej wersji) */}
-            <div className="pop-in" style={{ display: "flex", justifyContent: "center", padding: "8px 0 4px", position: "relative" }}>
-              <div style={{ position: "relative", animation: "float-slow 4s ease-in-out infinite" }}>
-                <img
-                  src="/wizard.png"
-                  alt="Strażniczka Zakątka"
-                  style={{
-                    width: questionIdx === 0 && !narrationDone ? 180 : 120,
-                    maxWidth: "60vw",
-                    height: "auto",
-                    objectFit: "contain",
-                    filter: "drop-shadow(0 10px 18px rgba(80,40,140,.35))",
-                    transition: "width 0.5s ease",
-                  }}
-                />
-                <div style={{ position: "absolute", top: 4, right: -8 }}><Sparkle size={24} /></div>
-                <div style={{ position: "absolute", bottom: 22, left: -14 }}><Sparkle size={18} delay={0.5} /></div>
-                {questionIdx === 0 && !narrationDone && (
-                  <div style={{ position: "absolute", top: 60, left: -18 }}><Sparkle size={14} delay={1} /></div>
-                )}
-              </div>
-            </div>
+          <div className="ob-ekran pop-in" key={questionIdx}>
+            {/* TA SAMA GRAFIKA, CO W GRZE (`/wizPop.webp` — okno postaci,
+                zaproszenie do minigry, podpowiedz Medrca). Wczesniej stal tu
+                `wizard.png`: inny rysunek, inna postac i megabajt do pobrania
+                na wejsciu. Przy kolejnych pytaniach czarodziej schodzi na
+                drugi plan — pytanie jest wtedy wazniejsze niz ten, kto je
+                zadaje. */}
+            <div className={`ob-karta${questionIdx === 0 && !narrationDone ? "" : " wizkor-maly"}`}>
+              <img className="ob-wizkor" src="/wizPop.webp" alt="" aria-hidden="true" draggable="false" />
 
-            <h2 className="t-display" style={{ fontSize: 26, lineHeight: 1.2, margin: 0, textAlign: "center" }}>
-              {quiz.questions[questionIdx].question}
-            </h2>
+              <h2 className="ob-pytanie">{quiz.questions[questionIdx].question}</h2>
 
             {/* Kontrolka lektora — wysrodkowana pod pytaniem */}
             <div style={{ display: "flex", justifyContent: "center", margin: "4px 0 8px" }}>
@@ -382,17 +439,36 @@ export default function Onboarding() {
               )}
             </div>
 
-            {/* Odpowiedzi — pojawiaja sie dopiero po skonczeniu narracji, z animacja fade-up */}
+            {/* Odpowiedzi. Ksztalt kafelka jest TEN SAM, co kafelki gier
+                w skrzyni (`.hub-tile-in`): kremowe tlo, zloty rant, wypuklosc
+                pod spodem. Wybrana jest ZLOTA, nie fioletowa — fiolet to
+                w tym projekcie barwa magii i mentorow, a potwierdzenie wyboru
+                dziecka nalezy do rodziny HUD-u.
+
+                Jedna kolumna, dopoki odpowiedzi sa zdaniami. Gdy dojda
+                ilustracje, `--ob-kolumny` przestawi to na siatke bez ruszania
+                tego pliku. */}
+            {/* SIATKA WCHODZI Z OBRAZKAMI, nie z gory. Dopoki kafelki sa
+                zdaniami, jedna kolumna czyta sie lepiej; gdy pytanie ma komplet
+                ilustracji, przestawiamy sie na dwie kolumny kwadratow. Warunek
+                liczy sie Z DANYCH pytania, wiec pytania z gotowymi obrazkami
+                i te bez moga istniec obok siebie — a tak wlasnie jest, dopoki
+                nie dogenerujemy wozu i klody. */}
+            {/* KAFELKI SA AKTYWNE OD RAZU, lektor idzie w tle (decyzja
+                wlasciciela 14.09). Wczesniej caly blok mial `opacity: 0`, dopoki
+                `NarratorVoice` nie zglosil `onEnd` — a gdy TTS nie dojechal
+                (brak sieci, cisza w przegladarce, blad ElevenLabs), zglaszal
+                to NIGDY i dziecko patrzylo na pusta karte z samym pytaniem.
+                Blokada byla tez glownym powodem, dla ktorego pytan moglo byc
+                tylko szesc: osiem razy czekanie z wygaszonym ekranem.
+                `narrationDone` zostaje w stanie, ale pilnuje juz tylko jednej
+                rzeczy: czy czarodziej przy PIERWSZYM pytaniu stoi duzy (mowi),
+                czy zszedl na drugi plan. Niczego nie blokuje, wiec cisza
+                w glosnikach nie zatrzymuje testu. */}
             <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 10,
-                opacity: narrationDone ? 1 : 0,
-                transform: narrationDone ? "translateY(0)" : "translateY(12px)",
-                transition: "opacity 0.5s ease, transform 0.5s ease",
-                pointerEvents: narrationDone ? "auto" : "none",
-              }}
+              className={`ob-odpowiedzi${
+                quiz.questions[questionIdx].answers.every((a) => a.obraz) ? " ma-obrazki" : ""
+              }${quiz.etap === "1-3" ? " jest-13" : ""}`}
             >
               {quiz.questions[questionIdx].answers.map((a, idx) => {
                 const isPicked = pickedAnswerId === a.answer_id;
@@ -400,89 +476,54 @@ export default function Onboarding() {
                 return (
                   <button
                     key={a.answer_id}
-                    className="card card-tight"
+                    type="button"
+                    className={`ob-kafelek${isPicked ? " jest-wybrany" : ""}${isDimmed ? " jest-przygaszony" : ""}`}
                     onClick={() => selectAnswer(quiz.questions[questionIdx].question_id, a.answer_id)}
-                    disabled={loading || !narrationDone || !!pickedAnswerId}
-                    style={{
-                      border: "none",
-                      cursor: narrationDone && !pickedAnswerId ? "pointer" : "default",
-                      textAlign: "left",
-                      padding: "14px 16px",
-                      fontSize: 15,
-                      fontFamily: "var(--font-body, 'Nunito'), sans-serif",
-                      fontWeight: 600,
-                      color: isPicked ? "#fff" : "var(--p-ink)",
-                      background: isPicked
-                        ? "linear-gradient(180deg, #C8A0F0 0%, #7A4DC2 100%)"
-                        : undefined,
-                      boxShadow: isPicked
-                        ? "0 0 0 4px rgba(184,134,232,.35), 0 8px 24px rgba(122,77,194,.45), 0 3px 0 #4A2D80"
-                        : undefined,
-                      transform: !narrationDone
-                        ? "translateY(8px)"
-                        : isPicked
-                        ? "scale(1.02)"
-                        : isDimmed
-                        ? "scale(0.97)"
-                        : "translateY(0)",
-                      opacity: !narrationDone ? 0 : isDimmed ? 0.45 : 1,
-                      filter: isDimmed ? "grayscale(.3)" : "none",
-                      transition: !narrationDone
-                        ? `opacity 0.4s ease ${idx * 0.08}s, transform 0.4s ease ${idx * 0.08}s`
-                        : "opacity 0.35s ease, transform 0.35s cubic-bezier(.34,1.56,.64,1), background 0.3s ease, box-shadow 0.3s ease, color 0.3s ease, filter 0.3s ease",
-                      position: "relative",
-                      overflow: isPicked ? "visible" : "hidden",
-                    }}
+                    disabled={loading || !!pickedAnswerId}
                   >
-                    {a.text}
-                    {/* Zlote gwiazdki - eksplozja przy wyborze */}
-                    {isPicked && <StarBurst count={10} duration={950} />}
-                    {/* Pulsujace halo wokol zaznaczonej */}
-                    {isPicked && (
-                      <span
+                    {/* TRZY STANY, JEDEN KAFELEK. `obraz` to docelowa ilustracja
+                        (24 sztuki, jeszcze niewygenerowane), `podpis` to dwa,
+                        cztery slowa pod nia — backend oddaje oba od 14.09.
+                        Dopoki pliku nie ma, kafelek pokazuje podpis i pod nim
+                        pelne zdanie; gdy obrazek wejdzie, zdanie schodzi do
+                        lektora na dotkniecie i zostaje sam podpis. Zaden
+                        z tych stanow nie wymaga zmiany tutaj. */}
+                    {a.obraz ? (
+                      <img
+                        className="ob-kafelek-obraz"
+                        src={a.obraz}
+                        alt=""
                         aria-hidden="true"
-                        style={{
-                          position: "absolute",
-                          inset: -2,
-                          borderRadius: "inherit",
-                          pointerEvents: "none",
-                          boxShadow: "0 0 0 0 rgba(184,134,232,.6)",
-                          animation: "pulse-ring 0.9s ease-out forwards",
-                        }}
+                        draggable="false"
+                        onError={(e) => { e.currentTarget.style.display = "none"; }}
                       />
-                    )}
-                    {/* Checkmark po prawej */}
-                    {isPicked && (
-                      <span
-                        style={{
-                          position: "absolute",
-                          right: 14,
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          width: 22,
-                          height: 22,
-                          borderRadius: "50%",
-                          background: "#fff",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: 14,
-                          fontWeight: 900,
-                          color: "var(--p-magic-dk)",
-                          animation: "coin-bump .5s cubic-bezier(.34,1.56,.64,1) both",
-                        }}
-                      >
-                        ✓
-                      </span>
-                    )}
+                    ) : null}
+                    <span className="ob-kafelek-tresc">
+                      {a.podpis ? <span className="ob-kafelek-podpis">{a.podpis}</span> : null}
+                      {a.podpis && a.obraz ? null : <span className="ob-kafelek-zdanie">{a.text}</span>}
+                      {/* Dla klas 1-3 podpis jest schowany wizualnie, wiec
+                          czytnik ekranu i lektor maja z czego wziac tresc. */}
+                    </span>
+                    {isPicked && <StarBurst count={10} duration={950} />}
+                    {isPicked && <span className="ob-kafelek-ptaszek" aria-hidden="true">✓</span>}
                   </button>
                 );
               })}
 
-              {!narrationDone && (
-                <p style={{ opacity: 0.55, fontSize: 13, textAlign: "center", margin: "8px 0 0", fontStyle: "italic" }}>
-                  Posłuchaj uważnie… za chwilę pojawią się odpowiedzi.
-                </p>
+              </div>
+
+              {error && (
+                <div className="ob-akcja">
+                  <p className="ob-blad">{error}</p>
+                  <button
+                    type="button"
+                    className="hub-btn hub-btn-primary"
+                    disabled={loading}
+                    onClick={() => submitQuiz(ostatniaProbaRef.current || answers)}
+                  >
+                    {loading ? "Wysyłam…" : "Spróbuj jeszcze raz"}
+                  </button>
+                </div>
               )}
             </div>
           </div>
@@ -530,7 +571,7 @@ function ArchetypeReveal({ result, onEnter }) {
         </p>
       </div>
 
-      <button className="btn btn-magic btn-block" style={{ maxWidth: 380 }} onClick={onEnter}>
+      <button className="hub-btn hub-btn-primary" style={{ width: "100%", maxWidth: 380 }} onClick={onEnter}>
         Wyrusz w drogę ✦
       </button>
     </div>
@@ -683,7 +724,7 @@ function CelebrationThenArchetype({ result, onEnter }) {
       </div>
 
       <button
-        className="btn btn-magic btn-block"
+        className="hub-btn hub-btn-primary"
         style={{ maxWidth: 360, marginTop: 10, position: "relative", zIndex: 1 }}
         onClick={() => setPhase("archetype")}
       >

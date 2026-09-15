@@ -20,6 +20,8 @@
  * wybierze — więc rozjazd widać, zanim się do niego podejdzie.
  */
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { KLUCZ_ETAP, KLUCZ_TYP } from "./profilStartowy.js";
 import {
   CEL_DOMYSLNY,
   dolicz as doliczGwiazdke,
@@ -110,6 +112,7 @@ export default function DevRezyserka({
   scenaRef, onZmiana, onOtworzGre, onOtworzPanel, onOtworzUkladanke, onKomunikat,
   onPokazWskazowke, onPokazMyslMedrca, onWylacz, zdarzenia = [],
 }) {
+  const nawiguj = useNavigate();
   const [otwarty, setOtwarty] = useState(false);
   const [, przerysuj] = useState(0);
 
@@ -146,6 +149,14 @@ export default function DevRezyserka({
    * dokładnie to, co w grze robi ostatni zebrany kawałek.
    */
   function otworzEkranEtapu(etap) {
+    /* `wyjscie` prowadzi POZA swiat — dzis tylko pierwszy etap osi, czyli
+       ekran onboardingu. Test profilu zyje pod wlasnym adresem, wiec nie da
+       sie go pokazac oknem w hubie; pulpit po prostu tam przenosi. */
+    if (etap?.wyjscie) {
+      setOtwarty(false);
+      nawiguj(etap.wyjscie);
+      return;
+    }
     if (etap?.faza !== "komplet") return;
     setOtwarty(false);
     onOtworzUkladanke?.(String(etap.id).split(":")[0]);
@@ -279,6 +290,32 @@ export default function DevRezyserka({
      wysyłka zdjęcia z opisem → werdykt Mentora → nagroda. Bez tych skrótów
      przetestowanie jednej zmiany w panelu zadania znaczyło: zagadać Wizkora,
      zrobić zdjęcie, zalogować się jako Mentor i klikać werdykt. */
+  /**
+   * TEST PROFILU ze świata. Pulpit stoi w `/swiat`, a test żyje pod własnym
+   * adresem — stąd wyjście z gry, a nie okno w hubie. Czyścimy typ i etap,
+   * bo inaczej drugie wejście pokazuje wynik sprzed chwili i nie widać, czy
+   * komplet pytań w ogóle działa. `?quiz=1` omija cichy przelot do świata.
+   */
+  const profilTyp = (() => { try { return localStorage.getItem(KLUCZ_TYP); } catch { return null; } })();
+  const profilEtap = (() => { try { return localStorage.getItem(KLUCZ_ETAP); } catch { return null; } })();
+
+  function testProfilu(etap) {
+    try {
+      localStorage.setItem(KLUCZ_ETAP, etap);
+      localStorage.removeItem(KLUCZ_TYP);
+    } catch {}
+    setOtwarty(false);
+    nawiguj("/onboarding?quiz=1");
+  }
+
+  function zapomnijProfil() {
+    try {
+      localStorage.removeItem(KLUCZ_TYP);
+      localStorage.removeItem(KLUCZ_ETAP);
+    } catch {}
+    odswiez("DEV: typ i etap wyczyszczone");
+  }
+
   const real = stanReala();
 
   // Przykładowy dowód — mały PNG z projektu, żeby podgląd zdjęcia w panelu
@@ -414,6 +451,15 @@ export default function DevRezyserka({
             )}
             {rozjazd ? <p className="dev-alarm">Kolejność złamana: {rozjazd}</p> : null}
             <div className="dev-rzad">
+              {/* Etap z `wyjscie` prowadzi POZA swiat i potrzebuje wlasnego
+                  przycisku: wybranie go w liscie nie wystarczy, bo gdy juz
+                  jest wybrany, `select` nie zglasza zmiany i nic sie nie
+                  dzieje. Strzalki tez nie pomoga na pierwszym etapie osi. */}
+              {etap?.wyjscie ? (
+                <Guzik ton="mocny" onClick={() => { setOtwarty(false); nawiguj(etap.wyjscie); }}>
+                  Otwórz ten ekran
+                </Guzik>
+              ) : null}
               <Guzik onClick={pokazOknoWizkora}>Pokaż okno Wizkora</Guzik>
               <Guzik onClick={przywolajWizkora}>Przywołaj na polanę</Guzik>
               {rozjazd || !zgodne ? (
@@ -517,6 +563,17 @@ export default function DevRezyserka({
                 </Guzik>
               );
             })}
+          </Grupa>
+
+          {/* TEST PROFILU. Dwie wersje wiekowe, bo różnią się nie tylko liczbą
+              kafelków (trzy kontra cztery), ale i tym, ile z pytania niesie
+              obrazek, a ile podpis — a to widać dopiero na ekranie. */}
+          <Grupa
+            tytul={`Test profilu${profilTyp ? ` — ${profilTyp}` : ""}${profilEtap ? ` · klasy ${profilEtap}` : ""}`}
+          >
+            <Guzik onClick={() => testProfilu("1-3")}>Otwórz — klasy 1–3</Guzik>
+            <Guzik onClick={() => testProfilu("4-8")}>Otwórz — klasy 4–8</Guzik>
+            <Guzik ton="mocny" onClick={zapomnijProfil}>Zapomnij typ i etap</Guzik>
           </Grupa>
 
           <Grupa tytul="Świat">

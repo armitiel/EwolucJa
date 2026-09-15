@@ -58,3 +58,11 @@ Claude outputs/
 *.bak-przed-kinem
 .claude/settings.json.bak
 *.blend1
+
+# Zrodla PNG kafelkow i teł onboardingu (1024 px, ~70 MB). Do repo ida tylko
+# webp-y uzywane przez gre; PNG-i zostaja lokalnie, zeby dalo sie przerobic
+# kafelek bez generowania go od nowa (patrz scripts/kafelki-spojne.py).
+frontend/public/assets/onboarding/*.png
+
+# smieci Pythona przy skryptach generatorow
+scripts/__pycache__/

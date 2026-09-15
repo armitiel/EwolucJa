@@ -1,0 +1,348 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   onboarding.css — test profilu w języku wizualnym gry.
+
+   PO CO OSOBNY PLIK. Onboarding był jedynym ekranem pisanym stylem inline,
+   z własną paletą (fiolet 2,5 px ramki, gradient na wybranej odpowiedzi)
+   i własną rodziną przycisków (`btn btn-magic`). Ekran startowy i HUD mówią
+   tym samym językiem — kremowy papier, złoty rant, guziki `hub-btn` — a test
+   siedzący między nimi wyglądał jak formularz z innej aplikacji.
+
+   ZASADA: ani jednej nowej barwy. Wszystko idzie z tokenów (`tokeny.css`,
+   `styles/ewolucja.css`), a kształty — karta ze złotym rantem, postać
+   wychodząca ponad jej krawędź, kafelek z wypukłością — są tymi samymi,
+   co w `hub/styles/hub.css`. Gdy zmienia się paleta gry, zmienia się i tu.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* ── Tło ──────────────────────────────────────────────────────────────────
+   Jasny, miękki las 3D należy do tej samej rodziny co ekran startowy. Środek
+   kadru jest spokojniejszy, bo siedzą na nim czarodziej i karta formularza.
+
+   `position:fixed` celowo: na desktopie `.page-scena.jest-ramka` ma
+   `transform`, więc jest blokiem zawierającym dla potomków `fixed` — tło
+   wypełnia dokładnie wnętrze ramki i nie wylewa się na szary margines.
+   Na telefonie ramki nie ma i `fixed` znaczy po prostu cały ekran.
+
+   Starsze próby zostają na dysku i nic ich nie używa. */
+.ob-tlo{
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:url('/assets/onboarding/tlo-powitanie-v2.webp') center 50% / cover no-repeat;
+}
+
+/* Delikatnie uspokaja tylko górę pod przyciskiem i paskiem postępu. */
+.ob-tlo::after{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(180deg, color-mix(in srgb, var(--noc-700, #24304F) 16%, transparent) 0%, transparent 48%);
+}
+
+.ob-ekran{
+  position:relative; z-index:1;
+  display:flex; flex-direction:column; align-items:center;
+  gap:14px; width:100%;
+}
+
+/* ── Wizkor ──────────────────────────────────────────────────────────────
+   TA SAMA GRAFIKA, CO W GRZE (`/wizPop.webp` — okno postaci, zaproszenie do
+   minigry, podpowiedź Mędrca). Wcześniej stał tu `wizard.png`: inny rysunek,
+   inna postać i megabajt do pobrania na wejściu.
+
+   Grafika ma płaskie cięcie na wysokości ~96% (poniżej zwisa już tylko dłoń),
+   więc przesuwamy ją w dół dokładnie o te 4% — linia cięcia leży wtedy na
+   górnej krawędzi karty i znika pod jej rantem. Ten sam przepis, co
+   `.popup-postaci-bohater` w `hub.css`; obraz ma stały stosunek 560:599,
+   więc jedna zmienna skaluje całą kompozycję. */
+.ob-karta{
+  --ob-wizkor:clamp(148px, 38vw, 208px);
+  --ob-control-h:72px;
+  position:relative; z-index:1;
+  width:min(100%, 420px);
+  /* Rezerwa nad karta = cala widoczna wysokosc czarodzieja. Obraz ma
+     stosunek 560:599, wiec 1,03 szerokosci wystarcza z zapasem; mniej
+     i czubek kapelusza wchodzi pod pasek z krokami. */
+  margin-top:calc(var(--ob-wizkor) * 1.03);
+  padding:30px 20px 22px;
+  border:3px solid transparent;
+  border-radius:28px;
+  background:
+    linear-gradient(180deg, var(--p-paper,#FBF1D6) 0%, var(--p-paper-2,#F4E3B8) 100%) padding-box,
+    linear-gradient(180deg, var(--hud-gold-light) 0%, var(--hud-gold) 55%, var(--braz-400) 100%) border-box;
+  box-shadow:
+    inset 0 3px 0 rgba(255,255,255,.75),
+    0 6px 0 color-mix(in srgb, var(--p-magic-dk) 28%, transparent),
+    0 22px 46px color-mix(in srgb, var(--noc-700) 45%, transparent);
+  font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
+  color:var(--p-ink,#4e4d76);
+  text-align:center;
+}
+/* Karta bez czarodzieja (ekran wyniku) nie rezerwuje miejsca nad soba. */
+.ob-karta.bez-wizkora{ margin-top:0; padding-top:22px; }
+
+.ob-wizkor{
+  position:absolute;
+  /* Srodek liczony z PUDELKA, nie z szerokosci obrazka: dopoki plik sie nie
+     zdekoduje, szerokosc wynosi 0 i `translateX(-50%)` nie centruje niczego —
+     grafika stalaby lewa krawedzia na srodku karty. */
+  left:0; right:0; margin-inline:auto;
+  /* TE SAME LICZBY, CO `.popup-postaci-bohater`. Plaskie ciecie grafiki lezy
+     na wysokosci ~96%, wiec zsuwamy ja w dol o 4,4% szerokosci — linia ciecia
+     chowa sie wtedy pod gorna krawedzia karty. `aspect-ratio` sprawia, ze
+     przegladarka zna wysokosc, ZANIM plik doleci: bez tego czarodziej
+     przeskakiwalby w pionie w trakcie animacji wejscia. */
+  bottom:calc(100% - var(--ob-wizkor) * .044);
+  width:var(--ob-wizkor); height:auto;
+  aspect-ratio:560 / 599; object-fit:contain;
+  pointer-events:none; user-select:none; -webkit-user-drag:none;
+  filter:drop-shadow(0 12px 22px color-mix(in srgb, var(--p-magic-dk) 38%, transparent));
+  animation:ob-wizkor-wejscie .5s cubic-bezier(.2,.9,.3,1.3) both;
+  transition:width .45s ease;
+}
+/* Przy kolejnych pytaniach czarodziej schodzi na drugi plan — pytanie jest
+   wtedy wazniejsze niz ten, kto je zadaje. */
+.ob-karta.wizkor-maly{ --ob-wizkor:clamp(96px, 24vw, 132px); }
+
+@keyframes ob-wizkor-wejscie{
+  from{ opacity:0; transform:translateY(14%) scale(.92); }
+  to{ opacity:1; transform:none; }
+}
+
+/* ── Teksty ────────────────────────────────────────────────────────────── */
+.ob-tytul{
+  margin:0 0 6px; font-size:clamp(24px, 6.4vw, 31px); line-height:1.14;
+  font-weight:800; color:var(--p-ink); letter-spacing:-.3px;
+}
+.ob-pytanie{
+  margin:0 0 4px; font-size:clamp(19px, 5vw, 23px); line-height:1.26;
+  font-weight:800; color:var(--p-ink);
+}
+.ob-podtytul{
+  margin:0 0 14px; font-size:16px; line-height:1.45; color:var(--p-ink-soft);
+}
+/* Cienka zlota kreska zamiast odstepu — ten sam przerywnik, co w oknie
+   postaci; robi z naglowka i tresci jedna karte, a nie dwa bloki. */
+.ob-przerywnik{
+  height:2px; margin:0 auto 16px; width:64%;
+  background:linear-gradient(90deg, transparent, var(--hud-gold) 50%, transparent);
+  opacity:.7;
+}
+
+/* ── Pola pierwszego kroku ────────────────────────────────────────────────
+   Etykiety są osobnym wierszem nad kontrolą, więc nie zasłaniają jej treści.
+   Pole imienia i wybór postaci korzystają z jednej wysokości. */
+.ob-pole{ position:relative; margin:0; text-align:left; }
+.ob-pole + .ob-pole{ margin-top:14px; }
+.ob-pole input{
+  width:100%; box-sizing:border-box;
+  height:var(--ob-control-h);
+  font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
+  font-size:23px; font-weight:800; text-align:center;
+  color:var(--p-ink);
+  padding:0 18px;
+  border:2px solid color-mix(in srgb, var(--zloto-250) 95%, transparent);
+  border-radius:18px;
+  background:linear-gradient(180deg, #fffdf5, var(--krem-300, #F6ECD2));
+  box-shadow:inset 0 3px 8px color-mix(in srgb, var(--braz-550) 18%, transparent);
+  outline:none;
+}
+.ob-pole input:focus{
+  border-color:var(--hud-gold);
+  box-shadow:inset 0 3px 8px color-mix(in srgb, var(--braz-550) 18%, transparent),
+             0 0 0 4px color-mix(in srgb, var(--hud-gold) 35%, transparent);
+}
+.ob-pole-etykieta{
+  display:block;
+  margin:0 0 7px 4px;
+  color:var(--braz-700); font-size:12px; line-height:1.2;
+  font-weight:800; letter-spacing:.8px; text-transform:uppercase;
+}
+
+/* ── Kafelki odpowiedzi ───────────────────────────────────────────────────
+   Ten sam ksztalt, co kafelki gier w skrzyni (`.hub-tile-in`): kremowe tlo,
+   zloty rant, wypuklosc pod spodem. Kolumna, nie siatka — dopoki odpowiedzi
+   sa zdaniami. Gdy dojda ilustracje, `--ob-kolumny` przestawi to na siatke
+   bez ruszania JSX.
+
+   WYBRANA jest ZLOTA, nie fioletowa. Fiolet to w tym projekcie barwa magii
+   i mentorow; potwierdzenie wyboru dziecka nalezy do rodziny HUD-u. */
+.ob-odpowiedzi{
+  display:grid; grid-template-columns:repeat(var(--ob-kolumny, 1), 1fr);
+  gap:10px; margin-top:4px; text-align:left;
+}
+/* DWA UKLADY, JEDNA KLASA. Bez ilustracji kafelek jest wierszem: obrazek po
+   lewej (albo go nie ma), tekst po prawej. Z ilustracja staje sie kwadratem
+   w siatce dwukolumnowej — `.ob-odpowiedzi.ma-obrazki` przestawia i siatke,
+   i kierunek kafelka. Jeden zestaw regul, bo to jest ten sam kafelek na
+   dwoch etapach zycia, a nie dwa rozne komponenty. */
+.ob-odpowiedzi.ma-obrazki{ --ob-kolumny:2; }
+.ob-odpowiedzi.ma-obrazki .ob-kafelek{
+  flex-direction:column; align-items:stretch; gap:8px;
+  padding:10px 10px 12px; text-align:center;
+}
+.ob-odpowiedzi.ma-obrazki .ob-kafelek-obraz{
+  width:100%; height:auto; aspect-ratio:1 / 1; border-radius:14px;
+}
+.ob-odpowiedzi.ma-obrazki .ob-kafelek-tresc{ align-items:center; }
+.ob-odpowiedzi.ma-obrazki .ob-kafelek-podpis{ font-size:15px; line-height:1.2; }
+/* KLASY 1-3: obrazek niesie tresc, slowo jest tylko etykieta do odsluchania.
+   Podpis zostaje w drzewie dla czytnikow ekranu, ale schodzi z oczu — panel
+   byl tu jednomyslny, ze u szesciolatka dwa slowa pod kazdym z czterech
+   kafelkow to cztery rzeczy do zdekodowania, zanim zacznie sie wybor. */
+.ob-odpowiedzi.jest-13.ma-obrazki .ob-kafelek-podpis{
+  position:absolute; width:1px; height:1px; overflow:hidden;
+  clip-path:inset(50%); white-space:nowrap;
+}
+
+.ob-kafelek{
+  position:relative; overflow:hidden;
+  display:flex; align-items:center; gap:10px;
+  padding:14px 16px; border-radius:var(--r-card, 20px);
+  border:2px solid color-mix(in srgb, var(--zloto-250) 95%, transparent);
+  background:linear-gradient(180deg, var(--hud-cream-top), var(--krem-500));
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,.8),
+    0 4px 0 color-mix(in srgb, var(--braz-550) 50%, transparent),
+    0 8px 15px rgba(61,47,25,.16);
+  font-family:inherit; font-size:15px; font-weight:700; line-height:1.35;
+  color:var(--p-ink); text-align:left; cursor:pointer;
+  transition:transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease,
+             opacity .3s ease, filter .3s ease, background .25s ease;
+}
+/* BEZ ANIMACJI WEJSCIA — celowo, i to jest decyzja o niezawodnosci.
+   Ten ekran zdazyl juz dwa razy pokazac dziecku pusta karte: raz, gdy
+   widocznosc kafelkow zalezala od lektora (`narrationDone`), drugi raz, gdy
+   zalezala od animacji `opacity` — a animacja potrafi nie ruszyc albo stanac
+   w klatce poczatkowej (karta w tle, oszczedzanie energii, zatrzymany render)
+   i wtedy kafelki zostaja przezroczyste. Nic, co decyduje o TYM, czy dziecko
+   widzi odpowiedzi, nie moze zalezec od zdarzenia, ktore moze nie nadejsc.
+   Kafelek jest widoczny z samych regul klasy; ruchu jest tu i tak dosc —
+   podniesienie przy najechaniu, wcisniecie przy dotknieciu, zloto po wyborze. */
+.ob-kafelek:hover:not(:disabled){ transform:translateY(-2px); }
+.ob-kafelek:active:not(:disabled){ transform:translateY(2px); box-shadow:inset 0 1.5px 0 rgba(255,255,255,.8), 0 1px 0 color-mix(in srgb, var(--braz-550) 50%, transparent); }
+.ob-kafelek.jest-wybrany{
+  background:linear-gradient(180deg, var(--hud-gold-light), var(--hud-gold));
+  border-color:var(--braz-400); color:var(--braz-700);
+  transform:scale(1.02); overflow:visible;
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.75),
+    0 4px 0 var(--braz-400),
+    0 0 0 4px color-mix(in srgb, var(--hud-gold) 32%, transparent),
+    0 10px 22px color-mix(in srgb, var(--ochra-800) 34%, transparent);
+}
+.ob-kafelek.jest-przygaszony{ opacity:.42; filter:grayscale(.5); transform:scale(.97); }
+.ob-kafelek:disabled{ cursor:default; }
+/* Trzy elementy kafelka. Ilustracja (jeszcze nie istnieje — 24 pliki do
+   wygenerowania) siada po lewej jako kwadrat; podpis to dwa, cztery slowa;
+   zdanie stoi pod nim tylko dopoki obrazka nie ma. Gdy pliki wejda, znika
+   zdanie i kafelek robi sie kwadratem w siatce (`--ob-kolumny: 2`). */
+.ob-kafelek-obraz{
+  flex:0 0 auto; width:58px; height:58px; border-radius:14px;
+  object-fit:cover; background:color-mix(in srgb, var(--krem-300) 70%, transparent);
+  box-shadow:inset 0 0 0 2px color-mix(in srgb, var(--zloto-250) 70%, transparent);
+}
+.ob-kafelek-tresc{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+.ob-kafelek-podpis{ font-weight:800; font-size:16px; }
+.ob-kafelek-zdanie{ font-weight:600; font-size:14px; line-height:1.35; color:var(--p-ink-soft); }
+.ob-kafelek.jest-wybrany .ob-kafelek-zdanie{ color:color-mix(in srgb, var(--braz-700) 82%, transparent); }
+.ob-kafelek-ptaszek{
+  position:absolute; right:12px; top:50%; transform:translateY(-50%);
+  width:22px; height:22px; border-radius:50%;
+  display:grid; place-items:center;
+  background:#fff; color:var(--braz-700); font-size:14px; font-weight:900;
+}
+
+/* ── Akcja ─────────────────────────────────────────────────────────────── */
+.ob-akcja{ margin-top:16px; }
+.ob-akcja .hub-btn{ width:100%; min-height:var(--cta-h, 56px); }
+
+.ob-blad{ margin:10px 0 0; font-size:14px; color:var(--p-danger, #B85B47); }
+
+/* ── Pasek kroków ─────────────────────────────────────────────────────────
+   Kropki dostaja zloto HUD-u zamiast fioletu. Docelowo znikaja w calosci —
+   postep ma byc widoczny jako swiat, nie jako licznik (patrz decyzja
+   w `docs/TEST_OBRAZKOWY.md`) — ale to wchodzi razem z ukladem 3 + 3. */
+/* KROPKI LEŻĄ NA ZDJĘCIU, nie na papierze — i to zmienia wszystko. Złote
+   kropki na rozświetlonym niebie znikały, a jasne znikałyby na nocnym.
+   Dlatego pasek dostaje własną, ciemną podkładkę: kontrast bierze się z niej,
+   a nie z tego, co akurat jest pod spodem. Ta sama sztuczka trzyma czytelność
+   przy każdej tapecie, także tej, która wejdzie za miesiąc. */
+.ob-kroki{
+  display:flex; gap:6px; align-items:center;
+  padding:7px 11px; border-radius:999px;
+  background:color-mix(in srgb, var(--noc-700, #24304F) 46%, transparent);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.18), 0 2px 10px rgba(0,0,0,.18);
+  backdrop-filter:blur(3px);
+}
+.ob-krok{
+  width:8px; height:8px; border-radius:4px;
+  background:rgba(255,255,255,.34);
+  transition:all .25s;
+}
+.ob-krok.jest-teraz{ width:26px; background:var(--hud-gold); box-shadow:0 0 0 1px rgba(0,0,0,.18); }
+.ob-krok.jest-zrobiony{ background:color-mix(in srgb, var(--hud-gold) 78%, white); }
+/* Licznik siedzi w tej samej podkladce, co kropki — stad odstep od nich
+   i brak wlasnego tla. */
+.ob-licznik{
+  margin-left:5px;
+  font-size:11px; font-weight:800; letter-spacing:1.2px;
+  color:#fff; white-space:nowrap;
+}
+
+/* ── Desktop ──────────────────────────────────────────────────────────────
+   W ramce (`.page-scena.jest-ramka`) karta ma wiecej miejsca, wiec czarodziej
+   moze urosnac — ale kolumna tresci zostaje waska. Siatka dwukolumnowa wejdzie
+   razem z ilustracjami; zdania w dwoch kolumnach czyta sie gorzej niz w jednej. */
+@media (min-width:760px){
+  /* W ramce karta ma pod soba duzo pustego papieru — na telefonie kolumna
+     konczy sie tam, gdzie tresc, na monitorze nie. Srodkujemy ja w pionie,
+     zeby nie wisiala przy gornej krawedzi kadru. */
+  .ob-ekran{ min-height:100%; justify-content:center; }
+  .ob-karta{ --ob-wizkor:224px; width:min(100%, 460px); padding:36px 26px 26px; }
+  .ob-karta.wizkor-maly{ --ob-wizkor:150px; }
+  .ob-tytul{ font-size:34px; }
+  .ob-pytanie{ font-size:24px; }
+}
+
+/* ── Wróć ─────────────────────────────────────────────────────────────────
+   `hub-btn` nie ma wariantu malego — w HUD-zie siedzi w siatkach i rzedach,
+   nigdy w pasku. Zamiast dorabiac go tam (i ryzykowac, ze ktos uzyje go
+   w grze), pasek gorny onboardingu dostaje wlasny guzik z tych samych
+   tokenow: kremowy papier, zloty rant, wypuklosc 2 px. */
+.ob-wroc{
+  padding:7px 14px; border-radius:999px;
+  border:2px solid color-mix(in srgb, var(--zloto-250) 92%, transparent);
+  background:linear-gradient(180deg, var(--hud-cream-top), var(--krem-500));
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.8), 0 2px 0 color-mix(in srgb, var(--braz-550) 45%, transparent);
+  font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
+  font-size:13px; font-weight:800; color:var(--braz-700); cursor:pointer;
+}
+.ob-wroc:active{ transform:translateY(2px); box-shadow:inset 0 1.5px 0 rgba(255,255,255,.8); }
+
+/* WYBÓR POSTACI. Ilustracja niesie znaczenie szybciej niż podpis lub abstrakcyjny
+   piktogram. Na wejściu oba kafelki są neutralne; wybrany stan pojawia się
+   dopiero po świadomym kliknięciu. */
+.ob-rodzaj{ display:flex; gap:8px; }
+.ob-rodzaj-opcja{
+  flex:1; height:var(--ob-control-h); min-height:var(--ob-control-h); padding:4px 12px;
+  display:grid; place-items:center;
+  border:2px solid color-mix(in srgb, var(--zloto-450) 45%, transparent);
+  border-radius:16px;
+  background:color-mix(in srgb, var(--krem-50) 70%, transparent);
+  color:var(--p-ink,#4e4d76); cursor:pointer;
+  transition:transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.ob-rodzaj-opcja.jest-wybrana{
+  border-color:var(--magia, #7A4DC2);
+  background:color-mix(in srgb, var(--magia, #7A4DC2) 14%, var(--biel-ciepla));
+  box-shadow:0 2px 0 color-mix(in srgb, var(--magia, #7A4DC2) 35%, transparent),
+             0 0 0 3px color-mix(in srgb, var(--magia, #7A4DC2) 12%, transparent);
+}
+.ob-rodzaj-opcja:focus-visible{
+  outline:3px solid color-mix(in srgb, var(--magia, #7A4DC2) 55%, white);
+  outline-offset:2px;
+}
+.ob-rodzaj-ilustracja{
+  width:66px; height:58px;
+  pointer-events:none; user-select:none; -webkit-user-drag:none;
+  filter:drop-shadow(0 2px 1px rgba(68,45,22,.18));
+  transition:transform .18s cubic-bezier(.2,.9,.3,1.25);
+}
+.ob-rodzaj-opcja.jest-wybrana .ob-rodzaj-ilustracja{ transform:scale(1.06); }
+.ob-rodzaj-opcja:active{ transform:translateY(1px); }

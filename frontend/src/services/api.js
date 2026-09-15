@@ -40,9 +40,11 @@ export const api = {
   pushUnsubscribe: (playerId, sub) => call(`/players/${playerId}/push-unsubscribe`, { method: "DELETE", body: JSON.stringify(sub) }),
 
   // Onboarding (V2)
-  getQuiz: () => call("/onboarding/quiz"),
-  submitQuiz: (player_id, answers, name) =>
-    call("/onboarding/submit", { method: "POST", body: { player_id, answers, name } }),
+  // `etap` to „1-3" albo „4-8" — serwer oddaje wtedy trzy albo cztery kafelki
+  // na pytanie i wariant scenki dla tego wieku (patrz `quizObrazkowy.js`).
+  getQuiz: (etap) => call(`/onboarding/quiz${etap ? `?etap=${encodeURIComponent(etap)}` : ""}`),
+  submitQuiz: (player_id, answers, name, etap_szkolny) =>
+    call("/onboarding/submit", { method: "POST", body: { player_id, answers, name, etap_szkolny } }),
 
   // Cycles
   getCurrentCycle: (player_id) => call(`/cycles/current/${player_id}`),

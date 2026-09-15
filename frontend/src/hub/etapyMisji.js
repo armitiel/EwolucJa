@@ -50,6 +50,7 @@ import {
   stanPuzzli,
   zaliczUlozenie,
 } from "./puzzleGier.js";
+import { typStartowy, upewnijProfil, zapomnijProfil } from "./profilStartowy.js";
 import {
   MISJE,
   odbierzNagrode as odbierzNagrodeMisji,
@@ -69,6 +70,33 @@ import {
  * wprost w minigrę (patrz nagłówek `misjeGier.js`).
  */
 const FAZY = ["brak", "kawalki", "komplet", "odkryta", "wygrana"];
+
+/**
+ * PIERWSZY EKRAN GRY. Oś zaczynała się od „Pusto", czyli od dziecka, które
+ * ma już typ i stoi na polanie — a cały onboarding leżał przed nią i nie dało
+ * się do niego skoczyć inaczej niż przez czyszczenie localStorage ręcznie.
+ *
+ * `wyjscie` to jedyne pole osi, które prowadzi POZA świat: pulpit po
+ * zastosowaniu etapu przenosi tam przeglądarkę. Test profilu żyje pod własnym
+ * adresem, więc nie da się go pokazać oknem w hubie.
+ */
+function etapyWejscia() {
+  return [
+    {
+      id: "onboarding",
+      tytul: "Onboarding — pierwszy ekran",
+      opis: "Dziecko nie ma jeszcze typu ani etapu szkolnego. Wizkor pyta o imię, potem idzie sześć pytań testu profilu.",
+      zebrane: null,
+      wyplacone: false,
+      /* Po teście dziecko ląduje na polanie i pierwsze, co robi Wizkor, to
+         zlecenie gwiazdek — stąd `start`, a nie `null`. Z `null` pulpit
+         zgłaszał rozjazd na etapie, na którym Wizkora jeszcze nie ma. */
+      akcja: "start",
+      czysciProfil: true,
+      wyjscie: "/onboarding?quiz=1",
+    },
+  ];
+}
 
 /**
  * Etapy gwiazdek. `zebrane: null` znaczy „zadania w ogóle nie ma", a nie
@@ -220,13 +248,16 @@ function etapyReala() {
  * rozjazd między osią a kwestią widać od razu, bez czytania kodu.
  */
 export const ETAPY = [
+  ...etapyWejscia(),
   ...etapyGwiazdek(),
   ...MISJE.flatMap((def, idx) => etapyMisji(def, idx)),
   ...etapyReala(),
 ];
 
+/** Ile etapów stoi PRZED gwiazdkami (dziś: sam onboarding). */
+const WEJSCIE = etapyWejscia().length;
 /** Numer pierwszego etapu z grami — reszta osi liczy się od niego. */
-const PIERWSZA_GRA = etapyGwiazdek().length;
+const PIERWSZA_GRA = WEJSCIE + etapyGwiazdek().length;
 /** Numer pierwszego etapu zadania w realu (tuż za ostatnią misją). */
 const PIERWSZY_REAL = PIERWSZA_GRA + MISJE.length * FAZY.length;
 
@@ -253,9 +284,14 @@ function stopien(m) {
  */
 export function etapBiezacy() {
   const z = stanZadania();
-  if (!z.istnieje) return 0;
-  if (!z.spelnione) return z.zebrane >= CEL_DOMYSLNY - 1 ? 2 : 1;
-  if (!z.wyplacone) return 3;
+  /* ONBOARDING to etap zerowy i rozpoznaje sie go po DWÓCH rzeczach naraz:
+     braku typu ORAZ nietkniętym świecie. Sam brak typu nie wystarcza —
+     każdy skok po osi zostawiałby wtedy oś na „Etap 1 z 24", bo żaden etap
+     nie nadaje typu, a pulpit krzyczałby rozjazdem na własne ustawienie. */
+  if (!typStartowy() && !z.istnieje) return 0;
+  if (!z.istnieje) return WEJSCIE;
+  if (!z.spelnione) return WEJSCIE + (z.zebrane >= CEL_DOMYSLNY - 1 ? 2 : 1);
+  if (!z.wyplacone) return WEJSCIE + 3;
 
   const misje = stanMisji();
   const idx = misje.findIndex((m) => !m.wyplacona);
@@ -308,6 +344,12 @@ export function zastosujEtap(nr) {
   skasujZadanie();
   skasujMisje();
   skasujPuzzle();
+  // Tylko pierwszy etap cofa dziecko przed test profilu. Reszta osi zostawia
+  // typ w spokoju — inaczej kazdy skok po osi kasowalby wynik quizu.
+  if (etap.czysciProfil) zapomnijProfil();
+  // Każdy inny etap zakłada dziecko PO teście — inaczej oś wracałaby na
+  // onboarding przy pierwszym odświeżeniu. Istniejącego typu nie rusza.
+  else upewnijProfil();
 
   // Etapy z grami nie powtarzają w kółko „gwiazdki: komplet, rozliczone" —
   // to warunek WEJŚCIA do łańcucha gier i wynika z samego faktu, że etap

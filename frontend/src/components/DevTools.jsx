@@ -3,6 +3,7 @@
  * Widoczna na każdej stronie (mount w main.jsx). Daje szybki dostęp do:
  *  - resetu sesji (wyloguj gracza, wyloguj GM, wipe wszystko)
  *  - panelu /dev (inspektor quizu, dump stanu)
+ *  - testu profilu na starcie (obie wersje wiekowe, z czyszczeniem wyniku)
  *  - bieżącego playerId i gmId
  *
  * Domyślnie schowana — kliknij "DEV" w prawym dolnym rogu.
@@ -12,6 +13,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { session } from "../services/api.js";
 import { ttsPlayer } from "../services/ttsPlayer";
+import { KLUCZ_ETAP, KLUCZ_TYP } from "../hub/profilStartowy.js";
 
 // Trasy doswiadczenia dziecka — tu narzedzia programisty sa ukryte.
 const CHILD_ROUTES = ["/w2", "/przygoda", "/swiat", "/backpack", "/profile"];
@@ -22,12 +24,18 @@ export default function DevTools() {
   const [open, setOpen] = useState(false);
   const [playerId, setPlayerId] = useState(session.getPlayer());
   const [gmId, setGmId] = useState(session.getGM());
+  const [typ, setTyp] = useState(() => { try { return localStorage.getItem(KLUCZ_TYP); } catch { return null; } });
+  const [etap, setEtap] = useState(() => { try { return localStorage.getItem(KLUCZ_ETAP); } catch { return null; } });
   const hiddenForChild = CHILD_ROUTES.some((r) => location.pathname.startsWith(r));
 
   // Odśwież snapshot sesji przy każdej zmianie ścieżki
   useEffect(() => {
     setPlayerId(session.getPlayer());
     setGmId(session.getGM());
+    try {
+      setTyp(localStorage.getItem(KLUCZ_TYP));
+      setEtap(localStorage.getItem(KLUCZ_ETAP));
+    } catch {}
   }, [location.pathname]);
 
   // Doswiadczenie dziecka nie moze zawierac przycisku programisty.
@@ -46,6 +54,33 @@ export default function DevTools() {
     session.setGM("");
     setGmId(null);
     navigate("/gm");
+  }
+
+  /**
+   * Test profilu od zera, w wybranej wersji wiekowej.
+   *
+   * Czyscimy TYP I ETAP, a nie tylko otwieramy adres: bez tego drugie wejscie
+   * pokazuje wynik sprzed chwili i nie da sie sprawdzic, czy komplet pytan
+   * dziala. `?quiz=1` omija ewentualny cichy przelot do swiata
+   * (`POMIN_ONBOARDING` w `Onboarding.jsx`).
+   */
+  function testProfilu(etap) {
+    try {
+      localStorage.setItem(KLUCZ_ETAP, etap);
+      localStorage.removeItem(KLUCZ_TYP);
+    } catch {}
+    ttsPlayer.stop();
+    setOpen(false);
+    navigate("/onboarding?quiz=1");
+  }
+
+  function zapomnijProfil() {
+    try {
+      localStorage.removeItem(KLUCZ_TYP);
+      localStorage.removeItem(KLUCZ_ETAP);
+    } catch {}
+    setTyp(null);
+    setEtap(null);
   }
 
   function wipeAll() {
@@ -91,6 +126,10 @@ export default function DevTools() {
           <span style={styles.k}>route:</span>{" "}
           <span style={styles.v}>{location.pathname}</span>
         </p>
+        <p style={styles.kv}>
+          <span style={styles.k}>profil:</span>{" "}
+          <span style={styles.v}>{typ || "—"}{etap ? ` · klasy ${etap}` : ""}</span>
+        </p>
       </div>
 
       <div style={styles.section}>
@@ -102,6 +141,22 @@ export default function DevTools() {
         </button>
         <button style={{ ...styles.btn, ...styles.btnDanger }} onClick={wipeAll}>
           🧨 Wyczyść wszystko
+        </button>
+      </div>
+
+      {/* TEST PROFILU. Dwa przyciski, nie jeden: wersje wiekowe roznia sie
+          liczba kafelkow (trzy kontra cztery) i tym, ile z pytania niesie
+          obrazek, a ile podpis — a to widac dopiero na ekranie. */}
+      <div style={styles.section}>
+        <p style={styles.label}>Test profilu</p>
+        <button style={styles.btn} onClick={() => testProfilu("1-3")}>
+          🎒 Onboarding — klasy 1–3
+        </button>
+        <button style={styles.btn} onClick={() => testProfilu("4-8")}>
+          🎓 Onboarding — klasy 4–8
+        </button>
+        <button style={styles.btnLink} onClick={zapomnijProfil} disabled={!typ && !etap}>
+          → Zapomnij typ i etap
         </button>
       </div>
 

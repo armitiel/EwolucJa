@@ -1,76 +1,11 @@
 import { Router } from "express";
 import { getPlayer, savePlayer, createCycle } from "../database/db.js";
 
-// QUIZ OBRAZKOWY v4 (zrodlo prawdy: docs/TEST_OBRAZKOWY.md).
-// 6 pytan x 4 odpowiedzi. Punktacja z pierscienia ST-MD-EM-KR-DT-LD:
-// glowna +3, sasiedzi +2, dalsze +1, przeciwienstwo 0 (9 pkt na odpowiedz).
-// Kazdy typ jest 'glowna' dokladnie 4 razy w 24 odpowiedziach.
-// `podpis` = 2-4 slowa pod kafelkiem, `obraz` = docelowa ilustracja,
-// `tylko48` = kafelek pokazywany wylacznie klasom 4-8 (dla 1-3 zostaja trzy).
-// TYP wybieramy z licznika main_picks (ile razy dana cecha byla glowna),
-// a suma `scores` karmi wylacznie radar — patrz TEST_OBRAZKOWY.md sekcja 3.
-export const ONBOARDING_QUIZ = [
-  {
-    question_id: "nq1",
-    question: "Na polanie stoi zamknięta skrzynia. Co robisz?",
-    answers: [
-      { answer_id: "a", glowna: "ST", podpis: "Oglądam kłódkę", obraz: "/assets/onboarding/skrzynia-a.webp", text: "Kucam przy skrzyni i oglądam kłódkę — najpierw chcę wiedzieć, jak jest zamknięta.", points: { ST: 3, MD: 2, EM: 1, KR: 0, DT: 1, LD: 2 }, tylko48: true },
-      { answer_id: "b", glowna: "KR", podpis: "To statek kosmiczny", obraz: "/assets/onboarding/skrzynia-b.webp", text: "Siadam na niej okrakiem: od teraz to mój statek kosmiczny.", points: { ST: 0, MD: 1, EM: 2, KR: 3, DT: 2, LD: 1 } },
-      { answer_id: "c", glowna: "EM", podpis: "Wołam przyjaciela", obraz: "/assets/onboarding/skrzynia-c.webp", text: "Macham do przyjaciela — otworzymy ją razem.", points: { ST: 1, MD: 2, EM: 3, KR: 2, DT: 1, LD: 0 } },
-      { answer_id: "d", glowna: "LD", podpis: "Otwieram od razu", obraz: "/assets/onboarding/skrzynia-d.webp", text: "Chwytam wieko obiema rękami i unoszę je od razu.", points: { ST: 2, MD: 1, EM: 0, KR: 1, DT: 2, LD: 3 } },
-    ],
-  },
-  {
-    question_id: "nq2",
-    question: "Przez ścieżkę płynie strumyk. Jak przejdziesz?",
-    answers: [
-      { answer_id: "a", glowna: "MD", podpis: "Idę powoli i pewnie", obraz: "/assets/onboarding/strumyk-a.webp", text: "Stawiam stopę na kamieniu i idę powoli, patrząc pod nogi.", points: { ST: 2, MD: 3, EM: 2, KR: 1, DT: 0, LD: 1 }, tylko48: true },
-      { answer_id: "b", glowna: "DT", podpis: "Sprawdzam patykiem", obraz: "/assets/onboarding/strumyk-b.webp", text: "Kucam na brzegu i sprawdzam patykiem, jak tu głęboko.", points: { ST: 1, MD: 0, EM: 1, KR: 2, DT: 3, LD: 2 } },
-      { answer_id: "c", glowna: "KR", podpis: "Buduję kładkę", obraz: "/assets/onboarding/strumyk-c.webp", text: "Układam deskę i kamienie w poprzek — będzie kładka.", points: { ST: 0, MD: 1, EM: 2, KR: 3, DT: 2, LD: 1 } },
-      { answer_id: "d", glowna: "LD", podpis: "Skaczę pierwszy", obraz: "/assets/onboarding/strumyk-d.webp", text: "Rozpędzam się i skaczę pierwszy na drugi brzeg.", points: { ST: 2, MD: 1, EM: 0, KR: 1, DT: 2, LD: 3 } },
-    ],
-  },
-  {
-    question_id: "nq3",
-    question: "Komuś rozsypało się pudełko kredek. Co robisz?",
-    answers: [
-      { answer_id: "a", glowna: "EM", podpis: "Siadam obok", obraz: "/assets/onboarding/kredki-a.webp", text: "Siadam obok i podaję pierwszą kredkę — nie musi nic mówić.", points: { ST: 1, MD: 2, EM: 3, KR: 2, DT: 1, LD: 0 } },
-      { answer_id: "b", glowna: "ST", podpis: "Układam po kolorach", obraz: "/assets/onboarding/kredki-b.webp", text: "Zbieram kredki i układam je po kolei, od najjaśniejszej.", points: { ST: 3, MD: 2, EM: 1, KR: 0, DT: 1, LD: 2 } },
-      { answer_id: "c", glowna: "MD", podpis: "Trzymam pudełko", obraz: "/assets/onboarding/kredki-c.webp", text: "Trzymam otwarte pudełko, żeby łatwiej było je wkładać.", points: { ST: 2, MD: 3, EM: 2, KR: 1, DT: 0, LD: 1 } },
-      { answer_id: "d", glowna: "DT", podpis: "Szukam zgubionych", obraz: "/assets/onboarding/kredki-d.webp", text: "Zaglądam pod ławkę — na pewno któraś się tam zakręciła.", points: { ST: 1, MD: 0, EM: 1, KR: 2, DT: 3, LD: 2 }, tylko48: true },
-    ],
-  },
-  {
-    question_id: "nq4",
-    question: "Dostajesz wielkie pudło. Co z nim zrobisz?",
-    answers: [
-      { answer_id: "a", glowna: "KR", podpis: "Statek kosmiczny", obraz: "/assets/onboarding/pudlo-a.webp", text: "Maluję je, wycinam okienko i robię statek kosmiczny.", points: { ST: 0, MD: 1, EM: 2, KR: 3, DT: 2, LD: 1 } },
-      { answer_id: "b", glowna: "DT", podpis: "Pracownia badacza", obraz: "/assets/onboarding/pudlo-b.webp", text: "Robię z niego pracownię: lupa, kamyki, liście, słoik.", points: { ST: 1, MD: 0, EM: 1, KR: 2, DT: 3, LD: 2 } },
-      { answer_id: "c", glowna: "EM", podpis: "Domek dla misia", obraz: "/assets/onboarding/pudlo-c.webp", text: "Robię domek dla misia — z kocykiem i wyciętym sercem.", points: { ST: 1, MD: 2, EM: 3, KR: 2, DT: 1, LD: 0 }, tylko48: true },
-      { answer_id: "d", glowna: "LD", podpis: "Tarcza i wieża", obraz: "/assets/onboarding/pudlo-d.webp", text: "Wycinam tarczę i hełm, a z reszty buduję wieżę.", points: { ST: 2, MD: 1, EM: 0, KR: 1, DT: 2, LD: 3 } },
-    ],
-  },
-  {
-    question_id: "nq5",
-    question: "Na ziemi widzisz rząd tropów. Co robisz?",
-    answers: [
-      { answer_id: "a", glowna: "DT", podpis: "Idę po śladach", obraz: "/assets/onboarding/tropy-a.webp", text: "Idę wzdłuż tropów i patrzę, dokąd prowadzą.", points: { ST: 1, MD: 0, EM: 1, KR: 2, DT: 3, LD: 2 } },
-      { answer_id: "b", glowna: "ST", podpis: "Rysuję mapę", obraz: "/assets/onboarding/tropy-b.webp", text: "Rysuję patykiem na ziemi mapę: tropy, drzewo, strzałka.", points: { ST: 3, MD: 2, EM: 1, KR: 0, DT: 1, LD: 2 } },
-      { answer_id: "c", glowna: "KR", podpis: "Robię własne ślady", obraz: "/assets/onboarding/tropy-c.webp", text: "Odciskam własne ślady obok i układam z nich wzór.", points: { ST: 0, MD: 1, EM: 2, KR: 3, DT: 2, LD: 1 }, tylko48: true },
-      { answer_id: "d", glowna: "MD", podpis: "Stoję cicho", obraz: "/assets/onboarding/tropy-d.webp", text: "Staję cicho za krzakiem i czekam, kto się pokaże.", points: { ST: 2, MD: 3, EM: 2, KR: 1, DT: 0, LD: 1 } },
-    ],
-  },
-  {
-    question_id: "nq6",
-    question: "Ktoś nowy stoi sam obok bawiącej się grupy. Co robisz?",
-    answers: [
-      { answer_id: "a", glowna: "EM", podpis: "Podaję mu piłkę", obraz: "/assets/onboarding/nowy-a.webp", text: "Podchodzę i podaję mu piłkę.", points: { ST: 1, MD: 2, EM: 3, KR: 2, DT: 1, LD: 0 } },
-      { answer_id: "b", glowna: "LD", podpis: "Wołam wszystkich", obraz: "/assets/onboarding/nowy-b.webp", text: "Wołam wszystkich: gramy razem, jest nas więcej!", points: { ST: 2, MD: 1, EM: 0, KR: 1, DT: 2, LD: 3 }, tylko48: true },
-      { answer_id: "c", glowna: "ST", podpis: "Dzielę na drużyny", obraz: "/assets/onboarding/nowy-c.webp", text: "Rysuję dwa kręgi i dzielę nas na drużyny, żeby każdy miał miejsce.", points: { ST: 3, MD: 2, EM: 1, KR: 0, DT: 1, LD: 2 } },
-      { answer_id: "d", glowna: "MD", podpis: "Łączę dwie strony", obraz: "/assets/onboarding/nowy-d.webp", text: "Biorę za rękę jego i kogoś z grupy — robię mostek.", points: { ST: 2, MD: 3, EM: 2, KR: 1, DT: 0, LD: 1 } },
-    ],
-  },
-];
+// TRESC TESTU (szesc pytan, dwadziescia cztery odpowiedzi, warianty wiekowe)
+// przeniesiona do `quizObrazkowy.js` — tu zostaje mechanika. Reeksport, bo
+// `ONBOARDING_QUIZ` importuja tez skrypty bilansu i pulpit dev.
+import { ONBOARDING_QUIZ } from "./quizObrazkowy.js";
+export { ONBOARDING_QUIZ };
 
 export const PROFILE_TO_ARCHETYPE = {
   DT: "tropiciel_tajemnic",
@@ -78,6 +13,9 @@ export const PROFILE_TO_ARCHETYPE = {
   ST: "mistrz_map",
   KR: "tkacz_snow",
   LD: "gwardzista_odwagi",
+  // `straznik_mostu` to LEGACY ID, nie nazwa: typ MD nazywa sie dzis
+  // Spokojna Glowa (Skupienie), ale klucz zostaje, bo siedzi w zapisach
+  // starszych graczy i w tablicach LEGACY_TO_PROFILE we froncie.
   MD: "straznik_mostu",
 };
 export const MVP_AVAILABLE_ARCHETYPES = [
@@ -146,12 +84,41 @@ function pickArchetype(scores, opts = {}) {
 export function onboardingRoutes(db) {
   const router = Router();
 
+  /**
+   * Test w wersji dla danego etapu szkolnego.
+   *
+   * `?etap=1-3` — trzy kafelki na pytanie (`tylko48` odpada), scenki bez
+   * ladunku leku (kloda zamiast strumyka) i podpisy, ktore front chowa pod
+   * dotkniecie: dla najmlodszych obrazek niesie tresc, slowo jest tylko
+   * etykieta do odsluchania.
+   * `?etap=4-8` (domyslne) — cztery kafelki i warianty dla starszych tam,
+   * gdzie scenka dla mlodszych czyta sie jako dziecinna (kredki -> piornik).
+   *
+   * Filtrujemy PO STRONIE SERWERA, bo od tego zalezy bilans: szesc ukrytych
+   * kafelkow pokrywa szesc roznych typow i wersja trzykafelkowa zostaje przez
+   * to zbalansowana. Front, ktory filtrowalby sam, moglby to po cichu zepsuc.
+   *
+   * Punktacji (`points`, `glowna`) NIE wysylamy — to jedyna rzecz, ktorej
+   * dziecko po drugiej stronie nie ma jak zobaczyc w zakladce sieciowej.
+   */
   router.get("/quiz", (req, res) => {
+    const mlodsze = String(req.query.etap || "") === "1-3";
     res.json({
+      etap: mlodsze ? "1-3" : "4-8",
       questions: ONBOARDING_QUIZ.map((q) => ({
         question_id: q.question_id,
-        question: q.question,
-        answers: q.answers.map((a) => ({ answer_id: a.answer_id, text: a.text })),
+        question: (mlodsze ? q.pytanie13 : q.pytanie48) || q.question,
+        answers: q.answers
+          .filter((a) => !(mlodsze && a.tylko48))
+          .map((a) => {
+            const w = (!mlodsze && a.wariant48) || {};
+            return {
+              answer_id: a.answer_id,
+              podpis: w.podpis || a.podpis,
+              obraz: w.obraz || a.obraz,
+              text: w.text || a.text,
+            };
+          }),
       })),
     });
   });
@@ -166,7 +133,7 @@ export function onboardingRoutes(db) {
 
   router.post("/submit", async (req, res) => {
     try {
-      const { player_id, answers, name } = req.body;
+      const { player_id, answers, name, etap_szkolny } = req.body;
       const player = await getPlayer(db, player_id);
       if (!player) return res.status(404).json({ error: "Gracz nie znaleziony" });
       if (!Array.isArray(answers) || answers.length === 0) {
@@ -208,6 +175,19 @@ export function onboardingRoutes(db) {
       player.archetype_assigned_at = new Date().toISOString();
       player.onboarding_answers = log;
       player.main_picks = main_picks;
+      /* POLA PROFILU (TEST_OBRAZKOWY.md sekcja 7). `profil_wsparcie` to drugi
+         typ w kolejnosci main_picks — dobiera trzecie zadanie, zeby profil nie
+         zamykal dziecka w koleinie. `profil_zrodlo` odroznia wynik testu od
+         profilu douczonego pozniej z realnych wyborow: reguly zmiany typu
+         (sekcja 8) musza wiedziec, co wlasciwie zmieniaja. `sygnaly` startuja
+         od zera i rosna poza tym miejscem. */
+      const kolejnosc = Object.keys(main_picks).sort((a, b) => main_picks[b] - main_picks[a]);
+      player.profil_glowny = dominant_profile;
+      player.profil_wsparcie = kolejnosc.find((k) => k !== dominant_profile) || null;
+      player.profil_zrodlo = "quiz";
+      player.profil_aktualizacja = new Date().toISOString();
+      player.sygnaly = player.sygnaly || { EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 };
+      player.etap_szkolny = etap_szkolny === "1-3" ? "1-3" : "4-8";
       player.lifetime_scores = player.lifetime_scores || { EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 };
       for (const [k, v] of Object.entries(scores)) {
         player.lifetime_scores[k] = (player.lifetime_scores[k] || 0) + v;
@@ -224,6 +204,9 @@ export function onboardingRoutes(db) {
         dominant_profile,                  // legacy field name
         onboarding_scores: scores,
         main_picks,
+        profil_glowny: player.profil_glowny,
+        profil_wsparcie: player.profil_wsparcie,
+        etap_szkolny: player.etap_szkolny,
         first_cycle: cycle,
       });
     } catch (e) {
