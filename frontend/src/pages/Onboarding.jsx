@@ -564,7 +564,11 @@ function ArchetypeReveal({ result, onEnter }) {
 
         <div className="ob-reveal-copy">
           <blockquote className="ob-reveal-tagline">„{lore.tagline}”</blockquote>
-          <div className="ob-reveal-divider" aria-hidden="true"><Sparkle size={18} /></div>
+          <div className="ob-reveal-divider" aria-hidden="true">
+            <svg className="ob-reveal-gwiazdka" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 1c.9 6.6 4.4 10.1 11 11-6.6.9-10.1 4.4-11 11-.9-6.6-4.4-10.1-11-11 6.6-.9 10.1-4.4 11-11Z" />
+            </svg>
+          </div>
           <p className="ob-reveal-description">{lore.description}</p>
           <button className="hub-btn hub-btn-primary ob-reveal-cta" onClick={onEnter}>
             Wyrusz w drogę
