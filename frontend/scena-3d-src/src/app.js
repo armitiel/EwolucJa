@@ -1548,6 +1548,7 @@ export class Aplikacja {
 
     this.camPos.copy(this.camTarget).add(this.camDir);
     this._kinoKlatka(e);
+    this._wejscieKlatka(e);
     this.camera.position.copy(this.camPos);
     this.camera.lookAt(this._kc.x, this._kc.y, this._kc.z);
 
@@ -1844,8 +1845,49 @@ export class Aplikacja {
     } catch {}
     this.kino("wejscie");
   }
-  /** Najazd kamery na bohatera na zadanie — Swiat wola po rozsunieciu chmur. */
-  kinoWejsciaTeraz() { return this.kino("wejscie"); }
+  /**
+   * Najazd wejscia (Swiat wola po rozsunieciu chmur): kamera zaczyna niemal
+   * PROSTO Z GORY nad planeta, robi orbite wokol bohatera i szybko, dynamicznie
+   * (easeOut) siada w domyslnej pozycji. Konczy sie DOKLADNIE na `camTarget +
+   * camDir`, zoom 1 — wiec wtapia sie w normalny kadr bez przeskoku.
+   */
+  kinoWejsciaTeraz() {
+    if (spokojnyRuch || !this.hero) return false;
+    const azDef = Math.atan2(this.camDir.x, this.camDir.z);
+    this._wejscie = {
+      t: 0,
+      dl: 2.2,
+      epsStart: 1.40,          // ~80 stopni nad horyzontem = prawie prosto z gory
+      azStart: azDef + 2.62,   // ~150 stopni orbity do azymutu domyslnego
+      zoomStart: 0.72,         // z gory widac wiecej planety; dojazd do 1
+    };
+    return true;
+  }
+  _wejscieKlatka(e) {
+    const W = this._wejscie;
+    if (!W) return;
+    W.t += e;
+    const p = Math.min(1, W.t / W.dl);
+    const q = 1 - Math.pow(1 - p, 3);          // easeOutCubic: szybko, potem miekko siada
+    const L = this.camDir.length();
+    const epsDef = Math.asin(Math.max(-1, Math.min(1, this.camDir.y / L)));
+    const azDef = Math.atan2(this.camDir.x, this.camDir.z);
+    const eps = W.epsStart + (epsDef - W.epsStart) * q;
+    const az = W.azStart + (azDef - W.azStart) * q;
+    const zoom = W.zoomStart + (1 - W.zoomStart) * q;
+    const ce = Math.cos(eps), se = Math.sin(eps);
+    this.camPos.set(
+      this.camTarget.x + ce * Math.sin(az) * L,
+      this.camTarget.y + se * L,
+      this.camTarget.z + ce * Math.cos(az) * L
+    );
+    this._kc.set(this.camTarget.x, this.camTarget.y + 0.8, this.camTarget.z);
+    if (Math.abs(this.camera.zoom - zoom) > 1e-4) { this.camera.zoom = zoom; this.camera.updateProjectionMatrix(); }
+    if (p >= 1) {
+      this._wejscie = null;
+      if (this.camera.zoom !== 1) { this.camera.zoom = 1; this.camera.updateProjectionMatrix(); }
+    }
+  }
   _kinoKlatka(e) {
     if (!this._kc) this._kc = new Vector3();
     if (!this._kcT) this._kcT = new Vector3();
