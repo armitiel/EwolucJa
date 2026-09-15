@@ -506,7 +506,16 @@ export default function Onboarding() {
         )}
 
         {step === "result" && result && (
-          <CelebrationThenArchetype result={result} onEnter={() => navigate(SWIAT_PO_QUIZIE)} />
+          <CelebrationThenArchetype
+            result={result}
+            onEnter={() => {
+              // Kurtyna z chmur MUSI stanac PRZED przejsciem, zeby zakryla
+              // ekran, zanim router zdejmie karte wyniku i zaczne sie
+              // ladowanie sceny 3D. Swiat sam ja rozsuwa, gdy jest gotowy.
+              try { window.__zbudujChmury?.(); } catch {}
+              navigate(SWIAT_PO_QUIZIE);
+            }}
+          />
         )}
       </div>
     </PageShell>
