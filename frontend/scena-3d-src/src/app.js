@@ -12,15 +12,18 @@
  */
 import {
   WebGLRenderer, Scene, Color, HemisphereLight, DirectionalLight, AmbientLight, OrthographicCamera,
-  Vector2, Vector3, Quaternion, Matrix4, Group, Mesh, RingGeometry, MeshBasicMaterial, DoubleSide,
+  Vector2, Vector3, Quaternion, Matrix4, Group, Mesh, RingGeometry, MeshBasicMaterial, MeshLambertMaterial, DoubleSide,
   Raycaster, Clock, AnimationMixer, AnimationUtils, LoopOnce, Box3, CanvasTexture, SRGBColorSpace,
-  EquirectangularReflectionMapping, PMREMGenerator, SphereGeometry, CylinderGeometry, BackSide,
+  Sprite, SpriteMaterial,
+  EquirectangularReflectionMapping, PMREMGenerator, SphereGeometry, CylinderGeometry, BoxGeometry, CircleGeometry, BackSide,
   ACESFilmicToneMapping, PCFSoftShadowMap, Points, PointsMaterial, BufferGeometry, Float32BufferAttribute,
 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Planeta, stycznaDo, doStycznej, obrocStyczna, katMiedzy, przytnijDoPromienia } from "./planeta.js";
 import { wczytajMape } from "./mapa.js";
 import { zbudujSwiat, sosna, drzewoLisciaste, kamiennyPak, plamaCienia, PALETA } from "./swiat.js";
+import { stosDrewna, kamyczki, pieniek } from "./natura.js";
+import { schronienie, LICZBA_ETAPOW } from "./schronienie.js";
 import { Znak } from "./znak.js";
 import { postac } from "./postacie.js";
 import { Doba } from "./doba.js";
@@ -33,6 +36,10 @@ import { Dymki } from "./dymki.js";
 const DOTYK = typeof matchMedia !== "undefined" && matchMedia("(pointer:coarse)").matches;
 
 /* ── stałe ruchu (jak w pierwotnej scenie) ──────────────────────────────────── */
+/* Pięć sekund pracy. Trzy okazały się za krótkie: zanim dziecko zdążyło
+   zauważyć, że lisek stanął i coś robi, było już po wszystkim. */
+const CZAS_RABANIA = 5;
+
 const SKALA_BOHATERA = 1.75;
 const V_CHOD = 1.38;
 const V_BIEG = 3.42;
@@ -69,6 +76,10 @@ const MAPA_KLIPOW_DOMYSLNA = { NlaTrack: "walk", "NlaTrack.001": "run", "NlaTrac
 
 /** Tempo, z jakim planeta dogania bohatera (im mniej, tym większy margines ruchu). */
 const TEMPO_OBROTU = 3.2;
+// Podczas podglądu miejsca planeta obraca się WOLNIEJ niż zwykle: to ma być
+// pokazanie, a nie szarpnięcie. Przy 3.2 przeskok na drugi koniec polany
+// wyglądał jak błąd renderowania.
+const TEMPO_PODGLADU = 1.7;
 /** Tempo dokręcania mapy „północą do góry" (patrz `korektaPolnocy`). */
 const KOREKTA_W_RUCHU = 0.45;
 const KOREKTA_W_SPOCZYNKU = 1.1;
@@ -287,6 +298,12 @@ export class Aplikacja {
     this.scene.add(this.swiat);
     this.lantern = sw.lantern;
     this.blockers = sw.blockers;
+    /* WYSOKOŚĆ GRUNTU MIERZONA Z SIATKI, nie ze wzoru. Teren jest kanciasty
+       (`terenKanciasty: 8`), więc analityczna forma `formy.h()` biegnie nad
+       ścianami fasetek — obiekt osadzony według niej WISI nad trawą. Drzewa
+       i głazy w `swiat.js` używają tego miernika (promień w dół), więc
+       wszystko, co ma stać na ziemi obok nich, musi używać tego samego. */
+    this.wysokoscGruntuSiatki = sw.wysokoscGruntu || null;
     if (this.doba) this.doba.ziemia = this.ziemia;
 
     // CIENIE. Domyślnie wyłączone — pierwszy świat ma plamy pod obiektami
@@ -347,6 +364,10 @@ export class Aplikacja {
     // Stan bohatera NA SFERZE: normalna (punkt kuli) i styczna (przód).
     // `hp` to pochodne współrzędne mapy — do znaków, ścieżki, mostu i API.
     this.hn = new Vector3(0, 1, 0);
+    /* Cele do ścięcia/rozbicia. Pusta lista = nie ma czego rąbać i cały
+       mechanizm nie kosztuje nic w pętli (jedno `if` na klatkę). */
+    this._doScinania = [];
+    this._rabanieAktywne = true;
     this.hf = new Vector3(0, 0, 1);
     this.hp = { x: 0, z: 0 };
     this.heroLift = 0;
@@ -394,6 +415,7 @@ export class Aplikacja {
     this.gotowa = this.loadHero()
       .then(() => this.loadMarkers())
       .then(() => this.loadBudynki())
+      .then(() => this.loadSucheDrzewka())
       .then(() => this.fasola?.gotowe)
       .then(() => {
         if (this.destroyed) return;
@@ -542,6 +564,97 @@ export class Aplikacja {
       this.swiat.add(i.root);
       this.markers.push(i);
     }
+  }
+
+  /**
+   * SUCHE DRZEWKA — martwe pnie, jedyne drzewa, ktore dziecko moze sciac.
+   * Ladowane z MODELU (`assets/suche_drzewko.glb`), a nie rysowane kodem jak
+   * sosny: to recznie rzezbiona bryla autora i ma sie roznic sylwetka od
+   * generatora, zeby dziecko poznalo ja z drugiego konca polany.
+   *
+   * Skalujemy WYSOKOSCIA, nie mnoznikiem. Model przychodzi w swoich
+   * jednostkach (5,86 wysokosci), a na mapie ma stac w skali sosen — wpis
+   * `wysokosc` w mapie mowi wprost, jak wysokie ma byc drzewo w swiecie,
+   * a przeliczenie zostaje tutaj. Ten sam zapis co przy budynkach.
+   *
+   * BEZ KOLIZJI: drzewko ma byc celem do wbiegniecia (jak znaki), a nie
+   * przeszkoda. Gdy wejdzie rabanie, blocker moglby je wrecz zepsuc —
+   * lisek nie doszedlby do pnia.
+   */
+  async loadSucheDrzewka() {
+    for (const e of this.mapa.sucheDrzewka || []) {
+      try {
+        const t = await this.loadGLB(e.file || "suche_drzewko");
+        const n = t.scene;
+        const box = new Box3().setFromObject(n);
+        const r = new Vector3();
+        box.getSize(r);
+        n.scale.setScalar((e.wysokosc ?? 2.4) / Math.max(0.001, r.y));
+        box.setFromObject(n);
+        // Model jest juz wyprostowany i wysrodkowany na pniu (obrot +90 wokol X
+        // wypalony w pliku), wiec zostaje tylko posadzic go na gruncie.
+        n.position.set(0, -box.min.y, 0);
+        const kotwica = this._osadz(n, e.pos[0], e.pos[1], .04, e.obrot ?? 0);
+        n.traverse((c) => {
+          if (!c.isMesh) return;
+          // Barwa Z PALETY SWIATA, nie z pliku: eksport z ZBrusha przyszedl bez
+          // .mtl, a i tak chcemy jednego suchego drewna w calej grze — tego
+          // samego, co stos po scieciu (`natura.js`, MAT_DREWNO.suchy).
+          c.material = new MeshLambertMaterial({ color: 0x8a7557, flatShading: true });
+          c.geometry.computeVertexNormals();
+        });
+        const id = e.id || `drzewko-${e.pos[0]}-${e.pos[1]}`;
+        n.name = `suche-${id}`;
+        this.swiat.add(kotwica);
+
+        /* WYNIK PRACY buduje się OD RAZU, tylko jest schowany. Gdyby powstawał
+           dopiero w chwili ścięcia, pierwsze ścięcie w sesji zacinałoby klatkę
+           na budowie pięciu kłód — akurat w sekundzie, w której dziecko patrzy
+           najuważniej. */
+        const wynik = new Group();
+        wynik.visible = false;
+        // Stos leży OBOK pnia, na własnej kotwicy: na kanciastym terenie
+        // wysokość pół kroku dalej potrafi być inna niż pod samym drzewem.
+        /* Skala stosu liczona OD DRZEWKA, nie wpisana na sztywno: z pnia
+           o wysokości 2,4 nie może zostać kupka wielkości kamyka. Przy .48
+           stos ma około metra w poprzek — tyle, ile zajmują trzy kłody. */
+        const skalaStosu = (e.wysokosc ?? 2.4) * .48;
+        wynik.add(this._osadz(stosDrewna(skalaStosu), e.pos[0] + .72, e.pos[1] + .3, .05, .4));
+        wynik.add(this._osadz(pieniek((e.wysokosc ?? 2.4) * .42), e.pos[0], e.pos[1], .04, 0));
+        this.swiat.add(wynik);
+
+        /* KOLIZJA MNIEJSZA NIŻ ZASIĘG PRACY. Bez blockera lisek przechodził
+           przez pień jak przez mgłę i drzewo nie czytało się jak rzecz.
+           Promień 0,5 przy zasięgu 1,6 znaczy: bohater zatrzymuje się O KROK
+           przed pniem i to wystarczy, żeby zacząć piłować. Gdyby blocker był
+           większy od zasięgu, dziecko nigdy by do drzewka nie doszło. */
+        const blocker = { x: e.pos[0], z: e.pos[1], r: e.kolizja ?? 0.5 };
+        this.blockers.push(blocker);
+
+        /* Stos leży OBOK pnia, więc po niego przychodzi się w inne miejsce niż
+           do piłowania. Zapamiętujemy tę pozycję osobno — bez niej lisek
+           „podnosił" drewno, stojąc przy pieńku, czyli metr od stosu. */
+        const posWyniku = [e.pos[0] + .72, e.pos[1] + .3];
+        this._doScinania.push({
+          id, rodzaj: "drzewko", pos: e.pos, zrodlo: n, wynik, blocker,
+          n: this.planeta.normalna(e.pos[0], e.pos[1]),
+          posWyniku, nWyniku: this.planeta.normalna(posWyniku[0], posWyniku[1]),
+          skalaWyniku: skalaStosu,
+          zasieg: e.zasieg ?? 1.6, postep: 0, zrobione: false, dostarczone: false,
+        });
+      } catch (blad) {
+        // Brak modelu nie moze wywalic calej sceny — planeta ma wstac nawet
+        // wtedy, gdy jeden asset nie doleci.
+        console.warn("[scena] nie udalo sie wczytac suchego drzewka", blad);
+      }
+    }
+    this._zarejestrujGlazy();
+    const sch = this.mapa.schronienie;
+    // Normalna placu liczona RAZ: sprawdzamy ją w każdej klatce transportu.
+    this._nPlacu = sch ? this.planeta.normalna(sch.pos[0], sch.pos[1]) : null;
+    // Jedna linia w konsoli zamiast zgadywania, czy cele w ogóle powstały.
+    console.info("[rabanie] cele:", this._doScinania.map((c) => `${c.id} (${c.rodzaj}, zasieg ${c.zasieg})`));
+    console.info("[schronienie] miejsce:", sch?.pos ?? "brak w mapie");
   }
 
   async loadBudynki() {
@@ -875,6 +988,19 @@ export class Aplikacja {
   /* ── teren / most / kolizje (układ mapy) ──────────────────────────────────── */
 
   bridgeLocal(e, t, n) { return n.set(e, 0, t).applyMatrix4(this.bridgeInv); }
+
+  /**
+   * Sadzi bryłę na TEJ SAMEJ wysokości, co drzewa i głazy — czyli według
+   * siatki terenu. Zwraca kotwicę (nie dodaje jej do sceny): wołający sam
+   * decyduje, czy wiesza ją na świecie, czy w grupie wyniku.
+   */
+  _osadz(obj, x, z, zanurzenie = 0, obrot = 0) {
+    const h = this.wysokoscGruntuSiatki ? this.wysokoscGruntuSiatki(x, z) : this.groundHeightAt(x, z);
+    const kotwica = new Group();
+    this.planeta.ustaw(kotwica, x, z, h - zanurzenie, obrot);
+    kotwica.add(obj);
+    return kotwica;
+  }
 
   groundHeightAt(e, t) {
     const forma = this.formy ? this.formy.h(e, t) : 0;
@@ -1522,10 +1648,18 @@ export class Aplikacja {
     // Jak kula śledząca (trackball): najmniejszy obrót, który przenosi
     // aktualną „górę" bohatera na +Y świata — bez skręcania wokół pionu.
     // Dzięki temu nie ma osobliwości i planetę da się obejść dookoła.
-    const u = this._v1.copy(this.hn).applyQuaternion(this.swiat.quaternion);
+    /* PODGLĄD MIEJSCA. Kamera w tej grze jest NIERUCHOMA — „przelot" to obrót
+       planety. Wystarczy więc na chwilę podmienić punkt, który ma wjechać na
+       górę kuli: zamiast normalnej bohatera bierzemy mieszankę jego normalnej
+       i normalnej pokazywanego miejsca. Zero osobnego toru kamery, zero
+       drugiego układu współrzędnych — a widać dokładnie to, co trzeba. */
+    let nGora = this.hn;
+    const wPod = this._podgladTik(e);
+    if (wPod > 0) nGora = this._v3.copy(this.hn).lerp(this._podglad.n, wPod).normalize();
+    const u = this._v1.copy(nGora).applyQuaternion(this.swiat.quaternion);
     this._qTmp.setFromUnitVectors(u, this._v2.set(0, 1, 0));
     this.obrotCel.copy(this._qTmp).multiply(this.swiat.quaternion);
-    const tempo = spokojnyRuch ? 30 : TEMPO_OBROTU;
+    const tempo = spokojnyRuch ? 30 : (wPod > 0 ? TEMPO_PODGLADU : TEMPO_OBROTU);
     this.swiat.quaternion.slerp(this.obrotCel, 1 - Math.exp(-tempo * e));
     this.korektaPolnocy(e);
 
@@ -1593,6 +1727,8 @@ export class Aplikacja {
     if (this.swiatlo) this.swiatlo.aktualizuj(e);
     if (this.kropla) this.kropla.aktualizuj(e);
     this._fasolaTik(e);
+    this._rabanieTik(e);
+    this._transportTik(e);
     if (this.dymki) this.dymki.aktualizuj(e, this.hn, this.hf, this.doba?.stan || null);
     this._czasGry = (this._czasGry || 0) + e;
 
@@ -1648,6 +1784,622 @@ export class Aplikacja {
     const krok = yaw * (1 - Math.exp(-tempo * waga * e));
     this._qTmp.setFromAxisAngle(this._v2.set(0, 1, 0), krok);
     this.swiat.quaternion.premultiply(this._qTmp);
+  }
+
+  /* ── RĄBANIE: suche drzewka i głazy ──────────────────────────────────────
+   *
+   * Trzy decyzje, które warto znać przed zmianą:
+   *
+   * 1. PRACA NIE ZERUJE SIĘ PRZY ODEJŚCIU. Dziecko odbiega, wraca i kończy od
+   *    tego miejsca, w którym przerwało. Zerowanie karałoby za rozglądanie
+   *    się — a rozglądanie się jest w tej grze celem, nie błędem.
+   *
+   * 2. WYNIK JEST ZBUDOWANY OD POCZĄTKU, tylko schowany. Podmiana to dwa
+   *    `visible`, więc klatka, w której dziecko patrzy najuważniej, nie ma
+   *    prawa się zaciąć na budowaniu pięciu kłód.
+   *
+   * 3. SCENA NIE WIE, CZY ZADANIE TRWA. Melduje tylko „zdobyto surowiec"
+   *    (`surowiec:zdobyty`), a co z tym zrobić, decyduje React. Dzięki temu
+   *    świat da się testować bez postępu, a postęp bez świata.
+   */
+
+  /** Pierścień postępu z piłą — wisi NAD LISKIEM, bo to on pracuje. */
+  _wskaznikPracy() {
+    if (this._wskPracy) return this._wskPracy;
+    const c = document.createElement("canvas");
+    c.width = c.height = 128;
+    const g = c.getContext("2d");
+    const spr = new Sprite(new SpriteMaterial({
+      map: new CanvasTexture(c), depthTest: false, transparent: true,
+    }));
+    spr.renderOrder = 60;
+    spr.scale.setScalar(.72);
+    spr.visible = false;
+    spr.rysuj = (p) => {
+      g.clearRect(0, 0, 128, 128);
+      g.fillStyle = "rgba(36,49,71,.82)";
+      g.beginPath(); g.arc(64, 64, 46, 0, Math.PI * 2); g.fill();
+      g.lineWidth = 7; g.lineCap = "round";
+      g.strokeStyle = "rgba(255,255,255,.18)";
+      g.beginPath(); g.arc(64, 64, 40, 0, Math.PI * 2); g.stroke();
+      // Pomarańcz, nie zieleń: zielony pierścień zlewał się z trawą pod spodem,
+      // a zieleń w tej grze znaczy „idź dalej", nie „trwa robota".
+      // MOCNY, NASYCONY, nie przypalony: #E89A3D był przygaszony i na słońcu
+      // gubił się w piasku ścieżki. Ten ma trzymać uwagę przez pięć sekund,
+      // więc idzie na pełnym nasyceniu, grubiej (9) i z ciemnym obrysem pod
+      // spodem — bez obrysu jasny pomarańcz rozmywa się na jasnym tle.
+      g.lineWidth = 11;
+      g.strokeStyle = "rgba(92,38,4,.55)";
+      g.beginPath(); g.arc(64, 64, 40, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * p); g.stroke();
+      g.lineWidth = 9;
+      g.strokeStyle = "#FF7A18";
+      g.beginPath(); g.arc(64, 64, 40, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * p); g.stroke();
+      g.lineWidth = 7;
+      g.save(); g.translate(64, 66); g.rotate(-.35);
+      g.fillStyle = "#E8B84B"; g.fillRect(-23, -4.5, 13, 9);
+      g.fillStyle = "#EDEFF2";
+      g.beginPath(); g.moveTo(-11, -4); g.lineTo(23, -1.5); g.lineTo(23, 3.5); g.lineTo(-11, 4); g.closePath(); g.fill();
+      for (let i = 0; i < 9; i++) {
+        const x = -7 + i * 3.5;
+        g.beginPath(); g.moveTo(x, 4); g.lineTo(x + 2, 7.5); g.lineTo(x + 3.5, 4); g.closePath(); g.fill();
+      }
+      g.restore();
+      spr.material.map.needsUpdate = true;
+    };
+    this.swiat.add(spr);
+    this._wskPracy = spr;
+    return spr;
+  }
+
+  /** Głazy oznaczone w mapie `doRozbicia` stają się celem tak jak drzewka. */
+  _zarejestrujGlazy() {
+    for (const [nr, g] of (this.mapa.glazy || []).entries()) {
+      if (!g || !g.doRozbicia) continue;
+      const zrodlo = this.swiat.getObjectByName(`glaz-${nr}`);
+      if (!zrodlo) continue;
+      const wynik = new Group();
+      wynik.visible = false;
+      // Zanurzenie 0,08 · skala — dokładnie tyle, ile zanurza głazy `swiat.js`,
+      // więc kamyczki siadają w trawie tak samo jak bryła, z której powstały.
+      wynik.add(this._osadz(kamyczki(.64 * (g.skala ?? 1)),
+        g.pos[0], g.pos[1], .08 * (g.skala ?? 1), g.obrot ?? 0));
+      this.swiat.add(wynik);
+      this._doScinania.push({
+        id: g.id || `glaz-${nr}`, rodzaj: "glaz", pos: g.pos, zrodlo, wynik,
+        n: this.planeta.normalna(g.pos[0], g.pos[1]),
+        // Kamyczki zostają dokładnie tam, gdzie stał głaz — inaczej niż stos
+        // drewna, który leży obok pnia.
+        posWyniku: g.pos, nWyniku: this.planeta.normalna(g.pos[0], g.pos[1]),
+        skalaWyniku: .64 * (g.skala ?? 1),
+        // Zasięg WIĘKSZY niż przy drzewku: głaz ma kolizję (blocker r≈0,6),
+        // więc lisek nie wejdzie w niego — musi mu wystarczyć stanięcie obok.
+        zasieg: g.zasieg ?? 1.9, postep: 0, zrobione: false, dostarczone: false,
+      });
+    }
+  }
+
+  /**
+   * Odtwarza stan z poprzedniej sesji: to, co już zużyte, od razu pokazuje
+   * wynik. Woła React po „gotowa", bo tylko on wie, co dziecko zdążyło zrobić.
+   */
+  oznaczZuzyte(lista) {
+    const zbior = new Set(Array.isArray(lista) ? lista : []);
+    for (const c of this._doScinania) {
+      if (!zbior.has(c.id) || c.zrobione) continue;
+      c.zrobione = true;
+      c.postep = CZAS_RABANIA;
+      c.zrodlo.visible = false;
+      c.wynik.visible = true;
+      this._zdejmijKolizje(c);
+    }
+  }
+
+  /** Ścięte drzewko przestaje zagradzać drogę — stos drewna jest niski. */
+  _zdejmijKolizje(c) {
+    if (!c.blocker) return;
+    const i = this.blockers.indexOf(c.blocker);
+    if (i >= 0) this.blockers.splice(i, 1);
+    c.blocker = null;
+  }
+
+  /** Wyłącznik na czas, gdy zadanie nie trwa — świat zostaje nietknięty. */
+  ustawRabanieAktywne(v) {
+    this._rabanieAktywne = v !== false;
+    if (!this._rabanieAktywne && this._wskPracy) this._wskPracy.visible = false;
+  }
+
+  _rabanieTik(e) {
+    if (!this._doScinania.length) return;
+    const wsk = this._wskPracy;
+    // Z pełnymi rękami się nie piłuje — i nie zaczyna drugiej roboty w trakcie
+    // podglądu miejsca, bo wtedy lisek stoi, a planeta jedzie.
+    if (this._kino || this.sequence || this._podglad || this._ladunek) {
+      if (wsk) wsk.visible = false;
+      return;
+    }
+
+    let pracuje = null;
+    for (const c of this._doScinania) {
+      if (c.zrobione) continue;
+      if (this.planeta.odleglosc(this.hn, c.n) < c.zasieg) { pracuje = c; break; }
+    }
+
+    if (!pracuje) {
+      if (wsk) wsk.visible = false;
+      this._blokadaPokazana = false;
+      this._rabUcieczka = 0;
+      return;
+    }
+
+    /* WYŁĄCZONE RĄBANIE MÓWI, ŻE JEST WYŁĄCZONE. Wcześniej podejście do
+       drzewka przy nieaktywnym zadaniu nie robiło nic i nie dało się zgadnąć,
+       czy to blokada, czy błąd — a to jest dokładnie ten stan, w którym
+       siedzi się, gdy zadanie nie zostało jeszcze przyjęte. */
+    if (!this._rabanieAktywne) {
+      if (wsk) wsk.visible = false;
+      if (!this._blokadaPokazana) {
+        this._blokadaPokazana = true;
+        this.hint("Wizkor jeszcze o to nie prosił");
+      }
+      return;
+    }
+    this._blokadaPokazana = false;
+
+    /* W MIEJSCU I PRZODEM DO CELU. Bez tego lisek piłował bokiem albo tyłem,
+       a pierścień wisiał nad postacią idącą gdzie indziej.
+       Uwaga na pułapkę: gdyby wejście zerowało wejście na sztywno, dziecko
+       zostałoby uwięzione na pięć sekund. Dlatego liczymy, jak długo naprawdę
+       ciśnie w bok — wyraźny ruch przez 0,35 s przerywa pracę. Postęp NIE
+       przepada, więc odejście nic nie kosztuje. */
+    const sila = Math.hypot(this.input.x, this.input.y);
+    this._rabUcieczka = sila > .55 ? (this._rabUcieczka || 0) + e : 0;
+    if (this._rabUcieczka > .35) {
+      if (wsk) wsk.visible = false;
+      return;
+    }
+    const kier = this.stycznaDoMapy(pracuje.pos[0], pracuje.pos[1],
+      this._rabKier || (this._rabKier = new Vector3()));
+    this.obrocKu(kier, 9, e);
+    this.input.set(0, 0);
+    this.setLocomotion(0);
+    this.walking = false;
+
+    pracuje.postep = Math.min(CZAS_RABANIA, pracuje.postep + e);
+    const w = this._wskaznikPracy();
+    w.visible = true;
+    // Pierścień siedzi nad liskiem w układzie planety: pozycja bohatera plus
+    // jego normalna (czyli „góra" w tym miejscu kuli), a nie sztywne +Y.
+    w.position.copy(this.hero.position).addScaledVector(this.hn, .95);
+    w.rysuj(pracuje.postep / CZAS_RABANIA);
+
+    if (pracuje.postep < CZAS_RABANIA) return;
+
+    pracuje.zrobione = true;
+    pracuje.zrodlo.visible = false;
+    pracuje.wynik.visible = true;
+    this._zdejmijKolizje(pracuje);
+    w.visible = false;
+    this.hint(pracuje.rodzaj === "glaz" ? "Kamienie się przydadzą!" : "Drewno gotowe!");
+    this.emit("surowiec:zdobyty", { rodzaj: pracuje.rodzaj, id: pracuje.id, pos: pracuje.pos });
+    try { navigator.vibrate?.([18, 40, 18]); } catch {}
+    if (this.input.lengthSq() < 0.02 && (this.moveSpeed || 0) < 0.05 && !this.walking) {
+      this.play("happy", 0.12);
+      this.sequence = "happy";
+      this.seqTimer = 0;
+    }
+  }
+
+  /* ── PODGLĄD MIEJSCA ──────────────────────────────────────────────────────
+   *
+   * „Zdobądź drewno" bez adresu to polecenie. „Tam powstanie schronienie,
+   * przynieś tam drewno" to powód. Dlatego zanim dziecko cokolwiek zetnie,
+   * świat sam pokazuje puste miejsce z palikami — i wraca do liska.
+   *
+   * Świadomie JEDEN raz, po zleceniu zadania: powtarzany przy każdym wejściu
+   * przestaje być odkryciem, a staje się ekranem ładowania.
+   */
+  pokazMiejsce(pos, opcje = {}) {
+    const p = Array.isArray(pos) ? pos : this.mapa.schronienie?.pos;
+    if (!p || !this.hero) return false;
+    // Reduce-motion: obrót planety w tę i z powrotem to dokładnie ten ruch,
+    // przed którym chroni to ustawienie. Zamiast niego zostaje sam znacznik.
+    if (spokojnyRuch) { this.emit("miejsce:pokazane", { pos: p, pominiete: true }); return false; }
+    this._podglad = {
+      faza: "dojazd", t: 0,
+      dojazd: opcje.dojazd ?? 1.25,
+      trzym: opcje.trzym ?? 1.7,
+      powrot: opcje.powrot ?? 1.1,
+      n: this.planeta.normalna(p[0], p[1]),
+      pos: p, w: 0,
+    };
+    this.input.set(0, 0);
+    this.setLocomotion(0);
+    this.walking = false;
+    this.stopWalk?.();
+    return true;
+  }
+
+  /** Zwraca wagę 0…1: ile „góry kuli" należy w tej klatce do pokazywanego miejsca. */
+  _podgladTik(e) {
+    const P = this._podglad;
+    if (!P) return 0;
+    P.t += e;
+    if (P.faza === "dojazd") {
+      P.w = Math.min(1, P.t / P.dojazd);
+      if (P.t >= P.dojazd) { P.faza = "trzym"; P.t = 0; P.w = 1; }
+    } else if (P.faza === "trzym") {
+      P.w = 1;
+      if (P.t >= P.trzym) { P.faza = "powrot"; P.t = 0; }
+    } else {
+      P.w = Math.max(0, 1 - P.t / P.powrot);
+      if (P.t >= P.powrot) {
+        this._podglad = null;
+        this.emit("miejsce:pokazane", { pos: P.pos });
+        return 0;
+      }
+    }
+    // Wygładzenie na obu końcach — bez niego planeta rusza i staje skokiem.
+    const w = P.w;
+    return w * w * (3 - 2 * w);
+  }
+
+  /* ── NOSZENIE MATERIAŁU ───────────────────────────────────────────────────
+   *
+   * Materiał NIE teleportuje się z lasu na budowę. Lisek wchodzi w stos,
+   * bierze go na plecy i niesie — jeden ładunek na raz, więc są dwa kursy.
+   * To jest ta część, w której „zdobyłem" zamienia się w „przyniosłem",
+   * i jedyna, w której widać wysiłek.
+   */
+  _ladunekModel(rodzaj, s) {
+    const g = new Group();
+    g.name = "ladunek";
+    // Mniejszy niż to, co leżało w lesie: na plecach ma się mieścić, a nie
+    // przykrywać liska. Proporcja, nie stała — stos z wyższego drzewka
+    // dalej ma być większy od kupki kamyków.
+    g.add(rodzaj === "glaz" ? kamyczki(s * .5) : stosDrewna(s * .42));
+    return g;
+  }
+
+  _transportTik(e) {
+    if (!this._doScinania.length) return;
+    if (this._kino || this.sequence || this._podglad) return;
+    const def = this.mapa.schronienie;
+
+    // NIOSĄC — jedyne, co można zrobić, to donieść. Żadnego zbierania po drodze.
+    if (this._ladunek) {
+      const m = this._ladunek.model;
+      // Ładunek jedzie NA bohaterze, ale mieszka w `swiat`: hero bywa modelem
+      // z własną skalą z GLB, więc dziecko dostawałoby stos wielkości domu.
+      m.position.copy(this.hero.position).addScaledVector(this.hn, .66);
+      m.quaternion.copy(this.hero.quaternion);
+      if (!def || !this._nPlacu) return;
+      if (this.planeta.odleglosc(this.hn, this._nPlacu) < (def.zasieg ?? 1.35)) this._oddajLadunek();
+      return;
+    }
+
+    // PODNIESIENIE — wejście w stos wystarczy, nie ma osobnego przycisku.
+    for (const c of this._doScinania) {
+      if (!c.zrobione || c.dostarczone || c.niesione) continue;
+      if (this.planeta.odleglosc(this.hn, c.nWyniku) >= (c.zasiegWyniku ?? .95)) continue;
+      c.niesione = true;
+      c.wynik.visible = false;
+      const model = this._ladunekModel(c.rodzaj, c.skalaWyniku ?? 1);
+      this.swiat.add(model);
+      this._ladunek = { rodzaj: c.rodzaj, id: c.id, cel: c, model };
+      this.hint(c.rodzaj === "glaz" ? "Niosę kamienie" : "Niosę drewno");
+      this.emit("surowiec:podniesiony", { rodzaj: c.rodzaj, id: c.id });
+      try { navigator.vibrate?.(14); } catch {}
+      return;
+    }
+  }
+
+  _oddajLadunek() {
+    const L = this._ladunek;
+    if (!L) return;
+    this.swiat.remove(L.model);
+    L.model.traverse((o) => { o.geometry?.dispose?.(); });
+    L.cel.niesione = false;
+    L.cel.dostarczone = true;
+    this._polozNaPlacu(L.rodzaj, L.cel.skalaWyniku ?? 1);
+    this._ladunek = null;
+    this.hint(L.rodzaj === "glaz" ? "Kamienie na placu!" : "Drewno na placu!");
+    this.emit("surowiec:dostarczony", { rodzaj: L.rodzaj, id: L.id });
+    try { navigator.vibrate?.([18, 40, 18]); } catch {}
+    if (this.input.lengthSq() < 0.02 && (this.moveSpeed || 0) < 0.05 && !this.walking) {
+      this.play("happy", 0.12);
+      this.sequence = "happy";
+      this.seqTimer = 0;
+    }
+  }
+
+  /**
+   * Materiał ląduje NA PLACU i jest go widać — to jest cała informacja zwrotna
+   * za kurs. Drewno po jednej stronie klepiska, kamienie po drugiej, zawsze
+   * w tych samych miejscach, żeby dziecko widziało, czego jeszcze brakuje.
+   */
+  _polozNaPlacu(rodzaj, skala) {
+    const def = this.mapa.schronienie;
+    if (!def) return;
+    if (!this._skladNaPlacu) {
+      this._skladNaPlacu = new Group();
+      this._skladNaPlacu.name = "sklad-na-placu";
+      this.swiat.add(this._skladNaPlacu);
+    }
+    const s = def.skala ?? 1;
+    const bok = rodzaj === "glaz" ? 1 : -1;
+    const kier = Math.cos(def.obrot ?? 0), skos = Math.sin(def.obrot ?? 0);
+    const x = def.pos[0] + bok * 1.25 * s * kier;
+    const z = def.pos[1] - bok * 1.25 * s * skos;
+    const bryla = rodzaj === "glaz" ? kamyczki(skala * .8) : stosDrewna(skala * .7);
+    this._skladNaPlacu.add(this._osadz(bryla, x, z, .05, (def.obrot ?? 0) + bok * .35));
+  }
+
+  /** Czyści skład — woła `ustawSchronienie`, gdy materiał zamienia się w budowlę. */
+  _zabierzSklad() {
+    if (!this._skladNaPlacu) return;
+    this.swiat.remove(this._skladNaPlacu);
+    this._skladNaPlacu.traverse((o) => { o.geometry?.dispose?.(); });
+    this._skladNaPlacu = null;
+  }
+
+  /**
+   * Odtwarza dostawy z poprzedniej sesji. Ładunek „w rękach" NIE jest zapisywany
+   * — zamknięta w pół drogi apka oddaje stos tam, gdzie leżał. To wybaczające
+   * i uczciwe: dziecko nie traci materiału, tylko kurs.
+   */
+  oznaczDostarczone(lista) {
+    const zbior = new Set(Array.isArray(lista) ? lista : []);
+    for (const c of this._doScinania) {
+      if (!zbior.has(c.id) || c.dostarczone) continue;
+      c.dostarczone = true;
+      c.niesione = false;
+      c.zrobione = true;
+      c.postep = CZAS_RABANIA;
+      c.zrodlo.visible = false;
+      c.wynik.visible = false;
+      this._zdejmijKolizje(c);
+      this._polozNaPlacu(c.rodzaj, c.skalaWyniku ?? 1);
+    }
+  }
+
+  /* ── SCHRONIENIE ──────────────────────────────────────────────────────────
+   *
+   * To jest zapłata za rąbanie — jedyna, jaką to zadanie ma. Nie monety,
+   * nie punkty: rzecz, która staje na polanie i zostaje tam na zawsze
+   * (`docs/OPIS_PROJEKTU.md`, „działanie → konsekwencja → zmiana świata").
+   *
+   * Dwie decyzje warte zapamiętania:
+   *
+   * 1. SCENA NIE PAMIĘTA ETAPU. Numer etapu trzyma zapis w React
+   *    (`zadanieDrewna.js`), a scena tylko wykonuje `ustawSchronienie(n)`.
+   *    Dzięki temu po wejściu do świata budowla odtwarza się sama, a pulpit
+   *    reżyserki może przeskakiwać etapy bez dotykania zapisu.
+   *
+   * 2. STAWIANIE JEST ANIMOWANE TYLKO NA ŻĄDANIE. Po powrocie do świata
+   *    schronienie ma po prostu stać (`animuj=false`) — oglądanie, jak
+   *    dom buduje się od nowa przy każdym wejściu, odbiera tej chwili wagę.
+   *    Animacja należy do JEDNEGO momentu: kliknięcia „STAWIAMY!".
+   */
+  ustawSchronienie(n = 0, animuj = false) {
+    const def = this.mapa.schronienie;
+    if (!def || !Array.isArray(def.pos)) return;
+
+    // Sprzątamy po poprzednim etapie: grupa i jej kolizje schodzą razem,
+    // inaczej po przeskoku etapów w pulpicie zostają niewidzialne ściany.
+    if (this._schronienie) {
+      this.swiat.remove(this._schronienie);
+      this._schronienie.traverse((o) => { o.geometry?.dispose?.(); });
+      this._schronienie = null;
+    }
+    for (const b of this._schronBlockers || []) {
+      const i = this.blockers.indexOf(b);
+      if (i >= 0) this.blockers.splice(i, 1);
+    }
+    this._schronBlockers = [];
+    this._etapSchronienia = Math.max(0, Math.min(n | 0, LICZBA_ETAPOW));
+    if (this._etapSchronienia <= 0) return;
+    // Plac budowy schodzi w chwili, gdy budowa się na nim zaczyna — po to był.
+    this.ustawPlacBudowy(false);
+    /* Skład znika, bo ZAMIENIA SIĘ w budowlę. To jest ten jeden moment, w
+       którym dziecko ma zobaczyć, że przyniesione drewno poszło w słupy —
+       gdyby stos został obok, budowla wyglądałaby na zrobioną z niczego. */
+    this._zabierzSklad();
+
+    const s = def.skala ?? 1;
+    const bryla = schronienie(this._etapSchronienia, s);
+    const kotwica = this._osadz(bryla, def.pos[0], def.pos[1], .02, def.obrot ?? 0);
+    kotwica.name = "schronienie-kotwica";
+    this.swiat.add(kotwica);
+    this._schronienie = kotwica;
+
+    /* KOLIZJE TYLKO NA SŁUPACH. Środek zostaje przechodni, bo docelowo
+       dziecko ma pod tym dachem stanąć — a blocker na całej budowli zamienia
+       schronienie w przeszkodę, czyli w dokładne przeciwieństwo schronienia. */
+    for (const k of [-1, 1]) {
+      const kier = Math.cos(def.obrot ?? 0), skos = Math.sin(def.obrot ?? 0);
+      const b = {
+        x: def.pos[0] + k * .68 * s * kier,
+        z: def.pos[1] - k * .68 * s * skos,
+        r: .2 * s,
+      };
+      this.blockers.push(b);
+      this._schronBlockers.push(b);
+    }
+
+    if (!animuj) return;
+
+    /* STAWIANIE KROK PO KROKU. Elementy niosą `userData.krok` (klepisko 0,
+       słupy 1 i 2, belka 3) — pokazujemy je po kolei, każdy z krótkim
+       „dosiadem" ze skali. Bez tego cała budowla wyskakuje jedną klatką
+       i wygląda jak błąd renderowania, a nie jak coś, co ktoś postawił. */
+    const kroki = [];
+    bryla.traverse((o) => {
+      if (o.userData?.krok == null) return;
+      kroki.push(o);
+      o.visible = false;
+    });
+    kroki.sort((a, b) => a.userData.krok - b.userData.krok);
+    if (!kroki.length) return;
+
+    const POJAW = .34;   // ile trwa jedno „dosiadanie"
+    const ODSTEP = .26;  // co ile wchodzi kolejny element
+    const t0 = performance.now();
+    const skale = kroki.map((o) => o.scale.clone());
+    const krok = () => {
+      if (this.destroyed || this._schronienie !== kotwica) return;
+      const t = (performance.now() - t0) / 1000;
+      let wszystkie = true;
+      kroki.forEach((o, i) => {
+        const u = (t - i * ODSTEP) / POJAW;
+        if (u <= 0) { wszystkie = false; return; }
+        o.visible = true;
+        if (u >= 1) { o.scale.copy(skale[i]); return; }
+        wszystkie = false;
+        // Lekkie przestrzelenie w pionie: element „siada" na miejsce,
+        // zamiast urosnąć liniowo. Bez tego ruch jest martwy.
+        const e = 1 - (1 - u) * (1 - u);
+        o.scale.set(skale[i].x * e, skale[i].y * (e + Math.sin(u * Math.PI) * .12), skale[i].z * e);
+      });
+      if (!wszystkie) requestAnimationFrame(krok);
+    };
+    requestAnimationFrame(krok);
+
+    /* SIATKA BEZPIECZEŃSTWA. `requestAnimationFrame` zamiera w ukrytej karcie,
+       więc gdyby dziecko przełączyło okno w trakcie stawiania, schronienie
+       zostałoby niewidzialne NA ZAWSZE — zapis mówiłby „stoi", a na polanie
+       byłaby dziura. `setTimeout` chodzi (wolniej, ale chodzi), więc po czasie
+       animacji po prostu dopowiada jej koniec. */
+    const czas = (kroki.length * ODSTEP + POJAW) * 1000 + 400;
+    setTimeout(() => {
+      if (this.destroyed || this._schronienie !== kotwica) return;
+      kroki.forEach((o, i) => { o.visible = true; o.scale.copy(skale[i]); });
+    }, czas);
+  }
+
+  /**
+   * PLAC BUDOWY — miejsce, w którym STANIE schronienie, pokazane ZANIM cokolwiek
+   * tam stoi. Bez tego zadanie brzmi „zdobądź drewno", a nie „zbuduj tam dom":
+   * dziecko rąbie, nie wiedząc po co i gdzie. Znacznik jest obietnicą.
+   *
+   * Dwa stany, bo znaczą co innego:
+   *   czeka   — wbite paliki, przygaszone: „tu będzie, przynieś materiał"
+   *   gotowy  — jasne, pulsujące, uniesiona ikona: „masz wszystko, chodź tu"
+   */
+  _placBudowy(s) {
+    const g = new Group();
+    g.name = "plac-budowy";
+
+    // Wydeptana ziemia POD kreskami — bez niej paliki i kreski wisiały nad
+    // trawą jak dekoracja. Bledsza i mniejsza niż gotowe klepisko, żeby po
+    // postawieniu schronienia było widać różnicę: tu był zamiar, tam jest dom.
+    const grunt = new Mesh(new CircleGeometry(1.02 * s, 14),
+      new MeshLambertMaterial({ color: 0x8E7A56, flatShading: true, transparent: true, opacity: .55 }));
+    grunt.rotation.set(-Math.PI / 2, 0, .3);
+    grunt.position.y = .006 * s;
+    g.add(grunt);
+
+    // Obrys klepiska KRESKOWANY, nie pełny: pełne koło czyta się jak coś,
+    // co już tam jest (kałuża, klepisko), a to ma być dopiero zamiar.
+    const matKreska = new MeshLambertMaterial({
+      color: 0xE8C88A, flatShading: true, transparent: true, opacity: .75,
+    });
+    for (let i = 0; i < 12; i++) {
+      const a = (i / 12) * Math.PI * 2;
+      const kreska = new Mesh(new BoxGeometry(.19 * s, .03 * s, .075 * s), matKreska);
+      kreska.position.set(Math.cos(a) * .9 * s, .02 * s, Math.sin(a) * .9 * s);
+      kreska.rotation.y = -a;
+      g.add(kreska);
+    }
+
+    // Paliki dokładnie tam, gdzie staną słupy — dziecko widzi rozstaw,
+    // więc gotowa budowla nie „wyrasta znikąd", tylko trafia w swoje miejsce.
+    const matPalik = new MeshLambertMaterial({ color: 0x9B7B4E, flatShading: true });
+    for (const k of [-1, 1]) {
+      const p = new Mesh(new CylinderGeometry(.06 * s, .085 * s, .34 * s, 5), matPalik);
+      p.position.set(k * .68 * s, .17 * s, 0);
+      g.add(p);
+    }
+
+    g.userData.matKreska = matKreska;
+    return g;
+  }
+
+  /** Ikona nad placem: szkic schronienia. Jasna dopiero, gdy materiał jest. */
+  _placIkona() {
+    const c = document.createElement("canvas");
+    c.width = c.height = 128;
+    const g = c.getContext("2d");
+    const spr = new Sprite(new SpriteMaterial({ map: new CanvasTexture(c), transparent: true, depthTest: false }));
+    spr.renderOrder = 58;
+    spr.scale.setScalar(.62);
+    spr.rysuj = (gotowy) => {
+      g.clearRect(0, 0, 128, 128);
+      g.fillStyle = gotowy ? "rgba(36,49,71,.86)" : "rgba(36,49,71,.5)";
+      g.beginPath(); g.arc(64, 64, 44, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = gotowy ? "#FF7A18" : "rgba(255,255,255,.28)";
+      g.lineWidth = gotowy ? 7 : 4;
+      g.beginPath(); g.arc(64, 64, 39, 0, Math.PI * 2); g.stroke();
+      // Szkic: dwa słupy i skośna belka — ta sama sylwetka, co etap 1.
+      g.strokeStyle = gotowy ? "#FFE3B0" : "rgba(255,255,255,.55)";
+      g.lineWidth = 8; g.lineCap = "round"; g.lineJoin = "round";
+      g.beginPath();
+      g.moveTo(42, 92); g.lineTo(42, 46);
+      g.moveTo(88, 92); g.lineTo(88, 66);
+      g.moveTo(36, 44); g.lineTo(94, 64);
+      g.stroke();
+      spr.material.map.needsUpdate = true;
+    };
+    return spr;
+  }
+
+  ustawPlacBudowy(widoczny, gotowy = false) {
+    const def = this.mapa.schronienie;
+    if (!def || !Array.isArray(def.pos)) return;
+
+    if (!widoczny || this._etapSchronienia > 0) {
+      if (this._plac) {
+        this.swiat.remove(this._plac);
+        this._plac.traverse((o) => { o.geometry?.dispose?.(); });
+        this._plac = null;
+        this._placIk = null;
+        this._placGotowy = undefined;
+      }
+      return;
+    }
+
+    const s = def.skala ?? 1;
+    if (!this._plac) {
+      const bryla = this._placBudowy(s);
+      const kotwica = this._osadz(bryla, def.pos[0], def.pos[1], .01, def.obrot ?? 0);
+      const ik = this._placIkona();
+      // Ikona wisi w układzie planety, tak jak pierścień pracy: pozycja placu
+      // plus normalna, a nie sztywne +Y (na kuli „góra" zależy od miejsca).
+      ik.position.copy(kotwica.position).addScaledVector(
+        this.planeta.normalna(def.pos[0], def.pos[1]), 1.45 * s);
+      this.swiat.add(kotwica);
+      this.swiat.add(ik);
+      this._plac = kotwica;
+      this._placIk = ik;
+      this._placBaza = ik.position.clone();
+      this._placN = this.planeta.normalna(def.pos[0], def.pos[1]).clone();
+
+      const bujaj = () => {
+        if (this.destroyed || this._placIk !== ik) return;
+        const t = performance.now() * .0022;
+        const g = !!this._placGotowy;
+        ik.position.copy(this._placBaza).addScaledVector(this._placN, Math.sin(t) * (g ? .11 : .05));
+        ik.scale.setScalar(g ? .62 + Math.sin(t * 1.6) * .045 : .5);
+        requestAnimationFrame(bujaj);
+      };
+      requestAnimationFrame(bujaj);
+    }
+
+    if (this._placGotowy !== gotowy) {
+      this._placGotowy = gotowy;
+      this._placIk?.rysuj(gotowy);
+      const m = this._plac?.children?.[0]?.userData?.matKreska;
+      if (m) { m.opacity = gotowy ? 1 : .6; m.color.setHex(gotowy ? 0xFFC061 : 0xE8C88A); }
+    }
   }
 
   /* ── MAGICZNA FASOLA ──────────────────────────────────────────────────────── */
@@ -1846,11 +2598,14 @@ export class Aplikacja {
     // Bez blokady spokojnyRuch — najazd ma grac ZAWSZE po rozsunieciu chmur
     // (decyzja wlasciciela). Jesli kiedys ma respektowac reduce-motion, wroci
     // tu warunek na spokojnyRuch albo skrocona wersja bez orbity.
+    try { console.log("[KINO] kinoWejsciaTeraz; hero?", !!this.hero, "camDir?", !!this.camDir, "camPos?", !!this.camPos); } catch {}
     if (!this.hero) return false;
     const azDef = Math.atan2(this.camDir.x, this.camDir.z);
     this._wejscie = {
       t: 0,
-      dl: 2.2,
+      hold: 1.9,               // trzymaj kadr Z GORY, poki schodza chmury —
+                               // zeby po ich zejsciu nie mignal domyslny kadr
+      dl: 1.7,                 // orbita + dojazd do pozycji domyslnej PO holdzie
       epsStart: 1.40,          // ~80 stopni nad horyzontem = prawie prosto z gory
       azStart: azDef + 2.62,   // ~150 stopni orbity do azymutu domyslnego
       zoomStart: 0.72,         // z gory widac wiecej planety; dojazd do 1
@@ -1860,9 +2615,14 @@ export class Aplikacja {
   _wejscieKlatka(e) {
     const W = this._wejscie;
     if (!W) return;
+    if (W.t === 0) { try { console.log("[KINO] pierwsza klatka najazdu (start z gory)"); } catch {} }
     W.t += e;
-    const p = Math.min(1, W.t / W.dl);
-    const q = 1 - Math.pow(1 - p, 3);          // easeOutCubic: szybko, potem miekko siada
+    // q = 0 podczas holdu (kamera stoi z gory), potem easeOut ruchu do kadru.
+    let q = 0;
+    if (W.t > W.hold) {
+      const p = Math.min(1, (W.t - W.hold) / W.dl);
+      q = 1 - Math.pow(1 - p, 3);              // easeOutCubic: szybko, potem miekko siada
+    }
     const L = this.camDir.length();
     const epsDef = Math.asin(Math.max(-1, Math.min(1, this.camDir.y / L)));
     const azDef = Math.atan2(this.camDir.x, this.camDir.z);
@@ -1877,9 +2637,10 @@ export class Aplikacja {
     );
     this._kc.set(this.camTarget.x, this.camTarget.y + 0.8, this.camTarget.z);
     if (Math.abs(this.camera.zoom - zoom) > 1e-4) { this.camera.zoom = zoom; this.camera.updateProjectionMatrix(); }
-    if (p >= 1) {
+    if (W.t >= W.hold + W.dl) {
       this._wejscie = null;
       if (this.camera.zoom !== 1) { this.camera.zoom = 1; this.camera.updateProjectionMatrix(); }
+      try { this.emit("wejscie:gotowe"); } catch {}
     }
   }
   _kinoKlatka(e) {
@@ -1943,6 +2704,25 @@ export class Aplikacja {
       fasola: this.fasola ? { etap: this.fasola.etap, etapow: this.fasola.ostatni, gotowa: this.fasola.gotowa, kropla: !!this.kropla?.ile } : null,
       bohater: this.hero ? { x: +this.hp.x.toFixed(2), z: +this.hp.z.toFixed(2) } : null,
       znaki: (this.markers || []).map((e) => ({ id: e.id, stan: e.state, dotkniecia: e.touches })),
+      rabanie: {
+        aktywne: !!this._rabanieAktywne,
+        cele: (this._doScinania || []).map((c) => ({
+          id: c.id, rodzaj: c.rodzaj, zrobione: c.zrobione,
+          niesione: !!c.niesione, dostarczone: !!c.dostarczone,
+          postep: +(c.postep || 0).toFixed(2), zasieg: c.zasieg,
+          odleglosc: this.hn && c.n ? +this.planeta.odleglosc(this.hn, c.n).toFixed(2) : null,
+          doWyniku: this.hn && c.nWyniku ? +this.planeta.odleglosc(this.hn, c.nWyniku).toFixed(2) : null,
+        })),
+        niesie: this._ladunek ? { rodzaj: this._ladunek.rodzaj, id: this._ladunek.id } : null,
+        doPlacu: this.hn && this._nPlacu ? +this.planeta.odleglosc(this.hn, this._nPlacu).toFixed(2) : null,
+      },
+      podglad: this._podglad ? { faza: this._podglad.faza, pos: this._podglad.pos } : null,
+      schronienie: {
+        etap: this._etapSchronienia || 0,
+        etapow: LICZBA_ETAPOW,
+        miejsce: this.mapa.schronienie?.pos || null,
+        plac: this._plac ? (this._placGotowy ? "gotowy" : "czeka") : "ukryty",
+      },
     };
   }
   zniszcz() {

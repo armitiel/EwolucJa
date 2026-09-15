@@ -228,20 +228,45 @@
 .puzzle-cta{
   margin-top:18px; padding:var(--cta-pad,12px 20px); cursor:pointer;
   display:inline-flex; align-items:center; justify-content:center;
-  min-height:var(--cta-h,56px); border-radius:var(--cta-r,18px);
-  border:var(--cta-obrys,3px) solid transparent;
+  min-height:var(--cta-h,58px); border-radius:var(--cta-r,26px);
+  border:var(--cta-obrys,5px) solid transparent;
+  position:relative; isolation:isolate;
   background:
     var(--cta-lico) padding-box,
     var(--cta-obrys-barwa) border-box;
-  color:var(--cta-tekst,#FFEEA6); text-shadow:var(--cta-tekst-cien);
+  color:var(--cta-tekst,#F3EFC3); text-shadow:var(--cta-tekst-cien);
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-size:min(var(--cta-fs,21px), 5.4vw); font-weight:800;
-  letter-spacing:.35px; line-height:1; text-transform:uppercase; white-space:nowrap;
-  box-shadow:0 var(--cta-rant,8px) 0 var(--cta-rant-barwa,#3C761F);
+  letter-spacing:var(--cta-tracking,-.04em); line-height:1; text-transform:uppercase; white-space:nowrap;
+  box-shadow:0 var(--cta-rant,7px) 0 var(--cta-rant-barwa,#3C761F);
   animation:puzzle-karta-wjazd .35s ease;
 }
+/* Polysk i napis wyciety z gradientu - to samo, co w `.hub-btn-primary`
+   (opis przy tamtej regule w `styles/ewolucja.css`). */
+.puzzle-cta::before{
+  content:""; position:absolute; z-index:-1; pointer-events:none;
+  left:1px; right:1px; top:0; height:var(--cta-polysk-h,34%);
+  border-radius:
+    calc(var(--cta-r,26px) - var(--cta-obrys,5px)) calc(var(--cta-r,26px) - var(--cta-obrys,5px)) 40% 40% /
+    calc(var(--cta-r,26px) - var(--cta-obrys,5px)) calc(var(--cta-r,26px) - var(--cta-obrys,5px)) 100% 100%;
+  background:var(--cta-polysk);
+}
+@supports ((background-clip:text) or (-webkit-background-clip:text)){
+  .puzzle-cta{
+    background:var(--cta-tekst-lico), var(--cta-lico), var(--cta-obrys-barwa);
+    -webkit-background-clip:text,padding-box,border-box;
+            background-clip:text,padding-box,border-box;
+    -webkit-text-fill-color:transparent;
+    text-shadow:none;
+  }
+  .puzzle-cta > span{
+    background:var(--cta-tekst-lico);
+    -webkit-background-clip:text;
+            background-clip:text;
+  }
+}
 .puzzle-cta:active{
-  transform:translateY(var(--cta-rant,8px));
+  transform:translateY(var(--cta-rant,7px));
   box-shadow:0 0 0 var(--cta-rant-barwa,#3C761F);
 }
 

@@ -22,9 +22,28 @@
  * otwiera się z zewnątrz (prop `otwarty`), a do oglądania służy uchwyt
  * `window.popupPostaci.pokaz()` i adres `?popup=1`.
  */
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import bgMusic from "../services/bgMusic.js";
 import { ttsPlayer } from "../services/ttsPlayer.js";
+
+/**
+ * `prefers-reduced-motion` czytane z JS, a nie z CSS — i to jest istotna
+ * różnica. Wybór dotyczy PLIKU, nie stylu: animowany Wizkor waży 264 kB,
+ * a jego ostatnia klatka 36 kB. Gdyby oba wisiały w HTML-u i decydowała
+ * o nich media query, dziecko z wyłączonymi animacjami i tak pobrałoby
+ * całą animację, żeby jej nie zobaczyć.
+ *
+ * Czytane RAZ, przy otwarciu okna (`useState` z funkcją) — okno żyje
+ * kilkanaście sekund, a podmiana grafiki w trakcie mówienia postaci
+ * byłaby dziwniejsza niż zignorowanie zmiany ustawień w tej jednej chwili.
+ */
+function spokojnyRuch() {
+  try {
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  } catch {
+    return false;
+  }
+}
 
 /** Gwiazdka wektorem, nie plikiem: skaluje się bez rozmycia i bierze kolor z CSS. */
 function Gwiazdka({ className }) {
@@ -51,12 +70,54 @@ function zlozTekst(tekst, wyroznienie) {
   ];
 }
 
+/**
+ * Proste obrazkowe wyjasnienie celu: jeden przedmiot i liczba sztuk do zebrania.
+ * Bez powtarzania tej samej ikony i bez dodatkowej instrukcji do przeczytania.
+ */
+function CelDoZebrania({ dane }) {
+  if (!dane) return null;
+  const puzzle = dane.typ === "puzzle";
+  const ikona = puzzle ? "/assets/puzzle/kawalek-v2.svg" : "/star.png";
+  const nazwa = puzzle ? "kawałki obrazka" : "złote gwiazdki";
+  const wartosc = Math.max(0, Number(dane.wartosc) || 0);
+  const cel = Math.max(1, Number(dane.cel) || 1);
+  const komplet = wartosc >= cel;
+
+  return (
+    <div
+      className={`popup-postaci-cel popup-postaci-cel--${puzzle ? "puzzle" : "gwiazdki"}${komplet ? " jest-komplet" : ""}`}
+      role="img"
+      aria-label={`${nazwa}: ${wartosc} z ${cel}`}
+    >
+      <img className="popup-postaci-cel-ikona" src={ikona} alt="" draggable="false" aria-hidden="true" />
+      <span className="popup-postaci-cel-razy" aria-hidden="true">×</span>
+      <strong className="popup-postaci-cel-liczba" aria-hidden="true">{cel}</strong>
+    </div>
+  );
+}
+
 export default function PopupPostaci({
   otwarty = false,
   imie = "Wizkor",
   obrazek = "/wizPop.webp",
+  /**
+   * Animowana wersja TEJ SAMEJ grafiki — dziś tylko chwila pochwały
+   * (`/wizkor-super.webp`: Wizkor mruga i się uśmiecha). Gra RAZ i zostaje
+   * na ostatniej klatce; nie zapętla się, bo pochwała ma się WYDARZYĆ,
+   * a nie migotać przez cały czas, gdy okno jest otwarte.
+   *
+   * `obrazek` zostaje wtedy ostatnią klatką animacji, a nie zwykłym
+   * portretem — dzięki temu dziecko z wyłączonymi animacjami widzi ten sam
+   * uśmiech, tylko bez dojścia do niego. Okno nie wie nic o tym, KIEDY jest
+   * pochwała: dobiera to `hub/kwestieWizkora.js`.
+   */
+  obrazekAnim = null,
   tekst = "",
+  // Opcjonalny, krotki tekst tylko NA EKRAN. `tekst` nadal jest pelna
+  // kwestia czytana przez TTS, wiec lektor moze spokojnie dopowiedziec sens.
+  tekstEkranu = null,
   wyroznienie = "",
+  wizualizacja = null,
   przycisk = "Poznajmy się!",
   /**
    * Drugi przycisk pojawia się tylko wtedy, gdy okno naprawdę o coś PYTA.
@@ -88,6 +149,8 @@ export default function PopupPostaci({
   onZamknij,
 }) {
   const przyciskRef = useRef(null);
+  const [spokojnie] = useState(spokojnyRuch);
+  const bohater = obrazekAnim && !spokojnie ? obrazekAnim : obrazek;
 
   /**
    * Postać MÓWI to, co ma w dymku. Tekst i tak jest na ekranie, więc lektor
@@ -146,12 +209,25 @@ export default function PopupPostaci({
         aria-modal="true"
         aria-labelledby="popup-postaci-imie"
       >
+        {/* `key` pilnuje, żeby animacja ZACZYNAŁA SIĘ OD POCZĄTKU przy każdym
+            otwarciu okna: przeglądarka odtwarza animowany WebP od pierwszej
+            klatki dopiero dla nowego elementu, a nie po ponownym ustawieniu
+            tego samego `src`. */}
         <img
+          key={bohater}
           className="popup-postaci-bohater"
-          src={obrazek}
+          src={bohater}
           alt=""
           aria-hidden="true"
           draggable="false"
+          onError={(e) => {
+            /* Gdyby animacji zabrakło (stary cache, nieudany deploy), okno nie
+               może zostać z dziurą po grafice — wraca do klatki statycznej.
+               Znacznik chroni przed pętlą, gdyby i ona nie doleciała. */
+            if (e.currentTarget.dataset.zapasowa) return;
+            e.currentTarget.dataset.zapasowa = "1";
+            e.currentTarget.src = obrazek;
+          }}
         />
 
         <button
@@ -174,15 +250,20 @@ export default function PopupPostaci({
           <Gwiazdka className="popup-postaci-gwiazdka" />
         </p>
 
-        <p className="popup-postaci-tekst">{zlozTekst(tekst, wyroznienie)}</p>
-
-        {/* Przerywnik: trzy gwiazdki na cienkiej złotej linii. Oddziela to,
-            co postać mówi, od tego, co dziecko ma zrobić. */}
-        <p className="popup-postaci-przerywnik" aria-hidden="true">
-          <Gwiazdka className="popup-postaci-iskra" />
-          <Gwiazdka className="popup-postaci-iskra popup-postaci-iskra--duza" />
-          <Gwiazdka className="popup-postaci-iskra" />
+        <p className="popup-postaci-tekst">
+          {zlozTekst(tekstEkranu || tekst, tekstEkranu ? "" : wyroznienie)}
         </p>
+
+        {wizualizacja ? (
+          <CelDoZebrania dane={wizualizacja} />
+        ) : (
+          /* Przerywnik oddziela kwestie bez ilustracji od glownej akcji. */
+          <p className="popup-postaci-przerywnik" aria-hidden="true">
+            <Gwiazdka className="popup-postaci-iskra" />
+            <Gwiazdka className="popup-postaci-iskra popup-postaci-iskra--duza" />
+            <Gwiazdka className="popup-postaci-iskra" />
+          </p>
+        )}
 
         {dodatek ? <div className="popup-postaci-dodatek">{dodatek}</div> : null}
 

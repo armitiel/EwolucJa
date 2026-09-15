@@ -1446,22 +1446,32 @@
    krawedz awatara zgadzaja sie teraz z reszta paska i z dokiem na dole. */
 .game-hud-profile img { margin: 0; }
 
-/* --- Podklad pod dokiem (zawsze) --- */
+/* --- Podklad pod dokiem (tylko pod wysunieta szuflada) --- */
 /* Dok zostaje NAD panelem, gdy szuflada jest wysunieta (przejscie z minigier
    do czatu ma byc jednym dotknieciem, a nie "zamknij, otworz"). Kosztem jest
    to, ze ikony leza wtedy na tresci - na wpisach czatu, na polu tekstowym.
-   Na samej mapie problem jest ten sam, tylko tlem jest scena 3D: trawa, woda
-   i drzewa potrafia byc rownie halasliwe co panel.
-   Dlatego rozjasniacz jest STALY, a nie tylko pod szuflada - dok ma jedna,
-   przewidywalna podstawe niezaleznie od tego, co pod nim akurat jest.
-   U gory calkiem przezroczysty, ku dolowi kremowy: nie ma zadnej krawedzi,
-   wiec nie ma czego zobaczyc jako linii ciecia.
+   Tam rozjasniacz jest potrzebny i zostaje: regula `.ma-szuflade` nizej.
+
+   NA SAMEJ MAPIE GO NIE MA (decyzja wlasciciela 2026-09-15). Wczesniej byl
+   staly, zeby dok mial jedna, przewidywalna podstawe niezaleznie od tego, co
+   pod nim akurat jest. Tyle, ze nad zielona scena 3D czytalo sie to jako
+   jasny pas przyklejony do dolu ekranu - bardziej bylo widac rozjasniacz niz
+   problem, ktory mial rozwiazywac. Trawa i woda sa na tyle jednolite, ze
+   ikony ze swoim wlasnym rantem i cieniem bronia sie na nich same.
+
+   GDYBY MIAL WROCIC: sa dokladnie dwa miejsca - `display: none` ponizej
+   i `display: block` w regule `.ma-szuflade`. Sam gradient zostaje nietkniety,
+   wiec powrot to zmiana jednej wartosci, nie pisanie go od nowa.
    Bez z-index: ::before rysuje sie przed pozycjonowanymi dziecmi doka,
    wiec same ikony zostaja ostre na wierzchu. */
 .game-hud-bottom { position: relative; }
 
 .game-hud-bottom::before {
   content: "";
+  /* Wylaczony na mapie - wlacza go dopiero `.ma-szuflade` (patrz komentarz
+     nad ta sekcja). Reszta regul zostaje, zeby stan z szuflada mial z czego
+     dziedziczyc geometrie. */
+  display: none;
   position: absolute;
   left: -12vw; right: -12vw;
   /* Na samej mapie rozjasniacz jest niski i nie dochodzi do pelnego krycia:
@@ -1501,6 +1511,7 @@
    krawedzi arkusza). Zmieniajac te liczbe sprawdz, czy nie wchodzi na pasek
    pisania czatu - to jedyny element, ktory stoi tuz nad dokiem. */
 .game-hud.ma-szuflade .game-hud-bottom::before {
+  display: block;
   top: -22px;
   left: -16vw; right: -16vw;
   background: linear-gradient(
@@ -1586,6 +1597,84 @@
 
 .game-hud-counter--gwiazdki strong,
 .game-hud-counter--misja strong { text-shadow: 0 1px 0 rgba(255, 255, 255, .9); }
+
+/* MATERIAL NA SCHRONIENIE: dwie ikonki obok siebie, BEZ liczb. Do etapu trzeba
+   dwoch konkretnych rzeczy, wiec ulamek "1/2" byl by o krok dalej od tego, co
+   dziecko ma zrobic. Zgaszona ikonka = "jeszcze nie mam".
+   Wyciszamy ja przezroczystoscia i odbarwieniem TEJ SAMEJ grafiki, a nie druga,
+   szara wersja pliku - jeden asset na rzecz, zero rozjazdu miedzy stanami. */
+.game-hud-counter--drewno {
+  min-width: 0;
+  padding: 3px 11px 3px 6px;
+  gap: 5px;
+}
+
+.game-hud-counter--drewno img {
+  width: 29px;
+  height: 29px;
+  flex: none;
+  object-fit: contain;
+  opacity: .32;
+  filter: grayscale(.85);
+  transition: opacity .28s ease, filter .28s ease;
+}
+
+.game-hud-counter--drewno img.jest {
+  opacity: 1;
+  filter: drop-shadow(0 1.5px 1px color-mix(in srgb, var(--braz-800) 28%, transparent));
+}
+
+.game-hud-znak {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+
+/* PTASZEK KOŃCA CZYNNOSCI. Siedzi w rogu ikonki, a nie obok niej: obok
+   rozpychalby licznik i przy dwoch celach pasek urosl by o polowe. */
+.game-hud-znak b {
+  position: absolute;
+  right: -4px;
+  bottom: -3px;
+  display: grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1.5px solid var(--krem-50);
+  background: linear-gradient(180deg, #8EE13D, #41AB0A);
+  box-shadow: 0 1px 0 #3C761F;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* NA PLACU. Ten sam pomaranczowy, co pierscien pracy i obrys placu budowy —
+   dziecko nie uczy sie nowego koloru, tylko kojarzy "to nalezy do budowy".
+   Zielony ptaszek znaczy "sciete", pomaranczowy "juz lezy na budowie". */
+.game-hud-znak.jest-na-placu b {
+  background: linear-gradient(180deg, #FFB25A, #FF7A18);
+  box-shadow: 0 1px 0 #B4520B;
+}
+.game-hud-znak.jest-na-placu img {
+  filter: drop-shadow(0 0 5px rgba(255, 122, 24, .75));
+}
+
+/* W DRODZE. Ptaszka nie ma — czynnosc trwa, wiec nie ma czego odhaczac.
+   Zamiast niego pulsuje sama ikonka: "to jest teraz na plecach liska". */
+.game-hud-znak.jest-w-drodze img {
+  animation: hud-niesie 1.05s ease-in-out infinite;
+}
+@keyframes hud-niesie {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-hud-counter--drewno img { transition: none; }
+  .game-hud-znak.jest-w-drodze img { animation: none; opacity: .75; }
+}
 
 /* Cel jest mniejszy i ciemniejszy: liczy sie to, ile dziecko MA, a nie ile
    zostalo. "3" ma byc pierwsza rzecza, ktora widac. */

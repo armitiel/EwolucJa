@@ -13,8 +13,9 @@
  * — hub i pulpit pytają je o to samo.
  */
 import { CEL_DOMYSLNY, NAGRODA_MONET } from "./zadanieGwiazdek.js";
+import { CEL_DRZEWKA, CEL_GLAZY, stanDrewna } from "./zadanieDrewna.js";
 import { stanZadania as stanZadaniaWizkora, zadanieDoZlecenia } from "./zadanieWizkora.js";
-import { stanPuzzli } from "./puzzleGier.js";
+import { celPuzzli, stanPuzzli } from "./puzzleGier.js";
 
 /**
  * Czarodziej na mapie: identyfikator jego znaku w module sceny (`xf`
@@ -65,10 +66,109 @@ export const ZNAK_CZARODZIEJA = "czarodziej";
  * (`misja` = pierwsza nierozliczona) opisuje `hub/misjeGier.js`; tutaj zostaje
  * samo dobranie kwestii do etapu, a same teksty stoją przy definicjach misji.
  */
-export function powitanieCzarodzieja(z, misja) {
+/**
+ * WIZKOR W CHWILI POCHWAŁY. Jedyne miejsce w grze, w którym czarodziej się
+ * rusza: mruga i rozjaśnia się w uśmiechu, raz, po czym zostaje na ostatniej
+ * klatce. Świadomie TYLKO tutaj — gdyby machał przy każdym powitaniu, gest
+ * przestałby cokolwiek znaczyć, a sesja zyskałaby powód, żeby trwać dłużej.
+ *
+ * `obrazek` to ostatnia klatka animacji (ten sam uśmiech), więc dziecko
+ * z wyłączonymi animacjami dostaje ten sam obraz, tylko bez dojścia do niego.
+ */
+/** Pierwsza litera wielka — kwestie składamy z fragmentów, a Wizkor nie krzyczy. */
+function wielka(t) { return t ? t[0].toUpperCase() + t.slice(1) : t; }
+
+const POCHWALA = {
+  obrazek: "/wizkor-super-koniec.webp",
+  obrazekAnim: "/wizkor-super.webp",
+};
+
+/**
+ * `drewnoZewn` służy WYŁĄCZNIE pulpitowi testowemu: pozwala pokazać kwestię
+ * o schronieniu na podstawionym stanie, bez dotykania zapisu dziecka.
+ * W grze zostaje `null` i stan czytamy z `zadanieDrewna`.
+ */
+export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
   const baza = { imie: "Wizkor", obrazek: "/wizPop.webp" };
 
   if (z.wyplacone) {
+    /* ── SCHRONIENIE: materiał na pierwszy etap ─────────────────────────
+       Wchodzi ZARAZ po gwiazdkach i PRZED grami. Nie dlatego, że jest
+       ważniejsze, tylko dlatego, że jako jedyne zostawia ślad na polanie —
+       a zasada „jedno zadanie na dany moment" każe puścić przodem to,
+       którego efekt widać w świecie.
+
+       Nagrodą nie są monety, tylko postawiony szkielet. Gdyby ktoś chciał
+       tu dopisać wypłatę: `docs/OPIS_PROJEKTU.md`, akapit o gospodarce. */
+    const drewno = drewnoZewn || stanDrewna();
+    if (!drewno.zbudowane) {
+      if (!drewno.istnieje) {
+        return {
+          ...baza,
+          tekst:
+            "Na polanie wbiłem paliki — tam stanie schronienie. Za nią stoi suche drzewko, " +
+            "uschło dawno temu i już nikomu nie służy: z niego będą słupy. Potrzebny jeszcze głaz — " +
+            "kamienie pójdą pod spód. Przynieś jedno i drugie na paliki.",
+          wyroznienie: "przynieś na paliki",
+          przycisk: "Biorę się za to",
+          akcja: "zlecDrewno",
+        };
+      }
+      if (!drewno.spelnione) {
+        /* MÓWIMY O DWÓCH RÓŻNYCH ROBOTACH. „Nie masz jeszcze głazu" i „głaz
+           leży rozbity, ale wciąż w lesie" to nie to samo — a dziecko, które
+           usłyszy pierwsze zdanie, poszłoby szukać drugiego głazu.
+           Wyliczamy CZEGO brakuje, zamiast pokazywać „1 z 2": w głowie ma
+           dwie konkretne rzeczy, nie ułamek. */
+        const doZdobycia = [];
+        if (drewno.drzewka < CEL_DRZEWKA) doZdobycia.push("suche drzewko");
+        if (drewno.glazy < CEL_GLAZY) doZdobycia.push("głaz");
+        /* Każdy materiał niesie SWOJĄ GRAMATYKĘ. „Drewno czeka", ale „kamienie
+           czekają" — a kwestie składamy z fragmentów, więc bez tego Wizkor
+           mówił „kamienie leży". W grze dla sześciolatka, która uczy się
+           czytać, to nie jest drobiazg. */
+        const MAT = {
+          drewno: { nazwa: "drewno", czeka: "czeka", je: "je", gdzie: "tam, gdzie je ściąłeś" },
+          kamien: { nazwa: "kamienie", czeka: "czekają", je: "je", gdzie: "tam, gdzie rozbiłeś głaz" },
+        };
+        const doPrzyniesienia = [];
+        if (drewno.drzewka >= CEL_DRZEWKA && !drewno.drewnoNaPlacu) doPrzyniesienia.push(MAT.drewno);
+        if (drewno.glazy >= CEL_GLAZY && !drewno.kamienNaPlacu) doPrzyniesienia.push(MAT.kamien);
+
+        let tekst;
+        if (doPrzyniesienia.length === 1) {
+          const m = doPrzyniesienia[0];
+          tekst = doZdobycia.length
+            ? `Dobrze idzie. ${wielka(m.nazwa)} ${m.czeka} ${m.gdzie} — zanieś ${m.je} na paliki. `
+              + `Zostało jeszcze: ${doZdobycia.join(" i ")}.`
+            : `Jest wszystko, tylko ${m.nazwa} wciąż ${m.czeka} ${m.gdzie}. `
+              + `Zanieś ${m.je} na paliki, a zaczniemy stawiać.`;
+        } else if (doPrzyniesienia.length > 1) {
+          tekst = "Jest wszystko, tylko drewno i kamienie wciąż czekają tam, gdzie powstały. "
+            + "Zanieś je na paliki, a zaczniemy stawiać.";
+        } else {
+          tekst = `Idzie dobrze. Zostało jeszcze: ${doZdobycia.join(" i ")}.`;
+        }
+        return {
+          ...baza,
+          tekst,
+          wyroznienie: doPrzyniesienia.length ? "zanieś na paliki" : doZdobycia[0],
+          przycisk: "Idę dalej",
+          akcja: null,
+        };
+      }
+      return {
+        ...baza,
+        ...POCHWALA,
+        tekst:
+          "Wszystko leży na placu — sam to przyniosłeś. Postawmy pierwsze słupy, " +
+          "reszta schronienia przyjdzie z czasem.",
+        wyroznienie: "pierwsze słupy",
+        przycisk: "Stawiamy!",
+        akcja: "postawEtap",
+      };
+    }
+
     // ── ŁAŃCUCH MISJI Z GRAMI ─────────────────────────────────────────
     if (!misja) {
       // ── ZADANIE POZA EKRANEM ────────────────────────────────────────
@@ -82,6 +182,7 @@ export function powitanieCzarodzieja(z, misja) {
         const nagroda = real.nagroda || real.def.nagroda || 25;
         return {
           ...baza,
+          ...POCHWALA,
           tekst:
             `Mentor przeczytał to, co mu wysłałeś. Przyjął. ` +
             `Mentor przyznał ci ${nagroda} monet — bierz.`,
@@ -196,24 +297,45 @@ export function powitanieCzarodzieja(z, misja) {
       const puzzle = misja.puzzle || stanPuzzli(misja.def.id);
       if (puzzle.brama && !puzzle.ulozona) {
         if (puzzle.komplet) {
-          return { ...baza, ...misja.def.ukladanie, akcja: `ukladanka:${misja.def.id}` };
+          return {
+            ...baza,
+            ...misja.def.ukladanie,
+            tekstEkranu: "Masz komplet. Teraz ułóż obrazek!",
+            wizualizacja: { typ: "puzzle", wartosc: puzzle.zebrane, cel: puzzle.cel },
+            akcja: `ukladanka:${misja.def.id}`,
+          };
         }
-        return { ...baza, ...misja.def.zbieranie, akcja: null };
+        return {
+          ...baza,
+          ...misja.def.zbieranie,
+          tekstEkranu: "Zbieraj kawałki błyszczące na polanie.",
+          wizualizacja: { typ: "puzzle", wartosc: puzzle.zebrane, cel: puzzle.cel },
+          akcja: null,
+        };
       }
       /* Układanka ułożona, a misja nieoznaczona jako odkryta: zapis sprzed
          tej zmiany albo gra bez bramy z puzzli. Gra jest wtedy dostępna, więc
          Wizkor mówi to samo, co po zdobyciu — „idź zagrać". */
       return { ...baza, ...def.granie, akcja: null };
     }
-    return { ...baza, ...def.zlecenie, akcja: `zlec:${def.id}` };
+    return {
+      ...baza,
+      ...def.zlecenie,
+      tekstEkranu: "Zbierz kawałki obrazka na polanie.",
+      wizualizacja: { typ: "puzzle", wartosc: 0, cel: celPuzzli(def.id) },
+      akcja: `zlec:${def.id}`,
+    };
   }
 
   if (z.spelnione) {
     return {
       ...baza,
+      ...POCHWALA,
       tekst:
         `Masz je wszystkie! ${z.cel} gwiazdek, co do jednej. ` +
         `Należy ci się ${NAGRODA_MONET} monet — bierz.`,
+      tekstEkranu: "Masz wszystkie gwiazdki!",
+      wizualizacja: { typ: "gwiazdki", wartosc: z.cel, cel: z.cel },
       wyroznienie: `${NAGRODA_MONET} monet`,
       przycisk: "Odbieram nagrodę!",
       akcja: "nagroda",
@@ -232,6 +354,8 @@ export function powitanieCzarodzieja(z, misja) {
       tekst:
         `Widzę, że szukasz. Masz ${z.zebrane} z ${z.cel} gwiazdek — ` +
         `zostało ${zostalo}. Świecą w trawie, trzeba tylko wbiec.`,
+      tekstEkranu: "Szukaj świecących gwiazdek na polanie.",
+      wizualizacja: { typ: "gwiazdki", wartosc: z.zebrane, cel: z.cel },
       wyroznienie: `${z.zebrane} z ${z.cel} gwiazdek`,
       przycisk: "Zbieram dalej!",
       akcja: null,
@@ -241,8 +365,11 @@ export function powitanieCzarodzieja(z, misja) {
   return {
     ...baza,
     tekst:
-      `Witaj, mały wędrowcze! Jestem Wizkor, strażnik Lasu Szeptów. ` +
-      `Zbierz dla mnie ${CEL_DOMYSLNY} złotych gwiazdek, a otworzę przed tobą pierwszą bramę.`,
+      `Witaj, mały wędrowcze! Jestem Wizkor, opiekun Świata Gama. ` +
+      `W całej krainie ukryło się ${CEL_DOMYSLNY} złotych gwiazdek. ` +
+      `Ciekawe, czy uda ci się znaleźć wszystkie?`,
+    tekstEkranu: "Zbierz złote gwiazdki ukryte na polanie.",
+    wizualizacja: { typ: "gwiazdki", wartosc: 0, cel: CEL_DOMYSLNY },
     wyroznienie: `${CEL_DOMYSLNY} złotych gwiazdek`,
     przycisk: "Ruszam po gwiazdki!",
     akcja: "start",

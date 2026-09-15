@@ -1412,18 +1412,27 @@ export function zbudujSwiat(mapa, planeta) {
     [[.88,-.46,.28,.5],[-.82,.68,.24,2.2],[.52,.96,.22,1.4]],
     [[1.02,.52,.30,1.3],[-.80,.90,.25,2.6],[.34,-.92,.27,.4],[-1.04,-.30,.20,1.8],[.86,-.58,.22,2.9]],
   ];
-  for (const [l, c, h, obrot, wariant=0] of glazy) {
+  for (const [nr, [l, c, h, obrot, wariant=0]] of glazy.entries()) {
+    /* Głaz i jego rozsypane kamienie siedzą w JEDNEJ nazwanej grupie. Grupa
+       stoi w tożsamości (pozycje nadaje `planeta.ustaw` każdej bryle z osobna),
+       więc nic się nie przesuwa — a rozbicie głazu da się zrobić jednym
+       `visible = false` zamiast szukania pięciu obiektów po scenie. */
+    const zestaw = new Group();
+    zestaw.name = `glaz-${nr}`;
+    zestaw.userData.mapaPos = [l, c];
+    zestaw.userData.skala = h;
     const u = glaz(h,false,wariant);
     planeta.ustaw(u, l, c, wysokoscGruntu(l, c) - .08 * h, obrot != null ? obrot : l * 2.1);
-    s.add(u);
+    zestaw.add(u);
     blockers.push({ x: l, z: c, r: 0.55 * h });
     // Gęstość rozsypanych kamieni jest częścią wariantu; nie wpływają na kolizję.
     for (const [i,[dx,dz,ds,dr]] of rozsypane[((wariant|0)%3+3)%3].entries()) {
       const p = glaz(h*ds,true,wariant+i);
       const px = l + dx * h, pz = c + dz * h;
       planeta.ustaw(p, px, pz, wysokoscGruntu(px, pz) - .06 * h * ds, l + dr);
-      s.add(p);
+      zestaw.add(p);
     }
+    s.add(zestaw);
   }
 
   const kwiaty = zbudujKwiaty(mapa.kwiaty, planeta, ziemia, wysokoscGruntu);

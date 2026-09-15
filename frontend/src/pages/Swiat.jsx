@@ -33,6 +33,16 @@ import {
   stanZadania,
 } from "../hub/zadanieGwiazdek.js";
 import {
+  oznaczMiejscePokazane,
+  policzDrzewko,
+  policzGlaz,
+  postawEtap,
+  rozpocznijZadanieDrewna,
+  skasujZadanieDrewna,
+  stanDrewna,
+  zaliczDostawe,
+} from "../hub/zadanieDrewna.js";
+import {
   aktualnaMisja,
   MISJE,
   odbierzNagrode as odbierzNagrodeMisji,
@@ -131,6 +141,37 @@ const CZAS_KOMUNIKATU = 5000;
 // Ikona monety w komunikacie zadania. Ten sam plik co kafelek monet w HUD —
 // dziecko widzi w zleceniu dokładnie to, co potem rośnie mu na liczniku.
 const IKONA_MONETY = "/assets/hub-nav/moneta.png";
+/* Ikony materiału na schronienie. Renderowane Z TYCH SAMYCH brył, które
+   stoją w świecie (`scena-3d-src/src/natura.js`) — licznik ma pokazywać
+   dokładnie to, co dziecko widzi na polanie, a nie osobno narysowany symbol. */
+const IKONA_KLODY = "/kloda.png";
+const IKONA_KAMYKA = "/kamyk.png";
+const IKONA_STOSU = "/stos-drewna.png";
+
+/* TRZY STANY JEDNEGO MATERIAŁU, a nie dwa. „Mam" i „nie mam" nie wystarczy,
+   odkąd materiał trzeba jeszcze donieść na plac:
+
+     nie zdobyte  — ikonka przygaszona
+     ścięte       — ikonka zapalona + zielony ptaszek („czynność skończona")
+     w drodze     — ikonka pulsuje, ptaszek chowa się na czas kursu
+     na placu     — ptaszek robi się pomarańczowy, jak znacznik placu
+
+   Pomarańcz jest tu celowo TEN SAM, co pierścień pracy i obrys placu: dziecko
+   nie musi się uczyć nowego koloru, tylko kojarzy „to należy do budowy". */
+function stanMaterialu(sciete, naPlacu, wDrodze) {
+  if (naPlacu) return "na placu";
+  if (wDrodze) return "w drodze na plac";
+  if (sciete) return "zdobyte, do zaniesienia";
+  return "do zdobycia";
+}
+
+function znakKlasa(sciete, naPlacu, wDrodze) {
+  let k = "game-hud-znak";
+  if (naPlacu) k += " jest-na-placu";
+  else if (wDrodze) k += " jest-w-drodze";
+  else if (sciete) k += " jest-sciete";
+  return k;
+}
 
 // Po tym przedrostku poznajemy gwiazdki wśród znaków sceny. Ich LISTY nigdzie
 // nie trzymamy — bierzemy ją ze sceny, więc dopisanie gwiazdki do `mapa.json`
@@ -367,6 +408,8 @@ export default function Swiat() {
    * się zapytać „gdzie to jest".
    */
   const licznikGwiazdekRef = useRef(null);
+  /** Ten sam cel lotu dla turkusowych drobinek po zebraniu puzzla. */
+  const licznikPuzzliRef = useRef(null);
   /**
    * Czy rozmowa jest właśnie na ekranie (okno postaci albo zaproszenie).
    *
@@ -471,6 +514,46 @@ export default function Swiat() {
   // Zadanie od czarodzieja. Czytamy je z localStorage przy montowaniu, bo
   // zbieranie ma przeżyć zamknięcie apki.
   const [zadanie, setZadanie] = useState(() => stanZadania());
+  const [drewno, setDrewno] = useState(() => stanDrewna());
+  /* CO LISEK NIESIE W TEJ CHWILI. Świadomie w pamięci, nie w zapisie: apka
+     zamknięta w pół kursu ma oddać stos tam, gdzie leżał. Dziecko traci kurs,
+     nie materiał — a HUD nie kłamie, że coś jest na placu. */
+  const [niesie, setNiesie] = useState(null);
+
+  /* RĄBANIE WŁĄCZA SIĘ RAZEM ZE STANEM ZADANIA — w efekcie, a nie przy okazji
+     pojedynczego zdarzenia. Scena montuje się asynchronicznie, więc ustawienie
+     wyłącznie w reakcji na „gotowa" potrafiło trafić w moment, gdy `scenaRef`
+     jest jeszcze pusty; wtedy świat zostawał z ustawieniem domyślnym i nikt
+     nie wiedział dlaczego. */
+  const etapPokazany = useRef(0);
+  /* `scenaGotowa` JEST TU DEPENDENCJĄ, nie ozdobą. Scena montuje się
+     asynchronicznie, więc przy pierwszym przebiegu `scenaRef` bywa pusty —
+     a wtedy efekt bez tej zależności nigdy by się nie powtórzył i świat
+     zostawałby z ustawieniami domyślnymi (plac budowy niewidoczny,
+     schronienie nieodtworzone). Ten sam błąd zjadł już raz rąbanie. */
+  useEffect(() => {
+    const s = scenaRef.current;
+    if (!s) return;
+    s.ustawRabanieAktywne?.(drewno.istnieje && !drewno.zbudowane);
+    /* MIEJSCE PRZED BUDOWLĄ. Plac budowy wisi na polanie od chwili przyjęcia
+       zadania: paliki w miejscu przyszłych słupów i ikona nad nimi. Bez tego
+       „zdobądź drewno" nie ma adresu — dziecko rąbie, nie wiedząc gdzie i po
+       co. Plac jaśnieje dopiero z kompletem materiału: to jego drugi stan,
+       czyli zaproszenie „chodź tu, masz wszystko". */
+    s.ustawPlacBudowy?.(drewno.istnieje && !drewno.zbudowane, drewno.spelnione);
+    /* ANIMUJEMY TYLKO WZROST. Po powrocie do świata schronienie ma stać, a nie
+       budować się od nowa — powtarzana animacja odbiera tamtej chwili wagę.
+       Stąd `etapPokazany`: stawianie widać wyłącznie wtedy, gdy etap właśnie
+       urósł, czyli po kliknięciu „STAWIAMY!". */
+    s.ustawSchronienie?.(drewno.etap, drewno.etap > etapPokazany.current);
+    etapPokazany.current = drewno.etap;
+    s.oznaczZuzyte?.(drewno.zuzyte);
+    // Najpierw ścięte, POTEM dostarczone: `oznaczDostarczone` zdejmuje stos
+    // z lasu i kładzie go na placu, więc musi mieć co zdejmować.
+    s.oznaczDostarczone?.(drewno.dostarczoneId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scenaGotowa, drewno.istnieje, drewno.zbudowane, drewno.spelnione, drewno.etap,
+      drewno.zuzyte.join(","), drewno.dostarczoneId.join(",")]);
   /**
    * Tryb testowy. LOKALNIE włączony od razu i przełączany `Ctrl+Shift+D`
    * w obie strony — do sprawdzenia, jak świat wygląda bez narzędzi, i z
@@ -571,16 +654,16 @@ export default function Swiat() {
     if (odsloniete || !(scenaGotowa || scenaMartwa)) return undefined;
     const rozsun = window.__rozsunChmury;
     if (typeof rozsun !== "function") { setOdsloniete(true); return undefined; }
-    rozsun(() => {
-      setOdsloniete(true);
-      // Najazd kamery na bohatera gra ZA KAZDYM razem po rozsunieciu chmur —
-      // niezaleznie od tego, jak dziecko weszlo do swiata (quiz, odswiezenie,
-      // powrot). Dopiero po zejsciu kurtyny, inaczej ruch przepadlby za nia.
-      try {
-        window.__kinoWejsciaWymus = false;
-        scenaRef.current?.kinoWejsciaTeraz?.();
-      } catch {}
-    });
+    // Kamera z gory OD RAZU — jeszcze zanim chmury zaczna schodzic — zeby po
+    // ich zejsciu NIE mignal domyslny kadr. Kino trzyma gore przez czas
+    // rozsuwania (hold), a orbite i dojazd do kadru robi juz po odslonieciu.
+    window.__kinoWejsciaWymus = false;
+    try {
+      console.log("[KINO] start parcia; scena?", !!scenaRef.current, "metoda?", typeof scenaRef.current?.kinoWejsciaTeraz);
+      const r = scenaRef.current?.kinoWejsciaTeraz?.();
+      console.log("[KINO] kinoWejsciaTeraz zwrocilo:", r);
+    } catch (e) { console.log("[KINO] blad:", e); }
+    rozsun(() => setOdsloniete(true));
     return undefined;
   }, [scenaGotowa, scenaMartwa, odsloniete]);
 
@@ -1222,6 +1305,37 @@ export default function Swiat() {
       });
       return;
     }
+    if (akcja === "zlecDrewno") {
+      const d = rozpocznijZadanieDrewna();
+      setDrewno(d);
+      rozstanie();
+      pokazKomunikat("Suche drzewko i głaz", {
+        ikona: IKONA_KLODY,
+        opis: "Zanieś materiał na plac budowy na polanie",
+      });
+      /* ŚWIAT SAM POKAZUJE ADRES. Zanim dziecko cokolwiek zetnie, planeta
+         obraca się na polanę i pokazuje puste miejsce z palikami — wtedy
+         „zdobądź drewno" przestaje być poleceniem, a staje się powodem.
+         Zwłoka: okno Wizkora musi najpierw zejść z ekranu, inaczej przelot
+         odbywa się za kartą i dziecko go nie widzi. */
+      if (!d.miejscePokazane) {
+        window.setTimeout(() => scenaRef.current?.pokazMiejsce?.(), 620);
+      }
+      return;
+    }
+    if (akcja === "postawEtap") {
+      /* Świat zmienia się NATYCHMIAST, jeszcze zanim okno zejdzie z ekranu.
+         To jest cała nagroda za to zadanie — gdyby przyszła z opóźnieniem
+         albo zza kolejnego kliknięcia, dziecko nie połączyłoby jej z tym,
+         co przed chwilą zrobiło. */
+      setDrewno(postawEtap());
+      rozstanie();
+      pokazKomunikat("Szkielet stoi", {
+        ikona: IKONA_STOSU,
+        opis: "Na polanie stanął szkielet schronienia",
+      });
+      return;
+    }
     if (akcja === "nagroda") {
       // Okno czarodzieja schodzi, ekran wygranej wchodzi na jego miejsce.
       // Rozstania NIE wołamy — czarodziej ma zostać, bo to on właśnie płaci.
@@ -1387,13 +1501,97 @@ export default function Swiat() {
       id: def.id, def, ujawniona: true, odkryta: false, wygrana: false,
       wyplacona: false, aktywna: true, naMapie: true, wZakladce: false, ...nadpisz,
     });
-    const okno = (z, misja) => setPowitanie(powitanieCzarodzieja(z, misja));
+    const okno = (z, misja, drewno) => setPowitanie(powitanieCzarodzieja(z, misja, drewno));
+    // Gwiazdki rozliczone = warunek wejścia w łańcuch schronienia.
+    const gwiazdkiRozliczone = () => gwiazdkiStan({ zebrane: CEL_DOMYSLNY, spelnione: true, wyplacone: true });
+    const drewnoStan = (nadpisz) => ({
+      istnieje: true, aktywne: true, drzewka: 0, glazy: 0, zuzyte: [],
+      dostarczone: { drewno: null, kamien: null }, dostarczoneId: [],
+      drewnoNaPlacu: false, kamienNaPlacu: false, miejscePokazane: true,
+      spelnione: false, zbudowane: false, etap: 0, ...nadpisz,
+    });
 
     const pozycje = [
       {
         grupa: "Okno Wizkora",
         etykieta: "Stan bieżący",
         odpal: () => okno(stanZadania(), aktualnaMisja()),
+      },
+      {
+        grupa: "Schronienie",
+        etykieta: "Materiał: zlecenie",
+        odpal: () => okno(gwiazdkiRozliczone(), null, drewnoStan({ istnieje: false, aktywne: false })),
+      },
+      {
+        grupa: "Schronienie",
+        etykieta: "Materiał: w trakcie",
+        odpal: () => okno(gwiazdkiRozliczone(), null, drewnoStan({ drzewka: 1 })),
+      },
+      {
+        grupa: "Schronienie",
+        etykieta: "Materiał: komplet (pochwała)",
+        odpal: () => okno(gwiazdkiRozliczone(), null, drewnoStan({
+          drzewka: 1, glazy: 1, drewnoNaPlacu: true, kamienNaPlacu: true, spelnione: true })),
+      },
+      {
+        grupa: "Schronienie",
+        etykieta: "Postaw etap 1 (zapisuje!)",
+        odpal: () => {
+          setDrewno(postawEtap());
+          pokazKomunikat("Szkielet stoi", { ikona: IKONA_STOSU, opis: "Na polanie stanął szkielet schronienia" });
+        },
+      },
+      {
+        grupa: "Schronienie",
+        etykieta: "Rąbanie: włącz na próbę",
+        odpal: () => {
+          scenaRef.current?.ustawRabanieAktywne?.(true);
+          pokazKomunikat("Rąbanie włączone", { ikona: IKONA_KLODY, opis: "Podejdź liskiem do suchego drzewka" });
+        },
+      },
+      {
+        grupa: "Schronienie",
+        etykieta: "Materiał: ścięty, leży w lesie",
+        odpal: () => okno(gwiazdkiRozliczone(), null, drewnoStan({ drzewka: 1, glazy: 1 })),
+      },
+      {
+        grupa: "Schronienie",
+        etykieta: "Kamera: pokaż plac budowy",
+        odpal: () => { scenaRef.current?.pokazMiejsce?.(); },
+      },
+      {
+        grupa: "Schronienie",
+        etykieta: "Dostarcz drewno na plac",
+        odpal: () => setDrewno(zaliczDostawe("drzewko", "drzewko-polana")),
+      },
+      {
+        grupa: "Schronienie",
+        etykieta: "Dostarcz kamienie na plac",
+        odpal: () => setDrewno(zaliczDostawe("glaz", "glaz-polana")),
+      },
+      {
+        grupa: "Schronienie",
+        etykieta: "Plac budowy: pokaż (gotowy)",
+        odpal: () => {
+          scenaRef.current?.ustawSchronienie?.(0);
+          scenaRef.current?.ustawPlacBudowy?.(true, true);
+          etapPokazany.current = 0;
+          pokazKomunikat("Plac budowy", { ikona: IKONA_STOSU, opis: "Znacznik na polanie — tam stanie schronienie" });
+        },
+      },
+      {
+        grupa: "Schronienie",
+        etykieta: "Rąbanie: stan do konsoli",
+        odpal: () => {
+          const st = scenaRef.current?.stan?.();
+          console.info("[rabanie]", st?.rabanie ?? "scena nie odpowiada");
+          pokazKomunikat("Stan w konsoli", { opis: "Otwórz konsolę przeglądarki" });
+        },
+      },
+      {
+        grupa: "Schronienie",
+        etykieta: "Skasuj zadanie drewna",
+        odpal: () => { skasujZadanieDrewna(); setDrewno(stanDrewna()); },
       },
       {
         grupa: "Okno Wizkora",
@@ -1498,6 +1696,23 @@ export default function Swiat() {
         },
       },
       {
+        grupa: "Animacje",
+        etykieta: "Lot puzzla do licznika",
+        /** Podgląd samej animacji — nie zmienia zapisanego postępu puzzli. */
+        odpal: () => {
+          const kafelek = licznikPuzzliRef.current;
+          if (!kafelek) { pokazKomunikat("DEV: licznik puzzli jest ukryty"); return; }
+          lecDoLicznika({
+            start: pozycjaNaEkranie(scenaRef.current, "puzel-1"),
+            cel: kafelek,
+            obraz: "/assets/puzzle/kawalek-v2.svg",
+            ile: 6,
+            czas: 600,
+            onDolot: () => podbijKafelek(kafelek),
+          });
+        },
+      },
+      {
         grupa: "Zadanie w realu",
         etykieta: "Mentor zatwierdza",
         /**
@@ -1588,6 +1803,54 @@ export default function Swiat() {
 
   const naZdarzenieSceny = useCallback(
     (nazwa, dane) => {
+      /* RĄBANIE. Scena melduje tylko „zdobyto surowiec" — nie wie nic
+         o zadaniu ani o liczniku. Cała decyzja, co z tym zrobić, jest tutaj:
+         dzięki temu świat da się testować bez postępu, a postęp bez świata. */
+      if (nazwa === "surowiec:zdobyty") {
+        /* ŚCIĘCIE TO POŁOWA ROBOTY. Odhacza ptaszka w HUD, ale niczego nie
+           kończy — materiał leży w lesie i sam tam nie pójdzie. Zadanie domyka
+           dopiero `surowiec:dostarczony`. */
+        setDrewno(dane?.rodzaj === "glaz" ? policzGlaz(dane?.id) : policzDrzewko(dane?.id));
+        pokazKomunikat(
+          dane?.rodzaj === "glaz" ? "Kamienie gotowe" : "Drewno gotowe",
+          { ikona: dane?.rodzaj === "glaz" ? IKONA_KAMYKA : IKONA_KLODY,
+            opis: "Zanieś to na plac budowy" },
+        );
+        return;
+      }
+
+      if (nazwa === "surowiec:podniesiony") {
+        // Ulotne — tylko po to, żeby HUD pokazał „w drodze" zamiast „leży w lesie".
+        setNiesie(dane?.rodzaj === "glaz" ? "kamien" : "drewno");
+        return;
+      }
+
+      if (nazwa === "surowiec:dostarczony") {
+        const nowy = zaliczDostawe(dane?.rodzaj, dane?.id);
+        setNiesie(null);
+        setDrewno(nowy);
+        pokazKomunikat(
+          dane?.rodzaj === "glaz" ? "Kamienie na placu" : "Drewno na placu",
+          { ikona: dane?.rodzaj === "glaz" ? IKONA_KAMYKA : IKONA_STOSU,
+            opis: nowy.spelnione ? "Jest wszystko, czego trzeba" : "Zostało jeszcze jedno" },
+        );
+        /* KOMPLET PRZYCHODZI SAM. Dziecko właśnie doniosło drugą rzecz —
+           gdyby po nagrodę musiało jeszcze znaleźć Wizkora na mapie, zgubiłoby
+           związek między tym, co zrobiło, a tym, co się dzięki temu wydarzy.
+           Chwila zwłoki, żeby toast zdążył się pokazać przed oknem. */
+        if (nowy.spelnione && !nowy.zbudowane) {
+          window.setTimeout(() => {
+            setPowitanie(powitanieCzarodzieja(stanZadania(), aktualnaMisja(), nowy));
+          }, 900);
+        }
+        return;
+      }
+
+      if (nazwa === "miejsce:pokazane") {
+        setDrewno(oznaczMiejscePokazane());
+        return;
+      }
+
       if (nazwa === "gotowa") {
         // Znaki wracają SAME, po swoim czasie z definicji (3,2 s). Wcześniej
         // wstrzymywaliśmy powrót do zamknięcia panelu (`ustawPowrotZnaku(…, false)`)
@@ -1601,7 +1864,27 @@ export default function Swiat() {
         // dziecko zdąży cokolwiek zobaczyć — moduł buduje je z `mapa.json`,
         // która nic o misjach nie wie.
         odswiezZnakiMisji();
+        /* Świat buduje się od nowa przy każdym wejściu, a zapis zadania —
+           nie. Bez tej linii ścięte drzewko wracałoby na polanę całe. */
+        const d = stanDrewna();
+        scenaRef.current?.oznaczZuzyte?.(d.zuzyte);
+        scenaRef.current?.ustawRabanieAktywne?.(d.istnieje && !d.zbudowane);
+        /* Efekt wyżej trafia w moment, gdy `scenaRef` bywa jeszcze pusty, więc
+           budowla i plac odtwarzają się TUTAJ — po „gotowa" scena na pewno jest.
+           Bez animacji: to jest wejście do świata, nie chwila stawiania. */
+        scenaRef.current?.oznaczDostarczone?.(d.dostarczoneId);
+        scenaRef.current?.ustawSchronienie?.(d.etap, false);
+        etapPokazany.current = d.etap;
+        scenaRef.current?.ustawPlacBudowy?.(d.istnieje && !d.zbudowane, d.spelnione);
         setScenaGotowa(true);
+        return;
+      }
+      if (nazwa === "wejscie:gotowe") {
+        // Koniec najazdu kamery (kino wejscia) — Wizkor wychodzi z misja
+        // gwiazdek. Nie nad otwarta rozmowa/nagroda/panelem (rozmowaRef trzyma
+        // wszystkie te przypadki). Stan czytamy ze zrodla, jak reszta handlera.
+        if (rozmowaRef.current) return;
+        setPowitanie(powitanieCzarodzieja(stanZadania(), aktualnaMisja()));
         return;
       }
       // `minigra:start` = znak wchłonięty (dotknięty palcem albo wejściem
@@ -1715,6 +1998,22 @@ export default function Swiat() {
           const po = doliczKawalekPuzzli(dane.znak);
           if (po) {
             wstrzymajPowrotZnaku(scenaRef.current, dane.znak);
+            /* Tak jak przy gwiazdce: lokalny rozbłysk znaku przechodzi w
+               czytelny lot do HUD-u. Używamy małych kopii TEGO SAMEGO
+               turkusowego puzzla, więc dziecko od razu widzi, co zasiliło
+               licznik. Sam zapis jest już bezpieczny w `puzzleGier`; dolot
+               odpowiada tylko za podbicie kafelka i świeże przerysowanie. */
+            lecDoLicznika({
+              start: pozycjaNaEkranie(scenaRef.current, dane.znak),
+              cel: licznikPuzzliRef.current,
+              obraz: "/assets/puzzle/kawalek-v2.svg",
+              ile: 6,
+              czas: 600,
+              onDolot: () => {
+                setPuzzleHud(biezacePuzzle());
+                podbijKafelek(licznikPuzzliRef.current);
+              },
+            });
             if (po.komplet) {
               pokazKomunikat("Masz wszystkie kawałki!");
               window.setTimeout(() => setUkladanka(po.id), WCHLANIANIE_MS);
@@ -2072,7 +2371,7 @@ export default function Swiat() {
           </button>
 
           <div
-            className={`game-hud-resources${zadanie.aktywne || misjaHud || puzzleHud ? " ma-zadanie" : ""}`}
+            className={`game-hud-resources${zadanie.aktywne || misjaHud || puzzleHud || (drewno.istnieje && !drewno.zbudowane) ? " ma-zadanie" : ""}`}
           >
             {/* Licznik zadania pojawia się DOPIERO po jego przyjęciu i znika
                 razem z nim. Stały licznik „0/10" na ekranie dziecka, które nie
@@ -2093,6 +2392,36 @@ export default function Swiat() {
                 <img src="/star.png" alt="" aria-hidden="true" draggable="false" />
                 <strong>{zadanie.zebrane}</strong>
                 <em>/{zadanie.cel}</em>
+              </span>
+            ) : null}
+
+            {/* MATERIAŁ NA SCHRONIENIE — dwie ikonki, a nie ułamek. Do etapu
+                trzeba dwóch KONKRETNYCH rzeczy (drzewko, głaz), więc dziecko
+                czyta stan bez liczenia: zgaszona ikonka znaczy „jeszcze nie",
+                zapalona „mam". Ułamek „1/2" byłby o jeden krok dalej od tego,
+                co dziecko naprawdę ma zrobić. */}
+            {drewno.istnieje && !drewno.zbudowane ? (
+              <span
+                className={`game-hud-counter game-hud-counter--drewno${drewno.spelnione ? " jest-spelnione" : ""}`}
+                aria-label={`Materiał na schronienie: drzewko ${stanMaterialu(drewno.drzewka, drewno.drewnoNaPlacu, niesie === "drewno")}, głaz ${stanMaterialu(drewno.glazy, drewno.kamienNaPlacu, niesie === "kamien")}`}
+                data-testid="hub-zadanie-drewno"
+              >
+                {/* Zapalona ikonka mówi „mam to", ale dopiero PTASZEK mówi
+                    „ta czynność jest skończona". Przy dwóch celach różnica
+                    jest istotna: bez znaczka dziecko widzi tylko, że coś
+                    zrobiło jaśniejszym, a nie że ma to z głowy. */}
+                <span className={znakKlasa(drewno.drzewka, drewno.drewnoNaPlacu, niesie === "drewno")}>
+                  <img className={drewno.drzewka ? "jest" : ""} src={IKONA_KLODY} alt="" aria-hidden="true" draggable="false" />
+                  {drewno.drewnoNaPlacu
+                    ? <b aria-hidden="true" data-stan="plac">✓</b>
+                    : drewno.drzewka ? <b aria-hidden="true">✓</b> : null}
+                </span>
+                <span className={znakKlasa(drewno.glazy, drewno.kamienNaPlacu, niesie === "kamien")}>
+                  <img className={drewno.glazy ? "jest" : ""} src={IKONA_KAMYKA} alt="" aria-hidden="true" draggable="false" />
+                  {drewno.kamienNaPlacu
+                    ? <b aria-hidden="true" data-stan="plac">✓</b>
+                    : drewno.glazy ? <b aria-hidden="true">✓</b> : null}
+                </span>
               </span>
             ) : null}
 
@@ -2135,6 +2464,7 @@ export default function Swiat() {
                 otwiera układankę i kafelek świeci jak spełniona misja. */}
             {puzzleHud ? (
               <button
+                ref={licznikPuzzliRef}
                 type="button"
                 className={`game-hud-counter game-hud-counter--misja game-hud-counter--puzzle${puzzleHud.komplet ? " jest-spelnione" : ""}`}
                 aria-label={
@@ -2149,7 +2479,7 @@ export default function Swiat() {
               >
                 <img
                   data-ksztalt="zeton"
-                  src="/assets/puzzle/kawalek.svg"
+                  src="/assets/puzzle/kawalek-v2.svg"
                   alt=""
                   aria-hidden="true"
                   draggable="false"
@@ -2194,6 +2524,11 @@ export default function Swiat() {
           <HubDock
             aktywny={panel}
             onWybor={przelacz}
+            /* Rozmowy i Zadania ukryte. Minigry pokazuja sie DOPIERO po
+               aktywacji pierwszej gry (ulozenie puzzli => m.wZakladce);
+               do tego czasu w doku jest sama Porada. `misje` jest reaktywne
+               (MISJE_ZMIANA), wiec ikona wskakuje sama w chwili aktywacji. */
+            sekcje={misje.some((m) => m.wZakladce) ? ["gry", "porada"] : ["porada"]}
             migajaca={migaZadania ? "wiadomosci" : null}
             plakietki={{
               gry: nowosci.gry,
@@ -2220,8 +2555,11 @@ export default function Swiat() {
         otwarty={!!powitanie}
         imie={powitanie?.imie}
         obrazek={powitanie?.obrazek}
+        obrazekAnim={powitanie?.obrazekAnim}
         tekst={powitanie?.tekst || ""}
+        tekstEkranu={powitanie?.tekstEkranu}
         wyroznienie={powitanie?.wyroznienie}
+        wizualizacja={powitanie?.wizualizacja}
         przycisk={powitanie?.przycisk}
         glos="las_decyzji"
         ton="mystery"
@@ -2271,11 +2609,10 @@ export default function Swiat() {
           górny róg, dokładnie tam, gdzie stoi kafelek monet. */}
       {nagroda === "gwiazdki" ? (
         <RewardScreen
-          eyebrow="✦ ZADANIE CZARODZIEJA"
+          eyebrow="✦ ZADANIE WIZKORA"
           title="Wszystkie gwiazdki!"
           subtitle={`Zebrałeś ${CEL_DOMYSLNY} złotych gwiazdek dla Wizkora.`}
           coins={NAGRODA_MONET}
-          note="Czarodziej dotrzymał słowa"
           ctaLabel="Super! ✦"
           onDismiss={zamknijNagrode}
         />
@@ -2308,7 +2645,6 @@ export default function Swiat() {
           title={stanGry(nagroda).def.nagrodaEkran.title}
           subtitle={stanGry(nagroda).def.nagrodaEkran.subtitle}
           coins={stanGry(nagroda).def.nagroda}
-          note="Wizkor dotrzymał słowa"
           ctaLabel="Super! ✦"
           onDismiss={zamknijNagrode}
         />

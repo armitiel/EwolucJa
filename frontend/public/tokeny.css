@@ -154,33 +154,43 @@
 
      --cta-*      = przycisk glowny (zielony, „zrob to")
      --cta-sec-*  = przycisk drugorzedny / odmowa („nie teraz", „wroc") */
-  --cta-h:56px; --cta-fs:21px; --cta-pad:12px 20px; --cta-r:18px;
-  --cta-sec-h:48px; --cta-sec-fs:16px;
+  --cta-h:58px; --cta-fs:21px; --cta-pad:12px 20px; --cta-r:26px;
+  --cta-sec-h:48px; --cta-sec-fs:16px; --cta-sec-r:18px; --cta-sec-obrys:3px;
 
-  /* WYGLAD CTA — zmierzony z makiety (BTN.pdf, 9.09.2026), co do piksela.
-     Wczesniej te wartosci byly wpisane w regule `.hub-btn-primary`, a drugi
-     zielony przycisk (`.puzzle-cta`) mial WLASNE, podobne-ale-inne. Teraz
-     wyglad jest tu, a regula tylko go sklada — dzieki temu wariant w innej
-     barwie to podmiana czterech zmiennych w kontenerze, a nie nowy gradient.
+  /* WYGLAD CTA — zmierzony z Figmy (EwolucJA UI Kit, wezel 19:24 „BTN",
+     15.09.2026). Poprzednia makieta (BTN.pdf, 9.09) miala obrys 3 px, promien
+     18 i rant 8; nowa jest wyrazniej cukierkowa: grubszy jasny obrys, mocniej
+     zaokraglone rogi i lico, ktore z zoltawej zieleni schodzi w ciemna juz
+     w polowie wysokosci.
 
-     Makieta ma obrys 3 px (byl 2), rant 8 px (byl 4) i JASNIEJSZE lico:
-     zaczyna sie od #A4E850, przez pierwsze ~15% wysokosci schodzi do #7FD731
-     i dopiero stamtad plynie do #43A50C. Ten szybki spadek na gorze robi
-     polysk — dlatego nie ma juz osobnego `inset ... rgba(255,255,255,.3)`. */
-  --cta-obrys:3px;
-  /* Stopnie nie sa zaokraglone „na oko": to punkty odczytane z makiety
-     i przeliczone na % wysokosci lica. Sama prosta 15%->100% dawala
-     w srodku o 5 jednostek za jasno - ramp jest lekko wygiety. */
-  --cta-lico:linear-gradient(180deg,#A4E850 0%,#A2E64F 11%,#7FD731 15%,
-    #71CE27 31%,#63C51D 48%,#56BA14 67%,#49AC0F 89%,#43A50C 100%);
-  --cta-obrys-barwa:linear-gradient(180deg,#B9EC5F 0%,#BAF254 50%,#C0FF50 100%);
-  --cta-rant:8px;               /* twardy dolny rant, bez rozmycia */
+     Wszystkie wartosci siedza TUTAJ, a reguly (`.hub-btn-primary`,
+     `.puzzle-cta`) tylko je skladaja — wariant w innej barwie to podmiana
+     zmiennych w kontenerze ekranu, a nie nowy gradient w regule. */
+  --cta-obrys:5px;
+  /* Punkty procentowe sa z Figmy 1:1 (8,62 / 53,12 / 85,35), zaokraglone do
+     jednego miejsca — roznica wypada ponizej piksela przy 58 px wysokosci. */
+  --cta-lico:linear-gradient(180deg,#8EE13D 8.6%,#41AB0A 53.1%,#248F05 85.3%);
+  /* Obrys jest JEDNOLITY (#A9E53F), ale zapisany jako gradient: reguly kladą
+     go w `border-box` obok lica w `padding-box`, wiec obie warstwy musza byc
+     obrazem, nie barwa. */
+  --cta-obrys-barwa:linear-gradient(180deg,#A9E53F,#A9E53F);
+  --cta-rant:7px;               /* twardy dolny rant, bez rozmycia */
   --cta-rant-barwa:#3C761F;
-  --cta-tekst:#FFEEA6;
-  /* Cien napisu jest CZARNY z alfa, nie zielony: czern nalozona normalnie na
-     lico daje dokladnie to samo, co mnozenie, wiec dziala tak samo nad kazda
-     barwa wariantu. Zmierzone z makiety: 21% czerni, 3 px w dol. */
-  --cta-tekst-cien:0 3px 0 rgba(0,0,0,.21);
+  /* Napis ma w makiecie PIONOWY gradient: chlodna biel u gory, cieple zloto
+     u dolu. Reguly wycinaja go przez `background-clip:text`, a `--cta-tekst`
+     zostaje barwa zapasowa tam, gdzie tej wlasciwosci nie ma. */
+  --cta-tekst:#F3EFC3;
+  --cta-tekst-lico:linear-gradient(180deg,#E6F6F5 23%,#F9E37C 67%);
+  /* Cien napisu dziala TYLKO w wersji zapasowej. Nad napisem wycietym
+     z gradientu klad(zie) sie NA literach i zamula je — sprawdzone w Chromium,
+     bo cien rysuje sie wyzej niz warstwa tla przycieta do liter. */
+  --cta-tekst-cien:0 2px 1.4px rgba(0,0,0,.25);
+  /* Swiatlo na gornej krawedzi — w Figmie osobny prostokat 379x22 wewnatrz
+     lica. Tu jest ulamkiem WYSOKOSCI, zeby dzialalo przy kazdej szerokosci
+     przycisku, a nie tylko przy 396 px z makiety. */
+  --cta-polysk:linear-gradient(180deg,rgba(255,255,255,.26) 0%,rgba(255,255,255,.07) 60%,rgba(255,255,255,0) 100%);
+  --cta-polysk-h:34%;
+  --cta-tracking:-.04em;        /* Figma: -1.44 px przy 36 px = -4% */
 
   --shadow-sm: 0 2px 0 rgba(78,77,118,.08), 0 4px 14px rgba(78,77,118,.10);
   --shadow-md: 0 3px 0 rgba(78,77,118,.10), 0 10px 24px rgba(78,77,118,.14);
@@ -291,7 +301,8 @@
   --o-5:16px;   /* padding karty, odstep miedzy blokami */
   --o-6:24px;   /* padding okna, sekcja */
   --o-7:32px;   /* duzy oddech: naglowek–tresc */
-  --o-8:56px;   /* wysokosc CTA (= --cta-h), strefa dotyku */
+  --o-8:56px;   /* duza strefa dotyku. Od 15.09 NIE jest rowne --cta-h (58 px):
+                   skala odstepow ma wlasny rytm i nie chodzi za makieta CTA. */
 }
 
 /* ── 7. CHMURKI KOMUNIKATOW — jeden ksztalt dla Medrca, liska i Porady ──

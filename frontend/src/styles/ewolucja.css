@@ -166,7 +166,7 @@ h3.title{ font-size: 22px; margin:0; }
    `--cta-h` / `--cta-fs` w kontenerze tego ekranu. */
 .hub-btn{
   display:inline-flex; align-items:center; justify-content:center; gap:8px;
-  border:var(--cta-obrys,3px) solid transparent; cursor:pointer; border-radius:var(--cta-r,18px);
+  border:var(--cta-sec-obrys,3px) solid transparent; cursor:pointer; border-radius:var(--cta-sec-r,18px);
   padding:var(--cta-pad,12px 20px);
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   font-weight:800; font-size:var(--cta-sec-fs,16px); letter-spacing:.35px; line-height:1;
@@ -179,11 +179,15 @@ h3.title{ font-size: 22px; margin:0; }
    Ksztalt zmierzony z makiety BTN.pdf (9.09.2026): obrys 3 px, promien 18,
    rant 8 px w dol bez rozmycia, kremowy napis z cieniem 3 px. */
 .hub-btn-primary{
+  position:relative; isolation:isolate;
+  border:var(--cta-obrys,5px) solid transparent;
+  border-radius:var(--cta-r,26px);
+  letter-spacing:var(--cta-tracking,-.04em);
   /* `min(..., 5.4vw)` to bezpiecznik na waskie telefony: przy 390 px szerokosci
      wychodzi dokladnie --cta-fs, a ponizej litery same schodza, zamiast lamac
      dluzszy napis na dwie linie i podwajac wysokosc przycisku. Wysokosc zostaje
      ta sama zawsze - to ona ma byc wspolna miara. */
-  min-height:var(--cta-h,56px); font-size:min(var(--cta-fs,21px), 5.4vw);
+  min-height:var(--cta-h,58px); font-size:min(var(--cta-fs,21px), 5.4vw);
   /* To `nowrap` DOTRZYMUJE obietnicy „wszedzie ta sama wysokosc". Bez niego
      dluzszy napis w wezszym przycisku lamie sie na dwie linie i guzik rosnie
      do 84 px, choc `min-height` dalej mowi 56. Napisy CTA sa krotkie
@@ -191,14 +195,52 @@ h3.title{ font-size: 22px; margin:0; }
      schodzi stopien pisma - `min(..., 5.4vw)` wyzej plus media query
      w tokeny.css. */
   white-space:nowrap;
-  color:var(--cta-tekst,#FFEEA6);
+  color:var(--cta-tekst,#F3EFC3);
   background:
     var(--cta-lico) padding-box,
     var(--cta-obrys-barwa) border-box;
   text-shadow:var(--cta-tekst-cien);
   /* Sam rant, bez miekkiego cienia pod nim - makieta go nie ma, a przy tak
      jasnym licu rozmyta plama tylko zamula krawedz. */
-  box-shadow:0 var(--cta-rant,8px) 0 var(--cta-rant-barwa,#3C761F);
+  box-shadow:0 var(--cta-rant,7px) 0 var(--cta-rant-barwa,#3C761F);
+}
+/* POLYSK NA GORNEJ KRAWEDZI. W Figmie to osobny prostokat wewnatrz lica;
+   tutaj pseudoelement, bo przyciski maja rozne szerokosci, a prostokat
+   z makiety pasowalby tylko do 396 px. `z-index:-1` kladzie go NAD tlem
+   przycisku, ale POD napisem; `isolation:isolate` w regule wyzej pilnuje,
+   zeby ta ujemna warstwa nie wyjechala pod karte, na ktorej guzik stoi. */
+.hub-btn-primary::before{
+  content:""; position:absolute; z-index:-1; pointer-events:none;
+  left:1px; right:1px; top:0; height:var(--cta-polysk-h,34%);
+  border-radius:
+    calc(var(--cta-r,26px) - var(--cta-obrys,5px)) calc(var(--cta-r,26px) - var(--cta-obrys,5px)) 40% 40% /
+    calc(var(--cta-r,26px) - var(--cta-obrys,5px)) calc(var(--cta-r,26px) - var(--cta-obrys,5px)) 100% 100%;
+  background:var(--cta-polysk);
+}
+/* NAPIS WYCIETY Z GRADIENTU. Trzy warstwy tla w jednej regule: pierwsza
+   przycieta do liter (stad gradient w napisie), druga to lico, trzecia obrys.
+   Cien napisu MUSI tu zniknac - rysuje sie wyzej niz warstwa przycieta do
+   liter, wiec zamiast podkreslac litery, zamulilby je od srodka.
+   Bez `background-clip:text` zostaje regula wyzej: pelna barwa + cien. */
+@supports ((background-clip:text) or (-webkit-background-clip:text)){
+  .hub-btn-primary{
+    background:var(--cta-tekst-lico), var(--cta-lico), var(--cta-obrys-barwa);
+    -webkit-background-clip:text,padding-box,border-box;
+            background-clip:text,padding-box,border-box;
+    -webkit-text-fill-color:transparent;
+    text-shadow:none;
+  }
+  /* Gdy etykieta siedzi w WLASNYM spanie z `z-index` (tak ma splash
+     `.start-gry-cta`, bo pod napis wjezdza przesuwajacy sie polysk), span
+     tworzy wlasny kontekst ukladania i przestaje nalezec do tekstu, ktory
+     przycina tlo przycisku — napis znikal calkowicie. Dlatego span dostaje
+     ten sam gradient u siebie. Przy okazji wychodzi blizej makiety: tam
+     gradient jest na SAMYM napisie, a nie na wysokosci calego guzika. */
+  .hub-btn-primary > span{
+    background:var(--cta-tekst-lico);
+    -webkit-background-clip:text;
+            background-clip:text;
+  }
 }
 .hub-btn-primary:disabled{ filter:grayscale(.35); cursor:default; box-shadow:none; }
 .hub-btn-primary:disabled:active{ transform:none; box-shadow:none; }
@@ -212,11 +254,11 @@ h3.title{ font-size: 22px; margin:0; }
 }
 .hub-btn:active{ transform:translateY(2px); }
 /* Wcisniecie CTA: przycisk zjezdza NA CALY rant i rant znika - jak prawdziwy
-   klawisz dociskany do podstawy. Zjazd o 2 px przy rancie 8 px wygladalby
+   klawisz dociskany do podstawy. Zjazd o 2 px przy rancie 7 px wygladalby
    tylko na drgniecie. STOI PO `.hub-btn:active` swiadomie: obie reguly maja
    te sama specyficznosc, wiec decyduje kolejnosc. */
 .hub-btn-primary:active{
-  transform:translateY(var(--cta-rant,8px));
+  transform:translateY(var(--cta-rant,7px));
   box-shadow:0 0 0 var(--cta-rant-barwa,#3C761F);
 }
 @media (prefers-reduced-motion:reduce){

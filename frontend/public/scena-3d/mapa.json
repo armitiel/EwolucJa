@@ -9,7 +9,10 @@
     "kameraPodniesienie": -3,
     "zoom": 1.15,
     "cyklDnia": true,
-    "slonceNad": [0, 0],
+    "slonceNad": [
+      0,
+      0
+    ],
     "cienie": true,
     "terenKanciasty": 8,
     "chmury": 4,
@@ -32,9 +35,27 @@
     "punktSciezki": 160,
     "ukryta": true
   },
-  "rzeka": {"szerokosc": 1.5, "krzywe": [], "_opis": "Krzywe wyczyszczone 14.09.2026 — swiat bez rzeki. `szerokosc` zostaje, bo liczy sie do kolizji tylko razem z punktami."},
-  "most": {"pos": [-4.7, 6.9], "ukryty": true, "_opis": "Ukryty 14.09.2026 na prosbe autora. Pozycja zostaje — zdjecie flagi przywraca obiekt na to samo miejsce."},
-  "brama": {"pos": [-0.82, -11.58], "ukryta": true, "_opis": "Ukryty 14.09.2026 na prosbe autora. Pozycja zostaje — zdjecie flagi przywraca obiekt na to samo miejsce."},
+  "rzeka": {
+    "szerokosc": 1.5,
+    "krzywe": [],
+    "_opis": "Krzywe wyczyszczone 14.09.2026 — swiat bez rzeki. `szerokosc` zostaje, bo liczy sie do kolizji tylko razem z punktami."
+  },
+  "most": {
+    "pos": [
+      -4.7,
+      6.9
+    ],
+    "ukryty": true,
+    "_opis": "Ukryty 14.09.2026 na prosbe autora. Pozycja zostaje — zdjecie flagi przywraca obiekt na to samo miejsce."
+  },
+  "brama": {
+    "pos": [
+      -0.82,
+      -11.58
+    ],
+    "ukryta": true,
+    "_opis": "Ukryty 14.09.2026 na prosbe autora. Pozycja zostaje — zdjecie flagi przywraca obiekt na to samo miejsce."
+  },
   "drzewa": [
     {
       "typ": "sosna",
@@ -83,7 +104,9 @@
         -1.8,
         6.6
       ],
-      "skala": 1.1
+      "skala": 1.1,
+      "doRozbicia": true,
+      "id": "glaz-polana"
     },
     {
       "pos": [
@@ -770,7 +793,13 @@
       ]
     }
   ],
-  "sciezkaWezly": {"punkty": [], "gladkosc": 0.95, "probki": 16, "wezelLatarni": 10, "_opis": "Punkty wyczyszczone 14.09.2026 — swiat bez sciezki. Edytor wypala `sciezka` z tych wezlow, wiec pusta lista musi byc TU, nie tylko w `sciezka`."},
+  "sciezkaWezly": {
+    "punkty": [],
+    "gladkosc": 0.95,
+    "probki": 16,
+    "wezelLatarni": 10,
+    "_opis": "Punkty wyczyszczone 14.09.2026 — swiat bez sciezki. Edytor wypala `sciezka` z tych wezlow, wiec pusta lista musi byc TU, nie tylko w `sciezka`."
+  },
   "kwiaty": [
     {
       "wariant": 1,
@@ -878,5 +907,27 @@
       "skala": 1.35
     }
   ],
-  "galezie": []
+  "galezie": [],
+  "sucheDrzewka": [
+    {
+      "file": "suche_drzewko",
+      "pos": [
+        -4.8,
+        6.2
+      ],
+      "wysokosc": 2.4,
+      "obrot": 0.7,
+      "_opis": "Martwy pien do sciecia. Kilka krokow od startu (-7.45, 9.77) i blisko glazu (-1.8, 6.6), zeby oba cele pierwszego zadania lezaly w jednej okolicy.",
+      "id": "drzewko-polana"
+    }
+  ],
+  "schronienie": {
+    "opis": "Polana miedzy suchym drzewkiem a glazem — tu staje schronienie.",
+    "pos": [
+      -3.1,
+      8.6
+    ],
+    "skala": 1.0,
+    "obrot": -0.45
+  }
 }

@@ -1888,6 +1888,34 @@
 }
 .popup-postaci-iskra--duza{ width:16px; height:16px; fill:var(--p-amber,#F4C95D); }
 
+/* OBRAZKOWE WYJASNIENIE CELU. Jedna znajdzka i liczba sztuk do zebrania.
+   Pelna instrukcje nadal mowi lektor; okno pokazuje tylko „przedmiot × cel". */
+.popup-postaci-cel{
+  width:min(190px,72%); min-height:82px; margin:14px auto 3px; padding:8px 18px;
+  display:flex; align-items:center; justify-content:center; gap:12px;
+  border:2px solid color-mix(in srgb,var(--hud-gold) 78%,transparent);
+  border-radius:22px;
+  background:linear-gradient(180deg,rgba(255,253,239,.92),color-mix(in srgb,var(--krem-300) 84%,white));
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.86),0 4px 0 color-mix(in srgb,var(--braz-400) 46%,transparent),0 8px 18px rgba(83,53,18,.13);
+}
+.popup-postaci-cel-ikona{
+  width:58px; height:58px; object-fit:contain;
+  filter:drop-shadow(0 4px 3px rgba(96,56,8,.24));
+}
+.popup-postaci-cel--puzzle .popup-postaci-cel-ikona{
+  width:56px; height:56px;
+}
+.popup-postaci-cel-razy{
+  color:var(--braz-500,#6f4719); font-size:27px; font-weight:900; line-height:1;
+}
+.popup-postaci-cel-liczba{
+  min-width:34px; color:#51396f; font-size:34px; line-height:1;
+  text-align:left; text-shadow:0 2px 0 rgba(255,255,255,.8);
+}
+.popup-postaci-cel.jest-komplet{
+  border-color:color-mix(in srgb,var(--p-leaf,#43A824) 66%,var(--hud-gold));
+}
+
 /* Rozmiar ze skali `--cta-*` (`ewolucja.css`) - okno postaci nie ma juz
    wlasnej wysokosci przycisku. */
 .popup-postaci-akcja{
@@ -2019,6 +2047,7 @@
   .popup-postaci-karta{ padding:30px 16px 20px; }
   .popup-postaci-wstega{ font-size:18px; padding:7px 14px; gap:7px; }
   .popup-postaci-tekst{ font-size:16.5px; }
+  .popup-postaci-cel{ width:min(180px,78%); padding-inline:14px; }
 }
 
 @media (prefers-reduced-motion:reduce){
@@ -2591,12 +2620,12 @@
 
 /* Zielony = to samo "idz dalej", co przycisk glowny w calej grze. */
 .porada-ikona--tak{
-  background:linear-gradient(180deg,#8ed15f,#5aa733) padding-box,
-             linear-gradient(180deg,#b6e88f,#3c761f) border-box;
-  box-shadow:0 4px 0 #3c761f, 0 8px 14px rgba(30,70,15,.3), inset 0 2px 0 rgba(255,255,255,.5);
+  background:var(--cta-lico) padding-box,
+             var(--cta-obrys-barwa) border-box;
+  box-shadow:0 4px 0 var(--cta-rant-barwa), 0 8px 14px rgba(30,70,15,.3), inset 0 2px 0 rgba(255,255,255,.5);
 }
 .porada-ikona--tak svg{ fill:var(--biel-ciepla); stroke:none; }
-.porada-ikona--tak:active{ box-shadow:0 2px 0 #3c761f, 0 4px 8px rgba(30,70,15,.3); }
+.porada-ikona--tak:active{ box-shadow:0 2px 0 var(--cta-rant-barwa), 0 4px 8px rgba(30,70,15,.3); }
 
 /* Krzyzyk jest LZEJSZY, nie czerwony: odlozenie porady to nie blad ani kara,
    a czerwony krzyzyk czyta sie jak "zle zrobiles". */
@@ -3088,7 +3117,7 @@
 }
 .porada-polka h3::before{
   content:""; width:11px; height:11px; flex:none; border-radius:50%;
-  background:linear-gradient(180deg,#8ed15f,#5aa733);
+  background:var(--cta-lico);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.6);
 }
 .porada-polka--dusza h3::before{ background:linear-gradient(180deg,#b98ce6,var(--p-magic-dk)); }
@@ -3549,8 +3578,8 @@
   display:grid; place-items:center; flex:none;
   width:46px; height:46px; border-radius:50%;
   border:2px solid color-mix(in srgb,var(--zloto-100) 82%,transparent);
-  background:linear-gradient(180deg,#8cdf45,#3ca40d);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.4),0 3px 0 var(--p-leaf-dk);
+  background:var(--cta-lico);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.4),0 3px 0 var(--cta-rant-barwa);
   color:#fff;
   filter:drop-shadow(0 2px 2px color-mix(in srgb,var(--braz-900) 16%,transparent));
 }
@@ -3619,6 +3648,7 @@
 }
 
 .porada-pusto{ margin:0; font-size:13.5px; line-height:1.45; color:var(--ochra-450); }
+.porada-pusto-historia{ padding:4px 0 2px; }
 .porada-stopka{ margin:14px 0 0; font-size:12px; line-height:1.4; color:var(--ochra-450); }
 
 @media (max-height:680px){

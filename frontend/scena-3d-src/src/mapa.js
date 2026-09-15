@@ -166,6 +166,12 @@ export function wczytajMape() {
     glazy: M.glazy || null,
     kwiaty: M.kwiaty || [],
     budynki: M.budynki ?? DOMYSLNE_BUDYNKI,
+    // Suche drzewka nie maja domyslnej listy: brak wpisu w mapie znaczy
+    // "na tej planecie nie ma czego scinac", a nie "wstaw jakies".
+    sucheDrzewka: Array.isArray(M.sucheDrzewka) ? M.sucheDrzewka : [],
+    // Miejsce, w ktorym stanie schronienie. Jedna pozycja, nie lista: cale
+    // zadanie prowadzi do JEDNEJ rzeczy, ktorej swiatu brakuje.
+    schronienie: M.schronienie && Array.isArray(M.schronienie.pos) ? M.schronienie : null,
     znaki: M.znaki ?? DOMYSLNE_ZNAKI,
   };
 }

@@ -23,7 +23,7 @@ import { idPostaci, postacWybranaJawnie } from "../utils/postac.js";
 // UWAGA: numer ma tylko ROSNĄĆ. Numery 3–13 zostały już wydane przeglądarce
 // z inną zawartością modułu (kolejne wersje znaków, gwiazdki, tempo ruchu),
 // więc cofnięcie go serwuje z cache starą scenę zamiast aktualnej.
-export const WERSJA_SCENY = "79";  // najazd wejscia gra ZAWSZE po rozsunieciu chmur (bez flagi, bez blokady reduce-motion)
+export const WERSJA_SCENY = "93";  // noszenie materialu na plac + kamera na plac budowy
 const ZASOBY = "/scena-3d/assets/";
 
 /**

@@ -13,9 +13,21 @@ import "./postacie.js";
 import { Aplikacja } from "./app.js";
 import { szablon, wstrzyknijStyl } from "./ui.js";
 
+/**
+ * TA LISTA JEST SUBSKRYPCJĄ, NIE DOKUMENTACJĄ. `Scena3D.jsx` zapisuje się
+ * dokładnie na te nazwy (`for (const nazwa of modul.ZDARZENIA)`), więc
+ * zdarzenie, którego tu nie ma, wychodzi ze sceny i ginie — bez błędu,
+ * bez ostrzeżenia, bez śladu w konsoli.
+ *
+ * Kosztowało to pół dnia przy rąbaniu: scena poprawnie meldowała
+ * `surowiec:zdobyty`, drzewko zamieniało się w stos, a HUD i Wizkor
+ * milczeli, bo po drugiej stronie nikt nie słuchał. Dopisując nowy
+ * `this.emit(...)` w `app.js`, DOPISZ GO TEŻ TUTAJ.
+ */
 export const ZDARZENIA = [
-  "gotowa", "minigra:start", "znak:dotkniety", "bohater:doszedl", "latarnia:reakcja",
+  "gotowa", "wejscie:gotowe", "minigra:start", "znak:dotkniety", "bohater:doszedl", "latarnia:reakcja",
   "doba:pora", "swiatlo:zebrane", "woda:nabrana", "fasola:podlana", "fasola:wspinaczka", "swiat:dalej",
+  "surowiec:zdobyty", "surowiec:podniesiony", "surowiec:dostarczony", "miejsce:pokazane",
   "pauza", "wznowienie", "zniszczona", "blad",
 ];
 
@@ -61,6 +73,15 @@ export async function utworzScena3D(s = {}) {
     pokazZnak: (r) => n.pokazZnak(r),
     kino: (r, a) => n.kino(r, a),
     kinoSkroc: () => n.kinoSkroc(),
+    kinoWejsciaTeraz: () => n.kinoWejsciaTeraz(),
+    // Rąbanie: React mówi, co już zużyte (powrót do gry) i kiedy w ogóle
+    // wolno rąbać (zadanie trwa albo nie).
+    oznaczZuzyte: (r) => n.oznaczZuzyte(r),
+    oznaczDostarczone: (r) => n.oznaczDostarczone(r),
+    ustawRabanieAktywne: (r) => n.ustawRabanieAktywne(r),
+    ustawSchronienie: (r, a) => n.ustawSchronienie(r, a),
+    ustawPlacBudowy: (r, a) => n.ustawPlacBudowy(r, a),
+    pokazMiejsce: (r, a) => n.pokazMiejsce(r, a),
     stan: () => n.stan(),
     zniszcz: () => { n.zniszcz(); t.remove(); },
     _app: n,
