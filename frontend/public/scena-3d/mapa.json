@@ -922,12 +922,12 @@
     }
   ],
   "schronienie": {
-    "opis": "Polana miedzy suchym drzewkiem a glazem — tu staje schronienie.",
+    "opis": "Polana PONAD drzewkiem i glazem — na tyle daleko, zeby doniesienie materialu bylo kursem, a nie krokiem w bok.",
     "pos": [
-      -3.1,
-      8.6
+      -1.0,
+      9.8
     ],
     "skala": 1.0,
-    "obrot": -0.45
+    "obrot": -0.25
   }
 }

@@ -1803,47 +1803,85 @@ export class Aplikacja {
    *    świat da się testować bez postępu, a postęp bez świata.
    */
 
-  /** Pierścień postępu z piłą — wisi NAD LISKIEM, bo to on pracuje. */
+  /**
+   * Pierścień postępu z piłą — wisi NAD LISKIEM, bo to on pracuje.
+   *
+   * PŁÓTNO MA 256 px, nie 128. Sprite urósł do 1,05 jednostki i przy 128 px
+   * piła robiła się papką: to jest znaczek, na który dziecko patrzy przez całe
+   * pięć sekund, więc musi być ostry. Wszystkie wymiary liczone od `S`, żeby
+   * następna zmiana rozmiaru nie wymagała przeliczania trzydziestu liczb.
+   */
   _wskaznikPracy() {
     if (this._wskPracy) return this._wskPracy;
+    const S = 256, c0 = S / 2;
     const c = document.createElement("canvas");
-    c.width = c.height = 128;
+    c.width = c.height = S;
     const g = c.getContext("2d");
     const spr = new Sprite(new SpriteMaterial({
       map: new CanvasTexture(c), depthTest: false, transparent: true,
     }));
     spr.renderOrder = 60;
-    spr.scale.setScalar(.72);
+    spr.scale.setScalar(1.05);
     spr.visible = false;
     spr.rysuj = (p) => {
-      g.clearRect(0, 0, 128, 128);
-      g.fillStyle = "rgba(36,49,71,.82)";
-      g.beginPath(); g.arc(64, 64, 46, 0, Math.PI * 2); g.fill();
-      g.lineWidth = 7; g.lineCap = "round";
-      g.strokeStyle = "rgba(255,255,255,.18)";
-      g.beginPath(); g.arc(64, 64, 40, 0, Math.PI * 2); g.stroke();
-      // Pomarańcz, nie zieleń: zielony pierścień zlewał się z trawą pod spodem,
-      // a zieleń w tej grze znaczy „idź dalej", nie „trwa robota".
-      // MOCNY, NASYCONY, nie przypalony: #E89A3D był przygaszony i na słońcu
-      // gubił się w piasku ścieżki. Ten ma trzymać uwagę przez pięć sekund,
-      // więc idzie na pełnym nasyceniu, grubiej (9) i z ciemnym obrysem pod
-      // spodem — bez obrysu jasny pomarańcz rozmywa się na jasnym tle.
-      g.lineWidth = 11;
-      g.strokeStyle = "rgba(92,38,4,.55)";
-      g.beginPath(); g.arc(64, 64, 40, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * p); g.stroke();
-      g.lineWidth = 9;
-      g.strokeStyle = "#FF7A18";
-      g.beginPath(); g.arc(64, 64, 40, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * p); g.stroke();
-      g.lineWidth = 7;
-      g.save(); g.translate(64, 66); g.rotate(-.35);
-      g.fillStyle = "#E8B84B"; g.fillRect(-23, -4.5, 13, 9);
-      g.fillStyle = "#EDEFF2";
-      g.beginPath(); g.moveTo(-11, -4); g.lineTo(23, -1.5); g.lineTo(23, 3.5); g.lineTo(-11, 4); g.closePath(); g.fill();
-      for (let i = 0; i < 9; i++) {
-        const x = -7 + i * 3.5;
-        g.beginPath(); g.moveTo(x, 4); g.lineTo(x + 2, 7.5); g.lineTo(x + 3.5, 4); g.closePath(); g.fill();
+      g.clearRect(0, 0, S, S);
+      g.lineCap = "round";
+      g.lineJoin = "round";
+
+      // Tarcza + jasny obrys. Bez obrysu ciemny krążek gubi krawędź na cieniu
+      // pod drzewem — a to jedyna rzecz, która oddziela znaczek od tła.
+      g.fillStyle = "rgba(36,49,71,.86)";
+      g.beginPath(); g.arc(c0, c0, 96, 0, Math.PI * 2); g.fill();
+      g.lineWidth = 5; g.strokeStyle = "rgba(255,255,255,.2)";
+      g.beginPath(); g.arc(c0, c0, 96, 0, Math.PI * 2); g.stroke();
+
+      g.lineWidth = 16; g.strokeStyle = "rgba(255,255,255,.16)";
+      g.beginPath(); g.arc(c0, c0, 80, 0, Math.PI * 2); g.stroke();
+
+      /* Pomarańcz, nie zieleń: zielony pierścień zlewał się z trawą pod spodem,
+         a zieleń w tej grze znaczy „idź dalej", nie „trwa robota". Mocny
+         i nasycony, z ciemnym obrysem pod spodem — bez obrysu jasny pomarańcz
+         rozmywa się na jasnym tle. */
+      const k0 = -Math.PI / 2, k1 = k0 + Math.PI * 2 * p;
+      g.lineWidth = 24; g.strokeStyle = "rgba(92,38,4,.6)";
+      g.beginPath(); g.arc(c0, c0, 80, k0, k1); g.stroke();
+      g.lineWidth = 17; g.strokeStyle = "#FF7A18";
+      g.beginPath(); g.arc(c0, c0, 80, k0, k1); g.stroke();
+
+      /* PIŁA jednym konturem: brzeszczot i zęby to jedna ścieżka, więc ciemny
+         obrys obchodzi też zęby. Wcześniej zęby były osobnymi trójkącikami bez
+         obrysu i z dwóch metrów zlewały się w rozmazaną krechę. */
+      g.save();
+      g.translate(c0, c0 + 10);
+      g.rotate(-.3);
+      // Piła wypełnia tarczę — przy skali 1 zostawała w środku mała kreska
+      // otoczona pustką. 1,14 to maksimum, przy którym czubek brzeszczotu
+      // nadal nie wchodzi pod pierścień postępu.
+      g.scale(1.14, 1.14);
+      const OBRYS = "rgba(32,22,10,.9)";
+
+      g.beginPath();
+      g.moveTo(-28, -13);
+      g.lineTo(52, -6);
+      g.lineTo(52, 7);
+      const ZEBY = 9, xA = 52, xB = -28, yA = 7, yB = 14;
+      for (let i = 0; i < ZEBY; i++) {
+        const t1 = (i + .5) / ZEBY, t2 = (i + 1) / ZEBY;
+        g.lineTo(xA + (xB - xA) * t1, yA + (yB - yA) * t1 + 11);
+        g.lineTo(xA + (xB - xA) * t2, yA + (yB - yA) * t2);
       }
+      g.closePath();
+      g.fillStyle = "#F2F5F8"; g.fill();
+      g.lineWidth = 5; g.strokeStyle = OBRYS; g.stroke();
+
+      // Rękojeść na wierzchu — ciepła, żeby od razu było widać, gdzie się trzyma.
+      g.beginPath();
+      g.moveTo(-62, -16); g.lineTo(-26, -16); g.lineTo(-26, 14); g.lineTo(-62, 14);
+      g.closePath();
+      g.fillStyle = "#E8B84B"; g.fill();
+      g.lineWidth = 5; g.strokeStyle = OBRYS; g.stroke();
       g.restore();
+
       spr.material.map.needsUpdate = true;
     };
     this.swiat.add(spr);
@@ -1861,7 +1899,11 @@ export class Aplikacja {
       wynik.visible = false;
       // Zanurzenie 0,08 · skala — dokładnie tyle, ile zanurza głazy `swiat.js`,
       // więc kamyczki siadają w trawie tak samo jak bryła, z której powstały.
-      wynik.add(this._osadz(kamyczki(.64 * (g.skala ?? 1)),
+      /* Kamyczki są WIĘKSZE, niż wynikałoby ze skali głazu (.95, nie .64).
+         Przy .64 kupka czytała się jak żwir, który się zamiata, a nie jak
+         materiał, który się dźwiga na budowę — a to drugie jest tu całą
+         treścią zadania. */
+      wynik.add(this._osadz(kamyczki(.95 * (g.skala ?? 1)),
         g.pos[0], g.pos[1], .08 * (g.skala ?? 1), g.obrot ?? 0));
       this.swiat.add(wynik);
       this._doScinania.push({
@@ -1870,7 +1912,7 @@ export class Aplikacja {
         // Kamyczki zostają dokładnie tam, gdzie stał głaz — inaczej niż stos
         // drewna, który leży obok pnia.
         posWyniku: g.pos, nWyniku: this.planeta.normalna(g.pos[0], g.pos[1]),
-        skalaWyniku: .64 * (g.skala ?? 1),
+        skalaWyniku: .95 * (g.skala ?? 1),
         // Zasięg WIĘKSZY niż przy drzewku: głaz ma kolizję (blocker r≈0,6),
         // więc lisek nie wejdzie w niego — musi mu wystarczyć stanięcie obok.
         zasieg: g.zasieg ?? 1.9, postep: 0, zrobione: false, dostarczone: false,
@@ -1969,7 +2011,7 @@ export class Aplikacja {
     w.visible = true;
     // Pierścień siedzi nad liskiem w układzie planety: pozycja bohatera plus
     // jego normalna (czyli „góra" w tym miejscu kuli), a nie sztywne +Y.
-    w.position.copy(this.hero.position).addScaledVector(this.hn, .95);
+    w.position.copy(this.hero.position).addScaledVector(this.hn, 1.14);
     w.rysuj(pracuje.postep / CZAS_RABANIA);
 
     if (pracuje.postep < CZAS_RABANIA) return;
@@ -2056,7 +2098,7 @@ export class Aplikacja {
     // Mniejszy niż to, co leżało w lesie: na plecach ma się mieścić, a nie
     // przykrywać liska. Proporcja, nie stała — stos z wyższego drzewka
     // dalej ma być większy od kupki kamyków.
-    g.add(rodzaj === "glaz" ? kamyczki(s * .5) : stosDrewna(s * .42));
+    g.add(rodzaj === "glaz" ? kamyczki(s * .42) : stosDrewna(s * .42));
     return g;
   }
 
