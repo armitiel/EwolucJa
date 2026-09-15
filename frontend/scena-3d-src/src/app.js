@@ -1830,9 +1830,15 @@ export class Aplikacja {
     return true;
   }
   _kinoWejscie() {
+    // `window.__kinoWejsciaWymus` ustawia onboarding tuz przed przejsciem do
+    // swiata po klikieciu "Start" — wtedy najazd kamery na bohatera gra ZAWSZE,
+    // niezaleznie od tego, czy juz sie w tej sesji odbyl. Pozostale wejscia
+    // (powrot z minigry, odswiezenie) trzymaja stara zasade: raz na sesje.
+    let wymus = false;
+    try { wymus = !!window.__kinoWejsciaWymus; if (wymus) window.__kinoWejsciaWymus = false; } catch {}
     try {
       const k = "ewolucja.kino.wejscie";
-      if (sessionStorage.getItem(k)) return;
+      if (!wymus && sessionStorage.getItem(k)) return;
       sessionStorage.setItem(k, "1");
     } catch {}
     this.kino("wejscie");

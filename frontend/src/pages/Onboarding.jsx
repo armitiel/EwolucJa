@@ -513,6 +513,8 @@ export default function Onboarding() {
               // ekran, zanim router zdejmie karte wyniku i zaczne sie
               // ladowanie sceny 3D. Swiat sam ja rozsuwa, gdy jest gotowy.
               try { window.__zbudujChmury?.(); } catch {}
+              // Najazd kamery na bohatera ma zagrac ZAWSZE po Starcie z quizu.
+              try { window.__kinoWejsciaWymus = true; } catch {}
               navigate(SWIAT_PO_QUIZIE);
             }}
           />
