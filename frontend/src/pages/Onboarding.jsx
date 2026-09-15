@@ -554,8 +554,6 @@ function ArchetypeReveal({ result, onEnter }) {
 
         <img className="ob-reveal-laurel jest-lewy" src="/assets/onboarding/ornament-zlote-liscie-v1.png" alt="" aria-hidden="true" />
         <img className="ob-reveal-laurel jest-prawy" src="/assets/onboarding/ornament-zlote-liscie-v1.png" alt="" aria-hidden="true" />
-        <img className="ob-reveal-corner-leaf jest-lewy" src="/assets/onboarding/ornament-zlote-liscie-v1.png" alt="" aria-hidden="true" />
-        <img className="ob-reveal-corner-leaf jest-prawy" src="/assets/onboarding/ornament-zlote-liscie-v1.png" alt="" aria-hidden="true" />
         <div className="ob-reveal-chip">Twój archetyp</div>
         <h2
           id="ob-reveal-name"
@@ -613,10 +611,11 @@ function CelebrationThenArchetype({ result, onEnter }) {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
+        justifyContent: "center",
         gap: 18,
-        padding: "60px 0 20px",
+        padding: "24px 0",
         position: "relative",
-        minHeight: 560,
+        minHeight: "100%",
         overflow: "hidden",
       }}
     >

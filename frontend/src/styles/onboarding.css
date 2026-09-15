@@ -171,8 +171,9 @@
    w siatce dwukolumnowej — `.ob-odpowiedzi.ma-obrazki` przestawia i siatke,
    i kierunek kafelka. Jeden zestaw regul, bo to jest ten sam kafelek na
    dwoch etapach zycia, a nie dwa rozne komponenty. */
-.ob-odpowiedzi.ma-obrazki{ --ob-kolumny:2; }
+.ob-odpowiedzi.ma-obrazki{ --ob-kolumny:2; grid-auto-rows:1fr; }
 .ob-odpowiedzi.ma-obrazki .ob-kafelek{
+  height:100%; box-sizing:border-box;
   flex-direction:column; align-items:stretch; gap:8px;
   padding:10px 10px 12px; text-align:center;
 }
@@ -228,8 +229,7 @@
 }
 .ob-kafelek.jest-przygaszony{ opacity:.42; filter:grayscale(.5); transform:scale(.97); }
 .ob-kafelek:disabled{ cursor:default; }
-/* Trzy elementy kafelka. Ilustracja (jeszcze nie istnieje — 24 pliki do
-   wygenerowania) siada po lewej jako kwadrat; podpis to dwa, cztery slowa;
+/* Trzy elementy kafelka. Ilustracja siada po lewej jako kwadrat; podpis to dwa, cztery slowa;
    zdanie stoi pod nim tylko dopoki obrazka nie ma. Gdy pliki wejda, znika
    zdanie i kafelek robi sie kwadratem w siatce (`--ob-kolumny: 2`). */
 .ob-kafelek-obraz{
@@ -285,6 +285,176 @@
   color:#fff; white-space:nowrap;
 }
 
+/* ── Objawienie archetypu ────────────────────────────────────────────────
+   Jedna karta obsluguje wszystkie profile. Avatar, nazwa i kolory przychodza
+   z PROFILE_INFO; geometria ma zapas na rozne sylwetki i najdluzsza nazwe
+   „Spokojna Glowa”. Teksty nie leza juz na jasnym lesie — kontrast zapewnia
+   papier karty, a avatar z nazwa czytaja sie jak jedna zdobyta odznaka. */
+.ob-scroll-wynik{
+  padding:18px 14px 46px !important;
+}
+.ob-reveal{
+  width:100%; min-height:100%;
+  display:flex; justify-content:center; align-items:flex-start;
+  box-sizing:border-box;
+  padding-top:232px;
+  font-family:var(--font-display,'Baloo 2'), system-ui, sans-serif;
+}
+.ob-reveal-card{
+  position:relative;
+  width:min(100%, 390px); box-sizing:border-box;
+  min-height:520px;
+  padding:210px 24px 22px;
+  border:4px solid var(--hud-gold); border-radius:30px;
+  background:
+    linear-gradient(180deg, #fffaf0 0%, var(--p-paper,#fbf1d6) 58%, var(--p-paper-2,#f4e3b8) 100%);
+  box-shadow:
+    inset 0 3px 0 rgba(255,255,255,.82),
+    inset 0 0 0 3px color-mix(in srgb, var(--hud-gold-light) 55%, transparent),
+    0 0 0 2px var(--braz-400),
+    0 7px 0 color-mix(in srgb, var(--braz-550) 82%, transparent),
+    0 22px 44px color-mix(in srgb, var(--noc-700) 38%, transparent);
+  color:var(--p-ink,#4e4d76); text-align:center;
+}
+.ob-reveal-medalion{
+  position:absolute; z-index:1;
+  top:-160px; left:50%; transform:translateX(-50%);
+  width:236px; height:236px; box-sizing:border-box;
+  display:grid; place-items:center;
+  border:6px solid var(--hud-gold-light); border-radius:50%;
+  background:
+    radial-gradient(circle at 48% 36%, color-mix(in srgb, var(--ob-medalion) 88%, white) 0%, var(--ob-medalion) 48%, var(--ob-medalion-dk) 100%);
+  box-shadow:
+    0 0 0 3px var(--braz-400),
+    0 0 0 6px color-mix(in srgb, var(--hud-gold) 38%, transparent),
+    inset 0 0 0 3px rgba(255,255,255,.3),
+    inset 0 -24px 34px rgba(26,9,59,.3),
+    0 18px 34px var(--ob-profile-glow);
+  overflow:hidden;
+}
+.ob-reveal-medalion::after{
+  content:""; position:absolute; inset:9px; z-index:0;
+  border:1px solid rgba(255,255,255,.22); border-radius:50%;
+  box-shadow:inset 0 0 26px rgba(255,255,255,.12);
+  pointer-events:none;
+}
+.ob-reveal-stars{ position:absolute; inset:0; z-index:3; pointer-events:none; }
+.ob-reveal-star{
+  position:absolute; display:block;
+  filter:drop-shadow(0 0 5px rgba(255,223,88,.75));
+  animation:ob-reveal-twinkle 2.15s ease-in-out infinite;
+}
+.ob-reveal-star.s1{ left:17px; top:62px; animation-delay:-.35s; }
+.ob-reveal-star.s2{ right:16px; top:78px; animation-delay:-1.2s; }
+.ob-reveal-star.s3{ left:25px; bottom:43px; animation-delay:-1.7s; }
+.ob-reveal-star.s4{ right:23px; bottom:45px; animation-delay:-.8s; }
+.ob-reveal-star.s5{ right:54px; top:24px; animation-delay:-2s; }
+@keyframes ob-reveal-twinkle{
+  0%,100%{ opacity:.46; transform:scale(.72) rotate(-7deg); }
+  48%{ opacity:1; transform:scale(1.14) rotate(7deg); }
+}
+.ob-reveal-avatar{
+  position:relative; z-index:2;
+  width:244px; height:244px;
+  display:grid; place-items:center;
+  transform:translateY(17px);
+}
+.ob-reveal-avatar img{
+  width:252px !important; height:252px !important;
+  min-width:0 !important; min-height:0 !important;
+  max-width:100% !important; max-height:100% !important;
+  filter:drop-shadow(0 9px 8px rgba(37,20,29,.3));
+}
+.ob-reveal-laurel{
+  position:absolute; z-index:5; top:84px;
+  width:92px; height:62px; object-fit:contain;
+  pointer-events:none; user-select:none; -webkit-user-drag:none;
+  filter:drop-shadow(0 4px 3px rgba(103,54,11,.28));
+}
+.ob-reveal-laurel.jest-lewy{ left:46px; }
+.ob-reveal-laurel.jest-prawy{ right:46px; transform:scaleX(-1); }
+.ob-reveal-chip{
+  position:absolute; z-index:3;
+  top:72px; left:50%; transform:translateX(-50%);
+  min-width:174px; box-sizing:border-box;
+  padding:9px 22px 8px;
+  border:3px solid var(--hud-gold-light); border-radius:999px;
+  outline:2px solid var(--braz-400);
+  background:linear-gradient(180deg, color-mix(in srgb, var(--ob-medalion) 80%, white), var(--ob-medalion-dk));
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.28), 0 4px 0 var(--braz-400), 0 8px 14px rgba(74,39,21,.2);
+  color:var(--hud-cream-top,#fff7d6);
+  font-size:14px; font-weight:900; line-height:1;
+  letter-spacing:1.2px; text-transform:uppercase; white-space:nowrap;
+}
+.ob-reveal-name{
+  position:absolute; z-index:4;
+  top:111px; left:45px; right:45px;
+  min-height:76px; margin:0; padding:10px 16px 8px;
+  box-sizing:border-box;
+  display:flex; align-items:center; justify-content:center;
+  border:4px solid var(--hud-gold-light); border-radius:26px;
+  outline:3px solid var(--braz-400);
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--ob-badge) 82%, white) 0%,
+      var(--ob-badge) 54%,
+      color-mix(in srgb, var(--ob-badge) 72%, #43142f) 100%);
+  box-shadow:
+    inset 0 3px 0 rgba(255,255,255,.42),
+    inset 0 -5px 0 color-mix(in srgb, var(--ob-badge) 62%, #43142f),
+    0 7px 0 var(--braz-400),
+    0 14px 22px color-mix(in srgb, var(--ob-profile) 34%, transparent);
+  color:#fff9df;
+  font-size:clamp(31px, 9vw, 43px); font-weight:900; line-height:.96;
+  letter-spacing:.2px; text-transform:uppercase;
+  text-shadow:0 3px 0 color-mix(in srgb, var(--ob-profile) 42%, #3e172c), 0 0 2px rgba(64,24,38,.42);
+  overflow-wrap:anywhere;
+}
+.ob-reveal-name.jest-dluga{
+  font-size:clamp(24px, 7vw, 34px);
+  line-height:1.02;
+}
+.ob-reveal-copy{ display:flex; flex-direction:column; align-items:center; }
+.ob-reveal-tagline{
+  max-width:320px; margin:0;
+  color:var(--p-magic-dk,#493078);
+  font-size:clamp(24px, 6.5vw, 31px); font-weight:900; line-height:1.14;
+  letter-spacing:-.35px;
+}
+.ob-reveal-divider{
+  position:relative;
+  width:56%; height:18px; margin:12px auto 10px;
+  background:linear-gradient(90deg, transparent, var(--hud-gold) 18%, var(--hud-gold) 82%, transparent) center / 100% 2px no-repeat;
+}
+.ob-reveal-divider svg{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  filter:drop-shadow(0 2px 2px rgba(95,51,9,.2));
+}
+.ob-reveal-description{
+  max-width:326px; min-height:66px; margin:0;
+  display:flex; align-items:center;
+  color:var(--p-ink-soft,#65628a);
+  font-size:16px; font-weight:650; line-height:1.42;
+}
+.ob-reveal-cta{
+  width:100%; min-height:58px; margin-top:22px;
+  font-size:20px; letter-spacing:.35px; text-transform:uppercase;
+}
+
+@media (max-width:370px){
+  .ob-reveal{ padding-top:218px; }
+  .ob-reveal-card{ padding:194px 17px 18px; border-radius:26px; }
+  .ob-reveal-medalion{ top:-145px; width:216px; height:216px; }
+  .ob-reveal-avatar{ width:222px; height:222px; transform:translateY(15px); }
+  .ob-reveal-avatar img{ width:228px !important; height:228px !important; }
+  .ob-reveal-laurel{ top:78px; width:76px; height:52px; }
+  .ob-reveal-chip{ top:64px; min-width:160px; font-size:12px; }
+  .ob-reveal-name{ top:101px; left:37px; right:37px; min-height:72px; font-size:30px; }
+  .ob-reveal-name.jest-dluga{ font-size:23px; }
+  .ob-reveal-tagline{ font-size:23px; }
+  .ob-reveal-description{ font-size:15px; }
+}
+
 /* ── Desktop ──────────────────────────────────────────────────────────────
    W ramce (`.page-scena.jest-ramka`) karta ma wiecej miejsca, wiec czarodziej
    moze urosnac — ale kolumna tresci zostaje waska. Siatka dwukolumnowa wejdzie
@@ -293,11 +463,22 @@
   /* W ramce karta ma pod soba duzo pustego papieru — na telefonie kolumna
      konczy sie tam, gdzie tresc, na monitorze nie. Srodkujemy ja w pionie,
      zeby nie wisiala przy gornej krawedzi kadru. */
-  .ob-ekran{ min-height:100%; justify-content:center; }
-  .ob-karta{ --ob-wizkor:224px; width:min(100%, 460px); padding:36px 26px 26px; }
-  .ob-karta.wizkor-maly{ --ob-wizkor:150px; }
+  /* safe center: gdy tresc jest wyzsza od kadru, nie ucina gory (Wizkor) */
+  .ob-ekran{ min-height:100%; justify-content:safe center; }
+  .ob-karta{ --ob-wizkor:186px; width:min(100%, 480px); padding:30px 26px 24px; }
+  .ob-karta.wizkor-maly{ --ob-wizkor:132px; }
   .ob-tytul{ font-size:34px; }
-  .ob-pytanie{ font-size:24px; }
+  .ob-pytanie{ font-size:23px; margin-bottom:2px; }
+  /* Odpowiedzi z obrazkami: na desktopie o rozmiarze kafelka decyduje
+     WYSOKOSC, nie szerokosc kolumny — dzieki temu siatka 2x2 miesci sie
+     w kadrze bez przewijania i bez ucinania dolnego rzedu. */
+  .ob-odpowiedzi.ma-obrazki .ob-kafelek-obraz{
+    aspect-ratio:auto; width:auto; max-width:100%;
+    height:clamp(96px, 15vh, 150px); margin-inline:auto;
+  }
+  .ob-scroll-wynik{ padding-block:34px 52px !important; }
+  .ob-reveal{ padding-top:202px; }
+  .ob-reveal-card{ width:min(100%, 414px); }
 }
 
 /* ── Wróć ─────────────────────────────────────────────────────────────────
