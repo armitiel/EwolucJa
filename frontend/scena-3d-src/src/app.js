@@ -1830,19 +1830,22 @@ export class Aplikacja {
     return true;
   }
   _kinoWejscie() {
-    // `window.__kinoWejsciaWymus` ustawia onboarding tuz przed przejsciem do
-    // swiata po klikieciu "Start" — wtedy najazd kamery na bohatera gra ZAWSZE,
-    // niezaleznie od tego, czy juz sie w tej sesji odbyl. Pozostale wejscia
-    // (powrot z minigry, odswiezenie) trzymaja stara zasade: raz na sesje.
-    let wymus = false;
-    try { wymus = !!window.__kinoWejsciaWymus; if (wymus) window.__kinoWejsciaWymus = false; } catch {}
+    // Wejscie z quizu (przycisk "Start") ustawia window.__kinoWejsciaWymus.
+    // Wtedy NIE gramy najazdu tu, na "gotowa" — scena jest jeszcze pod kurtyna
+    // z chmur i caly ruch przepadlby za nia. Najazd odpala Swiat przez
+    // `kinoWejsciaTeraz()` DOPIERO po rozsunieciu chmur; flage czysci Swiat.
+    // Pozostale wejscia (odswiezenie, powrot z minigry) graja jak dotad:
+    // raz na sesje.
+    try { if (window.__kinoWejsciaWymus) return; } catch {}
     try {
       const k = "ewolucja.kino.wejscie";
-      if (!wymus && sessionStorage.getItem(k)) return;
+      if (sessionStorage.getItem(k)) return;
       sessionStorage.setItem(k, "1");
     } catch {}
     this.kino("wejscie");
   }
+  /** Najazd kamery na bohatera na zadanie — Swiat wola po rozsunieciu chmur. */
+  kinoWejsciaTeraz() { return this.kino("wejscie"); }
   _kinoKlatka(e) {
     if (!this._kc) this._kc = new Vector3();
     if (!this._kcT) this._kcT = new Vector3();

@@ -571,7 +571,17 @@ export default function Swiat() {
     if (odsloniete || !(scenaGotowa || scenaMartwa)) return undefined;
     const rozsun = window.__rozsunChmury;
     if (typeof rozsun !== "function") { setOdsloniete(true); return undefined; }
-    rozsun(() => setOdsloniete(true));
+    rozsun(() => {
+      setOdsloniete(true);
+      // Najazd kamery na bohatera po wejsciu z quizu ("Start") — DOPIERO gdy
+      // chmury zeszly, inaczej caly ruch przepadlby za kurtyna.
+      try {
+        if (window.__kinoWejsciaWymus) {
+          window.__kinoWejsciaWymus = false;
+          scenaRef.current?.kinoWejsciaTeraz?.();
+        }
+      } catch {}
+    });
     return undefined;
   }, [scenaGotowa, scenaMartwa, odsloniete]);
 
