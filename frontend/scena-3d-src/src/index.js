@@ -81,6 +81,9 @@ export async function utworzScena3D(s = {}) {
     oznaczDostarczone: (r) => n.oznaczDostarczone(r),
     ustawRabanieAktywne: (r) => n.ustawRabanieAktywne(r),
     ustawSchronienie: (r, a) => n.ustawSchronienie(r, a),
+    /* Narzędzie właściciela: suwaki do domkowego drzewa, wprost w grze.
+       Woła je pulpit reżyserki (`Swiat.jsx`) i adres `?edytorDomku=1`. */
+    edytorDomku: () => n.edytorDomku(),
     ustawPlacBudowy: (r, a) => n.ustawPlacBudowy(r, a),
     pokazMiejsce: (r, a) => n.pokazMiejsce(r, a),
     stan: () => n.stan(),

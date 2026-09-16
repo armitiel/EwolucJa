@@ -1389,11 +1389,11 @@ export default function Swiat() {
          albo zza kolejnego kliknięcia, dziecko nie połączyłoby jej z tym,
          co przed chwilą zrobiło. */
       setDrewno(postawEtap());
-      dopiszDoDziennika("schronienie", "Na polanie stanął szkielet schronienia", IKONA_STOSU);
+      dopiszDoDziennika("schronienie", "Na drzewie stanął pomost z drabinką", IKONA_STOSU);
       rozstanie();
-      pokazKomunikat("Szkielet stoi", {
+      pokazKomunikat("Pomost gotowy", {
         ikona: IKONA_STOSU,
-        opis: "Na polanie stanął szkielet schronienia",
+        opis: "Na drzewie stanął pomost z drabinką",
       });
       return;
     }
@@ -1605,15 +1605,20 @@ export default function Swiat() {
         etykieta: "Postaw etap 1 (zapisuje!)",
         odpal: () => {
           setDrewno(postawEtap());
-          pokazKomunikat("Szkielet stoi", { ikona: IKONA_STOSU, opis: "Na polanie stanął szkielet schronienia" });
+          pokazKomunikat("Pomost stoi", { ikona: IKONA_STOSU, opis: "Na drzewie stanął pomost z drabinką" });
         },
+      },
+      {
+        grupa: "Schronienie",
+        etykieta: "Edytor drzewa z domkiem",
+        odpal: () => scenaRef.current?.edytorDomku?.(),
       },
       {
         grupa: "Schronienie",
         etykieta: "Rąbanie: włącz na próbę",
         odpal: () => {
           scenaRef.current?.ustawRabanieAktywne?.(true);
-          pokazKomunikat("Rąbanie włączone", { ikona: IKONA_KLODY, opis: "Podejdź liskiem do suchego drzewka" });
+          pokazKomunikat("Rąbanie włączone", { ikona: IKONA_KLODY, opis: "Podejdź liskiem do dowolnego drzewa" });
         },
       },
       {

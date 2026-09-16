@@ -150,11 +150,15 @@ export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
         return {
           ...baza,
           tekst:
-            "Na polanie wbiłem paliki — tu stanie schronienie. " +
-            "Suche drzewko da słupy, głaz da kamienie pod spód. " +
-            "Przynieś jedno i drugie na paliki.",
-          tekstEkranu: "Przynieś na paliki suche drzewko i głaz.",
-          wyroznienie: "suche drzewko i głaz",
+            /* NIE MÓWIMY JUŻ „suche drzewko". Ścinać można KAŻDE drzewo na
+               mapie, a suche stoi na polanie jako pień pod domek — dziecko,
+               które usłyszy „suche drzewko", pójdzie rąbać właśnie to jedno,
+               którego ruszać nie wolno. */
+            "Widzisz to wielkie drzewo na polanie? Zbudujemy na nim domek. " +
+            "Ścięte drzewo da deski na pomost, głaz da kamienie pod drabinkę. " +
+            "Przynieś jedno i drugie pod to drzewo.",
+          tekstEkranu: "Przynieś pod drzewo drewno i głaz.",
+          wyroznienie: "drewno i głaz",
           przycisk: "Biorę się za to",
           akcja: "zlecDrewno",
         };
@@ -166,7 +170,7 @@ export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
            Wyliczamy CZEGO brakuje, zamiast pokazywać „1 z 2": w głowie ma
            dwie konkretne rzeczy, nie ułamek. */
         const doZdobycia = [];
-        if (drewno.drzewka < CEL_DRZEWKA) doZdobycia.push("suche drzewko");
+        if (drewno.drzewka < CEL_DRZEWKA) doZdobycia.push("drzewo do ścięcia");
         if (drewno.glazy < CEL_GLAZY) doZdobycia.push("głaz");
         /* Każdy materiał niesie SWOJĄ GRAMATYKĘ. „Drewno czeka", ale „kamienie
            czekają" — a kwestie składamy z fragmentów, więc bez tego Wizkor
@@ -189,17 +193,17 @@ export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
         if (doPrzyniesienia.length === 1) {
           const m = doPrzyniesienia[0];
           tekst = doZdobycia.length
-            ? `Dobrze idzie. ${wielka(m.nazwa)} ${m.czeka} ${m.gdzie} — zanieś ${m.je} na paliki. `
+            ? `Dobrze idzie. ${wielka(m.nazwa)} ${m.czeka} ${m.gdzie} — zanieś ${m.je} pod drzewo. `
               + `Zostało jeszcze: ${doZdobycia.join(" i ")}.`
             : `Jest wszystko, tylko ${m.nazwa} wciąż ${m.czeka} ${m.gdzie}. `
-              + `Zanieś ${m.je} na paliki, a zaczniemy stawiać.`;
+              + `Zanieś ${m.je} pod drzewo, a zaczniemy budować.`;
           ekran = doZdobycia.length
-            ? `Zanieś ${m.nazwa} na paliki. Zostało: ${doZdobycia.join(" i ")}.`
-            : `Zanieś ${m.nazwa} na paliki.`;
+            ? `Zanieś ${m.nazwa} pod drzewo. Zostało: ${doZdobycia.join(" i ")}.`
+            : `Zanieś ${m.nazwa} pod drzewo.`;
         } else if (doPrzyniesienia.length > 1) {
           tekst = "Jest wszystko, tylko drewno i kamienie wciąż czekają tam, gdzie powstały. "
-            + "Zanieś je na paliki, a zaczniemy stawiać.";
-          ekran = "Zanieś drewno i kamienie na paliki.";
+            + "Zanieś je pod drzewo, a zaczniemy budować.";
+          ekran = "Zanieś drewno i kamienie pod drzewo.";
         } else {
           tekst = `Idzie dobrze. Zostało jeszcze: ${doZdobycia.join(" i ")}.`;
           ekran = `Zostało: ${doZdobycia.join(" i ")}.`;
@@ -208,7 +212,7 @@ export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
           ...baza,
           tekst,
           tekstEkranu: ekran,
-          wyroznienie: doPrzyniesienia.length ? "na paliki" : doZdobycia[0],
+          wyroznienie: doPrzyniesienia.length ? "pod drzewo" : doZdobycia[0],
           przycisk: "Idę dalej",
           akcja: null,
         };
@@ -217,11 +221,11 @@ export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
         ...baza,
         ...POCHWALA,
         tekst:
-          "Wszystko leży na placu — sam to przyniosłeś. " +
-          "Postawmy pierwsze słupy, reszta przyjdzie z czasem.",
-        tekstEkranu: "Stawiamy pierwsze słupy!",
-        wyroznienie: "pierwsze słupy",
-        przycisk: "Stawiamy!",
+          "Wszystko leży pod drzewem — sam to przyniosłeś. " +
+          "Zbijmy pomost i drabinkę. Domek dobudujemy innego dnia.",
+        tekstEkranu: "Budujemy pomost na drzewie!",
+        wyroznienie: "pomost i drabinkę",
+        przycisk: "Budujemy!",
         akcja: "postawEtap",
       };
     }

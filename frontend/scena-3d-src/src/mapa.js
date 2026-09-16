@@ -153,6 +153,9 @@ export function wczytajMape() {
     // MAGICZNA FASOLA (fasola.js): roślina rosnąca etapami od wody z oczka.
     fasola: M.fasola || null,
     oczko: M.oczko || null,
+    // LISTA oczek. `oczko` (pojedyncze) zostaje dla starszych map — scena
+    // buduje jedno i drugie, a `teren.js` obu daje tę samą nieckę.
+    oczka: Array.isArray(M.oczka) ? M.oczka : [],
     // FORMY TERENU (teren.js): wzgórza, niecki rysowane po kuli.
     formyTerenu: M.formyTerenu || [],
     terenBarwy: M.swiat?.terenBarwy || null,

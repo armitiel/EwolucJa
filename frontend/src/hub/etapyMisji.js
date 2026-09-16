@@ -168,24 +168,24 @@ function etapySchronienia() {
       ...wspolne,
       id: "schronienie:zlecenie",
       drewno: "brak",
-      tytul: "Schronienie — zlecenie",
-      opis: "Gwiazdki rozliczone. Wizkor pokazuje paliki i zleca zdobycie suchego drzewka oraz głazu. Na mapie nie ma jeszcze żadnego znaku gry.",
+      tytul: "Domek na drzewie — zlecenie",
+      opis: "Gwiazdki rozliczone. Wizkor wskazuje wielkie drzewo na polanie i zleca ścięcie drzewa oraz rozbicie głazu. Na mapie nie ma jeszcze żadnego znaku gry.",
       akcja: "zlecDrewno",
     },
     {
       ...wspolne,
       id: "schronienie:zbieranie",
       drewno: "zbieranie",
-      tytul: "Schronienie — zdobywanie materiału",
-      opis: "Zadanie przyjęte: lisek ścina drzewko i rozbija głaz, potem znosi materiał na plac. Znaki gier schodzą z mapy aż do postawienia szkieletu.",
+      tytul: "Domek na drzewie — zdobywanie materiału",
+      opis: "Zadanie przyjęte: lisek ścina drzewko i rozbija głaz, potem znosi materiał pod drzewo. Znaki gier schodzą z mapy aż do zbudowania pomostu.",
       akcja: null,
     },
     {
       ...wspolne,
       id: "schronienie:komplet",
       drewno: "komplet",
-      tytul: "Schronienie — materiał na placu",
-      opis: "Drewno i kamienie leżą na palikach. Kwestia Wizkora prowadzi przyciskiem „Stawiamy!” — po nim staje pierwszy etap schronienia.",
+      tytul: "Domek na drzewie — materiał pod drzewem",
+      opis: "Drewno i kamienie leżą pod drzewem. Kwestia Wizkora prowadzi przyciskiem „Budujemy!” — po nim powstaje pomost z barierką i drabinką (etap 1 z trzech).",
       akcja: "postawEtap",
     },
   ];
@@ -387,7 +387,7 @@ export function zlamanaKolejnosc() {
     return `„${ruszone[0].def.tytul}" ruszyła, choć gwiazdki nie są rozliczone.`;
   }
   if (ruszone.length && z.wyplacone && !stanDrewna().zbudowane) {
-    return `„${ruszone[0].def.tytul}" ruszyła, choć schronienie jeszcze nie stoi.`;
+    return `„${ruszone[0].def.tytul}" ruszyła, choć pomost na drzewie jeszcze nie stoi.`;
   }
   for (let i = 1; i < misje.length; i += 1) {
     if (stopien(misje[i]) > 0 && stopien(misje[i - 1]) < 5) {

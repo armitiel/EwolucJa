@@ -13,9 +13,10 @@
  * zmieni adres; odwrotna kolejnosc gubi gest i muzyka nie rusza.
  */
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { session } from "../services/api.js";
+import { statusEpomost, zalogujPrzezPortal, zalogujTestowo, wIframe } from "../services/epomost.js";
 import { ttsPlayer } from "../services/ttsPlayer";
 import bgMusic from "../services/bgMusic.js";
 import PageShell from "../components/PageShell.jsx";
@@ -30,6 +31,54 @@ const SWIAT = "/swiat";
 export default function Landing() {
   const navigate = useNavigate();
   const playerId = session.getPlayer();
+
+  const [statusEpo, setStatusEpo] = useState(null);
+  const [logujePortal, setLogujePortal] = useState(false);
+  const [bladPortal, setBladPortal] = useState(null);
+
+  // Auto-login ePomost: gdy gra jest osadzona w iframe Portalu i nie ma jeszcze
+  // sesji gracza, logujemy przez Portal (PKCE). Poza iframe nie robimy nic —
+  // działa zwykły ekran startowy. Status pobieramy zawsze, żeby wiedzieć, czy
+  // pokazać wejście testowe (tylko DEV).
+  useEffect(() => {
+    let anulowane = false;
+    (async () => {
+      const st = await statusEpomost();
+      if (anulowane) return;
+      setStatusEpo(st);
+      if (playerId) return; // już zalogowany na tym urządzeniu
+      if (!wIframe()) return; // samodzielne wejście — bez auto-loginu
+      if (!st || !st.keyConfigured) return;
+      // Kontrakt: pierwsze żądanie SDK dopiero po załadowaniu iframe i kolejnym
+      // zadaniu przeglądarki — odczekaj jeden tick.
+      await new Promise((r) => setTimeout(r, 0));
+      if (anulowane) return;
+      setLogujePortal(true);
+      try {
+        const gracz = await zalogujPrzezPortal();
+        if (anulowane) return;
+        navigate(gracz && gracz.archetype ? SWIAT : "/onboarding");
+      } catch (e) {
+        if (anulowane) return;
+        setLogujePortal(false);
+        setBladPortal("Nie udało się zalogować przez Portal. Spróbuj odświeżyć.");
+      }
+    })();
+    return () => {
+      anulowane = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function wejdzTestowo() {
+    setBladPortal(null);
+    try {
+      const gracz = await zalogujTestowo("podglad");
+      navigate(gracz && gracz.archetype ? SWIAT : "/onboarding");
+    } catch (e) {
+      setBladPortal("Nie udało się utworzyć konta testowego.");
+    }
+  }
 
   /** Kazde wyjscie z tego ekranu wlacza dzwiek — to jest ten „user gesture". */
   function wejdz(dokad) {
@@ -47,6 +96,20 @@ export default function Landing() {
   // w tym samym szarym kadrze, co swiat 3D — patrz `.page-scena.jest-ramka`
   // i blok „Ekran powitalny na desktopie" w `styles/ewolucja.css`. Na
   // telefonie nie zmienia sie nic: ta sama kolumna 480 px, co dotad.
+  if (logujePortal) {
+    return (
+      <PageShell showClouds={false} ramka>
+        <div className="start-ekran">
+          <div className="start-zaslona" aria-hidden="true" />
+          <div className="start-tresc" style={{ textAlign: "center" }}>
+            <h1 className="start-logo">Ewoluc<b>JA</b></h1>
+            <p className="start-haslo t-hand">Logowanie przez Portal…</p>
+          </div>
+        </div>
+      </PageShell>
+    );
+  }
+
   return (
     <PageShell showClouds={false} ramka>
       <div className="start-ekran">
@@ -96,7 +159,19 @@ export default function Landing() {
               <img className="start-ikona" src="/assets/wejscie/klucz.png" alt="" aria-hidden="true" />
               {playerId ? "Zaloguj innym kodem" : "Mam już kod"}
             </button>
+
+            {/* Konto testowe — widoczne TYLKO na DEV (backend: testLoginEnabled).
+                Pozwala wejść do gry bez Portalu ePomost, do podglądu testów. */}
+            {statusEpo && statusEpo.testLoginEnabled && (
+              <button className="hub-btn hub-btn-ghost" onClick={wejdzTestowo}>
+                Konto testowe (podgląd)
+              </button>
+            )}
           </div>
+
+          {bladPortal && (
+            <p className="start-haslo" style={{ color: "#c0392b", marginTop: 8 }}>{bladPortal}</p>
+          )}
 
           {/* Linijka o muzyce zeszla: dziecko i tak nie ma tu czego ustawiac,
               a nutka w HUD-zie tlumaczy sie sama w chwili, gdy jest potrzebna. */}

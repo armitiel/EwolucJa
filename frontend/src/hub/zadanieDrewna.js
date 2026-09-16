@@ -4,13 +4,13 @@
  *
  * Czym się różni od `zadanieGwiazdek` i dlaczego to nie jest kopia:
  *
- * 1. NIE MA NAGRODY W MONETACH. Zapłatą jest to, że na polanie staje szkielet
- *    schronienia — „działanie → konsekwencja → zmiana świata", a nie
+ * 1. NIE MA NAGRODY W MONETACH. Zapłatą jest to, że na wielkim drzewie staje
+ *    pomost z drabinką — „działanie → konsekwencja → zmiana świata", a nie
  *    „zadanie → monety → sklep". `docs/OPIS_PROJEKTU.md` odrzuca to drugie
  *    wprost, więc gdyby ktoś chciał tu dopisać `dodajMonety`, niech najpierw
  *    przeczyta tamten plik.
  *
- * 2. LICZY RZECZY, NIE SZTUKI. Do etapu potrzeba jednego suchego drzewka
+ * 2. LICZY RZECZY, NIE SZTUKI. Do etapu potrzeba jednego ściętego drzewa
  *    i jednego głazu — nie „ośmiu jednostek drewna". Dwa konkretne cele
  *    dziecko trzyma w głowie bez licznika; osiem jednostek to już magazyn.
  *
@@ -21,10 +21,12 @@
  *    uprościć „bo szybciej" — to właśnie kurs z materiałem jest momentem,
  *    w którym „zdobyłem" zamienia się w „przyniosłem".
  *
- * 4. ŚCINAMY TYLKO SUCHE DRZEWKO. Zapis tego nie pilnuje (pilnuje to scena,
- *    bo tylko suche drzewka dostają znak do wbiegnięcia), ale gdyby kiedyś
- *    ktoś wołał `policzDrzewko` z innego miejsca — to nie jest zaproszenie
- *    do wycinania żywego lasu.
+ * 4. ŚCINAMY JEDNO DOWOLNE DRZEWO. Dziecko wybiera, które — i to ono zamienia
+ *    się w stos kłód; reszta lasu stoi. Wyjątkiem jest wielkie drzewo na
+ *    polanie: na nim ma stanąć domek, więc scena nie daje mu znaku do ścięcia.
+ *    Zapis tego nie pilnuje (pilnuje scena), ale gdyby ktoś wołał
+ *    `policzDrzewko` z innego miejsca — to jest JEDNO drzewo na etap,
+ *    a nie zaproszenie do wycinania lasu.
  *
  * Czego tu NIE MA i nie powinno być: tego, co lisek niesie w tej chwili.
  * Ładunek jest ulotny — apka zamknięta w pół drogi oddaje stos tam, gdzie
@@ -77,6 +79,8 @@ const PUSTE = {
   aktywne: false,
   drzewka: 0,
   glazy: 0,
+  // Dzień (YYYY-MM-DD), w którym postawiono ostatnie piętro domku.
+  dzienEtapu: null,
   // Identyfikatory zużytych obiektów („drzewko-polana", „glaz-polana").
   // Trzymamy je W ZAPISIE z tego samego powodu co przy gwiazdkach: mapa
   // buduje się od nowa przy każdym wejściu, więc bez tej listy ścięte
@@ -114,6 +118,7 @@ function czytaj() {
       dostarczone: czytajDostarczone(surowe.dostarczone),
       zbudowane: !!surowe.zbudowane,
       etap: Math.max(0, Number(surowe.etap) || 0),
+      dzienEtapu: typeof surowe.dzienEtapu === "string" ? surowe.dzienEtapu : null,
       miejscePokazane: !!surowe.miejscePokazane,
     };
   } catch {
@@ -127,6 +132,7 @@ function zapisz(stan) {
       drzewka: stan.drzewka, glazy: stan.glazy,
       zuzyte: stan.zuzyte, dostarczone: stan.dostarczone,
       zbudowane: stan.zbudowane, etap: stan.etap,
+      dzienEtapu: stan.dzienEtapu ?? null,
       miejscePokazane: stan.miejscePokazane,
     }));
   } catch {}
@@ -239,13 +245,56 @@ export function oznaczMiejscePokazane() {
  * Stawia kolejny etap schronienia. Zwraca nowy stan — to on jest „nagrodą",
  * więc wołający ma czym pokazać dziecku, co się właśnie zmieniło w świecie.
  */
+/**
+ * DOBA, W KTÓREJ STOIMY — jako znacznik „tego samego dnia".
+ *
+ * Używamy daty kalendarzowej, a nie numeru z `services/dzienGry.js`, z dwóch
+ * powodów. Ten numer zawija się co 30 dni (dzień 31 to znowu 1), więc jako
+ * znacznik „czy to już inny dzień" kłamałby raz na miesiąc. I potrzebuje
+ * obiektu gracza, którego ten moduł nie widzi. Sam `dzienPrzygody` porównuje
+ * zresztą właśnie całe doby kalendarzowe — bierzemy więc to samo, tylko wprost.
+ */
+function dobaDzis(data = new Date()) {
+  const d = new Date(data);
+  d.setHours(0, 0, 0, 0);
+  return d.toISOString().slice(0, 10);
+}
+
 export function postawEtap() {
   const s = czytaj();
   if (!s) return stanDrewna();
   s.zbudowane = true;
   s.etap = Math.max(1, s.etap + 1);
+  // Zapamiętujemy DZIEŃ postawienia — od niego liczy się prawo do rozbudowy.
+  s.dzienEtapu = dobaDzis();
   zapisz(s);
   return stanDrewna();
+}
+
+/**
+ * CZY WOLNO ROZBUDOWAĆ DOMEK (decyzja właściciela 2026-09-16).
+ *
+ * Domek na drzewie ma trzy piętra opowieści: pomost, przytulny domek,
+ * rozbudowany domek. Kolejne NIE mogą powstać tego samego dnia, co poprzednie —
+ * i to nie jest sztuczne opóźnienie, tylko sedno tej gry. Nagrodą ma być
+ * „wróciłem następnego dnia i świat czekał", a nie „wyklikałem trzy piętra
+ * w jednej sesji". Trzy piętra w kwadrans to gra o zbieraniu; jedno piętro
+ * dziennie to powód, żeby wrócić (`docs/OPIS_PROJEKTU.md`, o rytmie sesji).
+ *
+ * Drugi warunek — nowy materiał — sprawdza się sam: rozbudowa zaczyna się od
+ * wyzerowania dostaw, więc `spelnione` znów jest fałszem, dopóki dziecko czegoś
+ * nie przyniesie.
+ *
+ * @param {number} docelowo ile pięter ma docelowo domek (`ETAPY_DOCELOWO`)
+ */
+export function czyMoznaRozbudowac(docelowo = 3, data = new Date()) {
+  const s = czytaj();
+  if (!s || !s.zbudowane) return false;
+  if (s.etap >= docelowo) return false;
+  // Brak zapisanego dnia = zapis sprzed tej zmiany. Traktujemy go jak „dawno",
+  // bo blokowanie rozbudowy za cudzy brak danych byłoby karą za aktualizację.
+  if (!s.dzienEtapu) return true;
+  return s.dzienEtapu !== dobaDzis(data);
 }
 
 export function skasujZadanieDrewna() {

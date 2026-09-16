@@ -14,6 +14,7 @@ const paths = {
   map: <><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3Z" /><path d="M9 3v15M15 6v15" /></>,
   microphone: <><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v4M8 22h8" /></>,
   pen: <><path d="m4 20 4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20Z" /><path d="m14.5 7.5 3 3" /></>,
+  play: <path d="M7 4.5 19 12 7 19.5Z" fill="currentColor" stroke="none" />,
   profile: <><circle cx="12" cy="8" r="4" /><path d="M4.5 21a7.5 7.5 0 0 1 15 0" /></>,
   replay: <><path d="M4 9V4m0 0h5M4 4l3.5 3.5" /><path d="M5.5 16a8 8 0 1 0 1-10" /></>,
   scroll: <><path d="M7 4h11a3 3 0 0 1 3 3v1h-5V7a3 3 0 0 1 3-3" /><path d="M17 20H6a3 3 0 0 1-3-3v-1h5v1a3 3 0 0 0 3 3" /><path d="M7 4v13a3 3 0 0 0 3 3M10 9h4M10 13h4" /></>,

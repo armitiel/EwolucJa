@@ -23,7 +23,7 @@ import { idPostaci, postacWybranaJawnie } from "../utils/postac.js";
 // UWAGA: numer ma tylko ROSNĄĆ. Numery 3–13 zostały już wydane przeglądarce
 // z inną zawartością modułu (kolejne wersje znaków, gwiazdki, tempo ruchu),
 // więc cofnięcie go serwuje z cache starą scenę zamiast aktualnej.
-export const WERSJA_SCENY = "108";  // Wizkor bez odrzutu przy przebiegnieciu; jeden komunikat zamiast dwoch; wieksze komunikaty
+export const WERSJA_SCENY = "119";  // pien w osi kotwicy, zakorzeniony; drabinka siega gruntu
 const ZASOBY = "/scena-3d/assets/";
 
 /**
@@ -141,6 +141,11 @@ export default function Scena3D({ apiRef, onZdarzenie, onBlad, onGotowa, przygot
             const surowe = await odp.json();
             const dane = przygotujMape ? przygotujMape(surowe) : surowe;
             globalThis.__SCENA3D_MAPA = dane;
+            /* KTÓRY TO PLIK — zapamiętane dla narzędzi, które mapę ODDAJĄ,
+               a nie tylko czytają (edytor drzewa z domkiem zapisuje przez
+               `POST /__mapa?plik=…`). Światów jest kilka i każdy siedzi
+               w swoim pliku, więc zgadywanie „mapa.json" nadpisałoby nie ten. */
+            globalThis.__SCENA3D_PLIK_MAPY = mapa;
             // Świat może narzucać bohatera; jawny wybór gracza jest silniejszy.
             if (dane.postac && !postacWybranaJawnie()) globalThis.SCENA3D_POSTAC = dane.postac;
           }

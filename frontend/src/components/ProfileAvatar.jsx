@@ -16,19 +16,23 @@
 import React from "react";
 
 export const PROFILE_INFO = {
-  DT: { name: "Odkrywca", emoji: "🔍", color: "#D85A30", glow: "rgba(216,90,48,.28)",  svg: "/lis.svg",        svgMini: "/avatary-10.svg", animal: "Lis" },
-  EM: { name: "Przyjaciel",   emoji: "💚", color: "#E4779C", glow: "rgba(228,119,156,.28)", svg: "/zolw.svg",       svgMini: "/avatary-12.svg", animal: "Żółw" },
-  ST: { name: "Myśliciel",  emoji: "🦉", color: "#378ADD", glow: "rgba(55,138,221,.28)",  svg: "/sowa.svg",       svgMini: "/avatary-09.svg", animal: "Sowa" },
-  KR: { name: "Wynalazca",  emoji: "✨", color: "#EF9F27", glow: "rgba(239,159,39,.28)",  svg: "/panda.svg",      svgMini: "/avatary-07.svg", animal: "Panda" },
-  LD: { name: "Śmiałek",    emoji: "🦁", color: "#E89A3D", glow: "rgba(232,154,61,.28)",  svg: "/lew.svg",        svgMini: "/avatary-11.svg", animal: "Lew" },
-  MD: { name: "Spokojna Głowa", emoji: "🛡️", color: "#1D9E75", glow: "rgba(29,158,117,.28)",  svg: "/osmiornica.svg", svgMini: "/avatary-08.svg", animal: "Ośmiornica" },
+  DT: { name: "Odkrywca", emoji: "🔍", color: "#D85A30", glow: "rgba(216,90,48,.28)", revealBg: "#6C3BC2", revealBgDark: "#32165F", revealBadge: "#C94F2A", svg: "/lis.svg", svgMini: "/avatary-10.svg", animal: "Lis" },
+  EM: { name: "Przyjaciel", emoji: "💚", color: "#E4779C", glow: "rgba(228,119,156,.28)", revealBg: "#5E32B3", revealBgDark: "#210D4D", revealBadge: "#D63687", svg: "/zolw.svg", svgMini: "/avatary-12.svg", revealArt: "/assets/onboarding/archetyp-przyjaciel-reveal-v1.png", animal: "Żółw" },
+  ST: { name: "Myśliciel", emoji: "🦉", color: "#378ADD", glow: "rgba(55,138,221,.28)", revealBg: "#315FAF", revealBgDark: "#152D65", revealBadge: "#2D75C3", svg: "/sowa.svg", svgMini: "/avatary-09.svg", animal: "Sowa" },
+  KR: { name: "Wynalazca", emoji: "✨", color: "#EF9F27", glow: "rgba(239,159,39,.28)", revealBg: "#9151BE", revealBgDark: "#43205F", revealBadge: "#D78516", svg: "/panda.svg", svgMini: "/avatary-07.svg", animal: "Panda" },
+  LD: { name: "Śmiałek", emoji: "🦁", color: "#E89A3D", glow: "rgba(232,154,61,.28)", revealBg: "#B45635", revealBgDark: "#5A241F", revealBadge: "#D97722", svg: "/lew.svg", svgMini: "/avatary-11.svg", animal: "Lew" },
+  MD: { name: "Spokojna Głowa", emoji: "🛡️", color: "#1D9E75", glow: "rgba(29,158,117,.28)", revealBg: "#287F75", revealBgDark: "#123D45", revealBadge: "#17816F", svg: "/osmiornica.svg", svgMini: "/avatary-08.svg", animal: "Ośmiornica" },
 };
 
 function ProfileAvatarBase({ profile = "DT", size = 120, variant = "full" }) {
   const info = PROFILE_INFO[profile] || PROFILE_INFO.DT;
   // 'mini' = mała ikonka do top bara / list itemow (avatary-XX.svg, kwadratowy headshot)
   // 'full' = pelna postac (lis.svg itd) na ekrany glowne
-  const src = variant === "mini" ? info.svgMini : info.svg;
+  const src = variant === "mini"
+    ? info.svgMini
+    : variant === "reveal"
+      ? (info.revealArt || info.svg)
+      : info.svg;
   return (
     <img
       src={src}

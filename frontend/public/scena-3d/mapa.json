@@ -17,14 +17,7 @@
     "terenKanciasty": 16,
     "chmury": 4,
     "ekspozycja": 1.16,
-    "zasiew": true,
-    "doba": {
-      "zrodlo": "czas",
-      "sesja": {
-        "minutySesji": 15,
-        "switStopnie": 90
-      }
-    }
+    "zasiew": true
   },
   "start": {
     "pos": [
@@ -100,8 +93,8 @@
     {
       "typ": "sosna",
       "pos": [
-        -20.49,
-        3.27
+        -21.42,
+        1.5
       ],
       "skala": 1
     },
@@ -167,8 +160,8 @@
     {
       "typ": "sosna",
       "pos": [
-        -19.02,
-        0.44
+        -19.78,
+        -0.75
       ],
       "skala": 1.3,
       "obrot": -1.84
@@ -194,8 +187,8 @@
   "glazy": [
     {
       "pos": [
-        -2.09,
-        9.44
+        -2.61,
+        9.01
       ],
       "skala": 1.1,
       "doRozbicia": true,
@@ -278,7 +271,8 @@
       "id": "czarodziej",
       "file": "wizard",
       "label": "Czarodziej",
-            "pos": [
+      "toast": "Wizkor czeka na polanie",
+      "pos": [
         -5.96,
         -3.87
       ],
@@ -303,7 +297,8 @@
       "ringOpacity": 0.46,
       "lightBase": 0,
       "iskry": 38,
-      "iskrySila": 1.9
+      "iskrySila": 1.9,
+      "respawn": 3.2
     },
     {
       "id": "karty",
@@ -327,7 +322,7 @@
       "jasnosc": 1.7,
       "absorb": true,
       "absorbLift": 1.7,
-      "respawn": 3.2
+      "respawn": null
     },
     {
       "id": "gwiazda-1",
@@ -347,7 +342,7 @@
       "lightBase": 0,
       "absorb": true,
       "absorbLift": 1.5,
-      "respawn": 12,
+      "respawn": null,
       "iskry": 26,
       "iskrySila": 1.6,
       "pos": [
@@ -373,7 +368,7 @@
       "lightBase": 0,
       "absorb": true,
       "absorbLift": 1.5,
-      "respawn": 12,
+      "respawn": null,
       "iskry": 26,
       "iskrySila": 1.6,
       "pos": [
@@ -399,7 +394,7 @@
       "lightBase": 0,
       "absorb": true,
       "absorbLift": 1.5,
-      "respawn": 12,
+      "respawn": null,
       "iskry": 26,
       "iskrySila": 1.6,
       "pos": [
@@ -425,7 +420,7 @@
       "lightBase": 0,
       "absorb": true,
       "absorbLift": 1.5,
-      "respawn": 12,
+      "respawn": null,
       "iskry": 26,
       "iskrySila": 1.6,
       "pos": [
@@ -451,7 +446,7 @@
       "lightBase": 0,
       "absorb": true,
       "absorbLift": 1.5,
-      "respawn": 12,
+      "respawn": null,
       "iskry": 26,
       "iskrySila": 1.6,
       "pos": [
@@ -477,7 +472,7 @@
       "lightBase": 0,
       "absorb": true,
       "absorbLift": 1.5,
-      "respawn": 12,
+      "respawn": null,
       "iskry": 26,
       "iskrySila": 1.6,
       "pos": [
@@ -503,7 +498,7 @@
       "lightBase": 0,
       "absorb": true,
       "absorbLift": 1.5,
-      "respawn": 12,
+      "respawn": null,
       "iskry": 26,
       "iskrySila": 1.6,
       "pos": [
@@ -529,7 +524,7 @@
       "lightBase": 0,
       "absorb": true,
       "absorbLift": 1.5,
-      "respawn": 12,
+      "respawn": null,
       "iskry": 26,
       "iskrySila": 1.6,
       "pos": [
@@ -555,7 +550,7 @@
       "lightBase": 0,
       "absorb": true,
       "absorbLift": 1.5,
-      "respawn": 12,
+      "respawn": null,
       "iskry": 26,
       "iskrySila": 1.6,
       "pos": [
@@ -581,7 +576,7 @@
       "lightBase": 0,
       "absorb": true,
       "absorbLift": 1.5,
-      "respawn": 12,
+      "respawn": null,
       "iskry": 26,
       "iskrySila": 1.6,
       "pos": [
@@ -622,7 +617,8 @@
       "raz": true,
       "iskry": 14,
       "iskrySila": 1.1,
-      "zbrojenie": 3.4
+      "zbrojenie": 3.4,
+      "respawn": null
     },
     {
       "id": "bucik",
@@ -646,7 +642,7 @@
       "jasnosc": 1.6,
       "absorb": true,
       "absorbLift": 1.7,
-      "respawn": 3.2,
+      "respawn": null,
       "iskry": 20,
       "iskrySila": 1.3
     },
@@ -719,7 +715,7 @@
       "lightBase": 0,
       "absorb": true,
       "absorbLift": 1.5,
-      "respawn": 12,
+      "respawn": null,
       "iskry": 24,
       "iskrySila": 1.5,
       "id": "puzel-3",
@@ -745,7 +741,7 @@
       "lightBase": 0,
       "absorb": true,
       "absorbLift": 1.5,
-      "respawn": 12,
+      "respawn": null,
       "iskry": 24,
       "iskrySila": 1.5,
       "id": "puzel-4",
@@ -771,7 +767,7 @@
       "lightBase": 0,
       "absorb": true,
       "absorbLift": 1.5,
-      "respawn": 12,
+      "respawn": null,
       "iskry": 24,
       "iskrySila": 1.5,
       "id": "puzel-5",
@@ -797,7 +793,7 @@
       "lightBase": 0,
       "absorb": true,
       "absorbLift": 1.5,
-      "respawn": 12,
+      "respawn": null,
       "iskry": 24,
       "iskrySila": 1.5,
       "id": "puzel-6",
@@ -823,7 +819,7 @@
       "lightBase": 0,
       "absorb": true,
       "absorbLift": 1.5,
-      "respawn": 12,
+      "respawn": null,
       "iskry": 24,
       "iskrySila": 1.5,
       "id": "puzel-7",
@@ -849,7 +845,7 @@
       "lightBase": 0,
       "absorb": true,
       "absorbLift": 1.5,
-      "respawn": 12,
+      "respawn": null,
       "iskry": 24,
       "iskrySila": 1.5,
       "id": "puzel-8",
@@ -875,7 +871,7 @@
       "lightBase": 0,
       "absorb": true,
       "absorbLift": 1.5,
-      "respawn": 12,
+      "respawn": null,
       "iskry": 24,
       "iskrySila": 1.5,
       "id": "puzel-9",
@@ -1038,12 +1034,12 @@
     }
   ],
   "schronienie": {
-    "opis": "Polana PONAD drzewkiem i glazem — na tyle daleko, zeby doniesienie materialu bylo kursem, a nie krokiem w bok.",
+    "opis": "Drzewo, na ktorym powstaje domek. Polana PONAD drzewkiem i glazem — na tyle daleko, zeby doniesienie materialu bylo kursem, a nie krokiem w bok. `skala` skaluje DRZEWO I POMOST naraz (swiat.js: drzewoDomkowe, schronienie.js: etap1).",
     "pos": [
       0.18,
       1.65
     ],
-    "skala": 1,
+    "skala": 1.45,
     "obrot": -0.25
   },
   "oczka": [

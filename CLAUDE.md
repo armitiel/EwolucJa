@@ -10,6 +10,14 @@
 
 Pominięcie tego pliku = stracona godzina na debugowanie znanych problemów.
 
+**Od 15.09.2026 są DWIE produkcje.** Vercel (push na `v2-postgres-vercel`,
+auto-deploy) **i** ePomost („Przygoda on Max" w Portalu naszpomost.pl,
+wdrożenie ręczne na nasz VPS: build Vite → `scripts/deploy-dev.sh`, backend
+przez scp + restart `ewolucja-dev.service`, osobna baza Neon `ewolucja-dev`).
+Jak to zrobić krok po kroku: **[docs/WDROZENIE_EPOMOST.md](./docs/WDROZENIE_EPOMOST.md)**.
+Zmiana dla dzieci idzie na obie; środowisko poznaje się po
+`EDU_EXTERNAL_APP_ENV`, nie po `NODE_ENV`.
+
 ## Po co jest ta gra — czytaj jako pierwsze
 
 **[docs/OPIS_PROJEKTU.md](./docs/OPIS_PROJEKTU.md)** — dla kogo, zasada

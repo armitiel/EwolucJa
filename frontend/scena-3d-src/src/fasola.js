@@ -31,7 +31,7 @@ import {
   CanvasTexture, SRGBColorSpace, PointLight, Color, BufferGeometry, Float32BufferAttribute,
 } from "three";
 import { Pnacze } from "./pnacze.js";
-import { mnoznikObrysu } from "./teren.js";
+import { mnoznikObrysu, promienZObrysu, srodekObrysu } from "./teren.js";
 
 export const FASOLA = {
   barwaLodygi: 0x6fb84a,
@@ -320,9 +320,18 @@ function siatkaOczka(r, mnoznik, R, ro0, ro1, h, ringi = 6, punkty = 44) {
 export const OCZKO = { glebokosc: 0.11 };
 
 export function zbudujOczko(def, planeta) {
-  const r = def.promien ?? 1.4;
-  const ziarno = def.ziarno ?? 1;
-  const mn = mnoznikObrysu(ziarno);
+  /* KSZTAŁT PRZYCHODZI Z TEGO SAMEGO MIEJSCA, CO W TERENIE. Obrys narysowany
+     ręcznie (`punkty`) zamienia się na r(θ) i wchodzi tam, gdzie dotąd stał
+     mnożnik z ziarna — więc tafla wody i niecka w gruncie są z definicji tym
+     samym kształtem. Gdyby liczyć je osobno, rozjechałyby się przy pierwszej
+     zmianie i woda zaczęłaby wystawać zza brzegu. */
+  const reczny = Array.isArray(def.punkty) && def.punkty.length >= 3
+    ? promienZObrysu(def.punkty, { gladkosc: def.gladkosc, probki: def.probki }) : null;
+  const r = reczny ? 1 : (def.promien ?? 1.4);
+  const mn = reczny ? reczny.r : mnoznikObrysu(def.ziarno ?? 1);
+  // Gęstość obwodu rośnie z rozmiarem: przy ręcznym obrysie 44 punkty
+  // zaokrągliłyby narysowaną zatoczkę tak, że nie byłoby jej widać.
+  const obwod = reczny ? Math.min(160, Math.max(56, Math.round(reczny.max * 26))) : 44;
   const R = planeta.R;
   const g = new Group();
   g.name = "oczko";
@@ -330,25 +339,35 @@ export function zbudujOczko(def, planeta) {
   // brzeg jest CZĘŚCIĄ TERENU (teren.js/swiat.js: niecka + piaskowe ścianki);
   // tu tylko tafla, tuż nad płaskim dnem niecki.
   const tafla = new Mesh(
-    siatkaOczka(r, mn, R, 0, 1.02, () => -gl + 0.05, 5),
+    siatkaOczka(r, mn, R, 0, 1.02, () => -gl + 0.05, 5, obwod),
     new MeshLambertMaterial({ color: 0x5fc4de, emissive: 0x1a6a88, emissiveIntensity: 0.35, transparent: true, opacity: 0.92 }),
   );
   g.add(tafla);
+  // Kręgi na wodzie skalują się do ROZMIARU stawu, nie do `r` — przy ręcznym
+  // obrysie `r` to 1 i fale byłyby wielkości spodka na całym jeziorze.
+  const rFal = reczny ? reczny.max : r;
   const fale = [];
   for (let i = 0; i < 3; i++) {
-    const f = new Mesh(new RingGeometry(r * 0.2, r * 0.24, 32), new MeshBasicMaterial({ color: 0xdff6ff, transparent: true, opacity: 0.35, side: DoubleSide, depthWrite: false }));
+    const f = new Mesh(new RingGeometry(rFal * 0.2, rFal * 0.24, 32), new MeshBasicMaterial({ color: 0xdff6ff, transparent: true, opacity: 0.35, side: DoubleSide, depthWrite: false }));
     f.rotation.x = -Math.PI / 2;
     f.position.y = -gl + 0.055;
     f.userData.faza = i / 3;
     g.add(f);
     fale.push(f);
   }
-  planeta.ustaw(g, def.pos[0], def.pos[1], 0, 0);
-  const n = planeta.normalna(def.pos[0], def.pos[1]);
+  // Środek ręcznego obrysu liczymy tak samo jak w `teren.js` (środek ciężkości),
+  // inaczej tafla siedziałaby obok niecki.
+  const pos = reczny ? reczny.srodek : def.pos;
+  planeta.ustaw(g, pos[0], pos[1], 0, 0);
+  const n = planeta.normalna(pos[0], pos[1]);
   return {
     mesh: g,
     n,
-    promien: r,
+    pos,
+    /* `promien` to ZASIĘG NABIERANIA WODY, nie rozmiar tafli. Przy ręcznym
+       obrysie bierzemy największy promień: lisek ma nabrać wody, wchodząc
+       w staw, a nie trafiając w jego środek ciężkości. */
+    promien: reczny ? reczny.max : r,
     tik(dt) {
       for (const f of fale) {
         f.userData.faza = (f.userData.faza + dt * 0.28) % 1;

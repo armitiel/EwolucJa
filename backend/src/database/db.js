@@ -3,6 +3,7 @@
  * V2 schemat: archetyp, cykl tygodniowy, misje, konta GM, plecak, kody parowania.
  */
 import pg from "pg";
+import { randomUUID } from "crypto";
 
 const { Pool } = pg;
 
@@ -241,6 +242,17 @@ async function ensureSchema(pool) {
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
     CREATE INDEX IF NOT EXISTS idx_push_subs_player ON push_subscriptions(player_id);
+
+    -- ePomost: mapowanie stałego "subject" (klucz konta z Portalu) na gracza
+    CREATE TABLE IF NOT EXISTS epomost_identities (
+      subject TEXT PRIMARY KEY,
+      player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+      env TEXT,
+      nickname TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      last_seen_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS idx_epomost_identities_player ON epomost_identities(player_id);
   `);
 }
 
@@ -371,6 +383,52 @@ export async function savePlayer(_unused, profile) {
       loginCode,
     ]
   );
+}
+
+// === ePomost: mapowanie subject (konto Portalu) -> gracz ===
+export async function findPlayerBySubject(subject) {
+  if (!subject) return null;
+  const pool = await initDatabase();
+  const { rows } = await pool.query(
+    `SELECT p.* FROM players p
+       JOIN epomost_identities e ON e.player_id = p.id
+      WHERE e.subject = $1 LIMIT 1`,
+    [subject]
+  );
+  return mapPlayerRow(rows[0]);
+}
+
+export async function findOrCreatePlayerBySubject(subject, opts = {}) {
+  const pool = await initDatabase();
+  const existing = await findPlayerBySubject(subject);
+  if (existing) {
+    await pool.query(
+      `UPDATE epomost_identities SET last_seen_at=NOW(), nickname=COALESCE($2, nickname) WHERE subject=$1`,
+      [subject, opts.nickname || null]
+    );
+    return existing;
+  }
+  const id = randomUUID();
+  const profile = {
+    player_id: id,
+    player_name: opts.nickname || "Odkrywca",
+    avatar: { base_image: null, aura_color: null, starter_item: null, unlocked_assets: [] },
+    scores: { EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 },
+    current_land: "dolina_selfie",
+    completed_lands: [],
+    choices_log: [],
+    final_profile: null,
+    lifetime_scores: { EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 },
+    backpack: [],
+  };
+  await savePlayer(null, profile);
+  await pool.query(
+    `INSERT INTO epomost_identities (subject, player_id, env, nickname)
+       VALUES ($1,$2,$3,$4)
+       ON CONFLICT (subject) DO UPDATE SET last_seen_at=NOW()`,
+    [subject, id, opts.env || null, opts.nickname || null]
+  );
+  return await getPlayer(null, id);
 }
 
 function nextFriday(fromDateIso) {

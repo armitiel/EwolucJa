@@ -8,7 +8,8 @@
   Edytor mapy świata 3D.
 
   Czym jest: rzut z góry na `mapa.json` — plik, z którego scena bierze całą
-  geometrię (ścieżkę, rzekę, most, bramę, drzewa, głazy, kwiaty, budynki i znaki minigier).
+  geometrię (ścieżkę, rzekę, most, bramę, drzewa, głazy, kwiaty, budynki, znaki
+  minigier, a od wersji 95 także suche drzewka do ścięcia i plac budowy schronienia).
   Scena (źródła: `frontend/scena-3d-src/`) czyta mapę z `globalThis.__SCENA3D_MAPA`.
   Tu tę mapę rysujemy i zapisujemy z powrotem.
 
@@ -210,8 +211,11 @@ const TRYBY = [
   { id:'znak',    nazwa:'+ Znak',    opis:'Znak minigry: świeci, dziecko go dotyka, do aplikacji leci zdarzenie. Po postawieniu ustaw etykietę i toast po prawej.' },
   { id:'budynek', nazwa:'+ Budynek', opis:'Model GLB stojący na ziemi. „Kolizja r” to kółko, którego dziecko nie przejdzie — ustaw je mniej więcej na obrys bryły.' },
   { id:'drzewo',  nazwa:'+ Drzewo',  opis:'Drzewo z generatora sceny: sosna albo liściaste. Kolizja stała 0,75.' },
-  { id:'glaz',    nazwa:'+ Głaz',    opis:'Głaz z generatora sceny. Kolizja rośnie ze skalą.' },
+  { id:'glaz',    nazwa:'+ Głaz',    opis:'Głaz z generatora sceny. Kolizja rośnie ze skalą. Zaznacz „do rozbicia”, żeby dziecko mogło go rozbić na kamienie — wtedy głaz potrzebuje też własnego id.' },
+  { id:'suche',   nazwa:'+ Suche drzewko', opis:'Uschnięte drzewko do ścięcia — z niego biorą się kłody na schronienie. Ścinamy TYLKO takie: żywy las zostaje. Model z pliku GLB, kolizja mniejsza niż zasięg pracy, żeby lisek zdążył podejść.' },
   { id:'kwiat',   nazwa:'+ Kwiat',   opis:'Kwiat z generatora sceny — pięć odmian koloru. Nie blokuje chodzenia i ugina się, gdy bohater go mija. Wzrost i przechył losuje się z numeru kwiatu, więc po przestawieniu wygląda inaczej.' },
+  { id:'oczko',   nazwa:'+ Oczko',   opis:'Staw z ręcznie rysowanym brzegiem. Klikaj punkty obrysu — pierwszy klik zaczyna nowy staw, każdy następny go przedłuża. Ten sam obrys robi nieckę w ziemi, piaskowy brzeg i taflę wody. Lisek nabiera z niego wody i nie tonie: staw nie blokuje chodzenia.' },
+  { id:'wzgorze', nazwa:'+ Wzgórze',  opis:'Pagórek z ręcznie rysowanym obrysem. Klikaj punkty, tak samo jak przy oczku. Wysokość ustawiasz po prawej — powyżej 0,9 teren zaczyna zasłaniać liska przy tej kamerze, więc edytor ostrzeże.' },
   { id:'sciezka', nazwa:'Ścieżka',   opis:'Klik dokłada punkt na końcu ścieżki, klik w punkt zaznacza go, przeciąganie przesuwa. Ścieżka to trasa spaceru i rysunek na trawie — nie blokuje chodzenia.' },
   { id:'galaz',   nazwa:'+ Gałąź',   opis:'Odnoga od głównej ścieżki. Pierwszy klik zaczyna gałąź w najbliższym węźle ścieżki, każdy następny ją przedłuża. Gałąź trzyma się swojego węzła — przesuniesz ścieżkę, przesunie się razem z nią. To sam rysunek na trawie: nie blokuje chodzenia i nie zmienia trasy bohatera.' },
 ];
@@ -497,19 +501,99 @@ function uchwyt(typ, idx, e) {
   return e;
 }
 
+/** Środek ciężkości obrysu — DOKŁADNIE ten sam wzór co `srodekObrysu`
+ *  w `scena-3d-src/src/teren.js`. Gdyby się rozjechały, podpis i uchwyt
+ *  na planie stanęłyby gdzie indziej niż niecka w scenie. */
+function srodekObrysu(punkty) {
+  let x = 0, z = 0;
+  for (const q of punkty) { x += q[0]; z += q[1]; }
+  return [x / punkty.length, z / punkty.length];
+}
+/* ZAOKRĄGLANIE NAROŻNIKÓW OBRYSU — kopia `wygladzObrys` ze `scena-3d-src/src/
+   teren.js`, tylko oparta o tutejszy `catmull()` (ten sam wzór). Klikane punkty
+   to WĘZŁY: krzywa przechodzi dokładnie przez nie, a wygładza to, co pomiędzy.
+   Różnica wobec ścieżki: indeksy ZAWIJAJĄ SIĘ dookoła zamiast przycinać na
+   końcach, bo staw jest zamknięty i ostatni odcinek wraca do pierwszego punktu.
+
+   Te dwie kopie MUSZĄ liczyć tak samo — inaczej plan pokazuje inny brzeg,
+   niż wychodzi w scenie. Zmieniasz tu, zmieniasz i tam. */
+const OBRYS_GLADKOSC = .7, OBRYS_PROBKI = 6;
+function wygladzObrys(P, gladkosc = OBRYS_GLADKOSC, probki = OBRYS_PROBKI) {
+  if (!Array.isArray(P) || P.length < 3 || !(gladkosc > 0)) return (P || []).map((q) => [q[0], q[1]]);
+  const n = P.length;
+  const wez = (i) => P[((i % n) + n) % n];
+  const kr = Math.max(1, Math.round(probki));
+  const out = [];
+  for (let i = 0; i < n; i++)
+    for (let sI = 0; sI < kr; sI++)
+      out.push(catmull(wez(i - 1), wez(i), wez(i + 1), wez(i + 2), sI / kr, gladkosc));
+  return out;
+}
+
+const oczkaPary = () => (mapa.oczka || []).map((k, gi) => ({ k, gi }));
+const wzgorzaPary = () => (mapa.formyTerenu || [])
+  .map((k, gi) => ({ k, gi })).filter(({ k }) => k.typ === 'wzgorze' && Array.isArray(k.punkty));
+
 function rysuj() {
   plan.innerHTML = '';
   if (!mapa) return;
-  const teren = mapa.swiat?.teren ?? 36;
   const promien = mapa.swiat?.promien ?? 12.5;
 
-  el('rect', { x:-teren/2, y:-teren/2, width:teren, height:teren, fill:'#DCEBC0', stroke:'#C3D5A2', 'stroke-width':.06 });
-  el('circle', { cx:0, cy:0, r:promien, fill:'none', stroke:'#B7C79A', 'stroke-width':.09, 'stroke-dasharray':'.5 .35' });
-  for (let i = -18; i <= 18; i++) {
+  /* ── CAŁA PLANETA, nie kwadrat ────────────────────────────────────────────
+     Świat jest KULĄ o promieniu `promienKuli` (R). Plan to jej rozwinięcie ze
+     środka mapy (rzut azymutalny równoodległościowy), więc punkt oddalony
+     o `r` leży `r/R` radianów od środka. Z tego wynikają trzy prawdziwe
+     granice — i żadna z nich nie jest kwadratem 40×40, który tu stał wcześniej:
+
+       90°  = πR/2   „równik" widziany ze środka mapy; dalej jest druga
+                     półkula — ta, na której akurat wypada noc
+       ~130° = promienTresci  dokąd scena ciągnie ŚCIEŻKĘ i RZEKĘ; dalej rzut
+                     rozmazuje długie linie w wachlarz, więc są przycinane
+       180° = πR     antypod: cały ten okrąg to JEDEN punkt na kuli
+
+     Obiekty (drzewa, głazy, budynki, znaki, plac budowy) NIE mają żadnego
+     z tych limitów — stoją wszędzie, bo każdy dostaje własną ramkę na kuli.
+     Bohater też chodzi po całej planecie; jedyny płot to `swiat.tylkoMapa`. */
+  const R = mapa.swiat?.promienKuli ?? 8.5;
+  const RA = Math.PI * R;                                  // antypod
+  const RT = mapa.swiat?.promienTresci ?? .72 * RA;        // ścieżka i rzeka
+  const RR = RA / 2;                                       // 90° od środka
+
+  el('circle', { cx:0, cy:0, r:RA, fill:'#DCEBC0', stroke:'#9DB07F', 'stroke-width':.12 });
+  // Druga półkula przygaszona: nie jest gorsza, jest po prostu „po drugiej
+  // stronie" — i to ona bywa nocą, gdy cykl dnia jest włączony.
+  el('path', { d:`M ${-RA} 0 A ${RA} ${RA} 0 1 0 ${RA} 0 A ${RA} ${RA} 0 1 0 ${-RA} 0
+                  M ${-RR} 0 A ${RR} ${RR} 0 1 1 ${RR} 0 A ${RR} ${RR} 0 1 1 ${-RR} 0`,
+    'fill-rule':'evenodd', fill:'#000', 'fill-opacity':.05, 'pointer-events':'none' });
+
+  const KRAG = Math.ceil(RA);
+  for (let i = -KRAG; i <= KRAG; i++) {
     const g = i % 5 === 0 ? .09 : .04;
-    el('line', { x1:i, y1:-18, x2:i, y2:18, stroke:'#000', 'stroke-opacity':g, 'stroke-width':.02 });
-    el('line', { x1:-18, y1:i, x2:18, y2:i, stroke:'#000', 'stroke-opacity':g, 'stroke-width':.02 });
+    el('line', { x1:i, y1:-KRAG, x2:i, y2:KRAG, stroke:'#000', 'stroke-opacity':g, 'stroke-width':.02 });
+    el('line', { x1:-KRAG, y1:i, x2:KRAG, y2:i, stroke:'#000', 'stroke-opacity':g, 'stroke-width':.02 });
   }
+
+  const krag = (r, kolor, tekst, przerywana) => {
+    el('circle', { cx:0, cy:0, r, fill:'none', stroke:kolor, 'stroke-width':.1,
+      'stroke-dasharray': przerywana || '', 'pointer-events':'none' });
+    el('text', { x:0, y:-r + .62, 'font-size':.52, 'text-anchor':'middle', fill:kolor,
+      'pointer-events':'none', stroke:'#DCEBC0', 'stroke-width':.18, 'paint-order':'stroke',
+      'font-weight':'700' }).textContent = tekst;
+  };
+  krag(RR, '#7f9464', '90° — dalej druga półkula', '.6 .4');
+  krag(RT, '#9a7a3c', 'koniec ścieżki i rzeki (~130°)', '.5 .35');
+  krag(RA, '#9a5a4c', 'antypod — tu rzut zwija się w punkt', '.35 .3');
+  /* Okrąg `swiat.promien` zostaje, ale w roli, którą naprawdę pełni: to płot
+     dla bohatera TYLKO przy `swiat.tylkoMapa`, a poza tym sama kreska. Kiedyś
+     był tu jedynym okręgiem na planie i dlatego wyglądał jak krawędź świata —
+     przy R=8,5 obejmuje 54 % powierzchni kuli. */
+  const jestPlot = !!mapa.swiat?.tylkoMapa;
+  el('circle', { cx:0, cy:0, r:promien, fill:'none', stroke: jestPlot ? '#C4553F' : '#B7C79A',
+    'stroke-width': jestPlot ? .14 : .07, 'stroke-dasharray':'.5 .35', 'pointer-events':'none' });
+  if (jestPlot)
+    el('text', { x:0, y:promien - .5, 'font-size':.5, 'text-anchor':'middle', fill:'#C4553F',
+      'pointer-events':'none', stroke:'#DCEBC0', 'stroke-width':.18, 'paint-order':'stroke',
+      'font-weight':'700' }).textContent = 'płot: „tylko mapa”';
   el('text', { x:.15, y:-.15, 'font-size':.5, fill:'#4e4d76', 'fill-opacity':.5 }).textContent = '0,0';
 
   const rz = punktyRzeki();
@@ -653,6 +737,49 @@ function rysuj() {
     el('line', { x1:o.pos[0], y1:o.pos[1], x2:o.pos[0] + Math.sin(k) * r, y2:o.pos[1] + Math.cos(k) * r,
       stroke:kolor, 'stroke-width':.09, 'stroke-linecap':'round' });
   };
+  /* OCZKA I WZGÓRZA — deformacje terenu. Rysujemy je NAJPIERW, bo leżą
+     w ziemi: drzewo stojące nad stawem ma być widoczne, a nie przykryte
+     niebieską plamą. Obrys jest tym, co narysowano — bez wygładzania, żeby
+     na planie było widać dokładnie te punkty, które trafią do pliku. */
+  const obrysSVG = (pk) => pk.map((q) => q.join(',')).join(' ');
+  const rysujObrys = (pary, typ, wypelnienie, kant, podpis) => {
+    pary.forEach(({ k, gi }) => {
+      if (!Array.isArray(k.punkty) || k.punkty.length < 2) return;
+      const wybrany = wybor && wybor.typ === typ && String(wybor.idx).split(':')[0] === String(gi);
+      /* Rysujemy KRZYWĄ, nie łamaną — to samo, co zobaczysz w scenie. Uchwyty
+         zostają na punktach klikanych, więc widać i kształt, i czym się go
+         przesuwa. */
+      const krzywa = k.punkty.length >= 3
+        ? wygladzObrys(k.punkty, k.gladkosc ?? OBRYS_GLADKOSC, k.probki ?? OBRYS_PROBKI)
+        : k.punkty;
+      const wielobok = el(k.punkty.length >= 3 ? 'polygon' : 'polyline', {
+        points: obrysSVG(krzywa), fill: k.punkty.length >= 3 ? wypelnienie : 'none',
+        'fill-opacity': wybrany ? .78 : .55, stroke:kant, 'stroke-width': wybrany ? .14 : .09,
+        'stroke-linejoin':'round' });
+      wielobok.dataset.typ = typ + '-ksztalt';
+      wielobok.dataset.idx = String(gi);
+      wielobok.style.cursor = 'grab';
+      // Uchwyty wierzchołków TYLKO na zaznaczonym kształcie: przy kilku stawach
+      // setka kropek zasłoniłaby mapę i łapała każde kliknięcie w teren.
+      if (wybrany) k.punkty.forEach((q, i) => {
+        const u = el('circle', { cx:q[0], cy:q[1], r:.2, fill:'#fff', stroke:kant, 'stroke-width':.08 });
+        u.dataset.typ = typ;
+        u.dataset.idx = gi + ':' + i;
+        u.style.cursor = 'grab';
+      });
+      const sr = srodekObrysu(k.punkty);
+      el('text', { x:sr[0], y:sr[1] + .14, 'font-size':.42, 'text-anchor':'middle', fill:kant,
+        'pointer-events':'none' }).textContent = podpis(k, gi);
+    });
+  };
+  rysujObrys(oczkaPary(), 'oczko', '#7FD3E8', '#2E7AB8',
+    (k) => 'staw ' + (k.glebokosc ?? .11).toFixed(2));
+  /* WZGÓRZA siedzą w `formyTerenu` razem z nieckami i wykopami, więc indeks
+     musi być TEN Z PLIKU, a nie z przefiltrowanej listy — inaczej skasowanie
+     wzgórza usuwałoby przypadkową inną formę. */
+  rysujObrys(wzgorzaPary(), 'wzgorze', '#BBD08C', '#6d8447',
+    (k) => '▲ ' + (k.wysokosc ?? .5).toFixed(2));
+
   /* OCZKO WODY i FASOLA — dwa filary swiata W2, wiec musza byc na planie.
      Oba to pojedyncze obiekty w mapie (jak latarnia czy most), nie pozycje
      w tablicy. Rysujemy je PRZED drzewami, zeby kregi lezaly pod bryłami,
@@ -668,6 +795,43 @@ function rysuj() {
       fill:'#8FCBE8', 'fill-opacity':.7, stroke:'#2E7AB8', 'stroke-width':.1 }));
     el('text', { x:p[0], y:p[1] + .16, 'font-size':.42, fill:'#1c5a86', 'text-anchor':'middle',
       'pointer-events':'none' }).textContent = 'woda';
+  }
+  /* PLAC BUDOWY. Pojedynczy obiekt, jak fasola czy oczko — bo całe zadanie
+     prowadzi do JEDNEJ rzeczy, której światu brakuje. Rysujemy dwa kręgi:
+     ciągły to obrys klepiska (tyle miejsca zajmie schronienie), przerywany to
+     `zasieg` — z tej odległości lisek oddaje materiał.
+
+     Kreskowane linie do celów rąbania NIE SĄ OZDOBĄ. Od ich długości zależy,
+     czy doniesienie drewna jest kursem, czy krokiem w bok — a tego na oko
+     z planu nie widać, bo skala jest umowna. Liczba przy linii to odległość
+     po kuli, ta sama, którą liczy scena. */
+  if (mapa.schronienie && Array.isArray(mapa.schronienie.pos)) {
+    const p = mapa.schronienie.pos, sk = mapa.schronienie.skala ?? 1;
+    const cele = [];
+    (mapa.sucheDrzewka || []).forEach((d) => cele.push({ pos:[d.pos[0] + .72, d.pos[1] + .3], co:'drewno' }));
+    (mapa.glazy || []).forEach((g) => { if (g.doRozbicia) cele.push({ pos:g.pos, co:'kamienie' }); });
+    cele.forEach((c, ci) => {
+      el('line', { x1:p[0], y1:p[1], x2:c.pos[0], y2:c.pos[1],
+        stroke:'#B4772A', 'stroke-width':.05, 'stroke-dasharray':'.18 .2', opacity:.75 });
+      const d = Math.hypot(c.pos[0] - p[0], c.pos[1] - p[1]);
+      /* Podpisy ROZSTAWIAMY WZDŁUŻ LINII na przemian (0,52 / 0,76), bo przy
+         dwóch celach w podobnym kierunku środki obu odcinków wypadają blisko
+         siebie i napisy kładły się na sobie. Jasna obwódka (`paint-order`)
+         trzyma je czytelnymi nad etykietami gwiazdek i puzli, których na
+         polanie jest gęsto. */
+      const t = ci % 2 ? .76 : .52;
+      el('text', { x:p[0] + (c.pos[0] - p[0]) * t, y:p[1] + (c.pos[1] - p[1]) * t - .14,
+        'font-size':.38, 'text-anchor':'middle', fill:'#8a5a1c', 'pointer-events':'none',
+        stroke:'#FBF1D6', 'stroke-width':.14, 'paint-order':'stroke', 'font-weight':'700' })
+        .textContent = c.co + ' ' + (Math.round(d * 10) / 10);
+    });
+    el('circle', { cx:p[0], cy:p[1], r:mapa.schronienie.zasieg ?? 1.35, fill:'none',
+      stroke:'#E08A2E', 'stroke-width':.08, 'stroke-dasharray':'.3 .24' });
+    kreskaObrotu(mapa.schronienie, 1.2 * sk, '#8a5a1c');
+    uchwyt('schronienie', 0, el('circle', { cx:p[0], cy:p[1], r:1.02 * sk,
+      fill:'#C9B48A', 'fill-opacity':.6, stroke:'#8a5a1c', 'stroke-width':.11 }));
+    el('text', { x:p[0], y:p[1] + .16, 'font-size':.4, fill:'#6b4a1c', 'text-anchor':'middle',
+      'pointer-events':'none' }).textContent = 'plac';
   }
   if (mapa.fasola) {
     const p = mapa.fasola.pos;
@@ -686,9 +850,36 @@ function rysuj() {
     kreskaObrotu(d, .75 * (d.skala ?? 1), '#33613f');
   });
   (mapa.glazy || []).forEach((g, i) => {
+    const r = .55 * (g.skala ?? 1);
+    /* GŁAZ DO ROZBICIA wygląda inaczej, bo ZNACZY co innego: to nie dekoracja,
+       tylko cel zadania. Przerywany krąg to `zasieg` — odległość, z której
+       scena przyjmuje uderzenie. Bez niego nie da się na planie ocenić, czy
+       dziecko w ogóle dojdzie do głazu między drzewami. */
+    if (g.doRozbicia) {
+      el('circle', { cx:g.pos[0], cy:g.pos[1], r:g.zasieg ?? 1.9, fill:'none',
+        stroke:'#E08A2E', 'stroke-width':.08, 'stroke-dasharray':'.3 .24' });
+    }
     uchwyt('glaz', i, el('circle', {
-      cx:g.pos[0], cy:g.pos[1], r:.55 * (g.skala ?? 1), fill:'#B9B3A6', stroke:'#7d786d', 'stroke-width':.06 }));
-    kreskaObrotu(g, .55 * (g.skala ?? 1), '#5f5b53');
+      cx:g.pos[0], cy:g.pos[1], r, fill: g.doRozbicia ? '#CFC3A8' : '#B9B3A6',
+      stroke: g.doRozbicia ? '#B4772A' : '#7d786d', 'stroke-width': g.doRozbicia ? .1 : .06 }));
+    kreskaObrotu(g, r, '#5f5b53');
+    if (g.doRozbicia)
+      el('text', { x:g.pos[0], y:g.pos[1] - r - .22, 'font-size':.38, 'text-anchor':'middle',
+        fill:'#8a5a1c', 'pointer-events':'none' }).textContent = 'do rozbicia';
+  });
+
+  /* SUCHE DRZEWKA — jedyne, które wolno ściąć. Rysujemy je JAŚNIEJ niż żywe
+     drzewa i pustym środkiem: to ten sam sygnał, co w scenie (suchy pień jest
+     bledszy od żywego), więc plan i świat mówią to samo. */
+  (mapa.sucheDrzewka || []).forEach((d, i) => {
+    const r = .42 * ((d.wysokosc ?? 2.4) / 2.4);
+    el('circle', { cx:d.pos[0], cy:d.pos[1], r:d.zasieg ?? 1.6, fill:'none',
+      stroke:'#E08A2E', 'stroke-width':.08, 'stroke-dasharray':'.3 .24' });
+    uchwyt('suche', i, el('circle', {
+      cx:d.pos[0], cy:d.pos[1], r, fill:'#D8C7A4', stroke:'#8a7557', 'stroke-width':.11 }));
+    kreskaObrotu(d, r, '#8a7557');
+    el('text', { x:d.pos[0], y:d.pos[1] - r - .22, 'font-size':.38, 'text-anchor':'middle',
+      fill:'#7a6244', 'pointer-events':'none' }).textContent = 'suche';
   });
 
   // Kwiat jest mały, więc uchwyt musi być większy niż sam obiekt — inaczej
@@ -735,8 +926,10 @@ function rysuj() {
 }
 
 /** Pola, po ktorych „skaluje sie" dany typ — kazdy ma inna jednostke. */
-const POLE_SKALI = { znak:'scale', drzewo:'skala', glaz:'skala', budynek:'wysokosc', oczko:'promien' };
-const POLE_OBROTU = { znak:'obrotY', budynek:'obrot', drzewo:'obrot', glaz:'obrot', start:'obrot', fasola:'obrot' };
+const POLE_SKALI = { znak:'scale', drzewo:'skala', glaz:'skala', budynek:'wysokosc', oczko:'promien',
+                     suche:'wysokosc', schronienie:'skala' };
+const POLE_OBROTU = { znak:'obrotY', budynek:'obrot', drzewo:'obrot', glaz:'obrot', start:'obrot', fasola:'obrot',
+                      suche:'obrot', schronienie:'obrot' };
 
 /**
  * Czy silnik w ogóle POSŁUCHA zadanego kąta znaku.
@@ -780,6 +973,8 @@ function promienRysunku(typ, o) {
   if (typ === 'znak') return .45 * (o.scale ?? 1);
   if (typ === 'drzewo') return .75 * (o.skala ?? 1);
   if (typ === 'glaz') return .55 * (o.skala ?? 1);
+  if (typ === 'suche') return .42 * ((o.wysokosc ?? 2.4) / 2.4);
+  if (typ === 'schronienie') return 1.02 * (o.skala ?? 1);
   if (typ === 'budynek') return o.promien ?? 1.4;
   if (typ === 'fasola') return o.zasieg ?? 1.9;
   if (typ === 'oczko') return o.promien ?? 1.4;
@@ -789,7 +984,9 @@ function promienRysunku(typ, o) {
 /* ── Lista obiektów ──────────────────────────────────────────────────────── */
 const KOLORY = { znak:'#FFD269', budynek:'#E2B98C', drzewo:'#4E8F5E', glaz:'#B9B3A6',
                  latarnia:'#FFE08A', brama:'#B58A5B', most:'#C9A06A', kwiat:'#F08FB4',
-                 galaz:'#CDA96F', fasola:'#6FB84A', oczko:'#8FCBE8' };
+                 galaz:'#CDA96F', fasola:'#6FB84A', oczko:'#8FCBE8',
+                 suche:'#D8C7A4', schronienie:'#C9B48A',
+                 oczko:'#5FC4DE', wzgorze:'#A8C078' };
 
 // Te same pięć odmian, co w scenie (`scena3d.js`, tablica PALETA przy kwiatach).
 // Kolejność jest znacząca: `wariant` to indeks w tej tablicy.
@@ -817,7 +1014,10 @@ function rysujListe() {
   (mapa.znaki || []).forEach((z, i) => dodaj('znak', i, z.id + ' · ' + z.file));
   (mapa.budynki || []).forEach((b, i) => dodaj('budynek', i, b.file));
   (mapa.drzewa || []).forEach((d, i) => dodaj('drzewo', i, 'drzewo ' + (i + 1) + ' · ' + d.typ));
-  (mapa.glazy || []).forEach((g, i) => dodaj('glaz', i, 'głaz ' + (i + 1)));
+  (mapa.glazy || []).forEach((g, i) =>
+    dodaj('glaz', i, 'głaz ' + (i + 1) + (g.doRozbicia ? ' · do rozbicia' : '')));
+  (mapa.sucheDrzewka || []).forEach((d, i) =>
+    dodaj('suche', i, 'suche drzewko ' + (i + 1) + (d.id ? ' · ' + d.id : '')));
   wierszKwiatow(lista, dodaj);
   (mapa.galezie || []).forEach((g, i) =>
     dodaj('galaz', i + ':1', 'gałąź ' + (i + 1) + ' · od węzła ' + (g.od ?? 0)));
@@ -828,6 +1028,11 @@ function rysujListe() {
   if (mapa.start) dodaj('start', 0, 'start liska');
   if (mapa.fasola) dodaj('fasola', 0, 'magiczna fasola');
   if (mapa.oczko) dodaj('oczko', 0, 'oczko wody');
+  if (mapa.schronienie) dodaj('schronienie', 0, 'plac budowy schronienia');
+  oczkaPary().forEach(({ k, gi }) =>
+    dodaj('oczko', gi + ':0', 'staw ' + (gi + 1) + ' · ' + (k.punkty?.length ?? 0) + ' pkt'));
+  wzgorzaPary().forEach(({ k, gi }) =>
+    dodaj('wzgorze', gi + ':0', 'wzgórze ' + (k.wysokosc ?? .5).toFixed(2) + ' · ' + (k.punkty?.length ?? 0) + ' pkt'));
   if (mapa.brama) dodaj('brama', 0, mapa.brama.ukryta ? 'brama (ukryta)' : 'brama');
   if (mapa.most) dodaj('most', 0, mapa.most.ukryty ? 'most (ukryty)' : 'most');
 }
@@ -888,6 +1093,16 @@ function wierszKwiatow(lista, dodaj) {
 }
 
 /* ── Panel właściwości ───────────────────────────────────────────────────── */
+/** Cały kształt (staw albo wzgórze) spod zaznaczenia — panel opisuje kształt,
+ *  a `obiektWyboru` zwraca pojedynczy wierzchołek do przeciągania. */
+function ksztaltWyboru() {
+  if (!wybor) return null;
+  const gi = Number(String(wybor.idx).split(':')[0]);
+  if (wybor.typ === 'oczko') return mapa.oczka?.[gi] || null;
+  if (wybor.typ === 'wzgorze') return mapa.formyTerenu?.[gi] || null;
+  return null;
+}
+
 function obiektWyboru() {
   if (!wybor) return null;
   const { typ, idx } = wybor;
@@ -895,6 +1110,13 @@ function obiektWyboru() {
   if (typ === 'budynek') return mapa.budynki?.[idx];
   if (typ === 'drzewo') return mapa.drzewa?.[idx];
   if (typ === 'glaz') return mapa.glazy?.[idx];
+  if (typ === 'suche') return mapa.sucheDrzewka?.[idx];
+  if (typ === 'oczko' || typ === 'wzgorze') {
+    const [gi, i] = String(idx).split(':').map(Number);
+    const k = typ === 'oczko' ? mapa.oczka?.[gi] : mapa.formyTerenu?.[gi];
+    return k?.punkty?.[i] ? { pos: k.punkty[i] } : null;
+  }
+  if (typ === 'schronienie') return mapa.schronienie;
   if (typ === 'kwiat') return mapa.kwiaty?.[idx];
   if (typ === 'start') return mapa.start;
   if (typ === 'latarnia') return mapa.latarnia;
@@ -1023,11 +1245,46 @@ function rysujWlasciwosci() {
 
   if (!o) {
     box.innerHTML = '<p class="pusty">Nic nie zaznaczone — poniżej ustawienia całego świata.</p><h2>Świat</h2>';
-    poleTekst(box, 'promień', mapa.swiat?.promien, (v) => { mapa.swiat.promien = v; zmiana(); }, 'number');
-    poleTekst(box, 'teren', mapa.swiat?.teren, (v) => { mapa.swiat.teren = v; zmiana(); }, 'number');
-    poleSuwak(box, 'promień kuli', mapa.swiat?.promienKuli ?? 8, { min:4, max:30, krok:.25 }, (v) => { mapa.swiat.promienKuli = v; zmiana(); });
+    poleSuwak(box, 'promień kuli (R)', mapa.swiat?.promienKuli ?? 8, { min:4, max:30, krok:.25 }, (v) => { mapa.swiat.promienKuli = v; zmiana(); });
+    /* JEDYNA LICZBA, KTÓRA NAPRAWDĘ OKREŚLA WIELKOŚĆ ŚWIATA to promień kuli.
+       Reszta to kreski na planie — i właśnie dlatego trzeba napisać wprost,
+       ile planety obejmują, bo inaczej „promień 14" czyta się jak krawędź
+       świata, a to ledwie połowa kuli. */
+    const Rk = mapa.swiat?.promienKuli ?? 8.5;
+    const stopnie = (r) => Math.round((r / Rk) * 180 / Math.PI);
+    const procent = (r) => Math.round((1 - Math.cos(r / Rk)) / 2 * 100);
+    const pr = mapa.swiat?.promien ?? 12.5;
+    podpowiedz(box, `Cała planeta to koło o promieniu ${(Math.PI * Rk).toFixed(1)} na tym planie (antypod = 180°). `
+      + `Obiekty i bohater NIE mają tu granicy — stawiaj i chodź po całej kuli, także po nocnej stronie.`);
+    poleTekst(box, 'promień mapy', mapa.swiat?.promien, (v) => { mapa.swiat.promien = v; zmiana(); }, 'number');
+    podpowiedz(box, `„Promień mapy" ${pr} to ${stopnie(pr)}° od środka, czyli ${procent(pr)} % powierzchni kuli. `
+      + `Sam z siebie NICZEGO nie ogranicza — działa dopiero jako płot, gdy włączysz „tylko mapa" poniżej.`);
+    poleTak(box, 'tylko mapa (płot)', mapa.swiat?.tylkoMapa, (v) => {
+      if (v) mapa.swiat.tylkoMapa = true; else delete mapa.swiat.tylkoMapa;
+      zmiana();
+    });
+    podpowiedz(box, 'Włączone: bohater nie wyjdzie poza „promień mapy". Wyłączone (domyślnie): obchodzi planetę dookoła.');
+    poleTekst(box, 'zasięg ścieżki i rzeki', mapa.swiat?.promienTresci,
+      (v) => { if (v) mapa.swiat.promienTresci = v; else delete mapa.swiat.promienTresci; zmiana(); }, 'number');
+    podpowiedz(box, `Puste = ${(0.72 * Math.PI * Rk).toFixed(1)} (${stopnie(0.72 * Math.PI * Rk)}°). `
+      + 'Dalej rzut rozmazuje długie linie w wachlarz, więc ścieżka i rzeka są przycinane. Dotyczy TYLKO ich.');
+    poleTekst(box, 'teren (stara tekstura)', mapa.swiat?.teren, (v) => { mapa.swiat.teren = v; zmiana(); }, 'number');
     poleSuwak(box, 'szer. rzeki', mapa.rzeka?.szerokosc, { min:.4, max:4, krok:.1 }, (v) => { mapa.rzeka.szerokosc = v; zmiana(); });
     ustawieniaLuku(box);
+    /* Plac budowy jest pojedynczy, więc nie ma dla niego narzędzia „+”. Gdy
+       mapa go nie ma, stawiamy go w środku świata i od razu zaznaczamy —
+       resztę robi się przeciąganiem. */
+    if (!mapa.schronienie) {
+      const postaw = document.createElement('button');
+      postaw.textContent = '+ Plac budowy schronienia';
+      postaw.onclick = () => {
+        mapa.schronienie = { opis:'', pos:[0, 0], skala:1, obrot:0, zasieg:1.35 };
+        wybor = { typ:'schronienie', idx:0 };
+        zapisz(); rysuj();
+      };
+      box.appendChild(postaw);
+      podpowiedz(box, 'Ta mapa nie ma placu budowy — bez niego dziecko nie ma gdzie zanieść drewna i kamieni, a zadanie schronienia nie ruszy.');
+    }
 
     /* USTAWIENIA ŚWIATA W2. Edytor powstal dla pierwszej mapy i o tych polach
        nie wiedzial — a to one decyduja o tym, czy swiat ma dzien i noc, chmury,
@@ -1102,7 +1359,87 @@ function rysujWlasciwosci() {
   if (wybor.typ === 'glaz') {
     poleSuwak(box, 'skala', o.skala, { min:.3, max:4 }, (v) => { o.skala = v; zmiana(); });
     poleSuwak(box, 'obrót [rad]', o.obrot ?? 0, { min:-3.15, max:3.15, krok:.01 }, (v) => { o.obrot = v; zmiana(); });
-    podpowiedz(box, 'Bez ustawionego kąta głaz obraca się wzorem z własnego X — tak jak dotąd. Ruch suwakiem przejmuje nad nim kontrolę.');
+    poleTak(box, 'do rozbicia', o.doRozbicia, (v) => {
+      if (v) {
+        o.doRozbicia = true;
+        /* ID JEST OBOWIĄZKOWE, nie ozdobne: zapis zadania pamięta po nim, że
+           TEN głaz już rozbito. Bez id ten sam głaz wracałby cały po każdym
+           wejściu do świata, a HUD liczyłby go w kółko. Dlatego nadajemy je
+           sami, gdy ktoś zapomni. */
+        if (!o.id) o.id = 'glaz-' + (Number(wybor.idx) + 1);
+      } else {
+        delete o.doRozbicia;
+      }
+      zmiana();
+    });
+    if (o.doRozbicia) {
+      poleTekst(box, 'id (zapis zadania)', o.id, (v) => { o.id = v.trim(); zmiana(); });
+      poleSuwak(box, 'zasięg pracy', o.zasieg ?? 1.9, { min:.8, max:3.5, krok:.05 }, (v) => { o.zasieg = v; zmiana(); });
+      podpowiedz(box, 'Rozbity głaz zamienia się w kamienie, które dziecko NIESIE na plac budowy. Zasięg musi być większy od kolizji głazu (≈0,6 × skala), inaczej lisek nigdy nie podejdzie dość blisko, żeby zacząć.');
+    } else {
+      podpowiedz(box, 'Bez ustawionego kąta głaz obraca się wzorem z własnego X — tak jak dotąd. Ruch suwakiem przejmuje nad nim kontrolę.');
+    }
+  }
+  if (wybor.typ === 'oczko' || wybor.typ === 'wzgorze') {
+    const k = ksztaltWyboru();
+    const i = Number(String(wybor.idx).split(':')[1] || 0);
+    const gi = Number(String(wybor.idx).split(':')[0]);
+    if (k) {
+      podpowiedz(box, `Obrys: ${k.punkty?.length ?? 0} punktów. Klikaj w trybie „+ ${wybor.typ === 'oczko' ? 'Oczko' : 'Wzgórze'}”, żeby dołożyć kolejny; przeciągnij wypełnienie, żeby przesunąć cały kształt; Delete kasuje zaznaczony punkt, a przy trzech ostatnich — cały kształt.`);
+      poleSuwak(box, 'łuk brzegu', k.gladkosc ?? OBRYS_GLADKOSC, { min:0, max:1, krok:.05 },
+        (v) => { k.gladkosc = v; zmiana(); });
+      podpowiedz(box, '0 = łamana z ostrymi kątami, 1 = pełne zaokrąglenie. Krzywa i tak przechodzi przez klikane punkty — łuk zmienia tylko to, co między nimi.');
+      if (wybor.typ === 'oczko') {
+        poleSuwak(box, 'głębokość', k.glebokosc ?? .11, { min:.04, max:.6, krok:.01 }, (v) => { k.glebokosc = v; zmiana(); });
+        poleSuwak(box, 'stok brzegu', k.stok ?? .9, { min:.2, max:2.5, krok:.05 }, (v) => { k.stok = v; zmiana(); });
+        podpowiedz(box, 'Stok liczy się W PROMIENIACH kształtu: 0,9 znaczy, że brzeg wraca do poziomu gruntu na dziewięciu dziesiątych promienia za obrysem. Ścianki w tej strefie shader maluje na piaskowo — to jest plaża, nie osobna siatka.');
+        podpowiedz(box, 'Staw nie blokuje chodzenia i lisek się w nim nie topi: wchodzi w wodę i nabiera kropli. Liczy się 85 % największego promienia obrysu.');
+      } else {
+        poleSuwak(box, 'wysokość', k.wysokosc ?? .5, { min:.1, max:3, krok:.05 }, (v) => { k.wysokosc = v; zmiana(); });
+        poleSuwak(box, 'płaski wierzchołek', k.plaski ?? 0, { min:0, max:.9, krok:.05 }, (v) => { k.plaski = v; zmiana(); });
+        podpowiedz(box, '„Płaski wierzchołek” to udział promienia, na którym góra jest równa — 0 daje kopiec, 0,5 płaskowyż ze zboczem.');
+        /* PRÓG OSTRZEŻENIA nie jest wyssany z palca: kamera jest nieruchoma
+           i izometryczna, więc teren wyższy niż mniej więcej wzrost liska
+           zaczyna go zasłaniać, zamiast dawać głębię. Nie blokujemy tego —
+           autor ma prawo zrobić wysoką górę świadomie — ale ma o tym wiedzieć. */
+        if ((k.wysokosc ?? .5) > .9)
+          podpowiedz(box, 'UWAGA: powyżej 0,9 wzgórze przy tej kamerze potrafi zasłonić bohatera. Sprawdź w podglądzie, przechodząc liskiem za górkę — jeśli znika, obniż albo rozciągnij obrys.');
+      }
+      const kasujCaly = document.createElement('button');
+      kasujCaly.className = 'groza';
+      kasujCaly.textContent = wybor.typ === 'oczko' ? 'Usuń cały staw' : 'Usuń całe wzgórze';
+      kasujCaly.onclick = () => {
+        if (wybor.typ === 'oczko') mapa.oczka.splice(gi, 1);
+        else mapa.formyTerenu.splice(gi, 1);
+        wybor = null; zapisz(); rysuj();
+      };
+      box.appendChild(kasujCaly);
+    }
+  }
+  if (wybor.typ === 'suche') {
+    poleTekst(box, 'id (zapis zadania)', o.id, (v) => { o.id = v.trim(); zmiana(); });
+    poleWybor(box, 'model', o.file || 'suche_drzewko', MODELE, (v) => { o.file = v; zmiana(); });
+    poleSuwak(box, 'wysokość [m]', o.wysokosc ?? 2.4, { min:1, max:5, krok:.1 }, (v) => { o.wysokosc = v; zmiana(); });
+    poleSuwak(box, 'obrót [rad]', o.obrot ?? 0, { min:-3.15, max:3.15, krok:.01 }, (v) => { o.obrot = v; zmiana(); });
+    poleSuwak(box, 'zasięg pracy', o.zasieg ?? 1.6, { min:.8, max:3.5, krok:.05 }, (v) => { o.zasieg = v; zmiana(); });
+    poleSuwak(box, 'kolizja r', o.kolizja ?? .5, { min:.1, max:1.5, krok:.05 }, (v) => { o.kolizja = v; zmiana(); });
+    podpowiedz(box, 'Ścinamy TYLKO suche drzewka — żywy las zostaje. Po ścięciu zostaje pieniek, a obok niego stos drewna, po który dziecko wraca i niesie go na plac.');
+    podpowiedz(box, 'Kolizja MUSI być mniejsza od zasięgu pracy, inaczej bohater zatrzyma się dalej, niż sięga piła, i ścinanie nigdy nie ruszy. Domyślnie 0,5 przy zasięgu 1,6.');
+    if ((o.kolizja ?? .5) >= (o.zasieg ?? 1.6))
+      podpowiedz(box, 'UWAGA: kolizja jest większa lub równa zasięgowi — tego drzewka nie da się ściąć.');
+  }
+  if (wybor.typ === 'schronienie') {
+    poleSuwak(box, 'skala', o.skala ?? 1, { min:.5, max:2.5, krok:.05 }, (v) => { o.skala = v; zmiana(); });
+    poleSuwak(box, 'obrót [rad]', o.obrot ?? 0, { min:-3.15, max:3.15, krok:.01 }, (v) => { o.obrot = v; zmiana(); });
+    poleSuwak(box, 'zasięg oddania', o.zasieg ?? 1.35, { min:.8, max:3, krok:.05 }, (v) => { o.zasieg = v; zmiana(); });
+    poleTekst(box, 'opis (tylko dla ludzi)', o.opis, (v) => { o.opis = v; zmiana(); });
+    podpowiedz(box, 'Tu stanie schronienie — i tu dziecko przynosi materiał. Przerywany krąg to odległość, z której lisek oddaje ładunek; obrót ustawia, w którą stronę patrzy budowla i po których stronach klepiska ląduje drewno i kamienie.');
+    podpowiedz(box, 'Liczby przy kreskowanych liniach to długość kursu z materiałem. Poniżej ~2,5 doniesienie przestaje być kursem, a robi się krokiem w bok — a to właśnie ten kurs zamienia „zdobyłem” w „przyniosłem”.');
+    const kasuj = document.createElement('button');
+    kasuj.className = 'groza';
+    kasuj.textContent = 'Usuń plac budowy (Delete)';
+    kasuj.onclick = () => { delete mapa.schronienie; wybor = null; zapisz(); rysuj(); };
+    box.appendChild(kasuj);
   }
   if (wybor.typ === 'kwiat') {
     poleWybor(box, 'odmiana', KWIATY_ODMIANY[o.wariant ?? 0].nazwa, KWIATY_ODMIANY.map((w) => w.nazwa),
@@ -1266,6 +1603,18 @@ function rysujWlasciwosci() {
 }
 
 /* ── Dodawanie i kasowanie ───────────────────────────────────────────────── */
+/**
+ * Suche drzewko dostaje ID OD RAZU, a nie „kiedyś, jak ktoś pamięta". Zapis
+ * zadania (`zadanieDrewna.js`) pamięta po tym identyfikatorze, że to drzewko
+ * już ścięto — bez niego wracałoby na polanę całe przy każdym wejściu.
+ */
+function noweSucheDrzewko(x, z) {
+  let n = 1;
+  while ((mapa.sucheDrzewka || []).some((d) => d.id === 'drzewko-' + n)) n++;
+  return { id:'drzewko-' + n, file:'suche_drzewko', pos:[x, z], wysokosc:2.4, obrot:0,
+           zasieg:1.6, kolizja:.5 };
+}
+
 function nowyZnak(x, z) {
   const file = $('#model').value || 'gwiazda';
   let n = 1;
@@ -1288,6 +1637,9 @@ function dodajWPunkcie(x, z) {
   } else if (tryb === 'glaz') {
     (mapa.glazy ||= []).push({ pos:[x, z], skala:1 });
     wybor = { typ:'glaz', idx: mapa.glazy.length - 1 };
+  } else if (tryb === 'suche') {
+    (mapa.sucheDrzewka ||= []).push(noweSucheDrzewko(x, z));
+    wybor = { typ:'suche', idx: mapa.sucheDrzewka.length - 1 };
   } else if (tryb === 'kwiat') {
     (mapa.kwiaty ||= []).push({ wariant: Math.floor(Math.random() * KWIATY_ODMIANY.length), pos:[x, z], skala:1 });
     // Postawiony kwiat musi byc widoczny i chwytliwy od razu, inaczej narzedzie
@@ -1296,6 +1648,35 @@ function dodajWPunkcie(x, z) {
     kwiatyGrupa.otwarta = true;
     zapiszUiKwiatow();
     wybor = { typ:'kwiat', idx: mapa.kwiaty.length - 1 };
+  } else if (tryb === 'oczko' || tryb === 'wzgorze') {
+    /* JEDNO NARZĘDZIE, DWA ODRUCHY — tak samo jak przy gałęziach ścieżki:
+       klik przy zaznaczonym kształcie tego samego rodzaju PRZEDŁUŻA obrys,
+       klik bez zaznaczenia zaczyna nowy. Bez tego trzeba by osobnego
+       przycisku „zakończ kształt", a to jeden klik więcej przy każdym stawie. */
+    if (wybor && wybor.typ === tryb) {
+      const k = ksztaltWyboru();
+      if (k && Array.isArray(k.punkty)) {
+        k.punkty.push([x, z]);
+        wybor = { typ:tryb, idx: String(wybor.idx).split(':')[0] + ':' + (k.punkty.length - 1) };
+        zapisz(); rysuj();
+        return true;
+      }
+    }
+    /* Nowy kształt zaczyna od TRÓJKĄTA wokół kliknięcia, nie od jednego punktu.
+       Obrys z jednym punktem nie jest jeszcze kształtem — nie ma czego pokazać
+       ani w scenie, ani na planie, więc narzędzie wyglądałoby na zepsute. */
+    const r = tryb === 'oczko' ? 1.3 : 1.8;
+    const punkty = [0, 1, 2, 3, 4].map((i) => {
+      const t = (i / 5) * Math.PI * 2;
+      return [zaokr(x + Math.cos(t) * r), zaokr(z + Math.sin(t) * r)];
+    });
+    if (tryb === 'oczko') {
+      (mapa.oczka ||= []).push({ punkty, glebokosc:.14, stok:.9 });
+      wybor = { typ:'oczko', idx:(mapa.oczka.length - 1) + ':0' };
+    } else {
+      (mapa.formyTerenu ||= []).push({ typ:'wzgorze', punkty, wysokosc:.6, plaski:.2 });
+      wybor = { typ:'wzgorze', idx:(mapa.formyTerenu.length - 1) + ':0' };
+    }
   } else if (tryb === 'sciezka') {
     zapewnijWezly();
     wezly().push([x, z]);
@@ -1393,7 +1774,32 @@ function usunWybor() {
     rysuj();
     return;
   }
-  const tablice = { znak:'znaki', budynek:'budynki', drzewo:'drzewa', glaz:'glazy', kwiat:'kwiaty' };
+  /* Wierzchołek obrysu kasuje się pojedynczo, ale obrys z dwoma punktami to
+     już nie kształt — wtedy schodzi cały staw albo całe wzgórze. */
+  if (wybor.typ === 'oczko' || wybor.typ === 'wzgorze') {
+    const [gi, i] = String(wybor.idx).split(':').map(Number);
+    const lista = wybor.typ === 'oczko' ? mapa.oczka : mapa.formyTerenu;
+    const k = lista?.[gi];
+    if (!k) return;
+    if (!Array.isArray(k.punkty) || k.punkty.length <= 3) lista.splice(gi, 1);
+    else k.punkty.splice(i, 1);
+    wybor = null;
+    zapisz(); rysuj();
+    return;
+  }
+  /* PLAC BUDOWY da się skasować NA PRAWDĘ, w odróżnieniu od latarni: scena
+     czyta `mapa.schronienie` i przy braku klucza po prostu go nie stawia
+     (`mapa.js` zwraca null, `ustawSchronienie` wychodzi od razu). Żadnej
+     pozycji domyślnej, więc nie ma czego ukrywać. */
+  if (wybor.typ === 'schronienie') {
+    delete mapa.schronienie;
+    wybor = null;
+    zapisz();
+    rysuj();
+    return;
+  }
+  const tablice = { znak:'znaki', budynek:'budynki', drzewo:'drzewa', glaz:'glazy', kwiat:'kwiaty',
+                    suche:'sucheDrzewka' };
   const nazwa = tablice[wybor.typ];
   if (!nazwa) return;
   mapa[nazwa].splice(Number(wybor.idx), 1);
@@ -1444,6 +1850,23 @@ plan.addEventListener('pointerdown', (ev) => {
     return;
   }
 
+  /* PRZECIĄGANIE CAŁEGO OBRYSU. Wielobok nie ma jednego `pos`, więc nie da
+     się go ruszyć zwykłą ścieżką (`ciagniecie.pos`) — przesuwamy wszystkie
+     wierzchołki o ten sam wektor, licząc od ZAPAMIĘTANEGO stanu początkowego.
+     Liczenie przyrostowo (klatka po klatce) kumulowałoby błąd zaokrąglenia
+     do dwóch miejsc i kształt powoli by się rozjeżdżał. */
+  if (cel && /-ksztalt$/.test(cel.dataset.typ || '')) {
+    const typ = cel.dataset.typ.replace('-ksztalt', '');
+    wybor = { typ, idx: cel.dataset.idx + ':0' };
+    const k = ksztaltWyboru();
+    if (k?.punkty) {
+      ciagniecie = { punkty: k.punkty, start: k.punkty.map((q) => [...q]), gx:x, gz:z };
+      plan.setPointerCapture(ev.pointerId);
+    }
+    rysuj();
+    return;
+  }
+
   if (cel) {
     wybor = { typ: cel.dataset.typ, idx: cel.dataset.idx };
     const o = obiektWyboru();
@@ -1476,6 +1899,16 @@ plan.addEventListener('pointermove', (ev) => {
     rysuj();
     return;
   }
+  if (ciagniecie.punkty) {
+    const dx = x - ciagniecie.gx, dz = z - ciagniecie.gz;
+    ciagniecie.punkty.forEach((q, i) => {
+      q[0] = zaokr(ciagniecie.start[i][0] + dx);
+      q[1] = zaokr(ciagniecie.start[i][1] + dz);
+    });
+    rysuj();
+    return;
+  }
+
   if (ciagniecie.uchwyt === 'skala') {
     const d = Math.hypot(x - o.pos[0], z - o.pos[1]);
     const nowa = Math.max(.15, zaokr(ciagniecie.bazaSkala * (d / ciagniecie.bazaDystans)));
@@ -1506,6 +1939,14 @@ plan.addEventListener('pointerup', () => {
    Przesuwanie idzie PRAWYM albo ŚRODKOWYM przyciskiem, ewentualnie ze spacją.
    Lewy jest zajęty: w trybach dodawania klik w puste miejsce stawia obiekt,
    więc gdyby przesuwał mapę, nie dałoby się niczego postawić.                */
+/* Widok startowy liczy się Z MAPY, a nie ze stałej: przy R=8,5 planeta sięga
+   πR ≈ 26,7, a sztywne 38 (czyli ±19) ucinało jej brzegi i utrwalało wrażenie,
+   że świat kończy się tam, gdzie kończy się plan. */
+function widokCalejPlanety() {
+  const R = mapa?.swiat?.promienKuli ?? 8.5;
+  const w = Math.PI * R * 2 + 3;
+  return { x:-w / 2, y:-w / 2, w };
+}
 const WIDOK_STARTOWY = { x:-19, y:-19, w:38 };
 let widok = { ...WIDOK_STARTOWY };
 let spacja = false;
@@ -1661,7 +2102,7 @@ $('#auto').onchange = () => { if ($('#auto').checked) zapiszWProjekcie({ cicho: 
 $('#btn-cofnij').onclick = cofnij;
 $('#btn-oryginal').onclick = () => wczytaj({ zSerwera: true });
 $('#btn-odswiez').onclick = odswiezPodglad;
-$('#btn-widok').onclick = () => { widok = { ...WIDOK_STARTOWY }; zastosujWidok(); };
+$('#btn-widok').onclick = () => { widok = widokCalejPlanety(); zastosujWidok(); };
 
 $('#btn-model').onclick = () => $('#plik-model').click();
 $('#plik-model').onchange = async (ev) => {

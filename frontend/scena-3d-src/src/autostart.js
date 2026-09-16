@@ -15,6 +15,15 @@ const gotowa = utworzScena3D({
   spokojnyRuch: q.get("spokojnie") === "1" ? true : undefined,
 }).then((s) => {
   mostIframe(s);
+  /* HARNESS POKAZUJE ŚWIAT TAKI, JAKI ZAPROJEKTOWANO — a nie taki, jaki widzi
+     dziecko w połowie zadania. W grze plac budowy i rąbanie włącza React,
+     zależnie od stanu zapisu; tutaj nie ma kto, więc znacznik placu nigdy by
+     się nie pokazał i podgląd w edytorze mapy kłamałby o tym, co gdzie stoi.
+     `?zadania=0` wyłącza to, gdy ktoś chce czyste ujęcie samego terenu. */
+  if (q.get("zadania") !== "0") {
+    s.ustawPlacBudowy?.(true, true);
+    s.ustawRabanieAktywne?.(true);
+  }
   // Szczyt fasoli: przejście do kolejnego świata (`?mapa=<cel>`), jeśli mapa go wskazuje.
   s.on("swiat:dalej", ({ cel }) => {
     if (!cel) return;

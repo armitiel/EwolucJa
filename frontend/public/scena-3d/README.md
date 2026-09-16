@@ -98,6 +98,10 @@ Albo jako element własny (bez Reacta):
 | `znak:dotkniety` | `{ znak, etykieta, palcem }` | dotknięcie znaku stałego (liść) |
 | `bohater:doszedl` | `{ x, z, latarnia }` | dotarcie do wskazanego punktu |
 | `latarnia:reakcja` | `{ faza }` | sekwencja radości przy latarni |
+| `surowiec:zdobyty` | `{ rodzaj, id, pos }` | ścięte suche drzewko albo rozbity głaz — materiał LEŻY na miejscu |
+| `surowiec:podniesiony` | `{ rodzaj, id }` | bohater wziął materiał na plecy (jeden ładunek na raz) |
+| `surowiec:dostarczony` | `{ rodzaj, id }` | materiał oddany na placu budowy — dopiero to domyka cel |
+| `miejsce:pokazane` | `{ pos, pominiete? }` | koniec przelotu kamery na wskazane miejsce |
 | `pauza`, `wznowienie`, `zniszczona`, `blad` | — | stan modułu |
 
 **Metody:**
@@ -108,7 +112,17 @@ scena.ustawBohatera(x, z);               // przestawienie bohatera
 scena.ustawSpokojnyRuch(true);           // wyciszenie animacji
 scena.ustawPowrotZnaku('medal', false);  // medal ma zostać zabrany po wejściu
 scena.pokazZnak('medal');                // przywróć po zamknięciu minigry
-scena.stan();                            // { gotowa, pauza, animacja, bohater, znaki }
+scena.stan();                            // { gotowa, pauza, animacja, bohater, znaki, rabanie, schronienie }
+
+// Zadanie schronienia. Scena sama NIE WIE, czy zadanie trwa — steruje tym
+// aplikacja (`src/pages/Swiat.jsx`), bo świat ma się dać testować bez postępu,
+// a postęp bez świata.
+scena.ustawRabanieAktywne(true);         // wolno ścinać i rozbijać
+scena.oznaczZuzyte(['drzewko-polana']);  // odtworzenie stanu z zapisu (już ścięte)
+scena.oznaczDostarczone(['glaz-polana']);// ...i tego, co już leży na placu
+scena.ustawPlacBudowy(true, gotowy);     // znacznik miejsca; `gotowy` = materiał w komplecie
+scena.ustawSchronienie(etap, animuj);    // postaw budowlę do etapu N (animuj tylko przy WZROŚCIE)
+scena.pokazMiejsce();                    // przelot kamery na plac budowy i z powrotem
 scena.zniszcz();                         // zwolnienie WebGL i usunięcie węzła
 ```
 
@@ -132,23 +146,26 @@ kolejne wejścia są natychmiastowe.
 
 ## Mapa świata i edytor
 
-Geometria sceny — ścieżka, rzeka, most, brama, latarnia, drzewa, głazy, budynki
-i znaki minigier — leży w **`mapa.json`** obok tego pliku. Scena czyta ją przez
+Geometria sceny — ścieżka, rzeka, most, brama, latarnia, drzewa, głazy, budynki,
+znaki minigier, **suche drzewka do ścięcia** (`sucheDrzewka`) i **plac budowy
+schronienia** (`schronienie`) — leży w **`mapa.json`** obok tego pliku. Scena czyta ją przez
 `globalThis.__SCENA3D_MAPA`, które musi być ustawione **przed** doładowaniem
 modułu (robi to `index.html` i `src/components/Scena3D.jsx`). Gdy pliku nie ma,
 bundle wraca do wartości wbudowanych i świat wygląda tak, jak przed edytorem.
 
-Bundle jest zminifikowany i nie ma źródeł, więc te literały otworzył na dane
-skrypt **`scripts/mapa-hook.py`**:
+> **Nieaktualne od czasu, gdy scena ma źródła.** Zaczep `__SCENA3D_MAPA` siedzi
+> dziś w `scena-3d-src/src/mapa.js` i wchodzi do bundla przy zwykłym buildzie,
+> więc **`scripts/mapa-hook.py` NIE jest już potrzebny po podmianie bundla** —
+> a uruchomiony na dzisiejszym pliku łata coś, czego tam nie ma. Skrypty zostają
+> tylko do grzebania w archiwalnych bundlach z `_epoki/`.
+
+Po zmianie w `scena-3d-src/` przebuduj scenę i podbij wersję:
 
 ```bash
-python scripts/mapa-hook.py            # podepnij mapę (idempotentne)
-python scripts/mapa-hook.py --cofnij   # wróć do bundla sprzed patcha
-python scripts/mapa-eksport.py         # wygeneruj mapa.json z bundla na nowo
+cd frontend && node scena-3d-src/build.mjs     # albo aktualizuj-build.bat z pulpitu
+# potem WERSJA_SCENY w src/components/Scena3D.jsx — bez tego przeglądarka
+# poda scenę ze swojego cache, mimo że plik na dysku jest nowy
 ```
-
-**Po każdej podmianie `scena3d.js` / `scena3d.esm.js` trzeba uruchomić
-`mapa-hook.py` ponownie** — nowy bundle przychodzi bez tych zaczepów.
 
 ### Edytor: `/scena-3d/edytor.html`
 
@@ -162,6 +179,30 @@ mapa.json** i podmień plik w `public/scena-3d/`.
 
 Czego edytor NIE ruszy: trawy i drobnych plamek malowanych na teksturze terenu
 (powstają z ziarna losowego w środku modułu) ani wnętrza samych modeli GLB.
+
+#### Zadanie schronienia na planie
+
+Od wersji 95 edytor obsługuje cały łańcuch „zetnij → zanieś → zbuduj":
+
+- **`+ Suche drzewko`** stawia drzewko do ścięcia (`sucheDrzewka`). Tylko takie
+  wolno ścinać — żywy las zostaje. Każde dostaje `id` od razu, bo po nim zapis
+  zadania pamięta, że to drzewko już padło; bez `id` wracałoby całe przy każdym
+  wejściu do świata. **Kolizja musi być mniejsza od zasięgu pracy** (domyślnie
+  0,5 przy 1,6), inaczej bohater zatrzyma się dalej, niż sięga piła, i ścinanie
+  nigdy nie ruszy — edytor to sprawdza i ostrzega.
+- **Głaz** ma przełącznik **„do rozbicia"**. Włączony zmienia go z dekoracji
+  w cel zadania i wymusza `id`. Przerywany krąg na planie to zasięg pracy.
+- **Plac budowy** (`schronienie`) to pojedynczy obiekt, jak fasola czy oczko —
+  stawia się go przyciskiem w panelu świata, gdy mapy jeszcze nie ma. Przerywany
+  krąg to odległość, z której bohater oddaje materiał.
+- Kreskowane linie z placu do każdego celu **pokazują długość kursu** z tym
+  materiałem. To nie jest ozdoba: od tej liczby zależy, czy doniesienie drewna
+  jest kursem, czy krokiem w bok — a na oko z planu tego nie widać, bo skala
+  jest umowna. Poniżej ~2,5 zadanie traci sens.
+
+Podgląd 3D w edytorze pokazuje plac budowy i włączone rąbanie, choć w grze
+włącza je dopiero React zależnie od stanu zapisu (`autostart.js`, wyłącznik
+`?zadania=0`). Inaczej harness kłamałby o tym, co gdzie stoi.
 
 #### Własne modele 3D
 

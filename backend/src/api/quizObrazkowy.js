@@ -148,21 +148,16 @@ export const ONBOARDING_QUIZ = [
     // nowe albo z placówki, rozpoznawało siebie w postaci stojącej z boku.
     // Tutaj nikt nie jest wykluczony i wszystkie cztery role są tak samo
     // potrzebne: dziecko wybiera rolę, nie cnotę.
-    /* UWAGA: trzy z czterech kafelkow tego pytania nie maja jeszcze `obraz` —
-       konto OpenAI wyczerpalo srodki w polowie generowania (23 z 30 plikow).
-       Front wlacza siatke kwadratow dopiero wtedy, gdy KOMPLET odpowiedzi ma
-       ilustracje, wiec Q6 zostaje na razie kolumna zdan i nic sie nie psuje.
-       Dogenerowanie:  python scripts\\kafelki-onboarding.py woz-b woz-c woz-d
-       (fal.ai NIE nadaje sie na zastepstwo — rysuje innego liska i inny styl,
-       sprawdzone; odrzucone proby leza w `tmp/kafelki-odrzucone/`). */
+    // Cztery gotowe ilustracje pokazują cztery równie potrzebne role przy tym
+    // samym wozie. Komplet przełącza pytanie na spójną siatkę obrazkową.
     question: "Na ścieżce utknął wóz pełen koszy. Kilka osób próbuje go ruszyć. Co robi twój bohater?",
     pytanie13: "Na ścieżce utknął wóz. Co robi twój bohater?",
     answers: [
       { answer_id: "a", glowna: "EM", podpis: "Zmieniam zmęczonego", obraz: "/assets/onboarding/woz-a.webp", text: "Wchodzi na miejsce kogoś, kto opadł z sił, i chwyta za linę.", points: PKT.EM },
-      { answer_id: "b", glowna: "LD", podpis: "Pcham pierwszy", text: "Opiera ramię o burtę, zanim reszta zdąży się zebrać.", points: PKT.LD, tylko48: true },
-      { answer_id: "c", glowna: "ST", podpis: "Ustawiam po kolei", text: "Pokazuje każdemu jego miejsce przy linie.", points: PKT.ST },
+      { answer_id: "b", glowna: "LD", podpis: "Pcham pierwszy", obraz: "/assets/onboarding/woz-b.webp", text: "Opiera ramię o burtę, zanim reszta zdąży się zebrać.", points: PKT.LD, tylko48: true },
+      { answer_id: "c", glowna: "ST", podpis: "Ustawiam po kolei", obraz: "/assets/onboarding/woz-c.webp", text: "Pokazuje każdemu jego miejsce przy linie.", points: PKT.ST },
       // Skupienie użyteczne, a nie bierne: zauważenie kamienia rozwiązuje sprawę.
-      { answer_id: "d", glowna: "MD", podpis: "Widzę, gdzie blokuje", text: "Kuca przy kole i wpatruje się w zaklinowany kamień.", points: PKT.MD },
+      { answer_id: "d", glowna: "MD", podpis: "Widzę, gdzie blokuje", obraz: "/assets/onboarding/woz-d.webp", text: "Kuca przy kole i wpatruje się w zaklinowany kamień.", points: PKT.MD },
     ],
   },
 ];

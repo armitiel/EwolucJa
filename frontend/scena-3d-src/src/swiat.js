@@ -725,6 +725,71 @@ export function kamiennyPak(s = 1) {
 
 // Wspólne materiały utrzymują jedną paletę na całej planecie i ograniczają
 // przełączanie materiałów przy większej liczbie dekoracji.
+/**
+ * GRADIENT PIONOWY wypalony w wierzchołkach jako MNOŻNIK barwy — ta sama
+ * technika, co źdźbła trawy (`zbudujKwiaty`) i pnącze: `vertexColors: true`,
+ * a three.js mnoży kolor materiału przez kolor wierzchołka.
+ *
+ * PO CO. Płaska bryła w jednym kolorze, oświetlona jednym słońcem, ma dokładnie
+ * tyle odcieni, ile ma ścianek zwróconych w różne strony — czyli od góry
+ * (a tak patrzy kamera tej gry) prawie jeden. Gradient dokłada drugą oś
+ * różnicowania, NIEZALEŻNĄ od kąta padania światła: dół bryły jest ciemniejszy
+ * i chłodniejszy, góra jaśniejsza i cieplejsza. Tak wygląda roślina, której
+ * spód stoi we własnym cieniu, a czubek łapie niebo — i tak wygląda referencja.
+ *
+ * MNOŻNIK, nie gotowy kolor: dzięki temu `igly` i `iglyCiemne` zostają dwoma
+ * różnymi zieleniami, a gradient kładzie się na obie tak samo. Zmiana palety
+ * dalej idzie przez jedno miejsce (`MAT_DRZEWA`), nie przez tablice liczb.
+ *
+ * Wartości > 1 są legalne i celowe — rozjaśniają czubek ponad barwę bazową,
+ * dokładnie jak w gradiencie trawy (1,113).
+ *
+ * `krzywa` > 1 spycha przejście ku górze (dłużej ciemno), < 1 ku dołowi.
+ */
+function gradientPionowy(geo, dol, gora, krzywa = 1) {
+  const poz = geo.attributes.position;
+  let minY = Infinity, maxY = -Infinity;
+  for (let i = 0; i < poz.count; i++) {
+    const y = poz.getY(i);
+    if (y < minY) minY = y;
+    if (y > maxY) maxY = y;
+  }
+  const rozpietosc = (maxY - minY) || 1;
+  const barwy = new Float32Array(poz.count * 3);
+  for (let i = 0; i < poz.count; i++) {
+    const t = Math.pow((poz.getY(i) - minY) / rozpietosc, krzywa);
+    barwy[i * 3]     = dol[0] + (gora[0] - dol[0]) * t;
+    barwy[i * 3 + 1] = dol[1] + (gora[1] - dol[1]) * t;
+    barwy[i * 3 + 2] = dol[2] + (gora[2] - dol[2]) * t;
+  }
+  geo.setAttribute("color", new Float32BufferAttribute(barwy, 3));
+  return geo;
+}
+
+/** Zakresy gradientu trzymane w jednym miejscu — stroi się je tutaj, nie w bryłach. */
+const GRAD = {
+  igly:   [[.70, .76, .68], [1.17, 1.12, .97]],
+  pien:   [[.64, .68, .70], [1.10, 1.06, 1.00]],
+  lisc:   [[.71, .77, .69], [1.15, 1.12, .96]],
+  kapelusz: [[.76, .72, .72], [1.13, 1.06, 1.02]],
+  trzon:  [[.72, .74, .77], [1.07, 1.06, 1.02]],
+};
+
+/**
+ * Materiały drzew MUSZĄ mieć `vertexColors: true`, a każda bryła, która ich
+ * używa, MUSI mieć wypalony atrybut `color` — inaczej three.js rysuje ją
+ * czarną. Dlatego to osobny zestaw, a nie przełącznik na `MAT_NATURA`:
+ * skały i mech z `glaz()` zostają na starych materiałach i nic o gradiencie
+ * nie wiedzą.
+ */
+const matGradient = (kolor) => new MeshLambertMaterial({ color: kolor, flatShading: true, vertexColors: true });
+
+const MAT_DRZEWA = {
+  pien: matGradient(0x765331), pienJasny: matGradient(0x91673b),
+  igly: matGradient(0x3e793d), iglyCiemne: matGradient(0x2f6536),
+  lisc: matGradient(0x579442), liscJasny: matGradient(0x72aa4e),
+};
+
 const MAT_NATURA = {
   pien: matKanciasty(0x765331), pienJasny: matKanciasty(0x91673b),
   igly: matKanciasty(0x3e793d), iglyCiemne: matKanciasty(0x2f6536),
@@ -733,13 +798,27 @@ const MAT_NATURA = {
   skalaCiemna: matKanciasty(0x716c60), mech: matKanciasty(0x668b45),
 };
 
-export function sosna(s = 1) {
+/**
+ * `faza` obraca CAŁĄ sosnę wokół własnej osi o zadany kąt — domyślnie 0, więc
+ * każde dotychczasowe wywołanie daje dokładnie to samo drzewo, co wcześniej.
+ * Po co: stożek ma siedem ścian, więc dwie sosny stojące obok siebie w tej
+ * samej fazie czytają się jak jeden model postawiony dwa razy. Wystarczy
+ * przekręcić drugą o pół ściany i sylwetki przestają się pokrywać, bez
+ * dokładania ani jednego wierzchołka.
+ */
+export function sosna(s = 1, faza = 0) {
   const e = new Group();
   e.name = "sosna-low-poly";
-  e.add(mesh(new CylinderGeometry(.105*s,.19*s,.88*s,6),MAT_NATURA.pien,[0,.44*s,0],[0,.18,0]));
+  e.add(mesh(gradientPionowy(new CylinderGeometry(.105*s,.19*s,.88*s,6),...GRAD.pien),MAT_DRZEWA.pien,[0,.44*s,0],[0,.18+faza,0]));
+  /* Gradient liczy się w obrębie KAŻDEGO stożka z osobna, nie całego drzewa:
+     dzięki temu spód każdego piętra jest ciemny, a jego krawędź jasna — czyli
+     piętra odcinają się od siebie także wtedy, gdy patrzy się z góry i światło
+     pada na wszystkie tak samo. `krzywa` 1,35 trzyma ciemność przy podstawie
+     stożka, żeby jasny był sam rant, a nie połowa piętra. */
   [[1.02,.98],[.84,1.48],[.65,1.94],[.43,2.36]].forEach(([r,y],i) => {
-    const p=mesh(new ConeGeometry(r*s,.92*s,7),i%2?MAT_NATURA.iglyCiemne:MAT_NATURA.igly,
-      [0,y*s,0],[0,.18+i*.48,(i%2?-.025:.025)]);
+    const p=mesh(gradientPionowy(new ConeGeometry(r*s,.92*s,7),...GRAD.igly,1.35),
+      i%2?MAT_DRZEWA.iglyCiemne:MAT_DRZEWA.igly,
+      [0,y*s,0],[0,.18+faza+i*.48,(i%2?-.025:.025)]);
     p.scale.set(1,i===0?.82:.94,.88+(i%2)*.08);
     e.add(p);
   });
@@ -749,10 +828,10 @@ export function sosna(s = 1) {
 export function drzewoLisciaste(s = 1) {
   const e = new Group();
   e.name = "drzewo-lisciaste-low-poly";
-  e.add(mesh(new CylinderGeometry(.13*s,.22*s,1.25*s,6),MAT_NATURA.pien,[0,.58*s,0],[0,.16,0]));
-  e.add(mesh(new CylinderGeometry(.065*s,.09*s,.66*s,5),MAT_NATURA.pienJasny,
+  e.add(mesh(gradientPionowy(new CylinderGeometry(.13*s,.22*s,1.25*s,6),...GRAD.pien),MAT_DRZEWA.pien,[0,.58*s,0],[0,.16,0]));
+  e.add(mesh(gradientPionowy(new CylinderGeometry(.065*s,.09*s,.66*s,5),...GRAD.pien),MAT_DRZEWA.pienJasny,
     [-.17*s,1.08*s,.02*s],[0,0,.58]));
-  e.add(mesh(new CylinderGeometry(.06*s,.085*s,.58*s,5),MAT_NATURA.pien,
+  e.add(mesh(gradientPionowy(new CylinderGeometry(.06*s,.085*s,.58*s,5),...GRAD.pien),MAT_DRZEWA.pien,
     [.19*s,1.12*s,.02*s],[.12,0,-.62]));
   const korony = [
     [-.45,1.66,.02,.66,.58,.62,0], [.38,1.70,.08,.70,.60,.64,1],
@@ -760,12 +839,410 @@ export function drzewoLisciaste(s = 1) {
     [.62,1.48,-.04,.43,.40,.44,0],
   ];
   for (const [x,y,z,sx,sy,sz,jasna] of korony) {
-    const p=mesh(new IcosahedronGeometry(1,1),jasna?MAT_NATURA.liscJasny:MAT_NATURA.lisc,
+    const p=mesh(gradientPionowy(new IcosahedronGeometry(1,1),...GRAD.lisc),
+      jasna?MAT_DRZEWA.liscJasny:MAT_DRZEWA.lisc,
       [x*s,y*s,z*s],[.1+x*.2,.35+y*.13,z*.3]);
     p.scale.set(sx*s,sy*s,sz*s);
     e.add(p);
   }
   return e;
+}
+
+/**
+ * CHOINKA PODWÓJNA — dwa iglaki w jednej kępie.
+ *
+ * Nie jest nowym modelem, tylko nowym UKŁADEM: bierze dwa razy `sosna()`
+ * i stawia je blisko siebie. Tak rosną świerki w realu — z jednego korzenia
+ * albo tuż obok, jeden dorosły i jeden młodszy w jego cieniu — i tak wygląda
+ * referencja od właściciela. Robienie z tego osobnej bryły byłoby duplikatem
+ * tych samych czterech stożków.
+ *
+ * Trzy rzeczy różnicują bliźniaki, żeby nie czytały się jak kopiuj-wklej:
+ * skala (0,92 vs 0,60), faza obrotu (mniejsza przekręcona o ~pół ściany
+ * stożka) i mikroskopijny przechył od pionu. Czwarta — przesunięcie — robi
+ * z nich kępę, a nie szereg: mniejsza stoi Z TYŁU i z boku, więc z każdej
+ * strony jedna zasłania drugą i sylwetka ma głębię.
+ *
+ * Kotwicą jest ta sama grupa, co u pojedynczego drzewa, więc gibanie
+ * (`app.js`) obraca całą kępę naraz — dwa pnie kołyszą się zgodnie, jakby
+ * łapał je ten sam podmuch.
+ */
+export function choinkaPodwojna(s = 1) {
+  const e = new Group();
+  e.name = "choinka-podwojna-low-poly";
+
+  const duza = sosna(.92 * s, 0);
+  duza.position.set(-.26 * s, 0, .13 * s);
+  duza.rotation.z = .028;
+  e.add(duza);
+
+  const mala = sosna(.74 * s, .45);
+  mala.position.set(.30 * s, 0, -.16 * s);
+  mala.rotation.z = -.05;
+  e.add(mala);
+
+  return e;
+}
+
+/* Muchomor ma dwie barwy kapelusza, bo młody grzyb jest jaśniejszy i bardziej
+   pomarańczowy niż wyrośnięty. Kropki i trzon celowo NIE są `matKanciasty`:
+   fasetowanie na kulce wielkości kropki daje migotanie, a nie fakturę. */
+const MAT_GRZYB = {
+  // Kapelusz i trzon niosą gradient (patrz `gradientPionowy`), więc muszą mieć
+  // `vertexColors`. Kropki i blaszki zostają płaskie: na kulce wielkości kropki
+  // gradient jest niewidoczny, a wymusiłby wypalanie atrybutu na sześciu
+  // bryłach na każdy grzyb.
+  kapelusz: matPlaski(0xc7402c, { flatShading: true, vertexColors: true }),
+  kapeluszMlody: matPlaski(0xdd6234, { flatShading: true, vertexColors: true }),
+  trzon: matPlaski(0xefe3c6, { vertexColors: true }),
+  kropka: matPlaski(0xf7f0dc), blaszki: matPlaski(0xd8c8a2),
+};
+
+/**
+ * Jeden muchomor. `s = 1` to grzyb wysokości ok. 45 cm — czyli mniej więcej
+ * do kolan liska (1 m). To jest bajkowa skala, nie botaniczna: przy prawdziwych
+ * 10 cm kępka ginie w trawie i nie ma po co jej stawiać.
+ *
+ * Kapelusz jest wycinkiem kuli (0 → 0,54π), a nie stożkiem: stożek czyta się
+ * jak czubek drzewa, a kopuła od razu jak grzyb. Spód zamyka cienki dysk
+ * „blaszek" — bez niego przy kamerze od dołu widać wnętrze kapelusza.
+ */
+function grzyb(s = 1, mlody = false) {
+  const e = new Group();
+  const R = .17 * s;
+  const yKap = .27 * s;
+
+  e.add(mesh(gradientPionowy(new CylinderGeometry(.050*s, .073*s, .29*s, 7), ...GRAD.trzon), MAT_GRZYB.trzon, [0, .145*s, 0]));
+  e.add(mesh(new CylinderGeometry(R*.96, R*.96, .014*s, 9), MAT_GRZYB.blaszki, [0, yKap - .004*s, 0]));
+
+  /* `krzywa` 0,7 wypycha rozjaśnienie w dół kopuły: czubek kapelusza i tak
+     łapie najwięcej światła od słońca, więc gradient ma robić ciemny RANT,
+     a nie drugie słońce na górze. */
+  const kap = mesh(gradientPionowy(new SphereGeometry(R, 9, 5, 0, Math.PI * 2, 0, Math.PI * .54), ...GRAD.kapelusz, .7),
+    mlody ? MAT_GRZYB.kapeluszMlody : MAT_GRZYB.kapelusz, [0, yKap, 0]);
+  kap.scale.set(1, .84, 1);
+  e.add(kap);
+
+  /* Kropki siedzą na kuli kapelusza we współrzędnych sferycznych (azymut,
+     kąt od czubka), zanurzone na ~6% promienia, więc wystają jak garbki
+     i nie odstają od skosu. Nierówne rozmiary i brak kropki na samym czubku
+     — bo równo rozłożone kropki wyglądają jak wzór na tapecie. */
+  for (const [az, kat, sk] of [[0.5,0.62,1], [2.2,0.78,.82], [3.7,0.50,.92], [5.1,0.86,.74], [1.4,1.06,.66], [4.3,1.08,.58]]) {
+    const r = R * .94;
+    const k = mesh(new SphereGeometry(.031 * s * sk, 7, 5), MAT_GRZYB.kropka, [
+      Math.sin(kat) * Math.cos(az) * r,
+      yKap + Math.cos(kat) * r * .84,
+      Math.sin(kat) * Math.sin(az) * r,
+    ]);
+    e.add(k);
+  }
+  return e;
+}
+
+/**
+ * KĘPKA GRZYBÓW — duży i mały, dokładnie jak na referencji.
+ *
+ * Dwa, nie trzy i nie jeden: pojedynczy grzyb wygląda jak zgubiony rekwizyt,
+ * a trójka zaczyna konkurować z kwiatami o uwagę. Para czyta się jako
+ * „tu coś rośnie" i tyle ma robić.
+ *
+ * Mały jest odwrócony w inną stronę i lekko odchylony — ten sam zabieg, co
+ * przy choince: te same bryły, inna faza, więc nie widać powtórki.
+ */
+export function grzyby(s = 1) {
+  const e = new Group();
+  e.name = "grzyby-low-poly";
+
+  const duzy = grzyb(s, false);
+  duzy.position.set(-.05 * s, 0, .02 * s);
+  duzy.rotation.set(0, .42, .045);
+  e.add(duzy);
+
+  const maly = grzyb(.54 * s, true);
+  maly.position.set(.185 * s, 0, -.085 * s);
+  maly.rotation.set(0, -1.15, -.07);
+  e.add(maly);
+
+  return e;
+}
+
+/**
+ * DRZEWO DOMKOWE — to jedno drzewo, na którym stanie domek.
+ *
+ * PIEŃ JEST MODELEM, NIE KODEM (decyzja właściciela 2026-09-16).
+ * Bryłę daje `assets/tree.glb` — drzewo rzeźbione pod to miejsce, wysłane
+ * przez właściciela jako `public/tree.fbx` i przekonwertowane bez zmian
+ * kształtu (FBX jest Z-up, więc model dostał ćwierć obrotu, podstawę na y=0
+ * i stracił jednolity kolor wierzchołków — barwę daje scena). Wcześniej stało
+ * tu `suche_drzewko.glb` w zastępstwie; ten model ma to, czego tamten nie
+ * miał: pień pod skosem i konary na wysokości pomostu. Nagi pień plus
+ * dorobiona zielona korona to drzewo żywe — i o to chodziło.
+ *
+ * TEN PLIK ROBI WIĘC TYLKO TO, CZEGO W MODELU NIE MA: koronę. Pień dokłada
+ * `app.js`, bo wczytanie `.glb` jest asynchroniczne, a `zbudujSwiat` musi
+ * zwrócić świat od razu.
+ *
+ * POMOST LEŻY NA KONARZE Z MODELU. To umowa między `swiat.js`
+ * a `schronienie.js`: deski idą w +X, na wysokości `poziom`, do `zasiegKonaru`
+ * — a te trzy liczby nie są gustem, tylko odczytem z bryły. Kto podmieni
+ * model, musi je policzyć od nowa; kto je ruszy bez modelu, zawiesi pomost
+ * w powietrzu.
+ */
+export const DOMEK_DRZEWO = {
+  /** Ile razy powiększyć model (`tree.glb` ma 5,91 wysokości). */
+  skalaModelu: 0.66,
+  /**
+   * JAK GŁĘBOKO PIEŃ SIEDZI W ZIEMI, w jednostkach korony.
+   *
+   * Model kończy się na dole PŁASKIM CIĘCIEM — postawiony dokładnie na darni
+   * pokazuje tę ściętą podeszwę i wygląda, jakby go ktoś położył na trawie,
+   * a nie jakby z niej wyrósł. Zanurzenie chowa cięcie i dolną część nabiegu
+   * korzeniowego; to, co zostaje nad ziemią, czyta się jak korzenie wchodzące
+   * w darń. Za mało — widać podeszwę; za dużo — drzewo traci nabieg i robi się
+   * z niego słupek wbity w trawnik.
+   */
+  zanurzeniePnia: 0.34,
+  /**
+   * Obrót modelu wokół pionu, w radianach.
+   *
+   * Pomost wychodzi zawsze w +X — to umowa między tym plikiem
+   * a `schronienie.js`. Model ma gałęzie tam, gdzie chciał rzeźbiarz, więc to
+   * DRZEWO się kręci do pomostu, nie odwrotnie. 182° ustawia pod deskami ten
+   * konar, który w modelu jest najbardziej poziomy i sięga najdalej (do 1,41
+   * w tych jednostkach, na wysokości 2,58). Bez tego pomost wychodził
+   * w pustkę między gałęziami i wyglądał jak doklejony.
+   */
+  obrotModelu: 3.176,
+  /* PRZESUNIĘCIE PNIA względem kotwicy, w jednostkach korony — na dostrojenie.
+     Zera są tu WYPRACOWANE, nie domyślne: bryła z ZBrusha miała środek pół
+     jednostki obok osi pnia, więc klepisko, cień i kolizja siedziały w trawie
+     obok drzewa, a nie pod nim. Model przepieczono tak, że podstawa pnia
+     wypada dokładnie w kotwicy — i dlatego te trzy liczby mogą być zerami.
+     Kto podmieni `tree.glb`, prawdopodobnie zobaczy to samo rozjechanie. */
+  pienX: 0,
+  pienY: 0,
+  pienZ: 0,
+  /**
+   * Wysokość, na której leży pomost (w jednostkach kotwicy drzewa).
+   * NIE JEST WYBRANA Z OKA: tyle ma wierzch konaru z modelu na odcinku, na
+   * którym leżą deski. Zmiana obrotu albo modelu zmienia tę liczbę.
+   */
+  poziom: 2.60,
+  /** Dokąd sięga konar z modelu — pomost nie może być dłuższy. */
+  zasiegKonaru: 1.41,
+
+  /* ── POMOST ── liczby, których używa `schronienie.js`. Leżą tutaj, a nie
+     tam, bo razem z `poziom` i `zasiegKonaru` opisują JEDNO: gdzie na tym
+     drzewie kończy się gałąź, a zaczyna deska. */
+  /** Gdzie zaczynają się deski, licząc od osi pnia. */
+  pomostOd: 0.20,
+  /** Połowa szerokości pomostu. */
+  pomostPol: 0.56,
+  /** Promień klepiska — wydeptanej ziemi pod drzewem. */
+  klepiskoR: 1.06,
+  /** Wysokość barierki. */
+  barierka: 0.50,
+  /** O ile stopa drabinki jest odsunięta za krawędź desek. */
+  drabinkaOdsun: 0.62,
+  /**
+   * Długość drabinki jako KROTNOŚĆ odległości od ziemi do pokładu.
+   * 1,0 = kończy się równo z deskami. Powyżej — wystaje ponad pomost, czyli
+   * tak, jak stawia się drabinę pod prawdziwy właz: jest się czego złapać,
+   * wchodząc na górę. Stopa zostaje na ziemi bez względu na tę liczbę.
+   */
+  drabinkaDlugosc: 1.0,
+
+  /* ── KORONA ── kule na końcach konarów: [x, y, z, promień, jasna].
+     Współrzędne są ODCZYTEM Z MODELU (patrz komentarz w `drzewoDomkowe`).
+     Edytor w grze nadpisuje tę listę przez `mapa.schronienie.uklad`. */
+  korony: [
+    [1.58, 3.95, -0.38, 0.85, 0],   // czubek, najwyższy konar
+    [0.76, 3.68, -1.42, 0.72, 1],
+    [0.96, 3.30, -1.05, 0.68, 0],
+    /* Koniec konaru pod pomostem. ODSUNIĘTY W +Z, bo drabinka stoi dokładnie
+       w osi Z=0 przed deskami — kula na wprost połykała ją w całości i pomost
+       wyglądał, jakby wchodziło się do niego przez krzak. */
+    [1.96, 3.25, 0.95, 0.70, 1],
+    [-1.01, 2.92, -2.22, 0.70, 1],
+    [-2.01, 3.32, -0.74, 0.72, 0],
+  ],
+};
+
+/**
+ * UKŁAD DOMKU = wartości domyślne z `DOMEK_DRZEWO` przykryte tym, co stoi
+ * w mapie (`schronienie.uklad`).
+ *
+ * PO CO TA WARSTWA. Te liczby są odczytem z bryły, więc w kodzie mają sens
+ * jako punkt wyjścia — ale ustawia je oko, nie rachunek, i robi to właściciel
+ * przy włączonej grze (`edytorDomku.js`). Trzymanie ich w mapie znaczy, że
+ * poprawka z suwaka zostaje w projekcie i jedzie na produkcję razem z resztą
+ * świata, zamiast żyć w czyjejś przeglądarce.
+ *
+ * Kopiujemy głęboko listę koron, żeby edytor nie mazał po module.
+ */
+export function ukladDomku(def) {
+  const z = def && typeof def.uklad === "object" && def.uklad ? def.uklad : {};
+  const u = { ...DOMEK_DRZEWO, ...z };
+  const zrodlo = Array.isArray(z.korony) && z.korony.length ? z.korony : DOMEK_DRZEWO.korony;
+  u.korony = zrodlo.map((k) => [
+    Number(k[0]) || 0, Number(k[1]) || 0, Number(k[2]) || 0,
+    Number(k[3]) || 0.5, k[4] ? 1 : 0,
+  ]);
+  return u;
+}
+
+/**
+ * Zanurzenie kotwicy DOMKU pod darnią — w jednostkach świata, nie skalowane.
+ * Tyle wystarczy, żeby klepisko nie fruwało nad trawą; głębiej nie ma po co,
+ * bo na tej kotwicy nie stoi nic, co musi wyglądać na wrośnięte w ziemię.
+ * Sceną rządzi `app.js` (`_osadz`), ale liczbę trzyma tu, bo `schronienie.js`
+ * musi ją znać, żeby policzyć różnicę kotwic.
+ */
+export const ZANURZENIE_DOMKU = 0.02;
+
+/** Barwa pnia domkowego: kora żywego drzewa, nie suche drewno stosu. */
+export const MAT_PIEN_DOMKU = matKanciasty(0x6f4e2e);
+
+/**
+ * Korona — jedyne, czego w modelu nie ma. Dodaje się to do tej samej kotwicy,
+ * w której siedzi wczytany pień.
+ */
+export function drzewoDomkowe(s = 1, uklad = DOMEK_DRZEWO) {
+  const e = new Group();
+  e.name = "drzewo-domkowe";
+
+  /* KONARA NIE RYSUJEMY. Miał go poprzedni model, który pod pomostem nie miał
+     nic — ten ma gałąź dokładnie tam, gdzie leżą deski (stąd `obrotModelu`
+     i `poziom` policzone z bryły). Dokładanie do niej drugiej, kodowej belki
+     dawało dwie podpory obok siebie i bałagan pod pokładem.
+
+     KORONA TO KULE NA KOŃCACH KONARÓW, nie jedna bryła na pniu (referencja od
+     właściciela, 2026-09-16). To jest cała różnica między „drzewem" a „krzakiem
+     nadzianym na patyk": liście rosną tam, gdzie kończy się gałąź. Punktem
+     wyjścia są KOŃCE KONARÓW WYLICZONE Z MODELU (`DOMEK_DRZEWO.korony`),
+     a ostateczne miejsca ustawia właściciel suwakami — patrz `ukladDomku`.
+
+     Kula przy pomoście (ta najdalej w +X) siedzi ZA deskami, nie nad nimi:
+     liście mają muskać krawędź pomostu, a nie go przykrywać. */
+  const korony = uklad.korony || DOMEK_DRZEWO.korony;
+  for (const [x, y, z, r, jasna] of korony) {
+    const k = mesh(gradientPionowy(new IcosahedronGeometry(1, 1), ...GRAD.lisc),
+      jasna ? MAT_DRZEWA.liscJasny : MAT_DRZEWA.lisc,
+      [x * s, y * s, z * s], [.1 + x * .2, .35 + y * .13, z * .3]);
+    /* Lekko spłaszczone i nierówne: idealne kule w rzędzie czytają się jak
+       koraliki. Odchyłkę bierzemy z pozycji, żeby była stała między sesjami. */
+    k.scale.set(r * s, r * (.88 + (Math.abs(x) % .17)) * s, r * (.96 + (Math.abs(z) % .13)) * s);
+    e.add(k);
+  }
+  return e;
+}
+
+/**
+ * GDZIE JEST GRUNT pod punktem (dx, dz) układu kotwicy — w tym samym układzie,
+ * czyli zwykle liczba UJEMNA.
+ *
+ * PO CO. Kotwica to płaszczyzna STYCZNA do kuli, a kula spod niej ucieka:
+ * trzy jednostki w bok od kotwicy ziemia jest już o pół jednostki niżej
+ * (przy R = 8,5). Wszystko, co stoi przy kotwicy, tego nie odczuwa — ale
+ * stopa drabinki odsunięta od pnia wisiała w powietrzu i wyglądało to na błąd
+ * skali, a nie na geometrię kuli. Do tego dochodzi falowanie terenu.
+ *
+ * `gruntSrodka` można podać z zewnątrz, gdy liczy się wiele punktów naraz
+ * (patrz `taflaNaGruncie`) — inaczej wysokość pod kotwicą liczy się sama.
+ */
+export function punktNaGruncie(planeta, kotwica, dx, dz, wysokoscGruntu, przeswit = 0, gruntSrodka = null) {
+  const R = planeta.R;
+  const luk = Math.sqrt(Math.max(0, R * R - dx * dx - dz * dz)) - R;
+  if (!wysokoscGruntu) return luk + przeswit;
+  const v = new Vector3();
+  const m = { x: 0, z: 0, h: 0 };
+  kotwica.updateMatrix();
+  const naMape = (ax, ay, az) => {
+    v.set(ax, ay, az).applyMatrix4(kotwica.matrix);
+    planeta.zKuli(v, m);
+    return m;
+  };
+  let g0 = gruntSrodka;
+  if (g0 == null) { const s0 = naMape(0, 0, 0); g0 = wysokoscGruntu(s0.x, s0.z); }
+  const t = naMape(dx, luk, dz);
+  return luk + (wysokoscGruntu(t.x, t.z) - g0) + przeswit;
+}
+
+/**
+ * TAFLA NA GRUNCIE — koło, które LEŻY na terenie, a nie na płaszczyźnie
+ * stycznej do kuli.
+ *
+ * PO CO. `CircleGeometry` jest płaskie, a planeta ma promień 8,5. Tarcza
+ * o promieniu 1 styka się z kulą tylko w środku i odstaje na brzegu o 6 cm
+ * (√(R²−r²) − R). Środek leży więc DOKŁADNIE na terenie — a teren jest
+ * trójkątną siatką z własnym falowaniem (zmierzone: 4 cm rozrzutu na
+ * przestrzeni tej tarczy). Efekt: kilka trójkątów darni przebija przez
+ * środek klepiska i widać ZIELONĄ DZIURĘ, której nie ma w geometrii.
+ *
+ * Tarcza dostaje więc tyle wierzchołków, ile trzeba, żeby iść za kulą
+ * (`luk`) i za terenem (`wysokoscGruntu`), plus stały `przeswit` nad darnią.
+ * Ta sama sztuczka, co krąg podlewania w `fasola.js`.
+ *
+ * Geometria powstaje w układzie KOTWICY (tej z `_osadz`), więc mesh dodaje
+ * się do grupy w kotwicy bez żadnego obrotu ani przesunięcia.
+ */
+export function taflaNaGruncie(planeta, kotwica, r, wysokoscGruntu, przeswit = .03, punkty = 48, ringi = 5) {
+  const R = planeta.R;
+  const pos = [], idx = [];
+  const v = new Vector3();
+  const m = { x: 0, z: 0, h: 0 };
+  kotwica.updateMatrix();
+
+  const naMape = (dx, dy, dz) => {
+    v.set(dx, dy, dz).applyMatrix4(kotwica.matrix);
+    planeta.zKuli(v, m);
+    return m;
+  };
+  const srodek = naMape(0, 0, 0);
+  const gruntSrodka = wysokoscGruntu ? wysokoscGruntu(srodek.x, srodek.z) : 0;
+
+  /* Ta sama formuła, co w `punktNaGruncie` — tylko tam liczona raz, a tu dwieście
+     razy, więc `gruntSrodka` bierzemy z zewnątrz zamiast liczyć go w kółko. */
+  const wysokosc = (dx, dz) =>
+    punktNaGruncie(planeta, kotwica, dx, dz, wysokoscGruntu, przeswit, gruntSrodka);
+
+  pos.push(0, wysokosc(0, 0), 0);
+  for (let i = 1; i <= ringi; i++) {
+    const rr = r * (i / ringi);
+    for (let j = 0; j < punkty; j++) {
+      const t = (j / punkty) * Math.PI * 2;
+      const dx = Math.cos(t) * rr, dz = Math.sin(t) * rr;
+      pos.push(dx, wysokosc(dx, dz), dz);
+    }
+  }
+  for (let j = 0; j < punkty; j++) idx.push(0, 1 + j, 1 + (j + 1) % punkty);
+  for (let i = 1; i < ringi; i++) {
+    const a0 = 1 + (i - 1) * punkty, b0 = 1 + i * punkty;
+    for (let j = 0; j < punkty; j++) {
+      const j2 = (j + 1) % punkty;
+      idx.push(a0 + j, b0 + j, b0 + j2, a0 + j, b0 + j2, a0 + j2);
+    }
+  }
+
+  /* NAWINIĘCIE. W układzie XZ z osią Y do góry iloczyn wektorowy kierunku
+     promieniowego i stycznego daje −ŷ, więc kolejność „środek → j → j+1"
+     wychodzi spodem do góry. Odwracamy płaską listę indeksów — to odwraca
+     też kolejność wierzchołków w każdym trójkącie. */
+  idx.reverse();
+
+  const g = new BufferGeometry();
+  g.setAttribute("position", new Float32BufferAttribute(pos, 3));
+  g.setIndex(idx);
+  /* NORMALNE NA SZTYWNO W GÓRĘ, a nie z `computeVertexNormals`. Tafla jest
+     naklejką na ziemi: ma trzymać się terenu KSZTAŁTEM, ale świecić równo —
+     tak, jak świeciła płaska tarcza, którą zastępuje. Policzone normalne idą
+     za falowaniem darni i klepisko robi się plamiaste: ciemniejsze wszędzie
+     tam, gdzie grunt odchyla się od słońca. W układzie kotwicy +Y to i tak
+     normalna powierzchni w tym miejscu kuli. */
+  const nor = new Float32Array(pos.length);
+  for (let i = 1; i < nor.length; i += 3) nor[i] = 1;
+  g.setAttribute("normal", new Float32BufferAttribute(nor, 3));
+  return g;
 }
 
 /** Trzy układy skał; `maly` tworzy pojedynczy kamień satelitarny. */
@@ -1385,10 +1862,15 @@ export function zbudujSwiat(mapa, planeta) {
     );
   }
 
+  /* RODZAJE DRZEW w tablicy, nie w łańcuchu `?:` — dołożenie gatunku ma być
+     jednym wpisem tutaj plus jednym generatorem wyżej. Nieznany `typ` (albo
+     jego brak, jak w starszych mapach) spada na sosnę, więc mapa sprzed
+     tej zmiany wczytuje się bez konwersji. */
+  const RODZAJE_DRZEW = { sosna, lisciaste: drzewoLisciaste, podwojna: choinkaPodwojna };
   const drzewa = mapa.drzewa
-    ? mapa.drzewa.map((d) => [(d.typ === "lisciaste" ? drzewoLisciaste : sosna)(d.skala ?? 1), d.pos[0], d.pos[1], d.obrot, d.skala ?? 1])
+    ? mapa.drzewa.map((d) => [(RODZAJE_DRZEW[d.typ] || sosna)(d.skala ?? 1), d.pos[0], d.pos[1], d.obrot, d.skala ?? 1, d.typ])
     : [[sosna(1.3), -3.6, 1.3], [sosna(0.9), 4.6, -4.2], [drzewoLisciaste(1), 4.2, 0.6], [sosna(1.1), -5.2, -3]];
-  for (const [l, c, h, obrot, skala] of drzewa) {
+  for (const [l, c, h, obrot, skala, typ] of drzewa) {
     // Drzewo dostaje własną grupę-kotwicę na kuli; gibanie obraca WEWNĘTRZNĄ
     // grupę `l`, więc ramka kuli i wychył nie mieszają się ze sobą.
     const kotwica = new Group();
@@ -1398,8 +1880,12 @@ export function zbudujSwiat(mapa, planeta) {
     planeta.ustaw(kotwica, c, h, grunt - .10 * (skala || 1), obrot ?? 0);
     kotwica.add(l);
     s.add(kotwica);
-    blockers.push({ x: c, z: h, r: 0.75, drzewo: l, skalaDrzewa: skala || 1 });
-    const u = plamaCienia(2.2, 0.3);
+    /* Kępa dwóch pni ma szerszą podstawę niż pojedyncze drzewo. Bez tego
+       lisek obchodzi pierwszy pień i wchodzi w drugi, a plama cienia kończy
+       się w połowie kępy — widać wtedy, że to dwa obiekty, nie jeden. */
+    const podwojna = typ === "podwojna";
+    blockers.push({ x: c, z: h, r: podwojna ? 1.02 : 0.75, drzewo: l, skalaDrzewa: skala || 1 });
+    const u = plamaCienia(podwojna ? 3.1 : 2.2, 0.3);
     planeta.ustaw(u, c, h, grunt + .006, 0);
     s.add(u);
   }
@@ -1435,8 +1921,61 @@ export function zbudujSwiat(mapa, planeta) {
     s.add(zestaw);
   }
 
+  /* GRZYBY — dekoracja, nie przeszkoda: celowo NIE trafiają do `blockers`.
+     Kępka przy ścieżce ma być czymś, co lisek mija i po czym może przebiec,
+     a nie niewidzialną ścianką wielkości głazu. Kapelusze są zanurzone
+     w gruncie o 2% skali, żeby na skosie nie odsłonił się dysk blaszek. */
+  for (const g of (mapa.grzyby || [])) {
+    if (!Array.isArray(g?.pos)) continue;
+    const [gx, gz] = g.pos;
+    const sk = g.skala ?? 1;
+    const grunt = wysokoscGruntu(gx, gz);
+    const kepka = grzyby(sk);
+    planeta.ustaw(kepka, gx, gz, grunt - .02 * sk, g.obrot ?? gx * 1.7);
+    s.add(kepka);
+    const cienGrzyba = plamaCienia(.62 * sk, .26);
+    planeta.ustaw(cienGrzyba, gx, gz, grunt + .005, 0);
+    s.add(cienGrzyba);
+  }
+
+  /* DRZEWO DOMKOWE — jedno, w miejscu, które mapa wskazuje jako `schronienie`.
+     Stoi tam OD POCZĄTKU, zanim dziecko cokolwiek zbuduje: Wizkor mówi „na tym
+     drzewie postawimy domek", więc drzewo musi być czymś, co dziecko widziało
+     wcześniej, a nie czymś, co wyrasta razem z platformą.
+
+     Pozycję i skalę bierze z `mapa.schronienie`, a nie z `mapa.drzewa` — dzięki
+     temu platforma (`schronienie.js`, ta sama skala) siada na pniu co do
+     centymetra, zamiast gonić dwa niezależne wpisy w mapie. */
+  let kotwicaDomku = null;
+  let ukladDomkuSwiata = ukladDomku(mapa.schronienie);
+  if (mapa.schronienie && Array.isArray(mapa.schronienie.pos)) {
+    const D = mapa.schronienie;
+    const sk = D.skala ?? 1;
+    const [dx, dz] = D.pos;
+    const gruntD = wysokoscGruntu(dx, dz);
+    const kotwicaD = new Group();
+    kotwicaD.name = "drzewo-domkowe-kotwica";
+    planeta.ustaw(kotwicaD, dx, dz, gruntD - ukladDomkuSwiata.zanurzeniePnia * sk, D.obrot ?? 0);
+    const bryla = drzewoDomkowe(sk, ukladDomkuSwiata);
+    kotwicaD.add(bryla);
+    s.add(kotwicaD);
+    // `app.js` dokłada tu wczytany pień — patrz `_wczytajPienDomku`.
+    kotwicaDomku = kotwicaD;
+    /* Kolizja na samym pniu (0,62), nie na koronie: dziecko ma móc podejść pod
+       drzewo i stanąć przy drabince, a nie obchodzić niewidzialny krąg
+       wielkości liści. */
+    /* `domkowe: true` WYŁĄCZA JE ZE ŚCINANIA. Od 16.09 dziecko może ściąć
+       dowolne drzewo na mapie (`_zarejestrujDrzewa` w `app.js`) — to jedno ma
+       zostać, bo na nim stoi domek. Flaga jedzie przy blockerze, bo to on jest
+       jedynym miejscem, w którym scena widzi listę wszystkich drzew. */
+    blockers.push({ x: dx, z: dz, r: .62 * sk, drzewo: bryla, skalaDrzewa: sk, domkowe: true });
+    const cienD = plamaCienia(4.0 * sk, .32);
+    planeta.ustaw(cienD, dx, dz, gruntD + .006, 0);
+    s.add(cienD);
+  }
+
   const kwiaty = zbudujKwiaty(mapa.kwiaty, planeta, ziemia, wysokoscGruntu);
   if (kwiaty) kwiaty.meshe.forEach((m) => s.add(m));
 
-  return { group: s, ziemia, sciezki, lantern: n, gate: r, bridge: t, obrotMostu, blockers, kwiaty, nurtTik: nurt.tik, wysokoscGruntu };
+  return { group: s, ziemia, sciezki, lantern: n, gate: r, bridge: t, obrotMostu, blockers, kwiaty, nurtTik: nurt.tik, wysokoscGruntu, kotwicaDomku, ukladDomku: ukladDomkuSwiata };
 }

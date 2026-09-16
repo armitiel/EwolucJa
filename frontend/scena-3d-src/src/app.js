@@ -21,7 +21,7 @@ import {
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Planeta, stycznaDo, doStycznej, obrocStyczna, katMiedzy, przytnijDoPromienia } from "./planeta.js";
 import { wczytajMape } from "./mapa.js";
-import { zbudujSwiat, sosna, drzewoLisciaste, kamiennyPak, plamaCienia, taflaNaGruncie, PALETA } from "./swiat.js";
+import { zbudujSwiat, sosna, drzewoLisciaste, kamiennyPak, plamaCienia, taflaNaGruncie, punktNaGruncie, drzewoDomkowe, ukladDomku, DOMEK_DRZEWO, ZANURZENIE_DOMKU, MAT_PIEN_DOMKU, PALETA } from "./swiat.js";
 import { stosDrewna, kamyczki, pieniek } from "./natura.js";
 import { schronienie, LICZBA_ETAPOW } from "./schronienie.js";
 import { Znak, krag, smugaKregu } from "./znak.js";
@@ -350,6 +350,18 @@ export class Aplikacja {
     this._zasiewOstatnia = null;
     this._zasiewDroga = 0;
     this.nurtTik = sw.nurtTik;
+    /* PIEŃ DOMKOWEGO DRZEWA jest modelem, więc dojeżdża asynchronicznie.
+       `zbudujSwiat` przygotował kotwicę z koroną i konarem; tu wkładamy do niej
+       bryłę. Nie czekamy na nią — świat ma wstać nawet wtedy, gdy jeden plik
+       nie doleci (tak samo robią znaki i suche drzewka). */
+    this._kotwicaDomku = sw.kotwicaDomku || null;
+    /* UKŁAD DOMKU — liczby opisujące to drzewo (obrót pnia, wysokość desek,
+       kule korony). Domyślne siedzą w `swiat.js`, a mapa może je przykryć;
+       edytor w grze (`edytorDomku.js`) miesza w tym obiekcie i woła
+       `przebudujDomek`. Trzymamy je na scenie, bo to JEDNO źródło dla korony,
+       pomostu i pnia naraz. */
+    this._uklad = sw.ukladDomku || ukladDomku(this.mapa.schronienie);
+    this._wczytajPienDomku();
 
     // MAGICZNA FASOLA + OCZKO WODY (fasola.js). Kropla, którą lisek niesie,
     // to ten sam mechanizm co kule światła — jedna kula, błękitna.
@@ -679,6 +691,7 @@ export class Aplikacja {
         console.warn("[scena] nie udalo sie wczytac suchego drzewka", blad);
       }
     }
+    this._zarejestrujDrzewa();
     this._zarejestrujGlazy();
     const sch = this.mapa.schronienie;
     // Normalna placu liczona RAZ: sprawdzamy ją w każdej klatce transportu.
@@ -1029,7 +1042,9 @@ export class Aplikacja {
     const h = this.wysokoscGruntuSiatki ? this.wysokoscGruntuSiatki(x, z) : this.groundHeightAt(x, z);
     const kotwica = new Group();
     this.planeta.ustaw(kotwica, x, z, h - zanurzenie, obrot);
-    kotwica.add(obj);
+    // `null` wolno podać, gdy bryła powstaje DOPIERO na podstawie kotwicy
+    // (tak robi domek: drabinka potrzebuje wysokości gruntu względem niej).
+    if (obj) kotwica.add(obj);
     return kotwica;
   }
 
@@ -1312,6 +1327,15 @@ export class Aplikacja {
       this._sprezyna(st, 40 / masa, 4.6, 0.26 / masa, dt, 2e-4, 2e-3);
       d.rotation.z = -st.x;
       d.rotation.x = st.z;
+      /* POMOST JEDZIE Z DRZEWEM. Domek stoi na własnej kotwicy (o 0,10 wyżej),
+         więc nie jest dzieckiem tej grupy — ale leży na konarze i musi się
+         przechylać razem z nim, inaczej platforma zsuwa się z gałęzi. Oba
+         obroty idą wokół tego samego pionu w podstawie pnia; różnica kotwic
+         daje błąd rzędu dwóch centymetrów, czyli mniej niż grubość deski. */
+      if (b.domkowe && this._gibanaBudowla) {
+        this._gibanaBudowla.rotation.z = d.rotation.z;
+        this._gibanaBudowla.rotation.x = d.rotation.x;
+      }
     }
   }
 
@@ -2012,6 +2036,199 @@ export class Aplikacja {
     return spr;
   }
 
+  /**
+   * PIEŃ DRZEWA DOMKOWEGO — model `tree.glb`.
+   *
+   * DLACZEGO TEN MODEL (właściciel, 2026-09-16). Jest rzeźbiony pod to jedno
+   * miejsce: pień pod skosem, widełki i — najważniejsze — konar biegnący
+   * poziomo na wysokości pomostu. Wcześniej stało tu `suche_drzewko.glb`
+   * w zastępstwie, a podporę pod deski trzeba było dorysowywać kodem.
+   * Zieleń dokłada korona z `swiat.js`, kolor kory — `MAT_PIEN_DOMKU`.
+   *
+   * SKALA I OBRÓT Z JEDNEGO ŹRÓDŁA: `DOMEK_DRZEWO`. Korona i pomost liczą się
+   * z tych samych liczb, więc nie da się ich rozjechać jednym niedopatrzeniem.
+   */
+  async _wczytajPienDomku() {
+    const k = this._kotwicaDomku;
+    const def = this.mapa.schronienie;
+    if (!k || !def) return;
+    try {
+      const t = await this.loadGLB("tree");
+      if (this.destroyed) return;
+      const pien = t.scene.clone(true);
+      pien.name = "drzewo-domkowe-pien";
+      /* USTAWIENIE PNIA jest w jednym miejscu (`_ustawPien`), bo robi się je
+         dwa razy: tu, po wczytaniu modelu, i przy każdym ruchu suwaka. */
+      this._ustawPien(pien, def, this._uklad || DOMEK_DRZEWO);
+      pien.traverse((o) => {
+        if (!o.isMesh) return;
+        o.material = MAT_PIEN_DOMKU;
+        o.geometry.computeVertexNormals();
+      });
+      /* PIEŃ WCHODZI DO GRUPY, KTÓRA SIĘ GIBA, a nie do kotwicy.
+         `_gibDrzew` obraca `blocker.drzewo` — czyli grupę z koroną. Pień
+         dołożony obok niej, prosto do kotwicy, stał jak wryty, kiedy kule
+         liści się kołysały: drzewo wyglądało, jakby liście odkleiły się od
+         gałęzi. Grupa korony ma początek dokładnie w podstawie pnia, więc
+         obrót wypada w tym samym miejscu, w którym drzewo rośnie z ziemi. */
+      const gibana = (this.blockers || []).find((b) => b && b.domkowe && b.drzewo)?.drzewo;
+      (gibana || k).add(pien);
+      this._pienDomku = pien;   // trzymamy, żeby przebudowa korony go nie gubiła
+    } catch (blad) {
+      // Bez pnia zostaje sama korona z konarem — brzydko, ale świat stoi.
+      console.warn("[domek] nie udalo sie wczytac pnia", blad);
+    }
+  }
+
+  /**
+   * Skala, obrót i przesunięcie wczytanego pnia — wszystko z układu.
+   *
+   * PRZESUNIĘCIE JEST W JEDNOSTKACH KORONY (czyli mnożone przez skalę
+   * miejsca, nie przez skalę modelu). Dzięki temu „przesuń pień o 0,2" znaczy
+   * to samo co „przesuń kulę liści o 0,2" — inaczej dwa suwaki obok siebie
+   * ruszałyby o różne odległości i nie dałoby się ich zestroić.
+   */
+  _ustawPien(pien, def, u) {
+    const sk = def.skala ?? 1;
+    pien.scale.setScalar(sk * u.skalaModelu);
+    /* OBRÓT USTAWIA KONAR POD POMOST — liczba i uzasadnienie siedzą przy
+       `DOMEK_DRZEWO.obrotModelu` w `swiat.js`, razem z wysokością desek
+       i zasięgiem konaru, bo wszystkie trzy odczytano z tej samej bryły. */
+    pien.rotation.y = u.obrotModelu;
+    pien.position.set((u.pienX || 0) * sk, (u.pienY || 0) * sk, (u.pienZ || 0) * sk);
+  }
+
+  /**
+   * PRZEBUDOWA DOMKOWEGO DRZEWA NA ŻYWO — dla edytora (`edytorDomku.js`).
+   *
+   * Woła się to po każdym ruchu suwaka, więc musi być TANIE i BEZ MIGANIA:
+   * pień zostaje ten sam (wczytany raz, tylko przestawiany), leci wyłącznie
+   * korona i pomost. Gdyby przy każdej zmianie wczytywać `.glb` od nowa,
+   * drzewo znikałoby na ułamek sekundy przy każdym drgnięciu myszy.
+   *
+   * `zmiany` to fragment układu — wystarczy `{ poziom: 2.7 }`. Gdy nic nie
+   * przyjdzie, przebudowuje z tego, co już jest (po edycji tablicy koron
+   * w miejscu).
+   */
+  przebudujDomek(zmiany) {
+    if (zmiany) this._uklad = { ...this._uklad, ...zmiany };
+    const u = this._uklad;
+    const k = this._kotwicaDomku;
+    const b = (this.blockers || []).find((x) => x && x.domkowe);
+    if (!k || !b || !u) return;
+
+    const def = this.mapa.schronienie || {};
+
+    /* 0. KOTWICA DRZEWA na nowo, bo zanurzenie korzeni jest jej częścią.
+          `zbudujSwiat` ustawił ją raz przy starcie; tu powtarzamy ten sam
+          rachunek, żeby suwak „zanurzenie pnia" działał w tej samej klatce. */
+    if (Array.isArray(def.pos)) {
+      const sk = def.skala ?? 1;
+      const h = this.wysokoscGruntuSiatki
+        ? this.wysokoscGruntuSiatki(def.pos[0], def.pos[1])
+        : this.groundHeightAt(def.pos[0], def.pos[1]);
+      this.planeta.ustaw(k, def.pos[0], def.pos[1],
+        h - (u.zanurzeniePnia ?? DOMEK_DRZEWO.zanurzeniePnia) * sk, def.obrot ?? 0);
+    }
+
+    // 1. Pień: nowa skala i obrót, nic więcej. Wyjmujemy go ze starej korony,
+    //    zanim ta pójdzie do kosza razem ze swoimi geometriami.
+    const pien = this._pienDomku;
+    if (pien) {
+      pien.parent?.remove(pien);
+      this._ustawPien(pien, def, u);
+    }
+
+    // 2. Korona od nowa.
+    if (b.drzewo) {
+      k.remove(b.drzewo);
+      b.drzewo.traverse((o) => { o.geometry?.dispose?.(); });
+    }
+    const nowa = drzewoDomkowe(def.skala ?? 1, u);
+    if (pien) nowa.add(pien);
+    k.add(nowa);
+    b.drzewo = nowa;
+
+    // 3. Pomost — tylko jeśli stoi. `ustawSchronienie` sam czyta `this._uklad`.
+    if (this._etapSchronienia > 0) this.ustawSchronienie(this._etapSchronienia, false);
+    return u;
+  }
+
+  /** Bieżący układ domku — edytor czyta stąd wartości do suwaków. */
+  ukladDomku() { return this._uklad; }
+
+  /** Świeża kopia wartości z kodu — przycisk „Domyślne" w edytorze. */
+  ukladDomkuDomyslny() { return ukladDomku(null); }
+
+  /**
+   * Otwiera (albo zamyka) panel z suwakami do domkowego drzewa.
+   *
+   * MODUŁ DOJEŻDŻA NA ŻĄDANIE. To narzędzie właściciela, a nie część gry —
+   * `import()` w tym miejscu trzyma jego kod poza paczką, którą pobiera
+   * dziecko, dopóki nikt go nie zawoła.
+   */
+  async edytorDomku() {
+    try {
+      const m = await import("./edytorDomku.js");
+      return m.otworzEdytorDomku(this);
+    } catch (blad) {
+      console.warn("[domek] edytor sie nie otworzyl", blad);
+      return null;
+    }
+  }
+
+  /**
+   * KAŻDE DRZEWO NA MAPIE DA SIĘ ŚCIĄĆ (decyzja właściciela 2026-09-16).
+   *
+   * Wcześniej ścinało się JEDNO wskazane w mapie suche drzewko. Było w tym
+   * ukryte założenie, że dziecko trafi akurat tam — a ono chodzi po planecie
+   * i widzi piętnaście drzew, z których czternaście nie reaguje. Teraz celem
+   * jest każde; TYM JEDNYM staje się to, przy którym dziecko stanie i zacznie
+   * piłować. Do zadania potrzeba jednego drzewa (`CEL_DRZEWKA`), więc po
+   * pierwszym ścięciu reszta i tak przestaje być potrzebna.
+   *
+   * SKĄD LISTA DRZEW. Scena nie trzyma ich osobno — jedynym miejscem, w którym
+   * są wszystkie, jest tablica `blockers`: `zbudujSwiat` wpisuje tam każde
+   * drzewo razem z referencją do bryły (`drzewo`) i jego skalą. Stąd
+   * `skalaDrzewa` jako miara, ile z niego zostanie drewna.
+   *
+   * ID Z POZYCJI, nie z indeksu listy. Zapis zadania pamięta, CO zostało
+   * zużyte; gdyby id szło z kolejności w `mapa.drzewa`, dopisanie jednego
+   * drzewa przesunęłoby wszystkie i ścięte okazałoby się nagle innym.
+   */
+  _zarejestrujDrzewa() {
+    for (const b of this.blockers || []) {
+      if (!b || !b.drzewo || b.domkowe) continue;
+      const sk = b.skalaDrzewa || 1;
+      const pos = [b.x, b.z];
+      const id = `drzewo-${b.x.toFixed(2)}-${b.z.toFixed(2)}`;
+
+      /* WYNIK BUDUJE SIĘ OD RAZU, tylko jest schowany — tak samo jak przy
+         suchym drzewku. Gdyby powstawał w chwili ścięcia, pierwsze ścięcie
+         zacinałoby klatkę akurat w sekundzie, w której dziecko patrzy
+         najuważniej. */
+      const wynik = new Group();
+      wynik.visible = false;
+      wynik.name = `wynik-${id}`;
+      /* Skala stosu liczona OD DRZEWA: z sosny o skali 1,3 nie może zostać
+         kupka wielkości kamyka. 1,2 daje mniej więcej metr w poprzek — tyle,
+         ile zajmują trzy kłody. */
+      const skalaStosu = sk * 1.2;
+      wynik.add(this._osadz(stosDrewna(skalaStosu), pos[0] + .72, pos[1] + .3, .05, .4));
+      wynik.add(this._osadz(pieniek(sk * 1.05), pos[0], pos[1], .04, 0));
+      this.swiat.add(wynik);
+
+      const posWyniku = [pos[0] + .72, pos[1] + .3];
+      this._doScinania.push({
+        id, rodzaj: "drzewko", pos, zrodlo: b.drzewo, wynik, blocker: b,
+        n: this.planeta.normalna(pos[0], pos[1]),
+        posWyniku, nWyniku: this.planeta.normalna(posWyniku[0], posWyniku[1]),
+        skalaWyniku: skalaStosu,
+        zasieg: 1.6, postep: 0, zrobione: false, dostarczone: false,
+      });
+    }
+  }
+
   /** Głazy oznaczone w mapie `doRozbicia` stają się celem tak jak drzewka. */
   _zarejestrujGlazy() {
     for (const [nr, g] of (this.mapa.glazy || []).entries()) {
@@ -2439,6 +2656,7 @@ export class Aplikacja {
       this.swiat.remove(this._schronienie);
       this._schronienie.traverse((o) => { o.geometry?.dispose?.(); });
       this._schronienie = null;
+      this._gibanaBudowla = null;
     }
     for (const b of this._schronBlockers || []) {
       const i = this.blockers.indexOf(b);
@@ -2455,9 +2673,23 @@ export class Aplikacja {
     this._zabierzSklad();
 
     const s = def.skala ?? 1;
-    const bryla = schronienie(this._etapSchronienia, s);
-    const kotwica = this._osadz(bryla, def.pos[0], def.pos[1], .02, def.obrot ?? 0);
+    const u0 = this._uklad || DOMEK_DRZEWO;
+
+    /* KOTWICA POWSTAJE PIERWSZA, z pustą grupą w środku. Odwrotnie niż zwykle,
+       bo drabinka musi wiedzieć, JAK GŁĘBOKO UCIEKA POD NIĄ ZIEMIA — a to
+       liczy się dopiero względem kotwicy (`punktNaGruncie`). Stopa stoi kilka
+       jednostek od pnia, gdzie kula odeszła już od płaszczyzny stycznej
+       o ponad pół jednostki; bez tej poprawki drabinka wisiała w powietrzu. */
+    const kotwica = this._osadz(null, def.pos[0], def.pos[1], ZANURZENIE_DOMKU, def.obrot ?? 0);
     kotwica.name = "schronienie-kotwica";
+    const stopaX = (u0.zasiegKonaru - .12 + u0.drabinkaOdsun) * s;
+    /* `przeswit` oddaje zanurzenie kotwicy (wiersz wyżej), więc stopa ląduje
+       dokładnie na darni, a nie dwa centymetry pod nią. */
+    const spadek = punktNaGruncie(this.planeta, kotwica, stopaX, 0,
+      this.wysokoscGruntuSiatki, ZANURZENIE_DOMKU);
+
+    const bryla = schronienie(this._etapSchronienia, s, { ...u0, drabinkaSpadek: spadek });
+    kotwica.add(bryla);
 
     /* KLEPISKO na taflę idącą za kulą i terenem — ten sam powód, co przy
        placu budowy: płaska tarcza o promieniu 1 styka się z planetą tylko
@@ -2469,27 +2701,35 @@ export class Aplikacja {
     if (klepisko) {
       klepisko.geometry.dispose();
       klepisko.geometry = taflaNaGruncie(this.planeta, kotwica,
-        klepisko.userData.promien ?? 1.06 * s, this.wysokoscGruntuSiatki, .02 + .03 * s);
+        klepisko.userData.promien ?? 1.06 * s, this.wysokoscGruntuSiatki,
+        ZANURZENIE_DOMKU + .03 * s);
       klepisko.rotation.set(0, 0, 0);
       klepisko.position.set(0, 0, 0);
     }
 
+    /* CO JEDZIE Z DRZEWEM, A CO ZOSTAJE. Pomost leży na konarze, więc kiedy
+       lisek wpadnie w pień i drzewo się zakołysze, deski muszą pojechać razem
+       z nim — inaczej platforma zsuwa się z gałęzi na oczach dziecka.
+       Ale drabinka STOI NA ZIEMI, a klepisko JEST ziemią: obrócone o te kilka
+       stopni wjeżdżałyby pod darń albo zawisały nad nią. Elementy oznaczone
+       w `schronienie.js` jako `przyZiemi` przepinamy więc do kotwicy, która się
+       nie rusza, a kołysze się tylko reszta (`_gibanaBudowla`). */
+    for (const o of [...bryla.children]) {
+      if (o.userData?.przyZiemi) kotwica.add(o);
+    }
+    this._gibanaBudowla = bryla;
+
     this.swiat.add(kotwica);
     this._schronienie = kotwica;
 
-    /* KOLIZJE TYLKO NA SŁUPACH. Środek zostaje przechodni, bo docelowo
-       dziecko ma pod tym dachem stanąć — a blocker na całej budowli zamienia
-       schronienie w przeszkodę, czyli w dokładne przeciwieństwo schronienia. */
-    for (const k of [-1, 1]) {
-      const kier = Math.cos(def.obrot ?? 0), skos = Math.sin(def.obrot ?? 0);
-      const b = {
-        x: def.pos[0] + k * .68 * s * kier,
-        z: def.pos[1] - k * .68 * s * skos,
-        r: .2 * s,
-      };
-      this.blockers.push(b);
-      this._schronBlockers.push(b);
-    }
+    /* DOMEK NA DRZEWIE NIE DOKŁADA ŻADNEJ KOLIZJI.
+       Wcześniej stały tu dwa blockery na słupach szałasu. Teraz jedyną bryłą
+       przy ziemi jest PIEŃ, a jego kolizję postawiło już `zbudujSwiat` razem
+       z drzewem — drzewo stoi tam od początku, także zanim cokolwiek powstanie.
+       Platforma wisi 1,75 nad głową i nie ma prawa zagradzać drogi: dziecko
+       ma móc obejść drzewo dookoła i stanąć pod drabinką.
+       `_schronBlockers` zostaje pustą listą, bo sprzątanie etapów dalej po niej
+       przechodzi — i przyda się, gdy etap 2 dostanie coś przy ziemi. */
 
     if (!animuj) return;
 
@@ -2498,7 +2738,8 @@ export class Aplikacja {
        „dosiadem" ze skali. Bez tego cała budowla wyskakuje jedną klatką
        i wygląda jak błąd renderowania, a nie jak coś, co ktoś postawił. */
     const kroki = [];
-    bryla.traverse((o) => {
+    // Po kotwicy, nie po `bryla` — część elementów wyprowadziliśmy wyżej.
+    kotwica.traverse((o) => {
       if (o.userData?.krok == null) return;
       kroki.push(o);
       o.visible = false;
