@@ -20,6 +20,7 @@ import PanelSheet from "../hub/PanelSheet.jsx";
 import MessageScroll from "../hub/MessageScroll.jsx";
 import PodpowiedzMedrca from "../hub/PodpowiedzMedrca.jsx";
 import PopupPostaci from "../hub/PopupPostaci.jsx";
+import PodsumowanieDnia from "../hub/PodsumowanieDnia.jsx";
 import RewardScreen from "../components/RewardScreen.jsx";
 import { bonusMonet, ZDARZENIE_ZMIANY as MONETY_ZMIANA } from "../services/monety.js";
 import {
@@ -40,6 +41,7 @@ import {
   rozpocznijZadanieDrewna,
   skasujZadanieDrewna,
   stanDrewna,
+  ZDARZENIE_ZMIANY as DREWNO_ZMIANA,
   zaliczDostawe,
 } from "../hub/zadanieDrewna.js";
 import {
@@ -56,7 +58,7 @@ import {
   znakiNaMapie,
   ZDARZENIE_ZMIANY as MISJE_ZMIANA,
 } from "../hub/misjeGier.js";
-import { powitanieCzarodzieja, ZNAK_CZARODZIEJA } from "../hub/kwestieWizkora.js";
+import { kwestiaZachodu, powitanieCzarodzieja, ZNAK_CZARODZIEJA } from "../hub/kwestieWizkora.js";
 import {
   skasujZadanie as skasujZadanieWizkora,
   sprawdzMentoraWTle,
@@ -442,6 +444,32 @@ export default function Swiat() {
   // czytało się jak zacięcie. Teraz dotknięcie otwiera od razu to, po co
   // się podchodzi — kwestię Wizkora, z jego zielonym przyciskiem.
   const [powitanie, setPowitanie] = useState(null);
+
+  /* ── KONIEC DNIA = KONIEC SESJI ───────────────────────────────────────
+     Sesja nie ma własnego licznika: odmierza ją słońce (`scena-3d-src/doba.js`,
+     `swiat.doba.sesja` w mapie). Scena melduje dwa momenty — `doba:sesja`
+     z etapem „zachod", gdy niebo zaczyna się złocić, i `sesja:zamknieta`,
+     gdy kamera skończy odjazd nad uśpioną planetą.
+
+     DLACZEGO TO NIE JEST setTimeout NA 15 MINUT. Zegar musi być tym samym
+     zegarem, co słońce na niebie — inaczej dziecko widzi zachód, a okno
+     przychodzi trzy minuty później (albo odwrotnie) i cała obietnica „świat
+     ci pokazuje, ile zostało" przestaje działać. Jedno źródło prawdy, w scenie.
+
+     `dziennik` to REF, nie stan: dopisujemy do niego w reakcji na zdarzenia
+     świata, a przerysowanie huba przy każdej zebranej gwiazdce byłoby czystą
+     stratą. Czytamy go raz, w chwili otwarcia podsumowania. */
+  const [podsumowanie, setPodsumowanie] = useState(null);
+  const dziennik = useRef([]);
+  const zachodZapowiedziany = useRef(false);
+  const dopiszDoDziennika = useCallback((id, tekst, ikona = null) => {
+    const d = dziennik.current;
+    // Jedna rzecz = jeden wpis. Dziesięć gwiazdek to nie dziesięć linijek,
+    // tylko jedna, która na koniec dnia mówi ile — stąd podmiana po `id`.
+    const i = d.findIndex((w) => w.id === id);
+    if (i >= 0) d[i] = { id, tekst, ikona };
+    else d.push({ id, tekst, ikona });
+  }, []);
   // Zaproszenie do minigry: `null` albo `id` gry z katalogu. Znak na mapie nie
   // wrzuca dziecka prosto w grę — najpierw pyta lisek. Tu pytanie ZOSTAJE,
   // choć u czarodzieja je zdjęliśmy: w znak gry wbiega się także przypadkiem,
@@ -535,18 +563,25 @@ export default function Swiat() {
     const s = scenaRef.current;
     if (!s) return;
     s.ustawRabanieAktywne?.(drewno.istnieje && !drewno.zbudowane);
-    /* MIEJSCE PRZED BUDOWLĄ. Plac budowy wisi na polanie od chwili przyjęcia
-       zadania: paliki w miejscu przyszłych słupów i ikona nad nimi. Bez tego
-       „zdobądź drewno" nie ma adresu — dziecko rąbie, nie wiedząc gdzie i po
-       co. Plac jaśnieje dopiero z kompletem materiału: to jego drugi stan,
-       czyli zaproszenie „chodź tu, masz wszystko". */
-    s.ustawPlacBudowy?.(drewno.istnieje && !drewno.zbudowane, drewno.spelnione);
+    /* KOLEJNOŚĆ NIE JEST DOWOLNA — schronienie PRZED placem.
+       `ustawPlacBudowy` sam z siebie nic nie zrobi, dopóki scena uważa, że
+       szkielet stoi (plac i budowla nie mogą być w tym samym miejscu naraz).
+       Przy cofaniu łańcucha z pulpitu dev kolejność odwrotna dawała świat
+       bez jednego i bez drugiego: plac odbijał się od jeszcze stojącego
+       schronienia, a schronienie znikało chwilę później. Ta sama kolejność,
+       co w handlerze „gotowa" niżej. */
     /* ANIMUJEMY TYLKO WZROST. Po powrocie do świata schronienie ma stać, a nie
        budować się od nowa — powtarzana animacja odbiera tamtej chwili wagę.
        Stąd `etapPokazany`: stawianie widać wyłącznie wtedy, gdy etap właśnie
        urósł, czyli po kliknięciu „STAWIAMY!". */
     s.ustawSchronienie?.(drewno.etap, drewno.etap > etapPokazany.current);
     etapPokazany.current = drewno.etap;
+    /* MIEJSCE PRZED BUDOWLĄ. Plac budowy wisi na polanie od chwili przyjęcia
+       zadania: paliki w miejscu przyszłych słupów i ikona nad nimi. Bez tego
+       „zdobądź drewno" nie ma adresu — dziecko rąbie, nie wiedząc gdzie i po
+       co. Plac jaśnieje dopiero z kompletem materiału: to jego drugi stan,
+       czyli zaproszenie „chodź tu, masz wszystko". */
+    s.ustawPlacBudowy?.(drewno.istnieje && !drewno.zbudowane, drewno.spelnione);
     s.oznaczZuzyte?.(drewno.zuzyte);
     // Najpierw ścięte, POTEM dostarczone: `oznaczDostarczone` zdejmuje stos
     // z lasu i kładzie go na placu, więc musi mieć co zdejmować.
@@ -554,6 +589,25 @@ export default function Swiat() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scenaGotowa, drewno.istnieje, drewno.zbudowane, drewno.spelnione, drewno.etap,
       drewno.zuzyte.join(","), drewno.dostarczoneId.join(",")]);
+  /**
+   * ZAPIS DREWNA ZMIENIA SIĘ TAKŻE POZA TYM KOMPONENTEM.
+   *
+   * Dopóki każde ścięcie i każda dostawa szły przez handlery sceny tutaj,
+   * `setDrewno` wołało się przy okazji. Ale pulpit dev ustawia całe ogniwo
+   * łańcucha zdarzeń (`zastosujEtap` w `hub/etapyMisji.js`): kasuje zapis
+   * i odbudowuje go od zera, nie dotykając Reacta. Bez tego nasłuchu świat
+   * zostawał ze ściętym drzewkiem, rozbitym głazem i zniknniętym placem,
+   * choć zapis mówił „zacznij od początku budowania schronienia".
+   *
+   * Czytamy ZE ŹRÓDŁA, nie z treści zdarzenia — zdarzenie jest tylko sygnałem
+   * „zajrzyj jeszcze raz", więc nie ma jak się rozjechać z zapisem.
+   */
+  useEffect(() => {
+    const naZmiane = () => setDrewno(stanDrewna());
+    window.addEventListener(DREWNO_ZMIANA, naZmiane);
+    return () => window.removeEventListener(DREWNO_ZMIANA, naZmiane);
+  }, []);
+
   /**
    * Tryb testowy. LOKALNIE włączony od razu i przełączany `Ctrl+Shift+D`
    * w obie strony — do sprawdzenia, jak świat wygląda bez narzędzi, i z
@@ -1335,6 +1389,7 @@ export default function Swiat() {
          albo zza kolejnego kliknięcia, dziecko nie połączyłoby jej z tym,
          co przed chwilą zrobiło. */
       setDrewno(postawEtap());
+      dopiszDoDziennika("schronienie", "Na polanie stanął szkielet schronienia", IKONA_STOSU);
       rozstanie();
       pokazKomunikat("Szkielet stoi", {
         ikona: IKONA_STOSU,
@@ -1461,7 +1516,13 @@ export default function Swiat() {
         return stan;
       },
       odkryj: (id) => { const stan = odkryjGre(id); setMisje(stanMisji()); return stan; },
-      wygraj: (id) => { const stan = zaliczWygrana(id); setMisje(stanMisji()); return stan; },
+      wygraj: (id) => {
+        const stan = zaliczWygrana(id);
+        setMisje(stanMisji());
+        const def = MISJE.find((m) => m.id === id);
+        if (def) dopiszDoDziennika(`gra:${id}`, `Rozegrałeś: ${def.tytul}`);
+        return stan;
+      },
       kasuj: () => { const stan = skasujMisje(); setMisje(stan); return stan; },
       stan: () => stanMisji().map(({ def, ...reszta }) => reszta),
       nagroda: (id) => setNagroda(id),
@@ -1809,6 +1870,32 @@ export default function Swiat() {
 
   const naZdarzenieSceny = useCallback(
     (nazwa, dane) => {
+      /* ── ZEGAR SESJI ──────────────────────────────────────────────────
+         Zachód: Wizkor wchodzi RAZ, i tylko wtedy, gdy ekran jest wolny.
+         Wpychanie go nad otwartą minigrę albo nad inne okno zamieniłoby
+         „zostało jeszcze na jedną rzecz" w przerwanie tej rzeczy, którą
+         dziecko właśnie robi. Jak nie teraz, to wcale — zachód i tak widać
+         na niebie, a to jest właściwy komunikat. */
+      if (nazwa === "doba:sesja") {
+        if (dane?.etap === "zachod" && !zachodZapowiedziany.current) {
+          zachodZapowiedziany.current = true;
+          if (!panel && !powitanie && !zaproszenie) setPowitanie(kwestiaZachodu());
+        }
+        return;
+      }
+
+      /* Noc: kamera skończyła odjazd, planeta śpi. Podsumowanie wchodzi TU,
+         a nie w chwili zapadnięcia nocy — obraz ma się domknąć pierwszy. */
+      if (nazwa === "sesja:zamknieta") {
+        const real = stanZadaniaWizkora();
+        setPowitanie(null);
+        setPodsumowanie({
+          wpisy: [...dziennik.current],
+          zadanie: real.doZrobienia ? real.def : null,
+        });
+        return;
+      }
+
       /* RĄBANIE. Scena melduje tylko „zdobyto surowiec" — nie wie nic
          o zadaniu ani o liczniku. Cała decyzja, co z tym zrobić, jest tutaj:
          dzięki temu świat da się testować bez postępu, a postęp bez świata. */
@@ -1835,6 +1922,13 @@ export default function Swiat() {
         const nowy = zaliczDostawe(dane?.rodzaj, dane?.id);
         setNiesie(null);
         setDrewno(nowy);
+        dopiszDoDziennika(
+          "materialy",
+          nowy.spelnione
+            ? "Przyniosłeś na plac wszystko na schronienie"
+            : "Przyniosłeś materiał na plac budowy",
+          dane?.rodzaj === "glaz" ? IKONA_KAMYKA : IKONA_STOSU,
+        );
         pokazKomunikat(
           dane?.rodzaj === "glaz" ? "Kamienie na placu" : "Drewno na placu",
           { ikona: dane?.rodzaj === "glaz" ? IKONA_KAMYKA : IKONA_STOSU,
@@ -1953,6 +2047,11 @@ export default function Swiat() {
         if (typeof dane?.znak === "string" && dane.znak.startsWith(PREFIKS_GWIAZDKI)) {
           const po = doliczGwiazdke(dane.znak);
           if (po) {
+            dopiszDoDziennika(
+              "gwiazdki",
+              po.zebrane === 1 ? "Znalazłeś pierwszą gwiazdkę" : `Znalazłeś ${po.zebrane} gwiazdek`,
+              "/star.png",
+            );
             /**
              * TA gwiazdka już nie odrośnie — do końca zadania. Wyłączamy sam
              * powrót, a nie widoczność: wchłanianie z iskrami ma dograć się do
@@ -2551,16 +2650,30 @@ export default function Swiat() {
       </div>
 
       {/* Mędrzec odzywa się tylko w spokojnym hubie: nie nad panelem, nie nad
-          zwojem i nie zanim rozsuną się chmury. */}
+          zwojem i nie zanim rozsuną się chmury. Po zamknięciu dnia też nie —
+          ostatnie słowo należy do podsumowania. */}
       <PodpowiedzMedrca
         ref={medrzecRef}
-        aktywna={!panel && !zwojOtwarty && !powitanie && !zaproszenie && !wskazowka && odsloniete}
+        aktywna={!panel && !zwojOtwarty && !powitanie && !zaproszenie && !wskazowka && !podsumowanie && odsloniete}
+      />
+
+      {/* KONIEC DNIA. Planeta śpi, kamera już odjechała — zostaje nazwać, co
+          się dziś wydarzyło, i przypomnieć to, co czeka poza ekranem.
+          „Do jutra!" tylko zamyka okno: nie wyrzucamy dziecka z aplikacji
+          i nie blokujemy mu powrotu. Świat pod spodem zostaje nocą, więc
+          sam mówi, że dzień się skończył — bez ani jednego zakazu. */}
+      <PodsumowanieDnia
+        otwarty={!!podsumowanie}
+        wpisy={podsumowanie?.wpisy || []}
+        zadanie={podsumowanie?.zadanie || null}
+        onZamknij={() => setPodsumowanie(null)}
       />
 
       {/* Głos czarodzieja: kraina „las decyzji" mapuje się w backendzie na
           barwę `mystical`, a ton `mystery` zwalnia tempo i dokłada pauzy —
           brzmi wtedy inaczej niż Mędrzec, który mówi głosem Mentora w tonie
-          `calm`. Mowa milknie sama przy wyciszonej grze i przy zamknięciu okna. */}
+          `calm`. Mowa NIE milknie przy zamknięciu okna ani przy wyciszonej
+          nutce — zasada i jej powód stoją w `hub/mowaPostaci.js`. */}
       <PopupPostaci
         otwarty={!!powitanie}
         imie={powitanie?.imie}

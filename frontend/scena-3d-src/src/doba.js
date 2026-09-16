@@ -1,19 +1,31 @@
 /**
- * doba.js — dzień i noc, które dziecko robi NOGAMI.
+ * doba.js — dzień i noc, które odmierzają sesję.
  *
- * POMYSŁ. Słońce stoi nieruchomo w układzie PLANETY, a nie świata. Bohater
- * idzie, planeta obraca się pod nim — więc razem z nią obraca się słońce.
- * Idziesz w stronę słońca: robi się jaśniej. Idziesz od niego: zmierzch,
- * potem noc. Pora dnia nie jest zegarem; jest miejscem, w którym stoisz.
+ * DWA ŹRÓDŁA PORY DNIA (`zrodlo`):
  *
- * PREZENTACJA. Pozycja na planecie wyznacza fazę dnia, a słońce porusza
- * się czytelnym łukiem od lewej do prawej. W pobliżu zachodu faza wizualna
- * zwalnia; ta sama faza steruje tarczą, światłem, niebem i księżycem.
- * Cofnięcie drogi cofa cykl, zatrzymanie liska zatrzymuje porę dnia.
+ *   "czas"  — doba płynie z zegara sesji. Dziecko wchodzi o świcie, słońce
+ *             przechodzi nad polaną i zachodzi; noc kończy sesję. Chodzenie
+ *             NIE rusza słońcem. To jest tryb świata `/swiat` i `/w2`.
+ *
+ *   "droga" — pierwotny pomysł: słońce stoi nieruchomo w układzie PLANETY,
+ *             bohater idzie, planeta obraca się pod nim i pora dnia jest
+ *             miejscem, w którym stoisz. Zostaje dla map, które go używają;
+ *             cofnięcie drogi cofa cykl, zatrzymanie liska zatrzymuje dobę.
+ *
+ * DLACZEGO ZEGAR WYGRAŁ W ŚWIECIE (decyzja właściciela, 2026-09-16). Doba
+ * z drogi jest ładnym pomysłem, ale nie da się nią NICZEGO ODMIERZYĆ: dziecko,
+ * które stoi, ma wieczne południe, a dziecko, które biega w kółko, przerabia
+ * całą dobę w kilkanaście sekund. Sesja ma być celowo ograniczona i ma się
+ * kończyć sama — a jedyny zegar, który dziecko rozumie bez tłumaczenia i bez
+ * presji, to słońce nad głową. Żadnego odliczania: po prostu robi się wieczór.
+ *
+ * PREZENTACJA. Faza dnia prowadzi słońce czytelnym łukiem od lewej do prawej.
+ * W pobliżu zachodu TARCZA zwalnia (patrz `luk`), ale barwy nieba idą dalej
+ * równo z fazą — dzięki temu zachód jest długi dla oka, a mimo to przewidywalny
+ * co do minuty.
  *
  * NOC NIE JEST KARĄ. Nigdy nie schodzimy do czerni: zostaje księżycowy
- * błękit, w którym bohatera widać wyraźnie. Noc ma być nagrodą za pójście
- * dalej, a nie ścianą.
+ * błękit, w którym bohatera widać wyraźnie. Noc jest końcem dnia, nie ścianą.
  */
 import {
   Color, Mesh, PlaneGeometry, ShaderMaterial, Sprite, SpriteMaterial,
@@ -169,8 +181,62 @@ export const DOBA = {
     zorzaSrodek: 90,    // szczyt pomarańczy = słońce dotyka horyzontu
     zorzaSzerokosc: 26.4,
   },
-  tempo: 1.5,          // jak szybko światło dogania pozycję (1/s)
+  tempo: 1.5,          // jak szybko światło dogania pozycję (1/s, tylko "droga")
+
+  /**
+   * SKĄD BIERZE SIĘ FAZA: "czas" (zegar sesji) albo "droga" (pozycja
+   * bohatera). Domyślnie "droga", żeby stare mapy wyglądały jak dotąd —
+   * świat włącza zegar przez `swiat.doba.zrodlo` w `mapa.json`.
+   */
+  zrodlo: "droga",
+
+  /**
+   * ZEGAR SESJI. `minutyDnia` to ŚWIATŁO DNIA: od wschodu do chwili, w której
+   * niebo zaczyna się złocić. Zachód dostaje tyle czasu, ile mu się należy
+   * przy tym samym tempie słońca — i to nie jest niedopatrzenie, tylko jedyna
+   * uczciwa opcja. Tarcza nie może przyspieszyć w połowie drogi: próbowaliśmy
+   * już raz przegiąć fazę na jednej gałęzi i było to widać jako zeskok
+   * słońca w zenicie (patrz komentarz przy `luk`).
+   *
+   * Zmierzone przy `minutyDnia: 15`:
+   *   0:00   wschód, słońce przy horyzoncie po lewej
+   *   2:40   pełny dzień
+   *   15:00  niebo zaczyna się złocić — tu wchodzi Wizkor
+   *   20:16  noc; sesja zamknięta
+   *
+   * Zachód zajmuje 5:16, nie „półtorej minuty" — bo łuk dnia to 153° fazy,
+   * a zachodu 54°, czyli ponad jedną trzecią. Skrócić go osobno się NIE DA
+   * bez kłamstwa na niebie: tarcza musiałaby przyspieszyć w połowie drogi
+   * (dokładnie ten zeskok opisuje komentarz przy `luk`) albo trzeba by ścisnąć
+   * `progi`, strojone pod concept art. Kto chce krótszej CAŁOŚCI, ustawia
+   * `minutySesji` — wtedy zegar liczy się od końca i dzień skraca się sam.
+   */
+  sesja: {
+    minutyDnia: 15,
+    /**
+     * Alternatywnie: CAŁA sesja, od świtu po noc, w minutach. Gdy jest
+     * ustawione, wygrywa z `minutyDnia` — bo to dwa sposoby powiedzenia tego
+     * samego i ktoś musi mieć pierwszeństwo. Jeden knob mówi „tyle światła",
+     * drugi „tyle czasu przed ekranem"; drugi zwykle jest tym, o co chodzi.
+     */
+    minutySesji: null,
+    switStopnie: 90,    // ile stopni przed zenitem stoi słońce na starcie
+  },
 };
+
+/**
+ * Granice pór dnia W STOPNIACH, wyliczone z `progi` — a nie wpisane z palca.
+ * `pora` niżej rozstrzyga etykietę progiem `zorza > 0.35` i `noc > 0.55`;
+ * gdyby te same liczby stały tu jako stałe, zmiana `progi` rozjechałaby zegar
+ * sesji z tym, co widać na niebie, i nikt by tego nie zauważył.
+ */
+function granicePor(progi) {
+  // zorza = exp(-((st - srodek)/szerokosc)^2) = 0.35  →  st = srodek - szer*sqrt(ln(1/0.35))
+  const zmierzch = progi.zorzaSrodek - progi.zorzaSzerokosc * Math.sqrt(Math.log(1 / 0.35));
+  // smoothstep(nocOd, nocPelna, st) = 0.55  →  u^2*(3-2u) = 0.55  →  u ≈ 0.53349
+  const noc = progi.nocOd + (progi.nocPelna - progi.nocOd) * 0.53349;
+  return { zmierzch, noc };
+}
 
 function scal(bazowe, nakladka) {
   if (!nakladka) return bazowe;
@@ -346,6 +412,26 @@ export class Doba {
     this.ustawSlonce(this.slonceN);
     this.faza = null;
 
+    /* ── ZEGAR SESJI ──────────────────────────────────────────────────── */
+    this.naCzas = this.C.zrodlo === "czas";
+    this._granice = granicePor(this.C.progi);
+    /** Sekundy od świtu. Rośnie tylko w trybie "czas". */
+    this.czas = 0;
+    /**
+     * Stopni fazy na sekundę. Liczone ze ŚWIATŁA DNIA (świt → złocenie nieba),
+     * bo to ta część jest obiecana w minutach; zachód dostaje resztę łuku
+     * w tym samym tempie.
+     */
+    const S = this.C.sesja;
+    this.stopnieNaSek = Number.isFinite(S.minutySesji) && S.minutySesji > 0
+      ? (S.switStopnie + this._granice.noc) / (S.minutySesji * 60)
+      : (S.switStopnie + this._granice.zmierzch) / Math.max(1, S.minutyDnia * 60);
+    /** Sekunda, w której niebo zaczyna się złocić, i ta, w której zapada noc. */
+    this.sekundaZachodu = (S.switStopnie + this._granice.zmierzch) / this.stopnieNaSek;
+    this.sekundaNocy = (S.switStopnie + this._granice.noc) / this.stopnieNaSek;
+    /** "dzien" → "zachod" → "noc". Zmiana tego pola jest sygnałem dla sceny. */
+    this.etapSesji = "dzien";
+
     this.nieboskLon = nieboskLon();
     this.scena.add(this.nieboskLon);
 
@@ -403,6 +489,27 @@ export class Doba {
     sprite.position.set(dir.dot(_px) * W * 0.78, H * (0.54 + 0.30 * dir.y), z);
   }
 
+  /**
+   * Nowy dzień od świtu. Wołane przy wejściu do świata — każde wejście dostaje
+   * pełne światło (decyzja właściciela: „zawsze od świtu"), a nie resztkę
+   * poprzedniej sesji.
+   */
+  odSwitu() {
+    this.czas = 0;
+    this.etapSesji = "dzien";
+    if (this.naCzas) this.faza = -this.C.sesja.switStopnie * Math.PI / 180;
+  }
+
+  /**
+   * Przewija dobę do zadanej sekundy — wyłącznie do oglądania i testów
+   * (`window.scena3d.doba.przewin(880)`), żeby nie trzeba było czekać
+   * kwadransa na zachód.
+   */
+  przewin(sekundy) {
+    if (!this.naCzas) return;
+    this.czas = zacisk(sekundy, 0, this.sekundaNocy);
+  }
+
   /** Przestawia słońce nad inny punkt planety (np. na potrzeby fabuły). */
   ustawSlonce(n) {
     this.slonceN.copy(n).normalize();
@@ -421,19 +528,35 @@ export class Doba {
    */
   aktualizuj(hn, qPlanety, dt = 0.016) {
     const C = this.C;
-    // ZNAK ustala, w ktora strone plynie doba. Ujemny sprawia, ze faza
-    // ROSNIE w miare wedrowki: dzien zaczyna sie ze sloncem po LEWEJ
-    // (faza < 0, wschod), przechodzi przez zenit i konczy sie po PRAWEJ
-    // (faza > 0, zachod). Ten sam znak odwraca cienie i kolejnosc barw
-    // nieba, wiec tarcza, swiatlo i zorza zostaja po tej samej stronie.
-    const along = -hn.dot(this._orbita);
-    const above = hn.dot(this.slonceN);
-    const cel = Math.hypot(along, above) > 1e-6
-      ? Math.atan2(along, above) : (this.faza ?? 0);
-    if (this.faza === null || this.t === null) this.faza = cel;
-    else {
-      const delta = Math.atan2(Math.sin(cel-this.faza), Math.cos(cel-this.faza));
-      this.faza += dogon(0, delta, C.tempo, dt);
+    if (this.naCzas) {
+      /* ── DOBA Z ZEGARA ──────────────────────────────────────────────
+         Faza rośnie równo z czasem, od świtu po lewej (faza ujemna), przez
+         zenit, do nocy po prawej. `hn` jest tu nieużywane — chodzenie nie
+         rusza słońcem i to jest cała różnica względem trybu "droga".
+
+         PO NOCY ZEGAR STOI. Doba nie zawija się na następny świt: sesja
+         skończyła się raz i świat ma zostać nocą, dopóki dziecko nie wejdzie
+         od nowa. Bez tego klamra rozsypuje się po dwudziestu minutach —
+         planeta budziłaby się sama, z podsumowaniem dnia wciąż na ekranie. */
+      this.czas = Math.min(this.czas + Math.max(0, dt), this.sekundaNocy);
+      this.faza = (-C.sesja.switStopnie + this.czas * this.stopnieNaSek) * Math.PI / 180;
+      this.etapSesji = this.czas >= this.sekundaNocy ? "noc"
+        : this.czas >= this.sekundaZachodu ? "zachod" : "dzien";
+    } else {
+      // ZNAK ustala, w ktora strone plynie doba. Ujemny sprawia, ze faza
+      // ROSNIE w miare wedrowki: dzien zaczyna sie ze sloncem po LEWEJ
+      // (faza < 0, wschod), przechodzi przez zenit i konczy sie po PRAWEJ
+      // (faza > 0, zachod). Ten sam znak odwraca cienie i kolejnosc barw
+      // nieba, wiec tarcza, swiatlo i zorza zostaja po tej samej stronie.
+      const along = -hn.dot(this._orbita);
+      const above = hn.dot(this.slonceN);
+      const cel = Math.hypot(along, above) > 1e-6
+        ? Math.atan2(along, above) : (this.faza ?? 0);
+      if (this.faza === null || this.t === null) this.faza = cel;
+      else {
+        const delta = Math.atan2(Math.sin(cel-this.faza), Math.cos(cel-this.faza));
+        this.faza += dogon(0, delta, C.tempo, dt);
+      }
     }
     const faza = Math.atan2(Math.sin(this.faza), Math.cos(this.faza));
     /**
@@ -627,7 +750,14 @@ export class Doba {
     }
 
     const pora = noc > 0.55 ? "noc" : zorza > 0.35 ? (poranek > 0.5 ? "poranek" : "zmierzch") : "dzien";
-    this.stan = { t, dzien, noc, zorza, pora, faza, luk };
+    this.stan = {
+      t, dzien, noc, zorza, pora, faza, luk,
+      // Zegar sesji dla reszty sceny i dla huba. `postep` jest do rysowania
+      // czegokolwiek ciągłego (np. odjazdu kamery), `etapSesji` do decyzji.
+      etapSesji: this.etapSesji,
+      czas: this.czas,
+      postep: this.naCzas ? zacisk(this.czas / Math.max(1, this.sekundaNocy), 0, 1) : 0,
+    };
     return pora;
   }
 }

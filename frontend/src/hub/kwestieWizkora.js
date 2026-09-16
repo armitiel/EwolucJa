@@ -84,6 +84,50 @@ const POCHWALA = {
 };
 
 /**
+ * WIZKOR NA ZACHODZIE SŁOŃCA. Wchodzi raz, w chwili gdy niebo zaczyna się
+ * złocić — czyli wtedy, gdy sesji zostaje jeszcze kilka minut pełnego,
+ * ciepłego światła.
+ *
+ * NIE MÓWI, ILE ZOSTAŁO. Żadnych minut, żadnego „kończymy za chwilę".
+ * Odliczanie robi z końca sesji karę i uczy dziecko patrzeć na zegar zamiast
+ * na świat — a tu zegarem JEST świat: słońce nisko widać samemu, bez liczb
+ * (`docs/OPIS_PROJEKTU.md`, akapit o ograniczonym czasie sesji).
+ *
+ * MÓWI, PO CO ZOSTAŁO. Zachód nie jest tu sygnałem „odłóż to", tylko
+ * zaproszeniem do ostatniej rzeczy — i do tej prawdziwej, która czeka poza
+ * ekranem. Dlatego kwestia zależy od tego, czy dziecko ma zadanie w realu.
+ */
+export function kwestiaZachodu(realZewn = null) {
+  const baza = { imie: "Wizkor", obrazek: "/wizPop.webp" };
+  const real = realZewn || stanZadaniaWizkora();
+
+  if (real.doZrobienia) {
+    return {
+      ...baza,
+      tekst:
+        `Słońce schodzi nisko — widzisz, jak się złoci? `
+        + `Zdąży jeszcze jedna rzecz, zanim planeta uśnie. `
+        + `A „${real.def.tytul}" czeka na ciebie tam, na zewnątrz.`,
+      tekstEkranu: "Słońce schodzi. Zdąży jeszcze jedna rzecz.",
+      wyroznienie: "jedna rzecz",
+      przycisk: "Idę",
+      akcja: null,
+    };
+  }
+
+  return {
+    ...baza,
+    tekst:
+      "Słońce schodzi nisko — widzisz, jak się złoci? "
+      + "Zdąży jeszcze jedna rzecz, zanim planeta uśnie. Wybierz, co to będzie.",
+    tekstEkranu: "Słońce schodzi. Zdąży jeszcze jedna rzecz.",
+    wyroznienie: "jedna rzecz",
+    przycisk: "Idę",
+    akcja: null,
+  };
+}
+
+/**
  * `drewnoZewn` służy WYŁĄCZNIE pulpitowi testowemu: pozwala pokazać kwestię
  * o schronieniu na podstawionym stanie, bez dotykania zapisu dziecka.
  * W grze zostaje `null` i stan czytamy z `zadanieDrewna`.

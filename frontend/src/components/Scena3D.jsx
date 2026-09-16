@@ -23,7 +23,7 @@ import { idPostaci, postacWybranaJawnie } from "../utils/postac.js";
 // UWAGA: numer ma tylko ROSNĄĆ. Numery 3–13 zostały już wydane przeglądarce
 // z inną zawartością modułu (kolejne wersje znaków, gwiazdki, tempo ruchu),
 // więc cofnięcie go serwuje z cache starą scenę zamiast aktualnej.
-export const WERSJA_SCENY = "100";  // wspolne tlo wskaznikow; wskaznik pracy: tarcza + zloty luk z blaskiem + siekiera i %; domek bez przygaszania
+export const WERSJA_SCENY = "104";  // krople gestsze przy wodzie, w wodzie nic nie rosnie
 const ZASOBY = "/scena-3d/assets/";
 
 /**

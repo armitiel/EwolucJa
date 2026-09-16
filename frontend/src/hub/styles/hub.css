@@ -3655,3 +3655,105 @@
   .porada-swieza-ilustracja{ height:120px; }
   .porada-swieza-tresc{ padding-top:12px; }
 }
+
+/* ── PODSUMOWANIE DNIA ──────────────────────────────────────────────────
+   Ostatni ekran sesji (`hub/PodsumowanieDnia.jsx`). Ten sam papier, złota
+   ramka i wstęga co w oknie postaci — to jest ta sama gra, a nie ekran
+   systemowy. Różni je zasłona: tu jest granatowa i gęstsza, bo pod spodem
+   planeta już śpi i ma zostać w tle jako obraz, nie jako plac zabaw.        */
+.podsumowanie-dnia{
+  --podsumowanie-obraz:clamp(150px,38vw,200px);
+  position:fixed; inset:0; z-index:70;
+  display:grid; place-items:center;
+  padding:calc(env(safe-area-inset-top,0px) + 12px) 16px calc(env(safe-area-inset-bottom,0px) + 12px);
+  overflow-y:auto;
+}
+.podsumowanie-dnia-zaslona{
+  position:absolute; inset:0;
+  background:radial-gradient(120% 90% at 50% 40%,
+    color-mix(in srgb, var(--noc-700,#1b2f5e) 62%, transparent) 0%,
+    color-mix(in srgb, var(--noc-700,#1b2f5e) 86%, transparent) 100%);
+  backdrop-filter:blur(2px);
+}
+.podsumowanie-dnia-karta{
+  position:relative; z-index:1;
+  width:min(100%,382px);
+  margin-top:calc(var(--podsumowanie-obraz) * .62);
+  padding:34px 22px 24px;
+  border:3px solid transparent; border-radius:28px;
+  background:
+    linear-gradient(180deg,var(--p-paper,#FBF1D6) 0%,var(--p-paper-2,#F4E3B8) 100%) padding-box,
+    linear-gradient(180deg,var(--hud-gold-light) 0%,var(--hud-gold) 55%,var(--braz-400) 100%) border-box;
+  box-shadow:
+    inset 0 3px 0 rgba(255,255,255,.75),
+    0 6px 0 color-mix(in srgb, var(--p-magic-dk) 28%, transparent),
+    0 22px 46px color-mix(in srgb, var(--noc-700) 55%, transparent);
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+  color:var(--p-ink,#4e4d76);
+  text-align:center;
+  animation:popup-postaci-karta .52s cubic-bezier(.2,.9,.3,1.25) both;
+}
+.podsumowanie-dnia-obraz{
+  position:absolute; left:50%; bottom:100%; transform:translateX(-50%) translateY(26%);
+  width:var(--podsumowanie-obraz); height:auto;
+  pointer-events:none; user-select:none;
+  filter:drop-shadow(0 10px 22px color-mix(in srgb, var(--noc-700) 55%, transparent));
+}
+.podsumowanie-dnia-wstega{
+  position:relative; z-index:2;
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  width:min(280px,84%);
+  margin:-58px auto 20px; padding:8px 18px;
+  border:2.5px solid transparent; border-radius:999px;
+  background:
+    linear-gradient(180deg,#5b7bc4 0%,#33487f 58%,#22315c 100%) padding-box,
+    linear-gradient(180deg,var(--hud-gold-light) 0%,var(--hud-gold) 58%,var(--braz-400) 100%) border-box;
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.3),
+    0 4px 0 color-mix(in srgb, var(--noc-700) 88%, transparent),
+    0 9px 16px color-mix(in srgb, var(--noc-700) 40%, transparent);
+  color:#ffffff;
+  font-size:19px; font-weight:800; letter-spacing:.6px; line-height:1.15;
+  text-transform:uppercase;
+  text-shadow:0 2px 0 color-mix(in srgb, var(--noc-700) 92%, transparent);
+}
+.podsumowanie-dnia-gwiazdka{ width:15px; height:15px; fill:var(--hud-gold-light,#ffe08a); flex:none; }
+.podsumowanie-dnia-iskra{ width:15px; height:15px; fill:var(--hud-gold,#f0b83c); flex:none; }
+
+.podsumowanie-dnia-lista{ list-style:none; margin:0 0 4px; padding:0; display:grid; gap:9px; }
+.podsumowanie-dnia-wpis{
+  display:flex; align-items:center; gap:10px;
+  padding:9px 12px; border-radius:15px;
+  background:color-mix(in srgb, var(--p-magic,#7a4fd0) 9%, transparent);
+  font-size:16.5px; font-weight:600; line-height:1.25; text-align:left;
+}
+.podsumowanie-dnia-wpis img{ width:26px; height:26px; object-fit:contain; flex:none; }
+.podsumowanie-dnia-pusto{
+  margin:0 4px 4px; font-size:16.5px; line-height:1.35;
+  color:color-mix(in srgb, var(--p-ink,#4e4d76) 78%, transparent);
+}
+
+/* Zadanie w realu: osobna sekcja, nie kolejny punkt listy. Papier jest tu
+   ciemniejszy, bo to jedyna rzecz na ekranie, która czegoś chce. */
+.podsumowanie-dnia-zadanie{
+  margin:16px 0 4px; padding:13px 14px;
+  border-radius:18px;
+  border:2px dashed color-mix(in srgb, var(--p-magic-dk,#4d2f8f) 34%, transparent);
+  background:color-mix(in srgb, var(--hud-gold-light,#ffe08a) 22%, transparent);
+  text-align:left;
+}
+.podsumowanie-dnia-zadanie h3{
+  margin:0 0 4px; font-size:13px; font-weight:800; letter-spacing:.7px;
+  text-transform:uppercase;
+  color:color-mix(in srgb, var(--p-magic-dk,#4d2f8f) 82%, transparent);
+}
+.podsumowanie-dnia-zadanie strong{ display:block; font-size:18px; line-height:1.2; }
+.podsumowanie-dnia-zadanie p{ margin:5px 0 0; font-size:15.5px; line-height:1.3; }
+
+.podsumowanie-dnia-akcja{ margin-top:18px; width:100%; }
+
+@media (max-height:620px){
+  .podsumowanie-dnia{ --podsumowanie-obraz:clamp(118px,28vw,150px); }
+  .podsumowanie-dnia-karta{ padding:28px 18px 20px; }
+  .podsumowanie-dnia-wpis{ font-size:15.5px; padding:7px 10px; }
+}

@@ -25,6 +25,7 @@ import { zbudujSwiat, sosna, drzewoLisciaste, kamiennyPak, plamaCienia, taflaNaG
 import { stosDrewna, kamyczki, pieniek } from "./natura.js";
 import { schronienie, LICZBA_ETAPOW } from "./schronienie.js";
 import { Znak, krag, smugaKregu } from "./znak.js";
+import { MokreSlady } from "./mokreslady.js";
 import { postac } from "./postacie.js";
 import { Doba } from "./doba.js";
 import { Chmury } from "./chmury.js";
@@ -115,6 +116,13 @@ const PION_EKRANU = 0.596;
  *  -0,182 (czyli -2 przy kuli o promieniu 11): cała kula w kadrze, lisek
  *  trochę powyżej środka, dół planety tuż nad paskiem HUD. */
 const KAMERA_PODNIESIENIE = -0.182;
+/**
+ * O ile kamera odchodzi od bohatera, gdy zapada noc i sesja się domyka.
+ * 0,62 to mniej więcej „lisek przestaje być bohaterem kadru, a zaczyna nim
+ * być cała planeta" — dość, żeby ruch było widać, i za mało, żeby lisek
+ * zniknął: ma być widoczny na własnej planecie, kiedy dzień się kończy.
+ */
+const ODDALENIE_NOCA = 0.62;
 /**
  * To samo dla ekranu POZIOMEGO. Kadr jest wtedy niski i szeroki: gdyby lisek
  * stał tam, gdzie w pionie, na niebo nad nim nie zostaje miejsca i ogranicznik
@@ -257,9 +265,18 @@ export class Aplikacja {
     this.gwiazdy = gwiazdy(this.camDir);
     this.scene.add(this.gwiazdy);
 
-    // DOBA — dzień i noc robione nogami. Słońce stoi nad punktem mapy
-    // `swiat.slonceNad`, a bohater, idąc, wychodzi spod niego. Bez flagi
+    // DOBA — dzień i noc odmierzające sesję (`doba.js`). Bez flagi
     // `swiat.cyklDnia` obiekt w ogóle nie powstaje i światła stoją jak stały.
+    //
+    // `?doba=<minuty>` skraca całą dobę do oglądania. Pełny cykl trwa kwadrans
+    // z okładem i nikt nie będzie tyle czekał, żeby sprawdzić, czy zachód
+    // wchodzi o właściwej porze — a bez takiego skrótu sprawdza się to raz
+    // i nigdy więcej. Działa tylko na strojenie w pamięci; mapa zostaje.
+    const dobaSkrot = Number(new URLSearchParams(location.search).get("doba"));
+    const strojenieDoby = Number.isFinite(dobaSkrot) && dobaSkrot > 0
+      ? { ...(this.mapa.doba.strojenie || {}),
+          sesja: { ...((this.mapa.doba.strojenie || {}).sesja || {}), minutySesji: dobaSkrot } }
+      : this.mapa.doba.strojenie;
     this.doba = this.mapa.doba.wlaczona
       ? new Doba({
           scena: this.scene,
@@ -269,10 +286,11 @@ export class Aplikacja {
           ambient: this.ambient,
           gwiazdy: this.gwiazdy,
           slonceN: this.planeta.normalna(this.mapa.doba.nad[0], this.mapa.doba.nad[1]),
-          strojenie: this.mapa.doba.strojenie,
+          strojenie: strojenieDoby,
         })
       : null;
     this._pora = null;
+    this._etapSesji = null;
     // Obłoki — też dzieci kamery, więc NIE obracają się razem z terenem,
     // tylko bardzo powoli dryfują w poprzek kadru.
     this.chmury = this.mapa.chmury > 0 ? new Chmury({ ile: this.mapa.chmury }) : null;
@@ -345,6 +363,11 @@ export class Aplikacja {
     ].map((def) => zbudujOczko(def, this.planeta));
     for (const o of this.oczka) this.swiat.add(o.mesh);
     this.oczko = this.oczka[0] || null;
+    /* MOKRE ŚLADY. Cała logika siedzi w `mokreslady.js` — tutaj zostaje tylko
+       powołanie i jedno wywołanie w pętli, bo to jest efekt uboczny chodzenia,
+       a nie kolejny system świata. Ślady wpinają się w grupę planety, więc
+       obracają się razem z nią jak trawa i cienie. */
+    this.mokreSlady = new MokreSlady(this.planeta, this.swiat, this.wysokoscGruntuSiatki);
     this.fasola = this.mapa.fasola ? new Fasola(this.mapa.fasola, this.planeta, (f) => this.loadGLB(f)) : null;
     if (this.fasola) this.swiat.add(this.fasola.root);
 
@@ -1247,6 +1270,13 @@ export class Aplikacja {
     if (!this._zasiewOstatnia) { this._zasiewOstatnia = this.hn.clone(); return; }
     const dystans = Math.acos(clamp(this.hn.dot(this._zasiewOstatnia),-1,1))*this.planeta.R;
     this._zasiewOstatnia.copy(this.hn);
+    /* W WODZIE NIC NIE ROŚNIE. Brodzący lisek zostawiał za sobą kwiaty i kępki
+       trawy na dnie stawu — a ślad po wodzie to mokre krople, nie łąka.
+       Stan liczy `mokreslady.js` przy okazji wilgoci, więc nie robimy tego
+       samego testu drugi raz. Zerujemy też przebytą drogę: po wyjściu na brzeg
+       ma się zacząć nowy odcinek, a nie wypaść od razu kwiatek za cały postój
+       w wodzie. */
+    if (this.mokreSlady?.wWodzie) { this._zasiewDroga = 0; return; }
     // Teleports and cutscene repositioning should not draw a flower trail.
     if (dystans > 2 || this._kino || this.sequence) { this._zasiewDroga=0; return; }
     if (dystans < .00001) return;
@@ -1650,6 +1680,13 @@ export class Aplikacja {
     const a = (this.leanDip || 0) * Math.max(0, (this.lean || 0) / POCHYLENIE_MAX);
     this.heroLift = this.groundY + this.footOffset + a + (this._wspDodatek || 0);
     this.syncHero();
+    /* Ślady PO `syncHero` (dopiero tam `hn` jest pozycją z tej klatki),
+       ale PRZED sianiem: `tik` liczy przy okazji, czy bohater stoi w wodzie,
+       a `_zasiejZaLiskiem` tę odpowiedź czyta. Odwrotna kolejność dawałaby ją
+       spóźnioną o klatkę i przy samym brzegu zdążyłby wyrosnąć kwiatek w stawie.
+       Kino i sekwencje wstrzymują stawianie: przelot kamery nad planetą to
+       nie jest marsz i nie ma po nim zostawać mokra ścieżka. */
+    this.mokreSlady?.tik(e, this.hn, this.hf, this.oczka, !!(this._kino || this.sequence));
     this._zasiejZaLiskiem();
 
     // PLANETA dogania bohatera — to jest „obrót kuli na wszystkie strony".
@@ -1686,11 +1723,22 @@ export class Aplikacja {
         this._pora = pora;
         this.emit("doba:pora", { pora, ...this.doba.stan });
       }
+      /* ETAP SESJI to osobne zdarzenie, nie odmiana `doba:pora` — bo to nie
+         jest informacja o wyglądzie nieba, tylko o tym, że sesja dobiega
+         końca. Hub podpina się pod nie i nie musi zgadywać z barw, czy
+         „zmierzch" znaczy jeszcze zabawę, czy już pożegnanie. Leci RAZ na
+         etap; odliczania nie wysyłamy w ogóle i nie ma go co pokazywać. */
+      const etap = this.doba.etapSesji;
+      if (etap !== this._etapSesji) {
+        this._etapSesji = etap;
+        this.emit("doba:sesja", { etap, ...this.doba.stan });
+      }
     }
 
     this.camPos.copy(this.camTarget).add(this.camDir);
     this._kinoKlatka(e);
     this._wejscieKlatka(e);
+    this._nocKlatka(e);
     this.camera.position.copy(this.camPos);
     this.camera.lookAt(this._kc.x, this._kc.y, this._kc.z);
 
@@ -1885,8 +1933,17 @@ export class Aplikacja {
     const c = document.createElement("canvas");
     c.width = c.height = S;
     const g = c.getContext("2d");
+    /* PRZESTRZEŃ BARW USTAWIONA JAWNIE. Renderer oddaje sRGB, a `Texture`
+       domyślnie nie deklaruje przestrzeni — three.js traktuje wtedy piksele
+       płótna jak liniowe i NIE robi konwersji. Ciemna tarcza (#211d16,
+       gradient #4a4a53→#26262c) wychodziła przez to o kilkadziesiąt procent
+       jaśniejsza i wyprana: granat robił się bladym błękitem. Każda inna
+       tekstura płótna w tej scenie (doba, dymki, kropla, znak, teren) ma tę
+       linię od dawna — te dwa wskaźniki były jedynymi, które jej nie miały. */
+    const mapaWsk = new CanvasTexture(c);
+    mapaWsk.colorSpace = SRGBColorSpace;
     const spr = new Sprite(new SpriteMaterial({
-      map: new CanvasTexture(c), depthTest: false, transparent: true,
+      map: mapaWsk, depthTest: false, transparent: true,
     }));
     spr.renderOrder = 60;
     spr.scale.setScalar(1.05);
@@ -2539,9 +2596,17 @@ export class Aplikacja {
     const c = document.createElement("canvas");
     c.width = c.height = S;
     const g = c.getContext("2d");
-    const spr = new Sprite(new SpriteMaterial({ map: new CanvasTexture(c), transparent: true, depthTest: false }));
+    // Ta sama przestrzeń barw, co przy wskaźniku pracy — patrz komentarz tam.
+    const mapaIk = new CanvasTexture(c);
+    mapaIk.colorSpace = SRGBColorSpace;
+    const spr = new Sprite(new SpriteMaterial({ map: mapaIk, transparent: true, depthTest: false }));
     spr.renderOrder = 58;
-    spr.scale.setScalar(.62);
+    /* TEN SAM ROZMIAR, CO WSKAŹNIK CIĘCIA (1,05) — decyzja właściciela
+       2026-09-16. Oba znaczki mówią „tu jest robota do zrobienia" i stoją
+       w tej samej scenie, więc mniejszy czytał się jak mniej ważny, a nie
+       jak inny rodzaj sprawy. Realną skalę nadaje pętla `bujaj`
+       w `ustawPlacBudowy`; ta wartość jest dla chwili przed jej startem. */
+    spr.scale.setScalar(1.05);
     spr.rysuj = (gotowy) => {
       g.clearRect(0, 0, S, S);
       g.lineCap = "round";
@@ -2648,7 +2713,11 @@ export class Aplikacja {
         const t = performance.now() * .0022;
         const g = !!this._placGotowy;
         ik.position.copy(this._placBaza).addScaledVector(this._placN, Math.sin(t) * (g ? .11 : .05));
-        ik.scale.setScalar(g ? .62 + Math.sin(t * 1.6) * .045 : .5);
+        /* 1,05 to rozmiar wskaźnika cięcia; stan „czeka" jest ciut mniejszy
+           (1,00), bo różnica ma zostać — tyle że jako oddech, a nie jako
+           dwa różne znaczki. Amplituda pulsu przeliczona w tej samej
+           proporcji, co skala (0,045 · 1,05/0,62). */
+        ik.scale.setScalar(g ? 1.05 + Math.sin(t * 1.6) * .076 : 1.0);
         /* Smuga biegnie zawsze, a z kompletem materiału — mocniej. Ta sama
            funkcja, co w znakach, więc tempo obiegu jest identyczne i dwa
            sygnały na mapie nie tłuką się innym rytmem. */
@@ -2916,6 +2985,41 @@ export class Aplikacja {
       try { this.emit("wejscie:gotowe"); } catch {}
     }
   }
+  /**
+   * ODJAZD NA KONIEC DNIA. Gdy zapada noc, kamera powoli odchodzi od bohatera
+   * i zostawia widok całej planety — obraz sam mówi „to już cały dzień",
+   * zanim cokolwiek się o tym odezwie.
+   *
+   * Mnoży zoom USTAWIONY WYŻEJ, zamiast go nadpisywać. `_kinoKlatka`
+   * i `_wejscieKlatka` co klatkę przywracają swoje wartości (1, gdy nic nie
+   * robią), więc kolejność jest tu całą umową: odjazd idzie ostatni i skaluje
+   * to, co zostało. Dzięki temu nie kłóci się ani z najazdem na wejściu, ani
+   * ze spojrzeniem na fasolę — po prostu oddala każdy z nich.
+   *
+   * `sesja:zamknieta` leci RAZ, gdy odjazd praktycznie doszedł do końca.
+   * Hub czeka na to zdarzenie zamiast odliczać własnym `setTimeout` — inaczej
+   * podsumowanie wchodziłoby w środku ruchu kamery na wolniejszym telefonie.
+   */
+  _nocKlatka(e) {
+    if (!this.doba || !this.doba.naCzas) return;
+    const noc = this.doba.etapSesji === "noc";
+    if (this._zoomNocy === undefined) this._zoomNocy = 1;
+    if (!noc && this._zoomNocy === 1) return;
+    const cel = noc ? ODDALENIE_NOCA : 1;
+    // Wykładnicze dochodzenie, niezależne od liczby klatek. 0.34/s daje
+    // odczuwalne „kamera się cofa" przez jakieś 6 sekund, bez szarpnięcia.
+    this._zoomNocy += (cel - this._zoomNocy) * (1 - Math.exp(-0.34 * e));
+    if (Math.abs(this._zoomNocy - cel) < 0.004) this._zoomNocy = cel;
+    if (noc && !this._sesjaZamknieta && this._zoomNocy < ODDALENIE_NOCA + 0.02) {
+      this._sesjaZamknieta = true;
+      this.emit("sesja:zamknieta", { ...this.doba.stan });
+    }
+    if (this._zoomNocy !== 1) {
+      this.camera.zoom *= this._zoomNocy;
+      this.camera.updateProjectionMatrix();
+    }
+  }
+
   _kinoKlatka(e) {
     if (!this._kc) this._kc = new Vector3();
     if (!this._kcT) this._kcT = new Vector3();

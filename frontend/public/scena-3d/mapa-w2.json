@@ -18,7 +18,14 @@
     "kameraPodniesienie": -3,
     "zoom": 1.15,
     "ekspozycja": 1.16,
-    "dolnyDok": false
+    "dolnyDok": false,
+    "doba": {
+      "zrodlo": "czas",
+      "sesja": {
+        "minutyDnia": 15,
+        "switStopnie": 90
+      }
+    }
   },
   "start": {
     "pos": [

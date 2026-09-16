@@ -26,7 +26,8 @@ import { szablon, wstrzyknijStyl } from "./ui.js";
  */
 export const ZDARZENIA = [
   "gotowa", "wejscie:gotowe", "minigra:start", "znak:dotkniety", "bohater:doszedl", "latarnia:reakcja",
-  "doba:pora", "swiatlo:zebrane", "woda:nabrana", "fasola:podlana", "fasola:wspinaczka", "swiat:dalej",
+  "doba:pora", "doba:sesja", "sesja:zamknieta",
+  "swiatlo:zebrane", "woda:nabrana", "fasola:podlana", "fasola:wspinaczka", "swiat:dalej",
   "surowiec:zdobyty", "surowiec:podniesiony", "surowiec:dostarczony", "miejsce:pokazane",
   "pauza", "wznowienie", "zniszczona", "blad",
 ];
