@@ -2986,9 +2986,9 @@ export class Aplikacja {
     }
   }
   /**
-   * ODJAZD NA KONIEC DNIA. Gdy zapada noc, kamera powoli odchodzi od bohatera
-   * i zostawia widok całej planety — obraz sam mówi „to już cały dzień",
-   * zanim cokolwiek się o tym odezwie.
+   * ODJAZD NA KONIEC DNIA. Gdy księżyc dochodzi do zenitu, kamera powoli
+   * odchodzi od bohatera i zostawia widok całej planety pod pełnią nocy —
+   * obraz sam mówi „to był cały dzień", zanim cokolwiek się o tym odezwie.
    *
    * Mnoży zoom USTAWIONY WYŻEJ, zamiast go nadpisywać. `_kinoKlatka`
    * i `_wejscieKlatka` co klatkę przywracają swoje wartości (1, gdy nic nie
@@ -3002,7 +3002,9 @@ export class Aplikacja {
    */
   _nocKlatka(e) {
     if (!this.doba || !this.doba.naCzas) return;
-    const noc = this.doba.etapSesji === "noc";
+    // „koniec", nie „noc": noc to dalej gra, dopiero księżyc w zenicie domyka
+    // sesję (patrz `etapSesji` w `doba.js`).
+    const noc = this.doba.etapSesji === "koniec";
     if (this._zoomNocy === undefined) this._zoomNocy = 1;
     if (!noc && this._zoomNocy === 1) return;
     const cel = noc ? ODDALENIE_NOCA : 1;

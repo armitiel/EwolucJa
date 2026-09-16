@@ -201,15 +201,17 @@ export const DOBA = {
    * Zmierzone przy `minutyDnia: 15`:
    *   0:00   wschód, słońce przy horyzoncie po lewej
    *   2:40   pełny dzień
-   *   15:00  niebo zaczyna się złocić — tu wchodzi Wizkor
-   *   20:16  noc; sesja zamknięta
+   *   15:00  niebo zaczyna się złocić — tu wchodzi Wizkor („zachod")
+   *   20:16  zapada noc, wschodzi księżyc („noc") — dziecko dalej gra
+   *   26:29  księżyc w zenicie („koniec") — kamera odjeżdża, sesja zamknięta
    *
    * Zachód zajmuje 5:16, nie „półtorej minuty" — bo łuk dnia to 153° fazy,
    * a zachodu 54°, czyli ponad jedną trzecią. Skrócić go osobno się NIE DA
    * bez kłamstwa na niebie: tarcza musiałaby przyspieszyć w połowie drogi
    * (dokładnie ten zeskok opisuje komentarz przy `luk`) albo trzeba by ścisnąć
    * `progi`, strojone pod concept art. Kto chce krótszej CAŁOŚCI, ustawia
-   * `minutySesji` — wtedy zegar liczy się od końca i dzień skraca się sam.
+   * `minutySesji` — wtedy zegar liczy się od księżyca w zenicie wstecz
+   * i dzień skraca się sam (15 minut całości → ~8,5 min dnia).
    */
   sesja: {
     minutyDnia: 15,
@@ -237,6 +239,25 @@ function granicePor(progi) {
   const noc = progi.nocOd + (progi.nocPelna - progi.nocOd) * 0.53349;
   return { zmierzch, noc };
 }
+
+/**
+ * KONIEC SESJI: KSIĘŻYC W ZENICIE (decyzja właściciela, 2026-09-16).
+ *
+ * Księżyc stoi naprzeciw słońca (`wKadrze(luk + PI)`), więc jest najwyżej
+ * dokładnie wtedy, gdy słońce jest najniżej — przy fazie 180°. To jest
+ * środek nocy i najładniejszy moment, jaki ta scena ma do zaoferowania:
+ * planeta w księżycowym błękicie, gwiazdy w pełni, tarcza wysoko w kadrze.
+ *
+ * Pierwsza wersja kończyła sesję przy 116,7° — zaraz po zachodzie, gdy noc
+ * dopiero się zapalała. Było za wcześnie: dziecko dostawało zmierzch i koniec,
+ * a nocy nie widziało wcale, choć to ona jest w tym świecie nagrodą za pójście
+ * dalej (patrz nagłówek). Teraz zachód jest ZAPOWIEDZIĄ, a nie końcem.
+ *
+ * 179,5°, nie 180° — przy dokładnie 180° `atan2` potrafi zwrócić −π zamiast
+ * +π i tarcza przeskakuje na drugą stronę nieba w ostatniej klatce. Pół
+ * stopnia jest niewidoczne, a wycina cały ten przypadek.
+ */
+const FAZA_KSIEZYC_W_ZENICIE = 179.5;
 
 function scal(bazowe, nakladka) {
   if (!nakladka) return bazowe;
@@ -424,12 +445,22 @@ export class Doba {
      */
     const S = this.C.sesja;
     this.stopnieNaSek = Number.isFinite(S.minutySesji) && S.minutySesji > 0
-      ? (S.switStopnie + this._granice.noc) / (S.minutySesji * 60)
+      ? (S.switStopnie + FAZA_KSIEZYC_W_ZENICIE) / (S.minutySesji * 60)
       : (S.switStopnie + this._granice.zmierzch) / Math.max(1, S.minutyDnia * 60);
     /** Sekunda, w której niebo zaczyna się złocić, i ta, w której zapada noc. */
     this.sekundaZachodu = (S.switStopnie + this._granice.zmierzch) / this.stopnieNaSek;
-    this.sekundaNocy = (S.switStopnie + this._granice.noc) / this.stopnieNaSek;
-    /** "dzien" → "zachod" → "noc". Zmiana tego pola jest sygnałem dla sceny. */
+    /** Sekunda końca sesji: księżyc w zenicie (patrz FAZA_KSIEZYC_W_ZENICIE). */
+    this.sekundaKonca = (S.switStopnie + FAZA_KSIEZYC_W_ZENICIE) / this.stopnieNaSek;
+    /** Sekunda, w której robi się noc — dziś już tylko etykieta, nie koniec. */
+    this.sekundaZmroku = (S.switStopnie + this._granice.noc) / this.stopnieNaSek;
+    /**
+     * "dzien" → "zachod" → "noc" → "koniec". Zmiana tego pola jest sygnałem
+     * dla sceny i dla huba.
+     *
+     * „zachod" to ZAPOWIEDŹ: niebo się złoci, Wizkor mówi, że zdąży jeszcze
+     * jedna rzecz. „noc" to dalej gra — księżyc wschodzi, planeta świeci na
+     * niebiesko. Dopiero „koniec" (księżyc w zenicie) domyka sesję.
+     */
     this.etapSesji = "dzien";
 
     this.nieboskLon = nieboskLon();
@@ -507,7 +538,7 @@ export class Doba {
    */
   przewin(sekundy) {
     if (!this.naCzas) return;
-    this.czas = zacisk(sekundy, 0, this.sekundaNocy);
+    this.czas = zacisk(sekundy, 0, this.sekundaKonca);
   }
 
   /** Przestawia słońce nad inny punkt planety (np. na potrzeby fabuły). */
@@ -538,9 +569,10 @@ export class Doba {
          skończyła się raz i świat ma zostać nocą, dopóki dziecko nie wejdzie
          od nowa. Bez tego klamra rozsypuje się po dwudziestu minutach —
          planeta budziłaby się sama, z podsumowaniem dnia wciąż na ekranie. */
-      this.czas = Math.min(this.czas + Math.max(0, dt), this.sekundaNocy);
+      this.czas = Math.min(this.czas + Math.max(0, dt), this.sekundaKonca);
       this.faza = (-C.sesja.switStopnie + this.czas * this.stopnieNaSek) * Math.PI / 180;
-      this.etapSesji = this.czas >= this.sekundaNocy ? "noc"
+      this.etapSesji = this.czas >= this.sekundaKonca ? "koniec"
+        : this.czas >= this.sekundaZmroku ? "noc"
         : this.czas >= this.sekundaZachodu ? "zachod" : "dzien";
     } else {
       // ZNAK ustala, w ktora strone plynie doba. Ujemny sprawia, ze faza
@@ -756,7 +788,7 @@ export class Doba {
       // czegokolwiek ciągłego (np. odjazdu kamery), `etapSesji` do decyzji.
       etapSesji: this.etapSesji,
       czas: this.czas,
-      postep: this.naCzas ? zacisk(this.czas / Math.max(1, this.sekundaNocy), 0, 1) : 0,
+      postep: this.naCzas ? zacisk(this.czas / Math.max(1, this.sekundaKonca), 0, 1) : 0,
     };
     return pora;
   }

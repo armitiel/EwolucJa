@@ -21,7 +21,7 @@
     "doba": {
       "zrodlo": "czas",
       "sesja": {
-        "minutyDnia": 15,
+        "minutySesji": 15,
         "switStopnie": 90
       }
     }

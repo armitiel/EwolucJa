@@ -3678,7 +3678,9 @@
 .podsumowanie-dnia-karta{
   position:relative; z-index:1;
   width:min(100%,382px);
-  margin-top:calc(var(--podsumowanie-obraz) * .62);
+  /* Ta sama proporcja co w oknie postaci: karta rezerwuje nad sobą 74%
+     wysokości bohatera, żeby ten miał gdzie stanąć. */
+  margin-top:calc(var(--podsumowanie-obraz) * .74);
   padding:34px 22px 24px;
   border:3px solid transparent; border-radius:28px;
   background:
@@ -3694,10 +3696,27 @@
   animation:popup-postaci-karta .52s cubic-bezier(.2,.9,.3,1.25) both;
 }
 .podsumowanie-dnia-obraz{
-  position:absolute; left:50%; bottom:100%; transform:translateX(-50%) translateY(26%);
+  /* GEOMETRIA JAK W OKNIE POSTACI (`.popup-postaci-bohater`) i to nie jest
+     kopiowanie dla wygody: grafika ma PŁASKI DÓŁ, więc wstęga z tytułem musi
+     siąść dokładnie na tym cięciu i je zakryć. Wcześniej stało tu
+     `bottom:100%` z przesunięciem o 26% w dół — Wizkor wchodził ćwiercią
+     sylwetki pod kartę i jego szata wychodziła spod belki tytułu.
+     `-4,4%` chowa samo cięcie i ani piksela więcej.
+
+     Centrowanie przez `left:0/right:0` + auto-marginesy, nie przez
+     `translateX(-50%)`: przy nieznanej jeszcze szerokości pliku procent
+     liczy się z zera i grafika skacze po doczytaniu. */
+  position:absolute;
+  left:0; right:0; margin-left:auto; margin-right:auto;
+  bottom:calc(100% - var(--podsumowanie-obraz) * .044);
   width:var(--podsumowanie-obraz); height:auto;
-  pointer-events:none; user-select:none;
+  /* Proporcje `wizPop.webp`. Docelowa ilustracja nocy powinna mieć ten sam
+     płaski dół i zbliżony stosunek boków — inaczej trzeba tu poprawić
+     `aspect-ratio`, a `contain` tylko wpisze ją w kadr zamiast rozciągnąć. */
+  aspect-ratio:560 / 599; object-fit:contain;
+  pointer-events:none; user-select:none; -webkit-user-drag:none;
   filter:drop-shadow(0 10px 22px color-mix(in srgb, var(--noc-700) 55%, transparent));
+  animation:popup-postaci-bohater .56s cubic-bezier(.2,.9,.3,1.3) .06s both;
 }
 .podsumowanie-dnia-wstega{
   position:relative; z-index:2;
