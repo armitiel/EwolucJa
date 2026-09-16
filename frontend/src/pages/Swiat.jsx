@@ -658,11 +658,7 @@ export default function Swiat() {
     // ich zejsciu NIE mignal domyslny kadr. Kino trzyma gore przez czas
     // rozsuwania (hold), a orbite i dojazd do kadru robi juz po odslonieciu.
     window.__kinoWejsciaWymus = false;
-    try {
-      console.log("[KINO] start parcia; scena?", !!scenaRef.current, "metoda?", typeof scenaRef.current?.kinoWejsciaTeraz);
-      const r = scenaRef.current?.kinoWejsciaTeraz?.();
-      console.log("[KINO] kinoWejsciaTeraz zwrocilo:", r);
-    } catch (e) { console.log("[KINO] blad:", e); }
+    try { scenaRef.current?.kinoWejsciaTeraz?.(); } catch {}
     rozsun(() => setOdsloniete(true));
     return undefined;
   }, [scenaGotowa, scenaMartwa, odsloniete]);
@@ -1156,7 +1152,17 @@ export default function Swiat() {
   const odswiezZnakiMisji = useCallback(() => {
     const scena = scenaRef.current;
     if (!scena) return false;
-    return zastosujZnakiUparcie(scena, MISJE.map((m) => m.znak), znakiNaMapie);
+    /* ŁAŃCUCH: schronienie jest osobnym ogniwem PRZED grami. Dopóki szkielet
+       nie stanął (drewno zdobyte i postawione), znaki minigier schodzą
+       z polany — dziecko ma jeden cel naraz i minigra nie wchodzi w konflikt
+       ze schronieniem. Wracają w chwili, gdy `zbudowane`. Funkcja (nie lista)
+       jest tu konieczna: `zastosujZnakiUparcie` ponawia ją po ułamku sekundy,
+       więc czyta świeży stan drewna przy każdej próbie. */
+    return zastosujZnakiUparcie(scena, MISJE.map((m) => m.znak), () => {
+      const d = stanDrewna();
+      if (d.istnieje && !d.zbudowane) return [];
+      return znakiNaMapie();
+    });
   }, []);
 
   /**
@@ -2128,7 +2134,11 @@ export default function Swiat() {
   useEffect(() => {
     if (!scenaGotowa) return;
     odswiezZnakiMisji();
-  }, [scenaGotowa, misje, odswiezZnakiMisji]);
+    // `drewno.istnieje` i `drewno.zbudowane` SĄ tu dependencjami: gdy
+    // schronienie się zaczyna, znaki minigier mają zejść z mapy, a gdy
+    // szkielet stanie — wrócić. Bez nich mapa czekałaby na najbliższą zmianę
+    // misji, której w tym ogniwie łańcucha nie ma.
+  }, [scenaGotowa, misje, drewno.istnieje, drewno.zbudowane, odswiezZnakiMisji]);
 
   /**
    * To samo dla gwiazdek — ale CELOWO bez `zadanie.zebrane` w zależnościach.

@@ -50,6 +50,14 @@ import {
   stanPuzzli,
   zaliczUlozenie,
 } from "./puzzleGier.js";
+import {
+  postawEtap,
+  policzDrzewko,
+  rozpocznijZadanieDrewna,
+  skasujZadanieDrewna,
+  stanDrewna,
+  zaliczDostawe,
+} from "./zadanieDrewna.js";
 import { typStartowy, upewnijProfil, zapomnijProfil } from "./profilStartowy.js";
 import {
   MISJE,
@@ -135,6 +143,50 @@ function etapyGwiazdek() {
       zebrane: CEL_DOMYSLNY,
       wyplacone: false,
       akcja: "nagroda",
+    },
+  ];
+}
+
+/**
+ * SCHRONIENIE — osobne ogniwo łańcucha między gwiazdkami a grami. Wchodzi
+ * ZARAZ po rozliczeniu gwiazdek i musi stanąć, ZANIM Wizkor zacznie mówić
+ * o grach (patrz `kwestieWizkora.js`). Bez tych etapów oś skakała z gwiazdek
+ * wprost w pierwszą minigrę, więc trwające zdobywanie drewna wyglądało
+ * z pulpitu jak pierwsza gra — „nachodziło" na łańcuch, zamiast być jego
+ * odrębnym punktem.
+ *
+ * `drewno` mówi `zastosujEtap`, jak daleko odbudować zapis zadania drewna:
+ * „brak" — nietknięte, „zbieranie" — ścięte, ale nie na placu, „komplet" —
+ * materiał na placu. `misja: -1` trzyma pętlę gier z dala: na tych etapach
+ * żadna minigra nie jest jeszcze zlecona, więc jej znak nie ma prawa stać
+ * na mapie.
+ */
+function etapySchronienia() {
+  const wspolne = { misja: -1, zebrane: CEL_DOMYSLNY, wyplacone: true };
+  return [
+    {
+      ...wspolne,
+      id: "schronienie:zlecenie",
+      drewno: "brak",
+      tytul: "Schronienie — zlecenie",
+      opis: "Gwiazdki rozliczone. Wizkor pokazuje paliki i zleca zdobycie suchego drzewka oraz głazu. Na mapie nie ma jeszcze żadnego znaku gry.",
+      akcja: "zlecDrewno",
+    },
+    {
+      ...wspolne,
+      id: "schronienie:zbieranie",
+      drewno: "zbieranie",
+      tytul: "Schronienie — zdobywanie materiału",
+      opis: "Zadanie przyjęte: lisek ścina drzewko i rozbija głaz, potem znosi materiał na plac. Znaki gier schodzą z mapy aż do postawienia szkieletu.",
+      akcja: null,
+    },
+    {
+      ...wspolne,
+      id: "schronienie:komplet",
+      drewno: "komplet",
+      tytul: "Schronienie — materiał na placu",
+      opis: "Drewno i kamienie leżą na palikach. Kwestia Wizkora prowadzi przyciskiem „Stawiamy!” — po nim staje pierwszy etap schronienia.",
+      akcja: "postawEtap",
     },
   ];
 }
@@ -250,14 +302,17 @@ function etapyReala() {
 export const ETAPY = [
   ...etapyWejscia(),
   ...etapyGwiazdek(),
+  ...etapySchronienia(),
   ...MISJE.flatMap((def, idx) => etapyMisji(def, idx)),
   ...etapyReala(),
 ];
 
 /** Ile etapów stoi PRZED gwiazdkami (dziś: sam onboarding). */
 const WEJSCIE = etapyWejscia().length;
-/** Numer pierwszego etapu z grami — reszta osi liczy się od niego. */
-const PIERWSZA_GRA = WEJSCIE + etapyGwiazdek().length;
+/** Numer pierwszego etapu schronienia (osobne ogniwo tuż za gwiazdkami). */
+const PIERWSZE_SCHRON = WEJSCIE + etapyGwiazdek().length;
+/** Numer pierwszego etapu z grami — już ZA ogniwem schronienia. */
+const PIERWSZA_GRA = PIERWSZE_SCHRON + etapySchronienia().length;
 /** Numer pierwszego etapu zadania w realu (tuż za ostatnią misją). */
 const PIERWSZY_REAL = PIERWSZA_GRA + MISJE.length * FAZY.length;
 
@@ -293,6 +348,15 @@ export function etapBiezacy() {
   if (!z.spelnione) return WEJSCIE + (z.zebrane >= CEL_DOMYSLNY - 1 ? 2 : 1);
   if (!z.wyplacone) return WEJSCIE + 3;
 
+  /* SCHRONIENIE stoi przed grami: dopóki szkielet nie stanął, oś jest na
+     jednym z trzech etapów drewna, a nie w pierwszej minigrze. */
+  const drewno = stanDrewna();
+  if (!drewno.zbudowane) {
+    if (!drewno.istnieje) return PIERWSZE_SCHRON;
+    if (!drewno.spelnione) return PIERWSZE_SCHRON + 1;
+    return PIERWSZE_SCHRON + 2;
+  }
+
   const misje = stanMisji();
   const idx = misje.findIndex((m) => !m.wyplacona);
   if (idx >= 0) {
@@ -322,6 +386,9 @@ export function zlamanaKolejnosc() {
   if (ruszone.length && !z.wyplacone) {
     return `„${ruszone[0].def.tytul}" ruszyła, choć gwiazdki nie są rozliczone.`;
   }
+  if (ruszone.length && z.wyplacone && !stanDrewna().zbudowane) {
+    return `„${ruszone[0].def.tytul}" ruszyła, choć schronienie jeszcze nie stoi.`;
+  }
   for (let i = 1; i < misje.length; i += 1) {
     if (stopien(misje[i]) > 0 && stopien(misje[i - 1]) < 5) {
       return `„${misje[i].def.tytul}" ruszyła przed rozliczeniem „${misje[i - 1].def.tytul}".`;
@@ -344,6 +411,7 @@ export function zastosujEtap(nr) {
   skasujZadanie();
   skasujMisje();
   skasujPuzzle();
+  skasujZadanieDrewna();
   // Tylko pierwszy etap cofa dziecko przed test profilu. Reszta osi zostawia
   // typ w spokoju — inaczej kazdy skok po osi kasowalby wynik quizu.
   if (etap.czysciProfil) zapomnijProfil();
@@ -365,6 +433,25 @@ export function zastosujEtap(nr) {
   if (!wyplacone) return etap;
 
   odbierzGwiazdki(NAGRODA_MONET);
+
+  /**
+   * SCHRONIENIE odbudowywane tą samą drogą, którą idzie gra: zlecenie →
+   * ścięcie → dostawa na plac → postawienie. Etapy drewna niosą własną fazę
+   * (`etap.drewno`); każdy etap gier i realu wymaga stojącego szkieletu, więc
+   * bez własnej fazy buduje go w komplecie.
+   */
+  const zbudujDrewno = (faza) => {
+    if (faza === "brak") return;
+    rozpocznijZadanieDrewna();
+    if (faza === "zbieranie") { policzDrzewko("drzewko-polana"); return; }
+    zaliczDostawe("drzewko", "drzewko-polana");
+    zaliczDostawe("glaz", "glaz-polana");
+    if (faza === "komplet") return;
+    postawEtap();
+  };
+  const fazaDrewna = etap.drewno
+    || (typeof etap.misja === "number" && etap.misja < 0 ? "brak" : "zbudowane");
+  zbudujDrewno(fazaDrewna);
 
   /**
    * Stan puzzli misji budowany TĄ SAMĄ drogą, którą idzie gra:

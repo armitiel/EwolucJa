@@ -49,6 +49,18 @@ export function srodekElementu(el) {
 }
 
 /**
+ * Spod licznika (srodek w poziomie, dolna krawedz) — iskra ma UDERZYC POD
+ * cyfre, a nie zakryc ja. Wczesniej lecialy w srodek kafelka i przykrywaly
+ * liczbe w chwili, gdy ta rosla.
+ */
+export function spodElementu(el) {
+  if (!el?.getBoundingClientRect) return null;
+  const r = el.getBoundingClientRect();
+  if (!r.width && !r.height) return null;
+  return { x: r.left + r.width / 2, y: r.bottom - 2 };
+}
+
+/**
  * Krótkie podbicie kafelka — moment, w którym liczba się zmienia. Klasę
  * zdejmujemy po animacji, żeby kolejna gwiazdka mogła ją założyć od nowa
  * (ponowne dodanie tej samej klasy nie restartuje animacji CSS).
@@ -71,7 +83,7 @@ export function podbijKafelek(el, klasa = "jest-podbite", czas = 460) {
  * @param {() => void} onDolot  wywoływane RAZ, gdy pierwsza cząstka dolatuje
  */
 export function lecDoLicznika({ start, cel, onDolot, obraz = "/star.png", ile = 7, czas = 620 }) {
-  const meta = cel && cel.nodeType === 1 ? srodekElementu(cel) : cel || null;
+  const meta = cel && cel.nodeType === 1 ? spodElementu(cel) : cel || null;
   let dolecialo = false;
   const dolot = () => {
     if (dolecialo) return;
@@ -85,7 +97,17 @@ export function lecDoLicznika({ start, cel, onDolot, obraz = "/star.png", ile = 
     return () => {};
   }
 
-  const od = start || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+  // START od obiektu, ale ZAWSZE w kadrze: na waskim mobile rzut pozycji znaku
+  // potrafi wyjsc poza ekran i iskry leca „znikad". Dociskamy do widocznego
+  // obszaru z marginesem, zeby zaczynaly przy obiekcie, nie za krawedzia.
+  const surowy = start || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+  const margines = 20;
+  const szerOkna = window.innerWidth || 360;
+  const wysOkna = window.innerHeight || 640;
+  const od = {
+    x: Math.max(margines, Math.min(szerOkna - margines, surowy.x)),
+    y: Math.max(margines, Math.min(wysOkna - margines, surowy.y)),
+  };
   const host = warstwa();
   const czastki = [];
 
