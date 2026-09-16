@@ -184,11 +184,21 @@ export const DOBA = {
   tempo: 1.5,          // jak szybko światło dogania pozycję (1/s, tylko "droga")
 
   /**
-   * SKĄD BIERZE SIĘ FAZA: "czas" (zegar sesji) albo "droga" (pozycja
-   * bohatera). Domyślnie "droga", żeby stare mapy wyglądały jak dotąd —
-   * świat włącza zegar przez `swiat.doba.zrodlo` w `mapa.json`.
+   * SKĄD BIERZE SIĘ FAZA: "czas" (zegar sesji) albo "droga" (pozycja bohatera).
+   *
+   * DOMYŚLNIE "czas" — i to jest zmiana wartości domyślnej, nie drobiazg.
+   * Doba odmierza sesję, więc jest regułą produktu, a nie ozdobą pojedynczej
+   * mapy; mapa, która chce starego trybu (pora dnia = miejsce, w którym
+   * stoisz), wpisuje `"zrodlo": "droga"` i wie, co robi.
+   *
+   * Powód praktyczny jest równie ważny: `mapa.json` bywa przepisywana
+   * w całości przez narzędzia i równoległe sesje, a wtedy blok `swiat.doba`
+   * znika bez śladu. Przy domyślnym "droga" znikał razem z nim cały zegar
+   * sesji i świat po cichu wracał do doby robionej nogami — trzy razy pod
+   * rząd, zanim ktokolwiek to zauważył. Przy domyślnym "czas" najgorsze, co
+   * się stanie, to powrót do domyślnej długości sesji.
    */
-  zrodlo: "droga",
+  zrodlo: "czas",
 
   /**
    * ZEGAR SESJI. `minutyDnia` to ŚWIATŁO DNIA: od wschodu do chwili, w której
@@ -214,6 +224,7 @@ export const DOBA = {
    * i dzień skraca się sam (15 minut całości → ~8,5 min dnia).
    */
   sesja: {
+    /** Światło dnia w minutach. Używane tylko, gdy `minutySesji` jest puste. */
     minutyDnia: 15,
     /**
      * Alternatywnie: CAŁA sesja, od świtu po noc, w minutach. Gdy jest
@@ -221,7 +232,7 @@ export const DOBA = {
      * samego i ktoś musi mieć pierwszeństwo. Jeden knob mówi „tyle światła",
      * drugi „tyle czasu przed ekranem"; drugi zwykle jest tym, o co chodzi.
      */
-    minutySesji: null,
+    minutySesji: 15,
     switStopnie: 90,    // ile stopni przed zenitem stoi słońce na starcie
   },
 };

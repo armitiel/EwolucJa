@@ -3739,37 +3739,78 @@
 .podsumowanie-dnia-gwiazdka{ width:15px; height:15px; fill:var(--hud-gold-light,#ffe08a); flex:none; }
 .podsumowanie-dnia-iskra{ width:15px; height:15px; fill:var(--hud-gold,#f0b83c); flex:none; }
 
-.podsumowanie-dnia-lista{ list-style:none; margin:0 0 4px; padding:0; display:grid; gap:9px; }
+/* STAN RZECZY — trzy linijki o obiektach, nie o dziecku. Bez ikon i bez
+   ptaszków: to nie jest lista osiągnięć, tylko opis planety o tej godzinie.
+   Środkowa linijka nazywa brak i jest jedyną wyróżnioną — reszta ma leżeć
+   spokojnie, żeby brak coś znaczył. */
+.podsumowanie-dnia-lista{ list-style:none; margin:0 0 6px; padding:0; display:grid; gap:7px; }
 .podsumowanie-dnia-wpis{
-  display:flex; align-items:center; gap:10px;
-  padding:9px 12px; border-radius:15px;
-  background:color-mix(in srgb, var(--p-magic,#7a4fd0) 9%, transparent);
-  font-size:16.5px; font-weight:600; line-height:1.25; text-align:left;
+  font-size:17px; font-weight:600; line-height:1.3; text-align:center;
+  color:color-mix(in srgb, var(--p-ink,#4e4d76) 82%, transparent);
 }
-.podsumowanie-dnia-wpis img{ width:26px; height:26px; object-fit:contain; flex:none; }
-.podsumowanie-dnia-pusto{
-  margin:0 4px 4px; font-size:16.5px; line-height:1.35;
-  color:color-mix(in srgb, var(--p-ink,#4e4d76) 78%, transparent);
+.podsumowanie-dnia-wpis.jest-brak{
+  font-weight:800;
+  color:var(--p-magic-dk,#4d2f8f);
+}
+.podsumowanie-dnia-tekst{
+  margin:0 2px 6px; font-size:17.5px; font-weight:600; line-height:1.35;
+  white-space:pre-line;
+}
+.podsumowanie-dnia-odzew{
+  margin:10px 2px 0; font-size:16px; line-height:1.3; font-style:italic;
+  color:color-mix(in srgb, var(--p-ink,#4e4d76) 72%, transparent);
 }
 
-/* Zadanie w realu: osobna sekcja, nie kolejny punkt listy. Papier jest tu
-   ciemniejszy, bo to jedyna rzecz na ekranie, która czegoś chce. */
-.podsumowanie-dnia-zadanie{
-  margin:16px 0 4px; padding:13px 14px;
+/* BRAK JAKO PRZEDMIOT. Pusty obrys jest przerywany i niedomknięty — ma być
+   widać, że czegoś w nim NIE MA, i to bez ani jednego słowa. Celowo bez
+   konkretnego kształtu dachówki: obrys ma być niedookreślony, żeby dziecko,
+   które przyniesie liść zamiast kartonu, nie uznało, że przyniosło źle. */
+.podsumowanie-dnia-brak{
+  margin:14px 0 2px; padding:14px 14px 12px;
   border-radius:18px;
-  border:2px dashed color-mix(in srgb, var(--p-magic-dk,#4d2f8f) 34%, transparent);
-  background:color-mix(in srgb, var(--hud-gold-light,#ffe08a) 22%, transparent);
-  text-align:left;
+  border:2px dashed color-mix(in srgb, var(--p-magic-dk,#4d2f8f) 30%, transparent);
+  background:color-mix(in srgb, var(--hud-gold-light,#ffe08a) 20%, transparent);
+  display:grid; justify-items:center; gap:6px;
 }
-.podsumowanie-dnia-zadanie h3{
-  margin:0 0 4px; font-size:13px; font-weight:800; letter-spacing:.7px;
-  text-transform:uppercase;
-  color:color-mix(in srgb, var(--p-magic-dk,#4d2f8f) 82%, transparent);
+.podsumowanie-dnia-obrys{
+  width:74px; height:40px;
+  border:3px dashed color-mix(in srgb, var(--p-magic-dk,#4d2f8f) 42%, transparent);
+  border-radius:8px 8px 3px 3px;
+  background:color-mix(in srgb, #ffffff 30%, transparent);
+  box-shadow:0 0 14px color-mix(in srgb, var(--hud-gold-light,#ffe08a) 70%, transparent);
+  animation:podsumowanie-obrys 3.4s ease-in-out infinite;
 }
-.podsumowanie-dnia-zadanie strong{ display:block; font-size:18px; line-height:1.2; }
-.podsumowanie-dnia-zadanie p{ margin:5px 0 0; font-size:15.5px; line-height:1.3; }
+/* Tli się, ale NIE pulsuje ostro — psycholog: wieczorem migające światło
+   czyta się jako „coś się czai", a to ma być ciepłe i spokojne czekanie. */
+@keyframes podsumowanie-obrys{
+  0%,100%{ opacity:.72; }
+  50%{ opacity:1; }
+}
+@media (prefers-reduced-motion: reduce){
+  .podsumowanie-dnia-obrys{ animation:none; opacity:.9; }
+}
+.podsumowanie-dnia-brak h3{
+  margin:0; font-size:17px; font-weight:800; line-height:1.2;
+  color:var(--p-magic-dk,#4d2f8f);
+}
+.podsumowanie-dnia-brak p{ margin:0; font-size:15.5px; line-height:1.3; }
+
+.podsumowanie-dnia-odloz{
+  margin-top:8px; width:100%;
+  font-size:15px;
+}
 
 .podsumowanie-dnia-akcja{ margin-top:18px; width:100%; }
+
+/* Lisek jest wąski i wysoki przez uszy, czarodziej prawie kwadratowy przez
+   kapelusz — ta sama geometria dla obu dawałaby albo lisa wielkości znaczka,
+   albo czarodzieja poza kartą. Ta sama zasada, co w `popup-postaci--lis`. */
+.podsumowanie-dnia-obraz--lisek{ aspect-ratio:auto; width:calc(var(--podsumowanie-obraz) * .82); }
+/* Krok narratorki nie ma portretu — karta zjeżdża wtedy na środek ekranu,
+   bo nie ma nad czym zostawiać miejsca. */
+.podsumowanie-dnia[data-krok="nie-zasnelo"] .podsumowanie-dnia-karta,
+.podsumowanie-dnia[data-krok="stan-rzeczy"] .podsumowanie-dnia-karta,
+.podsumowanie-dnia[data-krok="odejscie"] .podsumowanie-dnia-karta{ margin-top:0; }
 
 @media (max-height:620px){
   .podsumowanie-dnia{ --podsumowanie-obraz:clamp(118px,28vw,150px); }

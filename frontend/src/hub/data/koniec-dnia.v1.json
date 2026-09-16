@@ -1,0 +1,83 @@
+{
+  "wersja": 1,
+  "_opis": "MOCKUP TREŚCI sekwencji końca dnia. Powstał na panelu specjalistów (projektant-zadan, psycholog, narrator-gama/copywriter, rodzic-1-3) 2026-09-16. Mechanika i spinanie z bazą zadań przyjdzie osobno — tu są same słowa i kolejność, do oglądania na ekranie.",
+
+  "_zasady": [
+    "NIE PODSUMOWUJEMY DZIECKA. Żadne zdanie nie ma podmiotu 'ty' ani 'zrobiłeś'. Opisujemy rzeczy. To jest korzeń błędu, od którego się zaczęło: 'Planeta czekała dziś spokojnie' nazywa pustkę i dlatego nic nie znaczy.",
+    "NIE LICZYMY. Zero cyfr, pasków, serii, 'trzeci dzień', 'zostało ci'.",
+    "BEZ TERMINU W ZDANIU. 'Do jutra nic się z nim nie stanie' wypadło: to zaprzeczenie (dziecku zostaje 'coś mogłoby się stać') i termin wypowiedziany głosem.",
+    "BEZ OBIETNIC NAGRODY ('zobaczysz, co się stanie!') i BEZ WYJĄTKOWOŚCI ('tylko ty możesz') — to drugie dokłada ciężaru dziecku, które i tak go ma.",
+    "PRZYCISK KOŃCZY DZIEŃ, NIE ZOBOWIĄZUJE. 'Idę poszukać' wypadło: dla dziecka, które potem nie pójdzie, to złamana obietnica złożona samemu sobie.",
+    "SZUKANIE JEST NA JUTRO, ZA DNIA. Sekwencja gra o dwudziestej, dziesięć minut przed kąpielą — 'poszukamy' bez 'kiedy' znaczy dla siedmiolatka 'teraz' i kończy się rozbebeszoną szafą oraz telefonem z powrotem w rękach. Lisek mówi wprost: jutro, jak będzie jasno."
+  ],
+
+  "kroki": [
+    {
+      "id": "nie-zasnelo",
+      "kto": "narratorka",
+      "obraz": "planeta gaśnie punkt po punkcie, jedno miejsce tli się dalej — ciepło i stale, nigdy pulsująco",
+      "tekst": "Planeta gasła powoli, światło po świetle.\nZostało jedno, przy schronieniu.",
+      "glos": "Planeta gasła powoli, światło po świetle. Zostało jedno, tam przy schronieniu."
+    },
+    {
+      "id": "stan-rzeczy",
+      "kto": "narratorka",
+      "_uwaga": "Trzy linijki o OBIEKTACH. Brak jest PRZEDOSTATNI, ostatnia linijka opisuje coś ciepłego, co po prostu jest. Psycholog: dzień domykany brakiem po tygodniu przestaje być sygnałem i uczy, że dzień zawsze kończy się niedoborem.",
+      "linie": [
+        "Drewno leży przy ścianie, głaz trzyma róg.",
+        "Dachu nie ma.",
+        "Lisek śpi przy kamieniu, który jeszcze grzeje."
+      ],
+      "glos": "Drewno leży przy ścianie, głaz trzyma róg. Dachu nie ma. Lisek śpi przy kamieniu, który jeszcze grzeje."
+    },
+    {
+      "id": "nie-do-wyczarowania",
+      "kto": "wizkor",
+      "_uwaga": "Krok, na którym stoi cała sekwencja: magia przyznaje się do granicy. To jedyny moment, w którym dorosła postać jest słabsza od dziecka. Pierwsza wersja miała tu zdanie na 28 słów z dopełniaczem i zaprzeczeniem — rodzic-1-3: 'jak dziecko zgubi to zdanie, zadania nie ma'. Krótko i konkretnie.",
+      "tekst": "Umiem zatrzymać deszcz w pół drogi.\nAle dachu z niczego nie zrobię.\nU ciebie takie rzeczy leżą zwyczajnie.",
+      "glos": "Umiem zatrzymać deszcz w pół drogi. Ale dachu z niczego nie zrobię. U ciebie takie rzeczy leżą całkiem zwyczajnie."
+    },
+    {
+      "id": "pusty-ksztalt",
+      "kto": "lisek",
+      "_uwaga": "Obrys jest NIEDOOKREŚLONY ('coś, co robi cień'), nie konkretna dachówka — inaczej dziecko wróci z czymś innym i uzna, że przyniosło źle. Trzyma go LISEK w tobołku, nie planeta jako świecąca dziura: ciężar zostaje po stronie postaci.",
+      "obraz": "nad pustym miejscem staje miękki, nieostry obrys; po dotknięciu lisek chowa go do tobołka",
+      "tekst": "Trzymam miejsce.\nPoszukamy jutro, jak będzie jasno.",
+      "glos": "Trzymam miejsce. Poszukamy jutro, jak będzie jasno.",
+      "przycisk": "Dobrze"
+    },
+    {
+      "id": "odejscie",
+      "kto": "narratorka",
+      "_uwaga": "W ostatnim kadrze obok pustego kształtu MUSI stać coś zamkniętego i ciepłego. Inaczej dziecko idzie spać z obrazem czegoś niedomkniętego jako treścią nocy.",
+      "obraz": "planeta z daleka: jasny pusty obrys, a tuż obok małe ciepłe okno",
+      "tekst": "Stoi otwarty. Będzie stał.",
+      "glos": "Stoi otwarty. Będzie stał.",
+      "przycisk": "Dobranoc, planeto"
+    }
+  ],
+
+  "dzienPusty": {
+    "_uwaga": "Dziecko weszło, pochodziło, nic nie zrobiło. Krok 'stan rzeczy' nie ma czego wymieniać — więc świat mówi O SOBIE, nie o dziecku. Materiał jest zawsze, bo świat żyje niezależnie. To ma być prawda, nie pochwała i nie przytyk. Prośba w kroku czwartym jest wtedy NAJMNIEJSZA z możliwych, nie większa: ekran nie dał dziś dziecku nic, więc próg wejścia musi być niższy niż zwykle.",
+    "linie": [
+      "Fasola wypuściła listek z drugiej strony łodygi.",
+      "Wiatr przewrócił wiadro przy studni.",
+      "Kamień przy ścianie nagrzał się od słońca."
+    ],
+    "domkniecie": "Lisek śpi przy kamieniu, który jeszcze grzeje."
+  },
+
+  "odlozenie": {
+    "_uwaga": "Trzecia droga: dziecko samo zamyka sprawę, nie przynosząc niczego. Bez tego zostaje mu tylko przynieść albo milczeć, a milczenie zostawia rzecz otwartą bez żadnej kontroli po jego stronie. Ma brzmieć jak decyzja, nie jak poddanie się — 'może następnym razem' to rozczarowanie w przebraniu.",
+    "przycisk": "Niech zostanie odkryte",
+    "odzew": "Zostawiamy górę otwartą. Gwiazdom tak wygodniej."
+  },
+
+  "_powrot": {
+    "_uwaga": "Nie jest jeszcze zbudowane — spis tego, co panel ustalił na NASTĘPNE wejście, żeby nie zginęło.",
+    "zrobione": "Kształt wypełnia się tym, co dziecko przyniosło, i otwiera DOKŁADNIE JEDNĄ nową rzecz: pod dachem siedzi lisek, zaczyna padać i pierwszy raz deszcz nie ma znaczenia. Konsekwencja, nie nagroda. Dowód dla Mentora powstaje TU, jako czynność, a nie wczoraj jako formularz.",
+    "niezrobione": "Kształt stoi nietknięty i NIE jaśnieje, nie rośnie, nie dostaje plakietki. Świat wokół żył: wiatr wdmuchnął liść, lisek drzemie obok. Żadna postać nie wraca do tematu — jedno życzliwe 'no i jak, znalazłeś?' zamienia całą konstrukcję w odpytywanie.",
+    "po-kilku-sesjach": "Brak NIE staje się długiem — zmienia przeznaczenie: w środku ptak zaczyna gniazdo. Liczone w SESJACH, nie w dniach kalendarza: dziecko, które nie weszło przez tydzień, nie może wrócić do świata, który poszedł bez niego.",
+    "warunek": "Już NASTĘPNEGO dnia planeta ma własne, inne wejścia. Dziecko, dla którego jedyną otwartą rzeczą w świecie jest ta, której nie zrobiło, dostaje ciche wyrzuty — nie przez słowa, tylko przez brak alternatywy."
+  }
+}

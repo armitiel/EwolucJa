@@ -1,0 +1,57 @@
+{
+  "wersja": 1,
+  "_opis": "MOCKUP ZADAŃ W REALU w nowej ramie: zadanie nie jest poleceniem, tylko BRAKIEM WPISANYM W ŚWIAT. Wizkor nie mówi 'twoim zadaniem jest' — mówi, czego nie potrafi. Format zgodny z `zadania-wizkora.v1.json`, plus pola `brak` i `wypelnia`, które wiążą zadanie z konkretną dziurą na planecie. Spinanie z Kołem Przeznaczenia i panelem Mentora przyjdzie osobno.",
+
+  "_reguly": [
+    "DA SIĘ WYPEŁNIĆ CZYMŚ ZNALEZIONYM albo zrobionym z niczego: liściem, kartonem, patykiem, rysunkiem, folią. Nigdy 'przynieś coś swojego ulubionego' — dziecko, które nie ma, dostaje pytanie dokładnie o to, czego nie ma.",
+    "Nic nie wymaga zgody, obecności ani czasu dorosłego JAKO WARUNKU.",
+    "SZUKANIE JEST NA JUTRO, ZA DNIA. Sekwencja gra wieczorem; zadanie otwiera się przy następnym wejściu. Inaczej siedmiolatek idzie bebeszyć szafę dziesięć minut przed kąpielą, a dowód każe mu wziąć telefon z powrotem do ręki.",
+    "DOWÓD NIE JEST SPRAWDZIANEM. Kadr to sama rzecz, nigdy szeroki — dziecko nie fotografuje swojego domu. Równorzędnie: jedno zdanie zamiast zdjęcia, i ładniejszy dowód nie daje nic więcej.",
+    "JĘZYK DLA SIEDMIOLATKA. 'Nad środkiem schronienia jest otwarte niebo' to zdanie dla dorosłego; dziecko potrzebuje 'Nie ma dachu'. Jedno nieznane słowo na zdanie to już za dużo."
+  ],
+
+  "zadania": [
+    {
+      "id": "dach-ze-znalezionego",
+      "cecha": "tworzenie",
+      "tytul": "Dachmistrz",
+      "brak": "Schronienie stoi bez dachu.",
+      "wypelnia": "dach",
+      "cel": "Znajdź coś płaskiego, co robi cień.\nTo z niego będzie dach.",
+      "szept": "Coś, co robi cień.",
+      "jak": "Rozejrzyj się jutro nisko — pod stołem, w kartonach, pod ławką.",
+      "dowod": "Zrób zdjęcie tej rzeczy albo powiedz jednym zdaniem, co to jest.",
+      "przyklad": "To karton po butach. Trochę się zgina, ale cień pod nim jest.",
+      "nagroda": 25,
+      "minuty": 15,
+      "competency_focus": ["KR"],
+      "miejsca": [
+        { "id": "w-domu", "emoji": "🏠", "nazwa": "W domu", "opis": "Pod łóżkiem i w szafie leżą rzeczy, które zasłaniają lepiej, niż się wydaje." },
+        { "id": "na-dworze", "emoji": "🌳", "nazwa": "Na dworze", "opis": "Największe liście rosną nisko, przy murze i przy płocie." },
+        { "id": "w-szkole", "emoji": "🎒", "nazwa": "W szkole", "opis": "W koszu na papier bywa karton, którego nikt już nie potrzebuje." },
+        { "id": "w-kuchni", "emoji": "🍽️", "nazwa": "W kuchni", "opis": "Papier do pieczenia, folia i pokrywka robią cień, każde po swojemu." }
+      ]
+    },
+    {
+      "id": "swiatlo-w-dloni",
+      "cecha": "ciekawosc",
+      "tytul": "Latarnik",
+      "brak": "Przed schronieniem jest ciemno.",
+      "wypelnia": "światło",
+      "cel": "Poszukaj najmniejszego światła w domu.\nZgaś duże i zobacz, co zostaje.",
+      "szept": "Najmniejsze światło.",
+      "jak": "Poszukaj tam, gdzie zwykle jest ciemno — w szufladzie, za drzwiami.",
+      "dowod": "Zrób zdjęcie tego światła albo powiedz jednym zdaniem, co to było.",
+      "przyklad": "To była lampka od ładowarki. Świeci na zielono i widać tylko kawałek podłogi.",
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": ["DT"],
+      "miejsca": [
+        { "id": "po-zmroku", "emoji": "🌙", "nazwa": "Po zmroku", "opis": "Kiedy duże światło gaśnie, zostają małe, których nikt nie gasi." },
+        { "id": "w-szufladzie", "emoji": "🔦", "nazwa": "W szufladzie", "opis": "Latarka albo stary telefon świecą nawet wtedy, gdy leżą tam od dawna." },
+        { "id": "przy-oknie", "emoji": "🪟", "nazwa": "Przy oknie", "opis": "Latarnia z ulicy rysuje na podłodze jasny kształt." },
+        { "id": "przy-sprzetach", "emoji": "🔌", "nazwa": "Przy sprzętach", "opis": "Wiele urządzeń ma lampkę, która pali się, gdy wszystko śpi." }
+      ]
+    }
+  ]
+}
