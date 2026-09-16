@@ -107,7 +107,8 @@ inaczej blask rozjedzie się z łukiem.
 ## 8. Ikona siekiery
 
 ### Styl
-Miękkie 3D (claymorphizm zgodny z „DNA stylu", `docs/grafika.md`): stalowa
+Miękkie 3D — gładki render ikonowy z delikatnym połyskiem (pełny opis:
+[`styl-ikon-3d.md`](styl-ikon-3d.md)), NIE matowa glina świata: stalowa
 głowica z jasną fazą ostrza, miodowo-brązowy trzonek, delikatny połysk, czytelna
 sylwetka, światło z góry-lewej, **przezroczyste tło**. Renderowa poświata
 wtapia się w ciemną tarczę — nie trzeba jej wycinać (ewentualnie alfa < 60 → 0

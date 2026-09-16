@@ -21,10 +21,10 @@ import {
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Planeta, stycznaDo, doStycznej, obrocStyczna, katMiedzy, przytnijDoPromienia } from "./planeta.js";
 import { wczytajMape } from "./mapa.js";
-import { zbudujSwiat, sosna, drzewoLisciaste, kamiennyPak, plamaCienia, PALETA } from "./swiat.js";
+import { zbudujSwiat, sosna, drzewoLisciaste, kamiennyPak, plamaCienia, taflaNaGruncie, PALETA } from "./swiat.js";
 import { stosDrewna, kamyczki, pieniek } from "./natura.js";
 import { schronienie, LICZBA_ETAPOW } from "./schronienie.js";
-import { Znak } from "./znak.js";
+import { Znak, krag, smugaKregu } from "./znak.js";
 import { postac } from "./postacie.js";
 import { Doba } from "./doba.js";
 import { Chmury } from "./chmury.js";
@@ -335,8 +335,16 @@ export class Aplikacja {
 
     // MAGICZNA FASOLA + OCZKO WODY (fasola.js). Kropla, którą lisek niesie,
     // to ten sam mechanizm co kule światła — jedna kula, błękitna.
-    this.oczko = this.mapa.oczko ? zbudujOczko(this.mapa.oczko, this.planeta) : null;
-    if (this.oczko) this.swiat.add(this.oczko.mesh);
+    /* OCZKA WODNE — lista, nie jeden obiekt. Woda rozlana po świecie to
+       element krajobrazu, a nie pojedynczy rekwizyt przy fasoli; lisek nabiera
+       jej z NAJBLIŻSZEGO stawu. `this.oczko` zostaje jako pierwszy z listy,
+       bo tak woła go kod fasoli i pulpit reżyserki. */
+    this.oczka = [
+      ...(this.mapa.oczka || []),
+      ...(this.mapa.oczko ? [this.mapa.oczko] : []),
+    ].map((def) => zbudujOczko(def, this.planeta));
+    for (const o of this.oczka) this.swiat.add(o.mesh);
+    this.oczko = this.oczka[0] || null;
     this.fasola = this.mapa.fasola ? new Fasola(this.mapa.fasola, this.planeta, (f) => this.loadGLB(f)) : null;
     if (this.fasola) this.swiat.add(this.fasola.root);
 
@@ -1811,6 +1819,66 @@ export class Aplikacja {
    * pięć sekund, więc musi być ostry. Wszystkie wymiary liczone od `S`, żeby
    * następna zmiana rozmiaru nie wymagała przeliczania trzydziestu liczb.
    */
+  /**
+   * Ikona siekiery do wskaznika pracy — ten sam tor co `_ikonaDomku`.
+   * Plik dojezdza asynchronicznie, wiec po zaladowaniu przerysowujemy tarcze
+   * ostatnim znanym postepem, zeby nie zostala dziura po ikonie.
+   */
+  _ikonaSiekiery() {
+    if (this._ikSiek !== undefined) return this._ikSiek;
+    const im = new Image();
+    im.onload = () => { this._wskPracy?.rysuj(this._wskPostep ?? 0); };
+    im.onerror = () => { console.warn("[wskaznik] brak ikony siekiery"); this._ikSiek = null; };
+    im.src = `${this.opts.zasoby ?? "./assets/"}ikona-siekiera.png`;
+    this._ikSiek = im;
+    return im;
+  }
+
+  /**
+   * TLO WSPOLNE DLA WSZYSTKICH WSKAZNIKOW (decyzja wlasciciela 2026-09-16).
+   *
+   * Wskazniki sa dwa i musza wygladac jak jedna rodzina: wskaznik AKCJI
+   * (postep rabania, nad liskiem) i wskaznik MIEJSCA (domek nad placem).
+   * Wczesniej kazdy malowal sobie tarcze po swojemu — polprzezroczysty granat
+   * przepuszczal jasna trawe i znaczek robil sie wyblakly. Teraz tlo jest
+   * JEDNO: nieprzezroczysty bezel z twardym obrysem, ciemna tarcza z gradientem
+   * i delikatny polysk. Dzieki temu ikona na wierzchu zawsze ma ten sam,
+   * ciemny kontrast pod spoda — niezaleznie od tego, nad czym wisi.
+   *
+   * Wymiary licza sie od `u = S/100`, czyli w jednostkach projektu
+   * (`docs/design-system/wskaznik-scinania.md`). Zmiana rozmiaru plotna nie
+   * wymaga przeliczania ani jednej liczby.
+   *
+   * `pierscien` rysuje warstwe miedzy bezelem a tarcza — u wskaznika akcji
+   * jest tam luk postepu, u wskaznika miejsca pelna obwodka.
+   */
+  _tloWskaznika(g, S, pierscien) {
+    const c0 = S / 2, u = S / 100;
+    // bezel + twardy obrys calego znaczka
+    g.fillStyle = "#211d16";
+    g.beginPath(); g.arc(c0, c0, 49.2 * u, 0, Math.PI * 2); g.fill();
+    g.lineWidth = 1.5 * u; g.strokeStyle = "#140f09";
+    g.beginPath(); g.arc(c0, c0, 49.2 * u, 0, Math.PI * 2); g.stroke();
+
+    if (pierscien) pierscien(g, c0, u);
+
+    // ciemna tarcza: obrys od strony pierscienia + pole z gradientem
+    g.fillStyle = "#140f09";
+    g.beginPath(); g.arc(c0, c0, 37.7 * u, 0, Math.PI * 2); g.fill();
+    const grad = g.createRadialGradient(c0, c0 - 6 * u, 2 * u, c0, c0, 36.7 * u);
+    grad.addColorStop(0, "#4a4a53");
+    grad.addColorStop(1, "#26262c");
+    g.fillStyle = grad;
+    g.beginPath(); g.arc(c0, c0, 36.7 * u, 0, Math.PI * 2); g.fill();
+
+    // polysk u gory tarczy
+    g.save();
+    g.globalAlpha = .06; g.fillStyle = "#ffffff";
+    g.beginPath(); g.ellipse(c0, c0 - 18 * u, 25 * u, 13 * u, 0, 0, Math.PI * 2); g.fill();
+    g.restore();
+    return { c0, u };
+  }
+
   _wskaznikPracy() {
     if (this._wskPracy) return this._wskPracy;
     const S = 256, c0 = S / 2;
@@ -1824,62 +1892,57 @@ export class Aplikacja {
     spr.scale.setScalar(1.05);
     spr.visible = false;
     spr.rysuj = (p) => {
+      p = Math.min(1, Math.max(0, p || 0));
+      this._wskPostep = p;
       g.clearRect(0, 0, S, S);
       g.lineCap = "round";
       g.lineJoin = "round";
 
-      // Tarcza + jasny obrys. Bez obrysu ciemny krążek gubi krawędź na cieniu
-      // pod drzewem — a to jedyna rzecz, która oddziela znaczek od tła.
-      g.fillStyle = "rgba(36,49,71,.86)";
-      g.beginPath(); g.arc(c0, c0, 96, 0, Math.PI * 2); g.fill();
-      g.lineWidth = 5; g.strokeStyle = "rgba(255,255,255,.2)";
-      g.beginPath(); g.arc(c0, c0, 96, 0, Math.PI * 2); g.stroke();
+      /* Tlo wspolne dla wskaznikow, a w warstwie pierscienia — luk postepu.
+         Zloto jest ZYWSZE niz bazowy amber UI i ma wewnetrzny blask: to jedyny
+         element, ktory ma sie "palic" na jasnej trawie. Pod ostrym lukiem lezy
+         rozmyta kopia (shadowBlur), bo sam gradient czytal sie plasko. */
+      const { c0, u } = this._tloWskaznika(g, S, (g2, c, u2) => {
+        const r = 43.5 * u2, lw = 11 * u2;
+        g2.lineWidth = lw;
+        g2.strokeStyle = "#5a5326";
+        g2.beginPath(); g2.arc(c, c, r, 0, Math.PI * 2); g2.stroke();
+        if (p <= 0) return;
+        const k0 = -Math.PI / 2, k1 = k0 + Math.PI * 2 * p;
+        g2.save();
+        g2.shadowColor = "#ffab27";
+        g2.shadowBlur = 6 * u2;
+        g2.lineWidth = lw; g2.strokeStyle = "#ffab27";
+        g2.beginPath(); g2.arc(c, c, r, k0, k1); g2.stroke();
+        g2.beginPath(); g2.arc(c, c, r, k0, k1); g2.stroke();
+        g2.restore();
+        const gr = g2.createLinearGradient(0, c - r, 0, c + r);
+        gr.addColorStop(0, "#ffdc4b");
+        gr.addColorStop(.52, "#ffdc4b");
+        gr.addColorStop(1, "#ff8f1f");
+        g2.lineWidth = lw; g2.strokeStyle = gr;
+        g2.beginPath(); g2.arc(c, c, r, k0, k1); g2.stroke();
+      });
 
-      g.lineWidth = 16; g.strokeStyle = "rgba(255,255,255,.16)";
-      g.beginPath(); g.arc(c0, c0, 80, 0, Math.PI * 2); g.stroke();
-
-      /* Pomarańcz, nie zieleń: zielony pierścień zlewał się z trawą pod spodem,
-         a zieleń w tej grze znaczy „idź dalej", nie „trwa robota". Mocny
-         i nasycony, z ciemnym obrysem pod spodem — bez obrysu jasny pomarańcz
-         rozmywa się na jasnym tle. */
-      const k0 = -Math.PI / 2, k1 = k0 + Math.PI * 2 * p;
-      g.lineWidth = 24; g.strokeStyle = "rgba(92,38,4,.6)";
-      g.beginPath(); g.arc(c0, c0, 80, k0, k1); g.stroke();
-      g.lineWidth = 17; g.strokeStyle = "#FF7A18";
-      g.beginPath(); g.arc(c0, c0, 80, k0, k1); g.stroke();
-
-      /* PIŁA jednym konturem: brzeszczot i zęby to jedna ścieżka, więc ciemny
-         obrys obchodzi też zęby. Wcześniej zęby były osobnymi trójkącikami bez
-         obrysu i z dwóch metrów zlewały się w rozmazaną krechę. */
-      g.save();
-      g.translate(c0, c0 + 10);
-      g.rotate(-.3);
-      // Piła wypełnia tarczę — przy skali 1 zostawała w środku mała kreska
-      // otoczona pustką. 1,14 to maksimum, przy którym czubek brzeszczotu
-      // nadal nie wchodzi pod pierścień postępu.
-      g.scale(1.14, 1.14);
-      const OBRYS = "rgba(32,22,10,.9)";
-
-      g.beginPath();
-      g.moveTo(-28, -13);
-      g.lineTo(52, -6);
-      g.lineTo(52, 7);
-      const ZEBY = 9, xA = 52, xB = -28, yA = 7, yB = 14;
-      for (let i = 0; i < ZEBY; i++) {
-        const t1 = (i + .5) / ZEBY, t2 = (i + 1) / ZEBY;
-        g.lineTo(xA + (xB - xA) * t1, yA + (yB - yA) * t1 + 11);
-        g.lineTo(xA + (xB - xA) * t2, yA + (yB - yA) * t2);
+      /* SIEKIERA zamiast rysowanej pily (decyzja wlasciciela 2026-09-16):
+         ikona generowana, ten sam plik i ten sam styl, co reszta znaczkow
+         (`docs/design-system/styl-ikon-3d.md`). Polozenie z projektu:
+         srodek ikony 11 jednostek nad srodkiem tarczy, liczba 20,5 pod nim. */
+      const im = this._ikonaSiekiery();
+      if (im && im.complete && im.naturalWidth) {
+        const bok = 56 * u;
+        g.drawImage(im, c0 - bok / 2, c0 - 11 * u - bok / 2, bok, bok);
       }
-      g.closePath();
-      g.fillStyle = "#F2F5F8"; g.fill();
-      g.lineWidth = 5; g.strokeStyle = OBRYS; g.stroke();
 
-      // Rękojeść na wierzchu — ciepła, żeby od razu było widać, gdzie się trzyma.
-      g.beginPath();
-      g.moveTo(-62, -16); g.lineTo(-26, -16); g.lineTo(-26, 14); g.lineTo(-62, 14);
-      g.closePath();
-      g.fillStyle = "#E8B84B"; g.fill();
-      g.lineWidth = 5; g.strokeStyle = OBRYS; g.stroke();
+      g.font = `700 ${Math.round(17 * u)}px "Baloo 2", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif`;
+      g.textAlign = "center";
+      g.textBaseline = "middle";
+      g.save();
+      g.shadowColor = "rgba(0,0,0,.45)";
+      g.shadowBlur = 3 * u;
+      g.shadowOffsetY = 1.5 * u;
+      g.fillStyle = "#fff7e6";
+      g.fillText(`${Math.round(p * 100)}%`, c0, c0 + 20.5 * u);
       g.restore();
 
       spr.material.map.needsUpdate = true;
@@ -1927,12 +1990,31 @@ export class Aplikacja {
   oznaczZuzyte(lista) {
     const zbior = new Set(Array.isArray(lista) ? lista : []);
     for (const c of this._doScinania) {
-      if (!zbior.has(c.id) || c.zrobione) continue;
-      c.zrobione = true;
-      c.postep = CZAS_RABANIA;
-      c.zrodlo.visible = false;
-      c.wynik.visible = true;
-      this._zdejmijKolizje(c);
+      const ma = zbior.has(c.id);
+      if (ma === !!c.zrobione) continue;
+      if (ma) {
+        c.zrobione = true;
+        c.postep = CZAS_RABANIA;
+        c.zrodlo.visible = false;
+        c.wynik.visible = true;
+        this._zdejmijKolizje(c);
+      } else {
+        /* POWRÓT DO STANU SPRZED ŚCIĘCIA. Ta metoda odtwarzała dotąd zapis
+           tylko w jedną stronę: czego nie ma na liście, tego nie ruszała.
+           Wystarczało to przy wchodzeniu do świata, bo lista tylko rosła.
+           Pulpit dev cofa łańcuch zdarzeń na wcześniejsze ogniwo i wtedy
+           lista MALEJE — a świat zostawał ze ściętym drzewkiem i rozbitym
+           głazem, choć zapis mówił, że ich jeszcze nikt nie tknął. */
+        c.zrobione = false;
+        c.dostarczone = false;
+        c.niesione = false;
+        c.postep = 0;
+        c.zrodlo.visible = true;
+        c.wynik.visible = false;
+        this._wrocKolizje(c);
+        // Ładunek w rękach znika razem z celem, z którego powstał.
+        if (this._ladunek?.cel === c) this._porzucLadunek();
+      }
     }
   }
 
@@ -1941,7 +2023,19 @@ export class Aplikacja {
     if (!c.blocker) return;
     const i = this.blockers.indexOf(c.blocker);
     if (i >= 0) this.blockers.splice(i, 1);
+    // Trzymamy obiekt na boku zamiast go gubić — inaczej cofnięcie stanu
+    // postawiłoby drzewko, przez które dalej dałoby się przejść.
+    c.blockerSchowany = c.blocker;
     c.blocker = null;
+  }
+
+  /** Odwrotność `_zdejmijKolizje` — używana przy cofaniu stanu z zapisu. */
+  _wrocKolizje(c) {
+    const b = c.blocker || c.blockerSchowany;
+    if (!b) return;
+    if (!this.blockers.includes(b)) this.blockers.push(b);
+    c.blocker = b;
+    c.blockerSchowany = null;
   }
 
   /** Wyłącznik na czas, gdy zadanie nie trwa — świat zostaje nietknięty. */
@@ -2135,6 +2229,20 @@ export class Aplikacja {
     }
   }
 
+  /**
+   * Ładunek znika z rąk BEZ odkładania na plac. Wyłącznie do cofania stanu
+   * (pulpit dev): cel, z którego ten stos powstał, właśnie przestał być
+   * ścięty, więc dalsze niesienie go byłoby niesieniem niczego.
+   */
+  _porzucLadunek() {
+    const L = this._ladunek;
+    if (!L) return;
+    this.swiat.remove(L.model);
+    L.model.traverse((o) => { o.geometry?.dispose?.(); });
+    if (L.cel) L.cel.niesione = false;
+    this._ladunek = null;
+  }
+
   _oddajLadunek() {
     const L = this._ladunek;
     if (!L) return;
@@ -2191,16 +2299,43 @@ export class Aplikacja {
    */
   oznaczDostarczone(lista) {
     const zbior = new Set(Array.isArray(lista) ? lista : []);
+    let zmiana = false;
     for (const c of this._doScinania) {
-      if (!zbior.has(c.id) || c.dostarczone) continue;
-      c.dostarczone = true;
-      c.niesione = false;
-      c.zrobione = true;
-      c.postep = CZAS_RABANIA;
-      c.zrodlo.visible = false;
-      c.wynik.visible = false;
-      this._zdejmijKolizje(c);
-      this._polozNaPlacu(c.rodzaj, c.skalaWyniku ?? 1);
+      const ma = zbior.has(c.id);
+      if (ma === !!c.dostarczone) continue;
+      zmiana = true;
+      if (ma) {
+        c.dostarczone = true;
+        c.niesione = false;
+        c.zrobione = true;
+        c.postep = CZAS_RABANIA;
+        c.zrodlo.visible = false;
+        c.wynik.visible = false;
+        this._zdejmijKolizje(c);
+      } else {
+        // Cofnięcie dostawy: materiał wraca tam, skąd go zabrano — na stos
+        // w lesie, jeśli drzewko jest dalej ścięte (`oznaczZuzyte` biegnie
+        // wcześniej i zdążyło już ustawić `zrobione`).
+        c.dostarczone = false;
+        c.niesione = false;
+        c.wynik.visible = !!c.zrobione;
+        if (this._ladunek?.cel === c) this._porzucLadunek();
+      }
+    }
+    if (!zmiana) return;
+
+    /* SKŁAD PRZEBUDOWYWANY OD ZERA, a nie doklejany. `_polozNaPlacu` tylko
+       dodaje bryły do wspólnej grupy i nie wie, czyja która jest — więc
+       zdjęcia JEDNEJ dostawy z placu nie da się zrobić inaczej niż
+       postawieniem składu na nowo. Przy dwóch rzeczach to darmowe.
+
+       Gdy szkielet już stoi, składu nie ma w ogóle: materiał ZAMIENIŁ SIĘ
+       w budowlę (`ustawSchronienie` woła `_zabierzSklad` z tego samego
+       powodu), a stos leżący obok kłamałby, że drewno poszło gdzie indziej. */
+    this._zabierzSklad();
+    if (this._etapSchronienia > 0) return;
+    for (const c of this._doScinania) {
+      if (c.dostarczone) this._polozNaPlacu(c.rodzaj, c.skalaWyniku ?? 1);
     }
   }
 
@@ -2251,6 +2386,22 @@ export class Aplikacja {
     const bryla = schronienie(this._etapSchronienia, s);
     const kotwica = this._osadz(bryla, def.pos[0], def.pos[1], .02, def.obrot ?? 0);
     kotwica.name = "schronienie-kotwica";
+
+    /* KLEPISKO na taflę idącą za kulą i terenem — ten sam powód, co przy
+       placu budowy: płaska tarcza o promieniu 1 styka się z planetą tylko
+       w środku, więc darń przebijała przez jej środek zieloną dziurą.
+       `schronienie.js` buduje tarczę awaryjną i tylko ją nazywa; planetę zna
+       dopiero scena, więc podmiana siedzi tutaj.
+       Zanurzenie kotwicy schronienia to 0,02 — patrz komentarz przy placu. */
+    const klepisko = bryla.getObjectByName("schronienie-klepisko");
+    if (klepisko) {
+      klepisko.geometry.dispose();
+      klepisko.geometry = taflaNaGruncie(this.planeta, kotwica,
+        klepisko.userData.promien ?? 1.06 * s, this.wysokoscGruntuSiatki, .02 + .03 * s);
+      klepisko.rotation.set(0, 0, 0);
+      klepisko.position.set(0, 0, 0);
+    }
+
     this.swiat.add(kotwica);
     this._schronienie = kotwica;
 
@@ -2331,27 +2482,16 @@ export class Aplikacja {
     const g = new Group();
     g.name = "plac-budowy";
 
-    // Wydeptana ziemia POD kreskami — bez niej paliki i kreski wisiały nad
-    // trawą jak dekoracja. Bledsza i mniejsza niż gotowe klepisko, żeby po
-    // postawieniu schronienia było widać różnicę: tu był zamiar, tam jest dom.
-    const grunt = new Mesh(new CircleGeometry(1.02 * s, 14),
-      new MeshLambertMaterial({ color: 0x8E7A56, flatShading: true, transparent: true, opacity: .55 }));
-    grunt.rotation.set(-Math.PI / 2, 0, .3);
-    grunt.position.y = .006 * s;
-    g.add(grunt);
+    /* WYDEPTANEJ ZIEMI ANI OBRYSU TU NIE MA — obie rzeczy dokłada
+       `ustawPlacBudowy`, bo obie muszą znać kotwicę: tarcza idzie za kulą
+       i terenem (`taflaNaGruncie`), a pierścień siada na wysokości jej brzegu.
 
-    // Obrys klepiska KRESKOWANY, nie pełny: pełne koło czyta się jak coś,
-    // co już tam jest (kałuża, klepisko), a to ma być dopiero zamiar.
-    const matKreska = new MeshLambertMaterial({
-      color: 0xE8C88A, flatShading: true, transparent: true, opacity: .75,
-    });
-    for (let i = 0; i < 12; i++) {
-      const a = (i / 12) * Math.PI * 2;
-      const kreska = new Mesh(new BoxGeometry(.19 * s, .03 * s, .075 * s), matKreska);
-      kreska.position.set(Math.cos(a) * .9 * s, .02 * s, Math.sin(a) * .9 * s);
-      kreska.rotation.y = -a;
-      g.add(kreska);
-    }
+       KRESEK ROZSTAWIONYCH JAK OŚ ZEGARA JUŻ NIE MA (decyzja właściciela
+       2026-09-16). Dwanaście prostokątów wokół tarczy czytało się jak
+       podziałka albo coś technicznego — a to miejsce ma mówić „tu się zaraz
+       zacznie", nie „tu się mierzy". Zamiast nich wchodzi ten sam krąg ze
+       smugą, co pod znakami minigier: dziecko zna już ten sygnał z mapy
+       i nie musi uczyć się drugiego. */
 
     // Paliki dokładnie tam, gdzie staną słupy — dziecko widzi rozstaw,
     // więc gotowa budowla nie „wyrasta znikąd", tylko trafia w swoje miejsce.
@@ -2362,33 +2502,68 @@ export class Aplikacja {
       g.add(p);
     }
 
-    g.userData.matKreska = matKreska;
     return g;
   }
 
-  /** Ikona nad placem: szkic schronienia. Jasna dopiero, gdy materiał jest. */
+  /**
+   * Domek do znacznika placu — wczytany RAZ i trzymany na instancji.
+   * Ścieżka idzie z `opts.zasoby`, tak samo jak modele (`loadGLB`), więc
+   * ikona działa i w aplikacji, i w podglądzie offline, i na Vercelu.
+   */
+  _ikonaDomku() {
+    if (this._ikDom !== undefined) return this._ikDom;
+    const im = new Image();
+    im.onload = () => { this._placIk?.rysuj(!!this._placGotowy); };
+    im.onerror = () => { console.warn("[plac] brak ikony domku"); this._ikDom = null; };
+    im.src = `${this.opts.zasoby ?? "./assets/"}ikona-siedlisko.png`;
+    this._ikDom = im;
+    return im;
+  }
+
+  /**
+   * Ikona nad placem: domek na wspolnym tle wskaznika.
+   *
+   * DOMEK JEST ZAWSZE W PELNI WIDOCZNY (decyzja wlasciciela 2026-09-16).
+   * Wczesniej przed skompletowaniem materialu cala tarcza szla na polowe
+   * krycia, a sam domek na `globalAlpha .62` — przez jasna trawe robil sie
+   * wyblakly i z dwoch metrow nie bylo widac, CO tam wlasciwie jest. A to
+   * jest znaczek, ktory ma powiedziec "tu powstanie schronienie" zanim
+   * dziecko podejdzie. Stan "jeszcze zbieramy" niesie teraz KOLOR OBWODKI
+   * (wygaszone zloto zamiast pomaranczu), a nie przezroczystosc ikony.
+   *
+   * Plotno 256 px z tego samego powodu, co przy wskazniku pracy: przy 128 px
+   * ikona robila sie papka.
+   */
   _placIkona() {
+    const S = 256;
     const c = document.createElement("canvas");
-    c.width = c.height = 128;
+    c.width = c.height = S;
     const g = c.getContext("2d");
     const spr = new Sprite(new SpriteMaterial({ map: new CanvasTexture(c), transparent: true, depthTest: false }));
     spr.renderOrder = 58;
     spr.scale.setScalar(.62);
     spr.rysuj = (gotowy) => {
-      g.clearRect(0, 0, 128, 128);
-      g.fillStyle = gotowy ? "rgba(36,49,71,.86)" : "rgba(36,49,71,.5)";
-      g.beginPath(); g.arc(64, 64, 44, 0, Math.PI * 2); g.fill();
-      g.strokeStyle = gotowy ? "#FF7A18" : "rgba(255,255,255,.28)";
-      g.lineWidth = gotowy ? 7 : 4;
-      g.beginPath(); g.arc(64, 64, 39, 0, Math.PI * 2); g.stroke();
-      // Szkic: dwa słupy i skośna belka — ta sama sylwetka, co etap 1.
-      g.strokeStyle = gotowy ? "#FFE3B0" : "rgba(255,255,255,.55)";
-      g.lineWidth = 8; g.lineCap = "round"; g.lineJoin = "round";
-      g.beginPath();
-      g.moveTo(42, 92); g.lineTo(42, 46);
-      g.moveTo(88, 92); g.lineTo(88, 66);
-      g.moveTo(36, 44); g.lineTo(94, 64);
-      g.stroke();
+      g.clearRect(0, 0, S, S);
+      g.lineCap = "round";
+      g.lineJoin = "round";
+      const { c0, u } = this._tloWskaznika(g, S, (g2, cc, u2) => {
+        // Wskaznik MIEJSCA nie ma postepu — pelna obwodka. Pomaranczowa, gdy
+        // material jest na placu; wygaszone zloto, gdy jeszcze zbieramy.
+        g2.lineWidth = 11 * u2;
+        g2.strokeStyle = gotowy ? "#FF7A18" : "#5a5326";
+        g2.beginPath(); g2.arc(cc, cc, 43.5 * u2, 0, Math.PI * 2); g2.stroke();
+      });
+      /* DOMEK zamiast szkicu z trzech kresek (decyzja wlasciciela 2026-09-16).
+         Dwa slupy i belka czytaly sie z dwoch metrow jak platanina patykow —
+         domek mowi jednym ksztaltem, PO CO dziecko zbiera drewno.
+
+         Obrazek dojezdza asynchronicznie, wiec `rysuj` wola sie drugi raz,
+         gdy plik sie wczyta — do tego czasu w tarczy jest sam pierscien. */
+      const im = this._ikonaDomku();
+      if (im && im.complete && im.naturalWidth) {
+        const bok = 62 * u;
+        g.drawImage(im, c0 - bok / 2, c0 - bok / 2, bok, bok);
+      }
       spr.material.map.needsUpdate = true;
     };
     return spr;
@@ -2403,8 +2578,19 @@ export class Aplikacja {
         this.swiat.remove(this._plac);
         this._plac.traverse((o) => { o.geometry?.dispose?.(); });
         this._plac = null;
-        this._placIk = null;
+        this._placPierscien = null;
         this._placGotowy = undefined;
+      }
+      /* IKONA SCHODZI OSOBNO. Wisi w `swiat`, a nie w kotwicy placu (musi
+         stać pionowo względem kuli, nie względem tarczy), więc usunięcie
+         kotwicy jej nie ruszało — po postawieniu schronienia domek zostawał
+         w powietrzu nad gotową budowlą. Samo wyzerowanie `_placIk` tylko
+         zatrzymywało pętlę bujania i gubiło referencję do obiektu w scenie. */
+      if (this._placIk) {
+        this.swiat.remove(this._placIk);
+        this._placIk.material.map?.dispose?.();
+        this._placIk.material.dispose?.();
+        this._placIk = null;
       }
       return;
     }
@@ -2413,6 +2599,37 @@ export class Aplikacja {
     if (!this._plac) {
       const bryla = this._placBudowy(s);
       const kotwica = this._osadz(bryla, def.pos[0], def.pos[1], .01, def.obrot ?? 0);
+
+      /* WYDEPTANA ZIEMIA dopiero tutaj, bo tafla liczy się w układzie kotwicy
+         i musi próbkować teren pod nią. Bledsza i mniejsza niż gotowe
+         klepisko — po postawieniu schronienia ma być widać różnicę: tu był
+         zamiar, tam jest dom.
+
+         PRZEŚWIT ODRABIA ZANURZENIE KOTWICY. `_osadz` wpuszcza ją 0,01 pod
+         darń (żeby paliki nie odsłoniły płaskiego denka), więc w układzie
+         kotwicy grunt leży na +0,01 — tafla liczona od zera wyszłaby POD
+         ziemią. Stąd zanurzenie + 3 cm luzu: więcej niż falowanie darni
+         między próbkami, a z kamery gry niewidoczne. */
+      const matGrunt = new MeshLambertMaterial({
+        color: 0x8E7A56, flatShading: true, transparent: true, opacity: .55,
+      });
+      const tarcza = new Mesh(taflaNaGruncie(this.planeta, kotwica, 1.02 * s, this.wysokoscGruntuSiatki, .01 + .03 * s), matGrunt);
+      bryla.add(tarcza);
+
+      /* KRĄG AKTYWNOŚCI — ten sam, co pod znakami minigier (`znak.js`).
+         Pierścień ze smugą biegnącą po obwodzie znaczy w tej grze jedno:
+         „tu jest coś do zrobienia". Plac budowy jest dokładnie tym.
+         Siada na wysokości BRZEGU tafli, nie w jej środku: pierścień jest
+         płaski, a brzeg tarczy leży niżej od środka o tyle, o ile kula
+         ucieka spod stycznej. */
+      const rPier = 1.02 * s;
+      const luk = Math.sqrt(Math.max(0, this.planeta.R ** 2 - rPier ** 2)) - this.planeta.R;
+      const pierscien = krag(0xFFC061, .26);
+      pierscien.scale.setScalar(rPier / .66);
+      pierscien.position.y = luk + .05 * s;
+      pierscien.renderOrder = 3;
+      bryla.add(pierscien);
+
       const ik = this._placIkona();
       // Ikona wisi w układzie planety, tak jak pierścień pracy: pozycja placu
       // plus normalna, a nie sztywne +Y (na kuli „góra" zależy od miejsca).
@@ -2425,12 +2642,17 @@ export class Aplikacja {
       this._placBaza = ik.position.clone();
       this._placN = this.planeta.normalna(def.pos[0], def.pos[1]).clone();
 
+      this._placPierscien = pierscien;
       const bujaj = () => {
         if (this.destroyed || this._placIk !== ik) return;
         const t = performance.now() * .0022;
         const g = !!this._placGotowy;
         ik.position.copy(this._placBaza).addScaledVector(this._placN, Math.sin(t) * (g ? .11 : .05));
         ik.scale.setScalar(g ? .62 + Math.sin(t * 1.6) * .045 : .5);
+        /* Smuga biegnie zawsze, a z kompletem materiału — mocniej. Ta sama
+           funkcja, co w znakach, więc tempo obiegu jest identyczne i dwa
+           sygnały na mapie nie tłuką się innym rytmem. */
+        smugaKregu(pierscien, performance.now() * .001, g ? 1.9 : .85);
         requestAnimationFrame(bujaj);
       };
       requestAnimationFrame(bujaj);
@@ -2439,28 +2661,37 @@ export class Aplikacja {
     if (this._placGotowy !== gotowy) {
       this._placGotowy = gotowy;
       this._placIk?.rysuj(gotowy);
-      const m = this._plac?.children?.[0]?.userData?.matKreska;
-      if (m) { m.opacity = gotowy ? 1 : .6; m.color.setHex(gotowy ? 0xFFC061 : 0xE8C88A); }
+      const pier = this._placPierscien;
+      if (pier) {
+        // „czeka" jest przygaszone i piaskowe, „gotowy" — jasne i pomarańczowe,
+        // tym samym pomarańczem, co pierścień postępu przy pile.
+        pier.material.opacity = gotowy ? .5 : .24;
+        pier.material.color.setHex(gotowy ? 0xFF7A18 : 0xE8C88A);
+        if (pier.smuga) pier.smuga.material.color.setHex(gotowy ? 0xFFD9A0 : 0xE8C88A);
+      }
     }
   }
 
   /* ── MAGICZNA FASOLA ──────────────────────────────────────────────────────── */
 
   _fasolaTik(e) {
-    if (this.oczko) this.oczko.tik(e);
+    for (const o of this.oczka) o.tik(e);
     const F = this.fasola;
     if (!F) return;
     const d = this.planeta.odleglosc(this.hn, F.n);
     F.update(e, d, !!this.kropla?.ile);
     if (this._kino || this.sequence) return;
-    // NABIERANIE WODY: wejście w oczko z pustymi łapami.
-    if (this.oczko && this.kropla && !this.kropla.ile) {
-      const dw = this.planeta.odleglosc(this.hn, this.oczko.n);
-      if (dw < this.oczko.promien * 0.85) {
+    // NABIERANIE WODY: wejście w DOWOLNE oczko z pustymi łapami. Woda jest
+    // rozlana po świecie, więc dziecko nie ma obowiązku pamiętać, z którego
+    // stawu „się wolno" napić — liczy się ten, przy którym akurat stoi.
+    if (this.kropla && !this.kropla.ile) {
+      for (const o of this.oczka) {
+        if (this.planeta.odleglosc(this.hn, o.n) >= o.promien * 0.85) continue;
         this.kropla.dodaj();
         this.hint("Kropla wody!");
-        this.emit("woda:nabrana", {});
+        this.emit("woda:nabrana", { pos: o.pos });
         try { navigator.vibrate?.([12, 30, 12]); } catch {}
+        break;
       }
     }
     if (d < (F.def.zasieg ?? 1.9)) {
