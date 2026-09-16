@@ -36,6 +36,26 @@
 
 const KLUCZ = "ewolucja.zadanie.drewno";
 
+/**
+ * ZDARZENIE ZMIANY — tak samo jak w `misjeGier.js` i `puzzleGier.js`.
+ *
+ * PO CO. `Swiat.jsx` trzyma stan drewna w `useState` i czyta zapis RAZ, przy
+ * montowaniu. Dopóki każda zmiana szła z jego własnego handlera, to działało.
+ * Ale pulpit dev ustawia całe ogniwo łańcucha (`zastosujEtap` w
+ * `etapyMisji.js`): kasuje zapis i odbudowuje go od zera, poza Reactem. Nikt
+ * o tym nie mówił światu, więc scena zostawała ze ściętym drzewkiem, rozbitym
+ * głazem i zniknniętym placem, mimo że zapis mówił „zacznij od początku".
+ *
+ * Ogłaszamy z `zapisz()` i z `skasujZadanieDrewna()`, czyli z DWÓCH miejsc,
+ * przez które przechodzi każda zmiana — a nie z siedmiu mutatorów, bo ósmy
+ * zawsze by o tym zapomniał.
+ */
+export const ZDARZENIE_ZMIANY = "ewolucja:drewno-zmiana";
+
+function ogloszZmiane() {
+  try { window.dispatchEvent(new CustomEvent(ZDARZENIE_ZMIANY)); } catch {}
+}
+
 /** Ile czego trzeba na pierwszy etap. Zgodne z `KOSZT_ETAPU` w scenie. */
 export const CEL_DRZEWKA = 1;
 export const CEL_GLAZY = 1;
@@ -110,6 +130,7 @@ function zapisz(stan) {
       miejscePokazane: stan.miejscePokazane,
     }));
   } catch {}
+  ogloszZmiane();
 }
 
 /**
@@ -229,4 +250,5 @@ export function postawEtap() {
 
 export function skasujZadanieDrewna() {
   try { localStorage.removeItem(KLUCZ); } catch {}
+  ogloszZmiane();
 }
