@@ -38,8 +38,10 @@ function halo() {
   return teksturaHalo;
 }
 
-/** Krąg pod znakiem ze smugą biegnącą po obwodzie (kolory wierzchołków). */
-function krag(kolor, krycie = 0.24) {
+/** Krąg pod znakiem ze smugą biegnącą po obwodzie (kolory wierzchołków).
+    Eksportowany, bo tego samego pierścienia używa plac budowy (`app.js`) —
+    „tu coś się dzieje" ma wyglądać tak samo wszędzie w tej grze. */
+export function krag(kolor, krycie = 0.24) {
   const t = new Mesh(new RingGeometry(0.4, 0.66, 64), new MeshBasicMaterial({ color: kolor, transparent: true, opacity: krycie, side: DoubleSide, depthWrite: false }));
   t.rotation.x = -Math.PI / 2;
   t.position.y = 0.03;
@@ -64,7 +66,7 @@ function krag(kolor, krycie = 0.24) {
   return t;
 }
 
-function smugaKregu(k, czas, moc) {
+export function smugaKregu(k, czas, moc) {
   const s = k.smuga;
   if (!s) return;
   const a = s.geometry.getAttribute("color");
@@ -267,13 +269,26 @@ export class Znak {
     }
   }
 
-  touch() {
+  /**
+   * Dotkniecie znaku, ktory NIE znika (czarodziej). `zDotyku` = palcem.
+   *
+   * ODRZUT TYLKO PRZY CELOWYM DOTKNIECIU (decyzja wlasciciela 2026-09-16).
+   * `punch = 1` daje w jednej klatce +40% skali i poderwanie znaku w gore
+   * (patrz `l` w petli klatki). Przy stuknieciu palcem to jest potwierdzenie:
+   * cos sie rusza, bo tego chcialem. Ale gdy dziecko po prostu PRZEBIEGA obok
+   * czarodzieja w trakcie zbierania, ten sam odrzut czyta sie jak szarpniecie
+   * animacji — cos mignelo bez powodu. Przebiegniecie ma zostawic sam
+   * komunikat o zadaniu i nic wiecej.
+   */
+  touch(zDotyku = false) {
     if (this.state !== "idle" || this.punch > 0.55 || (this.def.raz && !this.armed)) return false;
     if (this.def.raz) this.armed = false;
-    this.punch = 1;
-    if (this.def.bujanie) this.buj = 0;
+    if (zDotyku) {
+      this.punch = 1;
+      if (this.def.bujanie) this.buj = 0;
+      this.sparkBurst(12, 1);
+    }
     this.touches++;
-    this.sparkBurst(12, 1);
     return true;
   }
 

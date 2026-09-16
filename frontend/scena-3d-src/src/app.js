@@ -1485,8 +1485,11 @@ export class Aplikacja {
   }
 
   touchMarker(e, t = false) {
-    if (!e || !e.touch()) return;
-    this.hint(e.def.toast);
+    if (!e || !e.touch(t)) return;
+    // Toast sceny tylko wtedy, gdy znak naprawde go ma. Czarodziej go nie ma:
+    // o jego stanie mowi komunikat o ZADANIU z huba, a dwa napisy naraz
+    // (ogolny na gorze, konkretny na dole) to jeden za duzo.
+    if (e.def.toast) this.hint(e.def.toast);
     this.touched = (this.touched || []).concat(e.id);
     this.emit("znak:dotkniety", { znak: e.id, etykieta: e.def.label, palcem: t });
     try { navigator.vibrate?.([14, 40, 20]); } catch {}
@@ -1495,7 +1498,7 @@ export class Aplikacja {
 
   enterMarker(e, t = false) {
     if (!e || !e.startAbsorb(t)) return;
-    this.hint(e.def.toast);
+    if (e.def.toast) this.hint(e.def.toast);
     this.touched = (this.touched || []).concat(e.id);
     this.emit("minigra:start", { znak: e.id, etykieta: e.def.label, palcem: t, poDomknieciu: 0.95 });
     try { navigator.vibrate?.([18, 50, 26]); } catch {}
@@ -2026,8 +2029,20 @@ export class Aplikacja {
       wynik.add(this._osadz(kamyczki(.95 * (g.skala ?? 1)),
         g.pos[0], g.pos[1], .08 * (g.skala ?? 1), g.obrot ?? 0));
       this.swiat.add(wynik);
+
+      /* KOLIZJA GŁAZU MUSI TRAFIĆ DO CELU, a nie zostać w tablicy sama.
+         `swiat.js` dokłada blocker przy budowaniu głazu i na tym kończyła się
+         jego historia: rozbity głaz znikał z ekranu, ale jego kolizja zostawała
+         na polanie na zawsze. Dla dziecka wyglądało to jak duch — niewidzialna
+         ściana w pustym miejscu, obok skrótu do minigry. Drzewka tego nie miały,
+         bo ich blocker od początku siedzi w `_doScinania` i `_zdejmijKolizje`
+         ma co zdjąć; głazy po prostu nigdy go tam nie dostały.
+         Szukamy po pozycji, bo `swiat.js` bierze ją z tego samego `g.pos`. */
+      const blocker = (this.blockers || []).find((b) => b && !b.drzewo
+        && Math.abs(b.x - g.pos[0]) < 1e-6 && Math.abs(b.z - g.pos[1]) < 1e-6) || null;
+
       this._doScinania.push({
-        id: g.id || `glaz-${nr}`, rodzaj: "glaz", pos: g.pos, zrodlo, wynik,
+        id: g.id || `glaz-${nr}`, rodzaj: "glaz", pos: g.pos, zrodlo, wynik, blocker,
         n: this.planeta.normalna(g.pos[0], g.pos[1]),
         // Kamyczki zostają dokładnie tam, gdzie stał głaz — inaczej niż stos
         // drewna, który leży obok pnia.

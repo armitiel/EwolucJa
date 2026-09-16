@@ -366,20 +366,23 @@
      dwulinijkowego napisu jak odznaka przyklejona do prawej krawedzi.
      W przeplywie tekstu plynie razem z ostatnim slowem - czyli tak, jak
      czyta sie zdanie „ZBIERZ 10 [moneta]". */
-  padding: 7px 15px;
+  padding: 11px 22px;
   /* Szerokosc ograniczona, zeby zdanie lamalo sie na dwie WYSRODKOWANE linijki
      zamiast ciagnac sie przez caly ekran. Bez tego `text-align` nic nie robi,
      bo pojedyncza linijka wypelnia kafelek co do piksela. */
-  max-width: min(80vw, 330px);
+  max-width: min(86vw, 420px);
   box-sizing: border-box;
   border: 2px solid var(--zloto-450);
   border-radius: 999px;
   background: linear-gradient(180deg, #466f68, #244d4c);
   box-shadow: 0 3px 0 #6f3a12, 0 7px 13px rgba(38, 31, 18, .28);
   color: var(--krem-200);
-  font-size: 12px;
+  /* WIEKSZY NIZ RESZTA HUD-u (decyzja wlasciciela 2026-09-16): to jest
+     jedyne zdanie, ktore tlumaczy dziecku, co ma teraz robic — ma sie czytac
+     z odleglosci reki, a nie konkurowac rozmiarem z licznikami. */
+  font-size: 15px;
   font-weight: 900;
-  letter-spacing: .6px;
+  letter-spacing: .5px;
   line-height: 1.25;
   text-align: center;
   text-wrap: balance;
@@ -392,8 +395,8 @@
    wiecej wielkosci wersalika, a nie osobnym guzikiem obok napisu. */
 .game-hud-toast-ikona {
   display: inline-block;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   /* Wersaliki nie maja podcieni, wiec srodek monety trzeba podniesc recznie —
      na baseline moneta „spadala" pod linie pisma. */
   vertical-align: -0.32em;
