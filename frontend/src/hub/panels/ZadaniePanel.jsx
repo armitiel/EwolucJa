@@ -96,8 +96,8 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
    * Trzy zasady te same, co u czarodzieja w `PopupPostaci`:
    *  • ta sama barwa i ton (`las_decyzji` + `mystery`), bo to ten sam Wizkor —
    *    inny głos w panelu znaczyłby dla dziecka inną postać;
-   *  • milczy przy wyciszonej grze — nutka w HUD-zie znaczy „ciszej w grze",
-   *    a nie „ciszej, ale głos i tak wejdzie";
+   *  • mówi niezależnie od nutki w HUD-zie — ta ścisza muzykę w tle, a nie
+   *    polecenie, po które dziecko tu przyszło;
    *  • zamknięcie panelu NIE ucina mowy. Polecenie do zrobienia poza ekranem
    *    jest jedyną kwestią, którą dziecko ma zapamiętać po wyjściu z apki —
    *    urwane w połowie zostawia je z „zrób coś" bez „co". Cała zasada stoi
@@ -115,8 +115,6 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
    * chodzi. Wizkor mówi więc od razu, na czym zadanie polega.
    */
   useEffect(() => {
-    // Wyciszona gra odsiewa się w `powiedzPostacia` — jedno miejsce na tę
-    // decyzję, żeby nie rozjechała się między panelem a oknem postaci.
     czytajZadanie();
   }, [czytajZadanie, stan.doZrobienia]);
 

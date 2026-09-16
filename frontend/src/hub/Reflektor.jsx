@@ -28,7 +28,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { OGON_DLUGOSC, sciezkaChmurki } from "./ksztaltChmurki.js";
-import bgMusic from "../services/bgMusic.js";
 import { powiedzJakLisek } from "./glosLiska.js";
 
 const ODSTEP = 10;          // ile światła/obręczy zostaje wokół celu
@@ -158,7 +157,8 @@ export default function Reflektor({ wskazowka, onZamknij }) {
   const zamknij = useCallback((powod) => onZamknij?.(powod), [onZamknij]);
 
   const powtorzGlos = useCallback(() => {
-    if (wskazowka?.glos !== "lisek" || !wskazowka.tekst || !bgMusic.isEnabled()) return;
+    // Nutka w HUD-zie rządzi muzyką, nie głosem (`hub/mowaPostaci.js`).
+    if (wskazowka?.glos !== "lisek" || !wskazowka.tekst) return;
     powiedzJakLisek(wskazowka.tekst);
   }, [wskazowka]);
 

@@ -14,17 +14,26 @@
  * (`tekstEkranu` w `kwestieWizkora.js`), lektor mówi pełniejszą wersję
  * i spokojnie dopowiada ją zza kadru, gdy lis już biegnie.
  *
- * Głos milknie dokładnie w trzech sytuacjach — i tylko w nich:
+ * NUTKA W HUD-ZIE NIE DOTYCZY GŁOSU (decyzja właściciela, 2026-09-16).
+ * Steruje wyłącznie muzyką w tle. Wcześniej wyciszała jedno i drugie, więc
+ * dziecko, które ściszyło muzykę — bo gra przy kimś, bo woli ciszej — traciło
+ * przy okazji jedyną wersję kwestii dostępną dla kogoś, kto jeszcze nie czyta.
+ * To dwie różne potrzeby i mają dwa różne przełączniki: muzyka to tło,
+ * a Wizkor to treść.
+ *
+ * Głos milknie dokładnie w dwóch sytuacjach — i tylko w nich:
  *
  *  1. ZACZYNA MÓWIĆ COŚ INNEGO. `interrupt: true` w każdym wywołaniu:
  *     nowe okno, nowa postać, nowy panel wchodzą na miejsce poprzedniego.
  *     Dwa głosy naraz nie zdarzą się nigdy.
- *  2. GRA JEST WYCISZONA. Nutka w HUD-zie znaczy „cicho w grze" — także
- *     w środku zdania (`bgMusic.onWyciszenie` → `ttsPlayer.stop`).
- *     Przy wyciszonej grze postać w ogóle się nie odzywa.
- *  3. KTOŚ ŚWIADOMIE UCISZA (`uciszPostac`) — wejście w minigrę, przejście
+ *  2. KTOŚ ŚWIADOMIE UCISZA (`uciszPostac`) — wejście w minigrę, przejście
  *     między krainami, pulpit dev. To jest wyjątek, nie odruch: zwykłe
  *     zamknięcie okna go NIE używa.
+ *
+ * Osobny wyłącznik samego lektora istnieje (`ttsPlayer.enabled`, sprawdzany
+ * w `speak`), ale w świecie nie ma go jeszcze na czym kliknąć — dziś rusza
+ * nim tylko `NarratorVoice`. Gdy będzie trzeba go wystawić dziecku albo
+ * rodzicowi, to jest ten przełącznik, a nie nutka.
  *
  * Kto tego używa: `PopupPostaci` (Wizkor i lisek na mapie),
  * `PodpowiedzMedrca` (podpowiedź Mędrca), `panels/ZadaniePanel`
@@ -32,7 +41,6 @@
  * postaci ma wchodzić tędy, a nie wołać `ttsPlayer` po swojemu — inaczej
  * zasada znów rozjedzie się na cztery kopie.
  */
-import bgMusic from "../services/bgMusic.js";
 import { ttsPlayer } from "../services/ttsPlayer.js";
 
 /**
@@ -44,7 +52,6 @@ import { ttsPlayer } from "../services/ttsPlayer.js";
  */
 export function powiedzPostacia(tekst, { glos, ton = "mystery" } = {}) {
   if (!tekst || !glos) return null;
-  if (!bgMusic.isEnabled()) return null;
   try {
     return Promise.resolve(ttsPlayer.speak(tekst, { land: glos, tone: ton, interrupt: true }));
   } catch {

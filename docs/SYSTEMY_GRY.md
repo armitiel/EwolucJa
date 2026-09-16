@@ -122,11 +122,17 @@ zatrzymuje go dłużej niż cała kwestia wypowiedziana.
 **Lektor kończy zdanie** (`hub/mowaPostaci.js`). Zamknięcie okna, zejście
 chmurki ani wyjście z szuflady NIE ucinają mowy — dziecko stuka w zielony
 przycisk po pierwszej linijce, bo już wie, co robić, i wcześniej traciło przez
-to resztę kwestii. Głos milknie dokładnie w trzech razach: gdy zaczyna mówić
-coś innego (`interrupt: true` w każdym wywołaniu), gdy gra zostaje wyciszona
-(nutka w HUD-zie → `bgMusic.onWyciszenie` → `ttsPlayer.stop`), i gdy ktoś
-świadomie ucisza (`uciszPostac` — wejście w ćwiczenie, przejście krainy).
-Przy wyciszonej grze postać w ogóle się nie odzywa.
+to resztę kwestii. Głos milknie dokładnie dwa razy: gdy zaczyna mówić coś
+innego (`interrupt: true` w każdym wywołaniu) i gdy ktoś świadomie ucisza
+(`uciszPostac` — wejście w ćwiczenie, przejście krainy).
+
+**Nutka w HUD-zie to wyłącznik TŁA, nie głosu** (decyzja właściciela,
+2026-09-16). Ścisza muzykę i dźwięki otoczenia; postacie mówią dalej. Przez
+chwilę wyciszała jedno i drugie — i dziecko, które ściszyło muzykę, bo gra
+przy kimś, traciło przy okazji jedyną wersję kwestii dostępną dla kogoś, kto
+jeszcze nie czyta płynnie. Osobny wyłącznik samego lektora istnieje
+(`ttsPlayer.enabled`), ale w świecie nie ma go jeszcze na czym kliknąć —
+rusza nim tylko `NarratorVoice`.
 
 ### 1.6 Tutorial gry — jeden ekran dla całej rodziny minigier
 

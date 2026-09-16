@@ -165,7 +165,8 @@ export default function PopupPostaci({
    *
    * Na ekranie zostaje wersja krótka (`tekstEkranu`), w głos idzie `tekst` —
    * dlatego kwestia może dopowiedzieć sens, nie zatrzymując dziecka przed
-   * ścianą liter. Muzykę ścisza i przywraca sam `ttsPlayer`.
+   * ścianą liter. Muzykę ścisza na czas mowy i przywraca sam `ttsPlayer`;
+   * wyciszona nutka w HUD-zie postaci NIE ucisza — to przełącznik tła.
    */
   useEffect(() => {
     if (!otwarty) return;

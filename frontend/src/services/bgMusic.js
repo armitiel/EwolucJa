@@ -71,12 +71,6 @@ class BgMusic {
     this._kolejka = [];          // reszta bieżącej, przetasowanej rundy
     this._track = this._dobierzUtwor();
     this._duckRequests = 0;
-    /* Kto ma zamilknac razem z muzyka. Dopisane, gdy lektor przestal byc
-       ucinany przy zamknieciu okna postaci: od tej pory nutka w HUD-zie
-       jest JEDYNYM miejscem, ktore potrafi go uciszyc w pol zdania.
-       Lista, a nie import `ttsPlayer` — to ON importuje ten plik
-       (ducking), wiec droga w druga strone zrobilaby cykl. */
-    this._naWyciszenie = [];
     this._installAutoUnlock();
   }
 
@@ -275,23 +269,16 @@ class BgMusic {
     } else {
       this._fade(0, 600);
       setTimeout(() => { if (this._audio) this._audio.pause(); }, 700);
-      // Muzyka gasnie z fade, glos NIE: dziecko stuka w nutke, zeby zrobilo
-      // sie cicho, a nie zeby dosluchac zdania do konca.
-      for (const f of this._naWyciszenie) { try { f(); } catch {} }
     }
   }
 
-  /**
-   * Zapisz sie na moment wyciszenia gry. Uzywa tego `ttsPlayer`, zeby lektor
-   * milkl razem z muzyka — patrz `hub/mowaPostaci.js`, gdzie stoi cala zasada.
+  /*
+   * NIE UCISZA LEKTORA (decyzja właściciela, 2026-09-16). Nutka w HUD-zie
+   * steruje samym tłem: dziecko, które ścisza muzykę, bo gra przy kimś,
+   * dalej ma słyszeć Wizkora. Stał tu przez chwilę haczyk `onWyciszenie`,
+   * którym `ttsPlayer` zatrzymywał mowę — zdjęty razem z tą zasadą.
+   * Wyłącznik samego głosu to `ttsPlayer.enabled`.
    */
-  onWyciszenie(fn) {
-    if (typeof fn === "function") this._naWyciszenie.push(fn);
-    return () => {
-      const i = this._naWyciszenie.indexOf(fn);
-      if (i >= 0) this._naWyciszenie.splice(i, 1);
-    };
-  }
 
   toggle() { this.setEnabled(!this._enabled); return this._enabled; }
   isEnabled() { return this._enabled; }

@@ -17,8 +17,9 @@
  *    w panelu opiekuna. Mędrzec jest po stronie dorosłego, więc brzmi jak on,
  *    a nie jak narrator prowadzący fabułę.
  *
- * Mówi tylko wtedy, gdy muzyka jest włączona: przycisk w HUD-zie jest dla
- * dziecka „ciszej w grze", a nie „ciszej, ale głos i tak wejdzie".
+ * Mówi niezależnie od nutki w HUD-zie — ta ścisza muzykę w tle, nie postacie
+ * (`hub/mowaPostaci.js`). Głos Mędrca bywa jedyną wersją porady dostępną dla
+ * dziecka, które jeszcze nie czyta płynnie.
  */
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { powiedzPostacia } from "./mowaPostaci.js";

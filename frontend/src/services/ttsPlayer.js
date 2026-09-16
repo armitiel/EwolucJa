@@ -26,10 +26,6 @@ class TTSPlayer {
 
     this._checkElevenLabs();
     this._installAutoUnlock();
-    /* Wyciszenie gry ucina lektora w pol slowa — i dobrze. Odkad glos konczy
-       zdanie mimo zamknietego okna (`hub/mowaPostaci.js`), nutka w HUD-zie
-       jest jedynym hamulcem, ktory dziecko ma pod palcem. */
-    try { bgMusic.onWyciszenie(() => this.stop()); } catch {}
   }
 
   _installAutoUnlock() {
@@ -302,8 +298,9 @@ export const ttsPlayer = new TTSPlayer();
 
 // Ten sam hak do debugowania, co przy `bgMusic` — i z tego samego powodu:
 //   window.ttsPlayer.stop() / speak("...", { land: "las_decyzji" })
-// Przydaje się zwłaszcza teraz, gdy lektor kończy zdanie po zamknięciu okna
-// (`hub/mowaPostaci.js`) i trzeba umieć go uciszyć z konsoli.
+//   window.ttsPlayer.enabled = false   ← jedyny wyłącznik samego lektora
+// Przydaje się zwłaszcza teraz, gdy głos kończy zdanie po zamknięciu okna
+// i nie słucha już nutki w HUD-zie (`hub/mowaPostaci.js`).
 if (typeof window !== "undefined") {
   window.ttsPlayer = ttsPlayer;
 }
