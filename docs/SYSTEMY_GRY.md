@@ -114,6 +114,20 @@ Dobór kwestii Wizkora do etapu jest w JEDNYM miejscu (`powitanieCzarodzieja`),
 bo pyta o to i hub, i pulpit testowy. Wcześniej siedziało w `Swiat.jsx` i stąd
 wzięła się cała klasa błędów „Wizkor gubi kolejność".
 
+**Dwie długości jednej kwestii.** `tekstEkranu` to JEDNO polecenie na karcie —
+co zrobić i gdzie, jedna–dwie linijki. `tekst` to pełniejsza wersja i tylko ona
+idzie w głos. Sześciolatek czyta kartę wolniej, niż słucha: ściana liter
+zatrzymuje go dłużej niż cała kwestia wypowiedziana.
+
+**Lektor kończy zdanie** (`hub/mowaPostaci.js`). Zamknięcie okna, zejście
+chmurki ani wyjście z szuflady NIE ucinają mowy — dziecko stuka w zielony
+przycisk po pierwszej linijce, bo już wie, co robić, i wcześniej traciło przez
+to resztę kwestii. Głos milknie dokładnie w trzech razach: gdy zaczyna mówić
+coś innego (`interrupt: true` w każdym wywołaniu), gdy gra zostaje wyciszona
+(nutka w HUD-zie → `bgMusic.onWyciszenie` → `ttsPlayer.stop`), i gdy ktoś
+świadomie ucisza (`uciszPostac` — wejście w ćwiczenie, przejście krainy).
+Przy wyciszonej grze postać w ogóle się nie odzywa.
+
 ### 1.6 Tutorial gry — jeden ekran dla całej rodziny minigier
 
 Miejsce w przepływie: **ekran startowy → „Zagraj!" → tutorial → partia**.
@@ -300,6 +314,11 @@ backendu (`backend/src/agents/`) nie są wołani z huba.
 
 ### Nowe powiadomienie
 `KINDS` w `adventure/engine/notifications.js` + `notify()` z wypełnionym `to`.
+
+### Nowe okno z głosem postaci
+Mowa wyłącznie przez `powiedzPostacia` z `hub/mowaPostaci.js` — nigdy wprost
+przez `ttsPlayer`, bo wtedy zasada „lektor kończy zdanie" rozjeżdża się na
+kolejną kopię. Krótka wersja na kartę idzie w `tekstEkranu`, pełna w `tekst`.
 
 ### Nowa wskazówka
 Wpis w `WSKAZOWKI` (`tryb`, `cel`, `obszar`, rytm). Nic poza tym.

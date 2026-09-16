@@ -52,7 +52,9 @@ export default function PoradaKarty({ onPowrot }) {
   const [zachetaKarty, setZachetaKarty] = useState(null);
 
   // Cisza przy wyjściu z panelu — inaczej lisek dokańcza zdanie już nad mapą.
-  useEffect(() => () => uciszLiska(), []);
+  /* Zamknięcie szuflady nie ucisza liska — zasada z `hub/mowaPostaci.js`.
+     Ucisza dopiero WEJŚCIE W ĆWICZENIE (`uruchom` niżej), bo tam głos
+     przejmuje sama praktyka. */
 
   // Uchwyt dla testów i reżyserki: resetuje stary i nowy zapis porad.
   useEffect(() => {

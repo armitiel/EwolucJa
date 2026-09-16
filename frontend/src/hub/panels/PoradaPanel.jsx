@@ -22,7 +22,7 @@ import { useAppData } from "../../contexts/AppData.jsx";
 import { nazwaArchetypuGracza, odmienDlaGracza } from "../../services/rodzaj.js";
 import { GameIcon } from "../../adventure/components/icons.jsx";
 import { oznaczPoradyObejrzane } from "../nowosci.js";
-import { powiedzJakLisek, uciszLiska } from "../glosLiska.js";
+import { powiedzJakLisek } from "../glosLiska.js";
 import {
   PORA_NAZWA,
   czytajHistorie,
@@ -64,7 +64,7 @@ function PoradaDnia({ onPowrot }) {
 
   /** Samo zajrzenie gasi plakietkę „nowe" na doku. */
   useEffect(() => { oznaczPoradyObejrzane(); }, []);
-  useEffect(() => () => uciszLiska(), []);
+  /* Bez uciszania przy zamknięciu — lisek kończy zdanie (`hub/mowaPostaci.js`). */
 
   // Zobaczona porada od razu ląduje w historii (lokalnie i na koncie), więc
   // jutro widać ją na liście, a nie tylko wtedy, gdy dziecko w nią kliknęło.

@@ -106,10 +106,11 @@ export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
         return {
           ...baza,
           tekst:
-            "Na polanie wbiłem paliki — tam stanie schronienie. Za nią stoi suche drzewko, " +
-            "uschło dawno temu i już nikomu nie służy: z niego będą słupy. Potrzebny jeszcze głaz — " +
-            "kamienie pójdą pod spód. Przynieś jedno i drugie na paliki.",
-          wyroznienie: "przynieś na paliki",
+            "Na polanie wbiłem paliki — tu stanie schronienie. " +
+            "Suche drzewko da słupy, głaz da kamienie pod spód. " +
+            "Przynieś jedno i drugie na paliki.",
+          tekstEkranu: "Przynieś na paliki suche drzewko i głaz.",
+          wyroznienie: "suche drzewko i głaz",
           przycisk: "Biorę się za to",
           akcja: "zlecDrewno",
         };
@@ -135,7 +136,12 @@ export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
         if (drewno.drzewka >= CEL_DRZEWKA && !drewno.drewnoNaPlacu) doPrzyniesienia.push(MAT.drewno);
         if (drewno.glazy >= CEL_GLAZY && !drewno.kamienNaPlacu) doPrzyniesienia.push(MAT.kamien);
 
+        /* Dwie wersje tej samej kwestii: `ekran` to jedno polecenie do
+           przeczytania w biegu, `tekst` to pełniejsze zdanie dla lektora.
+           Głos dopowiada je spokojnie także po zamknięciu okna, więc na
+           karcie nie musi stać wszystko (patrz `hub/mowaPostaci.js`). */
         let tekst;
+        let ekran;
         if (doPrzyniesienia.length === 1) {
           const m = doPrzyniesienia[0];
           tekst = doZdobycia.length
@@ -143,16 +149,22 @@ export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
               + `Zostało jeszcze: ${doZdobycia.join(" i ")}.`
             : `Jest wszystko, tylko ${m.nazwa} wciąż ${m.czeka} ${m.gdzie}. `
               + `Zanieś ${m.je} na paliki, a zaczniemy stawiać.`;
+          ekran = doZdobycia.length
+            ? `Zanieś ${m.nazwa} na paliki. Zostało: ${doZdobycia.join(" i ")}.`
+            : `Zanieś ${m.nazwa} na paliki.`;
         } else if (doPrzyniesienia.length > 1) {
           tekst = "Jest wszystko, tylko drewno i kamienie wciąż czekają tam, gdzie powstały. "
             + "Zanieś je na paliki, a zaczniemy stawiać.";
+          ekran = "Zanieś drewno i kamienie na paliki.";
         } else {
           tekst = `Idzie dobrze. Zostało jeszcze: ${doZdobycia.join(" i ")}.`;
+          ekran = `Zostało: ${doZdobycia.join(" i ")}.`;
         }
         return {
           ...baza,
           tekst,
-          wyroznienie: doPrzyniesienia.length ? "zanieś na paliki" : doZdobycia[0],
+          tekstEkranu: ekran,
+          wyroznienie: doPrzyniesienia.length ? "na paliki" : doZdobycia[0],
           przycisk: "Idę dalej",
           akcja: null,
         };
@@ -161,8 +173,9 @@ export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
         ...baza,
         ...POCHWALA,
         tekst:
-          "Wszystko leży na placu — sam to przyniosłeś. Postawmy pierwsze słupy, " +
-          "reszta schronienia przyjdzie z czasem.",
+          "Wszystko leży na placu — sam to przyniosłeś. " +
+          "Postawmy pierwsze słupy, reszta przyjdzie z czasem.",
+        tekstEkranu: "Stawiamy pierwsze słupy!",
         wyroznienie: "pierwsze słupy",
         przycisk: "Stawiamy!",
         akcja: "postawEtap",
@@ -184,8 +197,9 @@ export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
           ...baza,
           ...POCHWALA,
           tekst:
-            `Mentor przeczytał to, co mu wysłałeś. Przyjął. ` +
-            `Mentor przyznał ci ${nagroda} monet — bierz.`,
+            `Mentor przeczytał to, co mu wysłałeś, i przyjął. ` +
+            `Przyznał ci ${nagroda} monet — bierz.`,
+          tekstEkranu: `Mentor przyznał ci ${nagroda} monet.`,
           wyroznienie: `${nagroda} monet`,
           przycisk: "Odbieram nagrodę!",
           akcja: "otworzZadanie",
@@ -246,8 +260,9 @@ export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
         return {
           ...baza,
           tekst:
-            "Mapę już znasz, wędrowcze. Czas na zadanie poza ekranem.\n" +
+            "Mapę już znasz, wędrowcze. Czas na zadanie poza ekranem. " +
             "Zakręć kołem przeznaczenia — wskaże, którą siłę dziś ćwiczysz.",
+          tekstEkranu: "Zakręć kołem przeznaczenia.",
           wyroznienie: "kołem przeznaczenia",
           przycisk: "Kręcę kołem!",
           akcja: "kolo",
@@ -257,9 +272,10 @@ export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
       return {
         ...baza,
         tekst:
-          "Dobrze się spisałeś, mały wędrowcze. Odpocznij chwilę — " +
-          "przygotowuję dla ciebie nowe zadanie.",
-        wyroznienie: "nowe zadanie",
+          "Dobrze się spisałeś, mały wędrowcze. " +
+          "Odpocznij chwilę — przygotowuję dla ciebie nowe zadanie.",
+        tekstEkranu: "Odpocznij. Nowe zadanie już się szykuje.",
+        wyroznienie: "Nowe zadanie",
         przycisk: "Do zobaczenia!",
         akcja: null,
       };
@@ -334,7 +350,7 @@ export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
       tekst:
         `Masz je wszystkie! ${z.cel} gwiazdek, co do jednej. ` +
         `Należy ci się ${NAGRODA_MONET} monet — bierz.`,
-      tekstEkranu: "Masz wszystkie gwiazdki!",
+      tekstEkranu: `Masz wszystkie gwiazdki! Odbierz ${NAGRODA_MONET} monet.`,
       wizualizacja: { typ: "gwiazdki", wartosc: z.cel, cel: z.cel },
       wyroznienie: `${NAGRODA_MONET} monet`,
       przycisk: "Odbieram nagrodę!",
@@ -366,8 +382,7 @@ export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
     ...baza,
     tekst:
       `Witaj, mały wędrowcze! Jestem Wizkor, opiekun Świata Gama. ` +
-      `W całej krainie ukryło się ${CEL_DOMYSLNY} złotych gwiazdek. ` +
-      `Ciekawe, czy uda ci się znaleźć wszystkie?`,
+      `W krainie ukryło się ${CEL_DOMYSLNY} złotych gwiazdek. Znajdziesz wszystkie?`,
     tekstEkranu: "Zbierz złote gwiazdki ukryte na polanie.",
     wizualizacja: { typ: "gwiazdki", wartosc: 0, cel: CEL_DOMYSLNY },
     wyroznienie: `${CEL_DOMYSLNY} złotych gwiazdek`,

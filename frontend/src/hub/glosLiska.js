@@ -92,7 +92,13 @@ export function powiedzJakLisek(tekst, { przerwij = true } = {}) {
   } catch {}
 }
 
-/** Ucisza liska — np. przy zamknięciu szuflady albo wyjściu z panelu. */
+/**
+ * Ucisza liska NATYCHMIAST — tylko tam, gdzie cisza jest intencją: wejście
+ * w ćwiczenie, w którym głos przejmuje sama praktyka.
+ *
+ * NIE przy zamknięciu szuflady ani zejściu chmurki. Lisek kończy zdanie
+ * dokładnie tak samo jak Wizkor — cała zasada stoi w `hub/mowaPostaci.js`.
+ */
 export function uciszLiska() {
   try { ttsPlayer.stop(); } catch {}
 }

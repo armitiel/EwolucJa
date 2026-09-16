@@ -21,8 +21,7 @@
  * dziecka „ciszej w grze", a nie „ciszej, ale głos i tak wejdzie".
  */
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
-import bgMusic from "../services/bgMusic.js";
-import { ttsPlayer } from "../services/ttsPlayer.js";
+import { powiedzPostacia } from "./mowaPostaci.js";
 import DANE from "../hub/data/porady-zdrowia.v1.json";
 
 const PIERWSZA = 75_000;        // ile spokojnej gry przed pierwszym wejściem
@@ -52,30 +51,21 @@ const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true }
   const licznik = useRef(0);
   const timerPokazu = useRef(null);
   const timerUkrycia = useRef(null);
-  const mowi = useRef(false);
   const wymuszone = useRef(false);
 
   const powtorz = useCallback((tekst) => {
-    if (!tekst || !bgMusic.isEnabled()) return;
-    mowi.current = true;
-    try {
-      Promise.resolve(ttsPlayer.speak(tekst, {
-        land: "mentor",
-        tone: "calm",
-        interrupt: true,
-      })).finally(() => { mowi.current = false; });
-    } catch {
-      mowi.current = false;
-    }
+    powiedzPostacia(tekst, { glos: "mentor", ton: "calm" });
   }, []);
 
+  /**
+   * Chowa dymek, ale NIE ucisza Mędrca — ta sama zasada, co w oknie postaci:
+   * lektor kończy zdanie (`hub/mowaPostaci.js`). Dymek znika po jedenastu
+   * sekundach albo po dotknięciu; zdanie bywa dłuższe niż cierpliwość palca,
+   * a urwane w połowie brzmi jak usterka, nie jak koniec rozmowy.
+   */
   const schowaj = useCallback(() => {
     window.clearTimeout(timerUkrycia.current);
     wymuszone.current = false;
-    if (mowi.current) {
-      try { ttsPlayer.stop(); } catch {}
-      mowi.current = false;
-    }
     setPorada(null);
   }, []);
 

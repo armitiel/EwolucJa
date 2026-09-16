@@ -20,8 +20,7 @@ import { upload } from "@vercel/blob/client";
 import { API_BASE } from "../../config.js";
 import { useAppData } from "../../contexts/AppData.jsx";
 import { GameIcon } from "../../adventure/components/icons.jsx";
-import bgMusic from "../../services/bgMusic.js";
-import { ttsPlayer } from "../../services/ttsPlayer.js";
+import { powiedzPostacia } from "../mowaPostaci.js";
 import {
   odbierzNagrode,
   sprawdzMentora,
@@ -81,13 +80,10 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
 
   const czytajZadanie = useCallback(() => {
     if (!def || !stan.doZrobienia) return;
-    try {
-      ttsPlayer.speak([def.cel, def.jak].filter(Boolean).join(" "), {
-        land: "las_decyzji",
-        tone: "mystery",
-        interrupt: true,
-      });
-    } catch {}
+    powiedzPostacia([def.cel, def.jak].filter(Boolean).join(" "), {
+      glos: "las_decyzji",
+      ton: "mystery",
+    });
   }, [def, stan.doZrobienia]);
 
   /**
@@ -102,7 +98,10 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
    *    inny głos w panelu znaczyłby dla dziecka inną postać;
    *  • milczy przy wyciszonej grze — nutka w HUD-zie znaczy „ciszej w grze",
    *    a nie „ciszej, ale głos i tak wejdzie";
-   *  • zamknięcie panelu ucina mowę w pół słowa.
+   *  • zamknięcie panelu NIE ucina mowy. Polecenie do zrobienia poza ekranem
+   *    jest jedyną kwestią, którą dziecko ma zapamiętać po wyjściu z apki —
+   *    urwane w połowie zostawia je z „zrób coś" bez „co". Cała zasada stoi
+   *    w `hub/mowaPostaci.js`.
    *
    * Mówi TYLKO o zadaniu do zrobienia. Dowód ma osobny, drugi krok, więc nie
    * czytamy jego instrukcji, zanim dziecko zdecyduje, że już skończyło.
@@ -116,10 +115,9 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
    * chodzi. Wizkor mówi więc od razu, na czym zadanie polega.
    */
   useEffect(() => {
-    if (!def || !stan.doZrobienia) return undefined;
-    if (!bgMusic.isEnabled()) return undefined;
+    // Wyciszona gra odsiewa się w `powiedzPostacia` — jedno miejsce na tę
+    // decyzję, żeby nie rozjechała się między panelem a oknem postaci.
     czytajZadanie();
-    return () => { try { ttsPlayer.stop(); } catch {} };
   }, [czytajZadanie, stan.doZrobienia]);
 
   const dodajZdjecie = useCallback(async (zdarzenie) => {

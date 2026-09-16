@@ -29,7 +29,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { OGON_DLUGOSC, sciezkaChmurki } from "./ksztaltChmurki.js";
 import bgMusic from "../services/bgMusic.js";
-import { powiedzJakLisek, uciszLiska } from "./glosLiska.js";
+import { powiedzJakLisek } from "./glosLiska.js";
 
 const ODSTEP = 10;          // ile światła/obręczy zostaje wokół celu
 const PRZERWA = 9;          // odstęp chmurki od obręczy — dzióbek ma jej DOTYKAĆ
@@ -165,13 +165,14 @@ export default function Reflektor({ wskazowka, onZamknij }) {
   // Lisek odzywa się chwilę po wjeździe chmurki, aby głos i animacja nie
   // startowały w tej samej klatce. Tekst pozostaje pełnym odpowiednikiem mowy,
   // a przycisk nutki pozwala ją powtórzyć. Brak dźwięku niczego nie blokuje.
+  // Zejście chmurki NIE ucina zdania — ta sama zasada, co w oknie postaci
+  // (`hub/mowaPostaci.js`). Chmurka schodzi sama po kilku sekundach, a lisek
+  // urwany w połowie brzmiał, jakby gra się zacięła. Kolejna wskazówka i tak
+  // wchodzi na jego miejsce, bo `powiedzJakLisek` przerywa poprzednią.
   useEffect(() => {
     if (wskazowka?.glos !== "lisek") return undefined;
     const zegar = window.setTimeout(powtorzGlos, 420);
-    return () => {
-      window.clearTimeout(zegar);
-      uciszLiska();
-    };
+    return () => window.clearTimeout(zegar);
   }, [wskazowka?.id, wskazowka?.glos, powtorzGlos]);
 
   /**

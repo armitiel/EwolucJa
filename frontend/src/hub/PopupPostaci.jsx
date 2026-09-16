@@ -23,8 +23,7 @@
  * `window.popupPostaci.pokaz()` i adres `?popup=1`.
  */
 import React, { useEffect, useRef, useState } from "react";
-import bgMusic from "../services/bgMusic.js";
-import { ttsPlayer } from "../services/ttsPlayer.js";
+import { powiedzPostacia } from "./mowaPostaci.js";
 
 /**
  * `prefers-reduced-motion` czytane z JS, a nie z CSS — i to jest istotna
@@ -113,8 +112,15 @@ export default function PopupPostaci({
    */
   obrazekAnim = null,
   tekst = "",
-  // Opcjonalny, krotki tekst tylko NA EKRAN. `tekst` nadal jest pelna
-  // kwestia czytana przez TTS, wiec lektor moze spokojnie dopowiedziec sens.
+  /**
+   * Krótka wersja TYLKO NA EKRAN. `tekst` zostaje pełną kwestią i to on idzie
+   * w głos — a lektor nie milknie przy zamknięciu okna (`hub/mowaPostaci.js`),
+   * więc spokojnie dopowiada resztę, gdy lis już biegnie.
+   *
+   * Podział jest celowy: sześciolatek czyta kartę wolniej, niż słucha, a ściana
+   * liter w oknie zatrzymuje go dłużej niż cała kwestia wypowiedziana. Na karcie
+   * ma stać JEDNO polecenie — co zrobić i gdzie; „dlaczego" należy do głosu.
+   */
   tekstEkranu = null,
   wyroznienie = "",
   wizualizacja = null,
@@ -153,25 +159,17 @@ export default function PopupPostaci({
   const bohater = obrazekAnim && !spokojnie ? obrazekAnim : obrazek;
 
   /**
-   * Postać MÓWI to, co ma w dymku. Tekst i tak jest na ekranie, więc lektor
-   * nie jest jedynym nośnikiem treści — jest dla dzieci, które jeszcze słabo
-   * czytają, i dla wrażenia, że ktoś naprawdę się odezwał.
+   * Postać MÓWI to, co ma w dymku — i mówi to DO KOŃCA, także wtedy, gdy
+   * dziecko zamknie okno po pierwszej linijce. Cała zasada (kiedy głos milknie
+   * i dlaczego zamknięcie go nie ucina) stoi w `hub/mowaPostaci.js`.
    *
-   * Dwie zasady, obie te same co u Mędrca:
-   *  • milczy przy wyciszonej grze — przycisk nutki w HUD-zie znaczy dla
-   *    dziecka „ciszej w grze", a nie „ciszej, ale głos i tak wejdzie";
-   *  • zamknięcie okna ucina mowę w pół słowa. Postać skończyła rozmowę,
-   *    więc nie ma prawa mówić dalej zza kadru, gdy lis już biegnie.
-   *
-   * Muzykę ścisza i przywraca sam `ttsPlayer`.
+   * Na ekranie zostaje wersja krótka (`tekstEkranu`), w głos idzie `tekst` —
+   * dlatego kwestia może dopowiedzieć sens, nie zatrzymując dziecka przed
+   * ścianą liter. Muzykę ścisza i przywraca sam `ttsPlayer`.
    */
   useEffect(() => {
-    if (!otwarty || !glos || !tekst) return undefined;
-    if (!bgMusic.isEnabled()) return undefined;
-    try {
-      ttsPlayer.speak(tekst, { land: glos, tone: ton, interrupt: true });
-    } catch {}
-    return () => { try { ttsPlayer.stop(); } catch {} };
+    if (!otwarty) return;
+    powiedzPostacia(tekst, { glos, ton });
   }, [otwarty, glos, ton, tekst]);
 
   // Escape zamyka — na desktopie to odruch, a okno nie ma nic do stracenia.
@@ -251,7 +249,11 @@ export default function PopupPostaci({
         </p>
 
         <p className="popup-postaci-tekst">
-          {zlozTekst(tekstEkranu || tekst, tekstEkranu ? "" : wyroznienie)}
+          {/* Wyróżnienie podajemy ZAWSZE — także przy krótkiej wersji. Gdy frazy
+              w niej nie ma, `zlozTekst` oddaje zdanie w całości, więc nic się
+              nie psuje, a kwestie, które da się skrócić Z zachowaniem frazy,
+              nie tracą podkreślenia. */}
+          {zlozTekst(tekstEkranu || tekst, wyroznienie)}
         </p>
 
         {wizualizacja ? (
