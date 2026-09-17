@@ -10,9 +10,17 @@
  *    wprost, więc gdyby ktoś chciał tu dopisać `dodajMonety`, niech najpierw
  *    przeczyta tamten plik.
  *
- * 2. LICZY RZECZY, NIE SZTUKI. Do etapu potrzeba jednego ściętego drzewa
- *    i jednego głazu — nie „ośmiu jednostek drewna". Dwa konkretne cele
- *    dziecko trzyma w głowie bez licznika; osiem jednostek to już magazyn.
+ * 2. LICZY RZECZY, NIE SZTUKI. Do etapu potrzeba TRZECH ściętych drzew
+ *    i trzech stosów zniesionych pod drzewo — nie „ośmiu jednostek drewna".
+ *    Trzy takie same rzeczy dziecko trzyma w głowie i widzi w HUD-zie jako
+ *    trzy znaczki; osiem jednostek to już magazyn.
+ *
+ *    KAMIEŃ WYPADŁ Z BUDOWY (decyzja właściciela 2026-09-17). Wcześniej etap
+ *    kosztował jedno drzewo i jeden głaz, przez co dziecko uczyło się dwóch
+ *    różnych czynności naraz, zanim zobaczyło pierwszy efekt. Teraz jest jedna
+ *    czynność powtórzona trzy razy — i to ona buduje nawyk. Głaz został na
+ *    polanie jako element świata, ale nie jest już celem (`mapa.json`,
+ *    `doRozbicia: false`).
  *
  * 3. ŚCIĘCIE TO POŁOWA ROBOTY. Materiał nie teleportuje się na budowę —
  *    lisek musi go donieść. Stąd DWA stopnie dla każdej rzeczy:
@@ -21,11 +29,11 @@
  *    uprościć „bo szybciej" — to właśnie kurs z materiałem jest momentem,
  *    w którym „zdobyłem" zamienia się w „przyniosłem".
  *
- * 4. ŚCINAMY JEDNO DOWOLNE DRZEWO. Dziecko wybiera, które — i to ono zamienia
- *    się w stos kłód; reszta lasu stoi. Wyjątkiem jest wielkie drzewo na
- *    polanie: na nim ma stanąć domek, więc scena nie daje mu znaku do ścięcia.
+ * 4. ŚCINAMY TRZY DOWOLNE DRZEWA. Dziecko wybiera które — każde zamienia się
+ *    w stos kłód; reszta lasu stoi. Wyjątkiem jest wielkie drzewo na polanie:
+ *    na nim ma stanąć domek, więc scena nie daje mu znaku do ścięcia.
  *    Zapis tego nie pilnuje (pilnuje scena), ale gdyby ktoś wołał
- *    `policzDrzewko` z innego miejsca — to jest JEDNO drzewo na etap,
+ *    `policzDrzewko` z innego miejsca — to są TRZY drzewa na etap,
  *    a nie zaproszenie do wycinania lasu.
  *
  * Czego tu NIE MA i nie powinno być: tego, co lisek niesie w tej chwili.
@@ -58,9 +66,16 @@ function ogloszZmiane() {
   try { window.dispatchEvent(new CustomEvent(ZDARZENIE_ZMIANY)); } catch {}
 }
 
-/** Ile czego trzeba na pierwszy etap. Zgodne z `KOSZT_ETAPU` w scenie. */
-export const CEL_DRZEWKA = 1;
-export const CEL_GLAZY = 1;
+/**
+ * Ile czego trzeba na pierwszy etap.
+ *
+ * Trzy drzewa i trzy stosy pod drzewem — te same trzy rzeczy w dwóch stopniach,
+ * nie sześć osobnych celów. `CEL_STOSOW` stoi obok `CEL_DRZEWKA` osobno, bo to
+ * DWA różne pytania („czy ścięte?" i „czy na placu?") i kod czyta się jaśniej,
+ * gdy nie trzeba pamiętać, że to przypadkiem ta sama liczba.
+ */
+export const CEL_DRZEWKA = 3;
+export const CEL_STOSOW = 3;
 
 /**
  * Stany, jeden obiekt — tak samo jak przy gwiazdkach, bo czarodziej
@@ -78,20 +93,20 @@ const PUSTE = {
   istnieje: false,
   aktywne: false,
   drzewka: 0,
-  glazy: 0,
   // Dzień (YYYY-MM-DD), w którym postawiono ostatnie piętro domku.
   dzienEtapu: null,
-  // Identyfikatory zużytych obiektów („drzewko-polana", „glaz-polana").
+  // Identyfikatory zużytych obiektów (id drzew z mapy, np. „drzewo-3.10-8.42").
   // Trzymamy je W ZAPISIE z tego samego powodu co przy gwiazdkach: mapa
   // buduje się od nowa przy każdym wejściu, więc bez tej listy ścięte
-  // drzewko wracałoby na polanę całe.
+  // drzewo wracałoby na polanę całe.
   zuzyte: [],
   /**
-   * Co leży JUŻ NA PLACU. Klucz to rodzaj, wartość to id obiektu, z którego
-   * materiał pochodzi — scena potrzebuje id, żeby po powrocie do świata
-   * odtworzyć skład, a rodzaj mówi HUD-owi, którą ikonkę zapalić.
+   * Co leży JUŻ POD DRZEWEM — lista id obiektów, z których materiał pochodzi.
+   * LISTA, a nie dwa nazwane sloty jak przed 17.09: stosy są nierozróżnialne,
+   * liczy się ich LICZBA, a id scena potrzebuje tylko po to, żeby po powrocie
+   * do świata odtworzyć skład i nie wskrzesić ściętego drzewa.
    */
-  dostarczone: { drewno: null, kamien: null },
+  dostarczone: [],
   spelnione: false,
   zbudowane: false,
   /** Numer najwyższego postawionego etapu schronienia (0 = pusta polana). */
@@ -100,10 +115,23 @@ const PUSTE = {
   miejscePokazane: false,
 };
 
+/**
+ * Czyta dostawy z zapisu — w dwóch kształtach, bo stare profile ich nie zmienią.
+ *
+ * DO 17.09 stało tu `{ drewno: id, kamien: id }`: jedno drewno i jeden kamień.
+ * Kamień przestał być materiałem, więc ze starego zapisu bierzemy samo drewno.
+ * Dziecko w połowie tamtego zadania traci z placu kupkę kamieni (i licznik
+ * cofa się do 1 z 3) — ale ścięte drzewa zostają zaliczone, a alternatywą było
+ * zostawienie na placu materiału, którego budowa już nie używa.
+ */
 function czytajDostarczone(surowe) {
-  const d = surowe && typeof surowe === "object" ? surowe : {};
-  const tekst = (v) => (typeof v === "string" && v ? v : null);
-  return { drewno: tekst(d.drewno), kamien: tekst(d.kamien) };
+  if (Array.isArray(surowe)) {
+    return surowe.filter((x) => typeof x === "string" && x).slice(0, CEL_STOSOW);
+  }
+  if (surowe && typeof surowe === "object" && typeof surowe.drewno === "string" && surowe.drewno) {
+    return [surowe.drewno];
+  }
+  return [];
 }
 
 function czytaj() {
@@ -113,7 +141,6 @@ function czytaj() {
     return {
       istnieje: true,
       drzewka: Math.max(0, Number(surowe.drzewka) || 0),
-      glazy: Math.max(0, Number(surowe.glazy) || 0),
       zuzyte: Array.isArray(surowe.zuzyte) ? surowe.zuzyte.filter((x) => typeof x === "string") : [],
       dostarczone: czytajDostarczone(surowe.dostarczone),
       zbudowane: !!surowe.zbudowane,
@@ -129,7 +156,7 @@ function czytaj() {
 function zapisz(stan) {
   try {
     localStorage.setItem(KLUCZ, JSON.stringify({
-      drzewka: stan.drzewka, glazy: stan.glazy,
+      drzewka: stan.drzewka,
       zuzyte: stan.zuzyte, dostarczone: stan.dostarczone,
       zbudowane: stan.zbudowane, etap: stan.etap,
       dzienEtapu: stan.dzienEtapu ?? null,
@@ -151,23 +178,27 @@ export function stanDrewna() {
   if (!s) {
     return {
       ...PUSTE,
-      dostarczone: { ...PUSTE.dostarczone },
+      dostarczone: [],
       dostarczoneId: [],
-      drewnoNaPlacu: false,
-      kamienNaPlacu: false,
+      naPlacu: 0,
+      doSciecia: CEL_DRZEWKA,
+      doZniesienia: 0,
     };
   }
-  const drewnoNaPlacu = !!s.dostarczone.drewno;
-  const kamienNaPlacu = !!s.dostarczone.kamien;
+  const naPlacu = s.dostarczone.length;
   return {
     ...s,
-    drewnoNaPlacu,
-    kamienNaPlacu,
+    /** Ile stosów leży już pod drzewem (0..CEL_STOSOW). */
+    naPlacu,
+    /** Ile drzew jeszcze trzeba ściąć. */
+    doSciecia: Math.max(0, CEL_DRZEWKA - s.drzewka),
+    /** Ile stosów jest ściętych, ale wciąż leży w lesie. */
+    doZniesienia: Math.max(0, Math.min(s.drzewka, CEL_DRZEWKA) - naPlacu),
     /** Lista id do odtworzenia składu przez scenę. */
-    dostarczoneId: [s.dostarczone.drewno, s.dostarczone.kamien].filter(Boolean),
+    dostarczoneId: [...s.dostarczone],
     /* SPEŁNIONE ZNACZY „NA PLACU", nie „ścięte". To jest jedyne miejsce,
        w którym ta różnica zapada — reszta aplikacji czyta `spelnione`. */
-    spelnione: drewnoNaPlacu && kamienNaPlacu,
+    spelnione: naPlacu >= CEL_STOSOW,
     aktywne: !s.zbudowane,
   };
 }
@@ -175,22 +206,17 @@ export function stanDrewna() {
 export function rozpocznijZadanieDrewna() {
   const s = czytaj();
   if (s) return stanDrewna();
-  zapisz({ ...PUSTE, dostarczone: { ...PUSTE.dostarczone }, istnieje: true, aktywne: true });
+  zapisz({ ...PUSTE, dostarczone: [], istnieje: true, aktywne: true });
   return stanDrewna();
 }
 
 /**
- * Zalicza jedno ścięte drzewko. `znak` to identyfikator obiektu z mapy —
- * bez niego to samo drzewko dałoby się „ściąć" dwa razy po wejściu do świata
+ * Zalicza jedno ścięte drzewo. `znak` to identyfikator obiektu z mapy —
+ * bez niego to samo drzewo dałoby się „ściąć" dwa razy po wejściu do świata
  * od nowa.
  */
 export function policzDrzewko(znak) {
   return policz("drzewka", znak);
-}
-
-/** Zalicza jeden rozbity głaz. */
-export function policzGlaz(znak) {
-  return policz("glazy", znak);
 }
 
 function policz(pole, znak) {
@@ -207,20 +233,29 @@ function policz(pole, znak) {
 }
 
 /**
- * Zalicza DONIESIENIE materiału na plac. To ten krok otwiera budowę —
- * `rodzaj` przychodzi ze sceny jako „drzewko" albo „glaz".
+ * Zalicza DONIESIENIE stosu pod drzewo. To ten krok otwiera budowę.
+ *
+ * `rodzaj` przychodzi ze sceny („drzewko" albo „glaz"). Kamień od 17.09 NIE
+ * JEST materiałem: scena i tak nie powinna go przynieść (głaz stracił znak
+ * `doRozbicia`), ale stary zapis albo pulpit dev mogą jeszcze zawołać tę
+ * funkcję z „glaz" — wtedy nic nie zaliczamy, zamiast po cichu przyjąć
+ * na plac coś, czego budowa nie użyje.
  */
 export function zaliczDostawe(rodzaj, znak) {
   let s = czytaj();
   if (!s) { rozpocznijZadanieDrewna(); s = czytaj(); if (!s) return stanDrewna(); }
-  const klucz = rodzaj === "glaz" ? "kamien" : "drewno";
-  if (s.dostarczone[klucz]) return stanDrewna();
-  s.dostarczone = { ...s.dostarczone, [klucz]: znak || klucz };
+  if (rodzaj === "glaz") return stanDrewna();
+  if (s.dostarczone.length >= CEL_STOSOW) return stanDrewna();
+  // Bez id stos i tak musi mieć czym się różnić od poprzedniego, inaczej
+  // druga dostawa z pulpitu nadpisałaby pierwszą.
+  const id = znak || `stos-${s.dostarczone.length + 1}`;
+  if (s.dostarczone.includes(id)) return stanDrewna();
+  s.dostarczone = [...s.dostarczone, id];
   // Dostawa bez wcześniejszego ścięcia (pulpit testowy) domyka też ten stopień,
-  // inaczej HUD pokazywałby „na placu" przy nieodhaczonym ✓.
-  if (znak && !s.zuzyte.includes(znak)) {
-    s.zuzyte = [...s.zuzyte, znak];
-    if (klucz === "kamien") s.glazy += 1; else s.drzewka += 1;
+  // inaczej HUD pokazywałby „pod drzewem" przy nieodhaczonym ✓.
+  if (!s.zuzyte.includes(id)) {
+    s.zuzyte = [...s.zuzyte, id];
+    s.drzewka += 1;
   }
   zapisz(s);
   return stanDrewna();

@@ -101,8 +101,8 @@
     {
       "typ": "sosna",
       "pos": [
-        7.99,
-        -17.71
+        7.9,
+        -17.85
       ],
       "skala": 1,
       "obrot": -1.92
@@ -110,7 +110,7 @@
     {
       "typ": "sosna",
       "pos": [
-        5.89,
+        8.03,
         -20.27
       ],
       "skala": 1.24
@@ -126,8 +126,8 @@
     {
       "typ": "lisciaste",
       "pos": [
-        9.93,
-        -15.06
+        12.7,
+        -17.36
       ],
       "skala": 0.71
     },
@@ -186,8 +186,8 @@
     {
       "typ": "sosna",
       "pos": [
-        -9.6,
-        -20.68
+        -9.82,
+        -21.44
       ],
       "skala": 0.84,
       "obrot": -1.89
@@ -195,16 +195,16 @@
     {
       "typ": "sosna",
       "pos": [
-        -10.46,
-        -19.27
+        -11.03,
+        -19.3
       ],
       "skala": 0.79
     },
     {
-      "typ": "sosna",
+      "typ": "lisciaste",
       "pos": [
-        -7.97,
-        -19.77
+        -7.63,
+        -19.88
       ],
       "skala": 1.25
     },
@@ -251,7 +251,8 @@
         9.01
       ],
       "skala": 1.1,
-      "doRozbicia": true,
+      "_doRozbiciaOpis": "Wylaczony 17.09: kamien nie jest juz materialem na domek (etap kosztuje trzy stosy drewna). Glaz zostaje na polanie jako element swiata. Zeby wrocil jako cel, ustaw \"doRozbicia\": true — scena czyta wylacznie ten znacznik.",
+      "doRozbicia": false,
       "id": "glaz-polana"
     },
     {
@@ -382,7 +383,7 @@
       "jasnosc": 1.7,
       "absorb": true,
       "absorbLift": 1.7,
-      "respawn": null
+      "respawn": 3.2
     },
     {
       "id": "gwiazda-1",
@@ -678,7 +679,7 @@
       "iskry": 14,
       "iskrySila": 1.1,
       "zbrojenie": 3.4,
-      "respawn": null
+      "respawn": 3.2
     },
     {
       "id": "bucik",
@@ -702,7 +703,7 @@
       "jasnosc": 1.6,
       "absorb": true,
       "absorbLift": 1.7,
-      "respawn": null,
+      "respawn": 3.2,
       "iskry": 20,
       "iskrySila": 1.3
     },
@@ -723,7 +724,7 @@
       "lightBase": 0,
       "absorb": true,
       "absorbLift": 1.5,
-      "respawn": 12,
+      "respawn": null,
       "iskry": 24,
       "iskrySila": 1.5,
       "id": "puzel-1",
@@ -749,7 +750,7 @@
       "lightBase": 0,
       "absorb": true,
       "absorbLift": 1.5,
-      "respawn": 12,
+      "respawn": null,
       "iskry": 24,
       "iskrySila": 1.5,
       "id": "puzel-2",
@@ -1077,10 +1078,52 @@
         3.2
       ],
       "skala": 0.9
+    },
+    {
+      "pos": [
+        10.08,
+        17.05
+      ],
+      "skala": 1,
+      "obrot": -0.85
+    },
+    {
+      "pos": [
+        -20.4,
+        12.2
+      ],
+      "skala": 1,
+      "obrot": 3.019
+    },
+    {
+      "pos": [
+        19.31,
+        -3.18
+      ],
+      "skala": 1,
+      "obrot": 1.411
+    },
+    {
+      "pos": [
+        -9.37,
+        -19.55
+      ],
+      "skala": 1,
+      "obrot": 2.921
+    },
+    {
+      "pos": [
+        3.82,
+        -24.46
+      ],
+      "skala": 1,
+      "obrot": 0.211
     }
   ],
   "galezie": [],
-  "sucheDrzewka": [
+  "_sucheDrzewkaOpis": "Suchy pien wylaczony 17.09: od 16.09 sciac mozna KAZDE drzewo, wiec martwy pien byl juz tylko drugim, mylacym celem. Zeby wrocil, przenies wpisy z \"sucheDrzewkaWylaczone\" z powrotem do \"sucheDrzewka\".",
+  "sucheDrzewka": [],
+  "sucheDrzewkaWylaczone": [
     {
       "file": "suche_drzewko",
       "pos": [
@@ -1100,7 +1143,67 @@
       1.65
     ],
     "skala": 1.45,
-    "obrot": -0.25
+    "obrot": -0.25,
+    "uklad": {
+      "obrotModelu": 5.065,
+      "skalaModelu": 0.695,
+      "zanurzeniePnia": 0.61,
+      "klepiskoR": 1.06,
+      "poziom": 2.6,
+      "zasiegKonaru": 1.41,
+      "pomostOd": 0.2,
+      "pomostPol": 0.56,
+      "pienX": 1.18,
+      "pienY": 0.04,
+      "pienZ": -0.52,
+      "barierka": 0.5,
+      "drabinkaOdsun": 0.62,
+      "drabinkaDlugosc": 1,
+      "korony": [
+        [
+          1.12,
+          3.57,
+          1.93,
+          0.85,
+          0
+        ],
+        [
+          1.84,
+          3.68,
+          -1.42,
+          0.72,
+          1
+        ],
+        [
+          0.22,
+          4.04,
+          -1.57,
+          0.67,
+          0
+        ],
+        [
+          0.13,
+          3.51,
+          2.56,
+          0.72,
+          1
+        ],
+        [
+          -0.49,
+          3.78,
+          -0.49,
+          0.72,
+          1
+        ],
+        [
+          0.04,
+          3.64,
+          1.48,
+          0.72,
+          0
+        ]
+      ]
+    }
   },
   "oczka": [
     {

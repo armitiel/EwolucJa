@@ -1846,6 +1846,7 @@ export class Aplikacja {
     this._fasolaTik(e);
     this._rabanieTik(e);
     this._transportTik(e);
+    this._sladTik(e);
     if (this.dymki) this.dymki.aktualizuj(e, this.hn, this.hf, this.doba?.stan || null);
     this._czasGry = (this._czasGry || 0) + e;
 
@@ -2541,11 +2542,87 @@ export class Aplikacja {
   _ladunekModel(rodzaj, s) {
     const g = new Group();
     g.name = "ladunek";
-    // Mniejszy niż to, co leżało w lesie: na plecach ma się mieścić, a nie
-    // przykrywać liska. Proporcja, nie stała — stos z wyższego drzewka
-    // dalej ma być większy od kupki kamyków.
-    g.add(rodzaj === "glaz" ? kamyczki(s * .42) : stosDrewna(s * .42));
+    /* WIĘKSZY NIŻ BYŁ (decyzja właściciela 2026-09-17). Przy 0,42 ładunek
+       ginął za uszami liska: z góry widać było ciemny prostokąt i nie dało
+       się poznać, czy to drewno, czy kamienie. A niesiona rzecz jest jedyną
+       rzeczą, która tłumaczy, PO CO jest ten kurs — musi być czytelna.
+       Proporcja, nie stała: stos z wyższego drzewka dalej jest większy
+       od kupki kamyków.
+
+       Drewno bierze wersję BEZ SZCZAP — z boku sterczały jak luźna deska
+       (patrz `stosDrewna` w `natura.js`). */
+    g.add(rodzaj === "glaz" ? kamyczki(s * .58) : stosDrewna(s * .58, { szczapy: false }));
     return g;
+  }
+
+  /* ── ŚLAD DO PLACU ────────────────────────────────────────────────────────
+   *
+   * Kropki leżące na ziemi od liska do placu budowy, zapalające się falą
+   * w stronę celu. Widać je WYŁĄCZNIE, gdy lisek coś niesie.
+   *
+   * PO CO. Ładunek odbiera swobodę: dopóki lisek niesie, jedyne, co można
+   * zrobić, to donieść (patrz `_transportTik`). Dziecko, które dopiero co
+   * ścięło drzewo gdzieś w lesie, nie ma jak wiedzieć, w którą stronę jest
+   * plac — a błądzenie z pełnymi rękami to jedyny moment w tej grze, w którym
+   * eksploracja przestaje być nagrodą i zaczyna być karą. Ślad odpowiada na
+   * pytanie „którędy", nie odbierając przy tym sterowania: to podpowiedź na
+   * ziemi, nie prowadzenie za rękę.
+   *
+   * Kropki idą po PARAMETRACH MAPY, nie po prostej w przestrzeni — każda
+   * siada na swojej wysokości gruntu, więc ślad płynie po pagórkach zamiast
+   * wbijać się w zbocze.
+   */
+  _sladDoPlacu() {
+    if (this._slad) return this._slad;
+    const g = new Group();
+    g.name = "slad-do-placu";
+    const geo = new CircleGeometry(.135, 14);
+    this._sladKropki = [];
+    for (let i = 0; i < 16; i += 1) {
+      const m = new Mesh(geo, new MeshBasicMaterial({
+        color: 0xffc23a, transparent: true, opacity: 0, depthWrite: false,
+      }));
+      m.rotation.x = -Math.PI / 2;
+      const kotwica = new Group();
+      kotwica.add(m);
+      g.add(kotwica);
+      this._sladKropki.push(kotwica);
+    }
+    g.visible = false;
+    this.swiat.add(g);
+    this._slad = g;
+    return g;
+  }
+
+  _sladTik(e) {
+    const def = this.mapa.schronienie;
+    const aktywny = !!this._ladunek && !!def && Array.isArray(def.pos) && !this._kino && !this._podglad;
+    if (!aktywny) { if (this._slad) this._slad.visible = false; return; }
+
+    const g = this._sladDoPlacu();
+    g.visible = true;
+    // Faza fali. Wolna (0,45/s): to ma wskazywać kierunek, a nie migotać.
+    this._sladFaza = ((this._sladFaza || 0) + e * .45) % 1;
+
+    const ax = this.hp.x, az = this.hp.z;
+    const bx = def.pos[0], bz = def.pos[1];
+    const n = this._sladKropki.length;
+    for (let i = 0; i < n; i += 1) {
+      const t = (i + 1) / (n + 1);
+      const x = ax + (bx - ax) * t;
+      const z = az + (bz - az) * t;
+      const h = this.wysokoscGruntuSiatki ? this.wysokoscGruntuSiatki(x, z) : this.groundHeightAt(x, z);
+      const kotwica = this._sladKropki[i];
+      this.planeta.ustaw(kotwica, x, z, h + .02, 0);
+      /* Fala biegnie OD LISKA DO CELU, więc kropka bliżej celu zapala się
+         później. Bez tego ślad jest statyczną kreską i nie mówi, w którą
+         stronę iść. */
+      const f = (t - this._sladFaza + 1) % 1;
+      const szczyt = Math.max(0, 1 - f * 2.4);
+      const mesh0 = kotwica.children[0];
+      mesh0.material.opacity = .16 + .52 * szczyt * szczyt;
+      mesh0.scale.setScalar(.72 + .5 * szczyt);
+    }
   }
 
   _transportTik(e) {
@@ -2602,7 +2679,9 @@ export class Aplikacja {
     L.model.traverse((o) => { o.geometry?.dispose?.(); });
     L.cel.niesione = false;
     L.cel.dostarczone = true;
-    this._polozNaPlacu(L.rodzaj, L.cel.skalaWyniku ?? 1);
+    // Numer dostawy = ile już leży na placu. Liczymy PRZED dołożeniem tego stosu.
+    this._polozNaPlacu(L.rodzaj, L.cel.skalaWyniku ?? 1,
+      this._doScinania.filter((c) => c.dostarczone && c !== L.cel).length);
     this._ladunek = null;
     this.hint(L.rodzaj === "glaz" ? "Kamienie na placu!" : "Drewno na placu!");
     this.emit("surowiec:dostarczony", { rodzaj: L.rodzaj, id: L.id });
@@ -2616,10 +2695,19 @@ export class Aplikacja {
 
   /**
    * Materiał ląduje NA PLACU i jest go widać — to jest cała informacja zwrotna
-   * za kurs. Drewno po jednej stronie klepiska, kamienie po drugiej, zawsze
-   * w tych samych miejscach, żeby dziecko widziało, czego jeszcze brakuje.
+   * za kurs.
+   *
+   * TRZY STOSY, TRZY MIEJSCA (17.09). Wcześniej pozycja zależała od RODZAJU:
+   * drewno po jednej stronie klepiska, kamienie po drugiej. Odkąd etap kosztuje
+   * trzy stosy drewna i nic więcej, ten sam wzór kładłby wszystkie trzy w jednym
+   * punkcie — dziecko doniosłoby trzeci kurs i zobaczyło dokładnie to samo, co
+   * po pierwszym. Rozkładamy więc po KOLEJNOŚCI dostawy, wachlarzem wzdłuż
+   * krawędzi klepiska: rosnący rządek jest jedyną nagrodą za drugi i trzeci kurs.
+   *
+   * `nr` to numer dostawy liczony od zera. Skład przebudowuje się od zera przy
+   * każdej zmianie (`oznaczDostarczone`), więc kolejność jest zawsze ta sama.
    */
-  _polozNaPlacu(rodzaj, skala) {
+  _polozNaPlacu(rodzaj, skala, nr = 0) {
     const def = this.mapa.schronienie;
     if (!def) return;
     if (!this._skladNaPlacu) {
@@ -2628,12 +2716,17 @@ export class Aplikacja {
       this.swiat.add(this._skladNaPlacu);
     }
     const s = def.skala ?? 1;
-    const bok = rodzaj === "glaz" ? 1 : -1;
-    const kier = Math.cos(def.obrot ?? 0), skos = Math.sin(def.obrot ?? 0);
-    const x = def.pos[0] + bok * 1.25 * s * kier;
-    const z = def.pos[1] - bok * 1.25 * s * skos;
+    /* Stosy idą PO ŁUKU wokół klepiska, nie w linii prostej: przy prostym
+       rządku trzeci wypadał już poza placem, a po łuku wszystkie trzy zostają
+       w kadrze, który kamera pokazuje przy `pokazMiejsce`. Środkowy (nr = 1)
+       ląduje dokładnie tam, gdzie do 17.09 lądowało jedyne drewno — pierwszy
+       kurs wygląda więc tak samo jak wcześniej, a rozsuwa się dopiero drugi. */
+    const kat = (def.obrot ?? 0) + Math.PI + (nr - 1) * .55;
+    const promien = 1.25 * s;
+    const x = def.pos[0] + promien * Math.cos(kat);
+    const z = def.pos[1] - promien * Math.sin(kat);
     const bryla = rodzaj === "glaz" ? kamyczki(skala * .8) : stosDrewna(skala * .7);
-    this._skladNaPlacu.add(this._osadz(bryla, x, z, .05, (def.obrot ?? 0) + bok * .35));
+    this._skladNaPlacu.add(this._osadz(bryla, x, z, .05, kat + .35));
   }
 
   /** Czyści skład — woła `ustawSchronienie`, gdy materiał zamienia się w budowlę. */
@@ -2679,15 +2772,16 @@ export class Aplikacja {
     /* SKŁAD PRZEBUDOWYWANY OD ZERA, a nie doklejany. `_polozNaPlacu` tylko
        dodaje bryły do wspólnej grupy i nie wie, czyja która jest — więc
        zdjęcia JEDNEJ dostawy z placu nie da się zrobić inaczej niż
-       postawieniem składu na nowo. Przy dwóch rzeczach to darmowe.
+       postawieniem składu na nowo. Przy trzech stosach to darmowe.
 
        Gdy szkielet już stoi, składu nie ma w ogóle: materiał ZAMIENIŁ SIĘ
        w budowlę (`ustawSchronienie` woła `_zabierzSklad` z tego samego
        powodu), a stos leżący obok kłamałby, że drewno poszło gdzie indziej. */
     this._zabierzSklad();
     if (this._etapSchronienia > 0) return;
+    let nr = 0;
     for (const c of this._doScinania) {
-      if (c.dostarczone) this._polozNaPlacu(c.rodzaj, c.skalaWyniku ?? 1);
+      if (c.dostarczone) this._polozNaPlacu(c.rodzaj, c.skalaWyniku ?? 1, nr++);
     }
   }
 

@@ -163,13 +163,6 @@ const IKONA_STOSU = "/stos-drewna.png";
 
    Pomarańcz jest tu celowo TEN SAM, co pierścień pracy i obrys placu: dziecko
    nie musi się uczyć nowego koloru, tylko kojarzy „to należy do budowy". */
-function stanMaterialu(sciete, naPlacu, wDrodze) {
-  if (naPlacu) return "na placu";
-  if (wDrodze) return "w drodze na plac";
-  if (sciete) return "zdobyte, do zaniesienia";
-  return "do zdobycia";
-}
-
 /**
  * Trzy znaczki drewna jako JEDEN pasek postępu, nie trzy osobne cele.
  *

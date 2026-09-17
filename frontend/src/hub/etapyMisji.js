@@ -57,6 +57,7 @@ import {
   skasujZadanieDrewna,
   stanDrewna,
   zaliczDostawe,
+  CEL_STOSOW,
 } from "./zadanieDrewna.js";
 import { typStartowy, upewnijProfil, zapomnijProfil } from "./profilStartowy.js";
 import {
@@ -169,7 +170,7 @@ function etapySchronienia() {
       id: "schronienie:zlecenie",
       drewno: "brak",
       tytul: "Domek na drzewie — zlecenie",
-      opis: "Gwiazdki rozliczone. Wizkor wskazuje wielkie drzewo na polanie i zleca ścięcie drzewa oraz rozbicie głazu. Na mapie nie ma jeszcze żadnego znaku gry.",
+      opis: "Gwiazdki rozliczone. Wizkor wskazuje wielkie drzewo na polanie i zleca ścięcie trzech drzew. Na mapie nie ma jeszcze żadnego znaku gry.",
       akcja: "zlecDrewno",
     },
     {
@@ -177,7 +178,7 @@ function etapySchronienia() {
       id: "schronienie:zbieranie",
       drewno: "zbieranie",
       tytul: "Domek na drzewie — zdobywanie materiału",
-      opis: "Zadanie przyjęte: lisek ścina drzewko i rozbija głaz, potem znosi materiał pod drzewo. Znaki gier schodzą z mapy aż do zbudowania pomostu.",
+      opis: "Zadanie przyjęte: lisek ścina drzewa i znosi stosy pod drzewo (jeden z trzech już leży). Znaki gier schodzą z mapy aż do zbudowania pomostu.",
       akcja: null,
     },
     {
@@ -185,7 +186,7 @@ function etapySchronienia() {
       id: "schronienie:komplet",
       drewno: "komplet",
       tytul: "Domek na drzewie — materiał pod drzewem",
-      opis: "Drewno i kamienie leżą pod drzewem. Kwestia Wizkora prowadzi przyciskiem „Budujemy!” — po nim powstaje pomost z barierką i drabinką (etap 1 z trzech).",
+      opis: "Trzy stosy drewna leżą pod drzewem. Kwestia Wizkora prowadzi przyciskiem „Budujemy!” — po nim powstaje pomost z barierką i drabinką (etap 1 z trzech).",
       akcja: "postawEtap",
     },
   ];
@@ -443,9 +444,8 @@ export function zastosujEtap(nr) {
   const zbudujDrewno = (faza) => {
     if (faza === "brak") return;
     rozpocznijZadanieDrewna();
-    if (faza === "zbieranie") { policzDrzewko("drzewko-polana"); return; }
-    zaliczDostawe("drzewko", "drzewko-polana");
-    zaliczDostawe("glaz", "glaz-polana");
+    if (faza === "zbieranie") { zaliczDostawe("drzewko"); policzDrzewko("dev-sciete-2"); return; }
+    for (let i = 0; i < CEL_STOSOW; i += 1) zaliczDostawe("drzewko");
     if (faza === "komplet") return;
     postawEtap();
   };

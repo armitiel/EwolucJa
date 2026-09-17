@@ -13,7 +13,7 @@
  * — hub i pulpit pytają je o to samo.
  */
 import { CEL_DOMYSLNY, NAGRODA_MONET } from "./zadanieGwiazdek.js";
-import { CEL_DRZEWKA, CEL_GLAZY, stanDrewna } from "./zadanieDrewna.js";
+import { stanDrewna } from "./zadanieDrewna.js";
 import { stanZadania as stanZadaniaWizkora, zadanieDoZlecenia } from "./zadanieWizkora.js";
 import { celPuzzli, stanPuzzli } from "./puzzleGier.js";
 
@@ -132,6 +132,16 @@ export function kwestiaZachodu(realZewn = null) {
  * o schronieniu na podstawionym stanie, bez dotykania zapisu dziecka.
  * W grze zostaje `null` i stan czytamy z `zadanieDrewna`.
  */
+/* LICZEBNIKI ODMIENIONE Z RĘKI. Polskie „jeden stos / dwa stosy / trzy stosy"
+   nie wychodzi z żadnego prostego wzoru, a kwestie składamy z fragmentów —
+   bez tych tablic Wizkor mówił „dwa stos" albo „trzy drzewo". W grze, w której
+   dziecko dopiero uczy się czytać, to nie jest drobiazg. Indeks 0 nigdy nie
+   powinien trafić na ekran (zero braków = inna gałąź), ale stoi na wypadek. */
+const STOSY = ["wszystko", "jeden stos", "dwa stosy", "trzy stosy"];
+const CZEKA = ["czeka", "czeka", "czekają", "czekają"];
+const JE = ["je", "go", "je", "je"];
+const DRZEWA = ["wszystko", "jedno drzewo", "dwa drzewa", "trzy drzewa"];
+
 export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
   const baza = { imie: "Wizkor", obrazek: "/wizPop.webp" };
 
@@ -150,69 +160,61 @@ export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
         return {
           ...baza,
           tekst:
-            /* NIE MÓWIMY JUŻ „suche drzewko". Ścinać można KAŻDE drzewo na
-               mapie, a suche stoi na polanie jako pień pod domek — dziecko,
-               które usłyszy „suche drzewko", pójdzie rąbać właśnie to jedno,
-               którego ruszać nie wolno. */
+            /* NIE MÓWIMY „suche drzewko". Ścinać można KAŻDE drzewo na mapie
+               (decyzja 16.09), a suchy pień zszedł z mapy 17.09 — nazwa,
+               której nic już nie odpowiada, wysłałaby dziecko na poszukiwanie
+               obiektu, którego tam nie ma. */
             "Widzisz to wielkie drzewo na polanie? Zbudujemy na nim domek. " +
-            "Ścięte drzewo da deski na pomost, głaz da kamienie pod drabinkę. " +
-            "Przynieś jedno i drugie pod to drzewo.",
-          tekstEkranu: "Przynieś pod drzewo drewno i głaz.",
-          wyroznienie: "drewno i głaz",
+            "Na pomost trzeba desek — zetnij trzy drzewa i znieś wszystkie trzy " +
+            "stosy tutaj, pod to wielkie drzewo.",
+          /* NA KARCIE MUSI STAĆ, PO CO TO WSZYSTKO. Wcześniej ekran mówił samo
+             „Przynieś pod drzewo drewno i głaz" — dziecko widziało polecenie
+             bez powodu i bez pierwszego ruchu: skąd niby ma wziąć drewno?
+             Domek na drzewie jest obietnicą, a „zetnij trzy drzewa" pierwszym
+             krokiem. Ile dokładnie i dokąd, dopowiada Wizkor głosem, a trzy
+             znaczki w HUD-zie liczą za dziecko. */
+          /* `\n` łamie kartę tam, gdzie kończy się myśl (patrz `.popup-postaci-tekst`,
+             `white-space: pre-line`): obietnica w pierwszej linijce, pierwszy ruch w drugiej. */
+          tekstEkranu: "Zbudujemy domek na drzewie.\nZetnij trzy drzewa i znieś drewno tutaj.",
+          wyroznienie: "domek na drzewie",
           przycisk: "Biorę się za to",
           akcja: "zlecDrewno",
         };
       }
       if (!drewno.spelnione) {
-        /* MÓWIMY O DWÓCH RÓŻNYCH ROBOTACH. „Nie masz jeszcze głazu" i „głaz
-           leży rozbity, ale wciąż w lesie" to nie to samo — a dziecko, które
-           usłyszy pierwsze zdanie, poszłoby szukać drugiego głazu.
-           Wyliczamy CZEGO brakuje, zamiast pokazywać „1 z 2": w głowie ma
-           dwie konkretne rzeczy, nie ułamek. */
-        const doZdobycia = [];
-        if (drewno.drzewka < CEL_DRZEWKA) doZdobycia.push("drzewo do ścięcia");
-        if (drewno.glazy < CEL_GLAZY) doZdobycia.push("głaz");
-        /* Każdy materiał niesie SWOJĄ GRAMATYKĘ. „Drewno czeka", ale „kamienie
-           czekają" — a kwestie składamy z fragmentów, więc bez tego Wizkor
-           mówił „kamienie leży". W grze dla sześciolatka, która uczy się
-           czytać, to nie jest drobiazg. */
-        const MAT = {
-          drewno: { nazwa: "drewno", czeka: "czeka", je: "je", gdzie: "tam, gdzie je ściąłeś" },
-          kamien: { nazwa: "kamienie", czeka: "czekają", je: "je", gdzie: "tam, gdzie rozbiłeś głaz" },
-        };
-        const doPrzyniesienia = [];
-        if (drewno.drzewka >= CEL_DRZEWKA && !drewno.drewnoNaPlacu) doPrzyniesienia.push(MAT.drewno);
-        if (drewno.glazy >= CEL_GLAZY && !drewno.kamienNaPlacu) doPrzyniesienia.push(MAT.kamien);
+        /* DWA RÓŻNE BRAKI, NIGDY NARAZ. „Nie masz jeszcze drzewa" i „drewno
+           leży ścięte, ale wciąż w lesie" to nie to samo — a dziecko, które
+           usłyszy pierwsze zdanie, poszłoby ścinać czwarte drzewo zamiast
+           donieść to, co już ma. Dlatego najpierw domykamy KURS (stos leży
+           w lesie), a dopiero potem wołamy o kolejne ścięcie.
 
-        /* Dwie wersje tej samej kwestii: `ekran` to jedno polecenie do
-           przeczytania w biegu, `tekst` to pełniejsze zdanie dla lektora.
-           Głos dopowiada je spokojnie także po zamknięciu okna, więc na
-           karcie nie musi stać wszystko (patrz `hub/mowaPostaci.js`). */
+           Liczymy SŁOWAMI, nie cyframi: „dwa stosy" czyta sześciolatek od
+           razu, „2/3" wymaga zatrzymania się nad ułamkiem. Cyfra zostaje
+           w HUD-zie, gdzie i tak stoją trzy znaczki. */
+        const doSciecia = drewno.doSciecia;
+        const doZniesienia = drewno.doZniesienia;
+
+        /* ZDANIA UŁOŻONE TAK, ŻEBY LICZBA NIE RZĄDZIŁA CZASOWNIKIEM.
+           „Zostało dwa drzewa" i „zostanie trzy stosy" to błędy, które wychodzą
+           same, gdy do szablonu wpada raz jeden, raz trzy. Zamiast dokładać
+           trzecią tablicę odmian, mówimy „do ścięcia masz jeszcze…" i „zetnij
+           jeszcze…" — te formy stoją tak samo przy każdej liczbie. */
         let tekst;
         let ekran;
-        if (doPrzyniesienia.length === 1) {
-          const m = doPrzyniesienia[0];
-          tekst = doZdobycia.length
-            ? `Dobrze idzie. ${wielka(m.nazwa)} ${m.czeka} ${m.gdzie} — zanieś ${m.je} pod drzewo. `
-              + `Zostało jeszcze: ${doZdobycia.join(" i ")}.`
-            : `Jest wszystko, tylko ${m.nazwa} wciąż ${m.czeka} ${m.gdzie}. `
-              + `Zanieś ${m.je} pod drzewo, a zaczniemy budować.`;
-          ekran = doZdobycia.length
-            ? `Zanieś ${m.nazwa} pod drzewo. Zostało: ${doZdobycia.join(" i ")}.`
-            : `Zanieś ${m.nazwa} pod drzewo.`;
-        } else if (doPrzyniesienia.length > 1) {
-          tekst = "Jest wszystko, tylko drewno i kamienie wciąż czekają tam, gdzie powstały. "
-            + "Zanieś je pod drzewo, a zaczniemy budować.";
-          ekran = "Zanieś drewno i kamienie pod drzewo.";
+        if (doZniesienia > 0) {
+          tekst = `Dobrze idzie. ${wielka(STOSY[doZniesienia])} ${CZEKA[doZniesienia]} tam, w lesie — `
+            + `znieś ${JE[doZniesienia]} pod drzewo.`;
+          if (doSciecia > 0) tekst += ` Do ścięcia masz jeszcze ${DRZEWA[doSciecia]}.`;
+          ekran = `Znieś ${STOSY[doZniesienia]} pod drzewo.`;
         } else {
-          tekst = `Idzie dobrze. Zostało jeszcze: ${doZdobycia.join(" i ")}.`;
-          ekran = `Zostało: ${doZdobycia.join(" i ")}.`;
+          tekst = `Idzie dobrze. Zetnij jeszcze ${DRZEWA[doSciecia]} i znieś je pod to drzewo.`;
+          ekran = `Zetnij jeszcze ${DRZEWA[doSciecia]}.`;
         }
         return {
           ...baza,
           tekst,
           tekstEkranu: ekran,
-          wyroznienie: doPrzyniesienia.length ? "pod drzewo" : doZdobycia[0],
+          wyroznienie: doZniesienia > 0 ? "pod drzewo" : DRZEWA[doSciecia],
           przycisk: "Idę dalej",
           akcja: null,
         };
