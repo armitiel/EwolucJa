@@ -1,3 +1,9 @@
+/*!
+ * EwolucJA — gra edukacyjna dla dzieci.
+ * © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
+ * Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
+ * Prawa autorskie należą do autora. Pełna nota: LICENSE.
+ */
 /**
  * Games / ScreenGames — 3 gry tygodniowe (digital mini-wyzwania).
  * Mockup: liste 3 karty + progress + nagrody za ukonczenie.

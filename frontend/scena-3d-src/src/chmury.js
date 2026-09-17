@@ -1,3 +1,9 @@
+/*!
+ * EwolucJA — gra edukacyjna dla dzieci.
+ * © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
+ * Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
+ * Prawa autorskie należą do autora. Pełna nota: LICENSE.
+ */
 /** Żywe chmury 2.5D: wspólne low-poly obłoki składają się w zmienne sylwetki. */
 import {
   BufferGeometry, Color, DynamicDrawUsage, Euler, Float32BufferAttribute, Group,

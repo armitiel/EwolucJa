@@ -1,3 +1,9 @@
+/*!
+ * EwolucJA — gra edukacyjna dla dzieci.
+ * © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
+ * Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
+ * Prawa autorskie należą do autora. Pełna nota: LICENSE.
+ */
 .map-motion-prototype{--night:var(--noc-700);--violet:#6543a3;--gold:var(--zloto-250);min-height:100dvh;display:grid;place-items:center;overflow:hidden;color:var(--night);background:radial-gradient(circle at 50% 8%,rgba(205,184,255,.45),transparent 30%),linear-gradient(180deg,#1b163c,#30225b 58%,#20183f)}
 .map-motion-stage{position:relative;width:min(100%,430px);height:100dvh;min-height:700px;max-height:920px;overflow:hidden;isolation:isolate;background:linear-gradient(180deg,#eee9ff,var(--p-paper));box-shadow:0 0 80px rgba(0,0,0,.42)}
 .map-motion-header{position:absolute;z-index:7;inset:max(18px,env(safe-area-inset-top)) 20px auto;display:flex;align-items:center;justify-content:space-between;pointer-events:none}.map-motion-eyebrow{display:block;color:#7258a5;font-size:10px;font-weight:900;letter-spacing:2px}.map-motion-header h1{margin:2px 0 0;font-family:var(--font-display,"Baloo 2"),sans-serif;font-size:clamp(25px,7vw,31px);line-height:1;letter-spacing:-.5px}.map-motion-step{display:grid;place-items:center;min-width:54px;height:34px;border:1px solid rgba(91,58,138,.13);border-radius:999px;color:#6a4c9d;background:rgba(255,255,255,.68);box-shadow:0 8px 24px rgba(57,39,101,.1);font-size:12px;font-weight:900;backdrop-filter:blur(12px)}.map-motion-intro{position:absolute;z-index:7;top:max(72px,calc(env(safe-area-inset-top) + 58px));left:21px;margin:0;color:color-mix(in srgb, var(--noc-700) 66%, transparent);font-size:13px;font-weight:750}

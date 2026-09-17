@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+# EwolucJA — gra edukacyjna dla dzieci.
+# © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
+# Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
+# Prawa autorskie należą do autora. Pełna nota: LICENSE.
 """
 obrob-ikone.py — domyka pipeline ikon 3D (patrz docs/design-system/styl-ikon-3d.md).
 

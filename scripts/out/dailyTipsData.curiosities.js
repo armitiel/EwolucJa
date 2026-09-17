@@ -1,3 +1,9 @@
+/*!
+ * EwolucJA — gra edukacyjna dla dzieci.
+ * © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
+ * Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
+ * Prawa autorskie należą do autora. Pełna nota: LICENSE.
+ */
 /**
  * dailyTipsData.js — porady-CIEKAWOSTKI dla 6 archetypow EwolucJA.
  * Po migracji 2026-05-17: TASK-i przeniesione do data/mentorTaskLibrary.js.

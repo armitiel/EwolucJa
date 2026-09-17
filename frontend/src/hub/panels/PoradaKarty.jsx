@@ -1,3 +1,9 @@
+/*!
+ * EwolucJA — gra edukacyjna dla dzieci.
+ * © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
+ * Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
+ * Prawa autorskie należą do autora. Pełna nota: LICENSE.
+ */
 /**
  * PoradaKarty — trzy małe aktywności: balon spokoju, zielony trop, strząśnij
  * napięcie. To BYŁA cała zakładka „Porada"; od 2026-09-14 jest schowana za

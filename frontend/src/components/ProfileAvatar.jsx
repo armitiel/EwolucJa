@@ -1,3 +1,9 @@
+/*!
+ * EwolucJA — gra edukacyjna dla dzieci.
+ * © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
+ * Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
+ * Prawa autorskie należą do autora. Pełna nota: LICENSE.
+ */
 /**
  * ProfileAvatar — awatary dla 6 profili kompetencyjnych.
  * Korzysta z plikow SVG z /public (lis.svg, zolw.svg, sowa.svg, panda.svg, lew.svg, osmiornica.svg).

@@ -1,3 +1,9 @@
+/*!
+ * EwolucJA — gra edukacyjna dla dzieci.
+ * © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
+ * Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
+ * Prawa autorskie należą do autora. Pełna nota: LICENSE.
+ */
 // Monte Carlo balance test dla onboarding quiz v3-final.
 // Wymagania (z agents/world/quiz_osobowosci.md §7):
 //   - 10 000 losowych przebiegow

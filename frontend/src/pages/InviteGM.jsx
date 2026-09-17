@@ -1,3 +1,9 @@
+/*!
+ * EwolucJA — gra edukacyjna dla dzieci.
+ * © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
+ * Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
+ * Prawa autorskie należą do autora. Pełna nota: LICENSE.
+ */
 /**
  * InviteGM — generuje kod parowania, który dziecko (lub jego rodzic) przekazuje
  * drugiemu opiekunowi. Z perspektywy dziecka — Mentor pozostaje JEDEN.

@@ -1,3 +1,9 @@
+/*!
+ * EwolucJA — gra edukacyjna dla dzieci.
+ * © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
+ * Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
+ * Prawa autorskie należą do autora. Pełna nota: LICENSE.
+ */
 /**
  * build.mjs — buduje moduł sceny 3D do `public/scena-3d/`.
  *
@@ -33,7 +39,22 @@ const wspolne = {
   logLevel: "info",
   absWorkingDir: frontend,
   nodePaths: [path.join(frontend, "node_modules")],
-  banner: { js: "/* EwolucJA — scena 3D (planeta). Źródła: frontend/scena-3d-src/. NIE EDYTOWAĆ RĘCZNIE. */" },
+  /* NOTA O PRAWACH WCHODZI W BANER, a nie w plik źródłowy wejścia: esbuild
+     z `legalComments: "none"` wycina komentarze ze źródeł, więc nota wpisana
+     w `index.js` wyparowałaby przy minifikacji. Baner stoi poza tym procesem
+     i zostaje w pliku, który trafia do przeglądarki. */
+  banner: {
+    js: [
+      "/*!",
+      " * EwolucJA — gra edukacyjna dla dzieci.",
+      " * © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.",
+      " * Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.",
+      " * Prawa autorskie należą do autora. Pełna nota: LICENSE.",
+      " *",
+      " * Scena 3D (planeta). Źródła: frontend/scena-3d-src/. NIE EDYTOWAĆ RĘCZNIE.",
+      " */",
+    ].join("\n"),
+  },
 };
 
 const cele = [

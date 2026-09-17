@@ -1,3 +1,9 @@
+/*!
+ * EwolucJA — gra edukacyjna dla dzieci.
+ * © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
+ * Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
+ * Prawa autorskie należą do autora. Pełna nota: LICENSE.
+ */
 /* W2 używa palety, fontów i przycisków gry; nie tworzy drugiego systemu. */
 .w2, .w2-okno {
   color:var(--tekst); font-family:var(--font-body); font-size:16px; line-height:1.5;

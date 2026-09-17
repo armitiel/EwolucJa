@@ -1,3 +1,9 @@
+/*!
+ * EwolucJA — gra edukacyjna dla dzieci.
+ * © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
+ * Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
+ * Prawa autorskie należą do autora. Pełna nota: LICENSE.
+ */
 /**
  * DevRezyserka — pulpit testowy świata. Skraca do jednego kliknięcia rzeczy,
  * które inaczej trwają: dziesięć gwiazdek, czekanie na Wizkora (pojawia się

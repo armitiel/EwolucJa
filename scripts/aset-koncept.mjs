@@ -1,3 +1,9 @@
+/*!
+ * EwolucJA — gra edukacyjna dla dzieci.
+ * © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
+ * Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
+ * Prawa autorskie należą do autora. Pełna nota: LICENSE.
+ */
 /**
  * aset-koncept — koncept 2D pod Tripo (image-to-3D) w DNA stylu gry.
  * Uzycie: node scripts/aset-koncept.mjs <id> "<opis postaci/obiektu>" [n=3] [size=1024x1024]

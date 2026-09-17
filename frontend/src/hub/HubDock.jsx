@@ -1,3 +1,9 @@
+/*!
+ * EwolucJA — gra edukacyjna dla dzieci.
+ * © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
+ * Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
+ * Prawa autorskie należą do autora. Pełna nota: LICENSE.
+ */
 /**
  * HubDock — dolna belka huba 3D. Markup i klasy są te same co w podglądzie
  * `public/scena-3d/index.html`, żeby oba HUD-y stroiły się z jednego pliku CSS.

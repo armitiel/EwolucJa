@@ -1,3 +1,7 @@
+# EwolucJA — gra edukacyjna dla dzieci.
+# © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
+# Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
+# Prawa autorskie należą do autora. Pełna nota: LICENSE.
 import bpy, json, math
 from pathlib import Path
 root=Path(__file__).resolve().parent

@@ -1,3 +1,9 @@
+/*!
+ * EwolucJA — gra edukacyjna dla dzieci.
+ * © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
+ * Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
+ * Prawa autorskie należą do autora. Pełna nota: LICENSE.
+ */
 
 // iOS.jsx — Simplified iOS 26 (Liquid Glass) device frame
 // Based on the iOS 26 UI Kit + Figma status bar spec. No assets, no deps.

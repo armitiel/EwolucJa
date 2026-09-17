@@ -1,3 +1,9 @@
+/*!
+ * EwolucJA — gra edukacyjna dla dzieci.
+ * © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
+ * Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
+ * Prawa autorskie należą do autora. Pełna nota: LICENSE.
+ */
 /**
  * mentorTaskLibrary.additions.js — nowe TASK-i wyciagniete z dailyTipsData.js.
  * Wygenerowano automatycznie 2026-05-17 przez scripts/migrate-tips-to-tasks.mjs.

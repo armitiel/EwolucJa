@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# EwolucJA — gra edukacyjna dla dzieci.
+# © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
+# Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
+# Prawa autorskie należą do autora. Pełna nota: LICENSE.
 """cien-pod-nogi — przesuwa cień bohatera lekko DO PRZODU, w stronę, w którą patrzy.
 
 DLACZEGO. Cień siedział dokładnie pod środkiem postaci (`hero.position`), a

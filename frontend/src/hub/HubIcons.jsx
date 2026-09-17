@@ -1,3 +1,9 @@
+/*!
+ * EwolucJA — gra edukacyjna dla dzieci.
+ * © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
+ * Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
+ * Prawa autorskie należą do autora. Pełna nota: LICENSE.
+ */
 /**
  * HubIcons — pięć ikon doku. Osobny plik, bo `adventure/components/icons.jsx`
  * nie ma znaków dla minigier, czatu ani skrzynki, a dokładanie ich tam mieszałoby

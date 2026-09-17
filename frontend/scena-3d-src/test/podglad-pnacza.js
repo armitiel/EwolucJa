@@ -1,3 +1,9 @@
+/*!
+ * EwolucJA — gra edukacyjna dla dzieci.
+ * © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
+ * Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
+ * Prawa autorskie należą do autora. Pełna nota: LICENSE.
+ */
 /**
  * podglad-pnacza.js — samodzielny podgląd proceduralnej fasoli (bez planety).
  * Buduje się osobno:  node scena-3d-src/test/buduj-podglad.mjs

@@ -2,6 +2,8 @@
   "name": "ewolucja",
   "version": "0.2.0",
   "private": true,
+  "author": "Amitiel Angelisme <armitiel@gmail.com>",
+  "license": "SEE LICENSE IN LICENSE",
   "type": "module",
   "engines": {
     "node": ">=18"
