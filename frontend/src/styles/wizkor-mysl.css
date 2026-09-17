@@ -1,0 +1,248 @@
+/* PodpowiedzMedrca — myśl Wizkora: awatar w rogu + chmurka z tekstem.
+
+   DWA RUCHY, NIE JEDEN. Najpierw w lewy dolny róg wjeżdża awatar Wizkora,
+   dopiero po chwili nad nim rozwija się chmurka. To jest różnica między
+   „wyskoczył komunikat" a „ktoś tu przyszedł i o czymś pomyślał" — a o to
+   drugie chodzi (`docs/OPIS_PROJEKTU.md`: świat, nie aplikacja z alertami).
+
+   DÓŁ, NIE GÓRA. Góra ekranu to zasoby dziecka (awatar gracza, liczniki).
+   Ten głos przychodzi z zewnątrz, więc siada bliżej ręki i łatwiej go
+   odsunąć. Warstwa jest przezroczysta dla dotknięć — pod spodem chodzi się
+   po świecie bez zmian.
+
+   Kształt, lamówka i glina: `chmurka-ksztalt.css` + `tokeny.css` sek. 7. */
+
+.wizkor-mysl {
+  /* Fiolet to w tej grze barwa Wizkora — ta sama, co w `.reflektor.jest-wizkorem`.
+     Pomarańcz jest liska i nie wolno go tu użyć. */
+  --chmurka-akcent: var(--fiolet-500);
+  /* RÓWNY PIERŚCIEŃ, NIE RÓWNE PUDEŁKO. Awatar gracza w HUD-zie ma 58px
+     (`hud.css`, `.game-hud-profile img`) — ale to rozmiar OBRAZKA, a oba
+     pliki mają różnie dużo przezroczystego marginesu wokół odznaki:
+     `fox_avatar.png` wypełnia 99% kanwy, `wizkor_avatar.png` 85,5%
+     (zmierzone na alfie). Postawione na równej szerokości dawały pierścienie
+     52 i 50 px, a przy mniejszych ustawieniach różnica robiła się widoczna.
+     58 / 0,855 ≈ 68 — tyle trzeba dać, żeby złota obręcz Wizkora miała tę
+     samą średnicę, co obręcz liska. Kto podmieni któryś plik, musi przeliczyć
+     tę proporcję od nowa. */
+  --wizkor-awatar: 68px;
+  /* Ten sam odstęp od krawędzi, co HUD (`hud.css`: `padding: 10px`) — awatar
+     Wizkora w dolnym rogu ma stać tak samo jak awatar gracza w górnym. */
+  --wizkor-margines: 10px;
+
+  position: fixed;
+  z-index: 40;
+  left: calc(var(--wizkor-margines) + env(safe-area-inset-left, 0px));
+  bottom: calc(var(--wizkor-margines) + env(safe-area-inset-bottom, 0px));
+  width: min(calc(100% - 2 * var(--wizkor-margines)), 470px);
+  pointer-events: none;
+}
+
+.wizkor-mysl > * { pointer-events: auto; }
+
+/* ── Awatar ───────────────────────────────────────────────────────────── */
+/* Ta sama odznaka co awatar gracza w HUD-zie (`fox_avatar.png`): złota
+   obręcz, tarcza, postać wychylona poza pierścień. Dziecko zna ten kształt
+   jako „ktoś", więc Wizkor w rogu czyta się od razu jako osoba, a nie ikona
+   powiadomienia. */
+.wizkor-mysl-awatar {
+  /* STOI W ROGU, NIE W POTOKU. Wcześniej był ostatnim wierszem siatki
+     i podciągały go ujemne marginesy pod ogon chmurki — przez co jego odstęp
+     od krawędzi zależał od tego, jak akurat ułożyła się chmurka, i z lewej
+     wychodził poza kadr. Teraz jest przyklejony do rogu warstwy, a warstwa ma
+     ten sam margines, co HUD: dziecko widzi dwie odznaki w przeciwległych
+     rogach, jednakowo odsunięte od brzegów. To chmurka ustawia się do niego
+     (`margin-bottom` niżej), a nie on do niej. */
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: var(--wizkor-awatar);
+  height: auto;
+  filter: drop-shadow(0 4px 3px color-mix(in srgb, var(--noc-850, #1b1338) 38%, transparent));
+  user-select: none;
+  -webkit-user-drag: none;
+  animation: wizkor-mysl-wjazd .52s cubic-bezier(.2, .9, .3, 1.26) both;
+}
+
+/* Wjazd ZZA KRAWĘDZI EKRANU, nie „z lewej". Przesunięcie liczy się z własnej
+   szerokości plus margines, więc odznaka startuje poza kadrem przy każdym
+   rozmiarze — przy stałej wartości w procentach mniejszy awatar startowałby
+   już widoczny i zamiast wejścia byłby skok. */
+@keyframes wizkor-mysl-wjazd {
+  from { opacity: 0; transform: translate(calc(-100% - 28px), 20%) scale(.86); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Chmurka ──────────────────────────────────────────────────────────── */
+.wizkor-mysl-chmurka {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 440 / 262;
+  /* Siada NAD awatarem, tak żeby ogon wypadał przy jego ramieniu. Liczone
+     z jego wysokości, więc zmiana `--wizkor-awatar` nie rozklei tej pary. */
+  margin-bottom: calc(var(--wizkor-awatar) * .58);
+
+  opacity: 0;
+  /* Rośnie Z OGONA, czyli znad ramienia Wizkora. Środek jako punkt
+     zaczepienia wyglądałby, jakby chmurka spadła z góry. */
+  transform-origin: 12% 86%;
+  transform: scale(.28);
+  transition:
+    opacity .2s ease,
+    transform .42s cubic-bezier(.2, .9, .3, 1.34);
+}
+
+.wizkor-mysl.ma-chmurke .wizkor-mysl-chmurka { opacity: 1; transform: none; }
+
+/* Cała chmurka jest wyjściem, nie tylko krzyżyk — patrz komentarz przy
+   `onClick` w komponencie. */
+.wizkor-mysl-chmurka { cursor: pointer; }
+
+/* ── Zawinięcie ───────────────────────────────────────────────────────── */
+/* ODWROTNOŚĆ WEJŚCIA, NIE OSOBNY POMYSŁ. Myśl wciąga się z powrotem W OGON,
+   czyli w stronę Wizkora, a on chwilę później wychodzi tą samą drogą, którą
+   przyszedł. Dziecko widzi domkniętą scenkę: ktoś przyszedł, pomyślał, zabrał
+   myśl i poszedł — zamiast okna, które po prostu przestało istnieć.
+
+   Kolejność robi tu całą robotę: gdyby oboje ruszyli naraz, wyglądałoby to
+   na zgaszenie ekranu. 120 ms zwłoki na awatarze wystarczy, żeby chmurka
+   zdążyła w niego wsiąknąć.
+
+   Czas MUSI zgadzać się ze stałą `ZEJSCIE` w komponencie (460 ms = 120 + 340). */
+.wizkor-mysl.jest-znikajaca .wizkor-mysl-chmurka {
+  opacity: 0;
+  /* Lekki obrót — bez niego zwijanie czyta się jak zwykłe `scale`, technicznie
+     poprawne i zupełnie martwe. */
+  transform: scale(.2) rotate(-8deg);
+  transition:
+    opacity .24s ease .06s,
+    transform .34s cubic-bezier(.55, -.15, .85, .45);
+}
+
+.wizkor-mysl.jest-znikajaca .wizkor-mysl-awatar {
+  animation: wizkor-mysl-wyjazd .34s cubic-bezier(.5, -.05, .75, .4) .12s both;
+}
+
+/* Wyjazd ZA KRAWĘDŹ EKRANU, liczony z własnej szerokości — tak samo jak
+   wjazd, więc odznaka znika poza kadrem przy każdym rozmiarze. */
+@keyframes wizkor-mysl-wyjazd {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translate(calc(-100% - 28px), 18%) scale(.84); }
+}
+
+.wizkor-mysl-chmurka > .chmurka-ksztalt { position: absolute; inset: 0; }
+
+/* Okno na tekst: prostokąt wpisany w bryłę tak, że wszystkie cztery rogi
+   leżą wewnątrz kół (sprawdzone na geometrii z `ChmurkaKsztalt`, wariant
+   „tekst": x 76–364, y 66–174 przy polu 440×262). */
+.wizkor-mysl-tresc {
+  position: absolute;
+  left: 17.3%;
+  top: 25.2%;
+  width: 65.5%;
+  height: 41.2%;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.wizkor-mysl-tekst {
+  margin: 0;
+  /* Krój aplikacji (Nunito), a nie krój HUD-u: to zdanie do przeczytania,
+     nie etykieta licznika. */
+  font-family: var(--font-body, "Nunito"), system-ui, sans-serif;
+  font-size: clamp(13px, 3.5vmin, 16px);
+  font-weight: 800;
+  line-height: 1.16;
+  color: var(--p-ink, #4e4d76);
+  text-wrap: balance;   /* jak w `.popup-postaci-tekst` — bez sierot */
+  position: relative;
+}
+
+/* ── Maszyna do pisania ───────────────────────────────────────────────── */
+/* DWIE KOPIE TEGO SAMEGO ZDANIA, i to nie jest marnotrawstwo.
+   `-pelny` jest przezroczysty, ale ZAJMUJE MIEJSCE: rezerwuje dokładnie ten
+   blok, w którym zdanie się skończy, więc wiersze nie przeskakują w trakcie
+   pisania. Bez tego ostatnie słowo co chwilę spadałoby do nowej linii i cała
+   chmurka drgałaby przy każdej literze.
+   On też jest tym, co czyta czytnik ekranu — dopisywana kopia ma `aria-hidden`,
+   bo inaczej `aria-live` na całej warstwie ogłaszałby zdanie litera po
+   literze. */
+.wizkor-mysl-pelny { color: transparent; }
+
+.wizkor-mysl-pisane {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+}
+
+/* Kursor: cienka kreska tuż za ostatnią literą, mruga, dopóki się pisze.
+   Po ostatnim znaku znika — migający kursor pod gotowym zdaniem wygląda,
+   jakby coś się zawiesiło. */
+.wizkor-mysl-pisane::after {
+  content: "";
+  display: inline-block;
+  width: .08em;
+  height: .95em;
+  margin-left: .06em;
+  vertical-align: -.12em;
+  background: currentColor;
+  border-radius: .04em;
+  animation: wizkor-mysl-kursor .62s steps(1, end) infinite;
+}
+
+.wizkor-mysl-pisane.gotowe::after { display: none; }
+
+@keyframes wizkor-mysl-kursor {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* Krzyżyk siedzi na KRAWĘDZI bryły, na jej prawym barku. Wygląd jest wspólny
+   (`.chmurka-x` w `hub.css`) — tutaj tylko miejsce.
+
+   Liczby idą z geometrii `ChmurkaKsztalt` (wariant „tekst", pole 440×262):
+   prawe górne wybrzuszenie to koło (352, 116, 58), więc jego punkt pod 45°
+   wypada w (393, 75) — czyli 89% szerokości i 29% wysokości. Przy poprzednich
+   4%/1% guzik wisiał NAD chmurką w pustym powietrzu, bo bryła zaczyna się
+   dopiero na 8% wysokości. */
+.wizkor-mysl-x {
+  position: absolute;
+  z-index: 2;   /* nad kształtem SVG, który leży `inset: 0` na całej chmurce */
+  top: 29%;
+  right: 11%;
+  transform: translate(50%, -50%);
+}
+
+/* `.chmurka-x:active` podnosi guzik o 3 px własnym `transform` — tu musimy
+   powtórzyć wyśrodkowanie, inaczej dotknięcie odrzuciłoby go w róg. */
+.wizkor-mysl-x:active { transform: translate(50%, -50%) translateY(3px); }
+
+@media (max-width: 340px) {
+  .wizkor-mysl { --wizkor-margines: 8px; }
+}
+
+/* Krajobraz na niskim ekranie: miejsca w pionie prawie nie ma — chmurka
+   zwęża się, żeby nie zająć połowy świata. Margines zostaje ten sam, bo to on
+   trzyma parę awatarów w przeciwległych rogach. */
+@media (orientation: landscape) and (max-height: 430px) {
+  .wizkor-mysl { width: min(calc(100% - 2 * var(--wizkor-margines)), 400px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wizkor-mysl-awatar { animation-duration: .01ms; }
+  /* Chmurka dalej POJAWIA SIĘ po awatarze — to nie ozdoba, tylko kolejność
+     zdarzeń. Znika tylko rozpęd skalowania. */
+  .wizkor-mysl-chmurka { transition: opacity .2s ease; transform: none; }
+  /* Zawinięcie zostaje jako PRZENIKANIE — komponent i tak czeka `ZEJSCIE`
+     przed zdjęciem się, więc bez tego byłaby ćwierć sekundy zastygłej sceny. */
+  .wizkor-mysl.jest-znikajaca .wizkor-mysl-chmurka {
+    transition: opacity .2s ease;
+    transform: none;
+  }
+  .wizkor-mysl.jest-znikajaca .wizkor-mysl-awatar { animation-duration: .2s; animation-delay: .1s; }
+  /* Pisanie wyłącza komponent (całe zdanie od razu), więc kursor nie ma czego
+     pilnować — zostaje tylko wygasić jego mruganie. */
+  .wizkor-mysl-pisane::after { animation: none; display: none; }
+}
