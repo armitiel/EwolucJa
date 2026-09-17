@@ -23,7 +23,7 @@ import { idPostaci, postacWybranaJawnie, DOSTEPNE_POSTACIE } from "../utils/post
 // UWAGA: numer ma tylko ROSNĄĆ. Numery 3–13 zostały już wydane przeglądarce
 // z inną zawartością modułu (kolejne wersje znaków, gwiazdki, tempo ruchu),
 // więc cofnięcie go serwuje z cache starą scenę zamiast aktualnej.
-export const WERSJA_SCENY = "122";  // po scieciu klody zlatuja z gory i ukladaja sie w stos
+export const WERSJA_SCENY = "123";  // najazd kamery na znak (pokazZnakWKadrze) — pokaz gwiazdki na starcie misji
 const ZASOBY = "/scena-3d/assets/";
 
 /**

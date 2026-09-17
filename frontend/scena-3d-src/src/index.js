@@ -86,6 +86,7 @@ export async function utworzScena3D(s = {}) {
     edytorDomku: () => n.edytorDomku(),
     ustawPlacBudowy: (r, a) => n.ustawPlacBudowy(r, a),
     pokazMiejsce: (r, a) => n.pokazMiejsce(r, a),
+    pokazZnakWKadrze: (r, a) => n.pokazZnakWKadrze(r, a),
     stan: () => n.stan(),
     zniszcz: () => { n.zniszcz(); t.remove(); },
     _app: n,

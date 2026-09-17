@@ -34,9 +34,10 @@ import {
   stanZadania,
 } from "../hub/zadanieGwiazdek.js";
 import {
+  CEL_DRZEWKA,
+  CEL_STOSOW,
   oznaczMiejscePokazane,
   policzDrzewko,
-  policzGlaz,
   postawEtap,
   rozpocznijZadanieDrewna,
   skasujZadanieDrewna,
@@ -83,6 +84,8 @@ import {
   ZDARZENIE_ZMIANY as PUZZLE_ZMIANA,
 } from "../hub/puzzleGier.js";
 import WyborPoziomu from "../hub/WyborPoziomu.jsx";
+import PasekKolejnejMisji from "../hub/PasekKolejnejMisji.jsx";
+import { powiedzPostacia } from "../hub/mowaPostaci.js";
 import {
   pokazZnakNaMapie,
   pozycjaNaEkranie,
@@ -165,6 +168,26 @@ function stanMaterialu(sciete, naPlacu, wDrodze) {
   if (wDrodze) return "w drodze na plac";
   if (sciete) return "zdobyte, do zaniesienia";
   return "do zdobycia";
+}
+
+/**
+ * Trzy znaczki drewna jako JEDEN pasek postępu, nie trzy osobne cele.
+ *
+ * Stosy są nierozróżnialne — zapis zna tylko LICZBY (ile ściętych, ile pod
+ * drzewem), więc to tutaj zamieniamy je na kolejność. Znaczki wypełniają się
+ * od lewej i każdy kolejny jest o krok wcześniej w łańcuchu:
+ * pod drzewem → w drodze → ścięte, leży w lesie → jeszcze nie ma.
+ * Dzięki temu dziecko widzi RUCH w prawo, a nie trzy zapalające się losowo
+ * kratki.
+ */
+function slotyDrewna(drewno, wDrodze) {
+  const naPlacu = drewno.naPlacu || 0;
+  const sciete = Math.min(drewno.drzewka || 0, CEL_DRZEWKA);
+  return Array.from({ length: CEL_STOSOW }, (_, i) => {
+    if (i < naPlacu) return { naPlacu: true, zdobyte: true, wDrodze: false };
+    if (i === naPlacu && wDrodze) return { naPlacu: false, zdobyte: true, wDrodze: true };
+    return { naPlacu: false, zdobyte: i < sciete, wDrodze: false };
+  });
 }
 
 function znakKlasa(sciete, naPlacu, wDrodze) {
@@ -663,6 +686,10 @@ export default function Swiat() {
    * oznaczałaby monety z jednego zadania wpisane na konto drugiego.
    */
   const [nagroda, setNagroda] = useState(null);
+  /* Pasek „Wizkor szykuje kolejne zadanie" — wypełnia ciszę między
+     rozliczeniem jednej misji a zleceniem następnej (patrz komponent). */
+  const [pasekMisji, setPasekMisji] = useState(false);
+  const zapowiedzTimer = useRef(0);
   // Monety z lokalnych zadań, doliczane do liczby z bazy — patrz `zadanieGwiazdek`.
   const [bonus, setBonus] = useState(() => bonusMonet());
   const [komunikat, setKomunikat] = useState(null);
@@ -1124,7 +1151,51 @@ export default function Swiat() {
    * gdyby dziecko zamknęło ekran, zanim monety dolecą — nagroda nie może
    * przepaść przez szybsze kliknięcie.
    */
+  /**
+   * PO GWIAZDKACH ŚWIAT IDZIE DALEJ SAM (decyzja właściciela 2026-09-17).
+   *
+   * Wcześniej po rozliczeniu gwiazdek zapadała cisza: ekran nagrody znikał,
+   * a kolejne zadanie czekało, aż dziecko samo znajdzie Wizkora na polanie.
+   * Dziecko nie wiedziało wtedy, czy to koniec zabawy, czy coś jeszcze będzie
+   * — a to jest dokładnie ten moment, w którym ma poczuć, że świat prowadzi
+   * je dalej.
+   *
+   * Kolejność jest tu celowa i każdy krok ma swój powód:
+   *   1. LEKKI ODSTĘP — ekran nagrody dopiero zszedł, monety jeszcze
+   *      dolatują. Wejście od razu z nowym zadaniem kasowałoby chwilę dumy
+   *      z poprzedniego.
+   *   2. GŁOS + KOMUNIKAT — lektor docenia to, co się stało, i zapowiada, co
+   *      dalej. Tekst na ekranie mówi to samo krócej, więc brak TTS-a niczego
+   *      nie zabiera.
+   *   3. PASEK — widoczny sygnał „zaraz coś będzie", zamiast pustego czekania.
+   *   4. OKNO WIZKORA — dopiero ono ZLECA misję. Świat sam jej nie zaczyna:
+   *      dziecko nadal przyjmuje zadanie zielonym przyciskiem, tak jak każde
+   *      inne (`akcja: "zlecDrewno"` w `kwestieWizkora.js`).
+   */
+  const zapowiedzKolejnejMisji = useCallback(() => {
+    window.clearTimeout(zapowiedzTimer.current);
+    zapowiedzTimer.current = window.setTimeout(() => {
+      powiedzPostacia(
+        "Udało ci się, wędrowcze — polana znów świeci. " +
+        "A teraz spójrz na to drzewo. Myślę, że da się przy nim zbudować coś, " +
+        "co zostanie tu na dobre.",
+        { glos: "las_decyzji", ton: "mystery" }
+      );
+      pokazKomunikat("Wizkor ma nowy pomysł");
+      setPasekMisji(true);
+    }, 1100);
+  }, [pokazKomunikat]);
+
+  /** Pasek się wypełnił — Wizkor wychodzi z kolejnym zadaniem. */
+  const naKoniecPaskaMisji = useCallback(() => {
+    setPasekMisji(false);
+    setPowitanie(powitanieCzarodzieja(stanZadania(), aktualnaMisja()));
+  }, []);
+
+  useEffect(() => () => window.clearTimeout(zapowiedzTimer.current), []);
+
   const zamknijNagrode = useCallback(() => {
+    let poGwiazdkach = false;
     const zaUlozenie = idZUlozenia(nagroda);
     if (zaUlozenie) {
       const { dodane } = odbierzNagrodeUlozenia(zaUlozenie);
@@ -1138,8 +1209,10 @@ export default function Swiat() {
       const { stan, dodane } = odbierzNagrode(NAGRODA_MONET);
       if (dodane) setBonus(bonusMonet());
       setZadanie(stan);
+      poGwiazdkach = true;
     }
     setNagroda(null);
+    if (poGwiazdkach) zapowiedzKolejnejMisji();
     /* PROSTO W GRĘ. Ekran nagrody za ułożenie jest ostatnią rzeczą między
        obrazkiem a partią: dziecko kliknęło już „Gramy!" (albo kafelek gry)
        przed bramą z puzzli, więc pytanie o to samo drugi raz byłoby oknem
@@ -1157,7 +1230,7 @@ export default function Swiat() {
       zaproszeniePoNagrodzieRef.current = null;
       setZaproszenie(dalej);
     }
-  }, [nagroda, otworzGre]);
+  }, [nagroda, otworzGre, zapowiedzKolejnejMisji]);
 
   /**
    * Koniec rozmowy = zamknięcie okna. I tyle.
@@ -1363,15 +1436,31 @@ export default function Swiat() {
         ikona: IKONA_MONETY,
         opis: `Zbierz ${CEL_DOMYSLNY} złotych monet`,
       });
+      /* POKAŻ, CZEGO SZUKAĆ (decyzja właściciela 2026-09-17). „Zbierz 10
+         gwiazdek" bez pokazania ani jednej to polecenie bez adresu: dziecko
+         zna liczbę, ale nie wie, jak gwiazdka wygląda w trawie. Jeden krótki
+         najazd odpowiada na oba pytania. Zwłoka czeka, aż okno Wizkora zejdzie
+         — inaczej kamera jedzie pod kartą i nie widać nic.
+         `pokazMiejsce` sam odpuszcza przy spokojnym ruchu, więc nie ma tu
+         osobnego warunku na reduce-motion. */
+      window.setTimeout(() => {
+        const scena = scenaRef.current;
+        if (!scena) return;
+        const gwiazdki = znakiZPrefiksem(scena, PREFIKS_GWIAZDKI);
+        if (gwiazdki.length) scena.pokazZnakWKadrze?.(gwiazdki[0], { trzym: 1.5 });
+      }, 620);
       return;
     }
     if (akcja === "zlecDrewno") {
       const d = rozpocznijZadanieDrewna();
       setDrewno(d);
       rozstanie();
-      pokazKomunikat("Suche drzewko i głaz", {
+      /* NIE „suche drzewko": od 16.09 ścina się KAŻDE drzewo, a suchy pień
+         zszedł z mapy. Toast ma powtórzyć ruch z karty Wizkora, a nie nazwać
+         nieistniejący obiekt. */
+      pokazKomunikat(`Zetnij ${CEL_DRZEWKA} drzewa`, {
         ikona: IKONA_KLODY,
-        opis: "Zanieś materiał na plac budowy na polanie",
+        opis: "Każdy stos znieś pod wielkie drzewo na polanie",
       });
       /* ŚWIAT SAM POKAZUJE ADRES. Zanim dziecko cokolwiek zetnie, planeta
          obraca się na polanę i pokazuje puste miejsce z palikami — wtedy
@@ -1572,9 +1661,9 @@ export default function Swiat() {
     // Gwiazdki rozliczone = warunek wejścia w łańcuch schronienia.
     const gwiazdkiRozliczone = () => gwiazdkiStan({ zebrane: CEL_DOMYSLNY, spelnione: true, wyplacone: true });
     const drewnoStan = (nadpisz) => ({
-      istnieje: true, aktywne: true, drzewka: 0, glazy: 0, zuzyte: [],
-      dostarczone: { drewno: null, kamien: null }, dostarczoneId: [],
-      drewnoNaPlacu: false, kamienNaPlacu: false, miejscePokazane: true,
+      istnieje: true, aktywne: true, drzewka: 0, zuzyte: [],
+      dostarczone: [], dostarczoneId: [], naPlacu: 0,
+      doSciecia: CEL_DRZEWKA, doZniesienia: 0, miejscePokazane: true,
       spelnione: false, zbudowane: false, etap: 0, ...nadpisz,
     });
 
@@ -1592,13 +1681,15 @@ export default function Swiat() {
       {
         grupa: "Domek na drzewie",
         etykieta: "Materiał: w trakcie",
-        odpal: () => okno(gwiazdkiRozliczone(), null, drewnoStan({ drzewka: 1 })),
+        odpal: () => okno(gwiazdkiRozliczone(), null, drewnoStan({
+          drzewka: 1, naPlacu: 1, doSciecia: CEL_DRZEWKA - 1, doZniesienia: 0 })),
       },
       {
         grupa: "Domek na drzewie",
         etykieta: "Materiał: komplet (pochwała)",
         odpal: () => okno(gwiazdkiRozliczone(), null, drewnoStan({
-          drzewka: 1, glazy: 1, drewnoNaPlacu: true, kamienNaPlacu: true, spelnione: true })),
+          drzewka: CEL_DRZEWKA, naPlacu: CEL_STOSOW, doSciecia: 0, doZniesienia: 0,
+          spelnione: true })),
       },
       {
         grupa: "Domek na drzewie",
@@ -1624,7 +1715,8 @@ export default function Swiat() {
       {
         grupa: "Domek na drzewie",
         etykieta: "Materiał: ścięty, leży w lesie",
-        odpal: () => okno(gwiazdkiRozliczone(), null, drewnoStan({ drzewka: 1, glazy: 1 })),
+        odpal: () => okno(gwiazdkiRozliczone(), null, drewnoStan({
+          drzewka: 2, naPlacu: 0, doSciecia: CEL_DRZEWKA - 2, doZniesienia: 2 })),
       },
       {
         grupa: "Domek na drzewie",
@@ -1633,13 +1725,17 @@ export default function Swiat() {
       },
       {
         grupa: "Domek na drzewie",
-        etykieta: "Dostarcz drewno na plac",
-        odpal: () => setDrewno(zaliczDostawe("drzewko", "drzewko-polana")),
+        etykieta: "Dostarcz jeden stos pod drzewo",
+        odpal: () => setDrewno(zaliczDostawe("drzewko")),
       },
       {
         grupa: "Domek na drzewie",
-        etykieta: "Dostarcz kamienie na plac",
-        odpal: () => setDrewno(zaliczDostawe("glaz", "glaz-polana")),
+        etykieta: `Dostarcz komplet (${CEL_STOSOW} stosy)`,
+        odpal: () => {
+          let s = null;
+          for (let i = 0; i < CEL_STOSOW; i += 1) s = zaliczDostawe("drzewko");
+          setDrewno(s);
+        },
       },
       {
         grupa: "Domek na drzewie",
@@ -1908,7 +2004,11 @@ export default function Swiat() {
         /* ŚCIĘCIE TO POŁOWA ROBOTY. Odhacza ptaszka w HUD, ale niczego nie
            kończy — materiał leży w lesie i sam tam nie pójdzie. Zadanie domyka
            dopiero `surowiec:dostarczony`. */
-        setDrewno(dane?.rodzaj === "glaz" ? policzGlaz(dane?.id) : policzDrzewko(dane?.id));
+        /* Sam „glaz" tu nie dojdzie: od 17.09 głaz stracił `doRozbicia`
+           w mapie, więc scena nie robi z niego celu. Gdyby kiedyś wrócił,
+           wróci ze swoim własnym zadaniem — nie z budową domku. */
+        if (dane?.rodzaj === "glaz") return;
+        setDrewno(policzDrzewko(dane?.id));
         pokazKomunikat(
           dane?.rodzaj === "glaz" ? "Kamienie gotowe" : "Drewno gotowe",
           { ikona: dane?.rodzaj === "glaz" ? IKONA_KAMYKA : IKONA_KLODY,
@@ -2509,33 +2609,38 @@ export default function Swiat() {
               </span>
             ) : null}
 
-            {/* MATERIAŁ NA SCHRONIENIE — dwie ikonki, a nie ułamek. Do etapu
-                trzeba dwóch KONKRETNYCH rzeczy (drzewko, głaz), więc dziecko
-                czyta stan bez liczenia: zgaszona ikonka znaczy „jeszcze nie",
-                zapalona „mam". Ułamek „1/2" byłby o jeden krok dalej od tego,
-                co dziecko naprawdę ma zrobić. */}
+            {/* MATERIAŁ NA SCHRONIENIE — trzy ikonki, a nie ułamek. Do etapu
+                trzeba trzech takich samych rzeczy (stos drewna ×3), więc
+                dziecko czyta stan bez liczenia: zgaszona ikonka znaczy
+                „jeszcze nie", zapalona „ścięte", ptaszek „pod drzewem".
+                Ułamek „2/3" byłby o jeden krok dalej od tego, co dziecko
+                naprawdę ma zrobić.
+
+                DO 17.09 stały tu DWIE ikonki — kłoda i kamyk. Kamień wypadł
+                z budowy, a trzy takie same znaczki niosą przy okazji lepszą
+                informację: widać po nich POSTĘP, a nie tylko komplet. */}
             {drewno.istnieje && !drewno.zbudowane ? (
               <span
                 className={`game-hud-counter game-hud-counter--drewno${drewno.spelnione ? " jest-spelnione" : ""}`}
-                aria-label={`Materiał na domek na drzewie: drzewko ${stanMaterialu(drewno.drzewka, drewno.drewnoNaPlacu, niesie === "drewno")}, głaz ${stanMaterialu(drewno.glazy, drewno.kamienNaPlacu, niesie === "kamien")}`}
+                aria-label={`Drewno na domek na drzewie: ${drewno.naPlacu} z ${CEL_STOSOW} pod drzewem, ściętych ${drewno.drzewka} z ${CEL_DRZEWKA}`}
                 data-testid="hub-zadanie-drewno"
               >
                 {/* Zapalona ikonka mówi „mam to", ale dopiero PTASZEK mówi
-                    „ta czynność jest skończona". Przy dwóch celach różnica
+                    „ta czynność jest skończona". Przy trzech stosach różnica
                     jest istotna: bez znaczka dziecko widzi tylko, że coś
-                    zrobiło jaśniejszym, a nie że ma to z głowy. */}
-                <span className={znakKlasa(drewno.drzewka, drewno.drewnoNaPlacu, niesie === "drewno")}>
-                  <img className={drewno.drzewka ? "jest" : ""} src={IKONA_KLODY} alt="" aria-hidden="true" draggable="false" />
-                  {drewno.drewnoNaPlacu
-                    ? <b aria-hidden="true" data-stan="plac">✓</b>
-                    : drewno.drzewka ? <b aria-hidden="true">✓</b> : null}
-                </span>
-                <span className={znakKlasa(drewno.glazy, drewno.kamienNaPlacu, niesie === "kamien")}>
-                  <img className={drewno.glazy ? "jest" : ""} src={IKONA_KAMYKA} alt="" aria-hidden="true" draggable="false" />
-                  {drewno.kamienNaPlacu
-                    ? <b aria-hidden="true" data-stan="plac">✓</b>
-                    : drewno.glazy ? <b aria-hidden="true">✓</b> : null}
-                </span>
+                    zrobiło jaśniejszym, a nie że ma to z głowy.
+
+                    Znaczki wypełniają się OD LEWEJ i każdy jest o krok dalej
+                    niż następny — dzięki temu pasek czyta się jak postęp,
+                    a nie jak trzy niezależne kratki. */}
+                {slotyDrewna(drewno, niesie === "drewno").map((stan, i) => (
+                  <span key={i} className={znakKlasa(stan.zdobyte, stan.naPlacu, stan.wDrodze)}>
+                    <img className={stan.zdobyte ? "jest" : ""} src={IKONA_KLODY} alt="" aria-hidden="true" draggable="false" />
+                    {stan.naPlacu
+                      ? <b aria-hidden="true" data-stan="plac">✓</b>
+                      : stan.zdobyte ? <b aria-hidden="true">✓</b> : null}
+                  </span>
+                ))}
               </span>
             ) : null}
 
@@ -2679,6 +2784,7 @@ export default function Swiat() {
           Ten sam klucz, w tonie `calm`, niesie myśli Wizkora o ciele
           (`PodpowiedzMedrca`) — jedna postać, jeden głos. Mowa NIE milknie przy zamknięciu okna ani przy wyciszonej
           nutce — zasada i jej powód stoją w `hub/mowaPostaci.js`. */}
+      <PasekKolejnejMisji otwarty={pasekMisji} onKoniec={naKoniecPaskaMisji} />
       <PopupPostaci
         otwarty={!!powitanie}
         imie={powitanie?.imie}

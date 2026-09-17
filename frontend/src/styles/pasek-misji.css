@@ -1,0 +1,94 @@
+/* PasekKolejnejMisji — patrz nagłówek komponentu.
+   Rodzina wizualna: pigułka komunikatu (zielony gradient + złota lamówka),
+   portret na tle wskaźników (ciemna tarcza + obwódka), wypełnienie w tym
+   samym złocie, co łuk wskaźnika ścinania. */
+
+.pasek-misji {
+  position: fixed;
+  left: 50%;
+  /* Ta sama półka, co komunikaty — nie zasłania mapy ani doku. */
+  bottom: calc(104px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 26;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(86vw, 420px);
+  padding: 10px 18px 10px 10px;
+  box-sizing: border-box;
+  border: 2px solid #e8c877;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #466f68, #244d4c);
+  box-shadow: 0 3px 0 #6f3a12, 0 7px 13px rgba(38, 31, 18, .28);
+  color: #fbf1d6;
+  animation: pasek-misji-wejscie .22s ease both;
+}
+
+.pasek-misji-portret {
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 50% 38%, #4a4a53, #26262c);
+  border: 2px solid #ff8f1f;
+  box-shadow: 0 0 0 2px #140f09;
+}
+/* KADR NA TWARZ. Pełny `wizPop.webp` to popiersie: kapelusz zajmuje górną
+   jedną trzecią, twarz siedzi mniej więcej w połowie wysokości, niżej szata
+   i laska. Przy zwykłym wyśrodkowaniu w kółku 46 px widać sam czubek
+   kapelusza — a portret ma mówić „to Wizkor", nie „to fioletowy stożek".
+   185% + wyśrodkowanie ustawia okno kadru na oczach i brodzie. */
+.pasek-misji-portret img {
+  width: 185%;
+  height: auto;
+}
+
+.pasek-misji-tresc {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.pasek-misji-tytul {
+  font-size: 13.5px;
+  font-weight: 900;
+  letter-spacing: .4px;
+  line-height: 1.2;
+  text-transform: uppercase;
+  text-shadow: 0 1px 0 #253f3d;
+  text-wrap: balance;
+}
+
+.pasek-misji-tor {
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #5a5326;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .45);
+}
+
+.pasek-misji-wypelnienie {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ffdc4b, #ff8f1f);
+  box-shadow: 0 0 8px #ffab27;
+  transition-property: width;
+  transition-timing-function: linear;
+}
+
+@keyframes pasek-misji-wejscie {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* Spokojny ruch: pasek zostaje (niesie informację), znika samo wjeżdżanie. */
+@media (prefers-reduced-motion: reduce) {
+  .pasek-misji { animation: none; }
+}
