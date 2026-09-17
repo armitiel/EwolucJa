@@ -1,0 +1,51 @@
+/* ChmurkaKsztalt — patrz nagłówek komponentu.
+
+   Cała barwa idzie z `public/tokeny.css`, sekcja 7 („CHMURKI KOMUNIKATOW").
+   Ta chmurka NIE ma własnej palety: lamówka to `--chmurka-akcent`,
+   wypełnienie to te same pięć stopni gliny, cień to `--chmurka-cien-filtr`.
+   Kto chce inny kolor jednej chmurki, nadpisuje `--chmurka-akcent` na jej
+   kontenerze — dokładnie tak, jak robią to `.reflektor.jest-liskiem`
+   i `.wizkor-mysl`. */
+
+.chmurka-ksztalt {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* Ogon wychodzi poza pole w wariancie ikony, a cień zawsze. */
+  overflow: visible;
+  /* Cień za SYLWETKĄ, nie za prostokątem — dlatego `drop-shadow`, a nie
+     `box-shadow`. Ten sam przepis, co pod ścieżką liska. */
+  filter: var(--chmurka-cien-filtr);
+}
+
+/* Lamówka jest DRUGĄ WARSTWĄ KÓŁ pod bryłą (patrz komponent), więc rysuje
+   się wypełnieniem, nie obrysem. */
+.chmurka-ksztalt-rant { fill: var(--chmurka-akcent); }
+
+/* Pięć stopni gliny. Kolejność i offsety siedzą w komponencie, barwy tutaj —
+   inaczej `var()` z tokenów nie doszłoby do atrybutu prezentacyjnego. */
+.chmurka-ksztalt-glina > stop:nth-child(1) { stop-color: var(--chmurka-tlo-0); }
+.chmurka-ksztalt-glina > stop:nth-child(2) { stop-color: var(--chmurka-tlo-1); }
+.chmurka-ksztalt-glina > stop:nth-child(3) { stop-color: var(--chmurka-tlo-2); }
+.chmurka-ksztalt-glina > stop:nth-child(4) { stop-color: var(--chmurka-tlo-3); }
+.chmurka-ksztalt-glina > stop:nth-child(5) { stop-color: var(--chmurka-tlo-4); }
+
+/* Ogon „oddycha" — to jedyny ruch, po którym kształt czyta się jako MYŚL,
+   a nie jako dymek z wypowiedzią. Druga kropka spóźnia się o pół taktu, więc
+   ruch idzie od postaci w stronę chmurki. */
+.chmurka-ksztalt-kropka {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: chmurka-ksztalt-puls 2.2s ease-in-out infinite;
+}
+
+.chmurka-ksztalt-kropka--2 { animation-delay: .34s; }
+
+@keyframes chmurka-ksztalt-puls {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.16); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chmurka-ksztalt-kropka { animation: none; }
+}
