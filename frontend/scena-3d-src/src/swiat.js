@@ -1253,6 +1253,27 @@ export function taflaNaGruncie(planeta, kotwica, r, wysokoscGruntu, przeswit = .
   return g;
 }
 
+/**
+ * UV DLA TAFLI Z `taflaNaGruncie` — kolowe, liczone z pozycji w plaszczyznie XZ.
+ *
+ * PO CO. Tafla powstaje jako czysta siatka pozycji i normalnych: klepisko jest
+ * jednolita barwa i UV mu nie potrzeba. Ale plama cienia to TEKSTURA
+ * (gradient z `plamaCienia`) — bez wspolrzednych wyszlaby rownym prostokatem
+ * koloru zamiast miekkiej plamy. Srodek tafli ma wypasc w srodku tekstury,
+ * a brzeg dokladnie tam, gdzie gradient schodzi do zera: stad `.5 + x/(2r)`.
+ * V idzie w dol, bo os Z rosnie „w glab", a V tekstury w dol obrazka.
+ */
+export function uvKolowe(geo, r) {
+  const poz = geo.getAttribute("position");
+  const uv = new Float32Array(poz.count * 2);
+  for (let i = 0; i < poz.count; i++) {
+    uv[i * 2] = .5 + poz.getX(i) / (2 * r);
+    uv[i * 2 + 1] = .5 - poz.getZ(i) / (2 * r);
+  }
+  geo.setAttribute("uv", new Float32BufferAttribute(uv, 2));
+  return geo;
+}
+
 /** Trzy układy skał; `maly` tworzy pojedynczy kamień satelitarny. */
 export function glaz(s = 1, maly = false, wariant = 0) {
   const e = new Group();
@@ -1976,9 +1997,40 @@ export function zbudujSwiat(mapa, planeta) {
        dowolne drzewo na mapie (`_zarejestrujDrzewa` w `app.js`) — to jedno ma
        zostać, bo na nim stoi domek. Flaga jedzie przy blockerze, bo to on jest
        jedynym miejscem, w którym scena widzi listę wszystkich drzew. */
-    blockers.push({ x: dx, z: dz, r: .62 * sk, drzewo: bryla, skalaDrzewa: sk, domkowe: true });
-    const cienD = plamaCienia(4.0 * sk, .32);
-    planeta.ustaw(cienD, dx, dz, gruntD + .006, 0);
+    /* KOLIZJA I CIEN LICZA SIE OD PNIA, NIE OD KOTWICY.
+       `pienX/pienZ` przesuwaja model drzewa wzgledem kotwicy (suwaki edytora,
+       zapisane w `mapa.json`). Dzis to 1,18 i -0,52 przy skali 1,45, czyli
+       prawie dwie jednostki w bok. Blocker i plama liczone z samego `pos`
+       siedzialy przez to W TRAWIE OBOK drzewa: dziecko przechodzilo przez pien
+       na wylot, zatrzymywalo sie o powietrze metr dalej, a cien lezal obok
+       korony. Punkt pnia liczymy tak samo jak stope drabinki: lokalny offset
+       przez macierz kotwicy i z powrotem na mape (`zKuli`).
+       To jest dokladnie ta pulapka, przed ktora ostrzega komentarz przy
+       `DOMEK_DRZEWO.pienX` — zera przestaly byc zerami. */
+    const PIEN_X = (ukladDomkuSwiata.pienX || 0) * sk;
+    const PIEN_Z = (ukladDomkuSwiata.pienZ || 0) * sk;
+    kotwicaD.updateMatrix();
+    const pienMapa = planeta.zKuli(
+      new Vector3(PIEN_X, 0, PIEN_Z).applyMatrix4(kotwicaD.matrix));
+    blockers.push({ x: pienMapa.x, z: pienMapa.z, r: .62 * sk, drzewo: bryla, skalaDrzewa: sk, domkowe: true });
+
+    /* CIEN LEZY NA TERENIE, a nie na plaszczyznie stycznej do kuli.
+       `plamaCienia` daje kwadrat `PlaneGeometry`. Przy tej srednicy jego brzeg
+       odstaje od kuli o pol jednostki (R = 8,5), a drzewo stoi na garbie — stad
+       ciemna blacha wiszaca nad zboczem zamiast plamy pod korona. Podmieniamy
+       geometrie na tafle idaca za kula i terenem (ta sama, co pod klepiskiem)
+       i dorabiamy UV, bo gradient cienia jest tekstura.
+       Promien zostaje ten, co byl: `plamaCienia(s)` robilo kwadrat o boku s,
+       a gradient gasl na wpisanym w niego kole — czyli na `s/2`. */
+    const R_CIEN = 2.0 * sk;
+    const cienD = plamaCienia(2 * R_CIEN, .32);
+    planeta.ustaw(cienD, pienMapa.x, pienMapa.z, wysokoscGruntu(pienMapa.x, pienMapa.z), 0);
+    const plama = cienD.userData.plama;
+    plama.geometry.dispose();
+    plama.geometry = uvKolowe(
+      taflaNaGruncie(planeta, cienD, R_CIEN, wysokoscGruntu, .012), R_CIEN);
+    plama.rotation.set(0, 0, 0);
+    plama.position.set(0, 0, 0);
     s.add(cienD);
   }
 

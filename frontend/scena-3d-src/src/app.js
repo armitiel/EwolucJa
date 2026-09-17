@@ -2235,6 +2235,14 @@ export class Aplikacja {
         : this.groundHeightAt(def.pos[0], def.pos[1]);
       this.planeta.ustaw(k, def.pos[0], def.pos[1],
         h - (u.zanurzeniePnia ?? DOMEK_DRZEWO.zanurzeniePnia) * sk, def.obrot ?? 0);
+      /* KOLIZJA JEDZIE ZA PNIEM — ten sam rachunek, co w `zbudujSwiat`.
+         Bez tego suwaki `pienX/pienZ` zostawiaja blocker tam, skad drzewo
+         wlasnie odjechalo, i w edytorze znow da sie przejsc przez pien
+         (a lisek zatrzymuje sie o powietrze obok). */
+      k.updateMatrix();
+      const pm = this.planeta.zKuli(new Vector3(
+        (u.pienX || 0) * sk, 0, (u.pienZ || 0) * sk).applyMatrix4(k.matrix));
+      b.x = pm.x; b.z = pm.z;
     }
 
     // 1. Pień: nowa skala i obrót, nic więcej. Wyjmujemy go ze starej korony,
