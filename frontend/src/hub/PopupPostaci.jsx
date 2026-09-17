@@ -32,6 +32,7 @@
  */
 import React, { useEffect, useRef, useState } from "react";
 import { powiedzPostacia } from "./mowaPostaci.js";
+import { odmienDlaGracza } from "../services/rodzaj.js";
 
 /**
  * `prefers-reduced-motion` czytane z JS, a nie z CSS — i to jest istotna
@@ -166,6 +167,16 @@ export default function PopupPostaci({
   const [spokojnie] = useState(spokojnyRuch);
   const bohater = obrazekAnim && !spokojnie ? obrazekAnim : obrazek;
 
+  /* TOKENY RODZAJU `{m|ż}` ODMIENIAMY PRZED RENDEREM. Kwestie z `kwestieWizkora`
+     i `misjeGier` piszą się w obu formach naraz („{sam|sama} to
+     {przyniosłeś|przyniosłaś}"); tu wybieramy tę właściwą dla dziecka — dla
+     karty, dla wyróżnienia (musi pasować do odmienionego zdania, inaczej
+     `zlozTekst` go nie znajdzie) i dla głosu (`powiedzPostacia` odmienia
+     jeszcze raz, ale bez tokenów to już nic nie zmienia). */
+  const tekstGlosu = odmienDlaGracza(tekst);
+  const tekstKarty = odmienDlaGracza(tekstEkranu || tekst);
+  const wyroznienieKarty = odmienDlaGracza(wyroznienie);
+
   /**
    * Postać MÓWI to, co ma w dymku — i mówi to DO KOŃCA, także wtedy, gdy
    * dziecko zamknie okno po pierwszej linijce. Cała zasada (kiedy głos milknie
@@ -178,8 +189,8 @@ export default function PopupPostaci({
    */
   useEffect(() => {
     if (!otwarty) return;
-    powiedzPostacia(tekst, { glos, ton });
-  }, [otwarty, glos, ton, tekst]);
+    powiedzPostacia(tekstGlosu, { glos, ton });
+  }, [otwarty, glos, ton, tekstGlosu]);
 
   // Escape zamyka — na desktopie to odruch, a okno nie ma nic do stracenia.
   useEffect(() => {
@@ -262,7 +273,7 @@ export default function PopupPostaci({
               w niej nie ma, `zlozTekst` oddaje zdanie w całości, więc nic się
               nie psuje, a kwestie, które da się skrócić Z zachowaniem frazy,
               nie tracą podkreślenia. */}
-          {zlozTekst(tekstEkranu || tekst, wyroznienie)}
+          {zlozTekst(tekstKarty, wyroznienieKarty)}
         </p>
 
         {wizualizacja ? (

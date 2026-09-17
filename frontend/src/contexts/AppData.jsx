@@ -23,6 +23,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { api, session } from "../services/api.js";
+import { zapamietajGracza } from "../services/rodzaj.js";
 
 // Pre-load wszystkich assetow zwoju do cache przegladarki przy starcie appki.
 // Dzieki temu wchodzac w /mission obrazy sa juz w pamieci, nie ma wczytywania.
@@ -60,6 +61,11 @@ export default function AppDataProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const lastPlayerIdRef = useRef(null);
+
+  // Rodzaj gramatyczny dla modułów poza Reactem (`mowaPostaci`, `glosLiska`,
+  // `wiadomosci`): pamiętają ostatniego gracza, żeby `odmienDlaGracza(tekst)`
+  // bez argumentu trafiało tak samo, jak w komponentach z `player` pod ręką.
+  useEffect(() => { zapamietajGracza(player); }, [player]);
 
   // Sprawdz czy biezacy route potrzebuje danych
   const isProtected = PROTECTED_PATHS.some((p) => location.pathname.startsWith(p));

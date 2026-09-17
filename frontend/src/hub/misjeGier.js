@@ -109,10 +109,14 @@ export const MISJE = [
       wyroznienie: "Ułóż z nich obrazek",
       przycisk: "Układam!",
     },
+    /* `tekstEkranu` = KARTA (≤ 60 zn., jedno polecenie albo jeden fakt) —
+       na ekran idzie ona, pełny `tekst` zostaje głosowi (`PopupPostaci`).
+       Treść kart wg `docs/tresci/02_KOMUNIKATY_POPRAWKI.md` §2.2. */
     granie: {
       tekst:
         "Karta jest twoja — masz ją już w skrzyni z grami i na mapie. " +
         "Zostało najtrudniejsze: dobierz wszystkie pary.",
+      tekstEkranu: "Karta stoi na polanie. Dobierz pary.",
       wyroznienie: "w skrzyni z grami",
       przycisk: "Gram dalej!",
     },
@@ -120,6 +124,7 @@ export const MISJE = [
       tekst:
         "Widziałem każdą parę, którą odkryłeś. Pamięć masz jak sowa — " +
         "należy ci się {nagroda} monet.",
+      tekstEkranu: "Wszystkie pary. Karta zostaje na polanie.",
       wyroznienie: "{nagroda} monet",
       przycisk: "Odbieram nagrodę!",
     },
@@ -186,6 +191,7 @@ export const MISJE = [
       tekst:
         "Jesteś na górze. Odbij się w dobrym momencie i łap wiatr — " +
         "im dłużej lecisz, tym więcej po drodze zbierzesz.",
+      tekstEkranu: "Choinka jest twoja. Odbij się i leć.",
       wyroznienie: "łap wiatr",
       przycisk: "Lecę!",
     },
@@ -193,6 +199,7 @@ export const MISJE = [
       tekst:
         "Widziałem ten lot z ziemi, wędrowcze. Kawał drogi. " +
         "{nagroda} monet — należą ci się.",
+      tekstEkranu: "Widziałem ten lot. Choinka zostaje twoja.",
       wyroznienie: "{nagroda} monet",
       przycisk: "Odbieram nagrodę!",
     },
@@ -253,6 +260,7 @@ export const MISJE = [
       tekst:
         "Bucik masz, więc trasa stoi otworem. Biegnij i licz w biegu — " +
         "bramki nie czekają, aż się zastanowisz.",
+      tekstEkranu: "Bucik jest twój. Trasa stoi otworem.",
       wyroznienie: "licz w biegu",
       przycisk: "Biegnę!",
     },
@@ -260,6 +268,7 @@ export const MISJE = [
       tekst:
         "Przebiegłeś całą trasę i jeszcze liczyłeś po drodze. " +
         "Głowa i nogi pracowały razem — świetna robota. {nagroda} monet jest twoje.",
+      tekstEkranu: "Cała trasa. Bucik zostaje na polanie.",
       wyroznienie: "{nagroda} monet",
       przycisk: "Odbieram nagrodę!",
     },

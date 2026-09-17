@@ -29,6 +29,7 @@ import { API_BASE } from "../../config.js";
 import { useAppData } from "../../contexts/AppData.jsx";
 import { GameIcon } from "../../adventure/components/icons.jsx";
 import { powiedzPostacia } from "../mowaPostaci.js";
+import { odmienDlaGracza } from "../../services/rodzaj.js";
 import {
   odbierzNagrode,
   sprawdzMentora,
@@ -44,7 +45,7 @@ import {
 export const ZDJECIA_WLACZONE = false;
 
 export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
-  const { refreshPlayer } = useAppData();
+  const { refreshPlayer, player } = useAppData();
   const [stan, setStan] = useState(() => stanZadania());
   const [etap, setEtap] = useState("plan");
   const [miejsce, setMiejsce] = useState(null);
@@ -67,6 +68,13 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
   useEffect(() => () => { if (podglad) URL.revokeObjectURL(podglad); }, [podglad]);
 
   const def = stan.def;
+
+  /* KAŻDY TEKST DLA DZIECKA PRZEZ `o()`. Definicje zadań (`zadania-wizkora`)
+     i statusy piszą się z tokenami `{m|ż}` — tu wybieramy formę pod gracza,
+     tuż przed renderem i przed lektorem (`docs/tresci/01_STANDARD_GLOSOW.md`, R2).
+     Jedna funkcja zamiast rozsianych wywołań, żeby nowe pole nie mogło
+     wyjść na ekran surowe tylko dlatego, że ktoś zapomniał je owinąć. */
+  const o = useCallback((tekst) => odmienDlaGracza(tekst, player), [player]);
 
   useEffect(() => { setEtap("plan"); }, [def?.id, stan.status]);
 
@@ -93,11 +101,11 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
 
   const czytajZadanie = useCallback(() => {
     if (!def || !stan.doZrobienia) return;
-    powiedzPostacia([def.cel, def.jak].filter(Boolean).join(" "), {
+    powiedzPostacia(o([def.cel, def.jak].filter(Boolean).join(" ")), {
       glos: "las_decyzji",
       ton: "mystery",
     });
-  }, [def, stan.doZrobienia]);
+  }, [def, stan.doZrobienia, o]);
 
   /**
    * WIZKOR CZYTA ZADANIE NA GŁOS, raz, zaraz po otwarciu panelu.
@@ -228,9 +236,9 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
         <div className="hub-empty">
           <GameIcon name={jestCoLosowac ? "star" : "hourglass"} size={jestCoLosowac ? 38 : 34} />
           <p>
-            {jestCoLosowac
+            {o(jestCoLosowac
               ? "Wizkor ma dziś dla Ciebie zadanie. Znajdź go na polanie i zakręć kołem przeznaczenia."
-              : "Wizkor nie ma dziś dla Ciebie zadania. Pobiegaj po mapie — znajdzie Cię sam."}
+              : "Wizkor nie ma dziś dla Ciebie zadania. Pobiegaj po mapie — znajdzie Cię sam.")}
           </p>
         </div>
       </div>
@@ -243,8 +251,8 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
       <div className="hub-pane" data-testid="hub-pane-zadanie">
         <div className="hub-empty">
           <GameIcon name="check" size={38} />
-          <h3 className="czat-naglowek">Zrobione!</h3>
-          <p>{def.tytul} — masz to za sobą. Wizkor przygotuje kolejne.</p>
+          <h3 className="czat-naglowek">{o("Zrobione!")}</h3>
+          <p>{o(`${def.tytul} — masz to za sobą. Wizkor przygotuje kolejne.`)}</p>
         </div>
       </div>
     );
@@ -256,8 +264,8 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
       <div className="hub-pane" data-testid="hub-pane-zadanie">
         <div className="zadanie-nagroda">
           <GameIcon name="gift" size={40} />
-          <h3 className="czat-naglowek">Mentor przyjął Twoje zadanie</h3>
-          {stan.notatka ? <p className="zadanie-notatka">„{stan.notatka}”</p> : null}
+          <h3 className="czat-naglowek">{o("Mentor przyjął Twoje zadanie")}</h3>
+          {stan.notatka ? <p className="zadanie-notatka">„{o(stan.notatka)}”</p> : null}
           {stan.nagroda ? <p className="zadanie-kwota">+{stan.nagroda} monet</p> : null}
           <button type="button" className="hub-btn hub-btn-primary" onClick={odbierz}>
             Odbieram nagrodę!
@@ -291,8 +299,8 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
             aria-hidden="true"
             draggable="false"
           />
-          <h3 className="czat-naglowek">Twoje zadanie jest sprawdzane</h3>
-          <p>Wizkor zaniósł Twoją odpowiedź Mentorowi. Mentor właśnie ją ogląda. Zajrzyj tu później.</p>
+          <h3 className="czat-naglowek">{o("Twoje zadanie jest sprawdzane")}</h3>
+          <p>{o("Wizkor zaniósł Twoją odpowiedź Mentorowi. Mentor właśnie ją ogląda. Zajrzyj tu później.")}</p>
           {stan.dowod?.zdjecieUrl ? (
             <img className="zadanie-podglad" src={stan.dowod.zdjecieUrl} alt="Twoje zdjęcie" />
           ) : null}
@@ -306,8 +314,8 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
   if (etap === "dowod") {
     return (
       <div ref={panelRef} className="hub-pane" data-testid="hub-pane-zadanie-dowod">
-        <h3 className="czat-naglowek czat-naglowek--pisz">Pokaż Mentorowi</h3>
-        {def.dowod ? <p className="zadanie-dowod">{def.dowod}</p> : null}
+        <h3 className="czat-naglowek czat-naglowek--pisz">{o("Pokaż Mentorowi")}</h3>
+        {def.dowod ? <p className="zadanie-dowod">{o(def.dowod)}</p> : null}
 
         {ZDJECIA_WLACZONE ? (<>
         <button
@@ -340,18 +348,18 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
           className="zadanie-opis"
           value={opis}
           onChange={(zdarzenie) => setOpis(zdarzenie.target.value)}
-          placeholder="Napisz, co zrobiłeś…"
+          placeholder={o("Napisz, co {zrobiłeś|zrobiłaś}…")}
           maxLength={600}
           rows={4}
         />
         {def.przyklad ? (
           <p className="zadanie-przyklad">
             <b>Na przykład:</b>
-            <span>{def.przyklad}</span>
+            <span>{o(def.przyklad)}</span>
           </p>
         ) : null}
 
-        {blad ? <p className="zadanie-blad">{blad}</p> : null}
+        {blad ? <p className="zadanie-blad">{o(blad)}</p> : null}
         <div className="hub-actions">
           <button
             type="button"
@@ -370,9 +378,9 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
   return (
     <div ref={panelRef} className="hub-pane" data-testid="hub-pane-zadanie">
       <div className="zadanie-karta">
-        <h3 className="zadanie-tytul">{def.tytul}</h3>
-        <p className="zadanie-cel">{def.cel}</p>
-        {def.jak ? <p className="zadanie-jak">{def.jak}</p> : null}
+        <h3 className="zadanie-tytul">{o(def.tytul)}</h3>
+        <p className="zadanie-cel">{o(def.cel)}</p>
+        {def.jak ? <p className="zadanie-jak">{o(def.jak)}</p> : null}
         <button type="button" className="zadanie-glos" onClick={czytajZadanie}>
           <GameIcon name="sound" size={20} />
           Posłuchaj jeszcze raz
@@ -382,7 +390,7 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
       {stan.status === "poprawka" && stan.notatka ? (
         <p className="hub-note hub-note-warn">
           <GameIcon name="pen" size={16} />
-          Mentor pisze: „{stan.notatka}”
+          Mentor pisze: „{o(stan.notatka)}”
         </p>
       ) : null}
 
@@ -392,7 +400,7 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
         </button>
       </div>
 
-      <h3 className="czat-naglowek">Gdzie możesz to zrobić?</h3>
+      <h3 className="czat-naglowek">{o("Gdzie możesz to zrobić?")}</h3>
       <div className={`zadanie-miejsca${miejsce ? " ma-wybor" : ""}`}>
         {(def.miejsca || []).map((m) => (
           <button
@@ -403,8 +411,8 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
           >
             <span className="zadanie-pinezka" aria-hidden="true" />
             <span className="zadanie-miejsce-emoji" aria-hidden="true">{m.emoji}</span>
-            <strong>{m.nazwa}</strong>
-            {miejsce === m.id ? <small>{m.opis}</small> : null}
+            <strong>{o(m.nazwa)}</strong>
+            {miejsce === m.id ? <small>{o(m.opis)}</small> : null}
           </button>
         ))}
       </div>

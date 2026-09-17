@@ -53,6 +53,7 @@
 import React, { useEffect, useState } from "react";
 import { Sparkle, Coin } from "./art.jsx";
 import { fx } from "../services/soundFx.js";
+import { odmienDlaGracza } from "../services/rodzaj.js";
 import "../styles/nagroda.css";
 
 const CONFETTI_COLORS = ["#FFD269", "#B886E8", "#7BC0E8", "#F08C8C", "#5FA76F", "#FFB347"];
@@ -206,8 +207,11 @@ export default function RewardScreen({
           </p>
         ) : null}
 
-        {title ? <h2 className="nagroda-tytul">{title}</h2> : null}
-        {subtitle ? <p className="nagroda-podtytul">{subtitle}</p> : null}
+        {/* Tytuł, podtytuł i notka piszą się z tokenami `{m|ż}` („{Dobrałeś|Dobrałaś}
+            wszystkie pary") — odmiana tuż przed renderem, jedna dla wszystkich
+            ekranów wygranej (gry, gwiazdki, misje). */}
+        {title ? <h2 className="nagroda-tytul">{odmienDlaGracza(title)}</h2> : null}
+        {subtitle ? <p className="nagroda-podtytul">{odmienDlaGracza(subtitle)}</p> : null}
 
         <p className="nagroda-pigulka">
           <Coin size={40} anim />
@@ -252,7 +256,7 @@ export default function RewardScreen({
 
         {note ? (
           <p className={`nagroda-notka${noteStyle === "quote" ? " nagroda-notka--cytat" : ""}`}>
-            {noteStyle === "quote" ? `„${note}"` : note}
+            {noteStyle === "quote" ? `„${odmienDlaGracza(note)}"` : odmienDlaGracza(note)}
           </p>
         ) : null}
 

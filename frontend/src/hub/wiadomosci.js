@@ -18,6 +18,7 @@
 import { listNotifications, markRead } from "../adventure/engine/notifications.js";
 import { api, session } from "../services/api.js";
 import { stanZadania as stanZadaniaWizkora } from "./zadanieWizkora.js";
+import { odmienDlaGracza } from "../services/rodzaj.js";
 
 const ETYKIETY_MENTORA = { hint: "Podpowiedź", artifact: "Artefakt", message: "Wiadomość" };
 
@@ -162,18 +163,22 @@ export function wpisZadaniaWizkora() {
   const tresc = szept && stan.def.cel.endsWith(szept)
     ? stan.def.cel.slice(0, -szept.length).trim()
     : stan.def.cel;
+  /* Tokeny `{m|ż}` odmieniamy przy składaniu wpisu — zwój dostaje gotowe
+     zdania (tytuł, treść, szept, „jak", etykieta), a nie klamry. Odcięcie
+     szeptu od celu robimy PRZED odmianą, bo oba pola stoją w danych w tej
+     samej, jeszcze nieodmienionej formie. */
   return {
     klucz: "zadanie-wizkora",
     zrodlo: "zadanie-wizkora",
     id: stan.id,
-    tytul: stan.def.tytul,
-    tresc,
-    szept,
-    jak: stan.def.jak || null,
-    notatka: stan.notatka || null,
+    tytul: odmienDlaGracza(stan.def.tytul),
+    tresc: odmienDlaGracza(tresc),
+    szept: odmienDlaGracza(szept),
+    jak: odmienDlaGracza(stan.def.jak) || null,
+    notatka: odmienDlaGracza(stan.notatka) || null,
     kiedy: stan.zleconeAt,
-    etykieta: stan.etykieta,
-    cta: stan.cta,
+    etykieta: odmienDlaGracza(stan.etykieta),
+    cta: odmienDlaGracza(stan.cta),
     nagroda: stan.nagroda ?? stan.def.nagroda ?? null,
     // Do zrobienia albo do odebrania = coś czeka. „Sprawdzane" nie pali
     // plakietki: dziecko nie ma wtedy nic do zrobienia i ponaglanie go

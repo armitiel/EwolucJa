@@ -95,6 +95,7 @@ import WyborPoziomu from "../hub/WyborPoziomu.jsx";
 import PasekKolejnejMisji from "../hub/PasekKolejnejMisji.jsx";
 import ChmurkaZadania from "../hub/ChmurkaZadania.jsx";
 import { powiedzPostacia } from "../hub/mowaPostaci.js";
+import { odmienDlaGracza } from "../services/rodzaj.js";
 import {
   pokazZnakNaMapie,
   pozycjaNaEkranie,
@@ -1002,7 +1003,10 @@ export default function Swiat() {
    * czytnik ekranu nie widzi obrazka, a samo „Zbierz 10" nie jest zdaniem.
    */
   const pokazKomunikat = useCallback((tekst, opcje) => {
-    setKomunikat({ tekst, ikona: opcje?.ikona || null, opis: opcje?.opis || tekst });
+    /* Toast też mówi do dziecka — tytuł i opis przechodzą przez odmianę
+       tokenów `{m|ż}`, zanim staną na ekranie albo trafią do czytnika. */
+    const tytul = odmienDlaGracza(tekst);
+    setKomunikat({ tekst: tytul, ikona: opcje?.ikona || null, opis: odmienDlaGracza(opcje?.opis) || tytul });
     window.clearTimeout(pokazKomunikat._t);
     pokazKomunikat._t = window.setTimeout(() => setKomunikat(null), CZAS_KOMUNIKATU);
   }, []);
@@ -1503,7 +1507,7 @@ export default function Swiat() {
       if (!d.miejscePokazane) {
         window.setTimeout(() => scenaRef.current?.pokazMiejsce?.(), 620);
       }
-      /* DRZEWO I SIEKIERA, na przemian. Zdanie „Budujemy pomost na drzewie!"
+      /* DRZEWO I SIEKIERA, na przemian. Zdanie „Budujemy domek na drzewie!"
          mówi PO CO, ale nie mówi CZYM — a sześciolatek, który nigdy nie
          ściął drzewa w grze, nie wie, że ma podejść i trzymać. Dwie ikony
          w karuzeli odpowiadają na to bez ani jednego słowa. */
@@ -1516,11 +1520,11 @@ export default function Swiat() {
          albo zza kolejnego kliknięcia, dziecko nie połączyłoby jej z tym,
          co przed chwilą zrobiło. */
       setDrewno(postawEtap());
-      dopiszDoDziennika("schronienie", "Na drzewie stanął pomost z drabinką", IKONA_STOSU);
+      dopiszDoDziennika("schronienie", "Na drzewie stanął domek z drabinką", IKONA_STOSU);
       rozstanie();
-      pokazKomunikat("Pomost gotowy", {
+      pokazKomunikat("Domek gotowy", {
         ikona: IKONA_STOSU,
-        opis: "Na drzewie stanął pomost z drabinką",
+        opis: "Na drzewie stanął domek z drabinką",
       });
       return;
     }
@@ -1734,7 +1738,7 @@ export default function Swiat() {
         etykieta: "Postaw etap 1 (zapisuje!)",
         odpal: () => {
           setDrewno(postawEtap());
-          pokazKomunikat("Pomost stoi", { ikona: IKONA_STOSU, opis: "Na drzewie stanął pomost z drabinką" });
+          pokazKomunikat("Domek stoi", { ikona: IKONA_STOSU, opis: "Na drzewie stanął domek z drabinką" });
         },
       },
       {

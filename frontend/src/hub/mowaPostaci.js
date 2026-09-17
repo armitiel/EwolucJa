@@ -50,6 +50,7 @@
  * zasada znów rozjedzie się na cztery kopie.
  */
 import { ttsPlayer } from "../services/ttsPlayer.js";
+import { odmienDlaGracza } from "../services/rodzaj.js";
 
 /**
  * Postać mówi. Zwraca obietnicę końca wypowiedzi (albo `null`, gdy nic nie
@@ -60,8 +61,14 @@ import { ttsPlayer } from "../services/ttsPlayer.js";
  */
 export function powiedzPostacia(tekst, { glos, ton = "mystery" } = {}) {
   if (!tekst || !glos) return null;
+  /* TOKENY RODZAJU `{m|ż}` ODMIENIAMY TUTAJ, nie u wołających. To jedyne
+     wejście głosu postaci, więc lektor nigdy nie przeczyta klamry ani obu
+     form naraz — niezależnie od tego, które okno go zawołało
+     (`docs/tresci/01_STANDARD_GLOSOW.md`, R2). */
+  const zdanie = odmienDlaGracza(tekst);
+  if (!zdanie) return null;
   try {
-    return Promise.resolve(ttsPlayer.speak(tekst, { land: glos, tone: ton, interrupt: true }));
+    return Promise.resolve(ttsPlayer.speak(zdanie, { land: glos, tone: ton, interrupt: true }));
   } catch {
     return null;
   }

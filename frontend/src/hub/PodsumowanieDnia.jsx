@@ -46,6 +46,7 @@
  */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { powiedzPostacia } from "./mowaPostaci.js";
+import { odmienDlaGracza } from "../services/rodzaj.js";
 import SEKWENCJA from "./data/koniec-dnia.v1.json";
 import MOCK_ZADANIA from "./data/zadania-mockup-braki.v1.json";
 
@@ -94,7 +95,22 @@ function zlozKroki(wpisy) {
       ? [D.linie[Math.floor(Math.random() * D.linie.length)], SEKWENCJA.kroki[1].linie[1], D.domkniecie]
       : [wpisy[wpisy.length - 1].tekst, ...SEKWENCJA.kroki[1].linie.slice(1)];
     return { ...k, linie, glos: linie.join(" ") };
-  });
+  }).map(odmienKrok);
+}
+
+/**
+ * Tokeny `{m|ż}` odmieniamy RAZ, przy składaniu kroków — każda linia, tekst
+ * i wersja mówiona. Render i lektor dostają już gotową formę, więc
+ * narratorka nie przeczyta klamry, a `key` listy nie zmieni się między
+ * ekranem a głosem.
+ */
+function odmienKrok(k) {
+  return {
+    ...k,
+    tekst: odmienDlaGracza(k.tekst),
+    glos: odmienDlaGracza(k.glos),
+    linie: Array.isArray(k.linie) ? k.linie.map((l) => odmienDlaGracza(l)) : k.linie,
+  };
 }
 
 export default function PodsumowanieDnia({
@@ -207,13 +223,13 @@ export default function PodsumowanieDnia({
         {pokazBrak ? (
           <section className="podsumowanie-dnia-brak">
             <span className="podsumowanie-dnia-obrys" aria-hidden="true" />
-            <h3>{brak.brak || "Czegoś tu brakuje."}</h3>
-            <p>{(brak.cel || "").split("\n")[0]}</p>
+            <h3>{odmienDlaGracza(brak.brak) || "Czegoś tu brakuje."}</h3>
+            <p>{odmienDlaGracza((brak.cel || "").split("\n")[0])}</p>
           </section>
         ) : null}
 
         {odlozone ? (
-          <p className="podsumowanie-dnia-odzew">{SEKWENCJA.odlozenie.odzew}</p>
+          <p className="podsumowanie-dnia-odzew">{odmienDlaGracza(SEKWENCJA.odlozenie.odzew)}</p>
         ) : null}
 
         <button

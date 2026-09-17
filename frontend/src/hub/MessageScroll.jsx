@@ -22,6 +22,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSta
 import { useNavigate } from "react-router-dom";
 import { useAdventureDane } from "../adventure/engine/useAdventure.js";
 import { kiedyTekst, oznaczPrzeczytana, wpisZadania, wpisZadaniaWizkora, zbierzWiadomosci } from "./wiadomosci.js";
+import { odmienDlaGracza as o } from "../services/rodzaj.js";
 
 const MIN_WYSOKOSC = 360;
 const MAX_WYSOKOSC = 640;
@@ -199,12 +200,12 @@ export default function MessageScroll({ open, onClose, onZmiana }) {
                           <img src={pozycja.ikona} alt="" aria-hidden="true" draggable="false" />
                         </span>
                         <span className="scroll-message-copy">
-                          <strong>{pozycja.tytul}</strong>
+                          <strong>{o(pozycja.tytul)}</strong>
                           {/* Zajawka tylko w wierszu zwiniętym. Otwarty wpis ma
                               tę samą treść niżej, w pełnym rozmiarze — dwa razy
                               to samo zdanie, raz drobne, raz duże, czytało się
                               jak dwa różne. */}
-                          {otwarta ? null : <small>{pozycja.tresc}</small>}
+                          {otwarta ? null : <small>{o(pozycja.tresc)}</small>}
                         </span>
                         <span className="scroll-message-meta">
                           {/* Zadanie dostaje PLAKIETKĘ ze stanem, wieść — datę.
@@ -216,7 +217,7 @@ export default function MessageScroll({ open, onClose, onZmiana }) {
                               samo, w dwóch miejscach i w dwóch kolorach. */}
                           {pozycja.przypieta ? (
                             <b className="scroll-message-tag">
-                              {pozycja.etykieta}
+                              {o(pozycja.etykieta)}
                               {pozycja.nieprzeczytana ? <i /> : null}
                             </b>
                           ) : (
@@ -238,17 +239,17 @@ export default function MessageScroll({ open, onClose, onZmiana }) {
                             jedno zdanie, które naprawdę trzeba zrozumieć. */}
                         {przypieta ? (
                           <div className="scroll-message-task-copy">
-                            <p>{pozycja.tresc}</p>
+                            <p>{o(pozycja.tresc)}</p>
                             {pozycja.szept ? (
                               <p className="scroll-message-whisper">
                                 <i aria-hidden="true" />
-                                {pozycja.szept}
+                                {o(pozycja.szept)}
                                 <i aria-hidden="true" />
                               </p>
                             ) : null}
                           </div>
-                        ) : <p>{pozycja.tresc}</p>}
-                        {pozycja.notatka ? <p className="scroll-message-note">„{pozycja.notatka}”</p> : null}
+                        ) : <p>{o(pozycja.tresc)}</p>}
+                        {pozycja.notatka ? <p className="scroll-message-note">„{o(pozycja.notatka)}”</p> : null}
                         {przypieta && pozycja.nagroda ? (
                           <div className="scroll-message-reward" aria-label={`Nagroda: ${pozycja.nagroda} monet`}>
                             <img src="/assets/hub-nav/moneta.png" alt="" aria-hidden="true" />
@@ -261,7 +262,7 @@ export default function MessageScroll({ open, onClose, onZmiana }) {
                             className="hub-btn hub-btn-primary"
                             onClick={() => { onClose?.(); navigate(pozycja.to); }}
                           >
-                            {pozycja.cta || "Zobacz"}
+                            {o(pozycja.cta) || "Zobacz"}
                           </button>
                         ) : null}
                       </div>

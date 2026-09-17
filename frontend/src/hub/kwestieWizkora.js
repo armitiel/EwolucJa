@@ -150,7 +150,30 @@ const CZEKA = ["czeka", "czeka", "czekają", "czekają"];
 const JE = ["je", "go", "je", "je"];
 const DRZEWA = ["wszystko", "jedno drzewo", "dwa drzewa", "trzy drzewa"];
 
+/**
+ * KAŻDA KARTA MA `tekstEkranu`. Kwestie bez własnej krótkiej wersji dostają
+ * pierwsze zdanie pełnego `tekst` — karta nigdy nie wyświetla całej kwestii
+ * (ściana liter dla sześciolatka, `06` §4.2), a głos i tak mówi całość.
+ * Pierwsze zdanie = do pierwszej kropki/wykrzyknika/pytajnika albo do
+ * pierwszego łamania wiersza; cudzysłów domykający zostaje przy zdaniu.
+ */
+export function pierwszeZdanie(tekst) {
+  const t = String(tekst || "").trim();
+  if (!t) return "";
+  const m = t.match(/^[^.!?\n]*[.!?]+["”"]?/);
+  return (m ? m[0] : t.split("\n")[0]).trim();
+}
+
+function zTekstemEkranu(karta) {
+  if (!karta || karta.tekstEkranu) return karta;
+  return { ...karta, tekstEkranu: pierwszeZdanie(karta.tekst) || karta.tekst };
+}
+
 export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
+  return zTekstemEkranu(powitanieCzarodziejaSurowe(z, misja, drewnoZewn));
+}
+
+function powitanieCzarodziejaSurowe(z, misja, drewnoZewn = null) {
   const baza = { imie: "Wizkor", obrazek: "/wizPop.webp" };
 
   if (z.wyplacone) {
@@ -173,7 +196,7 @@ export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
                której nic już nie odpowiada, wysłałaby dziecko na poszukiwanie
                obiektu, którego tam nie ma. */
             "Widzisz to wielkie drzewo na polanie? Zbudujemy na nim domek. " +
-            "Na pomost trzeba desek — zetnij trzy drzewa i znieś wszystkie trzy " +
+            "Na domek trzeba desek — zetnij trzy drzewa i znieś wszystkie trzy " +
             "stosy tutaj, pod to wielkie drzewo.",
           /* NA KARCIE MUSI STAĆ, PO CO TO WSZYSTKO. Wcześniej ekran mówił samo
              „Przynieś pod drzewo drewno i głaz" — dziecko widziało polecenie
@@ -232,9 +255,9 @@ export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
         ...POCHWALA,
         tekst:
           "Wszystko leży pod drzewem — sam to przyniosłeś. " +
-          "Zbijmy pomost i drabinkę. Domek dobudujemy innego dnia.",
-        tekstEkranu: "Budujemy pomost na drzewie!",
-        wyroznienie: "pomost i drabinkę",
+          "Stawiamy domek na drzewie: ściany, dach i drabinkę.",
+        tekstEkranu: "Budujemy domek na drzewie!",
+        wyroznienie: "domek na drzewie",
         przycisk: "Budujemy!",
         akcja: "postawEtap",
       };
@@ -267,11 +290,19 @@ export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
       if (real.czeka) {
         // Ten sam ton co niżej: bez „nie musisz" — zamiast tego, co WOLNO
         // robić w międzyczasie. Czekanie ma być spokojne, nie pilnowane.
+        /* KARTA wg `02` §2.2 (`:263`): „Ślad zostawiony. Zobacz {miejsce_reakcji}.”
+           Pole `miejsce_reakcji` wchodzi z v2 zadań (`06` §4.2); dopóki go nie
+           ma, karta kończy się na pierwszym zdaniu — nie obiecuje miejsca,
+           którego scena jeszcze nie zmienia. Głos zostaje do kroku 2. */
+        const miejsceReakcji = real.def?.miejsce_reakcji || null;
         return {
           ...baza,
           tekst:
             "Twoje zadanie jest u Mentora.\n" +
             "Baw się dalej — zajrzyj do Zadań za jakiś czas.",
+          tekstEkranu: miejsceReakcji
+            ? `Ślad zostawiony. Zobacz ${miejsceReakcji}.`
+            : "Ślad zostawiony.",
           wyroznienie: "u Mentora",
           przycisk: "Dobrze!",
           akcja: null,
@@ -290,9 +321,12 @@ export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
          * nikt nie planował. Wizkor przypomina i wierzy — jak zadanie ma się
          * odbywać, mówi samo zadanie w zakładce Zadania.
          */
+        /* KARTA wg `02` §2.2 (`:285`): tytuł w pierwszym wierszu, „u ciebie,
+           nie tu” w drugim — bez „na zewnątrz” (weto rodzica 1–3). */
         return {
           ...baza,
           tekst: `Pamiętasz o zadaniu?\n„${real.def.tytul}"\nczeka w zakładce Zadania.`,
+          tekstEkranu: `„${real.def.tytul}" czeka.\nU ciebie, nie tu.`,
           wyroznienie: real.def.tytul,
           przycisk: "Otwieram zadanie",
           akcja: "otworzZadanie",
@@ -345,6 +379,9 @@ export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
     // pierwszym przeoczeniu Wizkor obiecywałby co innego, niż wypłaca.
     const zNagroda = (tresc) => ({
       tekst: String(tresc.tekst).split("{nagroda}").join(String(def.nagroda)),
+      tekstEkranu: tresc.tekstEkranu
+        ? String(tresc.tekstEkranu).split("{nagroda}").join(String(def.nagroda))
+        : null,
       wyroznienie: String(tresc.wyroznienie || "").split("{nagroda}").join(String(def.nagroda)),
       przycisk: tresc.przycisk,
     });

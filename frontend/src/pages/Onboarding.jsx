@@ -7,7 +7,7 @@
  * autorskie prawa majątkowe pozostają przy autorze. Licencja: LICENSE.
  */
 import React, { useState, useEffect, useRef } from "react";
-import { zapiszRodzajBohatera, rodzajStartowy } from "../services/rodzaj.js";
+import { zapiszRodzajBohatera, rodzajStartowy, nazwaArchetypuGracza } from "../services/rodzaj.js";
 import { useNavigate } from "react-router-dom";
 import { api, session } from "../services/api.js";
 import { useAppData } from "../contexts/AppData.jsx";
@@ -537,7 +537,14 @@ function ArchetypeReveal({ result, onEnter }) {
   const profileCode = profileCodeFrom(result.profile || result.archetype) || "DT";
   const info = PROFILE_INFO[profileCode];
   const lore = PROFILE_LORE[profileCode];
-  const dlugaNazwa = info.name.length > 12;
+  /* NAZWA W RODZAJU DZIECKA („Odkrywczyni", nie „Odkrywca" dla dziewczynki).
+     Rodzaj bierze się z wyboru zapisanego chwilę wcześniej w tym samym
+     onboardingu (`zapiszRodzajBohatera`), a w odwodzie z gracza w `AppData`.
+     To JEDYNY ekran, na którym nazwa profilu pada dla dziecka
+     (`docs/tresci/06_DECYZJE_I_ZALEZNOSCI.md`, pkt 12). */
+  const { player } = useAppData();
+  const nazwa = nazwaArchetypuGracza(profileCode, player) || info.name;
+  const dlugaNazwa = nazwa.length > 12;
 
   // Ten sam scroll obsluguje pytania i wynik. Ostatnie pytanie bywa dluzsze,
   // wiec bez resetu pozycja przechodzila na karte i ucinala gore medalionu.
@@ -578,7 +585,7 @@ function ArchetypeReveal({ result, onEnter }) {
           id="ob-reveal-name"
           className={`ob-reveal-name${dlugaNazwa ? " jest-dluga" : ""}`}
         >
-          {info.name}
+          {nazwa}
         </h2>
 
         <div className="ob-reveal-copy">

@@ -161,14 +161,39 @@ export function nazwaArchetypuGracza(kod, player) {
  * to dwa razy więcej tekstu do napisania i do poprawienia przy każdej zmianie.
  */
 export function odmien(tekst, rodzaj = RODZAJ.MESKI) {
-  if (!tekst || tekst.indexOf("{") === -1) return tekst || "";
+  /* BEZPIECZNE NA WSZYSTKO, CO NIE JEST TEKSTEM Z TOKENEM. `null`, `undefined`,
+     liczba, element Reacta i zwykłe zdanie bez klamer wracają BEZ ZMIAN —
+     dzięki temu wywołanie można postawić w każdym punkcie renderu i TTS,
+     także tam, gdzie pole bywa puste (`tekstEkranu || tekst`), i nie zmienia
+     ono sensu wyrażenia obok. */
+  if (tekst === null || tekst === undefined) return tekst;
+  if (typeof tekst !== "string") return tekst;
+  if (tekst.indexOf("{") === -1) return tekst;
   const zenski = rodzaj === RODZAJ.ZENSKI;
-  return String(tekst).replace(/\{([^{}|]*)\|([^{}|]*)\}/g, (_, m, z) => (zenski ? z : m));
+  return tekst.replace(/\{([^{}|]*)\|([^{}|]*)\}/g, (_, m, z) => (zenski ? z : m));
 }
 
-/** Skrót: tekst odmieniony pod konkretnego gracza. */
+/**
+ * OSTATNI ZNANY GRACZ. Moduły bez dostępu do kontekstu Reacta (`mowaPostaci`,
+ * `glosLiska`, `wiadomosci`) też muszą odmieniać, a nie mają skąd wziąć
+ * `player`. `AppData` zapamiętuje tu gracza przy każdej zmianie, więc
+ * `odmienDlaGracza(tekst)` bez drugiego argumentu trafia tak samo, jak
+ * z niego. Wybór z onboardingu (`rodzajBohatera`) i tak ma pierwszeństwo —
+ * pamięć gracza służy tylko zapisowi na koncie i końcówce imienia.
+ */
+let ostatniGracz = null;
+export function zapamietajGracza(player) {
+  ostatniGracz = player && typeof player === "object" ? player : null;
+}
+
+/**
+ * Skrót: tekst odmieniony pod konkretnego gracza. Bez `player` bierze
+ * ostatniego zapamiętanego (patrz `zapamietajGracza`). To jest JEDYNA
+ * funkcja, przez którą ma przechodzić tekst dla dziecka przed renderem
+ * i przed TTS (`docs/tresci/01_STANDARD_GLOSOW.md`, R2).
+ */
 export function odmienDlaGracza(tekst, player) {
-  return odmien(tekst, rodzajGracza(player));
+  return odmien(tekst, rodzajGracza(player ?? ostatniGracz));
 }
 
 /**

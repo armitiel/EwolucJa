@@ -37,6 +37,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { OGON_DLUGOSC, sciezkaChmurki } from "./ksztaltChmurki.js";
 import { powiedzJakLisek } from "./glosLiska.js";
+import { odmienDlaGracza as o } from "../services/rodzaj.js";
 
 const ODSTEP = 10;          // ile światła/obręczy zostaje wokół celu
 const PRZERWA = 9;          // odstęp chmurki od obręczy — dzióbek ma jej DOTYKAĆ
@@ -282,7 +283,7 @@ export default function Reflektor({ wskazowka, onZamknij }) {
       role={dymkowy ? "status" : "dialog"}
       aria-live={dymkowy ? "polite" : undefined}
       aria-modal={dymkowy ? undefined : "true"}
-      aria-label={wskazowka.tytul}
+      aria-label={o(wskazowka.tytul)}
     >
       {/* Tryb mocny: cień z otworem w kształcie celu (maska SVG) i cztery
           przezroczyste łapacze, które przejmują dotknięcia POZA otworem.
@@ -387,15 +388,17 @@ export default function Reflektor({ wskazowka, onZamknij }) {
               draggable="false"
             />
             <div className="reflektor-tresc">
-              <h2>{wskazowka.tytul}</h2>
+              {/* Wskazówki z `hub/wskazowki.js` mogą nieść tokeny `{m|ż}` —
+                  odmiana przed renderem; głos liska odmienia `powiedzJakLisek`. */}
+              <h2>{o(wskazowka.tytul)}</h2>
               <p>
                 {wskazowka.linie?.length
                   ? wskazowka.linie.map((linia, index) => (
                       <React.Fragment key={linia}>
-                        {index ? <br /> : null}{linia}
+                        {index ? <br /> : null}{o(linia)}
                       </React.Fragment>
                     ))
-                  : wskazowka.tekst}
+                  : o(wskazowka.tekst)}
               </p>
             </div>
           </div>

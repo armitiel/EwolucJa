@@ -25,6 +25,7 @@
  * zamienia zaproszenie w instrukcję.
  */
 import { ttsPlayer } from "../services/ttsPlayer.js";
+import { odmienDlaGracza } from "../services/rodzaj.js";
 
 /** Klucz głosu po stronie backendu (`VOICES.lisek` w `ttsService.js`). */
 export const GLOS_LISKA = "lisek";
@@ -71,7 +72,7 @@ function kluczDnia(data = new Date()) {
 }
 
 export function zachetaDoWyboru(data = new Date()) {
-  return zZiarna(ZACHETY, kluczDnia(data));
+  return odmienDlaGracza(zZiarna(ZACHETY, kluczDnia(data)));
 }
 
 /**
@@ -83,9 +84,11 @@ export function zachetaDoWyboru(data = new Date()) {
  * na tytuł z opisem — dziecko dalej usłyszy, w co wchodzi, tylko sucho.
  */
 export function zachetaDoKarty(karta, data = new Date()) {
-  if (karta?.zapowiedz) return karta.zapowiedz;
-  if (karta?.tytul && karta?.opis) return `${karta.tytul}. ${karta.opis}. Robimy to razem?`;
-  return zZiarna(WEJSCIA, `${kluczDnia(data)}:${karta?.id || ""}`);
+  /* Zdanie trafia i na ekran (`PoradaKarty`), i w głos — odmieniamy je już
+     tutaj, żeby oba miejsca dostały tę samą, gotową formę. */
+  if (karta?.zapowiedz) return odmienDlaGracza(karta.zapowiedz);
+  if (karta?.tytul && karta?.opis) return odmienDlaGracza(`${karta.tytul}. ${karta.opis}. Robimy to razem?`);
+  return odmienDlaGracza(zZiarna(WEJSCIA, `${kluczDnia(data)}:${karta?.id || ""}`));
 }
 
 /**
@@ -95,8 +98,12 @@ export function zachetaDoKarty(karta, data = new Date()) {
  */
 export function powiedzJakLisek(tekst, { przerwij = true } = {}) {
   if (!tekst) return;
+  /* Tokeny `{m|ż}` (zapowiedź, odzew porady) odmieniamy tu, na jedynym
+     wejściu głosu liska — lektor dostaje tekst już po odmianie. */
+  const zdanie = odmienDlaGracza(tekst);
+  if (!zdanie) return;
   try {
-    ttsPlayer.speak(tekst, { land: GLOS_LISKA, tone: TON_LISKA, interrupt: przerwij });
+    ttsPlayer.speak(zdanie, { land: GLOS_LISKA, tone: TON_LISKA, interrupt: przerwij });
   } catch {}
 }
 
