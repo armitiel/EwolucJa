@@ -1,0 +1,147 @@
+/* ChmurkaZadania — patrz nagłówek komponentu.
+
+   POZYCJA. Chmurka jest dzieckiem `.game-hud` (pozycja `fixed`, `inset: 0`),
+   więc jej `top/left` liczą się od krawędzi ekranu, a NIE od paska HUD.
+   Dlatego powtarzamy tu padding `.game-hud` (10 px + safe-area) i dokładamy
+   przesunięcie zależne od awatara. Świadomie nie ruszamy `.game-hud-top`:
+   nadanie mu `position: relative` przestawiłoby układ odniesienia wszystkim
+   bezwzględnie pozycjonowanym elementom w pasku.
+
+   Rozmiar idzie z `vmin`, a nie z `vw`: w poziomie telefon ma ~700 px
+   szerokości i 360 wysokości, więc `vw` rozdmuchałby chmurkę na pół
+   ekranu. */
+
+.chmurka-zadania {
+  --awatar: 66px;
+
+  position: absolute;
+  z-index: 3;
+  top: calc(10px + env(safe-area-inset-top, 0px) + var(--awatar) * .66);
+  left: calc(10px + var(--awatar) * .44);
+  width: clamp(104px, 29vmin, 146px);
+  aspect-ratio: 260 / 200;
+  pointer-events: none;
+
+  /* Wyrasta z ogonka, czyli z lewego górnego rogu — tam, gdzie stoi awatar.
+     Przy środku jako punkcie zaczepienia wyglądałaby, jakby spadła z góry. */
+  transform-origin: 14% 10%;
+  animation: chmurka-zadania-wejscie .44s cubic-bezier(.2, .9, .3, 1.32) both;
+}
+
+.chmurka-zadania.jest-schodzaca {
+  animation: chmurka-zadania-zejscie .34s ease-in both;
+}
+
+@keyframes chmurka-zadania-wejscie {
+  from { opacity: 0; transform: scale(.34); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes chmurka-zadania-zejscie {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(.52); }
+}
+
+.chmurka-zadania-ksztalt {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  /* Cień pod całą bryłą, nie pod każdym kołem z osobna — dlatego filtr
+     siedzi na `svg`, a nie na grupach. */
+  filter: drop-shadow(0 3px 2px color-mix(in srgb, var(--braz-900, #2b1c08) 34%, transparent));
+}
+
+/* Rant robimy DRUGĄ WARSTWĄ KÓŁ, nie obrysem: cztery zachodzące na siebie
+   koła z `stroke` narysowałyby kreski w środku chmurki. */
+.chmurka-zadania-rant { fill: #1d1509; }
+.chmurka-zadania-bryla { fill: url(#chmurka-zadania-jasnosc); }
+
+/* Ogonek „oddycha" — to jedyny ruch, po którym chmurkę czyta się jako
+   MYŚL, a nie jako dymek z tekstem. Druga kropka spóźnia się o pół taktu,
+   więc ruch idzie od dziecka w stronę chmurki. */
+.chmurka-zadania-kropka {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: chmurka-zadania-puls 2.2s ease-in-out infinite;
+}
+
+.chmurka-zadania-kropka--2 { animation-delay: .34s; }
+
+@keyframes chmurka-zadania-puls {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.16); }
+}
+
+/* Okno na ikonę: wycinek WNĘTRZA bryły, wyśrodkowany na jej środku
+   ciężkości (128/260 w poziomie, 120/200 w pionie). */
+.chmurka-zadania-scena {
+  position: absolute;
+  left: 13%;
+  top: 33%;
+  width: 74%;
+  height: 52%;
+  /* Ikona wjeżdża i wyjeżdża poza to okno — i ma zniknąć ZA KRAWĘDZIĄ
+     chmurki, a nie wystawać na trawę.
+
+     ELIPSA, NIE `overflow: hidden`. Prostokątne przycięcie zostawiało pionową
+     kreskę w środku białej bryły: bok prostokąta wypadał w jej wnętrzu i
+     wyjeżdżająca ikona urywała się na prostej. Elipsa wpisana w to samo okno
+     kończy się dokładnie tam, gdzie kończy się biel. */
+  clip-path: ellipse(49% 50% at 50% 50%);
+}
+
+/* Wyśrodkowanie siedzi W TRANSFORMIE (`translate(-50%, -50%)`), bo tego
+   samego kanału używa wjazd karuzeli — druga deklaracja `transform`
+   skasowałaby pierwszą. Dlatego każdy stan powtarza połowę przesunięcia. */
+.chmurka-zadania-ikona {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 70%;
+  height: auto;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 2px 2px color-mix(in srgb, var(--braz-900, #2b1c08) 26%, transparent));
+
+  opacity: 0;
+  transform: translate(-50%, -50%) translateX(62%) scale(.6) rotate(9deg);
+  transition:
+    opacity .3s ease,
+    transform .42s cubic-bezier(.2, .9, .3, 1.28);
+}
+
+.chmurka-zadania-ikona[data-stan="jest"] {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+}
+
+.chmurka-zadania-ikona[data-stan="wychodzi"] {
+  opacity: 0;
+  transform: translate(-50%, -50%) translateX(-62%) scale(.6) rotate(-9deg);
+}
+
+/* Mniejszy telefon: awatar schodzi do 58 px (patrz `hud.css`), więc
+   zaczepienie chmurki musi zejść razem z nim. */
+@media (max-width: 340px) {
+  .chmurka-zadania { --awatar: 58px; width: clamp(92px, 30vmin, 116px); }
+}
+
+/* Krajobraz na niskim ekranie: chmurka nie może wejść na dolny dok ani
+   przykryć liska, więc kurczy się mocniej niż `vmin` sam z siebie. */
+@media (orientation: landscape) and (max-height: 430px) {
+  .chmurka-zadania { width: clamp(84px, 24vmin, 110px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chmurka-zadania { animation-duration: .01ms; }
+  .chmurka-zadania.jest-schodzaca { animation-duration: .01ms; }
+  .chmurka-zadania-kropka { animation: none; }
+  /* Karuzela ZOSTAJE — to ona niesie treść. Znika tylko rozpęd: ikona
+     zmienia się przenikaniem, bez wjazdu z boku. */
+  .chmurka-zadania-ikona { transition: opacity .28s ease; transform: none; }
+  .chmurka-zadania-ikona[data-stan="wychodzi"],
+  .chmurka-zadania-ikona[data-stan="czeka"] { transform: none; }
+}

@@ -173,6 +173,23 @@ Kołowy wskaźnik postępu HUD-u placu budowy: ciemna tarcza, żywy złoto-pomar
 
 Pięć rodzin grafik — postacie w pop-upach, ikony HUD (widoczne i ukryte), surowce, ikony wskaźników nad światem i symbole płaskie — z inwentarzem plików, paletą próbek, oprawą w UI i drogą dodania nowej grafiki: [`styl-ilustracji-i-ikon.md`](styl-ilustracji-i-ikon.md).
 
+### K. Chmurka zadania — co jest do zrobienia
+
+Chmurka myśli wychodząca spod awatara gracza, z karuzelą ikon 3D. Wyskakuje **w chwili przekazania zadania** (0,9 s po zejściu okna Wizkora), przewija po jednej ikonie co 1,5 s i schodzi sama po ~8 s.
+
+Podział ról jest tu sztywny i nie należy go mieszać:
+
+- **licznik w pasku HUD** (`game-hud-counter--drewno`) pokazuje **stan** — ile już jest, płaskie znaczki;
+- **chmurka** pokazuje **czynność** — czego zadanie wymaga, bryły 3D z rodziny siekiery.
+
+Chmurka wychodzi od **awatara**, nie od Wizkora: to myśl dziecka o tym, co ma zrobić, a nie kolejne polecenie postaci. Ogonek celuje w awatar i „oddycha”. Bryłę rysują dwie warstwy kół (ciemna większa pod spodem, jasna na wierzchu) — obrys `stroke` na czterech zachodzących kołach pokazałby kreski w środku chmury. Ikona jest przycięta **elipsą**, nie prostokątem, żeby wyjeżdżająca nie urywała się na prostej w środku bieli.
+
+Ikony: `frontend/public/scena-3d/assets/ikona-drzewko.png`, `ikona-siekiera.png` — generacja i obróbka jak w [`styl-ikon-3d.md`](styl-ikon-3d.md) (`scripts/gen-drzewko.mjs` → `scripts/obrob-ikone.py`). Komponent: `frontend/src/hub/ChmurkaZadania.jsx`, styl: `frontend/src/styles/chmurka-zadania.css`.
+
+Przy `prefers-reduced-motion` karuzela **zostaje** — to ona niesie treść; znika tylko rozpęd (ikona zmienia się przenikaniem, bez wjazdu z boku).
+
+![Chmurka zadania](evidence/chmurka-zadania.png)
+
 ## 5. Poziomy komunikatów i moment użycia
 
 | Poziom | Forma | Kiedy | Czy blokuje |

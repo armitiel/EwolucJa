@@ -85,6 +85,7 @@ import {
 } from "../hub/puzzleGier.js";
 import WyborPoziomu from "../hub/WyborPoziomu.jsx";
 import PasekKolejnejMisji from "../hub/PasekKolejnejMisji.jsx";
+import ChmurkaZadania from "../hub/ChmurkaZadania.jsx";
 import { powiedzPostacia } from "../hub/mowaPostaci.js";
 import {
   pokazZnakNaMapie,
@@ -152,6 +153,18 @@ const IKONA_MONETY = "/assets/hub-nav/moneta.png";
 const IKONA_KLODY = "/kloda.png";
 const IKONA_KAMYKA = "/kamyk.png";
 const IKONA_STOSU = "/stos-drewna.png";
+
+/* CHMURKA „CO JEST DO ZROBIENIA" — bryły 3D z tej samej rodziny, co siekiera
+   we wskaźniku ścinania (`docs/design-system/styl-ikon-3d.md`). Świadomie NIE
+   płaskie znaczki z paska HUD: pasek pokazuje STAN (ile już jest), chmurka
+   pokazuje CZYNNOŚĆ (co trzeba zrobić), więc ma inny język. */
+const IKONA_DRZEWKA_3D = "/scena-3d/assets/ikona-drzewko.png";
+const IKONA_SIEKIERY_3D = "/scena-3d/assets/ikona-siekiera.png";
+const CHMURKA_DREWNO = [
+  { src: IKONA_DRZEWKA_3D, opis: "drzewo" },
+  { src: IKONA_SIEKIERY_3D, opis: "siekiera" },
+];
+const CHMURKA_GWIAZDKI = [{ src: "/star.png", opis: "gwiazdka" }];
 
 /* TRZY STANY JEDNEGO MATERIAŁU, a nie dwa. „Mam" i „nie mam" nie wystarczy,
    odkąd materiał trzeba jeszcze donieść na plac:
@@ -683,6 +696,21 @@ export default function Swiat() {
      rozliczeniem jednej misji a zleceniem następnej (patrz komponent). */
   const [pasekMisji, setPasekMisji] = useState(false);
   const zapowiedzTimer = useRef(0);
+
+  /* Chmurka myśli nad awatarem: lista ikon albo `null`. Patrz
+     `hub/ChmurkaZadania.jsx`. Wypuszczamy ją ZE ZWŁOKĄ, bo okno Wizkora
+     zjeżdża z ekranu ~0,5 s — chmurka wyskakująca pod kartą byłaby
+     niewidoczna, a potem zostawałaby na ekranie bez powodu. */
+  const [chmurka, setChmurka] = useState(null);
+  const chmurkaTimer = useRef(0);
+  const pokazChmurke = useCallback((ikony) => {
+    window.clearTimeout(chmurkaTimer.current);
+    /* Zerujemy najpierw: przy dwóch zadaniach pod rząd komponent musi dostać
+       nowy montaż, inaczej karuzela leciałaby dalej ze starym odliczaniem. */
+    setChmurka(null);
+    chmurkaTimer.current = window.setTimeout(() => setChmurka(ikony), 900);
+  }, []);
+  useEffect(() => () => window.clearTimeout(chmurkaTimer.current), []);
   // Monety z lokalnych zadań, doliczane do liczby z bazy — patrz `zadanieGwiazdek`.
   const [bonus, setBonus] = useState(() => bonusMonet());
   const [komunikat, setKomunikat] = useState(null);
@@ -1442,6 +1470,10 @@ export default function Swiat() {
         const gwiazdki = znakiZPrefiksem(scena, PREFIKS_GWIAZDKI);
         if (gwiazdki.length) scena.pokazZnakWKadrze?.(gwiazdki[0], { trzym: 1.5 });
       }, 620);
+      /* Chmurka bez karuzeli — do tego zadania potrzebna jest JEDNA rzecz.
+         Sztuczne dokładanie drugiej ikony tylko po to, żeby coś się
+         przewijało, kłamałoby o zadaniu. */
+      pokazChmurke(CHMURKA_GWIAZDKI);
       return;
     }
     if (akcja === "zlecDrewno") {
@@ -1463,6 +1495,11 @@ export default function Swiat() {
       if (!d.miejscePokazane) {
         window.setTimeout(() => scenaRef.current?.pokazMiejsce?.(), 620);
       }
+      /* DRZEWO I SIEKIERA, na przemian. Zdanie „Budujemy pomost na drzewie!"
+         mówi PO CO, ale nie mówi CZYM — a sześciolatek, który nigdy nie
+         ściął drzewa w grze, nie wie, że ma podejść i trzymać. Dwie ikony
+         w karuzeli odpowiadają na to bez ani jednego słowa. */
+      pokazChmurke(CHMURKA_DREWNO);
       return;
     }
     if (akcja === "postawEtap") {
@@ -1546,7 +1583,7 @@ export default function Swiat() {
       return;
     }
     rozstanie();
-  }, [powitanie, rozstanie, pokazKomunikat, odswiezZnakiMisji, odswiezPuzleNaMapie, otworz, przeliczNieprzeczytane, mrugnijZadania]);
+  }, [powitanie, rozstanie, pokazKomunikat, pokazChmurke, odswiezZnakiMisji, odswiezPuzleNaMapie, otworz, przeliczNieprzeczytane, mrugnijZadania]);
 
   // Uchwyt do konsoli — czekanie na dziesięć gwiazdek przy każdym sprawdzeniu
   // licznika byłoby nie do zniesienia:
@@ -2728,6 +2765,12 @@ export default function Swiat() {
             </button>
           </div>
         </div>
+
+        {/* Chmurka wisi na `.game-hud`, a nie w `.game-hud-top` — pasek jest
+            flexem bez `position: relative` i nadanie mu go przestawiłoby
+            układ odniesienia wszystkim bezwzględnym elementom w środku.
+            Zaczepienie pod awatarem liczy się w CSS z paddingu HUD. */}
+        <ChmurkaZadania ikony={chmurka} onKoniec={() => setChmurka(null)} />
 
         <div className="game-hud-bottom">
           {!panel && pokazPodpowiedz && !scenaMartwa ? (
