@@ -32,14 +32,19 @@ import { useAppData } from "../../contexts/AppData.jsx";
 import { GameIcon } from "../../adventure/components/icons.jsx";
 import { powiedzPostacia } from "../mowaPostaci.js";
 import { odmienDlaGracza } from "../../services/rodzaj.js";
+import { etapSzkolny } from "../profilStartowy.js";
 import {
+  obrazekSladu,
   odbierzNagrode,
+  odpalReakcjeSwiata,
   podtytulSladu,
   sprawdzMentora,
   stanZadania,
   wyslijDowod,
   zadanieDoZlecenia,
   zapiszMiejsce,
+  zapiszSladOpcje,
+  zWariantemZadania,
   ZDARZENIE_ZMIANY,
 } from "../zadanieWizkora.js";
 
@@ -58,11 +63,20 @@ function pokazMiejsceNaPlanecie(onPokazMiejsce, stan) {
   try { globalThis.__SCENA?.pokazMiejsce?.(); } catch {}
 }
 
+/* Toast reakcji świata: tytuł ≤ 28 z definicji (`reakcja_swiata.toast`);
+   `onKomunikat` z `Swiat.jsx` przyjmuje jeden string, więc tytuł. */
+function toastReakcji(toast) {
+  return toast?.tytul || "Ślad zostawiony";
+}
+
 export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot, onPokazMiejsce }) {
   const { refreshPlayer, player } = useAppData();
   const [stan, setStan] = useState(() => stanZadania());
   const [etap, setEtap] = useState("plan");
   const [miejsce, setMiejsce] = useState(() => stanZadania().miejsce || null);
+  const [sladOpcja, setSladOpcja] = useState(null);
+  const etapGracza = etapSzkolny();
+  const mlodsi = etapGracza === "1-3";
   const [opis, setOpis] = useState("");
   const [zdjecieUrl, setZdjecieUrl] = useState(null);
   const [podglad, setPodglad] = useState(null);
@@ -81,7 +95,8 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot, onPokaz
   // Podgląd zdjęcia żyje w pamięci przeglądarki — trzeba go po sobie posprzątać.
   useEffect(() => () => { if (podglad) URL.revokeObjectURL(podglad); }, [podglad]);
 
-  const def = stan.def;
+  // Definicja w wariancie etapu gracza (`warianty["1-3"|"4-8"]` nadpisują pola).
+  const def = zWariantemZadania(stan.def, etapGracza);
 
   /* KAŻDY TEKST DLA DZIECKA PRZEZ `o()`. Definicje zadań (`zadania-wizkora`)
      i statusy piszą się z tokenami `{m|ż}` — tu wybieramy formę pod gracza,
@@ -180,17 +195,24 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot, onPokaz
   }, [podglad]);
 
   async function wyslij() {
-    if (!opis.trim() && !zdjecieUrl) {
-      setBlad(ZDJECIA_WLACZONE ? "Napisz choć jedno zdanie albo dodaj zdjęcie." : "Napisz choć jedno zdanie.");
+    /* Ślad = wybór z trzech opcji ALBO jedno zdanie (dla 1–3 wybór wystarcza —
+       pisanie nie jest warunkiem). Zdjęcie tylko za flagą. */
+    const maWybor = Number.isInteger(sladOpcja) && def.slad?.opcje?.length;
+    if (!opis.trim() && !zdjecieUrl && !maWybor) {
+      setBlad(def.slad?.opcje?.length ? "Wybierz jedną z kartek albo napisz jedno zdanie." : "Napisz choć jedno zdanie.");
       return;
     }
+    if (maWybor) zapiszSladOpcje(sladOpcja);
     setBlad(null);
     setWysylka(true);
     try {
-      const nowy = await wyslijDowod({ opis: opis.trim(), zdjecieUrl });
+      const tekstSladu = opis.trim() || (maWybor ? o(def.slad.opcje[sladOpcja]) : "");
+      const nowy = await wyslijDowod({ opis: tekstSladu, zdjecieUrl });
       setStan(nowy);
-      onKomunikat?.("Ślad zostawiony");
-      // Świat reaguje od razu po śladzie — bez czekania na dorosłego.
+      // Świat reaguje od razu po śladzie — bez czekania na dorosłego:
+      // metoda sceny z definicji (defensywnie) + toast z definicji.
+      const toast = odpalReakcjeSwiata(def.reakcja_swiata);
+      onKomunikat?.(toastReakcji(toast));
       pokazMiejsceNaPlanecie(onPokazMiejsce, nowy);
       try { await refreshPlayer(); } catch {}
     } catch (err) {
@@ -350,6 +372,26 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot, onPokaz
         {def.dowod ? <p className="zadanie-dowod">{o(def.dowod)}</p> : null}
         {stan.mentorPrawdziwy ? <p className="zadanie-notatka">{o("Mentor to zobaczy.")}</p> : null}
 
+        {/* ŚLAD WYBOREM: trzy kartki z `slad.opcje` (dla 1–3 z obrazkiem — dziś
+            emoji z `OBRAZKI_SLADU`, docelowo rysunki). Wybór jest pełnoprawnym
+            śladem; zdanie niżej jest dodatkiem, nie warunkiem (05 W1, 06 §4.2). */}
+        {def.slad?.opcje?.length ? (
+          <div className={`zadanie-miejsca zadanie-slad${Number.isInteger(sladOpcja) ? " ma-wybor" : ""}`} data-testid="zadanie-slad">
+            {def.slad.opcje.map((opcja, i) => (
+              <button
+                key={i}
+                type="button"
+                className={`zadanie-miejsce${sladOpcja === i ? " is-wybrane" : ""}`}
+                onClick={() => setSladOpcja(sladOpcja === i ? null : i)}
+              >
+                <span className="zadanie-pinezka" aria-hidden="true" />
+                <span className="zadanie-miejsce-emoji" aria-hidden="true">{obrazekSladu(def.slad.obrazki?.[i])}</span>
+                <strong>{o(opcja)}</strong>
+              </button>
+            ))}
+          </div>
+        ) : null}
+
         {ZDJECIA_WLACZONE ? (<>
         <button
           type="button"
@@ -413,7 +455,17 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot, onPokaz
       <div className="zadanie-karta">
         <h3 className="zadanie-tytul">{o(def.tytul)}</h3>
         <p className="zadanie-cel">{o(def.cel)}</p>
-        {def.jak ? <p className="zadanie-jak">{o(def.jak)}</p> : null}
+        {/* 1–3: karta pokazuje `cel` + `przyklad`, a `jak` czyta lektor
+            (ANALIZA §5, 06 §4.2). 4–8: `jak` na karcie. */}
+        {def.jak && !mlodsi ? <p className="zadanie-jak">{o(def.jak)}</p> : null}
+        {mlodsi && def.przyklad ? <p className="zadanie-jak">{o(def.przyklad)}</p> : null}
+        {/* Styl `zadanie-przyklad` (b + span) — bez nowej klasy w `hub.css` (plik drugiej sesji). */}
+        {def.minimum ? (
+          <p className="zadanie-przyklad">
+            <b>{o("Wersja na gorszy dzień:")}</b>
+            <span>{o(def.minimum)}</span>
+          </p>
+        ) : null}
         <button type="button" className="zadanie-glos" onClick={czytajZadanie}>
           <GameIcon name="sound" size={20} />
           Posłuchaj jeszcze raz

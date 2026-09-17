@@ -186,7 +186,7 @@ function etapySchronienia() {
       id: "schronienie:zbieranie",
       drewno: "zbieranie",
       tytul: "Domek na drzewie — zdobywanie materiału",
-      opis: "Zadanie przyjęte: lisek ścina drzewa i znosi stosy pod drzewo (jeden z trzech już leży). Znaki gier schodzą z mapy aż do zbudowania pomostu.",
+      opis: "Zadanie przyjęte: lisek ścina drzewa i znosi stosy pod drzewo (jeden z trzech już leży). Znaki gier schodzą z mapy aż do zbudowania domku.",
       akcja: null,
     },
     {
@@ -194,7 +194,7 @@ function etapySchronienia() {
       id: "schronienie:komplet",
       drewno: "komplet",
       tytul: "Domek na drzewie — materiał pod drzewem",
-      opis: "Trzy stosy drewna leżą pod drzewem. Kwestia Wizkora prowadzi przyciskiem „Budujemy!” — po nim powstaje pomost z barierką i drabinką (etap 1 z trzech).",
+      opis: "Trzy stosy drewna leżą pod drzewem. Kwestia Wizkora prowadzi przyciskiem „Budujemy!” — po nim na drzewie staje cały domek: pomost, ściany, dach i drabinka.",
       akcja: "postawEtap",
     },
   ];
@@ -396,7 +396,7 @@ export function zlamanaKolejnosc() {
     return `„${ruszone[0].def.tytul}" ruszyła, choć gwiazdki nie są rozliczone.`;
   }
   if (ruszone.length && z.wyplacone && !stanDrewna().zbudowane) {
-    return `„${ruszone[0].def.tytul}" ruszyła, choć pomost na drzewie jeszcze nie stoi.`;
+    return `„${ruszone[0].def.tytul}" ruszyła, choć domek na drzewie jeszcze nie stoi.`;
   }
   for (let i = 1; i < misje.length; i += 1) {
     if (stopien(misje[i]) > 0 && stopien(misje[i - 1]) < 5) {

@@ -844,6 +844,18 @@ function MissionCard({ mission, onNotice, onDelete, imie }) {
         </div>
       )}
 
+      {/* Powiadomienie z karty zadania: „Zobacz, co {zrobił|zrobiła} {imie}: …" (03 §7 `mentor_powiadomienie`) */}
+      {proof?.mentor_powiadomienie && (
+        <div style={{ marginTop: 8, fontSize: 12, color: "var(--p-ink)", fontWeight: 700 }}>
+          {odmienDlaImienia(proof.mentor_powiadomienie.replace(/\{imie\}/g, imie || "dziecko"), imie)}
+        </div>
+      )}
+      {/* Ślad wyborem (jedna z trzech kartek) — gdy dziecko nie pisało zdania */}
+      {proof?.slad_opcja_tekst && !proof?.proof_text && (
+        <div style={{ marginTop: 6, fontSize: 12.5, color: "var(--p-ink)", fontStyle: "italic" }}>
+          ☑ {odmienDlaImienia(proof.slad_opcja_tekst, imie)}
+        </div>
+      )}
       {/* Dowod ucznia - kremowa karta z fioletowym left-borderem */}
       {proof?.proof_text && (
         <div style={{

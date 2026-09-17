@@ -150,6 +150,14 @@ const OPAD_CZAS = 0.62;      // lot jednej kłody, sekundy
 const OPAD_ODSTEP = 0.085;   // przerwa między kolejnymi
 const OPAD_WYSOKOSC = 2.6;   // z jakiej wysokości, w skalach stosu
 
+/* POŚWIATA MATERIAŁU CZEKAJĄCEGO NA ZABRANIE. Barwa ta sama, co ślad do placu
+   (`_sladDoPlacu`) i łuk wskaźnika rąbania — w tej scenie ciepły amber znaczy
+   „tu jest coś do zrobienia", i ma znaczyć to samo za każdym razem. */
+const POSWIATA_BARWA = 0xffc23a;
+const POSWIATA_MIN = 0.09;   // najciemniejszy punkt pulsu
+const POSWIATA_MAX = 0.26;   // najjaśniejszy — wyżej drewno gubi swój brąz
+const POSWIATA_TEMPO = 2.2;  // rad/s, czyli pełny oddech w ~2,9 s
+
 /**
  * Krzywa opadania: 0 = wysoko w powietrzu, 1 = na swoim miejscu w stosie.
  *
@@ -1854,6 +1862,7 @@ export class Aplikacja {
     this._fasolaTik(e);
     this._rabanieTik(e);
     this._transportTik(e);
+    this._poswiataTik(e);
     this._sladTik(e);
     if (this.dymki) this.dymki.aktualizuj(e, this.hn, this.hf, this.doba?.stan || null);
     this._czasGry = (this._czasGry || 0) + e;
@@ -2540,6 +2549,100 @@ export class Aplikacja {
     return w * w * (3 - 2 * w);
   }
 
+  /* ── POŚWIATA MATERIAŁU DO ZABRANIA ──────────────────────────────────────
+   *
+   * Ścięty stos leży w trawie w tym samym brązie, co dziesięć innych rzeczy na
+   * planecie. Dziecko, które właśnie machnęło siekierą, nie ma z czego poznać,
+   * że TERAZ trzeba po niego wrócić i zanieść go na plac — rąbanie skończyło
+   * się znaczkiem nad liskiem, a potem świat zamilkł.
+   *
+   * Dlatego stos, który czeka na zabranie, ŚWIECI OD ŚRODKA: pulsuje emisja
+   * w samych kłodach, więc światło wychodzi z drewna. Halo obok bryły byłoby
+   * drugim znakiem tego samego rodzaju, co znaczki nad liskiem i pierścień
+   * placu — a te już mówią „idź tam". Ten mówi „weź to".
+   *
+   * MATERIAŁY SĄ KLONOWANE, i to jest tu najważniejsza linijka: `natura.js`
+   * trzyma `MAT_DREWNO` jako JEDEN zestaw dla całej planety, więc podniesienie
+   * emisji na wspólnym materiale zapaliłoby każdą sosnę, każdy pieniek i kłody
+   * domku na drzewie. Klon powstaje raz, przy pierwszym pulsie danego stosu.
+   *
+   * ŚWIECI TYLKO STOS, nie pieniek: pieniek jest śladem po drzewie, nie
+   * rzeczą do wzięcia, a dwa świecące obiekty obok siebie znaczą „dwie rzeczy".
+   *
+   * GAŚNIE w chwili podniesienia i po dostarczeniu — i nie wraca. Światło jest
+   * zaproszeniem, nie ozdobą.
+   */
+
+  /** Bryła, która ma świecić: sam materiał, bez pnia i bez reszty grupy. */
+  _brylaDoZabrania(c) {
+    return c.wynik?.getObjectByName("stos-drewna") || c.wynik?.getObjectByName("kamyczki") || null;
+  }
+
+  /** Czy kłody tego stosu jeszcze lecą — dopóki lecą, nic nie świeci. */
+  _opadTrwa(c) {
+    if (!this._opadKlod?.length) return false;
+    const bryla = this._brylaDoZabrania(c);
+    return !!bryla && this._opadKlod.some((a) => a.czesci?.[0]?.m.parent === bryla);
+  }
+
+  /**
+   * Klony materiałów tej bryły (raz na bryłę), gotowe do pulsowania.
+   *
+   * PUSTEJ LISTY NIE ZAPAMIĘTUJEMY. Pierwszy tik po ścięciu potrafi zastać
+   * bryłę, której `ustawRabanieAktywne` właśnie przebudowuje wynik — a puste
+   * `[]` jest w JS prawdą, więc zapamiętane raz gasiło ten stos na zawsze
+   * (widziane w podglądzie sceny 17.09). Brak materiałów znaczy „spróbuj
+   * w następnej klatce", nie „ten stos nie świeci".
+   */
+  _materialyPoswiaty(c) {
+    if (c._poswiata?.length) return c._poswiata;
+    const bryla = this._brylaDoZabrania(c);
+    if (!bryla) return null;
+    const lista = [];
+    bryla.traverse((o) => {
+      if (!o.isMesh || !o.material) return;
+      const klon = Array.isArray(o.material)
+        ? o.material.map((m) => m.clone())
+        : o.material.clone();
+      o.material = klon;
+      (Array.isArray(klon) ? klon : [klon]).forEach((m) => {
+        if (!m.emissive) return;
+        m.emissive.setHex(POSWIATA_BARWA);
+        m.emissiveIntensity = 0;
+        lista.push(m);
+      });
+    });
+    if (lista.length) c._poswiata = lista;
+    return lista;
+  }
+
+  _poswiataTik(e) {
+    if (!this._doScinania?.length) return;
+    this._czasPoswiaty = (this._czasPoswiaty || 0) + e;
+    /* Przy `prefers-reduced-motion` światło jest STAŁE, nie zgaszone: pulsowanie
+       jest ozdobą tego sygnału, ale sam sygnał niesie informację, bez której
+       dziecko nie wie, że stos jest do wzięcia. */
+    const moc = spokojnyRuch
+      ? (POSWIATA_MIN + POSWIATA_MAX) * .5
+      : POSWIATA_MIN + (POSWIATA_MAX - POSWIATA_MIN)
+        * (.5 + .5 * Math.sin(this._czasPoswiaty * POSWIATA_TEMPO));
+
+    for (const c of this._doScinania) {
+      const czeka = c.zrobione && !c.niesione && !c.dostarczone && !this._opadTrwa(c);
+      if (!czeka) {
+        if (c._swieci) {
+          (c._poswiata || []).forEach((m) => { m.emissiveIntensity = 0; });
+          c._swieci = false;
+        }
+        continue;
+      }
+      const materialy = this._materialyPoswiaty(c);
+      if (!materialy?.length) continue;
+      materialy.forEach((m) => { m.emissiveIntensity = moc; });
+      c._swieci = true;
+    }
+  }
+
   /* ── NOSZENIE MATERIAŁU ───────────────────────────────────────────────────
    *
    * Materiał NIE teleportuje się z lasu na budowę. Lisek wchodzi w stos,
@@ -2847,13 +2950,20 @@ export class Aplikacja {
        o ponad pół jednostki; bez tej poprawki drabinka wisiała w powietrzu. */
     const kotwica = this._osadz(null, def.pos[0], def.pos[1], ZANURZENIE_DOMKU, def.obrot ?? 0);
     kotwica.name = "schronienie-kotwica";
-    const stopaX = (u0.zasiegKonaru - .12 + u0.drabinkaOdsun) * s;
+    /* DOMEK IDZIE ZA PNIEM. `pienX/pienZ` przesuwają model drzewa względem
+       kotwicy — a pomost leży na JEGO konarze, klepisko jest wydeptane pod
+       JEGO pniem, drabinka opiera się o JEGO deski. Gdyby przesuwał się sam
+       pień, suwak rozklejałby drzewo od domku. Stopa drabinki liczy przez to
+       wysokość gruntu w przesuniętym miejscu, nie w kotwicy. */
+    const PRZ_X = (u0.pienX || 0) * s, PRZ_Z = (u0.pienZ || 0) * s;
+    const stopaX = PRZ_X + (u0.zasiegKonaru - .12 + u0.drabinkaOdsun) * s;
     /* `przeswit` oddaje zanurzenie kotwicy (wiersz wyżej), więc stopa ląduje
        dokładnie na darni, a nie dwa centymetry pod nią. */
-    const spadek = punktNaGruncie(this.planeta, kotwica, stopaX, 0,
+    const spadek = punktNaGruncie(this.planeta, kotwica, stopaX, PRZ_Z,
       this.wysokoscGruntuSiatki, ZANURZENIE_DOMKU);
 
     const bryla = schronienie(this._etapSchronienia, s, { ...u0, drabinkaSpadek: spadek });
+    bryla.position.set(PRZ_X, 0, PRZ_Z);
     kotwica.add(bryla);
 
     /* KLEPISKO na taflę idącą za kulą i terenem — ten sam powód, co przy
@@ -2865,7 +2975,14 @@ export class Aplikacja {
     const klepisko = bryla.getObjectByName("schronienie-klepisko");
     if (klepisko) {
       klepisko.geometry.dispose();
-      klepisko.geometry = taflaNaGruncie(this.planeta, kotwica,
+      /* Tafla liczy się w układzie kotwicy, a klepisko siedzi w przesuniętej
+         bryle — podajemy więc `taflaNaGruncie` macierz kotwicy Z TYM
+         przesunięciem. Bez tego wierzchołki chodziłyby za terenem w jednym
+         miejscu, a leżały w drugim, i darń znów przebijałaby przez środek. */
+      kotwica.updateMatrix();
+      const m = kotwica.matrix.clone().multiply(
+        new Matrix4().makeTranslation(PRZ_X, 0, PRZ_Z));
+      klepisko.geometry = taflaNaGruncie(this.planeta, { matrix: m, updateMatrix() {} },
         klepisko.userData.promien ?? 1.06 * s, this.wysokoscGruntuSiatki,
         ZANURZENIE_DOMKU + .03 * s);
       klepisko.rotation.set(0, 0, 0);
@@ -2879,8 +2996,12 @@ export class Aplikacja {
        stopni wjeżdżałyby pod darń albo zawisały nad nią. Elementy oznaczone
        w `schronienie.js` jako `przyZiemi` przepinamy więc do kotwicy, która się
        nie rusza, a kołysze się tylko reszta (`_gibanaBudowla`). */
+    const naZiemi = new Group();
+    naZiemi.name = "schronienie-przy-ziemi";
+    naZiemi.position.copy(bryla.position);   // to samo przesunięcie, bez kołysania
+    kotwica.add(naZiemi);
     for (const o of [...bryla.children]) {
-      if (o.userData?.przyZiemi) kotwica.add(o);
+      if (o.userData?.przyZiemi) naZiemi.add(o);
     }
     this._gibanaBudowla = bryla;
 

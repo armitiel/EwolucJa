@@ -48,6 +48,18 @@ no letters, no frame, no background elements.
 **Dorzucenie nowej ikony do `docs/styl/rabanie/` poszerza wzorzec** — to jest
 miejsce, w którym „uczy się" ten styl.
 
+### Zrobione tą drogą
+
+| ikona | skrypt | mistrz | gdzie leży |
+|---|---|---|---|
+| domek (plac budowy) | `scripts/gen-siedlisko.mjs` | — | `public/scena-3d/assets/ikona-siedlisko.png` |
+| lupa + puzelek (chmurka mówiąca obrazkami) | `scripts/gen-ikony-wskazowki.mjs` | `lupa-surowa.png`, `puzzel-surowy.png` | `public/assets/wskazowki/ikona-lupa.png`, `public/assets/puzzle/ikona-puzzel.png` |
+
+Lupa i puzelek powstały **jedną generacją jako para**, bo wyświetlają się na
+przemian w tej samej chmurce — ikony robione osobno, innego dnia, „prawie" do
+siebie pasują, a przy przejściu widać każdą różnicę. Obróbka (przycięcie do
+alfy, wyśrodkowanie, 256 px): `scripts/ikony-wskazowki-obrobka.py`.
+
 ## Co widać na wzorcu (do oceny wyniku, nie do promptu)
 
 Opis poniżej służy WYŁĄCZNIE do sprawdzenia, czy wynik trafił — nie wkłada się

@@ -31,10 +31,11 @@
  * się na „Ślad zostawiony" (zadania nie da się oblać). Monety: 25 w tle przy
  * śladzie (backend `/submit` albo lokalnie w demie), 0 za zauważenie.
  */
-import DANE from "./data/zadania-wizkora.v1.json";
+import DANE from "./data/zadania-wizkora.v2.json";
 import { api, session } from "../services/api.js";
 import { dodajMonety } from "../services/monety.js";
-import { wzmocnijCeche } from "../adventure/engine/adventureState.js";
+import { loadState, wzmocnijCeche } from "../adventure/engine/adventureState.js";
+import { etapSzkolny, typStartowy } from "./profilStartowy.js";
 
 
 const KLUCZ = "ewolucja.zadanie.wizkora";
@@ -49,7 +50,48 @@ const KLUCZ = "ewolucja.zadanie.wizkora";
 const KLUCZ_HISTORII = "ewolucja.zadanie.wizkora.historia";
 export const ZDARZENIE_ZMIANY = "ewolucja:zadanieWizkoraZmiana";
 
+/* v2 (docs/tresci/03 §7–§8, 06 §4.2): 22 zadania aktywne + 3 zastąpione.
+   Zastąpione (`zastapione_przez`) nie są już zlecane, ale ich `id` w zapisach
+   graczy i w `historiaZadan()` muszą dalej znaczyć to samo — dlatego
+   `definicjaZadania` zna oba zbiory. */
 export const ZADANIA = DANE.zadania || [];
+export const ZADANIA_ZASTAPIONE = DANE.zastapione || [];
+const WSZYSTKIE = [...ZADANIA, ...ZADANIA_ZASTAPIONE];
+
+/* Obrazki śladu (`slad.obrazki`) — do narysowania w stylu claymorphism; do tego
+   czasu emoji (ta sama nazwa = ten sam znak w całej grze). */
+export const OBRAZKI_SLADU = {
+  "trzy-rzeczy": "🔎", "puste-miejsce": "⬜", "nowa-rzecz": "✨", "jedna-rzecz": "🔍", "stara-rzecz": "🪨",
+  "dwie-osoby": "🧑‍🤝‍🧑", "dymek-prosba": "💬", "rece": "🙌", "cicho": "🤫", "znak-zapytania": "❓", "oko": "👁",
+  "dwa-krzesla": "🪑", "dymek": "💭", "puste-krzeslo": "🪑", "wachlarz": "📐", "rowno": "⚖️", "plaska": "📄",
+  "zegar-mniej": "⏱", "zegar-rowno": "🕛", "zegar-wiecej": "⏰", "rzecz-w-roli": "🔧", "polowa": "◑",
+  "trzy-krzywe": "〰️", "duzo-krzywych": "🌀", "jedna-krzywa": "➰", "skarpetki-blisko": "🧦", "skarpetki-daleko": "🧦",
+  "trzy-skoki": "🦘", "stoi": "🏗", "w-polowie": "🧱", "start": "🚀", "fala-mala": "🔉", "fala-duza": "🔊", "jedna-fala": "🔈",
+  "slady-duzo": "👣", "slady-kilka": "🐾", "piec-sladow": "✋", "rzecz-dziala": "⚙️", "rzecz-trzyma": "🧷", "dwie-rzeczy": "🔗",
+  "dwie-rece-wieza": "🧱", "dymki": "💬", "dymek-zaproszenie": "📣", "dymek-dwa": "🗨", "dymek-cichy": "🤍",
+  "zarowka": "💡", "zegar": "🕰", "ksiazka": "📖", "reka": "✋", "gwiazdka": "⭐", "strzalka": "➡️", "check": "✅",
+  "siedem": "7️⃣", "srodek": "🎯", "trzy": "3️⃣", "rzecz-stoi": "🧍",
+};
+export function obrazekSladu(nazwa) { return OBRAZKI_SLADU[nazwa] || "✦"; }
+
+/* Wariant etapu 1–3 / 4–8: pola z `warianty[etap]` nadpisują bazowe; `miejsca`
+   w wariancie to mapa `id → opis` (03 §7). Bez zapisu etapu — tekst bazowy 4–8. */
+export function zWariantemZadania(def, etap = etapSzkolny()) {
+  if (!def) return def;
+  const w = def.warianty?.[etap];
+  if (!w) return def;
+  const { miejsca: mapaMiejsc, ...reszta } = w;
+  const out = { ...def, ...reszta };
+  if (mapaMiejsc && Array.isArray(def.miejsca)) {
+    out.miejsca = def.miejsca.map((m) => (mapaMiejsc[m.id] ? { ...m, opis: mapaMiejsc[m.id] } : m));
+  }
+  return out;
+}
+
+/* Filtr etapu: zadanie spoza etapu gracza nie wchodzi do puli. */
+function dlaEtapu(z, etap = etapSzkolny()) {
+  return !z.etap || z.etap === "oba" || z.etap === etap;
+}
 
 /**
  * Etykiety stanu — jedno słownictwo dla zwoju, panelu i Wizkora.
@@ -84,7 +126,49 @@ export function podtytulSladu(stan) {
 }
 
 export function definicjaZadania(id) {
-  return ZADANIA.find((z) => z.id === id) || null;
+  return WSZYSTKIE.find((z) => z.id === id) || null;
+}
+
+/* Rodziny już wykonane (`rodzina` — jedno doświadczenie w wielu miejscach,
+   06 §6): zadanie z rodziny, którą dziecko już przeszło, nie wraca. */
+function rodzinyZrobione() {
+  const zrobione = new Set(historiaZadan());
+  const r = new Set();
+  for (const z of WSZYSTKIE) if (zrobione.has(z.id) && z.rodzina) r.add(z.rodzina);
+  return r;
+}
+
+/**
+ * PIERWSZE TRZY ZADANIA bez losowania Kołem (03 §6.2, 06 §4.7):
+ * para z `profil_pierwszy` (profil z testu, `typStartowy()`), potem zadanie
+ * z osi o najniższym liczniku cech (`adventureState.traits`, rośnie przez
+ * `wzmocnijCeche`). Profil to kolejność, nie zbiór — nic nie blokuje osi.
+ * Zwraca listę definicji jeszcze niezrobionych, w kolejności.
+ */
+export function pierwszeZadania(profil = typStartowy(), sygnaly = null) {
+  const etap = etapSzkolny();
+  const zrobione = new Set(historiaZadan());
+  const pula = ZADANIA.filter((z) => dlaEtapu(z, etap));
+  const para = profil ? pula.filter((z) => z.profil_pierwszy === profil) : [];
+  const traits = sygnaly || (() => { try { return loadState(null)?.traits || {}; } catch { return {}; } })();
+  const osie = ["ciekawosc", "tworzenie", "wspolpraca", "odwaga", "wytrwalosc"];
+  const najslabsza = osie
+    .filter((o) => !para.some((z) => z.cecha === o))
+    .sort((a, b) => (traits[a] || 0) - (traits[b] || 0))[0];
+  const trzecie = pula.find((z) => z.cecha === najslabsza && !para.includes(z));
+  const kolejka = [...para, ...(trzecie ? [trzecie] : [])].slice(0, 3);
+  return kolejka.filter((z) => !zrobione.has(z.id));
+}
+
+/** Czy dziecko jest jeszcze w pierwszych trzech zadaniach (Koło nie losuje). */
+export function fazaPierwszych() {
+  return historiaZadan().length < 3 && pierwszeZadania().length > 0;
+}
+
+/** Cecha, na której Koło ma stanąć w fazie pierwszych zadań (albo `null`). */
+export function cechaNastepnegoZadania() {
+  if (!fazaPierwszych()) return null;
+  return pierwszeZadania()[0]?.cecha || null;
 }
 
 function czytaj() {
@@ -164,8 +248,9 @@ export function stanZadania() {
 export function zadanieDoZlecenia() {
   const stan = stanZadania();
   if (stan.istnieje && !stan.wyplacone) return null;
-  const zrobione = stan.istnieje ? [stan.id] : [];
-  return ZADANIA.find((z) => !zrobione.includes(z.id)) || null;
+  const zrobione = new Set([...historiaZadan(), stan.istnieje ? stan.id : null].filter(Boolean));
+  const etap = etapSzkolny();
+  return pierwszeZadania()[0] || ZADANIA.find((z) => dlaEtapu(z, etap) && !zrobione.has(z.id)) || ZADANIA.find((z) => dlaEtapu(z, etap)) || null;
 }
 
 /**
@@ -178,12 +263,21 @@ export function zadanieDoZlecenia() {
 export function zadanieDlaCechy(cecha) {
   const stan = stanZadania();
   if (stan.istnieje && !stan.wyplacone) return null;
-  const wCesze = ZADANIA.filter((z) => z.cecha === cecha);
+  /* Pierwsze trzy zadania idą z kolejki profilu, nie z losowania — Koło jest
+     wtedy ceremonią, która staje na cesze zadania z kolejki
+     (`cechaNastepnegoZadania` w `KoloFortuny`). */
+  const pierwsze = pierwszeZadania();
+  if (historiaZadan().length < 3 && pierwsze.length) return pierwsze[0];
+
+  const etap = etapSzkolny();
+  const wCesze = ZADANIA.filter((z) => z.cecha === cecha && dlaEtapu(z, etap));
   if (!wCesze.length) return zadanieDoZlecenia();
-  // Ostatnio rozliczone też odpada — dwa razy pod rząd to samo zadanie
-  // czyta się jak awaria koła, nawet gdy naprawdę wypadła ta sama cecha.
+  // Kolejka bez powtórek po `id` i bez rodzin już przejścianych; ostatnio
+  // rozliczone też odpada. Gdy cała cecha przerobiona — zadania wracają
+  // (zadania w realu wolno powtarzać, „zrób coś dobrego" się nie zużywa).
   const pominiete = new Set([...historiaZadan(), stan.istnieje ? stan.id : null].filter(Boolean));
-  const swieze = wCesze.filter((z) => !pominiete.has(z.id));
+  const rodziny = rodzinyZrobione();
+  const swieze = wCesze.filter((z) => !pominiete.has(z.id) && !(z.rodzina && rodziny.has(z.rodzina)));
   const pula = swieze.length ? swieze : wCesze;
   return pula[Math.floor(Math.random() * pula.length)];
 }
@@ -220,6 +314,33 @@ export function zapiszMiejsce(miejsce) {
   return zapisz({ ...zapis, miejsce: miejsce || null });
 }
 
+/** Wybrana opcja śladu (indeks 0–2 w `def.slad.opcje`, albo `null`). */
+export function zapiszSladOpcje(opcja) {
+  const zapis = czytaj();
+  if (!zapis) return stanZadania();
+  return zapisz({ ...zapis, sladOpcja: Number.isInteger(opcja) ? opcja : null });
+}
+
+/**
+ * REAKCJA ŚWIATA — kanał ślad → scena (06 §4.3). Metody sceny z
+ * `reakcja_swiata.metoda` w większości jeszcze nie istnieją (wejdą w kroku 5),
+ * więc wołamy defensywnie: gdy `globalThis.__SCENA[metoda]` jest — wołamy,
+ * gdy nie ma — `console.info` i tyle. Zwraca toast z definicji (tytuł ≤ 28).
+ */
+export function odpalReakcjeSwiata(reakcja) {
+  if (!reakcja || !reakcja.metoda) return null;
+  const scena = globalThis.__SCENA;
+  const fn = scena?.[reakcja.metoda];
+  if (typeof fn === "function") {
+    try { fn(...(Array.isArray(reakcja.args) ? reakcja.args : [])); }
+    catch (err) { console.warn("[zadanieWizkora] reakcja świata nie poszła:", reakcja.metoda, err); }
+  } else {
+    console.info("[zadanieWizkora] scena nie ma jeszcze metody", reakcja.metoda, reakcja.args, "—", reakcja.opis);
+  }
+  try { scena?.pokazMiejsce?.(); } catch {}
+  return reakcja.toast || null;
+}
+
 /**
  * Wysłanie dowodu do Mentora. Dwa kroki, bo backend tak działa: najpierw
  * misja musi istnieć (`seed` jest idempotentny po `adventure_ref` + tytule),
@@ -254,6 +375,9 @@ export async function wyslijDowod({ opis, zdjecieUrl }) {
     proof_text: opis || "",
     proof_media_url: zdjecieUrl || null,
     place_id: zapis.miejsce || null,
+    slad_opcja: Number.isInteger(zapis.sladOpcja) ? zapis.sladOpcja : null,
+    slad_opcja_tekst: Number.isInteger(zapis.sladOpcja) ? (def.slad?.opcje?.[zapis.sladOpcja] || null) : null,
+    mentor_powiadomienie: def.mentor_powiadomienie || null,
   });
 
   /* ŚLAD ZOSTAWIONY: monety (25) dopisał backend przy `/submit` — tu tylko
@@ -266,7 +390,7 @@ export async function wyslijDowod({ opis, zdjecieUrl }) {
     notatka: null,
     monetyZaSlad: Number(odpowiedz?.coins_awarded) || 0,
     mentorPrawdziwy: !!odpowiedz?.mentor_present,
-    dowod: { opis: opis || "", zdjecieUrl: zdjecieUrl || null, wyslaneAt: new Date().toISOString() },
+    dowod: { opis: opis || "", zdjecieUrl: zdjecieUrl || null, sladOpcja: zapis.sladOpcja ?? null, wyslaneAt: new Date().toISOString() },
   });
 }
 
@@ -317,12 +441,16 @@ export async function sprawdzMentora() {
   if (ZAUWAZONE.has(status)) {
     // Zauważenie nie dodaje monet (`nagroda` zostaje z tła). Formuła Mentora
     // bez oceny idzie do dziecka jako `notatka`; z niej też rodzaj Mentora.
+    // Dodatek w świecie (kwiat w nowym kolorze przy drabince) — raz.
+    const def = definicjaZadania(zapis.id);
+    if (!zapis.reakcjaMentorOdpalona) odpalReakcjeSwiata(def?.reakcja_mentor);
     return zapisz({
       ...zapis,
       status: "zatwierdzone",
       notatka: werdykt?.formula || werdykt?.comment || null,
       mentorRodzaj: werdykt?.mentor_gender || null,
       mentorPrawdziwy,
+      reakcjaMentorOdpalona: true,
     });
   }
   // `rejected` / `needs_followup`: dziecko nie widzi werdyktu — ślad zostaje śladem.
@@ -434,8 +562,10 @@ export function ustawStatus(status, notatka = null) {
   const zapis = czytaj();
   if (!zapis) return stanZadania();
   // Skrót z pulpitu: „zatwierdzone" symuluje zauważenie (bez monet — te poszły
-  // przy śladzie); notatka domyślnie jawnie demowa.
+  // przy śladzie); notatka domyślnie jawnie demowa; dodatek w świecie raz.
+  if (status === "zatwierdzone" && !zapis.reakcjaMentorOdpalona) odpalReakcjeSwiata(definicjaZadania(zapis.id)?.reakcja_mentor);
   return zapisz({
+    reakcjaMentorOdpalona: status === "zatwierdzone" ? true : zapis.reakcjaMentorOdpalona,
     ...zapis,
     demo: status === "zatwierdzone" ? true : zapis.demo,
     status,

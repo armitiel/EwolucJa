@@ -315,30 +315,19 @@ export function postawEtap() {
 }
 
 /**
- * CZY WOLNO ROZBUDOWAĆ DOMEK (decyzja właściciela 2026-09-16).
+ * BRAMKI „WRÓĆ JUTRO" TU NIE MA (decyzja właściciela 2026-09-17).
  *
- * Domek na drzewie ma trzy piętra opowieści: pomost, przytulny domek,
- * rozbudowany domek. Kolejne NIE mogą powstać tego samego dnia, co poprzednie —
- * i to nie jest sztuczne opóźnienie, tylko sedno tej gry. Nagrodą ma być
- * „wróciłem następnego dnia i świat czekał", a nie „wyklikałem trzy piętra
- * w jednej sesji". Trzy piętra w kwadrans to gra o zbieraniu; jedno piętro
- * dziennie to powód, żeby wrócić (`docs/OPIS_PROJEKTU.md`, o rytmie sesji).
+ * Stała tu `czyMoznaRozbudowac`: kolejne piętro domku nie mogło powstać tego
+ * samego dnia, co poprzednie. Wyszło z tego coś odwrotnego do zamiaru —
+ * dziecko dostawało goły pomost zamiast obiecanego DOMKU i komunikat, że
+ * resztę dostanie kiedy indziej, bez powodu, który dałoby się zrozumieć.
+ * Domek staje więc cały za jednym razem (`schronienie.js`, etap 1).
  *
- * Drugi warunek — nowy materiał — sprawdza się sam: rozbudowa zaczyna się od
- * wyzerowania dostaw, więc `spelnione` znów jest fałszem, dopóki dziecko czegoś
- * nie przyniesie.
- *
- * @param {number} docelowo ile pięter ma docelowo domek (`ETAPY_DOCELOWO`)
+ * Rytm „wróć jutro" zostaje sednem gry — ale ma go robić NOWA rzecz do
+ * zrobienia, a nie wstrzymana część starej nagrody. Gdyby kiedyś wróciła tu
+ * rozbudowa, `dzienEtapu` dalej zapisuje dzień postawienia i wystarczy na niej
+ * oprzeć nowy warunek.
  */
-export function czyMoznaRozbudowac(docelowo = 3, data = new Date()) {
-  const s = czytaj();
-  if (!s || !s.zbudowane) return false;
-  if (s.etap >= docelowo) return false;
-  // Brak zapisanego dnia = zapis sprzed tej zmiany. Traktujemy go jak „dawno",
-  // bo blokowanie rozbudowy za cudzy brak danych byłoby karą za aktualizację.
-  if (!s.dzienEtapu) return true;
-  return s.dzienEtapu !== dobaDzis(data);
-}
 
 export function skasujZadanieDrewna() {
   try { localStorage.removeItem(KLUCZ); } catch {}

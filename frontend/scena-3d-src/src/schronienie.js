@@ -147,13 +147,14 @@ function deska(dl, szer, gr, mat = MAT_BUDOWY.deska) {
 }
 
 /**
- * ETAP 1 — PLATFORMA. Pomost wysunięty z pnia w +X, barierka po trzech
- * stronach i drabinka z ziemi. Czyli dokładnie tyle, ile trzeba, żeby dziecko
- * powiedziało „tu już można siedzieć" — i ani deski więcej. Domek dochodzi
- * w etapie 2, w innym dniu przygody.
+ * ETAP 1 — CAŁY DOMEK. Pomost na konarze, na nim chatka ze ścianami, oknami
+ * i dwuspadowym dachem, przed drzwiami kawałek deski na ganek, a z ziemi
+ * drabinka. Czyli dokładnie to, co Wizkor obiecał: DOMEK NA DRZEWIE, a nie
+ * jego pierwsza część.
  *
- * Ma wyglądać na ZBUDOWANE, a nie na zrujnowane: deski leżą równo, barierka
- * stoi prosto, drabinka opiera się o krawędź, a nie o powietrze.
+ * Ma wyglądać na ZBUDOWANE, a nie na zrujnowane: deski leżą równo, ściany
+ * stoją prosto, dach siedzi na ścianach, a drabinka opiera się o krawędź
+ * pomostu, nie o powietrze.
  */
 function etap1(s = 1, u = DOMEK_DRZEWO) {
   const g = new Group();
@@ -221,39 +222,112 @@ function etap1(s = 1, u = DOMEK_DRZEWO) {
     g.add(listwa);
   }
 
-  /* BARIERKA MA WEJŚCIE OD DRABINKI (właściciel, 2026-09-16).
-     Wcześniej barierka była zamknięta dokładnie tam, gdzie drabinka dochodzi
-     do desek — dziecko wspinało się prosto w poprzeczkę. Teraz bok w +X jest
-     OTWARTY: zostają narożne słupki, które robią z tej dziury framugę, a nie
-     wyrwę, i nic między nimi nie przechodzi. Zamknięty jest za to bok od pnia
-     — po tamtej stronie i tak stoi drzewo, więc poprzeczka domyka pomost
-     w skrzynkę, zamiast zostawiać dwie otwarte ściany.
+  /* ── DOMEK ── STAWIA SIĘ ZA JEDNYM RAZEM (właściciel, 2026-09-17).
+     Wcześniej etap 1 dawał sam pomost, a domek miał dojść „innego dnia".
+     Odpadło to z dwóch powodów. Pierwszy jest w nazwie: Wizkor obiecuje DOMEK
+     NA DRZEWIE, więc dziecko, które przynosi trzy stosy drewna i dostaje gołe
+     deski, dostaje mniej, niż mu obiecano. Drugi jest w zasadzie produktu —
+     nagrodą ma być „spójrz, co się wydarzyło dzięki temu, co zrobiłeś", a nie
+     kolejne „wróć jutro", które niczego nie tłumaczy. Rozbudowa w następnych
+     dniach może wrócić, ale jako COŚ WIĘCEJ, nie jako dokończenie.
 
-     Słupki są KRÓTKIE — przy dłuższych platforma zamienia się w klatkę
-     i przestaje wyglądać na miejsce do siedzenia. */
+     Domek zajmuje część pomostu od strony pnia; przed drzwiami zostaje GANEK,
+     bo wchodząc po drabince trzeba gdzieś stanąć, zanim się wejdzie. */
+  const GANEK = .34 * s;
+  const D_OD = X0, D_DO = Math.max(X0 + .30 * s, X1 - GANEK);
+  const D_POL = POL_Z - .04 * s;              // ściany ociupinę w głąb pomostu
+  const WYS_S = .62 * s;                      // wysokość ścian
+  const GRUB = .07 * s;                       // grubość bala
+  const SR_D = (D_OD + D_DO) / 2, GLEB = D_DO - D_OD;
+
+  for (const k of [-1, 1]) {
+    const sciana = new Mesh(new BoxGeometry(GLEB, WYS_S, GRUB), MAT_BUDOWY.deska);
+    sciana.position.set(SR_D, Y + WYS_S / 2, k * D_POL);
+    sciana.userData.krok = 3;
+    g.add(sciana);
+    /* OKNO JEST NAKLEJKĄ, NIE DZIURĄ. Wycięcie otworu w bryle wymagałoby CSG
+       albo ściany złożonej z sześciu klocków — a z odległości, z jakiej patrzy
+       kamera, ciemniejszy kwadrat na ścianie czyta się dokładnie tak samo. */
+    const okno = new Mesh(new BoxGeometry(.26 * s, .24 * s, GRUB * .6), MAT_BUDOWY.kora);
+    okno.position.set(SR_D, Y + WYS_S * .58, k * (D_POL + GRUB * .55));
+    okno.userData.krok = 3;
+    g.add(okno);
+  }
+
+  // Ściana od pnia — drzewo przechodzi tuż obok, więc domek opiera się o nie.
+  const tylna = new Mesh(new BoxGeometry(GRUB, WYS_S, D_POL * 2 + GRUB), MAT_BUDOWY.deskaCiemna);
+  tylna.position.set(D_OD, Y + WYS_S / 2, 0);
+  tylna.userData.krok = 3;
+  g.add(tylna);
+
+  /* FRONT Z OTWOREM NA DRZWI — dwa węższe kawałki po bokach i nadproże nad
+     nimi. Otworu nie zamykamy skrzydłem: otwarte drzwi mówią „można wejść",
+     a zamknięte trzeba by jeszcze umieć otworzyć. */
+  const SZER_DRZWI = .44 * s;
+  const BOK_FRONTU = Math.max(.02 * s, D_POL - SZER_DRZWI / 2);
+  for (const k of [-1, 1]) {
+    const czesc = new Mesh(new BoxGeometry(GRUB, WYS_S, BOK_FRONTU), MAT_BUDOWY.deska);
+    czesc.position.set(D_DO, Y + WYS_S / 2, k * (SZER_DRZWI / 2 + BOK_FRONTU / 2));
+    czesc.userData.krok = 3;
+    g.add(czesc);
+  }
+  const nadproze = new Mesh(new BoxGeometry(GRUB, .15 * s, D_POL * 2 + GRUB), MAT_BUDOWY.deskaCiemna);
+  nadproze.position.set(D_DO, Y + WYS_S - .075 * s, 0);
+  nadproze.userData.krok = 3;
+  g.add(nadproze);
+
+  /* DACH — jedna trójkątna pryzma, a nie dwie połacie sklejone pod kątem.
+     `CylinderGeometry` o trzech segmentach daje dokładnie taki graniastosłup,
+     w dodatku z zamkniętymi szczytami, więc nie trzeba osobno dorabiać
+     trójkątów pod kalenicą.
+
+     DWA OBROTY, NIE JEDEN, i to jest pułapka warta zapamiętania: `Cylinder`
+     stawia PIERWSZY WIERZCHOŁEK NA OSI +Z (`x = r·sin θ`, `z = r·cos θ`,
+     θ zaczyna się od zera), a nie na +X, jak podpowiada intuicja. Sam obrót
+     kładący oś wzdłuż X zostawia więc kalenicę poziomo w bok i pionową
+     ścianę zamiast spadku. Drugi obrót, wokół osi ŚWIATA X (Euler „XYZ"
+     wykonuje Z pierwsze), obraca przekrój tak, że wierzchołek idzie do góry,
+     a przeciwległa krawędź robi się płaską podstawą na ścianach.
+
+     Po obu obrotach osie lokalne bryły leżą tak: X to szerokość, Y to długość
+     kalenicy, Z to wysokość — dlatego spłaszczamy Z, a nie X.
+
+     SPŁASZCZAMY, bo trójkąt równoboczny daje dach stromy jak wieża. Połowa
+     wysokości wystarcza, żeby czytał się jak dach, a nie jak namiot. */
+  const OKAP = .10 * s;
+  const SPLASZCZ = .52;
+  const R_DACHU = (D_POL + OKAP) / (Math.sqrt(3) / 2);
+  const dach = new Mesh(
+    new CylinderGeometry(R_DACHU, R_DACHU, GLEB + GRUB + OKAP * 2, 3), MAT_BUDOWY.kora);
+  dach.rotation.set(-Math.PI / 2, 0, Math.PI / 2);
+  dach.scale.set(1, 1, SPLASZCZ);
+  // Podstawa pryzmy leży R/2 pod jej środkiem — po spłaszczeniu tyle samo razy
+  // mniej. Stąd to podniesienie: okap ma usiąść na szczycie ścian.
+  dach.position.set(SR_D, Y + WYS_S + R_DACHU * SPLASZCZ / 2, 0);
+  dach.userData.krok = 4;
+  g.add(dach);
+
+  /* BARIERKA TYLKO PRZY GANKU. W środku domku byłaby niewidoczna, a wzdłuż
+     całego pomostu zasłaniałaby ściany. Zostaje tam, gdzie jest po coś: przy
+     krawędziach deski przed drzwiami. Bok w +X jest OTWARTY, bo tamtędy
+     wchodzi się z drabinki — narożne słupki robią z tej dziury framugę. */
   const WYS_B = u.barierka * s;
-  for (const [x, z] of [
-    [X1 - .10 * s, -POL_Z + .10 * s], [X1 - .10 * s, POL_Z - .10 * s],
-    [XS, -POL_Z + .10 * s], [XS, POL_Z - .10 * s],
-    [X0 + .18 * s, -POL_Z + .10 * s], [X0 + .18 * s, POL_Z - .10 * s],
-  ]) {
-    const sl = new Mesh(new CylinderGeometry(.045 * s, .055 * s, WYS_B, 5), MAT_BUDOWY.kora);
-    sl.position.set(x, Y + WYS_B / 2, z);
-    sl.userData.krok = 3;
-    g.add(sl);
+  const G_SR = (D_DO + X1) / 2, G_DL = X1 - D_DO;
+  for (const x of [X1 - .08 * s, D_DO + .08 * s]) {
+    for (const k of [-1, 1]) {
+      const sl = new Mesh(new CylinderGeometry(.045 * s, .055 * s, WYS_B, 5), MAT_BUDOWY.kora);
+      sl.position.set(x, Y + WYS_B / 2, k * (POL_Z - .08 * s));
+      sl.userData.krok = 3;
+      g.add(sl);
+    }
   }
   for (const h of [.62, 1]) {
     for (const k of [-1, 1]) {
-      const p = deska(DL - .20 * s, .06 * s, .06 * s, MAT_BUDOWY.deska);
-      p.position.set(XS, Y + WYS_B * h, k * (POL_Z - .10 * s));
+      const p = deska(Math.max(.1 * s, G_DL - .16 * s), .06 * s, .06 * s, MAT_BUDOWY.deska);
+      p.position.set(G_SR, Y + WYS_B * h, k * (POL_Z - .08 * s));
       p.userData.krok = 3;
       g.add(p);
     }
-    /* Poprzeczka TYLKO od pnia. Bok w +X zostaje pusty — tam jest wejście. */
-    const tyl = deska(.06 * s, POL_Z * 2 - .20 * s, .06 * s, MAT_BUDOWY.deska);
-    tyl.position.set(X0 + .18 * s, Y + WYS_B * h, 0);
-    tyl.userData.krok = 3;
-    g.add(tyl);
   }
 
   /* DRABINKA LICZONA Z DWÓCH KOŃCÓW, nie z kąta.

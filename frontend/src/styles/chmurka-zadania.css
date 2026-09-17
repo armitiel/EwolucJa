@@ -1,12 +1,7 @@
-/*!
- * SPDX-FileCopyrightText: © 2026 Amitiel Angelisme <armitiel@gmail.com>
- * SPDX-License-Identifier: LicenseRef-EwolucJA-Proprietary
- *
- * EwolucJA — gra edukacyjna dla dzieci.
- * Produkt powstał w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”;
- * autorskie prawa majątkowe pozostają przy autorze. Licencja: LICENSE.
- */
 /* ChmurkaZadania — patrz nagłówek komponentu.
+
+   Kształt, lamówka, glina i cień: `chmurka-ksztalt.css` + `tokeny.css` sek. 7.
+   Tutaj TYLKO zaczepienie pod awatarem i karuzela ikon.
 
    POZYCJA. Chmurka jest dzieckiem `.game-hud` (pozycja `fixed`, `inset: 0`),
    więc jej `top/left` liczą się od krawędzi ekranu, a NIE od paska HUD.
@@ -20,6 +15,10 @@
    ekranu. */
 
 .chmurka-zadania {
+  /* Chmurka wychodzi od LISKA, więc bierze jego barwę z rodziny dymków —
+     tę samą, co `.reflektor.jest-liskiem`. Fiolet jest zarezerwowany dla
+     Wizkora i nie wolno go tu użyć. */
+  --chmurka-akcent: var(--pomarancz-500);
   --awatar: 66px;
 
   position: absolute;
@@ -50,37 +49,8 @@
   to   { opacity: 0; transform: scale(.52); }
 }
 
-.chmurka-zadania-ksztalt {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  /* Cień pod całą bryłą, nie pod każdym kołem z osobna — dlatego filtr
-     siedzi na `svg`, a nie na grupach. */
-  filter: drop-shadow(0 3px 2px color-mix(in srgb, var(--braz-900, #2b1c08) 34%, transparent));
-}
-
-/* Rant robimy DRUGĄ WARSTWĄ KÓŁ, nie obrysem: cztery zachodzące na siebie
-   koła z `stroke` narysowałyby kreski w środku chmurki. */
-.chmurka-zadania-rant { fill: #1d1509; }
-.chmurka-zadania-bryla { fill: url(#chmurka-zadania-jasnosc); }
-
-/* Ogonek „oddycha" — to jedyny ruch, po którym chmurkę czyta się jako
-   MYŚL, a nie jako dymek z tekstem. Druga kropka spóźnia się o pół taktu,
-   więc ruch idzie od dziecka w stronę chmurki. */
-.chmurka-zadania-kropka {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: chmurka-zadania-puls 2.2s ease-in-out infinite;
-}
-
-.chmurka-zadania-kropka--2 { animation-delay: .34s; }
-
-@keyframes chmurka-zadania-puls {
-  0%, 100% { transform: scale(1); }
-  50%      { transform: scale(1.16); }
-}
+/* Kształt wypełnia kontener; leży pod karuzelą. */
+.chmurka-zadania > .chmurka-ksztalt { position: absolute; inset: 0; }
 
 /* Okno na ikonę: wycinek WNĘTRZA bryły, wyśrodkowany na jej środku
    ciężkości (128/260 w poziomie, 120/200 w pionie). */
@@ -94,9 +64,9 @@
      chmurki, a nie wystawać na trawę.
 
      ELIPSA, NIE `overflow: hidden`. Prostokątne przycięcie zostawiało pionową
-     kreskę w środku białej bryły: bok prostokąta wypadał w jej wnętrzu i
-     wyjeżdżająca ikona urywała się na prostej. Elipsa wpisana w to samo okno
-     kończy się dokładnie tam, gdzie kończy się biel. */
+     kreskę w środku bryły: bok prostokąta wypadał w jej wnętrzu i wyjeżdżająca
+     ikona urywała się na prostej. Elipsa wpisana w to samo okno kończy się
+     dokładnie tam, gdzie kończy się glina. */
   clip-path: ellipse(49% 50% at 50% 50%);
 }
 
@@ -112,7 +82,7 @@
   object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
-  filter: drop-shadow(0 2px 2px color-mix(in srgb, var(--braz-900, #2b1c08) 26%, transparent));
+  filter: drop-shadow(0 2px 2px color-mix(in srgb, var(--noc-850, #1b1338) 26%, transparent));
 
   opacity: 0;
   transform: translate(-50%, -50%) translateX(62%) scale(.6) rotate(9deg);
@@ -146,10 +116,9 @@
 @media (prefers-reduced-motion: reduce) {
   .chmurka-zadania { animation-duration: .01ms; }
   .chmurka-zadania.jest-schodzaca { animation-duration: .01ms; }
-  .chmurka-zadania-kropka { animation: none; }
   /* Karuzela ZOSTAJE — to ona niesie treść. Znika tylko rozpęd: ikona
      zmienia się przenikaniem, bez wjazdu z boku. */
-  .chmurka-zadania-ikona { transition: opacity .28s ease; transform: none; }
+  .chmurka-zadania-ikona { transition: opacity .28s ease; transform: translate(-50%, -50%); }
   .chmurka-zadania-ikona[data-stan="wychodzi"],
-  .chmurka-zadania-ikona[data-stan="czeka"] { transform: none; }
+  .chmurka-zadania-ikona[data-stan="czeka"] { transform: translate(-50%, -50%); }
 }

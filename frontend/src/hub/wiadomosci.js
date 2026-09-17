@@ -17,7 +17,7 @@
  */
 import { listNotifications, markRead } from "../adventure/engine/notifications.js";
 import { api, session } from "../services/api.js";
-import { stanZadania as stanZadaniaWizkora } from "./zadanieWizkora.js";
+import { stanZadania as stanZadaniaWizkora, zWariantemZadania } from "./zadanieWizkora.js";
 import { odmienDlaGracza } from "../services/rodzaj.js";
 
 const ETYKIETY_MENTORA = { hint: "Podpowiedź", artifact: "Artefakt", message: "Wiadomość" };
@@ -162,10 +162,12 @@ export function wpisZadania(adventure, state, nextStep) {
 export function wpisZadaniaWizkora() {
   const stan = stanZadaniaWizkora();
   if (!stan.istnieje || stan.wyplacone) return null;
-  const szept = stan.def.szept || null;
-  const tresc = szept && stan.def.cel.endsWith(szept)
-    ? stan.def.cel.slice(0, -szept.length).trim()
-    : stan.def.cel;
+  /* v2: karta w zwoju czyta `karta_wizkora` (zlecenie ≤ 60 zn.) jako treść,
+     a `cel` jako „jak"-podpowiedź; bez `karta_wizkora` (stare wpisy) — `cel`. */
+  const def = zWariantemZadania(stan.def);
+  const szept = def.szept || null;
+  const celBezSzeptu = szept && def.cel.endsWith(szept) ? def.cel.slice(0, -szept.length).trim() : def.cel;
+  const tresc = def.karta_wizkora || celBezSzeptu;
   /* Tokeny `{m|ż}` odmieniamy przy składaniu wpisu — zwój dostaje gotowe
      zdania (tytuł, treść, szept, „jak", etykieta), a nie klamry. Odcięcie
      szeptu od celu robimy PRZED odmianą, bo oba pola stoją w danych w tej
@@ -174,10 +176,10 @@ export function wpisZadaniaWizkora() {
     klucz: "zadanie-wizkora",
     zrodlo: "zadanie-wizkora",
     id: stan.id,
-    tytul: odmienDlaGracza(stan.def.tytul),
+    tytul: odmienDlaGracza(def.tytul),
     tresc: odmienDlaGracza(tresc),
     szept: odmienDlaGracza(szept),
-    jak: odmienDlaGracza(stan.def.jak) || null,
+    jak: odmienDlaGracza(def.karta_wizkora ? celBezSzeptu : def.jak) || null,
     notatka: odmienDlaGracza(stan.notatka) || null,
     kiedy: stan.zleconeAt,
     etykieta: odmienDlaGracza(stan.etykieta),

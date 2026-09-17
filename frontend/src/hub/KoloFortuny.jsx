@@ -36,7 +36,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { zadanieDlaCechy } from "./zadanieWizkora.js";
+import { cechaNastepnegoZadania, zadanieDlaCechy } from "./zadanieWizkora.js";
 import { fx } from "../services/soundFx.js";
 import "../styles/kolo-fortuny.css";
 
@@ -119,7 +119,13 @@ export default function KoloFortuny({ onWybor, onZamknij }) {
 
   const zakrec = () => {
     if (faza !== "gotowe") return;
-    const idx = Math.floor(Math.random() * CECHY_KOLA.length);
+    /* PIERWSZE TRZY ZADANIA nie są losowane (03 §6.2): kolejka profilu
+       (`pierwszeZadania` w `zadanieWizkora.js`) mówi, jaka cecha ma wypaść,
+       a koło tylko to inscenizuje — ceremonia zostaje, przypadek nie. Od
+       czwartego zadania losowanie równomierne. */
+    const zKolejki = cechaNastepnegoZadania();
+    const idxKolejki = zKolejki ? CECHY_KOLA.findIndex((c) => c.id === zKolejki) : -1;
+    const idx = idxKolejki >= 0 ? idxKolejki : Math.floor(Math.random() * CECHY_KOLA.length);
     // Dojazd tak, żeby ŚRODEK wylosowanego wycinka stanął pod strzałką
     // (u góry), z rozrzutem ±40% szerokości pola — koniec kręcenia nie
     // wygląda wtedy jak zatrzaśnięcie w idealnym środku.
@@ -193,7 +199,7 @@ export default function KoloFortuny({ onWybor, onZamknij }) {
               {`${wylosowana.nazwa}!`}
             </>
           ) : (
-            "Co dziś ćwiczysz?"
+            "Co dziś działa?"
           )}
         </h2>
         {/* JEDNA LINIJKA, NIE TRZY. Wcześniej stało tu zdanie o mocnych
@@ -203,7 +209,7 @@ export default function KoloFortuny({ onWybor, onZamknij }) {
         <p className="kolo-podpowiedz">
           {faza === "wynik"
             ? (zadanie ? `„${zadanie.tytul}”` : "Wizkor szykuje zadanie…")
-            : "Każde pole to inna mocna strona."}
+            : "Każde pole to inna siła."}
         </p>
 
         {/* Cztery warstwy na wspólnym płótnie 1024×1024 ze środkiem koła

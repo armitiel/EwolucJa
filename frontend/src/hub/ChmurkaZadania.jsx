@@ -26,26 +26,12 @@
  * w chwili, w której zadanie się zaczyna. Po kilku obrotach schodzi i nie
  * zaśmieca ekranu.
  *
- * Kształt rysujemy dwiema warstwami kół (ciemne większe pod spodem, jasne
- * mniejsze na wierzchu) zamiast obrysu — cztery zachodzące na siebie koła
- * z `stroke` pokazałyby kreski w środku bryły.
+ * Kształt i barwy idą z `ChmurkaKsztalt` — ta sama chmura, co w powiadomieniu
+ * Wizkora, tylko w barwie liska (`--chmurka-akcent: --pomarancz-500`).
  */
 import React, { useEffect, useRef, useState } from "react";
+import ChmurkaKsztalt from "./ChmurkaKsztalt.jsx";
 import "../styles/chmurka-zadania.css";
-
-/* Bryła chmurki i ogonek — układ współrzędnych 260×200. `o` to grubość
-   ciemnego rantu: ciemne koło ma promień r+o, jasne dokładnie r. */
-const O = 4.6;
-const BRYLA = [
-  [72, 126, 44],
-  [128, 102, 52],
-  [186, 126, 40],
-  [124, 144, 44],
-];
-const OGONEK = [
-  [50, 52, 14],
-  [28, 20, 8],
-];
 
 export default function ChmurkaZadania({
   /** Lista `{ src, opis }` — kolejność w karuzeli. Pusta lista = nic nie ma. */
@@ -117,36 +103,7 @@ export default function ChmurkaZadania({
       aria-label={opis ? `Do zrobienia: ${opis}` : "Do zrobienia"}
       data-testid="hub-chmurka-zadania"
     >
-      <svg
-        className="chmurka-zadania-ksztalt"
-        viewBox="0 0 260 200"
-        preserveAspectRatio="xMidYMid meet"
-        aria-hidden="true"
-        focusable="false"
-      >
-        <defs>
-          {/* userSpaceOnUse, bo gradient ma iść przez CAŁĄ bryłę, a nie
-              powtórzyć się osobno w każdym z czterech kół. */}
-          <linearGradient id="chmurka-zadania-jasnosc" gradientUnits="userSpaceOnUse" x1="0" y1="48" x2="0" y2="192">
-            <stop offset="0" stopColor="#fffdf7" />
-            <stop offset="1" stopColor="#f3e7cd" />
-          </linearGradient>
-        </defs>
-
-        <g className="chmurka-zadania-rant">
-          {BRYLA.map(([cx, cy, r], i) => <circle key={i} cx={cx} cy={cy} r={r + O} />)}
-        </g>
-        <g className="chmurka-zadania-bryla">
-          {BRYLA.map(([cx, cy, r], i) => <circle key={i} cx={cx} cy={cy} r={r} />)}
-        </g>
-
-        {OGONEK.map(([cx, cy, r], i) => (
-          <g key={i} className={`chmurka-zadania-kropka chmurka-zadania-kropka--${i + 1}`}>
-            <circle className="chmurka-zadania-rant" cx={cx} cy={cy} r={r + O} />
-            <circle className="chmurka-zadania-bryla" cx={cx} cy={cy} r={r} />
-          </g>
-        ))}
-      </svg>
+      <ChmurkaKsztalt wariant="ikona" ogon="gora-lewo" />
 
       <div className="chmurka-zadania-scena">
         {lista.map((ikona, i) => (

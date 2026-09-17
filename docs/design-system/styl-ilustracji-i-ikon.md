@@ -185,6 +185,20 @@ Pełna specyfikacja pierścienia: `docs/design-system/wskaznik-scinania.md`.
 
 ---
 
+### Ta sama rodzina w interfejsie: chmurka mówiąca obrazkami
+
+`frontend/public/assets/wskazowki/ikona-lupa.png` (szukaj) i
+`frontend/public/assets/puzzle/ikona-puzzel.png` (czego) — para z
+17.09.2026, wygenerowana jedną komendą z referencji siekiery
+(`scripts/gen-ikony-wskazowki.mjs`). Pokazują się NA PRZEMIAN w chmurce
+podpowiedzi `puzzle-szukaj` (`hub/wskazowki.js`), zanim dziecko znajdzie
+pierwszy kawałek. Puzelek zastąpił płaski `assets/puzzle/kawalek-v2.svg`
+wszędzie, gdzie stał: licznik HUD, lot kawałka do licznika, okno postaci.
+
+To jedyne miejsce, gdzie rodzina D wchodzi w interfejs — i wchodzi celowo:
+wskaźniki nad światem i ta chmurka mówią to samo („zrób to"), a ikona 3D
+czyta się w kółku lepiej niż płaski symbol.
+
 ## E. Symbole płaskie
 
 **Pliki:** `frontend/public/assets/kolo/ikona-*.webp` (koło przeznaczenia).

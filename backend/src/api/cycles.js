@@ -329,13 +329,21 @@ export function missionRoutes(db) {
 
   router.post("/:id/submit", async (req, res) => {
     try {
-      const { proof_text, proof_media_url } = req.body;
+      const { proof_text, proof_media_url, place_id, slad_opcja, slad_opcja_tekst, mentor_powiadomienie } = req.body;
       const mission = await getMission(db, req.params.id);
       if (!mission) return res.status(404).json({ error: "Misja nie znaleziona" });
+      /* Ślad v2 (03 §7, 06 §4.2): obok zdania i zdjęcia idzie wybór z trzech
+         opcji (`slad_opcja` + tekst), wybrane `miejsce` (`place_id`) i gotowe
+         powiadomienie dla Mentora („Zobacz, co {zrobił|zrobiła} {imie}: …") —
+         wszystko w JSONB `submitted_proof`, bez migracji. */
       await submitMissionProof(db, req.params.id, {
         submitted_at: new Date().toISOString(),
         proof_text: proof_text || "",
         proof_media_url: proof_media_url || null,
+        place_id: typeof place_id === "string" ? place_id : null,
+        slad_opcja: Number.isInteger(slad_opcja) ? slad_opcja : null,
+        slad_opcja_tekst: typeof slad_opcja_tekst === "string" ? slad_opcja_tekst : null,
+        mentor_powiadomienie: typeof mentor_powiadomienie === "string" ? mentor_powiadomienie : null,
       });
 
       /* SLAD ZOSTAWIONY (decyzja autora 17.09; docs/tresci/06 §4.6, pkt 20):

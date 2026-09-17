@@ -23,7 +23,16 @@ const VOICES = {
   // Głosy ElevenLabs — ID mogą się zmieniać, sprawdź w panelu.
   // Narratorka Świata Ewolucji (kobiecy, ciepły, lekko tajemniczy)
   narrator: (process.env.ELEVENLABS_VOICE_ID || "").trim() || "XrYxa2QP5oFX1cg3JPdt",
-  mystical: (process.env.ELEVENLABS_VOICE_ID || "").trim() || "XrYxa2QP5oFX1cg3JPdt",
+  /**
+   * WIZKOR MA WŁASNY GŁOS — i do 17.09.2026 nie miał, przez co w całej grze
+   * słychać było narratorkę: ten wpis wskazywał dokładnie ten sam
+   * `ELEVENLABS_VOICE_ID`, co ona. Osobnej zmiennej po prostu nie było.
+   *
+   * Fallback ZOSTAJE (inaczej brak zmiennej = brak mowy Wizkora, a on prowadzi
+   * przez zadania), ale widać go w `/api/tts/status` jako `wizkor: "narrator"`.
+   */
+  mystical: (process.env.ELEVENLABS_WIZKOR_VOICE_ID || "").trim()
+    || (process.env.ELEVENLABS_VOICE_ID || "").trim() || "XrYxa2QP5oFX1cg3JPdt",
   excited:  (process.env.ELEVENLABS_VOICE_ID || "").trim() || "XrYxa2QP5oFX1cg3JPdt",
   // Głos Mentora (rodzic/nauczyciel) — odróżnialny od narratora.
   // Fallback do narratora, jeśli nie ustawiony.
@@ -48,7 +57,12 @@ const VOICES = {
 const LAND_VOICES = {
   dolina_selfie:       "narrator",
   las_decyzji:         "mystical",
-  gora_podsumowania:   "mystical",
+  // NARRATORKA, nie Wizkor. Ten klucz wysyła `PodsumowanieDnia` dla kroków
+  // podpisanych `kto: "narratorka"` — a wskazywał na „mystical", czyli na
+  // slot Wizkora. Dopóki oba slot-y miały ten sam identyfikator, nikt tego
+  // nie słyszał; od chwili, gdy Wizkor dostaje swój głos, wieczorna narracja
+  // mówiłaby jego głosem.
+  gora_podsumowania:   "narrator",
   // Mentor (osobny ton)
   mentor:              "mentor",
   // Lisek — nie kraina, tylko postać; klucz działa tak samo, bo frontend
@@ -307,13 +321,25 @@ export class TTSService {
     this._cache.clear();
   }
 
-  /** Info o serwisie */
+  /**
+   * Info o serwisie. `glosy` mówi, która postać ma NAPRAWDĘ swój głos, a która
+   * spadła na narratorkę — bez tego „czemu wszyscy mówią tym samym głosem"
+   * trzeba diagnozować czytaniem kodu i zmiennych środowiskowych na serwerze.
+   */
   getInfo() {
+    const n = VOICES.narrator;
+    const czyj = (id) => (id === n ? "narrator (fallback)" : "własny");
     return {
       available: this.isAvailable,
       model: this.model,
       defaultVoice: this.defaultVoice,
       cacheSize: this._cache.size,
+      glosy: {
+        narrator: "własny",
+        wizkor: czyj(VOICES.mystical),
+        lisek: czyj(VOICES.lisek),
+        mentor: czyj(VOICES.mentor),
+      },
     };
   }
 }

@@ -39,6 +39,9 @@ import { OGON_DLUGOSC, sciezkaChmurki } from "./ksztaltChmurki.js";
 import { powiedzJakLisek } from "./glosLiska.js";
 import { odmienDlaGracza as o } from "../services/rodzaj.js";
 
+/** Ile trzyma się jeden obrazek w parze „na przemian" (ms). */
+const PRZEMIANA_MS = 1500;
+
 const ODSTEP = 10;          // ile światła/obręczy zostaje wokół celu
 const PRZERWA = 9;          // odstęp chmurki od obręczy — dzióbek ma jej DOTYKAĆ
 const SZER_DYMKA = 448;     // docelowa szerokość komponentu z Figmy
@@ -76,9 +79,18 @@ function zmierz(cel, obszar) {
   };
 }
 
+/** Czy system prosi o spokojniejszy ruch — ta sama zasada, co w `PopupPostaci`. */
+function spokojnyRuch() {
+  try { return window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
+  catch { return false; }
+}
+
 export default function Reflektor({ wskazowka, onZamknij }) {
   const [otwor, setOtwor] = useState(null);
   const [banka, setBanka] = useState({ szer: 0, wys: 0 });
+  const [spokojnie] = useState(spokojnyRuch);
+  /** Który obrazek z pary jest teraz na wierzchu. */
+  const [klatka, setKlatka] = useState(0);
   const celRef = useRef(null);
   const obserwatorRef = useRef(null);
 
@@ -183,6 +195,20 @@ export default function Reflektor({ wskazowka, onZamknij }) {
     const zegar = window.setTimeout(powtorzGlos, 420);
     return () => window.clearTimeout(zegar);
   }, [wskazowka?.id, wskazowka?.glos, powtorzGlos]);
+
+  /**
+   * Para obrazków zmienia się w miejscu, dopóki chmurka wisi. Nie jest to
+   * ozdoba: zamiana lupy na puzelek MÓWI zdanie („szukaj” + „czego”) komuś,
+   * kto jeszcze nie czyta. Przy `prefers-reduced-motion` zegar nie startuje —
+   * wtedy oba rysunki stoją obok siebie i mówią to samo bez ruchu.
+   */
+  useEffect(() => {
+    const ile = wskazowka?.obrazki?.length || 0;
+    if (ile < 2 || spokojnie) return undefined;
+    setKlatka(0);
+    const zegar = window.setInterval(() => setKlatka((k) => (k + 1) % ile), PRZEMIANA_MS);
+    return () => window.clearInterval(zegar);
+  }, [wskazowka?.id, wskazowka?.obrazki, spokojnie]);
 
   /**
    * Chmurka schodzi SAMA. To zaproszenie w trakcie zabawy, a nie okno do
@@ -380,6 +406,24 @@ export default function Reflektor({ wskazowka, onZamknij }) {
           </button>
 
           <div className="reflektor-wnetrze" ref={rozepnijObserwatora}>
+            {/* KOMUNIKAT OBRAZKAMI. Para rysunków zmienia się w miejscu —
+                jeden pokazuje CO ZROBIĆ (lupa), drugi CZEGO SZUKAĆ (puzelek).
+                Przy `prefers-reduced-motion` nic nie mruga: oba stoją obok
+                siebie, więc treść zostaje ta sama, tylko bez ruchu. */}
+            {wskazowka.obrazki?.length ? (
+              <div className={`reflektor-obrazki${spokojnie ? " bez-ruchu" : ""}`}>
+                {wskazowka.obrazki.map((src, i) => (
+                  <img
+                    key={src}
+                    src={src}
+                    alt=""
+                    aria-hidden="true"
+                    draggable="false"
+                    className={spokojnie || i === klatka ? "jest-widoczny" : ""}
+                  />
+                ))}
+              </div>
+            ) : null}
             <img
               className={`reflektor-postac${lisek ? " jest-liskiem" : ""}`}
               src={wskazowka.postac}
