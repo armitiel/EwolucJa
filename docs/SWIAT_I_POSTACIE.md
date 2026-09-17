@@ -42,7 +42,7 @@ Trzy głosy. Nie ma czwartego.
 | postać | kim jest | głos lektora (klucz techniczny) |
 |---|---|---|
 | **Wizkor** | czarodziej, pierwszy przewodnik; wie, że pewnych rzeczy nie da się zrobić magią. **Dawny „Mędrzec” to Wizkor** — rzadkie, spokojne myśli o ciele mówi Wizkor, tym samym głosem | `las_decyzji` |
-| **Lisek** | postać gracza i towarzysz naraz: dziecko nim steruje, a lisek zaprasza do wspólnej aktywności | `lisek` |
+| **Lisek** | **postać bazowa** — jedyna postać gracza i towarzysz naraz: dziecko nim steruje, a lisek zaprasza do wspólnej aktywności; awatar w HUD-zie to `fox_avatar.png` | `lisek` |
 | **Narratorka** | bezimienny głos Świata Ewolucji; opowiada, nie zleca | `gora_podsumowania` |
 
 Podział ról: narratorka opowiada, Wizkor zleca i daje trop, lisek zaprasza.
@@ -95,6 +95,7 @@ klasy CSS i tokeny `medrzec-*`, slugi starych archetypów w bazie
 - „kraina” jako nazwa świata albo regionu
 - **Mentor jako Sowa** i „Game Master” jako postać
 - „schronienie” jako nazwa budowli
+- postać chłopca (`adventurer`) i jej awatar (portret chłopca w medalionie) — wyłączone, bohaterem jest lisek
 - stare nazwy archetypów (Tropiciel Tajemnic, Zaklinacz Uczuć, Mistrz Map, Tkacz Snów, Gwardzista Odwagi, Strażnik Mostu/Ciszy) i „Tropiciele” jako nazwa grupy dzieci
 - Spokojna Głowa jako „mediator”
 - cykl tygodniowy z piątkowym terminem, punkty, poziomy, losowe mikronagrody

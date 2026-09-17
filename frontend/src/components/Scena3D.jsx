@@ -18,19 +18,17 @@
  * trzymamy w refach, żeby zmiana funkcji w rodzicu nie przeładowywała WebGL.
  */
 import React, { useEffect, useRef } from "react";
-import { idPostaci, postacWybranaJawnie } from "../utils/postac.js";
+import { idPostaci, postacWybranaJawnie, DOSTEPNE_POSTACIE } from "../utils/postac.js";
 
 // UWAGA: numer ma tylko ROSNĄĆ. Numery 3–13 zostały już wydane przeglądarce
 // z inną zawartością modułu (kolejne wersje znaków, gwiazdki, tempo ruchu),
 // więc cofnięcie go serwuje z cache starą scenę zamiast aktualnej.
-export const WERSJA_SCENY = "120";  // zapasowe znaki: Gra na Pamięć, bez znaku Piórka
+export const WERSJA_SCENY = "121";  // bohaterem zawsze lisek (postać chłopca wyłączona)
 const ZASOBY = "/scena-3d/assets/";
 
 /**
- * Wybór bohatera — na czas testów lisa, docelowo pewnie stała.
- *
- *   /swiat?postac=fox   → lis (zapamiętane, więc przy kolejnych wejściach zostaje)
- *   /swiat?postac=adventurer → powrót do chłopca
+ * Bohater — zawsze lisek (17.09.2026). Postać chłopca jest wyłączona,
+ * `?postac=` nic nie zmienia.
  *
  * Identyfikator postaci trzyma `utils/postac.js` — wspólnie ze HUD-em, który
  * bierze stamtąd awatar. Sam moduł sceny ma swoją tablicę (`SCENA3D_POSTACIE`):
@@ -147,7 +145,7 @@ export default function Scena3D({ apiRef, onZdarzenie, onBlad, onGotowa, przygot
                w swoim pliku, więc zgadywanie „mapa.json" nadpisałoby nie ten. */
             globalThis.__SCENA3D_PLIK_MAPY = mapa;
             // Świat może narzucać bohatera; jawny wybór gracza jest silniejszy.
-            if (dane.postac && !postacWybranaJawnie()) globalThis.SCENA3D_POSTAC = dane.postac;
+            if (dane.postac && !postacWybranaJawnie() && DOSTEPNE_POSTACIE.includes(dane.postac)) globalThis.SCENA3D_POSTAC = dane.postac;
           }
         } catch (e) {
           console.warn("[scena3d] mapa niedostępna, lecę na wbudowanej", mapa, e);

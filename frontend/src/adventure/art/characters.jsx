@@ -102,7 +102,7 @@ export function AvatarArt({ size = 120, color = "#57C7D4", grants = [], grantDef
           musi zostać na `meet` — inaczej kwadratowa grafika rozjechałaby się
           na pionowej ramce sylwetki. */}
       <image
-        href={awatarPostaci("/assets/adventure-v2/avatar-front-v2.png")}
+        href={awatarPostaci()}
         x="3"
         y="0"
         width="114"

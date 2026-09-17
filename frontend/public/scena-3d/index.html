@@ -37,7 +37,7 @@
 <div class="game-hud" aria-label="Interfejs świata">
   <div class="game-hud-top">
     <a class="game-hud-profile" href="/profile" aria-label="Otwórz profil Wędrowca">
-      <img src="/assets/hub-nav/profil-simple.png" alt="" aria-hidden="true">
+      <img class="ma-uszy" src="/fox_avatar.png" alt="" aria-hidden="true">
       <span>Wędrowiec</span>
     </a>
 
@@ -86,7 +86,7 @@
       <div class="message-scroll-list">
         <article class="scroll-message is-unread">
           <button class="scroll-message-head" type="button" aria-expanded="false">
-            <span class="scroll-message-avatar"><img src="/assets/hub-nav/profil-simple.png" alt="" aria-hidden="true"></span>
+            <span class="scroll-message-avatar"><img src="/assets/hub-nav/iskra.png" alt="" aria-hidden="true"></span>
             <span class="scroll-message-copy">
               <strong>Brawo!</strong>
               <small>Mentor przeczytał zadanie.</small>
@@ -157,11 +157,9 @@ Jeśli to nie zadziała: uruchom <code>npm run dev</code> i wejdź na
     return;
   }
   globalThis.__SCENA3D_ZASOBY = kat + 'assets/';
-  // Postac bohatera do testow: /scena-3d/?postac=fox (domyslnie chlopiec).
-  // Nazwy klipow i korekte tempa modul bierze z SCENA3D_POSTACIE - tu tylko wybor.
+  // Bohaterem jest zawsze lisek (postac chlopca wylaczona 17.09.2026).
   var pyt = new URLSearchParams(location.search);
-  var postac = pyt.get('postac');
-  if (postac) globalThis.SCENA3D_POSTAC = postac;
+  globalThis.SCENA3D_POSTAC = 'fox';
   // Planeta: /scena-3d/?kula=12 nadpisuje promień kuli z mapa.json (do strojenia),
   // ?zoom=1.4 przybliżenie kamery.
   var kula = Number(pyt.get('kula'));
@@ -179,7 +177,7 @@ Jeśli to nie zadziała: uruchom <code>npm run dev</code> i wejdź na
 
   // AWATAR W HUD-zie idzie za bohaterem, a nie za stala grafika. Ta sama
   // tablica co w `src/utils/postac.js` (AWATARY) - brak wpisu = zostaje
-  // chlopiec z `profil-simple.png`, bo domyslna postac modulu to `adventurer`.
+  // grafika z HTML-a (tez lisek).
   var AWATARY = { fox: '/fox_avatar.png' };
   function ustawAwatar() {
     var img = document.querySelector('.game-hud-profile img');

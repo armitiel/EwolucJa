@@ -106,10 +106,10 @@ tła za postacią.
 | ikona | plik | co przedstawia | na ekranie |
 |---|---|---|---|
 | Porada | `porada-simple.png` | zielony lampion w złotej oprawie z żółtym płomieniem | **widoczna** w doku |
-| Profil | `profil-simple.png` | portret chłopca w złotym medalionie; w grze podmieniany na awatar postaci (lisek) | **widoczny**, lewy górny róg |
+| Profil | `/fox_avatar.png` | lisek w złotym medalionie na zielonym tle, uszy wychodzą poza pierścień | **widoczny**, lewy górny róg |
 | Gwiazdki | `/star.png` | pięcioramienna złota gwiazda, brązowy obrys, połysk | **widoczny** licznik podczas zbierania |
 | Monety | `moneta.png` | złota moneta w 3/4 z 4-ramienną gwiazdą i listkami | **widoczny** licznik z paskiem |
-| Muzyka | `/music.png` | zielona szklista nuta | **widoczna**, prawy górny róg |
+| Muzyka | `/music.png` | zielona szklista nuta (zatwierdzona 17.09.2026 — zostaje zielona) | **widoczna**, prawy górny róg |
 | Minigry | `minigry-simple.png` | zielony pad w złotej ramie, żółty krzyżyk, zielony i czerwony przycisk | **ukryta** do pierwszej rozegranej gry |
 | Rozmowy | `czat-simple.png` | turkusowy dymek z dwiema kropkami na złotej podstawce | **ukryta** |
 | Zadania | `zadania-simple.png` | kremowa kartka w brązowej ramce z zielonym ptaszkiem | **ukryta** |
@@ -125,12 +125,12 @@ tła za postacią.
 - Plakietki: czerwone kółko z liczbą albo zielona kropka.
 
 ### Rozjazdy wewnątrz rodziny (do decyzji)
-- `music.png` jest **zielona i szklista** — reszta rodziny opiera się na złocie.
-  Istnieje złota wersja `muzyka-simple.png` (nuta z turkusowym kamieniem), dziś
-  nieużywana.
 - `zadania-simple.png` jest **płaska** (prawie bez połysku, cienkie linie) —
   najbliżej rodziny E; odstaje od padu i lampionu.
-- `profil-simple.png` pokazuje chłopca, a domyślną postacią gracza jest lisek.
+
+Nieużywane pliki tej rodziny: `muzyka-simple.png` (złota nuta) oraz
+`profil-simple.png` i `profil.png` (portret chłopca — postać chłopca wyłączona
+17.09.2026).
 
 ---
 

@@ -2480,7 +2480,7 @@ export default function Swiat() {
             aria-label={`Otwórz profil: ${player?.name || "Wędrowiec"}`}
             data-testid="hub-chip-profil"
           >
-            <img src={awatarPostaci("/assets/hub-nav/profil-simple.png")} alt="" aria-hidden="true" draggable="false" />
+            <img src={awatarPostaci()} alt="" aria-hidden="true" draggable="false" />
             <span>{player?.name || "Wędrowiec"}</span>
           </button>
 

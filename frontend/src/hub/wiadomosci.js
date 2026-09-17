@@ -66,7 +66,7 @@ export async function zbierzWiadomosci() {
         nieprzeczytana: !wpis.viewed_at,
         to: null,
         autor: wpis.mentor_name || null,
-        ikona: "/assets/hub-nav/profil-simple.png",
+        ikona: "/assets/hub-nav/iskra.png",
       }));
     } catch (err) {
       console.warn("[wiadomosci] getAllHints nie odpowiedział:", err);

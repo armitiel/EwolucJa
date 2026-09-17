@@ -1,60 +1,51 @@
 /**
  * Kto jest bohaterem — jedno miejsce prawdy dla sceny 3D i dla interfejsu.
  *
- * Domyślnym bohaterem jest LIS. Chłopiec (`adventurer`) zostaje dostępny pod
- * `/swiat?postac=adventurer` — wybór zapamiętuje się w localStorage, więc przy
- * kolejnych wejściach trzyma się tego, co ostatnio podano w adresie.
- *
- * UWAGA przy testach: skoro wybór siedzi w localStorage, przeglądarka, w której
- * kiedykolwiek otwarto `?postac=…`, będzie trzymać TAMTĄ postać niezależnie od
- * tego, co jest domyślne w kodzie. Stąd wrażenie, że „produkcja ma starą wersję",
- * gdy lokalnie widać nową — to nie build, to zapamiętany wybór.
+ * Bohaterem jest LISEK — i tylko on (decyzja autora 17.09.2026, kanon
+ * `docs/SWIAT_I_POSTACIE.md`). Postać chłopca (`adventurer`) i jej awatar są
+ * wyłączone: parametr `?postac=` i dawny zapis w localStorage niczego już nie
+ * zmieniają. Model `adventurer.glb` leży w assetach, ale nic go nie wczytuje.
  *
  * Model GLB, mapowanie klipów animacji i wygląd materiału siedzą po stronie
- * modułu sceny (`SCENA3D_POSTACIE` w `public/scena-3d/scena3d.js`). Tutaj jest
+ * modułu sceny (`SCENA3D_POSTACIE` w `scena-3d-src/src/postacie.js`). Tutaj jest
  * tylko to, czego potrzebuje aplikacja Reacta: identyfikator i grafiki.
  */
 export const KLUCZ_POSTACI = "ewolucja.postac";
 export const POSTAC_DOMYSLNA = "fox";
+/** Postacie, które wolno wczytać. Mapa świata nie może narzucić innej. */
+export const DOSTEPNE_POSTACIE = ["fox"];
 
-/** Awatary postaci innych niż domyślna. Brak wpisu = zostaje grafika domyślna. */
+/** Awatar lisa: portret w złotym medalionie, uszy wychodzą poza pierścień. */
+export const AWATAR_DOMYSLNY = "/fox_avatar.png";
 const AWATARY = {
-  fox: "/fox_avatar.png",
+  fox: AWATAR_DOMYSLNY,
 };
 
-export function idPostaci() {
+/** Czyści dawny wybór postaci, żeby stara przeglądarka nie trzymała chłopca. */
+function wyczyscDawnyWybor() {
   try {
-    const zAdresu = new URLSearchParams(window.location.search).get("postac");
-    if (zAdresu) {
-      localStorage.setItem(KLUCZ_POSTACI, zAdresu);
-      return zAdresu;
-    }
-    return localStorage.getItem(KLUCZ_POSTACI) || POSTAC_DOMYSLNA;
+    const zapis = localStorage.getItem(KLUCZ_POSTACI);
+    if (zapis && !DOSTEPNE_POSTACIE.includes(zapis)) localStorage.removeItem(KLUCZ_POSTACI);
   } catch {
-    return POSTAC_DOMYSLNA;
+    /* brak localStorage — nic do czyszczenia */
   }
 }
 
+export function idPostaci() {
+  wyczyscDawnyWybor();
+  return POSTAC_DOMYSLNA;
+}
+
 /**
- * Czy gracz wybrał postać SAM — parametrem w adresie albo wcześniejszym
- * zapisem — czy tylko dostał domyślną. `idPostaci()` tego nie rozróżnia,
- * bo zawsze coś zwraca; świat, który narzuca bohatera (`mapa.postac`),
- * musi wiedzieć, czy ma prawo nadpisać wybór.
+ * Gracz nie wybiera już postaci, więc nie ma „jawnego wyboru”. Zostaje dla
+ * zgodności z `Scena3D.jsx`, który i tak przepuszcza z mapy tylko postacie
+ * z `DOSTEPNE_POSTACIE`.
  */
 export function postacWybranaJawnie() {
-  try {
-    if (new URLSearchParams(window.location.search).get("postac")) return true;
-    return !!localStorage.getItem(KLUCZ_POSTACI);
-  } catch {
-    return false;
-  }
+  return false;
 }
 
-/**
- * Awatar bieżącej postaci albo `domyslny`, gdy postać swojego nie ma.
- * Domyślny podaje miejsce wywołania, bo każde ma inny: HUD używa portretu
- * w kółku, panel profilu — sylwetki na całą wysokość.
- */
-export function awatarPostaci(domyslny) {
+/** Awatar bieżącej postaci; `domyslny` tylko awaryjnie. */
+export function awatarPostaci(domyslny = AWATAR_DOMYSLNY) {
   return AWATARY[idPostaci()] || domyslny;
 }

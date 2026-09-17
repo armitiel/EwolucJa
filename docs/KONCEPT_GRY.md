@@ -30,7 +30,7 @@ izometryczna, planeta obraca się pod bohaterem, da się ją obejść dookoła.
 rzeka z nurtem i most, latarnia, brama, pięć drzew, trzy głazy, domek,
 trzynaście kwiatków. Drzewa gibią się, kwiaty kłaniają, gdy bohater przebiega.
 
-**Bohater:** chłopiec albo lisek (`SCENA3D_POSTACIE`), joystick / klawiatura.
+**Bohater:** lisek — jedyna postać gracza (postać chłopca wyłączona 17.09.2026), joystick / klawiatura.
 
 **Znaki na mapie** (24): czarodziej, dziesięć gwiazdek, dziewięć kawałków
 puzzli, trzy wejścia do gier (karty, drzewo lotu, bucik), drzwi domu.

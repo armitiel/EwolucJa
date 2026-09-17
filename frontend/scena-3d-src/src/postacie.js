@@ -9,12 +9,8 @@
  * Klipy lisa są ODWROTNE niż chłopca: NlaTrack = run, NlaTrack.001 = walk
  * (zweryfikowane pomiarem amplitudy kości, nie na oko).
  */
+// Postać chłopca (`adventurer`) wyłączona 17.09.2026 — bohaterem jest tylko lisek.
 globalThis.SCENA3D_POSTACIE = globalThis.SCENA3D_POSTACIE || {
-  adventurer: {
-    plik: "adventurer",
-    klipy: { NlaTrack: "walk", "NlaTrack.001": "run", "NlaTrack.002": "idle", "NlaTrack.003": "happy" },
-    tempo: {},
-  },
   fox: {
     plik: "fox",
     klipy: { NlaTrack: "run", "NlaTrack.001": "walk", "NlaTrack.002": "idle", "NlaTrack.003": "happy" },
@@ -24,8 +20,8 @@ globalThis.SCENA3D_POSTACIE = globalThis.SCENA3D_POSTACIE || {
 };
 
 globalThis.__SCENA3D_POSTAC = function () {
-  const n = globalThis.SCENA3D_POSTAC || "adventurer";
-  return globalThis.SCENA3D_POSTACIE[n] || { plik: n, klipy: null, tempo: {} };
+  const n = globalThis.SCENA3D_POSTAC || "fox";
+  return globalThis.SCENA3D_POSTACIE[n] || globalThis.SCENA3D_POSTACIE.fox;
 };
 
 export function postac() {

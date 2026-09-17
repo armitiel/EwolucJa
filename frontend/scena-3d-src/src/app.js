@@ -753,7 +753,7 @@ export class Aplikacja {
 
   async loadHero() {
     const P = postac();
-    const e = await this.loadGLB(P.plik || "adventurer");
+    const e = await this.loadGLB(P.plik || "fox");
     const t = e.scene;
     t.traverse((o) => {
       if (o.isSkinnedMesh) { this.skinned = o; o.frustumCulled = false; }
