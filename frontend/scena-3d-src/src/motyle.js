@@ -32,9 +32,12 @@
  * losowanie drga, sinusy falują), rytmem „seria uderzeń → szybowanie" i od
  * czasu do czasu pełną pętlą → przy kwiatku zejście, lądowanie, odpoczynek
  * ze złożonymi skrzydłami → odlot do następnego celu, najczęściej dalekiego
- * (za horyzont). Lisek bliżej niż `ploszenie` zrywa siedzącego motyla, lecący
- * omija go z `omijanie`. W nocy (`Doba.stan.noc > 0,5`) motyle siadają
- * i śpią, aż wróci dzień — zbudzi je tylko lisek, i to na chwilę.
+ * (za horyzont). LISEK: siedzący motyl zrywa się, gdy lisek podejdzie bliżej
+ * niż `ploszenie`; lecący bliżej niż `omijanie` wchodzi w UCIECZKĘ — zawraca
+ * od liska, przyspiesza do `predkoscUcieczki`, idzie wyżej i trzepie szybciej
+ * przez `ucieczkaCzas` od ostatniego zbliżenia, a następny cel wybiera z dala
+ * od liska. W nocy (`Doba.stan.noc > 0,5`) motyle siadają i śpią, aż wróci
+ * dzień — zbudzi je tylko lisek, i to na chwilę.
  *
  * Reakcja na bohatera to fizyka świata, nie pomiar: motyle nie liczą, czy
  * dziecko je goni, i niczego o nim nie zapisują.
@@ -76,8 +79,13 @@ export const MOTYLE = {
   // Reszta celów to DALEKIE punkty gdziekolwiek w zasięgu (≥ 5 jednostek):
   // motyl znika za horyzontem i wraca z drugiej strony — to jest „wokół planety".
   dalekoOd: 5,
-  ploszenie: 1.35,                       // lisek bliżej → siedzący się zrywa
-  omijanie: 0.85,                        // lisek bliżej → lecący skręca, przyspiesza
+  // LISEK. Decyzja właściciela 2026-09-17: „jak lisek jest blisko, motyl
+  // odlatuje" — nie unik o krok, tylko wyraźna ucieczka. Zasięgi liczone od
+  // środka liska w jednostkach mapy (lisek ma ~1,7 wzrostu).
+  ploszenie: 2.4,                        // siedzący się zrywa
+  omijanie: 2.2,                         // lecący zawraca od liska i ucieka
+  ucieczkaCzas: 1.6,                     // s — ile trwa ucieczka po ostatnim zbliżeniu
+  predkoscUcieczki: 2.2,                 // jednostki/s (lisek idzie 1,38, biegnie 3,42)
   nocSpi: true,
   // Siedem barw, potasowane: przy siedmiu motylach każda pojawia się raz.
   barwy: [0xf7c948, 0xf28c38, 0xef6a8a, 0x7ab8f0, 0xb98ae0, 0x6fd0c4, 0xf5efe0],
@@ -234,6 +242,9 @@ export class Motyle {
         t: mie(0, 100), f1: mie(0, 6.2832), f2: mie(0, 6.2832), f3: mie(0, 6.2832),
         // Rytm trzepot/szybowanie i pętla (ile radianów jeszcze do zamknięcia).
         szybuje: false, rytm: mie(0.3, 1.5), petla: 0, petlaKier: 1,
+        // Ucieczka przed liskiem: ile sekund jeszcze trwa; po niej następny cel
+        // nie może być koło liska.
+        ucieczka: 0, unikajLiska: false,
         stan: "lot", czas: 0, cel: null, kwiat: null, kwiatOstatni: null,
       };
       // Start: połowa blisko miejsca startu bohatera (żeby na dzień dobry
@@ -275,7 +286,16 @@ export class Motyle {
   aktualizuj(dt, hp, stanDoby = null, spokojnie = false) {
     if (!this.sztuki.length) return;
     dt = clamp(dt, 0, 0.05);
-    if (hp) { this._hp.x = hp.x; this._hp.z = hp.z; }
+    if (hp) {
+      // Tempo liska z przebytej drogi (jak w dymki.js) — uciekający motyl ma
+      // być ZAWSZE trochę szybszy od niego, także gdy dziecko biegnie.
+      // Skok (teleport, `ustawBohatera`) przycina się do 4 i szybko gaśnie.
+      if (dt > 1e-4) {
+        const d = Math.hypot(hp.x - this._hp.x, hp.z - this._hp.z);
+        this._vLiska = dogon(this._vLiska || 0, Math.min(4, d / dt), 8, dt);
+      }
+      this._hp.x = hp.x; this._hp.z = hp.z;
+    }
     this._noc = stanDoby ? (stanDoby.noc || 0) : 0;
     const C = this.C;
     const noc = C.nocSpi && this._noc > 0.5;
@@ -289,12 +309,25 @@ export class Motyle {
 
       if (s.stan === "lot") {
         if (!s.cel) this._nowyCel(s);
+        // UCIECZKA. Lisek w zasięgu → w tył zwrot OD niego, gaz, wyżej, bez
+        // szybowania i pętli. Zegar odnawia się co klatkę, póki lisek goni,
+        // więc biegnące dziecko ma przed sobą uciekającego motyla, a nie taki,
+        // który po sekundzie zawraca mu pod nos.
+        if (odB < C.omijanie && odB > 1e-4) {
+          if (!(s.ucieczka > 0)) this._uciekaj(s);
+          s.ucieczka = Math.max(s.ucieczka, C.ucieczkaCzas);
+        }
+        const ucieka = s.ucieczka > 0;
         const dx = s.cel.x - s.x, dz = s.cel.z - s.z, dist = Math.hypot(dx, dz);
         const siada = !!(s.cel.kwiat || s.cel.ziemia);
         // Skręt do celu + meandrowanie, które gaśnie przy samym celu (żeby
         // trafić w kwiatek, a nie krążyć nad nim).
         const waga = clamp((dist - 0.6) / 1.4, 0.15, 1);
-        if (s.petla > 0) {
+        if (ucieka) {
+          s.ucieczka -= dt * tempo;
+          s.petla = 0;
+          skret = clamp(katDo(Math.atan2(ox, oz) - s.kurs) * 4.5, -5, 5);
+        } else if (s.petla > 0) {
           // PĘTLA: pełny obrót w miejscu lotu, cel na chwilę nieważny. To ten
           // „freestyle" — motyl nie leci po sznurku, tylko czasem zakręci
           // kółko, jakby coś go ucieszyło.
@@ -318,14 +351,9 @@ export class Motyle {
           s.rytm = s.szybuje ? C.szybowanieOd + this.los() * (C.szybowanieDo - C.szybowanieOd)
             : C.uderzeniaOd + this.los() * (C.uderzeniaDo - C.uderzeniaOd);
         }
-        // Przy lądowaniu i w pętli zawsze trzepie — szybowanie w dół na kwiatek
-        // wyglądałoby jak spadanie.
-        const szybuje = s.szybuje && !(siada && dist < 2) && !(s.petla > 0);
-        // Lisek za blisko: odbij w bok i przyspiesz.
-        if (odB < C.omijanie && odB > 1e-4) {
-          skret += clamp(katDo(Math.atan2(ox, oz) - s.kurs) * 4, -5, 5) * (1 - odB / C.omijanie);
-          s.v = Math.max(s.v, 1.7);
-        }
+        // Przy lądowaniu, w pętli i w ucieczce zawsze trzepie — szybowanie
+        // w dół na kwiatek wyglądałoby jak spadanie, a uciekać się nie szybuje.
+        const szybuje = s.szybuje && !(siada && dist < 2) && !(s.petla > 0) && !ucieka;
         // Drzewa i głazy: łuk dookoła, nie przelot przez pień.
         for (const b of this.przeszkody) {
           if (!b || !(b.r >= 0.4)) continue;
@@ -335,31 +363,36 @@ export class Motyle {
           if (d >= strefa || d < 1e-4) continue;
           skret += clamp(katDo(Math.atan2(px, pz) - s.kurs) * 3, -4, 4) * (1 - d / strefa);
         }
-        // Skraj zasięgu: zawracaj do środka mapy.
+        // Skraj zasięgu: zawracaj do środka mapy — im dalej za granicą, tym
+        // mocniej (ma przeważyć nawet ucieczkę przed liskiem).
         const r = Math.hypot(s.x, s.z);
         if (r > this.zasieg) {
-          skret += clamp(katDo(Math.atan2(-s.x, -s.z) - s.kurs) * 3, -4, 4) * clamp((r - this.zasieg) / 0.5 + 0.3, 0, 1);
+          skret += clamp(katDo(Math.atan2(-s.x, -s.z) - s.kurs) * 3, -4, 4) * clamp((r - this.zasieg) / 0.5 + 0.3, 0, 2.5);
         }
         s.kurs += skret * dt * tempo;
         // Do kwiatka podchodzi coraz wolniej — lądowanie, nie zderzenie.
-        // W pętli zwalnia (kółko ma być ciasne), szybując leci odrobinę szybciej.
+        // W pętli zwalnia (kółko ma być ciasne), szybując leci odrobinę
+        // szybciej, uciekając — pełny gaz, złapany szybko (tempo 6).
         const hamowanie = (siada ? clamp(0.35 + dist / 1.5, 0.35, 1) : 1) * (s.petla > 0 ? 0.6 : 1) * (szybuje ? 1.1 : 1);
-        s.v = dogon(s.v, s.vCel * hamowanie * (1 + 0.18 * Math.sin(s.t * 2.7 + s.f3)), 2.5, dt);
+        s.v = ucieka
+          ? dogon(s.v, Math.max(C.predkoscUcieczki, (this._vLiska || 0) * 1.2), 6, dt)
+          : dogon(s.v, s.vCel * hamowanie * (1 + 0.18 * Math.sin(s.t * 2.7 + s.f3)), 2.5, dt);
         const krok = s.v * dt * tempo;
         s.x += Math.sin(s.kurs) * krok;
         s.z += Math.cos(s.kurs) * krok;
-        // Pułap faluje (szybując opada, trzepiąc się wznosi, w pętli podskakuje);
-        // na ostatnim odcinku do kwiatka motyl schodzi do niego.
+        // Pułap faluje (szybując opada, trzepiąc się wznosi, w pętli podskakuje,
+        // uciekając idzie wyżej); na ostatnim odcinku do kwiatka motyl schodzi.
         let yCel = this.grunt(s.x, s.z) + s.pulap
           + 0.1 * Math.sin(s.t * 1.1 + s.f2) + 0.04 * Math.sin(s.t * 2.6 + s.f1)
           + (szybuje ? -0.2 : 0.08)
-          + (s.petla > 0 ? 0.3 * Math.sin((1 - s.petla / (Math.PI * 2)) * Math.PI) : 0);
-        if (siada) {
+          + (s.petla > 0 ? 0.3 * Math.sin((1 - s.petla / (Math.PI * 2)) * Math.PI) : 0)
+          + (ucieka ? 0.7 : 0);
+        if (siada && !ucieka) {
           const w = clamp((dist - 0.3) / 1.6, 0, 1);
           yCel = s.cel.y + (yCel - s.cel.y) * w;
         }
         s.y = dogon(s.y, yCel, 3.5, dt);
-        this._trzepot(s, szybuje ? SZYB : LOT, szybuje ? 1.2 : s.trzepot, dt, tempo);
+        this._trzepot(s, szybuje ? SZYB : LOT, szybuje ? 1.2 : s.trzepot * (ucieka ? 1.5 : 1), dt, tempo);
         if (dist < Math.max(0.22, krok * 1.5)) {
           // Kwiatek mógł w międzyczasie zająć inny motyl — wtedy szukaj dalej.
           if (siada && !(s.cel.kwiat && this._zajete.has(s.cel.kwiat))) { s.stan = "ladowanie"; s.czas = 0; }
@@ -395,9 +428,11 @@ export class Motyle {
 
   /** Migawka do `stan()` sceny i pulpitu DEV. */
   stan() {
-    let lataja = 0, siedza = 0;
-    for (const s of this.sztuki) { if (s.stan === "lot") lataja++; else siedza++; }
-    return { ile: this.sztuki.length, lataja, siedza, noc: this._noc > 0.5 };
+    let lataja = 0, siedza = 0, uciekaja = 0;
+    for (const s of this.sztuki) {
+      if (s.stan === "lot") { lataja++; if (s.ucieczka > 0) uciekaja++; } else siedza++;
+    }
+    return { ile: this.sztuki.length, lataja, siedza, uciekaja, noc: this._noc > 0.5 };
   }
 
   /* ── wnętrze ─────────────────────────────────────────────────────────── */
@@ -458,6 +493,8 @@ export class Motyle {
     const C = this.C, los = this.los;
     const noc = C.nocSpi && this._noc > 0.5;
     const r = los();
+    const unikaj = s.unikajLiska;
+    s.unikajLiska = false;
     if (noc || r < C.udzialKwiatow) {
       const k = this._wolnyKwiat(s, s.kwiatOstatni, noc);
       if (k) { this._celKwiat(s, k); return; }
@@ -472,11 +509,14 @@ export class Motyle {
         }
       }
     }
-    const przyLisku = r < C.udzialKwiatow + C.udzialPrzyBohaterze;
+    // Po ucieczce następny cel nie może być koło liska — inaczej motyl
+    // zawracałby prosto pod nos temu, przed kim właśnie uciekł.
+    const przyLisku = r < C.udzialKwiatow + C.udzialPrzyBohaterze && !unikaj;
     for (let p = 0; p < 10; p++) {
       let x, z;
       if (przyLisku) {
-        const a = los() * 6.2832, d = 1.5 + Math.sqrt(los()) * C.promienPrzyBohaterze;
+        // Nie bliżej niż zasięg płoszenia — cel pod nosem liska to od razu ucieczka.
+        const a = los() * 6.2832, d = C.omijanie + 0.6 + Math.sqrt(los()) * C.promienPrzyBohaterze;
         x = this._hp.x + Math.cos(a) * d;
         z = this._hp.z + Math.sin(a) * d;
       } else {
@@ -526,18 +566,31 @@ export class Motyle {
     s.szybuje = false;
     s.rytm = this.C.uderzeniaOd + this.los() * (this.C.uderzeniaDo - this.C.uderzeniaOd);
     if (ploszony) {
-      // Ucieka OD liska: kurs w przeciwną stronę, cel kilka kroków dalej.
+      // Zerwany z kwiatka: od razu w ucieczce (kurs od liska, gaz, wyżej).
       s.kurs = Math.atan2(s.x - this._hp.x, s.z - this._hp.z) + (this.los() - 0.5) * 0.9;
-      s.v = 1.9;
-      const d = 3 + this.los() * 2.5;
-      let x = s.x + Math.sin(s.kurs) * d, z = s.z + Math.cos(s.kurs) * d;
-      const r = Math.hypot(x, z);
-      if (r > this.zasieg) { x *= (this.zasieg * 0.9) / r; z *= (this.zasieg * 0.9) / r; }
-      s.cel = { x, z, y: 0 };
+      s.v = 1.2;
+      this._uciekaj(s);
+      s.ucieczka = this.C.ucieczkaCzas;
     } else {
       s.v = 0.35;
       this._nowyCel(s);
     }
+  }
+
+  /**
+   * Cel ucieczki: kilka kroków dalej PO STRONIE PRZECIWNEJ do liska (z lekkim
+   * rozrzutem, żeby stado nie uciekało po jednej linii), w zasięgu. Kurs
+   * w locie i tak liczy się co klatkę od aktualnej pozycji liska — cel tylko
+   * pilnuje, żeby po ucieczce motyl nie zawrócił prosto na niego.
+   */
+  _uciekaj(s) {
+    const od = Math.atan2(s.x - this._hp.x, s.z - this._hp.z) + (this.los() - 0.5) * 0.9;
+    const d = 4 + this.los() * 3;
+    let x = s.x + Math.sin(od) * d, z = s.z + Math.cos(od) * d;
+    const r = Math.hypot(x, z);
+    if (r > this.zasieg) { x *= (this.zasieg * 0.9) / r; z *= (this.zasieg * 0.9) / r; }
+    s.cel = { x, z, y: 0 };
+    s.unikajLiska = true;
   }
 
   /** Kwiatek lekko się kołysze, gdy motyl siada i odlatuje (`k.gib` to

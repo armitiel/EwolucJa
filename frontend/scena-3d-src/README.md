@@ -162,8 +162,8 @@ i wraca z drugiej strony.
 **Zachowanie** (`aktualizuj(dt, hp, stanDoby, spokojnie)` z pętli `tick`):
 
 - cel: 30 % kwiat z trzech najbliższych wolnych, 20 % punkt koło liska
-  (dzięki temu w kadrze zwykle są dwa–trzy), reszta — daleki punkt
-  gdziekolwiek w zasięgu (≥ 5 jednostek);
+  (dzięki temu w kadrze zwykle są dwa–trzy; nie bliżej niż `omijanie` + 0,6),
+  reszta — daleki punkt gdziekolwiek w zasięgu (≥ 5 jednostek);
 - lot: skręt do celu + meandrowanie sumą sinusów (losowanie co klatkę drga,
   sinusy falują), rytm „seria uderzeń (0,9–2 s) → szybowanie (0,4–1,1 s)"
   z odpowiednio wznoszeniem i opadaniem, średnio raz na `petlaCo` (22 s)
@@ -176,8 +176,14 @@ i wraca z drugiej strony.
   0,4) odpadają — bez tego motyl wpadał w pętlę siadania i zrywania się;
   przy siadaniu i odlocie kwiatek dostaje pchnięcie w `k.gib` (sprężynę
   liczy `_gibKwiaty` w app.js);
-- lisek bliżej niż `ploszenie` (1,35) zrywa siedzącego — ucieka OD niego
-  z rozpędem 1,9; lecący bliżej niż `omijanie` skręca i przyspiesza;
+- LISEK („jak lisek jest blisko, motyl odlatuje" — właściciel, 2026-09-17):
+  siedzący zrywa się, gdy lisek podejdzie bliżej niż `ploszenie` (2,4);
+  lecący bliżej niż `omijanie` (2,2) wchodzi w UCIECZKĘ — co klatkę kurs OD
+  liska, prędkość `max(predkoscUcieczki 2,2; 1,2 × tempo liska)` (biegnące
+  dziecko go nie dogoni, idące tym bardziej), pułap +0,7, trzepot ×1,5, bez
+  szybowania i pętli; trwa `ucieczkaCzas` (1,6 s) od ostatniego zbliżenia,
+  a następny cel nie może być koło liska (`unikajLiska`). Tempo liska liczy
+  się z przebytej drogi `hp`, jak w `dymki.js`;
 - noc (`Doba.stan.noc > 0,5`): każdy nowy cel to najbliższy wolny kwiat albo
   trawa obok (nie staw — `formy.niecka`), odpoczynek nie odlicza; budzi tylko
   lisek, i to na chwilę;
@@ -185,7 +191,7 @@ i wraca z drugiej strony.
 
 Motyle są częścią świata, nie zasobem: nic tu się nie zbiera i nic nie liczy,
 czy dziecko je goni (`docs/OPIS_PROJEKTU.md`). `stan().motyle` i
-`__POC.motyle()` dają `{ ile, lataja, siedza, noc }`.
+`__POC.motyle()` dają `{ ile, lataja, siedza, uciekaja, noc }`.
 
 **Test bezgłowy:** logika jest czystą matematyką na `Planeta`, więc chodzi
 w Node bez WebGL — `new Motyle(new Group(), planeta, { ziarno, kwiaty:
