@@ -6,55 +6,25 @@
  * Produkt powstał w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”;
  * autorskie prawa majątkowe pozostają przy autorze. Licencja: LICENSE.
  */
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { powiedzPostacia } from "./mowaPostaci.js";
+import { odmienDlaGracza } from "../services/rodzaj.js";
+import { etapSzkolny } from "./profilStartowy.js";
+import SEKWENCJA from "./data/koniec-dnia.v1.json";
+
 /**
  * PodsumowanieDnia — sekwencja końca dnia. Ostatnie, co dziecko widzi, zanim
  * odłoży urządzenie, i jedyne miejsce, w którym świat prosi je o coś naprawdę.
  *
- * SKĄD TA WERSJA. Pierwsza była jednym oknem z listą i zdaniem „Planeta
- * czekała dziś spokojnie. Też tak można." przy pustym dniu. Właściciel:
- * „ten tekst nic nie znaczy" — i miał rację. To zdanie NAZYWA PUSTKĘ i nie
- * robi nic więcej: nie opisuje świata, nie prosi, nie otwiera jutra. Panel
- * (`projektant-zadan`, `psycholog`, `narrator-gama`, `rodzic-1-3`) przerobił
- * ekran na sekwencję. Treść i uzasadnienia stoją w `data/koniec-dnia.v1.json`
- * i to jest plik do edycji, nie ten komponent.
- *
- * MECHANIZM, NA KTÓRYM TO STOI: **BRAK WPISANY W ŚWIAT PRZED WYJŚCIEM
- * DZIECKA**. Nie ma zdania „twoje zadanie na dziś"; jest dziura o konkretnym
- * kształcie, którą widać, i czarodziej, który mówi, że jej nie wyczaruje.
- * Kierunek się odwraca: dziecko nie idzie coś zrobić DLA SIEBIE, tylko
- * przynieść coś ŚWIATU — a wtedy powrót jest sensem wyjścia i pętla domyka
- * się już w chwili odejścia.
- *
- * CZTERY RZECZY, KTÓRE ŁATWO ZEPSUĆ PRZY EDYCJI:
- *
- * 1. ŻADNE ZDANIE NIE OPISUJE DZIECKA. Bez „ty", bez „zrobiłeś", bez „nie
- *    zrobiłeś". Opisujemy rzeczy. Jeśli w zdaniu da się podstawić „byłeś" —
- *    zdanie jest do wyrzucenia. To jest korzeń błędu, od którego się zaczęło.
- * 2. ZERO LICZB. Żadnych „trzy z pięciu", pasków, serii. Jedna liczba na tym
- *    ekranie zamienia dzień w wynik i kasuje cały zwrot akcji.
- * 3. PRZYCISK KOŃCZY DZIEŃ, NIE ZOBOWIĄZUJE. „Idę poszukać" wypadło:
- *    dla dziecka, które potem nie pójdzie, to złamana obietnica złożona
- *    samemu sobie — gorsza niż niezrobione zadanie.
- * 4. SZUKANIE JEST NA JUTRO. Sekwencja gra o dwudziestej, dziesięć minut
- *    przed kąpielą. „Poszukamy" bez „kiedy" znaczy dla siedmiolatka „teraz",
- *    czyli rozbebeszona szafa i telefon z powrotem w rękach. Lisek mówi
- *    wprost: jutro, jak będzie jasno.
- *
- * NA RAZIE TO MOCKUP TREŚCI. Zadanie jest brane z `zadania-mockup-braki`,
- * a nie ze stanu gracza — właściciel prosił o treść do obejrzenia, spinanie
- * z Kołem Przeznaczenia i panelem Mentora idzie osobno.
- */
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { powiedzPostacia } from "./mowaPostaci.js";
-import { odmienDlaGracza } from "../services/rodzaj.js";
-import SEKWENCJA from "./data/koniec-dnia.v1.json";
-import MOCK_ZADANIA from "./data/zadania-mockup-braki.v1.json";
-
-/**
- * MIEJSCE NA GRAFIKĘ KOŃCA DNIA. Docelowo: planeta nocą, lisek pod gwiazdami.
- * Dziś stoi tu Wizkor, którego już mamy — okno działa i wygląda skończenie,
- * zanim powstanie właściwa ilustracja. Po jej wygenerowaniu wystarczy podmienić
- * tę jedną ścieżkę; komponent nic o niej nie wie.
+ * OD 17.09 CZYTA REALNY STAN GRACZA (`docs/tresci/02` §3.3), nie makietę:
+ *   `stan`  — nic | zadanie | slad | zauwazone (z `stanZadaniaWizkora()`),
+ *   `domek` — brak | plac | domek (z `stanDrewna()`),
+ *   `wpisy` — dziennik dnia (ostatnia zmiana w świecie),
+ *   `tytul` / `miejsce` — z karty zadania w realu.
+ * Treść i warianty stoją w `data/koniec-dnia.v1.json` (wersja 2) — to jest
+ * plik do edycji, nie ten komponent. Cztery rzeczy, które łatwo zepsuć:
+ * żadne zdanie nie opisuje dziecka (poza tokenem tam, gdzie musi), zero liczb,
+ * przycisk kończy dzień i nie zobowiązuje, „poza ekranem" = „u ciebie".
  */
 const OBRAZ_WIZKORA = "/wizPop.webp";
 const OBRAZ_LISKA = "/lisPop.webp";
@@ -76,59 +46,71 @@ function Gwiazdka({ className }) {
   );
 }
 
-/**
- * Buduje kroki pod DZISIEJSZY dzień. Jedyne, co się zmienia, to „stan rzeczy":
- * w pustym dniu świat mówi o sobie zamiast wymieniać nieistniejące zdobycze.
- *
- * `wpisy` to rzeczy, które naprawdę stanęły dziś na planecie (zbierane
- * w `Swiat.jsx`). Nie są listą osiągnięć — wchodzą do zdania o obiektach.
- */
-function zlozKroki(wpisy) {
-  const pusty = !wpisy.length;
-  const D = SEKWENCJA.dzienPusty;
-  return SEKWENCJA.kroki.map((k) => {
-    if (k.id !== "stan-rzeczy") return k;
-    /* BRAK JEST PRZEDOSTATNI, ostatnia linijka jest ciepła i po prostu jest.
-       Psycholog: dzień domykany brakiem po tygodniu przestaje być sygnałem
-       i uczy, że dzień zawsze kończy się niedoborem. */
-    const linie = pusty
-      ? [D.linie[Math.floor(Math.random() * D.linie.length)], SEKWENCJA.kroki[1].linie[1], D.domkniecie]
-      : [wpisy[wpisy.length - 1].tekst, ...SEKWENCJA.kroki[1].linie.slice(1)];
-    return { ...k, linie, glos: linie.join(" ") };
-  }).map(odmienKrok);
+/** Wstawia tytuł zadania i miejsce reakcji; `{Miejsce}` = wielką literą na początku zdania. */
+function podstaw(t, stan) {
+  if (!t) return t;
+  const m = stan.miejsce || "na polanie";
+  return String(t)
+    .split("{tytul}").join(stan.tytul || "")
+    .split("{Miejsce}").join(m.charAt(0).toUpperCase() + m.slice(1))
+    .split("{miejsce}").join(m);
+}
+
+/** Wariant po stanie + nadpisanie etapem 1–3 / 4–8, jeśli plik je ma. */
+function wariant(mapa, stan, etap) {
+  const w = mapa?.[stan.stan] || mapa?.nic;
+  if (!w || typeof w !== "object") return w;
+  const e = w[etap];
+  return e ? { ...w, ...e } : w;
 }
 
 /**
- * Tokeny `{m|ż}` odmieniamy RAZ, przy składaniu kroków — każda linia, tekst
- * i wersja mówiona. Render i lektor dostają już gotową formę, więc
- * narratorka nie przeczyta klamry, a `key` listy nie zmieni się między
- * ekranem a głosem.
+ * Składa pięć kroków z realnego stanu. Każdy krok dostaje `tekst` (karta)
+ * i `glos` (lektor), już po odmianie rodzaju i podstawieniach.
  */
-function odmienKrok(k) {
-  return {
-    ...k,
-    tekst: odmienDlaGracza(k.tekst),
-    glos: odmienDlaGracza(k.glos),
-    linie: Array.isArray(k.linie) ? k.linie.map((l) => odmienDlaGracza(l)) : k.linie,
-  };
+export function zlozKroki(stan, wpisy = [], etap = etapSzkolny()) {
+  const S = { stan: "nic", domek: "brak", tytul: "", miejsce: "", ...stan };
+  const D = S.domek in SEKWENCJA.dzienPusty.wgDomku ? S.domek : "brak";
+  return SEKWENCJA.kroki.map((k) => {
+    let krok;
+    if (k.id === "nie-zasnelo") {
+      krok = { ...k, ...k.wgDomku[D] };
+    } else if (k.id === "stan-rzeczy") {
+      /* BRAK JEST PRZEDOSTATNI, ostatnia linijka jest ciepła i po prostu jest.
+         Psycholog: dzień domykany brakiem po tygodniu przestaje być sygnałem
+         i uczy, że dzień zawsze kończy się niedoborem. */
+      const l1 = wpisy.length ? wpisy[wpisy.length - 1].tekst : SEKWENCJA.dzienPusty.wgDomku[D];
+      const l2raw = k.linia2[S.stan] ?? k.linia2.nic;
+      const l2 = typeof l2raw === "object" ? l2raw[D] : l2raw;
+      const l3raw = k.linia3[S.stan] ?? k.linia3.nic;
+      const l3 = typeof l3raw === "object" ? l3raw[D] : l3raw;
+      const linie = [l1, l2, l3];
+      krok = { ...k, linie, glos: linie.join(" ") };
+    } else {
+      krok = { ...k, ...wariant(k.wgStanu, S, etap) };
+    }
+    return {
+      ...krok,
+      tekst: odmienDlaGracza(podstaw(krok.tekst, S)),
+      glos: odmienDlaGracza(podstaw(krok.glos || krok.tekst, S)),
+      linie: Array.isArray(krok.linie) ? krok.linie.map((l) => odmienDlaGracza(podstaw(l, S))) : undefined,
+    };
+  });
 }
 
 export default function PodsumowanieDnia({
   otwarty = false,
   wpisy = [],
-  /** Zadanie ze stanu gracza; gdy go nie ma, bierzemy mockup do obejrzenia. */
-  zadanie = null,
+  /** Realny stan: { stan, domek, tytul, miejsce } — patrz nagłówek pliku. */
+  stan = null,
   onZamknij,
 }) {
   const [krok, setKrok] = useState(0);
   const [odlozone, setOdlozone] = useState(false);
   const przyciskRef = useRef(null);
 
-  const kroki = useMemo(() => zlozKroki(wpisy), [wpisy, otwarty]);
-  const brak = useMemo(
-    () => zadanie || MOCK_ZADANIA.zadania[0],
-    [zadanie],
-  );
+  const S = useMemo(() => ({ stan: "nic", domek: "brak", tytul: "", miejsce: "", ...(stan || {}) }), [stan]);
+  const kroki = useMemo(() => zlozKroki(S, wpisy), [S, wpisy, otwarty]);
 
   useEffect(() => { if (otwarty) { setKrok(0); setOdlozone(false); } }, [otwarty]);
 
@@ -167,10 +149,22 @@ export default function PodsumowanieDnia({
     return () => window.clearTimeout(t);
   }, [otwarty, krok]);
 
+  /* Ramka braku: tytuł zadania, gdy jest; inaczej ogólne „Czegoś tu brakuje.".
+     Pokazuje się TYLKO przy stanie nic/zadanie — po śladzie brak jest
+     wypełniony i ramka byłaby kłamstwem. */
+  const brak = useMemo(() => {
+    const R = SEKWENCJA.brakRamka;
+    return {
+      naglowek: S.tytul ? podstaw(R.naglowek, S) : R.bezZadania,
+      podpis: R.podpis,
+    };
+  }, [S]);
+  const pokazBrakWOgole = S.stan === "nic" || S.stan === "zadanie";
+
   if (!otwarty || !K) return null;
 
   const portret = PORTRETY[K.kto];
-  const pokazBrak = K.id === "nie-do-wyczarowania" || K.id === "pusty-ksztalt";
+  const pokazBrak = pokazBrakWOgole && (K.id === "nie-do-wyczarowania" || K.id === "pusty-ksztalt");
 
   return (
     <div className="podsumowanie-dnia" data-testid="podsumowanie-dnia" data-krok={K.id}>
@@ -203,7 +197,7 @@ export default function PodsumowanieDnia({
 
         <p className="podsumowanie-dnia-wstega" id="podsumowanie-dnia-tytul">
           <Gwiazdka className="podsumowanie-dnia-gwiazdka" />
-          <span>{K.kto === "wizkor" ? "Wizkor" : K.kto === "lisek" ? "Lisek" : "Dzień się skończył"}</span>
+          <span>{K.kto === "wizkor" ? "Wizkor" : K.kto === "lisek" ? "Lisek" : SEKWENCJA.wstega}</span>
           <Gwiazdka className="podsumowanie-dnia-gwiazdka" />
         </p>
 
@@ -223,8 +217,8 @@ export default function PodsumowanieDnia({
         {pokazBrak ? (
           <section className="podsumowanie-dnia-brak">
             <span className="podsumowanie-dnia-obrys" aria-hidden="true" />
-            <h3>{odmienDlaGracza(brak.brak) || "Czegoś tu brakuje."}</h3>
-            <p>{odmienDlaGracza((brak.cel || "").split("\n")[0])}</p>
+            <h3>{odmienDlaGracza(brak.naglowek)}</h3>
+            <p>{brak.podpis}</p>
           </section>
         ) : null}
 
@@ -246,7 +240,7 @@ export default function PodsumowanieDnia({
             a milczenie zostawia rzecz otwartą bez żadnej kontroli po jego
             stronie — to gorsze niż niepowodzenie. To jest przycisk „decyduję",
             nie „poddaję się". */}
-        {K.id === "pusty-ksztalt" && !odlozone ? (
+        {K.id === "pusty-ksztalt" && pokazBrakWOgole && !odlozone ? (
           <button
             type="button"
             className="hub-btn hub-btn-ghost podsumowanie-dnia-odloz"

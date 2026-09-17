@@ -34,12 +34,14 @@ const LEGACY_TO_PROFILE = {
 };
 // Opisy + taglines dla 6 profili (zastepuje stara mape ARCHETYPES)
 const PROFILE_LORE = {
-  DT: { tagline: "Nic nie umknie Twojej uwadze.", description: "Cicho stąpasz przez świat i widzisz to, czego inni nie zauważają. Rozwijasz dociekliwość, uważność i sztukę zadawania pytań.", artifact: "Kompas Cieni" },
-  EM: { tagline: "Twoje serce widzi to, czego oczy nie widzą.", description: "Czujesz emocje innych jak ciepło słońca. Rozwijasz empatię, wrażliwość i łagodność.", artifact: "Muszla Echa" },
-  ST: { tagline: "Trzy kroki do przodu, zawsze.", description: "Rozpisujesz świat w mapy i strategie. Rozwijasz logikę, planowanie i samokontrolę.", artifact: "Kompas Strategiczny" },
-  KR: { tagline: "Robisz z kartonu kosmiczny statek.", description: "Z prostych elementów tworzysz nieprawdopodobne historie. Rozwijasz myślenie nieszablonowe i ekspresję.", artifact: "Atrament Kronikarski" },
-  LD: { tagline: "Idziesz pierwszy, nie z pychy — z troski.", description: "Pociągasz innych za sobą, bo widzą w Tobie odwagę i ciepło. Rozwijasz inicjatywę i troskę o innych.", artifact: "Tarcza Słońca" },
-  MD: { tagline: "Słyszysz to, czego inni nie zauważają.", description: "Umiesz się skupić, nawet gdy wokół jest głośno. Rozwijasz uważność, spokój i robienie jednej rzeczy do końca.", artifact: "Wstęga Łączeń" },
+  /* Tagline mówi o tym, co dziecko LUBI robić (nie „jesteś taki"), opis — co
+     dostanie od Wizkora na start (`docs/tresci/02` §2.1). Bez języka raportu. */
+  DT: { tagline: "Lubisz sprawdzać, co jest dalej.", description: "Wizkor zacznie od zagadki ze świata.", artifact: "Kompas Cieni" },
+  EM: { tagline: "Zauważasz, gdy komuś czegoś brakuje.", description: "Wizkor zacznie od kogoś, komu czegoś brakuje.", artifact: "Muszla Echa" },
+  ST: { tagline: "Lubisz najpierw pomyśleć, potem zrobić.", description: "Wizkor zacznie od rzeczy, którą trzeba wymyślić.", artifact: "Kompas Strategiczny" },
+  KR: { tagline: "Z kartonu potrafisz zrobić statek.", description: "Wizkor zacznie od miejsca, gdzie czegoś nie ma.", artifact: "Atrament Kronikarski" },
+  LD: { tagline: "Lubisz spróbować, zanim ktoś powie „nie da się”.", description: "Wizkor zacznie od tego, co podobno się nie da.", artifact: "Tarcza Słońca" },
+  MD: { tagline: "Umiesz robić jedną rzecz naraz, do końca.", description: "Wizkor zacznie od czegoś cichego, z wyraźnym końcem.", artifact: "Wstęga Łączeń" },
 };
 function profileCodeFrom(v) {
   if (!v) return null;
@@ -52,13 +54,15 @@ function profileCodeFrom(v) {
 // Quiz v3-final ma 8 pytan, wiec potrzeba 8 wejsc (idx 0 nieuzywany — intro).
 const TRANSITIONS = [
   "",                                                          // przed pyt. 1 (nieuzywane — tam jest intro)
-  "Dobrze… słyszę cię. A teraz powiedz mi…",                   // przed pyt. 2
-  "Hmm, to ciekawe. Pomyśl chwilę nad tym…",                   // przed pyt. 3
-  "Czuję, że zaczynam cię już rozumieć. Jeszcze jedno…",       // przed pyt. 4
-  "Świetnie. Twoje odpowiedzi wiele mi mówią. Idziemy dalej…", // przed pyt. 5
-  "Półmetek za nami. Spokojnie, oddychaj…",                    // przed pyt. 6
-  "Widzę, co Cię porusza. Jeszcze chwilkę…",                   // przed pyt. 7
-  "Ostatnie pytanie. Skup się jeszcze na chwilę…",             // przed pyt. 8
+  /* Wizkor NIE komentuje dziecka („zaczynam cię rozumieć") ani nie poucza
+     („skup się") — tylko prowadzi dalej (`docs/tresci/02` §2.1). */
+  "Dalej.",                                                    // przed pyt. 2
+  "A tu?",                                                     // przed pyt. 3
+  "Jeszcze jedno.",                                            // przed pyt. 4
+  "Połowa za nami.",                                           // przed pyt. 5
+  "Teraz coś innego.",                                         // przed pyt. 6
+  "Prawie koniec.",                                            // przed pyt. 7
+  "Ostatnie.",                                                 // przed pyt. 8
 ];
 
 /**
@@ -347,8 +351,8 @@ export default function Onboarding() {
             <form onSubmit={handleStart} className="ob-karta">
               <img className="ob-wizkor" src="/wizPop.webp" alt="" aria-hidden="true" draggable="false" />
 
-              <h1 className="ob-tytul">Witaj, wędrowcze</h1>
-              <p className="ob-podtytul">Zanim ruszymy w drogę — powiedz, jak masz na imię?</p>
+              <h1 className="ob-tytul">Jestem Wizkor</h1>
+              <p className="ob-podtytul">Jak mam do ciebie mówić?</p>
               <div className="ob-przerywnik" aria-hidden="true" />
 
               <div className="ob-pole">
@@ -369,8 +373,8 @@ export default function Onboarding() {
               </div>
 
               <NarratorVoice
-                text="Witaj, wędrowcze… Zanim ruszymy w tę przygodę — powiedz mi, jak masz na imię?"
-                land="dolina_selfie"
+                text="Jestem Wizkor. Zanim wejdziemy, powiedz mi, jak masz na imię."
+                land="las_decyzji"
                 tone="warm"
                 speed={0.95}
                 pauseBefore={500}
@@ -401,7 +405,16 @@ export default function Onboarding() {
             <div style={{ display: "flex", justifyContent: "center", margin: "4px 0 8px" }}>
               {questionIdx === 0 ? (
                 <NarratorVoice
-                  text={`Witaj. Cieszę się, że tu jesteś. Świat Ewolucji właśnie otwiera przed tobą swoje bramy. Zanim ruszymy w drogę, chcę cię lepiej poznać. Przygotowałam dla ciebie kilka prostych pytań. Odpowiadaj szczerze, a na końcu zobaczysz, jaka siła jest ci najbliższa. A teraz… ${quiz.questions[0].question}`}
+                  /* Wizkor (`las_decyzji`), ≤ 140 zn. przed pytaniem, bez „odpowiadaj
+                     szczerze" i bez orzekania o dziecku; imię z pola wyżej
+                     (`docs/tresci/02` §2.1). Klasy 1–3 dostają krótszą wersję. */
+                  text={
+                    (name.trim() ? `Dobrze, ${name.trim()}. ` : "Dobrze. ")
+                    + (etapSzkolny() === "1-3"
+                      ? "Pokażę ci kilka sytuacji. Wybierz, co zrobi bohater. A teraz… "
+                      : "Zanim wejdziesz, pokażę ci kilka sytuacji. Wybierz, co zrobi bohater — a ja będę wiedział, od czego zacząć. A teraz… ")
+                    + quiz.questions[0].question
+                  }
                   land="las_decyzji"
                   tone="warm"
                   speed={0.92}
@@ -580,7 +593,7 @@ function ArchetypeReveal({ result, onEnter }) {
 
         <img className="ob-reveal-laurel jest-lewy" src="/assets/onboarding/ornament-zlote-liscie-v1.png" alt="" aria-hidden="true" />
         <img className="ob-reveal-laurel jest-prawy" src="/assets/onboarding/ornament-zlote-liscie-v1.png" alt="" aria-hidden="true" />
-        <div className="ob-reveal-chip">Twój archetyp</div>
+        <div className="ob-reveal-chip">Twoja siła na start</div>
         <h2
           id="ob-reveal-name"
           className={`ob-reveal-name${dlugaNazwa ? " jest-dluga" : ""}`}
@@ -720,7 +733,7 @@ function CelebrationThenArchetype({ result, onEnter }) {
           zIndex: 1,
         }}
       >
-        Twoje szczere odpowiedzi zasłużyły na pierwszą nagrodę.
+        Świat Ewolucji jest otwarty. Na polanie czeka lisek.
       </p>
 
       {/* Wielka pigulka z monetami — animowany licznik */}
@@ -761,9 +774,12 @@ function CelebrationThenArchetype({ result, onEnter }) {
 
       <div style={{ position: "relative", zIndex: 1 }}>
         <NarratorVoice
-          text={`Brawo! Pierwsze ${REWARD} złotych monet jest już w twoim skarbcu. To dopiero początek.`}
+          /* Narratorka, spokojnie: bez „brawo", bez cyfr, bez skarbca
+             (`docs/tresci/02` §2.1). Monety z onboardingu zostają cichym
+             licznikiem w HUD. */
+          text="Świat Ewolucji jest otwarty. Na polanie czeka lisek."
           land="gora_podsumowania"
-          tone="celebration"
+          tone="calm"
           pauseBefore={300}
           inlinePauses
           autoPlay

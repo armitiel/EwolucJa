@@ -33,12 +33,60 @@
  * czego trzeba — pomiar celu, chmurka i animacje są wspólne (`Reflektor.jsx`).
  */
 
+import { etapSzkolny } from "./profilStartowy.js";
+
 const KLUCZ = "ewolucja.wskazowki";
 
 /** Zdarzenie dla huba: „pamięć wskazówek się zmieniła" (np. reset z pulpitu). */
 export const ZDARZENIE_ZMIANY = "ewolucja:wskazowkiZmiana";
 
 export const WSKAZOWKI = [
+  {
+    /**
+     * SZUKANIE KAWAŁKÓW OBRAZKA — jedyna wskazówka, która mówi OBRAZKAMI.
+     *
+     * Stoi pierwsza, bo `nastepnaWskazowka` bierze pierwszą pasującą, a ta
+     * jest chwilowa: żyje tylko do pierwszego znalezionego kawałka. Porada
+     * dnia i minigry poczekają — one nie mają terminu.
+     *
+     * DLACZEGO OBRAZKI, A NIE ZDANIE. Sześciolatek w biegu nie przeczyta
+     * „kawałki obrazka leżą w świecie", a tu i tak wszystko mieści się
+     * w dwóch rysunkach: lupa (szukaj) i puzelek (czego). Zdanie zostaje pod
+     * nimi — dla tych, którzy czytają, i dla lektora.
+     */
+    id: "puzzle-szukaj",
+    tryb: "dymek",
+    /* Dzióbek celuje w SAM AWATAR, nie w cały chip z imieniem: chmurka ma
+       wychodzić od liska, a nie od pigułki z napisem. */
+    cel: '[data-testid="hub-chip-profil"] img',
+    promien: "50%",
+    postac: "/lisPop.webp",
+    tytul: "Szukamy kawałków",
+    /** Lupa i puzelek na przemian — para z `scripts/gen-ikony-wskazowki.mjs`. */
+    obrazki: ["/assets/wskazowki/ikona-lupa.png", "/assets/puzzle/ikona-puzzel.png"],
+    /* Zdanie MÓWIONE jest pełne, a na ekranie stoją dwie krótkie linijki —
+       obrazki zabierają lewą część chmurki, więc długie wersy zaczęłyby ją
+       rozpychać w dół. */
+    tekst: "Kawałki obrazka czekają w świecie. Rozejrzyj się!",
+    linie: ["Kawałki obrazka", "czekają w świecie!"],
+    glos: "lisek",
+    /**
+     * Zbieranie kawałków JEST misją, a hub domyślnie milczy w trakcie misji —
+     * bez tej zgody chmurka o szukaniu puzzli nigdy by się nie pokazała.
+     */
+    wMisji: true,
+    /**
+     * Tylko PRZED pierwszym kawałkiem. Dziecko, które już jeden znalazło, wie
+     * czego szuka — dlatego ta wskazówka nie potrzebuje `panelCelu` ani wpisu
+     * w pamięci: gaśnie sama, gdy licznik ruszy.
+     */
+    warunek: ({ puzzle }) => !!puzzle && !puzzle.komplet && !puzzle.zebrane,
+    /** Wcześniej niż pozostałe: zadanie już trwa, a dziecko nie wie, gdzie iść. */
+    poCzasie: 40000,
+    powtorkaCo: 150000,
+    maksNaSesje: 3,
+    czasNaEkranie: 9000,
+  },
   {
     id: "porada-dnia",
     tryb: "dymek",
@@ -68,14 +116,16 @@ export const WSKAZOWKI = [
     tytul: "Porada dnia",
     // Bez przycisku w chmurce — dziecko ma dotknąć TEJ ikony, nie zielonego
     // guzika. Zdanie kończy się wskazaniem, obręcz pokazuje gdzie.
-    tekst: "Zostawiam ci tu jedną krótką radę na dziś. Dotknij ikonki i zajrzyj.",
+    /* Wizkor WSKAZUJE ikonę liska, ale nie przypisuje sobie rady (`01` R8):
+       porada jest liska, Wizkor tylko pokazuje, gdzie. Raz na sesję. */
+    tekst: "Lisek ma coś na dziś. Dotknij i zobacz.",
 
-    /** Pierwsza chmurka dopiero po ~75 s w świecie, nie na wejściu. */
-    poCzasie: 75000,
+    /** Pierwsza chmurka dopiero po ~90 s w świecie, nie na wejściu (`01` R8). */
+    poCzasie: 90000,
     /** Potem co ~3,5 minuty, jeśli dziecko dalej tam nie zajrzało. */
     powtorkaCo: 210000,
-    /** Najwyżej tyle razy na jedno wejście do świata. */
-    maksNaSesje: 3,
+    /** Raz na sesję (`01` R8) — potem zaprasza już sam lisek. */
+    maksNaSesje: 1,
     /** Sama schodzi po tylu ms — to zaproszenie, nie okno do zamknięcia. */
     czasNaEkranie: 9000,
   },
@@ -90,6 +140,8 @@ export const WSKAZOWKI = [
     tytul: "Pobawimy się?",
     tekst: "Tutaj czekają minigry. Wybierzemy jedną razem!",
     linie: ["Tutaj czekają minigry.", "Wybierzemy jedną razem!"],
+    /* 4–8 bez wykrzyknika (`01` R1). Dobór po `etapSzkolny()` robi hub. */
+    warianty: { "4-8": { tekst: "Tutaj czekają minigry. Wybierzemy jedną razem.", linie: ["Tutaj czekają minigry.", "Wybierzemy jedną razem."] } },
     /** Głos jest dodatkiem. Reflektor zawsze pokazuje to samo zdanie tekstem. */
     glos: "lisek",
     poCzasie: 90000,
@@ -99,8 +151,16 @@ export const WSKAZOWKI = [
   },
 ];
 
+/** Wariant 1–3 / 4–8 nadpisuje pola bazowe (`01` R1); bez wariantu — baza. */
+function zWariantem(w) {
+  if (!w || !w.warianty) return w;
+  const { warianty, ...reszta } = w;
+  const v = warianty[etapSzkolny()];
+  return v ? { ...reszta, ...v } : reszta;
+}
+
 export function wskazowkaPoId(id) {
-  return WSKAZOWKI.find((w) => w.id === id) || null;
+  return zWariantem(WSKAZOWKI.find((w) => w.id === id) || null);
 }
 
 function czytaj() {
@@ -129,7 +189,7 @@ export function czyPoznana(id) {
  */
 export function nastepnaWskazowka(kontekst = {}) {
   const zapis = czytaj();
-  return (
+  return zWariantem(
     WSKAZOWKI.find(
       (w) => !zapis[w.id] && (typeof w.warunek !== "function" || w.warunek(kontekst))
     ) || null

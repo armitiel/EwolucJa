@@ -20,6 +20,7 @@ import { Router } from "express";
 import { randomUUID } from "node:crypto";
 import { requireMentor } from "../services/authService.js";
 import { initDatabase } from "../database/db.js";
+import { ensureLibraryIdColumn } from "./cycles.js";
 import { getPairDefinition } from "../services/pairsService.js";
 import {
   createClass,
@@ -100,18 +101,26 @@ export function mentorRoutes() {
   });
 
   // Mentor weryfikuje misje ucznia (approve/reject z komentarzem + customowa liczba punktow)
+  /* MENTOR ZAUWAŻA — nie zatwierdza, nie odrzuca, nie daje punktów
+     (docs/tresci/06_DECYZJE_I_ZALEZNOSCI.md §4.7; decyzja autora 17.09).
+     `decision: "noticed"` → status `noticed`, bez monet (świat zareagował już
+     przy śladzie, `cycles.js` /submit). `formula` to jedna z gotowych formuł
+     bez oceny — trafia do dziecka jako `comment`; z „Widziałem./Widziałam."
+     odczytujemy rodzaj Mentora (`mentor_gender`), bo gm_accounts nie ma pola.
+     `approve`/`reject` zostają dla zgodności wstecznej (stare klienty), ale
+     approve NIE dodaje już monet ani punktów do archetypu, a panel Mentora ich
+     nie pokazuje. */
+  const FORMULY = new Set(["Widziałem.", "Widziałam.", "Porozmawiamy o tym.", "Ciekawe, jak to {zrobiłeś|zrobiłaś}."]);
   r.post("/missions/:missionId/verify", async (req, res) => {
     try {
-      const { decision, comment, points } = req.body || {}; // decision: 'approve' | 'reject', points: 10-50
-      if (!["approve", "reject"].includes(decision)) {
-        return res.status(400).json({ error: "decision musi byc 'approve' lub 'reject'" });
+      const { decision, comment, formula } = req.body || {};
+      if (!["noticed", "approve", "reject"].includes(decision)) {
+        return res.status(400).json({ error: "decision musi byc 'noticed' (albo legacy 'approve'/'reject')" });
       }
-      // Game design v2: clamp 15-40, default 25. Real-life zadanie = wysokowartosciowe.
-      const awardCoins = Math.max(15, Math.min(40, Number(points) || 25));
       const pool = await initDatabase();
       // Verify ownership - mentor musi byc wlasicielem klasy do ktorej naleza grasz tej misji
       const { rows: ownCheck } = await pool.query(
-        `SELECT m.id, m.player_id FROM missions m
+        `SELECT m.id, m.player_id, m.title FROM missions m
            JOIN class_memberships cm ON cm.player_id = m.player_id
            JOIN mentor_classes mc ON mc.id = cm.class_id
            WHERE m.id = $1 AND mc.gm_account_id = $2 LIMIT 1`,
@@ -119,11 +128,17 @@ export function mentorRoutes() {
       );
       if (!ownCheck.length) return res.status(404).json({ error: "Misja nie znaleziona w Twoich klasach" });
 
-      const newStatus = decision === "approve" ? "verified" : "rejected";
+      const newStatus = decision === "reject" ? "rejected" : decision === "approve" ? "verified" : "noticed";
+      const formulaOk = typeof formula === "string" && FORMULY.has(formula) ? formula : null;
+      const mentorGender = formulaOk === "Widziałem." ? "m" : formulaOk === "Widziałam." ? "z" : null;
       const verification = {
         decision,
-        comment: comment || null,
-        points_awarded: decision === "approve" ? awardCoins : 0,
+        // Wolna notatka Mentora dla dziecka zostaje tylko dla legacy `comment`;
+        // w nowym torze do dziecka idzie wyłącznie gotowa formuła.
+        comment: formulaOk || (decision === "noticed" ? null : (comment || null)),
+        formula: formulaOk,
+        mentor_gender: mentorGender,
+        points_awarded: 0,
         verified_at: new Date().toISOString(),
         gm_account_id: req.mentor.gmAccountId,
       };
@@ -132,38 +147,19 @@ export function mentorRoutes() {
         [newStatus, JSON.stringify(verification), req.params.missionId]
       );
 
-      // Jezeli approve - dodaj awardCoins + +5 do glownego profilu gracza + powiadomienie reward
-      if (decision === "approve") {
+      /* Wieść do dziecka: „Mentor zobaczył" — bez monet w treści (HintPopup
+         pokazuje kartę z 02 §2.5). Kind 'reward' zostaje jako klucz techniczny
+         (CHECK w db.js), treść bez „+N ✦". */
+      if (decision !== "reject") {
         const playerId = ownCheck[0].player_id;
-        const { rows: pRows } = await pool.query(`SELECT archetype, coins, lifetime_scores FROM players WHERE id = $1`, [playerId]);
-        if (pRows.length) {
-          const p = pRows[0];
-          const lifetime = p.lifetime_scores || {};
-          const mainProfile = p.archetype && lifetime[p.archetype] !== undefined ? p.archetype : "DT";
-          lifetime[mainProfile] = (lifetime[mainProfile] || 0) + 5;
-          const newCoins = (p.coins || 0) + awardCoins;
-          await pool.query(
-            `UPDATE players SET coins = $1, lifetime_scores = $2, updated_at = NOW() WHERE id = $3`,
-            [newCoins, JSON.stringify(lifetime), playerId]
-          );
-        }
-        // Reward hint - HintPopup u ucznia pokaze custom celebration screen (coin animation + Dziekuje).
-        // Body zawiera liczbe coinow - frontend parsuje. Tytul = krotki naglowek.
-        const rewardId = randomUUID();
-        const missionTitleRow = await pool.query("SELECT title FROM missions WHERE id = $1", [req.params.missionId]);
-        const missionTitle = missionTitleRow.rows[0]?.title || "Twoje zadanie";
+        const missionTitle = ownCheck[0].title || "Twoje zadanie";
         await pool.query(
           `INSERT INTO mentor_hints (id, gm_account_id, player_id, kind, title, body)
              VALUES ($1, $2, $3, 'reward', $4, $5)`,
-          [
-            rewardId, req.mentor.gmAccountId, playerId,
-            `+${awardCoins} ✦ za „${missionTitle}"`,
-            // Body: pierwszy "wiersz" = liczba coinow (frontend parsuje regex \+(\d+)), reszta to krotki komentarz
-            `+${awardCoins} ✦ ${comment ? "· " + comment : "· Mentor docenia Twoj wysilek!"}`,
-          ]
+          [randomUUID(), req.mentor.gmAccountId, playerId, `Mentor zobaczył: „${missionTitle}"`, formulaOk || "Mentor już to widzi."]
         );
       }
-      res.json({ ok: true, status: newStatus, points_awarded: decision === "approve" ? awardCoins : 0 });
+      res.json({ ok: true, status: newStatus, points_awarded: 0, mentor_gender: mentorGender });
     } catch (e) {
       res.status(500).json({ error: e.message });
     }
@@ -335,8 +331,11 @@ export function mentorRoutes() {
         player.login_code = code;
       }
 
+      // `rozmowa` (pytanie do rozmowy z karty zadania) — kolumna opcjonalna,
+      // dopisywana leniwie w `cycles.js`; bez niej zapytanie idzie bez pola.
+      const maRozmowe = await ensureLibraryIdColumn();
       const { rows: missions } = await pool.query(
-        `SELECT id, title, body, status, generated_at, submitted_proof, gm_verification
+        `SELECT id, title, body, status, generated_at, submitted_proof, gm_verification${maRozmowe ? ", rozmowa" : ""}
            FROM missions WHERE player_id = $1 ORDER BY generated_at DESC LIMIT 10`,
         [req.params.playerId]
       );

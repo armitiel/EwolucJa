@@ -213,12 +213,16 @@ export default function RewardScreen({
         {title ? <h2 className="nagroda-tytul">{odmienDlaGracza(title)}</h2> : null}
         {subtitle ? <p className="nagroda-podtytul">{odmienDlaGracza(subtitle)}</p> : null}
 
-        <p className="nagroda-pigulka">
-          <Coin size={40} anim />
-          <b>+{coinCount}</b>
-          <span className="nagroda-iskra nagroda-iskra--gora" aria-hidden="true"><Sparkle size={24} /></span>
-          <span className="nagroda-iskra nagroda-iskra--dol" aria-hidden="true"><Sparkle size={18} delay={0.4} /></span>
-        </p>
+        {/* Pigułka „+N" tylko, gdy jest co liczyć: ekran gwiazdek i tor
+            Mentora dają `coins={0}` (monety w tle, decyzja 17.09). */}
+        {coins > 0 ? (
+          <p className="nagroda-pigulka">
+            <Coin size={40} anim />
+            <b>+{coinCount}</b>
+            <span className="nagroda-iskra nagroda-iskra--gora" aria-hidden="true"><Sparkle size={24} /></span>
+            <span className="nagroda-iskra nagroda-iskra--dol" aria-hidden="true"><Sparkle size={18} delay={0.4} /></span>
+          </p>
+        ) : null}
 
         {/* Rozbicie pokazujemy TYLKO wtedy, gdy nagroda ma więcej niż jedno
             źródło. Przy samej partii linijka „za grę +11" pod liczbą +11

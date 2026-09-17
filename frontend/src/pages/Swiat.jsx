@@ -96,6 +96,8 @@ import PasekKolejnejMisji from "../hub/PasekKolejnejMisji.jsx";
 import ChmurkaZadania from "../hub/ChmurkaZadania.jsx";
 import { powiedzPostacia } from "../hub/mowaPostaci.js";
 import { odmienDlaGracza } from "../services/rodzaj.js";
+import { etapSzkolny } from "../hub/profilStartowy.js";
+import KONIEC_DNIA from "../hub/data/koniec-dnia.v1.json";
 import {
   pokazZnakNaMapie,
   pozycjaNaEkranie,
@@ -156,6 +158,67 @@ const CZAS_KOMUNIKATU = 5000;
 // Ikona monety w komunikacie zadania. Ten sam plik co kafelek monet w HUD —
 // dziecko widzi w zleceniu dokładnie to, co potem rośnie mu na liczniku.
 const IKONA_MONETY = "/assets/hub-nav/moneta.png";
+
+/* ── SESJA: PLANETA ŚPI I NOWY DZIEŃ ─────────────────────────────────────
+   Po podsumowaniu dnia planeta śpi: Wizkor nie zleca, lisek nie zaprasza,
+   chmurki milczą. Nowy dzień zaczyna się po PRZERWIE (≥ 45 min od końca
+   sesji), a nie po odświeżeniu strony — inaczej limit sesji obchodzi się
+   jednym F5. Znacznik trzyma stan z końca dnia, żeby narratorka mogła przy
+   powrocie powiedzieć, co się zmieniło (`docs/tresci/02` §3.4).
+   UWAGA: sam zegar doby żyje w scenie (`doba.js`) i przy odświeżeniu startuje
+   od świtu — React tylko nie wpuszcza zleceń; scena powinna czytać ten
+   znacznik i zaczynać nocą (do zrobienia po stronie sceny). */
+const KLUCZ_KONIEC_SESJI = "ewolucja.sesja.koniec";
+const PRZERWA_NOWEGO_DNIA_MS = 45 * 60 * 1000;
+
+function czytajKoniecSesji() {
+  try {
+    const z = JSON.parse(localStorage.getItem(KLUCZ_KONIEC_SESJI) || "null");
+    return z && typeof z === "object" && Number.isFinite(z.kiedy) ? z : null;
+  } catch { return null; }
+}
+function zapiszKoniecSesji(stan) {
+  try { localStorage.setItem(KLUCZ_KONIEC_SESJI, JSON.stringify({ kiedy: Date.now(), ...stan })); } catch {}
+}
+function skasujKoniecSesji() {
+  try { localStorage.removeItem(KLUCZ_KONIEC_SESJI); } catch {}
+}
+/** Czy od końca ostatniej sesji minęło za mało, żeby zacząć nowy dzień. */
+function planetaJeszczeSpi() {
+  const k = czytajKoniecSesji();
+  return !!k && Date.now() - k.kiedy < PRZERWA_NOWEGO_DNIA_MS;
+}
+
+/**
+ * Realny stan gracza na koniec dnia (`02` §3.3): `stan` z zadania w realu
+ * (nic / zadanie / slad / zauwazone), `domek` z placu budowy
+ * (brak / plac / domek), tytuł i miejsce reakcji z karty zadania.
+ */
+function stanDnia() {
+  const real = stanZadaniaWizkora();
+  const d = stanDrewna();
+  const stan = real.doOdbioru ? "zauwazone" : real.czeka ? "slad" : real.doZrobienia ? "zadanie" : "nic";
+  const domek = d.zbudowane ? "domek" : d.istnieje ? "plac" : "brak";
+  return {
+    stan,
+    domek,
+    tytul: real.def?.tytul || "",
+    miejsce: real.def?.miejsce_reakcji || "",
+  };
+}
+
+/** Zdanie narratorki z pliku sekwencji, po podstawieniu stanu i odmianie. */
+function zdanieNarratorki(mapa, S) {
+  const w = mapa?.[S.stan] ?? mapa?.nic;
+  const t = typeof w === "object" && w !== null ? (w[S.domek] || w.brak) : w;
+  const m = S.miejsce || "na polanie";
+  return odmienDlaGracza(String(t || "")
+    .split("{Miejsce}").join(m.charAt(0).toUpperCase() + m.slice(1))
+    .split("{miejsce}").join(m)
+    .split("{tytul}").join(S.tytul || ""));
+}
+/** Gwiazdka z polany — ta sama, którą dziecko widzi w trawie i w liczniku. */
+const IKONA_GWIAZDKI = "/star.png";
 /* Ikony materiału na schronienie. Renderowane Z TYCH SAMYCH brył, które
    stoją w świecie (`scena-3d-src/src/natura.js`) — licznik ma pokazywać
    dokładnie to, co dziecko widzi na polanie, a nie osobno narysowany symbol. */
@@ -500,6 +563,29 @@ export default function Swiat() {
   const [podsumowanie, setPodsumowanie] = useState(null);
   const dziennik = useRef([]);
   const zachodZapowiedziany = useRef(false);
+  /* Zachód przy otwartym oknie NIE PRZEPADA — czeka na najbliższy wolny ekran
+     (`02` §2.7). Ref, bo czyta go handler sceny z domknięciem sprzed zmiany. */
+  const zachodWKolejce = useRef(false);
+  const nocZapowiedziana = useRef(false);
+  /* Planeta śpi: po podsumowaniu i przez ≥ 45 min od końca sesji. Stan do
+     renderu + ref dla handlera sceny. */
+  const [planetaSpi, setPlanetaSpi] = useState(planetaJeszczeSpi);
+  const planetaSpiRef = useRef(planetaSpi);
+  useEffect(() => { planetaSpiRef.current = planetaSpi; }, [planetaSpi]);
+  /* Cichy podpis narratorki nad HUD (noc, powrót): tekst bez pigułki
+     i bez przycisku, sam schodzi. */
+  const [podpis, setPodpis] = useState(null);
+  const podpisTimer = useRef(0);
+  const pokazPodpis = useCallback((tekst, ms = 7000) => {
+    window.clearTimeout(podpisTimer.current);
+    setPodpis(tekst);
+    podpisTimer.current = window.setTimeout(() => setPodpis(null), ms);
+  }, []);
+  useEffect(() => () => window.clearTimeout(podpisTimer.current), []);
+  /* Powrót po przerwie: raz na wejście, zanim odezwie się Wizkor. */
+  const powrotDoPowiedzenia = useRef(
+    (() => { const k = czytajKoniecSesji(); return k && !planetaJeszczeSpi() ? k : null; })()
+  );
   const dopiszDoDziennika = useCallback((id, tekst, ikona = null) => {
     const d = dziennik.current;
     // Jedna rzecz = jeden wpis. Dziesięć gwiazdek to nie dziesięć linijek,
@@ -941,15 +1027,21 @@ export default function Swiat() {
 
   useEffect(() => {
     if (wskazowka) return undefined;
-    if (misjaWToku) { wolneOdRef.current = 0; return undefined; }
 
-    const spokoj = odsloniete && !panel && !gra && !powitanie && !zaproszenie && !nagroda;
+    const spokoj = odsloniete && !panel && !gra && !powitanie && !zaproszenie && !nagroda && !planetaSpi;
     // Otwarty panel wstrzymuje pokaz, ale NIE zeruje zegara: zajrzenie na
     // chwilę do profilu nie jest powodem, żeby kazać dziecku czekać od nowa.
     if (!spokoj) return undefined;
 
-    const kandydat = nastepnaWskazowka({ chodzenieOswojone: !pokazPodpowiedz, zadanie, misje });
+    const kandydat = nastepnaWskazowka({
+      chodzenieOswojone: !pokazPodpowiedz, zadanie, misje, puzzle: puzzleHud,
+    });
     if (!kandydat) return undefined;
+    /* W TRAKCIE MISJI hub milczy — bo zaproszenie do innego miejsca w środku
+       zadania rozprasza. Wyjątkiem jest wskazówka O TEJ misji (`wMisji`):
+       zbieranie kawałków samo jest misją, więc stara blokada wykluczała
+       dokładnie tę chmurkę, która ma pomóc je znaleźć. */
+    if (misjaWToku && !kandydat.wMisji) { wolneOdRef.current = 0; return undefined; }
 
     const rytm = rytmWskazowekRef.current[kandydat.id] || { pokazy: 0, ostatni: 0 };
     if (rytm.pokazy >= (kandydat.maksNaSesje ?? 3)) return undefined;
@@ -966,8 +1058,21 @@ export default function Swiat() {
     return () => window.clearTimeout(zegar);
   }, [
     wskazowka, misjaWToku, odsloniete, panel, gra, powitanie, zaproszenie, nagroda,
-    pokazPodpowiedz, zadanie, misje,
+    pokazPodpowiedz, zadanie, misje, puzzleHud, planetaSpi,
   ]);
+
+  /* ZACHÓD Z KOLEJKI: gdy ekran się zwolni, a zachód czekał — pokaż go teraz
+     (do końca sesji; `sesja:zamknieta` czyści kolejkę). */
+  useEffect(() => {
+    if (!zachodWKolejce.current) return undefined;
+    if (panel || gra || powitanie || zaproszenie || nagroda || podsumowanie || planetaSpi) return undefined;
+    const t = window.setTimeout(() => {
+      if (!zachodWKolejce.current || rozmowaRef.current) return;
+      zachodWKolejce.current = false;
+      setPowitanie(kwestiaZachodu());
+    }, 700);
+    return () => window.clearTimeout(t);
+  }, [panel, gra, powitanie, zaproszenie, nagroda, podsumowanie, planetaSpi]);
 
   /**
    * Zamknięcie chmurki NIE znaczy „już wiem". Upłynął czas, dziecko dotknęło
@@ -1208,13 +1313,13 @@ export default function Swiat() {
   const zapowiedzKolejnejMisji = useCallback(() => {
     window.clearTimeout(zapowiedzTimer.current);
     zapowiedzTimer.current = window.setTimeout(() => {
+      /* Bez „wędrowcze" i bez toastu-dubletu (`02` §6.2): głos mówi, co się
+         stało i po co, pasek pod spodem ma własny tytuł. */
       powiedzPostacia(
-        "Udało ci się, wędrowcze — polana znów świeci. " +
-        "A teraz spójrz na to drzewo. Myślę, że da się przy nim zbudować coś, " +
-        "co zostanie tu na dobre.",
+        "Polana znów świeci. A teraz spójrz na to wielkie drzewo — " +
+        "da się przy nim zbudować coś, co zostanie na dobre.",
         { glos: "las_decyzji", ton: "mystery" }
       );
-      pokazKomunikat("Wizkor ma nowy pomysł");
       setPasekMisji(true);
     }, 1100);
   }, [pokazKomunikat]);
@@ -1465,9 +1570,12 @@ export default function Swiat() {
     if (akcja === "start") {
       setZadanie(rozpocznijZadanie(CEL_DOMYSLNY));
       rozstanie();
+      /* IKONA GWIAZDKI, nie monety (`02` §2.3): zadanie jest o gwiazdkach,
+         a moneta przy „Zbierz 10" obiecywała pieniądze. Liczba w toaście to
+         widoczny koniec zadania; w mowie idzie słownie. */
       pokazKomunikat(`Zbierz ${CEL_DOMYSLNY}`, {
-        ikona: IKONA_MONETY,
-        opis: `Zbierz ${CEL_DOMYSLNY} złotych monet`,
+        ikona: IKONA_GWIAZDKI,
+        opis: "Zbierz dziesięć gwiazdek z polany",
       });
       /* POKAŻ, CZEGO SZUKAĆ (decyzja właściciela 2026-09-17). „Zbierz 10
          gwiazdek" bez pokazania ani jednej to polecenie bez adresu: dziecko
@@ -1520,7 +1628,7 @@ export default function Swiat() {
          albo zza kolejnego kliknięcia, dziecko nie połączyłoby jej z tym,
          co przed chwilą zrobiło. */
       setDrewno(postawEtap());
-      dopiszDoDziennika("schronienie", "Na drzewie stanął domek z drabinką", IKONA_STOSU);
+      dopiszDoDziennika("schronienie", "Na drzewie stanął domek z drabinką.", IKONA_STOSU);
       rozstanie();
       pokazKomunikat("Domek gotowy", {
         ikona: IKONA_STOSU,
@@ -1554,7 +1662,7 @@ export default function Swiat() {
         const ile = cel === 4 ? "4 kawałki" : `${cel} kawałków`;
         pokazKomunikat(`Znajdź ${ile} obrazka`, { opis: `Znajdź ${ile} obrazka na mapie` });
       } else if (stan) {
-        pokazKomunikat(`Znajdź ${stan.def.szukaj} na mapie`);
+        pokazKomunikat(`Znajdź ${stan.def.szukaj}`, { opis: `Znajdź ${stan.def.szukaj} na polanie` });
       }
       return;
     }
@@ -1575,7 +1683,7 @@ export default function Swiat() {
       przeliczNieprzeczytane();
       // Komunikat mówi, GDZIE tego szukać. Zadania poza ekranem nie widać
       // na mapie, więc bez tego zdania dziecko wychodzi z rozmowy z niczym.
-      pokazKomunikat("Nowe zadanie — zajrzyj do Zadań");
+      pokazKomunikat("Zadanie czeka u ciebie", { opis: "Nowe zadanie u ciebie, poza ekranem — zakładka Zadania" });
       // Komunikat mówi „w Zadaniach" — zakładka w doku mruga, żeby było
       // widać, o KTÓRY przycisk chodzi.
       mrugnijZadania();
@@ -1651,7 +1759,14 @@ export default function Swiat() {
         const stan = zaliczWygrana(id);
         setMisje(stanMisji());
         const def = MISJE.find((m) => m.id === id);
-        if (def) dopiszDoDziennika(`gra:${id}`, `Rozegrałeś: ${def.tytul}`);
+        if (def) {
+          const SLAD_GRY = {
+            "pamiec-medrca": "Karta Wizkora stoi na polanie.",
+            "lot-liska": "Choinka jest do lotu.",
+            "bieg-liska": "Bucik leży na polanie.",
+          };
+          dopiszDoDziennika(`gra:${id}`, SLAD_GRY[id] || `Gra „${def.tytul}" jest na polanie.`);
+        }
         return stan;
       },
       kasuj: () => { const stan = skasujMisje(); setMisje(stan); return stan; },
@@ -1883,8 +1998,8 @@ export default function Swiat() {
         // a nie zastępczego napisu, który mieści się w jednej linii.
         odpal: () =>
           pokazKomunikat(`Zbierz ${CEL_DOMYSLNY}`, {
-            ikona: IKONA_MONETY,
-            opis: `Zbierz ${CEL_DOMYSLNY} złotych monet`,
+            ikona: IKONA_GWIAZDKI,
+            opis: "Zbierz dziesięć gwiazdek z polany",
           }),
       },
       {
@@ -1915,7 +2030,7 @@ export default function Swiat() {
           lecDoLicznika({
             start: pozycjaNaEkranie(scenaRef.current, "puzel-1"),
             cel: kafelek,
-            obraz: "/assets/puzzle/kawalek-v2.svg",
+            obraz: "/assets/puzzle/ikona-puzzel.png",
             ile: 6,
             czas: 600,
             onDolot: () => podbijKafelek(kafelek),
@@ -2020,21 +2135,40 @@ export default function Swiat() {
          dziecko właśnie robi. Jak nie teraz, to wcale — zachód i tak widać
          na niebie, a to jest właściwy komunikat. */
       if (nazwa === "doba:sesja") {
+        if (planetaSpiRef.current) return;
         if (dane?.etap === "zachod" && !zachodZapowiedziany.current) {
           zachodZapowiedziany.current = true;
-          if (!panel && !powitanie && !zaproszenie) setPowitanie(kwestiaZachodu());
+          /* Wolny ekran → od razu; zajęty → do kolejki (efekt niżej pokaże
+             zachód, gdy okno/panel/gra zejdą). Wcześniej zachód przepadał. */
+          if (!rozmowaRef.current && !panel && !powitanie && !zaproszenie) setPowitanie(kwestiaZachodu());
+          else zachodWKolejce.current = true;
+        }
+        /* NOC: jedno zdanie narratorki w świecie, bez okna i przycisku
+           (`02` §3.2). Od tej chwili chmurki milczą (patrz `aktywna` niżej). */
+        if (dane?.etap === "noc" && !nocZapowiedziana.current) {
+          nocZapowiedziana.current = true;
+          const S = stanDnia();
+          const t = KONIEC_DNIA.noc.wgDomku[S.domek] || KONIEC_DNIA.noc.wgDomku.brak;
+          pokazPodpis(t);
+          powiedzPostacia(t, { glos: "gora_podsumowania", ton: "calm" });
         }
         return;
       }
 
-      /* Noc: kamera skończyła odjazd, planeta śpi. Podsumowanie wchodzi TU,
-         a nie w chwili zapadnięcia nocy — obraz ma się domknąć pierwszy. */
+      /* Koniec: kamera skończyła odjazd, planeta śpi. Podsumowanie wchodzi TU,
+         a nie w chwili zapadnięcia nocy — obraz ma się domknąć pierwszy.
+         Czyta REALNY stan (`stanDnia`), nie makietę. */
       if (nazwa === "sesja:zamknieta") {
-        const real = stanZadaniaWizkora();
+        const S = stanDnia();
+        zachodWKolejce.current = false;
+        zapiszKoniecSesji(S);
+        planetaSpiRef.current = true;
+        setPlanetaSpi(true);
         setPowitanie(null);
+        setZaproszenie(null);
         setPodsumowanie({
           wpisy: [...dziennik.current],
-          zadanie: real.doZrobienia ? real.def : null,
+          stan: S,
         });
         return;
       }
@@ -2071,15 +2205,16 @@ export default function Swiat() {
         setDrewno(nowy);
         dopiszDoDziennika(
           "materialy",
+          /* PODMIOTEM JEST RZECZ, nie dziecko (`01`: narratorka nie rozlicza). */
           nowy.spelnione
-            ? "Przyniosłeś wszystko na domek na drzewie"
-            : "Przyniosłeś materiał na plac budowy",
+            ? "Pod drzewem leży wszystko na domek."
+            : "Pod drzewem leży pierwszy stos drewna.",
           dane?.rodzaj === "glaz" ? IKONA_KAMYKA : IKONA_STOSU,
         );
         pokazKomunikat(
           dane?.rodzaj === "glaz" ? "Kamienie na placu" : "Drewno na placu",
           { ikona: dane?.rodzaj === "glaz" ? IKONA_KAMYKA : IKONA_STOSU,
-            opis: nowy.spelnione ? "Jest wszystko, czego trzeba" : "Zostało jeszcze jedno" },
+            opis: nowy.spelnione ? "Jest wszystko, czego trzeba" : "Jeszcze jeden stos jest do przyniesienia" },
         );
         /* KOMPLET PRZYCHODZI SAM. Dziecko właśnie doniosło drugą rzecz —
            gdyby po nagrodę musiało jeszcze znaleźć Wizkora na mapie, zgubiłoby
@@ -2131,6 +2266,29 @@ export default function Swiat() {
         // gwiazdek. Nie nad otwarta rozmowa/nagroda/panelem (rozmowaRef trzyma
         // wszystkie te przypadki). Stan czytamy ze zrodla, jak reszta handlera.
         if (rozmowaRef.current) return;
+        /* PLANETA ŚPI: bez zleceń, tylko cichy podpis. */
+        if (planetaSpiRef.current) { pokazPodpis(KONIEC_DNIA.spi.gra); return; }
+        /* POWRÓT PO PRZERWIE (`02` §3.4): najpierw narratorka o tym, co się
+           zmieniło (głos + podpis), dopiero potem Wizkor — bez „no i jak?". */
+        const k = powrotDoPowiedzenia.current;
+        if (k) {
+          powrotDoPowiedzenia.current = null;
+          skasujKoniecSesji();
+          const S = { stan: k.stan || "nic", domek: stanDnia().domek, tytul: k.tytul || "", miejsce: k.miejsce || "" };
+          const mapa = etapSzkolny() === "1-3" && KONIEC_DNIA.powrot["1-3"][S.stan]
+            ? KONIEC_DNIA.powrot["1-3"]
+            : KONIEC_DNIA.powrot.wgStanu;
+          const t = zdanieNarratorki(mapa, S);
+          pokazPodpis(t);
+          powiedzPostacia(t, { glos: "gora_podsumowania", ton: "calm" });
+          if (S.stan === "slad" || S.stan === "zauwazone") {
+            window.setTimeout(() => scenaRef.current?.pokazMiejsce?.(), 900);
+          }
+          window.setTimeout(() => {
+            if (!rozmowaRef.current) setPowitanie(powitanieCzarodzieja(stanZadania(), aktualnaMisja()));
+          }, 4200);
+          return;
+        }
         setPowitanie(powitanieCzarodzieja(stanZadania(), aktualnaMisja()));
         return;
       }
@@ -2145,6 +2303,8 @@ export default function Swiat() {
         if (dane?.znak === ZNAK_CZARODZIEJA) {
           // Rozmowa już trwa — drugie dotknięcie nie ma czego otwierać.
           if (rozmowaRef.current) return;
+          // Planeta śpi — Wizkor nie zleca (`02` §3.3).
+          if (planetaSpiRef.current) { pokazKomunikat(KONIEC_DNIA.spi.wizkor); return; }
           // Stan czytamy ze ŹRÓDŁA, nie ze stanu Reacta: ta funkcja trafia do
           // modułu sceny raz i trzyma domknięcie sprzed zmiany.
           const z = stanZadania();
@@ -2154,9 +2314,10 @@ export default function Swiat() {
           // żeby dziecko wiedziało, że to nie awaria, i od razu widziało,
           // ile mu zostało. Wchodzi najwyżej raz na podejście (`raz` w scenie).
           if (z.istnieje && !z.spelnione) {
-            pokazKomunikat(`Wizkor czeka — masz ${z.zebrane} z ${z.cel}`, {
-              ikona: IKONA_MONETY,
-              opis: `Wizkor czeka — masz ${z.zebrane} z ${z.cel} złotych monet`,
+            /* Bez licznika „x z y" (jest w HUD) i bez monety (`02` §2.3). */
+            pokazKomunikat("Gwiazdki jeszcze w trawie", {
+              ikona: IKONA_GWIAZDKI,
+              opis: "Wizkor czeka na wszystkie gwiazdki",
             });
             return;
           }
@@ -2171,14 +2332,21 @@ export default function Swiat() {
             const puzzle = !m.odkryta ? stanPuzzli(m.id) : null;
             const brama = !!puzzle && puzzle.brama && !puzzle.ulozona;
             if (brama && !puzzle.komplet) {
-              pokazKomunikat(`Wizkor czeka — masz ${puzzle.zebrane} z ${puzzle.cel} kawałków`);
+              pokazKomunikat("Kawałki jeszcze w trawie", { opis: "Wizkor czeka na wszystkie kawałki obrazka" });
               return;
             }
             /* Poza etapem puzzli zostaje jedno: gra jest zdobyta i czeka na
                rozegranie. Etapu „znajdź znak" nie ma, więc nie ma tu już
                drugiego przypomnienia. */
             if (!brama) {
-              pokazKomunikat(`Wizkor czeka — zagraj w ${m.def.tytul}`);
+              const CZEKA_NA_POLANIE = {
+                "pamiec-medrca": "Karta czeka na polanie",
+                "lot-liska": "Choinka czeka na polanie",
+                "bieg-liska": "Bucik czeka na polanie",
+              };
+              pokazKomunikat(CZEKA_NA_POLANIE[m.id] || "Gra czeka na polanie", {
+                opis: `${m.def.tytul} czeka na polanie — rozegraj partię`,
+              });
               return;
             }
           }
@@ -2196,7 +2364,9 @@ export default function Swiat() {
           if (po) {
             dopiszDoDziennika(
               "gwiazdki",
-              po.zebrane === 1 ? "Znalazłeś pierwszą gwiazdkę" : `Znalazłeś ${po.zebrane} gwiazdek`,
+              po.spelnione
+                ? "Wszystkie gwiazdki świecą znów w trawie."
+                : po.zebrane === 1 ? "Pierwsza gwiazdka wróciła na polanę." : "Gwiazdki wracają na polanę.",
               "/star.png",
             );
             /**
@@ -2258,7 +2428,7 @@ export default function Swiat() {
             lecDoLicznika({
               start: pozycjaNaEkranie(scenaRef.current, dane.znak),
               cel: licznikPuzzliRef.current,
-              obraz: "/assets/puzzle/kawalek-v2.svg",
+              obraz: "/assets/puzzle/ikona-puzzel.png",
               ile: 6,
               czas: 600,
               onDolot: () => {
@@ -2270,7 +2440,7 @@ export default function Swiat() {
               pokazKomunikat("Masz wszystkie kawałki!");
               window.setTimeout(() => setUkladanka(po.id), WCHLANIANIE_MS);
             } else {
-              pokazKomunikat(`Kawałek obrazka — masz ${po.zebrane} z ${po.cel}`);
+              pokazKomunikat("Kawałek obrazka", { opis: "Kawałek obrazka — licznik w górnym pasku" });
             }
           }
           return;
@@ -2287,6 +2457,8 @@ export default function Swiat() {
           // z animacji powrotu w chwili, gdy stan misji się właśnie zmienia.
           const stanZnaku = stanGry(doGry);
           if (!stanZnaku?.ujawniona) return;
+          // Planeta śpi — lisek nie zaprasza do gry.
+          if (planetaSpiRef.current) { pokazKomunikat(KONIEC_DNIA.spi.gra); return; }
           /* KAŻDY ZNAK GRY JEST SKRÓTEM DO NIEJ i zachowuje się tak samo:
              wchłania się, pyta lisek, gra rusza. Znak stoi na polanie od
              ułożenia układanki i zostaje tam na zawsze, więc zwykle nie ma
@@ -2356,7 +2528,7 @@ export default function Swiat() {
       }
       if (nazwa === "blad") setScenaMartwa(true);
     },
-    [otworz, panel, pokazKomunikat, navigate, odswiezZnakiMisji, odswiezGwiazdkiNaMapie]
+    [otworz, panel, pokazKomunikat, pokazPodpis, navigate, odswiezZnakiMisji, odswiezGwiazdkiNaMapie]
   );
 
   // Uchwyt do konsoli — bieganie po mapie w poszukiwaniu piórka przy każdej
@@ -2740,7 +2912,7 @@ export default function Swiat() {
               >
                 <img
                   data-ksztalt="zeton"
-                  src="/assets/puzzle/kawalek-v2.svg"
+                  src="/assets/puzzle/ikona-puzzel.png"
                   alt=""
                   aria-hidden="true"
                   draggable="false"
@@ -2812,7 +2984,7 @@ export default function Swiat() {
           ostatnie słowo należy do podsumowania. */}
       <PodpowiedzMedrca
         ref={medrzecRef}
-        aktywna={!panel && !zwojOtwarty && !powitanie && !zaproszenie && !wskazowka && !podsumowanie && odsloniete}
+        aktywna={!panel && !zwojOtwarty && !powitanie && !zaproszenie && !wskazowka && !podsumowanie && odsloniete && !planetaSpi}
       />
 
       {/* KONIEC DNIA. Planeta śpi, kamera już odjechała — zostaje nazwać, co
@@ -2823,7 +2995,7 @@ export default function Swiat() {
       <PodsumowanieDnia
         otwarty={!!podsumowanie}
         wpisy={podsumowanie?.wpisy || []}
-        zadanie={podsumowanie?.zadanie || null}
+        stan={podsumowanie?.stan || null}
         onZamknij={() => setPodsumowanie(null)}
       />
 
@@ -2890,12 +3062,15 @@ export default function Swiat() {
           zadania: konfetti, licznik liczący się do 30 i monety lecące w prawy
           górny róg, dokładnie tam, gdzie stoi kafelek monet. */}
       {nagroda === "gwiazdki" ? (
+        /* BEZ PIGUŁKI MONET (`02` §2.3, decyzja 17.09): nagrodą za gwiazdki jest
+           jaśniejsza polana; jedna moneta dopisuje się cicho w HUD przy
+           `zamknijNagrode`. `coins={0}` chowa pigułkę i lot monet. */
         <RewardScreen
-          eyebrow="✦ ZADANIE WIZKORA"
+          eyebrow="✦ POLANA"
           title="Wszystkie gwiazdki!"
-          subtitle={`Zebrałeś ${CEL_DOMYSLNY} złotych gwiazdek dla Wizkora.`}
-          coins={NAGRODA_MONET}
-          ctaLabel="Super! ✦"
+          subtitle="Świecą znów w trawie, co do jednej."
+          coins={0}
+          ctaLabel="Patrzę na polanę"
           onDismiss={zamknijNagrode}
         />
       ) : null}
@@ -2911,8 +3086,12 @@ export default function Swiat() {
           title={stanGry(idZUlozenia(nagroda)).def.nagrodaEkranUlozenie.title}
           subtitle={stanGry(idZUlozenia(nagroda)).def.nagrodaEkranUlozenie.subtitle}
           coins={stanGry(idZUlozenia(nagroda)).def.nagrodaUlozenie}
-          note="Reszta czeka za rozegraną partię"
-          ctaLabel={graPoNagrodzieRef.current ? "Gramy! ✦" : "Super! ✦"}
+          note={({
+            "pamiec-medrca": "Karta stoi już na polanie",
+            "lot-liska": "Choinka jest do lotu",
+            "bieg-liska": "Bucik leży na polanie",
+          })[idZUlozenia(nagroda)] || "Gra jest już na polanie"}
+          ctaLabel={graPoNagrodzieRef.current ? "Gramy! ✦" : "Wracam na polanę"}
           onDismiss={zamknijNagrode}
         />
       ) : null}
@@ -2927,7 +3106,7 @@ export default function Swiat() {
           title={stanGry(nagroda).def.nagrodaEkran.title}
           subtitle={stanGry(nagroda).def.nagrodaEkran.subtitle}
           coins={stanGry(nagroda).def.nagroda}
-          ctaLabel="Super! ✦"
+          ctaLabel="Wracam na polanę"
           onDismiss={zamknijNagrode}
         />
       ) : null}
@@ -2964,6 +3143,27 @@ export default function Swiat() {
         ) : null}
       </PanelSheet>
 
+      {/* Cichy podpis narratorki (noc, powrót): bez pigułki i przycisku —
+          jedno zdanie nad HUD, które samo schodzi (`02` §3.2). Style inline,
+          bo `hud.css` należy do sceny. */}
+      {podpis ? (
+        <p
+          role="status"
+          aria-live="polite"
+          data-testid="hub-podpis"
+          style={{
+            position: "fixed", left: "50%", transform: "translateX(-50%)",
+            bottom: "calc(150px + env(safe-area-inset-bottom, 0px))", zIndex: 24,
+            margin: 0, padding: "0 16px", maxWidth: "min(88vw, 460px)",
+            textAlign: "center", pointerEvents: "none",
+            fontFamily: "var(--font-body, 'Nunito'), system-ui, sans-serif",
+            fontSize: 16, fontWeight: 700, lineHeight: 1.3,
+            color: "var(--krem-200, #fff3d6)", textShadow: "0 1px 2px rgba(20,25,40,.75), 0 0 12px rgba(20,25,40,.6)",
+          }}
+        >
+          {podpis}
+        </p>
+      ) : null}
       {komunikat ? (
         <div
           className="game-hud-toast is-visible"

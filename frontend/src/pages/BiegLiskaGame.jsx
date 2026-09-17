@@ -600,7 +600,7 @@ export default function BiegLiskaGame({ osadzona = false, poziom = null, onWyjsc
         stan.dobrze += 1;
         setDobrze(stan.dobrze);
         setMonety(stan.dobrze * stawka);
-        setReakcja({ ton: "dobrze", tekst: `Brawo! ${z.tekst.replace("?", String(wynik))}` });
+        setReakcja({ ton: "dobrze", tekst: `Jest! ${z.tekst.replace("?", String(wynik))}` });
         try { fx?.dopamine?.(); } catch {}
       } else {
         setReakcja({ ton: "mimo", tekst: `Uciekła! ${z.tekst.replace("?", String(wynik))}` });
@@ -661,7 +661,7 @@ export default function BiegLiskaGame({ osadzona = false, poziom = null, onWyjsc
       stan.powrotNa = (((wyrwa.od - 6) % DLUGOSC) + DLUGOSC) % DLUGOSC;
       stan.zycia -= 1;
       setZycia(stan.zycia);
-      setReakcja({ ton: "zle", tekst: stan.zycia > 0 ? "Ups! Wyrwa w drodze…" : "Ostatnie serce…" });
+      setReakcja({ ton: "zle", tekst: stan.zycia > 0 ? "Ups! Wyrwa w drodze…" : "Jeszcze jedno serce." });
       if (biegAkcja) biegAkcja.timeScale = 0.35;
       try { krokiStop(); } catch {}
     };
@@ -992,13 +992,15 @@ export default function BiegLiskaGame({ osadzona = false, poziom = null, onWyjsc
              zostają, więc to nie jest przegrana, tylko krótszy bieg. */
           title={
             zycia <= 0
-              ? "Wyrwa Cię złapała!"
-              : dobrze === ILE_PYTAN ? "Mistrz liczenia!" : dobrze >= 3 ? "Świetny bieg!" : "Dobiegłeś do mety!"
+              ? "Bieg przerwany."
+              : dobrze === ILE_PYTAN ? "Wszystkie wyniki!" : dobrze >= 3 ? "Dobry bieg!" : "{Dobiegłeś|Dobiegłaś} do mety!"
           }
           subtitle={
             zycia <= 0
-              ? `Serca się skończyły, ale odpowiedzi zostają: ${dobrze} z ${ILE_PYTAN}.`
-              : `Zebrane odpowiedzi: ${dobrze} z ${ILE_PYTAN}.`
+              /* Bez licznika „x z y" w zdaniu — kafelek niżej już to pokazuje;
+                 bez „złapała" (strata jako treść). `docs/tresci/02` §2.6. */
+              ? "Wyniki zostają — liczby niżej."
+              : dobrze === ILE_PYTAN ? "Każda bramka trafiona." : "Meta jest. Liczby niżej."
           }
           coins={monety + nagrodaMisji}
           gwiazdki={dobrze >= ILE_PYTAN ? 3 : dobrze >= 3 ? 2 : 1}
@@ -1006,12 +1008,11 @@ export default function BiegLiskaGame({ osadzona = false, poziom = null, onWyjsc
              `RewardScreen`. Bez misji zostaje sama liczba za partię. */
           rozbicie={[
             { etykieta: "Za bieg", monety },
-            { etykieta: "Od Wizkora za misję", monety: nagrodaMisji },
+            { etykieta: "Za zdobycie gry", monety: nagrodaMisji },
           ]}
           kafelki={[
             { wartosc: `${dobrze}/${ILE_PYTAN}`, etykieta: "wyniki" },
             { wartosc: `${zycia}/${ZYCIA_START}`, etykieta: "serca" },
-            { wartosc: monety, etykieta: "monety" },
           ]}
           akcje={[
             { etykieta: "Wracam", onClick: wrocDoHuba },

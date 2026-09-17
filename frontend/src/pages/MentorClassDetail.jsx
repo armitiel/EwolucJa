@@ -18,6 +18,11 @@ import { mentorApi } from "../services/mentorApi.js";
 import { pickTaskForGenerator } from "../data/mentorTaskLibrary.js";
 import { odmienDlaImienia } from "../services/rodzaj.js";
 
+/* Gotowe formuły Mentora dla dziecka — bez oceny (docs/tresci/06 §4.7, 02 §2.5).
+   Wolne pole zniknęło: było kanałem na „mogło być lepiej". Ostatnia formuła
+   odmienia się po stronie dziecka (`odmienDlaGracza`). */
+const FORMULY_MENTORA = ["Widziałem.", "Widziałam.", "Porozmawiamy o tym.", "Ciekawe, jak to {zrobiłeś|zrobiłaś}."];
+
 export default function MentorClassDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -145,15 +150,17 @@ function StudentRow({ student, onClick, onDelete }) {
 
   // Czy zatwierdzenie jest "swieze" (< 24h) — wtedy karta dostaje delikatny zielony sygnal,
   // zeby mentor wiedzial, ze ostatnio cos zatwierdzil i moze juz wyslac nowe zadanie.
-  const verifiedFresh = status === "verified" && lastActivity
+  const verifiedFresh = (status === "verified" || status === "noticed") && lastActivity
     && (Date.now() - lastActivity.getTime()) < 24 * 3600 * 1000;
 
   // Mapa statusu misji na etykiete + kolor
   const STATUS_MAP = {
-    submitted: { label: "Do sprawdzenia", color: "#7A4DC2", bg: "rgba(122,77,194,.18)", dot: "#7A4DC2", emoji: "✉" },
-    pending:   { label: "W trakcie",      color: "#A66A1A", bg: "rgba(255,210,105,.30)", dot: "#E89A3D", emoji: "●" },
-    rejected:  { label: "Do poprawy",     color: "#B85B47", bg: "rgba(184,91,71,.18)",   dot: "#B85B47", emoji: "↺" },
-    verified:  { label: "Zatwierdzone ✓", color: "#2E5A0E", bg: "linear-gradient(135deg, rgba(168,224,143,.55), rgba(99,167,111,.35))", dot: "#5FA76F", emoji: "✓" },
+    submitted: { label: "Ślad do zobaczenia", color: "#7A4DC2", bg: "rgba(122,77,194,.18)", dot: "#7A4DC2", emoji: "✉" },
+    pending:   { label: "U dziecka",      color: "#A66A1A", bg: "rgba(255,210,105,.30)", dot: "#E89A3D", emoji: "●" },
+    // legacy (sprzed 17.09) — dziecko tego statusu nie widzi
+    rejected:  { label: "Ślad zostawiony", color: "#7A4DC2", bg: "rgba(122,77,194,.12)", dot: "#7A4DC2", emoji: "✉" },
+    noticed:   { label: "Zauważone ✓",    color: "#2E5A0E", bg: "linear-gradient(135deg, rgba(168,224,143,.55), rgba(99,167,111,.35))", dot: "#5FA76F", emoji: "✓" },
+    verified:  { label: "Zauważone ✓",    color: "#2E5A0E", bg: "linear-gradient(135deg, rgba(168,224,143,.55), rgba(99,167,111,.35))", dot: "#5FA76F", emoji: "✓" },
   };
   const st = status && STATUS_MAP[status] ? STATUS_MAP[status] : null;
 
@@ -179,7 +186,7 @@ function StudentRow({ student, onClick, onDelete }) {
           ? <ProfileAvatar profile={profileCode} size={91} variant="mini" />
           : <PendingAvatar size={91} />}
         {pendingReview ? (
-          <span aria-hidden="true" title="Czeka na sprawdzenie" style={{
+          <span aria-hidden="true" title={odmienDlaImienia("Zobacz, co {zrobił|zrobiła} " + (student.name || "dziecko") + ".", student.name)} style={{
             position: "absolute", top: -2, left: -2,
             width: 14, height: 14, borderRadius: "50%",
             background: "#E84BA0",
@@ -188,7 +195,7 @@ function StudentRow({ student, onClick, onDelete }) {
             zIndex: 2,
           }} />
         ) : verifiedFresh ? (
-          <span aria-hidden="true" title="Świeże zatwierdzenie — wyślij nowe zadanie!" style={{
+          <span aria-hidden="true" title="Świeżo zauważone — możesz wysłać nowe zadanie" style={{
             position: "absolute", top: -2, left: -2,
             width: 14, height: 14, borderRadius: "50%",
             background: "#5FA76F",
@@ -231,7 +238,7 @@ function StudentRow({ student, onClick, onDelete }) {
               <span style={{
                 width: 6, height: 6, borderRadius: "50%", background: st.dot,
                 ...(status === "submitted" ? { animation: "pulse-dot 1.6s ease-in-out infinite" } : {}),
-                ...(status === "verified" && verifiedFresh ? { animation: "pulse-dot 2.2s ease-in-out infinite" } : {}),
+                ...((status === "verified" || status === "noticed") && verifiedFresh ? { animation: "pulse-dot 2.2s ease-in-out infinite" } : {}),
               }} />
               {st.label}
             </span>
@@ -692,7 +699,7 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
                 </div>
                 {submittedCount > 0 && (
                   <span style={{ fontSize: 11, fontWeight: 800, color: "#7A4DC2" }}>
-                    {submittedCount} do sprawdzenia ✉
+                    {odmienDlaImienia(`Zobacz, co {zrobił|zrobiła} ${studentName}`, studentName)} ✉ {submittedCount}
                   </span>
                 )}
               </div>
@@ -709,8 +716,8 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
               ) : (
                 data.missions.slice(0, 10).map((m) => (
                   <MissionCard key={m.id} mission={m} imie={studentName}
-                    onVerify={async (decision, points) => {
-                      try { await mentorApi.verifyMission(m.id, decision, null, points); await load(); }
+                    onNotice={async (formula) => {
+                      try { await mentorApi.noticeMission(m.id, formula); await load(); }
                       catch (e) { alert(e.message); }
                     }}
                     onDelete={async () => {
@@ -766,16 +773,19 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
   );
 }
 
-// Karta misji w modal mentora - pokazuje status, dowod, akcje verify (z customowa liczba punktow)
-function MissionCard({ mission, onVerify, onDelete, imie }) {
+// Karta misji w modal mentora — status, ślad dziecka, pytanie do rozmowy
+// i JEDEN przycisk „Zauważam" (bez punktów, bez „do poprawy" — 06 §4.7).
+function MissionCard({ mission, onNotice, onDelete, imie }) {
   const status = mission.status;
   const proof = mission.submitted_proof;
   const verification = mission.gm_verification;
-  const statusColor = status === "verified" ? "#3B6D11" : status === "submitted" ? "var(--p-magic-dk)" : status === "rejected" ? "#B85B47" : "var(--p-ink-soft)";
-  const statusBg = status === "verified" ? "rgba(99,153,34,.18)" : status === "submitted" ? "rgba(122,77,194,.15)" : status === "rejected" ? "rgba(184,91,71,.15)" : "rgba(78,77,118,.08)";
-  const statusLabel = status === "verified" ? `✓ zatwierdzono${verification?.points_awarded ? ` (+${verification.points_awarded} ✦)` : ""}` : status === "submitted" ? "✉ czeka na sprawdzenie" : status === "rejected" ? "↺ do poprawy" : status || "pending";
-  const [points, setPoints] = useState(25);
+  const zauwazone = status === "verified" || status === "noticed" || status === "highlighted";
+  const statusColor = zauwazone ? "#3B6D11" : status === "submitted" || status === "rejected" ? "var(--p-magic-dk)" : "var(--p-ink-soft)";
+  const statusBg = zauwazone ? "rgba(99,153,34,.18)" : status === "submitted" || status === "rejected" ? "rgba(122,77,194,.15)" : "rgba(78,77,118,.08)";
+  const statusLabel = zauwazone ? "✓ zauważone" : status === "submitted" ? "✉ ślad do zobaczenia" : status === "rejected" ? "✉ ślad zostawiony" : "● u dziecka";
+  const [formula, setFormula] = useState(null);
   const [expanded, setExpanded] = useState(false);
+  const rozmowa = mission.rozmowa || null;
 
   return (
     <div style={{
@@ -843,7 +853,7 @@ function MissionCard({ mission, onVerify, onDelete, imie }) {
           borderLeft: "3px solid #7A4DC2",
         }}>
           <div style={{ fontSize: 9, fontWeight: 900, letterSpacing: 1.2, color: "#A66A1A", textTransform: "uppercase" }}>
-            ODPOWIEDŹ UCZNIA
+            ŚLAD
           </div>
           <div style={{ fontSize: 17, color: "var(--p-ink)", marginTop: 4, lineHeight: 1.45, fontFamily: "inherit", fontWeight: 500 }}>
             „{proof.proof_text}"
@@ -868,39 +878,47 @@ function MissionCard({ mission, onVerify, onDelete, imie }) {
         </div>
       )}
 
-      {/* Komentarz mentora po weryfikacji */}
-      {verification?.comment && (
-        <div style={{ marginTop: 8, padding: "6px 10px", borderRadius: 8, background: `${statusBg}`, fontSize: 11, color: statusColor, fontStyle: "italic", fontWeight: 600 }}>
-          „{verification.comment}"
+      {/* Pytanie do rozmowy z karty zadania — zamiast werdyktu (03 §7 `rozmowa`) */}
+      {rozmowa && (status === "submitted" || status === "rejected" || zauwazone) && (
+        <div style={{ marginTop: 8, padding: "6px 10px", borderRadius: 8, background: "rgba(255,210,105,.22)", fontSize: 11.5, color: "var(--p-ink)", fontWeight: 600 }}>
+          <span style={{ fontSize: 9, fontWeight: 900, letterSpacing: 1.2, color: "#A66A1A", textTransform: "uppercase" }}>DO ROZMOWY · </span>
+          {odmienDlaImienia(rozmowa, imie)}
         </div>
       )}
 
-      {/* Przyciski akcji + slider punktow - tylko jezeli status submitted */}
-      {status === "submitted" && onVerify && (
+      {/* Formuła, którą Mentor wybrał przy zauważeniu (bez oceny) */}
+      {verification?.formula && (
+        <div style={{ marginTop: 8, padding: "6px 10px", borderRadius: 8, background: `${statusBg}`, fontSize: 11, color: statusColor, fontStyle: "italic", fontWeight: 600 }}>
+          „{odmienDlaImienia(verification.formula, imie)}"
+        </div>
+      )}
+
+      {/* Jeden przycisk: Zauważam. Bez punktów, bez „do poprawy" (Mentor zauważa, nie ocenia). */}
+      {(status === "submitted" || status === "rejected") && onNotice && (
         <div style={{ marginTop: 10 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-            <span style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: 1.2, color: "#A66A1A", textTransform: "uppercase" }}>NAGRODA</span>
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 3, fontSize: 12, fontWeight: 900, color: "#A66A1A" }}>
-              +{points} <span style={{ color: "#E89A3D" }}>✦</span>
-            </span>
+          <div style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: 1.2, color: "#A66A1A", textTransform: "uppercase", marginBottom: 4 }}>
+            CO USŁYSZY {imie ? imie.toUpperCase() : "DZIECKO"} (opcjonalnie)
           </div>
-          <input
-            type="range" min={15} max={40} step={5}
-            value={points}
-            onChange={(e) => setPoints(Number(e.target.value))}
-            style={{ width: "100%", accentColor: "#E89A3D", marginBottom: 6 }}
-          />
-          <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={() => onVerify("reject", points)} className="btn btn-ghost btn-sm" style={{ flex: 1, fontSize: 12, color: "var(--p-ink)", padding: "9px 10px" }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ marginRight: 4, verticalAlign: "-2px" }}>
-                <path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              Do poprawy
-            </button>
-            <button onClick={() => onVerify("approve", points)} className="btn btn-leaf btn-sm" style={{ flex: 1.4, fontSize: 12, padding: "9px 10px" }}>
-              ✓ Zatwierdź (+{points} ✦)
-            </button>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 8 }}>
+            {FORMULY_MENTORA.map((f) => (
+              <button
+                key={f}
+                type="button"
+                onClick={() => setFormula(formula === f ? null : f)}
+                className="btn btn-ghost btn-sm"
+                style={{
+                  fontSize: 11.5, padding: "6px 10px", color: "var(--p-ink)",
+                  boxShadow: formula === f ? "inset 0 0 0 2px #5FA76F" : "inset 0 0 0 1.2px rgba(168,122,42,.35)",
+                  background: formula === f ? "rgba(168,224,143,.35)" : "rgba(255,255,255,.9)",
+                }}
+              >
+                {odmienDlaImienia(f, imie)}
+              </button>
+            ))}
           </div>
+          <button onClick={() => onNotice(formula)} className="btn btn-leaf btn-sm" style={{ width: "100%", fontSize: 12.5, padding: "10px 12px" }}>
+            👁 Zauważam
+          </button>
         </div>
       )}
     </div>

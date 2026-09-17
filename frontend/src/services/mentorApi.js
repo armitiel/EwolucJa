@@ -58,6 +58,8 @@ export const mentorApi = {
   deleteHint: (playerId, hintId) => call(`/mentor/students/${playerId}/hints/${hintId}`, { method: "DELETE" }),
   createMission: (playerId, data) => call(`/mentor/students/${playerId}/missions`, { method: "POST", body: data }),
   verifyMission: (missionId, decision, comment, points) => call(`/mentor/missions/${missionId}/verify`, { method: "POST", body: { decision, comment, points } }),
+  // Mentor ZAUWAŻA (06 §4.7): jeden status `noticed`, bez punktów; `formula` to jedna z gotowych formuł bez oceny.
+  noticeMission: (missionId, formula) => call(`/mentor/missions/${missionId}/verify`, { method: "POST", body: { decision: "noticed", formula: formula || null } }),
   deleteMission: (missionId) => call(`/mentor/missions/${missionId}`, { method: "DELETE" }),
 
   // Pary (Rozdarta Mapa) - GM strona

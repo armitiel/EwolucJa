@@ -110,11 +110,14 @@ export async function oznaczPrzeczytana(pozycja) {
  * i nigdy nie oznacza się jako przeczytany: to nie jest wieść, którą się
  * odbiera, tylko zadanie, które trwa aż je skończysz.
  */
+/* Tor `/przygoda` jest wyłączony (`POKAZ_MISJE_PRZYGODY`), ale etykiety
+   trzymamy w jednym słownictwie z torem Wizkora (06 §4.7): bez „poprawki",
+   „u Mentora" i „nagrody" — Mentor zauważa, nie ocenia. */
 const STATUS_ZADANIA = {
-  offered: { etykieta: "Do zrobienia", cta: "Otwórz zadanie" },
-  changes: { etykieta: "Mentor prosi o poprawkę", cta: "Popraw zadanie" },
-  sent: { etykieta: "U Mentora", cta: "Sprawdź, czy wrócił" },
-  accepted: { etykieta: "Nagroda czeka", cta: "Odbierz nagrodę" },
+  offered: { etykieta: "Czeka — u ciebie", cta: "Otwórz zadanie" },
+  changes: { etykieta: "Ślad zostawiony", cta: "Zobacz" },
+  sent: { etykieta: "Ślad zostawiony", cta: "Zobacz" },
+  accepted: { etykieta: "Mentor to widzi", cta: "Zobacz, co się zmieniło" },
 };
 
 export function wpisZadania(adventure, state, nextStep) {
@@ -152,9 +155,9 @@ export function wpisZadania(adventure, state, nextStep) {
  * co zrobić, wpis liczy się jako NIEPRZECZYTANY. Dzięki temu na zakładce
  * wiadomości pali się „1" i dziecko widzi, że coś na nie czeka, nawet jeśli
  * rozmowę z Wizkorem zamknęło pięć minut temu i zdążyło o niej zapomnieć.
- * Werdykt Mentora NIE MA osobnej wieści — zatwierdzenie widać tu, w tej
- * samej karcie („Nagroda czeka" + kwota), więc jedno zdarzenie to jeden
- * wpis i jedna jedynka na plakietce.
+ * Zauważenie przez Mentora NIE MA osobnej wieści — widać je tu, w tej samej
+ * karcie („Mentor {zobaczył|zobaczyła}"), więc jedno zdarzenie to jeden wpis
+ * i jedna jedynka na plakietce. Monet na karcie nie ma (idą w tle przy śladzie).
  */
 export function wpisZadaniaWizkora() {
   const stan = stanZadaniaWizkora();
@@ -179,9 +182,10 @@ export function wpisZadaniaWizkora() {
     kiedy: stan.zleconeAt,
     etykieta: odmienDlaGracza(stan.etykieta),
     cta: odmienDlaGracza(stan.cta),
-    nagroda: stan.nagroda ?? stan.def.nagroda ?? null,
-    // Do zrobienia albo do odebrania = coś czeka. „Sprawdzane" nie pali
-    // plakietki: dziecko nie ma wtedy nic do zrobienia i ponaglanie go
+    // Monety NIE idą na kartę (06 §4.6: cichy licznik w HUD, zero w tekstach).
+    nagroda: null,
+    // Czeka u ciebie albo Mentor zobaczył = coś czeka. „Ślad zostawiony" nie
+    // pali plakietki: dziecko nie ma wtedy nic do zrobienia i ponaglanie go
     // byłoby tylko hałasem.
     nieprzeczytana: stan.doZrobienia || stan.doOdbioru,
     przypieta: true,

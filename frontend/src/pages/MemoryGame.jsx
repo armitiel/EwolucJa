@@ -579,17 +579,19 @@ export default function MemoryGame({ osadzona = false, poziom = null, onWyjscie 
           /* Sama nazwa gry — „· UKOŃCZONA" nie mieściło się na wstędze
              i ucinało się wielokropkiem w środku słowa. */
           eyebrow="GRA NA PAMIĘĆ"
-          title={stars === 3 ? "Wspaniale!" : stars === 2 ? "Super!" : "Brawo!"}
+          /* Tytuł nazywa RZECZ, nie zachwyt (`docs/tresci/02` §2.6): bez
+             „Wspaniale/Super/Brawo", bez „spróbuj jeszcze raz" (ponaglanie). */
+          title={stars === 3 ? "Wszystkie pary!" : stars === 2 ? "Wszystkie pary." : "{Doszedłeś|Doszłaś} do końca."}
           subtitle={
-            stars === 3 ? "Twoja pamięć jest jak zwój Wizkora." :
-            stars === 2 ? "Niezła robota — spróbuj jeszcze raz!" :
-                         "Każdy ruch to krok do wprawy."
+            stars === 3 ? "Za pierwszym podejściem." :
+            stars === 2 ? "Kilka kart wróciło, ale komplet jest." :
+                         "Każda para to jeden ruch mniej następnym razem."
           }
           gwiazdki={stars}
           coins={nagrodaPartii + nagrodaMisji}
           rozbicie={[
             { etykieta: "Za partię", monety: nagrodaPartii },
-            { etykieta: "Od Wizkora za misję", monety: nagrodaMisji },
+            { etykieta: "Za zdobycie gry", monety: nagrodaMisji },
           ]}
           kafelki={[
             { wartosc: moves, etykieta: "ruchy" },

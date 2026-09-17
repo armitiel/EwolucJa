@@ -30,7 +30,10 @@ import { bonusMonet, dodajMonety, wyzerujBonus } from "../services/monety.js";
 const KLUCZ = "ewolucja.zadanie.gwiazdki";
 
 export const CEL_DOMYSLNY = 10;
-export const NAGRODA_MONET = 30;
+/* 1, nie 30 (decyzja 17.09, `docs/tresci/06` — monety w tle): gwiazdki mają
+   dawać mniej niż działanie w realu (25 za ślad). Nagrodą za gwiazdki jest
+   jaśniejsza polana, a nie liczba. */
+export const NAGRODA_MONET = 1;
 
 /**
  * Zadanie ma CZTERY stany i każdy z nich musi dać się odczytać z jednego

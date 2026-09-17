@@ -15,20 +15,21 @@
  * weryfikacji — `POST /missions/seed` → `POST /missions/:id/submit` →
  * Mentor w swoim panelu → `GET /missions/:id`. Nie budujemy drugiego.
  *
- * PIĘĆ STANÓW, każdy odczytywalny z jednego obiektu (ta sama zasada, co
+ * STANY, każdy odczytywalny z jednego obiektu (ta sama zasada, co
  * w `zadanieGwiazdek.js` — inaczej Wizkor nie wie, co powiedzieć, a zwój nie
- * wie, co pokazać):
+ * wie, co pokazać). Nazwy klucza zostają dla zgodności zapisów w localStorage,
+ * znaczenie wg docs/tresci/06 §4.7 (Mentor ZAUWAŻA, nie zatwierdza):
  *
- *   brak        — Wizkor jeszcze nie zlecił
- *   zlecone     — do zrobienia poza ekranem
- *   wyslane     — dowód poszedł, czekamy na Mentora
- *   poprawka    — Mentor prosi o poprawkę (jego komentarz w `notatka`)
- *   zatwierdzone— Mentor przyjął, nagroda czeka
- *   wyplacone   — monety dopisane
+ *   brak        — Wizkor jeszcze nie zlecił                       („Do zrobienia" to pusty panel)
+ *   zlecone     — wzięte z koła, czeka u dziecka                  „Czeka — u ciebie"
+ *   wyslane     — ślad zostawiony; świat już zareagował            „Ślad zostawiony"
+ *                 (+ „Mentor już to widzi" TYLKO przy prawdziwym, niedemowym Mentorze)
+ *   zatwierdzone— Mentor zauważył (backend `noticed`/`verified`)  „Mentor {zobaczył|zobaczyła}"
+ *   wyplacone   — dziecko obejrzało zmianę; do historii            „Zrobione" (tylko historia)
  *
- * Monety mają JEDNO źródło prawdy: backend przy decyzji Mentora. Frontend
- * zapamiętuje `points_awarded`, pokazuje je dziecku i pozwala domknąć ekran,
- * ale nie dopisuje drugiej lokalnej nagrody.
+ * Statusów `poprawka` / `rejected` / `needs_followup` dziecko NIE widzi — mapują
+ * się na „Ślad zostawiony" (zadania nie da się oblać). Monety: 25 w tle przy
+ * śladzie (backend `/submit` albo lokalnie w demie), 0 za zauważenie.
  */
 import DANE from "./data/zadania-wizkora.v1.json";
 import { api, session } from "../services/api.js";
@@ -58,15 +59,29 @@ export const ZADANIA = DANE.zadania || [];
  * powtarzało to, co dziecko właśnie przeczytało dwa wiersze wyżej.
  */
 export const OPIS_STANU = {
-  zlecone: { etykieta: "Do zrobienia", cta: "Otwórz" },
-  poprawka: { etykieta: "Mentor prosi o poprawkę", cta: "Popraw" },
-  // „Sprawdzane" zamiast „U Mentora": plakietka ma mowic, CO SIE DZIEJE
-  // z odpowiedzia dziecka, a nie gdzie lezy teczka. CTA prowadzi do panelu,
-  // wiec zaprasza („Zajrzyj"), zamiast obiecywac werdykt od razu.
-  wyslane: { etykieta: "Sprawdzane", cta: "Zajrzyj" },
-  zatwierdzone: { etykieta: "Nagroda czeka", cta: "Odbierz nagrodę" },
+  zlecone: { etykieta: "Czeka — u ciebie", cta: "Otwórz" },
+  // Legacy: dawny status „poprawka" (stare zapisy) czyta się jak „Ślad zostawiony".
+  poprawka: { etykieta: "Ślad zostawiony", cta: "Zobacz" },
+  wyslane: { etykieta: "Ślad zostawiony", cta: "Zobacz" },
+  zatwierdzone: { etykieta: "Mentor {zobaczył|zobaczyła}", cta: "Zobacz, co się zmieniło" },
   wyplacone: { etykieta: "Zrobione", cta: "Zobacz" },
 };
+
+/* Etykieta stanu „zauważone" zależy od tego, co wiemy o Mentorze. gm_accounts
+   nie ma pola płci — odczytujemy ją z formuły „Widziałem." / „Widziałam."
+   (`mentor.js` zapisuje `mentor_gender`); bez tej wiedzy zdanie idzie w czasie
+   teraźniejszym, bez tokenu, żeby nikomu nie przypisać rodzaju. */
+export function etykietaZauwazone(mentorRodzaj) {
+  if (mentorRodzaj === "m") return "Mentor zobaczył";
+  if (mentorRodzaj === "z") return "Mentor zobaczyła";
+  return "Mentor to widzi";
+}
+
+/* Podtytuł pod „Ślad zostawiony": obiecujemy dorosłego tylko wtedy, gdy jest
+   (klasa z żywym kontem Mentora, gracz nie-demo, tryb nie-demo). */
+export function podtytulSladu(stan) {
+  return stan?.mentorPrawdziwy ? "Mentor już to widzi" : null;
+}
 
 export function definicjaZadania(id) {
   return ZADANIA.find((z) => z.id === id) || null;
@@ -106,6 +121,9 @@ const PUSTE = {
   nagroda: null,
   etykieta: null,
   cta: null,
+  mentorPrawdziwy: false,
+  mentorRodzaj: null,
+  miejsce: null,
 };
 
 /** Jedno źródło prawdy o zadaniu — czyta je zwój, panel, Wizkor i licznik. */
@@ -113,15 +131,18 @@ export function stanZadania() {
   const zapis = czytaj();
   if (!zapis) return { ...PUSTE };
   const def = definicjaZadania(zapis.id);
-  const status = zapis.status || "zlecone";
+  // Dawna „poprawka" (stare zapisy) = ślad zostawiony; dziecko nie widzi werdyktów.
+  const status = zapis.status === "poprawka" ? "wyslane" : (zapis.status || "zlecone");
   const opis = OPIS_STANU[status] || OPIS_STANU.zlecone;
+  const mentorRodzaj = zapis.mentorRodzaj || null;
+  const mentorPrawdziwy = !!zapis.mentorPrawdziwy && !zapis.demo && !DEMO_SAM_ZATWIERDZA;
   return {
     istnieje: true,
     def,
     id: zapis.id,
     missionId: zapis.missionId || null,
     status,
-    doZrobienia: status === "zlecone" || status === "poprawka",
+    doZrobienia: status === "zlecone",
     czeka: status === "wyslane",
     doOdbioru: status === "zatwierdzone",
     wyplacone: status === "wyplacone",
@@ -131,8 +152,11 @@ export function stanZadania() {
       ? Number(zapis.nagroda)
       : null,
     zleconeAt: zapis.zleconeAt || null,
-    etykieta: opis.etykieta,
+    etykieta: status === "zatwierdzone" ? etykietaZauwazone(mentorRodzaj) : opis.etykieta,
     cta: opis.cta,
+    mentorPrawdziwy,
+    mentorRodzaj,
+    miejsce: zapis.miejsce || null,
   };
 }
 
@@ -189,6 +213,13 @@ export function zlecZadanie(id) {
   return zapisz({ id, status: "zlecone", zleconeAt: new Date().toISOString() });
 }
 
+/** Wybrane `miejsce` (id z `def.miejsca`) — zapisane, żeby nie przepadało (06 pkt 19). */
+export function zapiszMiejsce(miejsce) {
+  const zapis = czytaj();
+  if (!zapis) return stanZadania();
+  return zapisz({ ...zapis, miejsce: miejsce || null });
+}
+
 /**
  * Wysłanie dowodu do Mentora. Dwa kroki, bo backend tak działa: najpierw
  * misja musi istnieć (`seed` jest idempotentny po `adventure_ref` + tytule),
@@ -212,21 +243,29 @@ export async function wyslijDowod({ opis, zdjecieUrl }) {
       proof_type: zdjecieUrl ? "photo" : "text",
       estimated_minutes: def.minuty || 15,
       adventure_ref: `wizkor.${def.id}`,
+      // Pytanie do rozmowy dla Mentora (03 §7 `rozmowa`) — zamiast werdyktu.
+      rozmowa: def.rozmowa || null,
     });
     missionId = utworzona?.mission_id || utworzona?.id;
     if (!missionId) throw new Error("Nie udało się założyć zadania u Mentora.");
   }
 
-  await api.submitMissionProof(missionId, {
+  const odpowiedz = await api.submitMissionProof(missionId, {
     proof_text: opis || "",
     proof_media_url: zdjecieUrl || null,
+    place_id: zapis.miejsce || null,
   });
 
+  /* ŚLAD ZOSTAWIONY: monety (25) dopisał backend przy `/submit` — tu tylko
+     zapamiętujemy, że poszły, żeby demo nie dopisało ich drugi raz. Świat
+     reaguje od razu (`ZadaniePanel` → `onPokazMiejsce`), bez czekania na Mentora. */
   return zapisz({
     ...zapis,
     missionId,
     status: "wyslane",
     notatka: null,
+    monetyZaSlad: Number(odpowiedz?.coins_awarded) || 0,
+    mentorPrawdziwy: !!odpowiedz?.mentor_present,
     dowod: { opis: opis || "", zdjecieUrl: zdjecieUrl || null, wyslaneAt: new Date().toISOString() },
   });
 }
@@ -242,53 +281,22 @@ export async function wyslijDowod({ opis, zdjecieUrl }) {
  * „Zadania" pali sam przypięty wpis (patrz `wpisZadaniaWizkora` w
  * `wiadomosci.js`), więc sygnał „coś na Ciebie czeka" nie znika.
  */
-/* ── DEMO: WERDYKT PRZYCHODZI SAM ─────────────────────────────────────────
-   JAK JEST BEZ TEGO. Dowód leci do bazy i misja dostaje status `submitted`.
-   Na `verified` przestawia ją WYŁĄCZNIE prawdziwy Mentor ze swojego panelu
-   (`backend/src/api/mentor.js` → `decision: "approve"`); w kodzie nie ma
-   niczego, co zrobiłoby to samo automatycznie. W wersji demo, gdzie po
-   drugiej stronie nie ma nikogo, zadanie zostawało więc na zawsze
-   w „Sprawdzane", a nagroda nie dochodziła nigdy.
+/* ── DEMO: BEZ UDAWANIA OSOBY ─────────────────────────────────────────────
+   Dawniej po 60 s od wysłania dowodu zadanie samo przechodziło na
+   „zatwierdzone" z notatką „ciche dobro" — czyli udawało żywego Mentora.
+   Od 17.09 (docs/tresci/06 pkt 6): świat reaguje OD RAZU po śladzie (status
+   `wyslane` = „Ślad zostawiony"), a demo NIGDY nie przełącza na „Mentor
+   zobaczył". Jedyne, co demo robi: dopisuje lokalnie 25 monet w tle, gdy
+   dowód poszedł skrótem bez backendu (`wyslijDowodDev`), i — jeśli notatka
+   w ogóle ma się pokazać — mówi jawnie, że to tryb demo.
 
-   CO ROBI PRZEŁĄCZNIK. Po `DEMO_OPOZNIENIE_MS` od wysłania dowodu werdykt
-   przychodzi sam: karta zadania zmienia się na „Nagroda czeka", plakietka
-   zapala się na zakładce „Zadania", a monety dopisują się przy odbiorze nagrody.
-
-   DLACZEGO NIE NATYCHMIAST. „Wysłane do Mentora", po którym nagroda pojawia
-   się w tej samej sekundzie, mówi dziecku wprost, że po drugiej stronie
-   nikogo nie ma. Minuta wystarczy, żeby werdykt trafił do niego w trakcie
-   biegania po mapie — jako coś, co przyszło, a nie jako część kliknięcia.
-
-   GDY POWSTANIE PANEL MENTORA: `DEMO_SAM_ZATWIERDZA = false` i tyle. Reszta
-   toru — sprawdzanie, karta w zwoju, ekran nagrody — jest wspólna dla obu
-   dróg i nie zauważy różnicy. */
+   GDY POWSTANIE PANEL MENTORA: `DEMO_SAM_ZATWIERDZA = false`; wtedy
+   „Mentor już to widzi" pod śladem pojawia się przy prawdziwym Mentorze. */
 const DEMO_SAM_ZATWIERDZA = true;
-const DEMO_OPOZNIENIE_MS = 60_000;
-const DEMO_NOTATKA = "Widziałem, co zrobiłeś. Właśnie tak wygląda ciche dobro.";
+const DEMO_NOTATKA = "(tryb demo) Świat to zauważył.";
+const MONETY_ZA_SLAD = 25;
 
-function demoWerdyktGotowy(zapis) {
-  if (!DEMO_SAM_ZATWIERDZA) return false;
-  if (!zapis || zapis.status !== "wyslane") return false;
-  const wyslane = new Date(zapis.dowod?.wyslaneAt || 0).getTime();
-  // Zapis bez znacznika (starsza wersja gry) nie ma czekać w nieskończoność.
-  if (!wyslane || Number.isNaN(wyslane)) return true;
-  return Date.now() - wyslane >= DEMO_OPOZNIENIE_MS;
-}
-
-/** `demo: true` w zapisie znaczy „tych monet NIE ma w bazie" — patrz `odbierzNagrode`. */
-function zatwierdzDemo(zapis) {
-  const def = definicjaZadania(zapis.id);
-  return zapisz({
-    ...zapis,
-    status: "zatwierdzone",
-    notatka: DEMO_NOTATKA,
-    nagroda: zapis.nagroda ?? def?.nagroda ?? 25,
-    demo: true,
-  });
-}
-
-const PRZYJETE = new Set(["verified", "highlighted"]);
-const DO_POPRAWKI = new Set(["rejected", "needs_followup"]);
+const ZAUWAZONE = new Set(["noticed", "verified", "highlighted"]);
 
 /**
  * Sprawdzenie werdyktu PRZY OTWARCIU PANELU zadania, bez pollingu. Odpytywanie
@@ -300,27 +308,25 @@ const DO_POPRAWKI = new Set(["rejected", "needs_followup"]);
  */
 export async function sprawdzMentora() {
   const zapis = czytaj();
-  // Demo odpowiada zamiast Mentora i nie potrzebuje do tego ani sieci, ani
-  // `missionId`: dowód wysłany skrótem z pulpitu (`wyslijDowodDev`) też ma
-  // doczekać się werdyktu.
-  if (demoWerdyktGotowy(zapis)) return zatwierdzDemo(zapis);
   if (!zapis?.missionId) return stanZadania();
   const misja = await api.getMissionById(zapis.missionId);
   const status = misja?.status || misja?.mission?.status;
   const werdykt = misja?.gm_verification || misja?.mission?.gm_verification || null;
+  const mentorPrawdziwy = misja?.mentor_present != null ? !!misja.mentor_present : !!zapis.mentorPrawdziwy;
 
-  if (PRZYJETE.has(status)) {
-    const nagroda = Number(werdykt?.points_awarded);
+  if (ZAUWAZONE.has(status)) {
+    // Zauważenie nie dodaje monet (`nagroda` zostaje z tła). Formuła Mentora
+    // bez oceny idzie do dziecka jako `notatka`; z niej też rodzaj Mentora.
     return zapisz({
       ...zapis,
       status: "zatwierdzone",
-      notatka: werdykt?.comment_text || werdykt?.comment || null,
-      nagroda: Number.isFinite(nagroda) ? nagroda : null,
+      notatka: werdykt?.formula || werdykt?.comment || null,
+      mentorRodzaj: werdykt?.mentor_gender || null,
+      mentorPrawdziwy,
     });
   }
-  if (DO_POPRAWKI.has(status)) {
-    return zapisz({ ...zapis, status: "poprawka", notatka: werdykt?.comment_text || werdykt?.comment || null });
-  }
+  // `rejected` / `needs_followup`: dziecko nie widzi werdyktu — ślad zostaje śladem.
+  if (mentorPrawdziwy !== !!zapis.mentorPrawdziwy) return zapisz({ ...zapis, mentorPrawdziwy });
   return stanZadania();
 }
 
@@ -349,12 +355,6 @@ function wolnoPytac() {
 export async function sprawdzMentoraWTle() {
   const stan = stanZadania();
   if (!stan.czeka) return stan;
-  // Werdykt demo jest lokalny, więc idzie PRZED dławikiem — ten pilnuje
-  // zapytań do serwera, a tutaj żadnego nie ma. Inaczej nagroda w demie
-  // potrafiłaby spóźnić się o dziesięć minut z powodu ochrony przed
-  // odpytywaniem czegoś, o co i tak nie pytamy.
-  const zapis = czytaj();
-  if (demoWerdyktGotowy(zapis)) return zatwierdzDemo(zapis);
   if (!stan.missionId) return stan;
   if (!wolnoPytac()) return stan;
   try { localStorage.setItem(KLUCZ_PYTANIA, String(Date.now())); } catch {}
@@ -365,32 +365,37 @@ export async function sprawdzMentoraWTle() {
   }
 }
 
+/**
+ * „Zobacz, co się zmieniło" — dziecko obejrzało reakcję świata po zauważeniu.
+ * Nazwa funkcji zostaje (woła ją panel i pulpit), ale monet tu już nie ma:
+ * 25 w tle poszło przy śladzie (backend `/submit` albo lokalnie w demie —
+ * `oznaczSladLokalnie`), zauważenie nie dodaje nic. Zamyka kartę do historii.
+ */
 export function odbierzNagrode() {
   const zapis = czytaj();
   if (!zapis || zapis.status !== "zatwierdzone") return stanZadania();
   /**
-   * JEDNO ŹRÓDŁO MONET NA JEDNĄ DROGĘ, nigdy dwa naraz.
-   *
-   * Prawdziwy werdykt Mentora zapisuje monety w bazie (`points_awarded`) —
-   * wchodzą do HUD-u przy najbliższym odświeżeniu gracza, a dopisanie ich tu
-   * jeszcze raz byłoby podwójnym liczeniem (patrz `services/monety.js`).
-   * Werdykt demo nie ma ich skąd wziąć, więc lecą torem lokalnym — tym samym,
-   * co nagrody za minigry. Rozstrzyga o tym `demo` w zapisie.
-   */
-  if (zapis.demo) {
-    const def = definicjaZadania(zapis.id);
-    dodajMonety(zapis.nagroda ?? def?.nagroda ?? 25, "zadanie w realu (demo)");
-  }
-  /**
-   * ZADANIE WZMACNIA CECHĘ, pod którą je wylosowano (koło fortuny).
-   * Podbicie idzie przy WYPŁACIE, nie przy wysłaniu dowodu — cecha rośnie
-   * za rzecz zrobioną i przyjętą przez Mentora, a wypłata jest idempotentna,
-   * więc i cecha nie urośnie dwa razy za jedno zadanie.
+   * ZADANIE WZMACNIA CECHĘ, pod którą je wylosowano (koło fortuny) — raz,
+   * przy domknięciu karty (idempotentne).
    */
   const cecha = definicjaZadania(zapis.id)?.cecha;
   if (cecha) { try { wzmocnijCeche(cecha, 1); } catch {} }
   dopiszDoHistorii(zapis.id);
   return zapisz({ ...zapis, status: "wyplacone" });
+}
+
+/**
+ * Ślad w demie / bez backendu: 25 monet w tle dopisane lokalnie, raz.
+ * Backend robi to sam przy `/submit` (`coins_awarded`), więc lokalnie tylko
+ * wtedy, gdy zapis nie ma `missionId` (dowód poszedł skrótem) i monety
+ * jeszcze nie poszły.
+ */
+export function oznaczSladLokalnie() {
+  const zapis = czytaj();
+  if (!zapis || zapis.status !== "wyslane") return stanZadania();
+  if (zapis.missionId || zapis.monetyZaSlad) return stanZadania();
+  dodajMonety(MONETY_ZA_SLAD, "zadanie w realu (ślad, demo)");
+  return zapisz({ ...zapis, monetyZaSlad: MONETY_ZA_SLAD, demo: true });
 }
 
 /** Do pulpitu testowego i konsoli — czekanie na Mentora byłoby nie do zniesienia. */
@@ -412,7 +417,7 @@ export function skasujZadanie({ historia = false } = {}) {
 export function wyslijDowodDev({ opis, zdjecieUrl } = {}) {
   const zapis = czytaj();
   if (!zapis) return stanZadania();
-  return zapisz({
+  zapisz({
     ...zapis,
     status: "wyslane",
     notatka: null,
@@ -422,19 +427,18 @@ export function wyslijDowodDev({ opis, zdjecieUrl } = {}) {
       wyslaneAt: new Date().toISOString(),
     },
   });
+  return oznaczSladLokalnie();
 }
 
 export function ustawStatus(status, notatka = null) {
   const zapis = czytaj();
   if (!zapis) return stanZadania();
-  const def = definicjaZadania(zapis.id);
+  // Skrót z pulpitu: „zatwierdzone" symuluje zauważenie (bez monet — te poszły
+  // przy śladzie); notatka domyślnie jawnie demowa.
   return zapisz({
     ...zapis,
-    // Skrót z pulpitu nie jest werdyktem z bazy, więc monety muszą pójść
-    // torem lokalnym — inaczej „Odbierz nagrodę" nie dołożyłoby ani grosza.
     demo: status === "zatwierdzone" ? true : zapis.demo,
     status,
-    notatka,
-    nagroda: status === "zatwierdzone" ? (zapis.nagroda || def?.nagroda || 25) : zapis.nagroda,
+    notatka: notatka ?? (status === "zatwierdzone" ? DEMO_NOTATKA : null),
   });
 }

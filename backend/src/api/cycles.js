@@ -31,6 +31,8 @@ const LEGACY_ARCHETYPE_TO_PROFILE = {
   straznik_mostu: "MD",
 };
 const PROFILE_CODES = new Set(["DT", "EM", "ST", "KR", "LD", "MD"]);
+// Monety w tle za slad zadania w realu (cichy licznik w HUD; zero w kwestiach).
+const MONETY_ZA_SLAD = 25;
 function mapToProfileCode(value) {
   if (!value) return null;
   if (PROFILE_CODES.has(value)) return value;
@@ -79,23 +81,74 @@ function mapLibraryItemToMission(item) {
 }
 
 // Wybierz misje z bazy mentora pasujaca do profilu gracza, nieprzerobiona wczesniej.
-// Fallback: jesli profil nie znany albo brak zadan — losuj z calej bazy task-ow.
-function pickSeedMission(usedTitles, archetypeOrProfile) {
+// POMIJANIE PO `id` BIBLIOTEKI, nie po tytule (docs/tresci/06 pkt 8): tytuly
+// zmienialy sie 17.09 i to samo zadanie wracalo pod nowa nazwa. `usedIds` to
+// `library_id` z wczesniejszych misji gracza (kolumna dopisywana nizej).
+// PROFIL TO KOLEJNOSC, NIE ZBIOR (06 §4.7, 03 §6.2): zadania z profilu ida
+// pierwsze, ale gdy sie wyczerpia, dziecko dostaje zadania z pozostalych
+// profili zamiast powtorki — profil nie blokuje osi.
+function pickSeedMission(usedIds, archetypeOrProfile) {
   const profile = mapToProfileCode(archetypeOrProfile);
   const taskItems = MENTOR_TASK_LIBRARY.filter((it) => it.kind === "task");
-  // 1. Preferuj zadania pasujace do profilu gracza
-  const profileItems = profile
-    ? taskItems.filter((it) => it.profile === profile)
-    : taskItems;
-  // 2. Wyklucz uzyte wczesniej (po tytule)
-  const unused = (profileItems.length > 0 ? profileItems : taskItems)
-    .filter((it) => !usedTitles.includes(it.title));
-  // 3. Jesli wszystko uzyte — pozwol na powtorke z puli profilu
-  const pool = unused.length > 0
-    ? unused
-    : (profileItems.length > 0 ? profileItems : taskItems);
+  const used = new Set(usedIds || []);
+  const profileItems = profile ? taskItems.filter((it) => it.profile === profile) : [];
+  const unusedProfile = profileItems.filter((it) => !used.has(it.id));
+  const unusedAll = taskItems.filter((it) => !used.has(it.id));
+  const pool = unusedProfile.length > 0 ? unusedProfile : (unusedAll.length > 0 ? unusedAll : taskItems);
   const picked = pool[Math.floor(Math.random() * pool.length)];
-  return mapLibraryItemToMission(picked);
+  return { ...mapLibraryItemToMission(picked), library_id: picked.id };
+}
+
+/* MIGRACJA (w stylu repo — `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`, jak
+   w `database/db.js`): `missions.library_id` trzyma id wpisu biblioteki, po
+   ktorym pomijamy powtorki; `missions.rozmowa` — pytanie do rozmowy dla
+   Mentora z karty zadania (03 §7). Uruchamiana raz, leniwie, przy pierwszym
+   uzyciu; bez uprawnien do ALTER — cicho pomijana (kolumny opcjonalne). */
+let _libraryIdReady = null;
+export async function ensureLibraryIdColumn() {
+  if (!_libraryIdReady) {
+    _libraryIdReady = (async () => {
+      try {
+        const pool = await getPool();
+        await pool.query("ALTER TABLE missions ADD COLUMN IF NOT EXISTS library_id TEXT");
+        await pool.query("ALTER TABLE missions ADD COLUMN IF NOT EXISTS rozmowa TEXT");
+        return true;
+      } catch (e) {
+        console.warn("[missions] library_id: brak kolumny, pomijanie powtorek po id wylaczone:", e.message);
+        return false;
+      }
+    })();
+  }
+  return _libraryIdReady;
+}
+
+async function usedLibraryIds(playerId) {
+  if (!(await ensureLibraryIdColumn())) return [];
+  try {
+    const pool = await getPool();
+    const { rows } = await pool.query(
+      "SELECT library_id FROM missions WHERE player_id = $1 AND library_id IS NOT NULL", [playerId]
+    );
+    return rows.map((r) => r.library_id);
+  } catch { return []; }
+}
+
+/* Czy dziecko ma PRAWDZIWEGO Mentora: jest w klasie zywego konta Mentora
+   i nie jest graczem demo. Frontend pokazuje „Mentor juz to widzi" tylko wtedy
+   (docs/tresci/02 §2.5, 06 §4.7). */
+async function mentorPresent(playerId) {
+  try {
+    const pool = await getPool();
+    const { rows } = await pool.query(
+      `SELECT 1 FROM class_memberships cm
+         JOIN mentor_classes mc ON mc.id = cm.class_id
+         JOIN players p ON p.id = cm.player_id
+        WHERE cm.player_id = $1 AND cm.left_at IS NULL AND COALESCE(p.is_demo, FALSE) = FALSE
+        LIMIT 1`,
+      [playerId]
+    );
+    return rows.length > 0;
+  } catch { return false; }
 }
 
 export function cycleRoutes(db) {
@@ -149,7 +202,10 @@ export function missionRoutes(db) {
           return res.status(500).json({ error: `Nie udalo sie utworzyc cyklu: ${cycleErr.message}` });
         }
       }
-      const used = (player.choices_log || []).filter((c) => c.cycle_id && c.task_id === "mission").map((c) => c.choice_id);
+      // `used` = id biblioteki z wczesniejszych misji gracza (pomijanie po id,
+      // nie po tytule). Tytuly nadal ida do Claude jako kontekst.
+      const used = await usedLibraryIds(player_id);
+      const usedTitles = used.length ? MENTOR_TASK_LIBRARY.filter((it) => used.includes(it.id)).map((it) => it.title) : [];
 
       // Próbuj Claude API (spersonalizowana misja); fallback do seed library
       let payload;
@@ -159,7 +215,7 @@ export function missionRoutes(db) {
           const ai = await narrativeService.generateMission({
             playerName: player.player_name,
             archetype: player.archetype || "tropiciel_tajemnic",
-            completedMissionTitles: used,
+            completedMissionTitles: usedTitles,
             scores: player.scores,
             chapter: player.current_chapter || "wezwanie_kroniki",
           });
@@ -186,6 +242,9 @@ export function missionRoutes(db) {
       });
       const pool = await getPool();
       await pool.query("UPDATE missions SET artifact_reward=$1 WHERE id=$2", [payload.artifact_reward ? JSON.stringify(payload.artifact_reward) : null, mission.mission_id]);
+      if (payload.library_id && (await ensureLibraryIdColumn())) {
+        try { await pool.query("UPDATE missions SET library_id=$1 WHERE id=$2", [payload.library_id, mission.mission_id]); } catch {}
+      }
       mission.source = source;
       res.json(mission);
     } catch (e) { console.error("[mission generate]", e); res.status(500).json({ error: e.message }); }
@@ -201,7 +260,7 @@ export function missionRoutes(db) {
     try {
       const {
         player_id, title, body, narrative_intro, competency_focus,
-        proof_type, estimated_minutes, safety_notes, adventure_ref,
+        proof_type, estimated_minutes, safety_notes, adventure_ref, rozmowa,
       } = req.body || {};
       if (!player_id || !title?.trim() || !body?.trim()) {
         return res.status(400).json({ error: "player_id, title i body sa wymagane" });
@@ -236,6 +295,15 @@ export function missionRoutes(db) {
         safety_notes: safety_notes || null,
       });
       mission.source = "adventure";
+      // Zadania Wizkora niosa `adventure_ref: wizkor.<id>` — zapisujemy jako
+      // library_id, zeby historia po stronie bazy tez znala id, nie tytul.
+      if ((adventure_ref || rozmowa) && (await ensureLibraryIdColumn())) {
+        try {
+          await pool.query("UPDATE missions SET library_id=$1, rozmowa=$2 WHERE id=$3",
+            [adventure_ref ? String(adventure_ref) : null, typeof rozmowa === "string" && rozmowa.trim() ? rozmowa.trim() : null, mission.mission_id]);
+        } catch {}
+      }
+      mission.mentor_present = await mentorPresent(player_id);
       res.json(mission);
     } catch (e) {
       console.error("[mission seed]", e);
@@ -255,7 +323,7 @@ export function missionRoutes(db) {
     try {
       const m = await getMission(db, req.params.id);
       if (!m) return res.status(404).json({ error: "Misja nie znaleziona" });
-      res.json(m);
+      res.json({ ...m, mentor_present: await mentorPresent(m.player_id) });
     } catch (e) { res.status(500).json({ error: e.message }); }
   });
 
@@ -270,35 +338,30 @@ export function missionRoutes(db) {
         proof_media_url: proof_media_url || null,
       });
 
-      // NAGRODA: +punkty do lifetime_scores per cecha (mission.competency_focus) + bonus do profilu gracza
+      /* SLAD ZOSTAWIONY (decyzja autora 17.09; docs/tresci/06 §4.6, pkt 20):
+         - monety: stale 25 przy sladzie (bylo +5 tu i 15–40 od Mentora);
+           zauwazenie przez Mentora nie dodaje monet — doklada obiekt w swiecie;
+         - punkty ida do kodow z `competency_focus` ZADANIA, nigdy do
+           `player.archetype` (to utrwalalo etykiete z testu). */
       const player = await getPlayer(db, mission.player_id);
       if (player) {
         const lifetime = { ...(player.lifetime_scores || { EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 }) };
         const cycleScores = { ...(player.scores || { EM: 0, ST: 0, KR: 0, LD: 0, DT: 0, MD: 0 }) };
         const focus = Array.isArray(mission.competency_focus) ? mission.competency_focus : [];
-        // GAME DESIGN v2: zadanie w realu = wartosciowy wysilek, ale glowna nagroda przychodzi
-        // od mentora po verify. Tu tylko zalazek - efekt zaczet, czeka na potwierdzenie.
-        // +4 do glownego profilu (bylo 8). Reszta przyjdzie z verify (+5 main + custom coins).
-        const mainProfile = player.archetype && lifetime[player.archetype] !== undefined ? player.archetype : "DT";
-        lifetime[mainProfile] = (lifetime[mainProfile] || 0) + 4;
-        cycleScores[mainProfile] = (cycleScores[mainProfile] || 0) + 4;
-        // +2 do kazdej cechy z competency_focus (bylo 5)
         for (const code of focus) {
-          if (lifetime[code] !== undefined && code !== mainProfile) {
-            lifetime[code] = (lifetime[code] || 0) + 2;
-            cycleScores[code] = (cycleScores[code] || 0) + 2;
+          if (lifetime[code] !== undefined) {
+            lifetime[code] = (lifetime[code] || 0) + 4;
+            cycleScores[code] = (cycleScores[code] || 0) + 4;
           }
         }
         player.lifetime_scores = lifetime;
         player.scores = cycleScores;
-        // +5 coinow za wyslanie odpowiedzi (bylo 10) - "iskra odwagi" za sam fakt zrobienia.
-        // Glowna nagroda 15-40 ✦ przyjdzie po verify mentora.
-        player.coins = (player.coins || 0) + 5;
+        player.coins = (player.coins || 0) + MONETY_ZA_SLAD;
         await savePlayer(db, player);
       }
 
       // Swiecace Piorko (artefakt za samo wyslanie) wycofane 17.09.2026 — docs/SWIAT_I_POSTACIE.md.
-      res.json({ ok: true, scores: player?.lifetime_scores });
+      res.json({ ok: true, scores: player?.lifetime_scores, coins_awarded: MONETY_ZA_SLAD, mentor_present: await mentorPresent(mission.player_id) });
     } catch (e) { console.error("[mission submit]", e); res.status(500).json({ error: e.message }); }
   });
 

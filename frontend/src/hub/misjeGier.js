@@ -87,9 +87,8 @@ export const MISJE = [
        i obiecuje grę, a nie kolejne szukanie. */
     zlecenie: {
       tekst:
-        "Masz oko do gwiazdek, wędrowcze. Teraz coś trudniejszego: mój obrazek " +
-        "rozsypał się na kawałki i wiatr rozniósł je po polanie. " +
-        "Pozbieraj je i ułóż w całość, a moja karta będzie twoja.",
+        "Mój obrazek rozsypał się po polanie. " +
+        "Pozbieraj kawałki i ułóż go, a karta zostanie twoja.",
       wyroznienie: "kawałki",
       przycisk: "Zbieram kawałki!",
     },
@@ -114,27 +113,27 @@ export const MISJE = [
        Treść kart wg `docs/tresci/02_KOMUNIKATY_POPRAWKI.md` §2.2. */
     granie: {
       tekst:
-        "Karta jest twoja — masz ją już w skrzyni z grami i na mapie. " +
-        "Zostało najtrudniejsze: dobierz wszystkie pary.",
+        "Karta jest twoja — stoi na polanie i czeka w Minigrach. " +
+        "Teraz dobierz wszystkie pary.",
       tekstEkranu: "Karta stoi na polanie. Dobierz pary.",
-      wyroznienie: "w skrzyni z grami",
+      wyroznienie: "dobierz wszystkie pary",
       przycisk: "Gram dalej!",
     },
     wyplata: {
       tekst:
-        "Widziałem każdą parę, którą odkryłeś. Pamięć masz jak sowa — " +
-        "należy ci się {nagroda} monet.",
+        "Widziałem każdą parę. Karta zostaje na polanie — " +
+        "wracaj do niej, kiedy chcesz.",
       tekstEkranu: "Wszystkie pary. Karta zostaje na polanie.",
-      wyroznienie: "{nagroda} monet",
-      przycisk: "Odbieram nagrodę!",
+      wyroznienie: "zostaje na polanie",
+      przycisk: "Dobrze",
     },
     nagrodaEkranUlozenie: {
       title: "Obrazek ułożony!",
-      subtitle: "Karta Wizkora jest twoja — czeka w skrzyni z grami i na polanie.",
+      subtitle: "Karta Wizkora stoi na polanie i czeka w Minigrach.",
     },
     nagrodaEkran: {
-      title: "Pamięć jak sowa!",
-      subtitle: "Dobrałeś wszystkie pary z karty Wizkora.",
+      title: "Wszystkie pary!",
+      subtitle: "{Dobrałeś|Dobrałaś} wszystkie pary z karty Wizkora.",
     },
   },
   {
@@ -167,10 +166,9 @@ export const MISJE = [
     nagroda: 35,
     zlecenie: {
       tekst:
-        "Czas polatać, wędrowcze. Obrazek lotu rozsypał się na dziewięć " +
-        "kawałków i leżą teraz po całej polanie. Pozbieraj je i ułóż " +
-        "w całość, a staniesz na szczycie choinki.",
-      wyroznienie: "dziewięć kawałków",
+        "Obrazek lotu rozsypał się po polanie. " +
+        "Pozbieraj kawałki i ułóż go, a wejdziesz na szczyt choinki.",
+      wyroznienie: "kawałki",
       przycisk: "Zbieram kawałki!",
     },
     zbieranie: {
@@ -189,19 +187,19 @@ export const MISJE = [
     },
     granie: {
       tekst:
-        "Jesteś na górze. Odbij się w dobrym momencie i łap wiatr — " +
-        "im dłużej lecisz, tym więcej po drodze zbierzesz.",
+        "Choinka jest twoja. Odbij się w dobrym momencie i łap wiatr — " +
+        "im dłużej lecisz, tym dalej widać polanę.",
       tekstEkranu: "Choinka jest twoja. Odbij się i leć.",
       wyroznienie: "łap wiatr",
       przycisk: "Lecę!",
     },
     wyplata: {
       tekst:
-        "Widziałem ten lot z ziemi, wędrowcze. Kawał drogi. " +
-        "{nagroda} monet — należą ci się.",
+        "Widziałem ten lot z ziemi. Kawał drogi. " +
+        "Choinka zostaje na polanie — startuj, kiedy chcesz.",
       tekstEkranu: "Widziałem ten lot. Choinka zostaje twoja.",
-      wyroznienie: "{nagroda} monet",
-      przycisk: "Odbieram nagrodę!",
+      wyroznienie: "zostaje na polanie",
+      przycisk: "Dobrze",
     },
     nagrodaEkranUlozenie: {
       title: "Obrazek ułożony!",
@@ -209,7 +207,7 @@ export const MISJE = [
     },
     nagrodaEkran: {
       title: "Ale lot!",
-      subtitle: "Złapałeś wiatr i poleciałeś dalej, niż sięga polana.",
+      subtitle: "{Złapałeś|Złapałaś} wiatr i {poleciałeś|poleciałaś} dalej, niż sięga polana.",
     },
   },
   {
@@ -236,10 +234,9 @@ export const MISJE = [
     nagroda: 40,
     zlecenie: {
       tekst:
-        "Zostało ostatnie, wędrowcze. Obrazek górskiej trasy rozsypał się " +
-        "na dziewięć kawałków po polanie. Pozbieraj je i ułóż w całość, " +
-        "a bucik do biegania będzie twój.",
-      wyroznienie: "dziewięć kawałków",
+        "Obrazek górskiej trasy rozsypał się po polanie. " +
+        "Pozbieraj kawałki i ułóż go, a bucik do biegania będzie twój.",
+      wyroznienie: "kawałki",
       przycisk: "Zbieram kawałki!",
     },
     zbieranie: {
@@ -258,27 +255,27 @@ export const MISJE = [
     },
     granie: {
       tekst:
-        "Bucik masz, więc trasa stoi otworem. Biegnij i licz w biegu — " +
-        "bramki nie czekają, aż się zastanowisz.",
+        "Bucik jest twój, więc trasa stoi otworem. Biegnij i licz w biegu — " +
+        "po jednej bramce naraz.",
       tekstEkranu: "Bucik jest twój. Trasa stoi otworem.",
       wyroznienie: "licz w biegu",
       przycisk: "Biegnę!",
     },
     wyplata: {
       tekst:
-        "Przebiegłeś całą trasę i jeszcze liczyłeś po drodze. " +
-        "Głowa i nogi pracowały razem — świetna robota. {nagroda} monet jest twoje.",
+        "{Przebiegłeś|Przebiegłaś} całą trasę i jeszcze {liczyłeś|liczyłaś} po drodze. " +
+        "Bucik zostaje na polanie — trasa jest twoja.",
       tekstEkranu: "Cała trasa. Bucik zostaje na polanie.",
-      wyroznienie: "{nagroda} monet",
-      przycisk: "Odbieram nagrodę!",
+      wyroznienie: "zostaje na polanie",
+      przycisk: "Dobrze",
     },
     nagrodaEkranUlozenie: {
       title: "Obrazek ułożony!",
-      subtitle: "Bucik jest twój — trasa czeka w skrzyni z grami i na polanie.",
+      subtitle: "Bucik jest twój — trasa czeka na polanie i w Minigrach.",
     },
     nagrodaEkran: {
       title: "Głowa i nogi!",
-      subtitle: "Przebiegłeś całą trasę, licząc na każdej bramce.",
+      subtitle: "{Przebiegłeś|Przebiegłaś} całą trasę, licząc na każdej bramce.",
     },
   },
 ];

@@ -20,7 +20,8 @@
  * samo DOBRANIE kwestii do etapu. To jest jedyne miejsce, które o tym decyduje
  * — hub i pulpit pytają je o to samo.
  */
-import { CEL_DOMYSLNY, NAGRODA_MONET } from "./zadanieGwiazdek.js";
+import { CEL_DOMYSLNY } from "./zadanieGwiazdek.js";
+import { etapSzkolny } from "./profilStartowy.js";
 import { stanDrewna } from "./zadanieDrewna.js";
 import { stanZadania as stanZadaniaWizkora, zadanieDoZlecenia } from "./zadanieWizkora.js";
 import { celPuzzli, stanPuzzli } from "./puzzleGier.js";
@@ -105,34 +106,86 @@ const POCHWALA = {
  * zaproszeniem do ostatniej rzeczy — i do tej prawdziwej, która czeka poza
  * ekranem. Dlatego kwestia zależy od tego, czy dziecko ma zadanie w realu.
  */
+/**
+ * WARIANTY 1–3 / 4–8. Kwestia może nieść `warianty: { "1-3": {...}, "4-8": {...} }`
+ * — pola z wariantu nadpisują bazowe (`02` §2, `01` R1). Etap czytamy z zapisu
+ * onboardingu (`profilStartowy.etapSzkolny`); bez zapisu wchodzi tekst bazowy.
+ */
+export function zWariantem(karta, etap = etapSzkolny()) {
+  if (!karta || !karta.warianty) return karta;
+  const { warianty, ...reszta } = karta;
+  const w = warianty[etap];
+  return w ? { ...reszta, ...w } : reszta;
+}
+
+/**
+ * CZTERY WARIANTY ZACHODU wg stanu zadania w realu (`02` §3.1):
+ * zadanie czeka u dziecka / ślad dziś zostawiony / Mentor zauważył / brak zadania.
+ * Karta NAZYWA zadanie poza ekranem i mówi „u ciebie, nie tu" — nigdy
+ * „na zewnątrz" (dla siedmiolatka to „na dwór"). Zero terminów, zero liczb.
+ * `{miejsce_reakcji}` z karty zadania (v2); bez niego „na polanie".
+ */
 export function kwestiaZachodu(realZewn = null) {
   const baza = { imie: "Wizkor", obrazek: "/wizPop.webp" };
   const real = realZewn || stanZadaniaWizkora();
+  const miejsce = real.def?.miejsce_reakcji || "na polanie";
 
   if (real.doZrobienia) {
+    const t = real.def.tytul;
+    return zWariantem({
+      ...baza,
+      tekst:
+        `Słońce schodzi. Tu już nic mi nie trzeba. `
+        + `„${t}" czeka tam, gdzie magia nie sięga — u ciebie w domu.`,
+      tekstEkranu: `Słońce schodzi. „${t}" czeka u ciebie, nie tu.`,
+      wyroznienie: t,
+      przycisk: "Idę",
+      akcja: null,
+      warianty: {
+        "1-3": { tekst: `Słońce schodzi. „${t}" czeka u ciebie, nie tu. Tam, gdzie magia nie sięga.` },
+      },
+    });
+  }
+
+  if (real.czeka) {
     return {
       ...baza,
       tekst:
-        `Słońce schodzi nisko — widzisz, jak się złoci? `
-        + `Zdąży jeszcze jedna rzecz, zanim planeta uśnie. `
-        + `A „${real.def.tytul}" czeka na ciebie tam, na zewnątrz.`,
-      tekstEkranu: "Słońce schodzi. Zdąży jeszcze jedna rzecz.",
-      wyroznienie: "jedna rzecz",
-      przycisk: "Idę",
+        `Słońce schodzi. To, co {zrobiłeś|zrobiłaś}, zostawiło ślad ${miejsce}. `
+        + `Jutro będzie go lepiej widać.`,
+      tekstEkranu: "Słońce schodzi. Na polanie coś przybyło.",
+      wyroznienie: "coś przybyło",
+      przycisk: "Dobrze",
       akcja: null,
     };
   }
 
-  return {
+  if (real.doOdbioru) {
+    return {
+      ...baza,
+      tekst:
+        "Mentor {zobaczył|zobaczyła}, co {zrobiłeś|zrobiłaś}. "
+        + "Przy drzewie wyrósł kwiat, którego rano nie było. Spójrz.",
+      tekstEkranu: "Mentor to {zobaczył|zobaczyła}. Przy drzewie wyrósł nowy kwiat.",
+      wyroznienie: "nowy kwiat",
+      przycisk: "Patrzę",
+      akcja: null,
+    };
+  }
+
+  return zWariantem({
     ...baza,
     tekst:
-      "Słońce schodzi nisko — widzisz, jak się złoci? "
-      + "Zdąży jeszcze jedna rzecz, zanim planeta uśnie. Wybierz, co to będzie.",
-    tekstEkranu: "Słońce schodzi. Zdąży jeszcze jedna rzecz.",
-    wyroznienie: "jedna rzecz",
-    przycisk: "Idę",
+      "Słońce schodzi nad polaną. Sprawdź, czy u ciebie za oknem też — "
+      + "i co robi światło.",
+    tekstEkranu: "Słońce schodzi. U ciebie za oknem też?",
+    wyroznienie: "za oknem",
+    przycisk: "Sprawdzam",
     akcja: null,
-  };
+    warianty: {
+      "1-3": { tekst: "Słońce schodzi. Zobacz, czy za oknem też." },
+    },
+  });
 }
 
 /**
@@ -170,7 +223,7 @@ function zTekstemEkranu(karta) {
 }
 
 export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
-  return zTekstemEkranu(powitanieCzarodziejaSurowe(z, misja, drewnoZewn));
+  return zTekstemEkranu(zWariantem(powitanieCzarodziejaSurowe(z, misja, drewnoZewn)));
 }
 
 function powitanieCzarodziejaSurowe(z, misja, drewnoZewn = null) {
@@ -195,9 +248,8 @@ function powitanieCzarodziejaSurowe(z, misja, drewnoZewn = null) {
                (decyzja 16.09), a suchy pień zszedł z mapy 17.09 — nazwa,
                której nic już nie odpowiada, wysłałaby dziecko na poszukiwanie
                obiektu, którego tam nie ma. */
-            "Widzisz to wielkie drzewo na polanie? Zbudujemy na nim domek. " +
-            "Na domek trzeba desek — zetnij trzy drzewa i znieś wszystkie trzy " +
-            "stosy tutaj, pod to wielkie drzewo.",
+            "Na tym wielkim drzewie stanie domek. Na domek trzeba desek. " +
+            "Zetnij trzy drzewa i znieś stosy pod to drzewo.",
           /* NA KARCIE MUSI STAĆ, PO CO TO WSZYSTKO. Wcześniej ekran mówił samo
              „Przynieś pod drzewo drewno i głaz" — dziecko widziało polecenie
              bez powodu i bez pierwszego ruchu: skąd niby ma wziąć drewno?
@@ -206,7 +258,7 @@ function powitanieCzarodziejaSurowe(z, misja, drewnoZewn = null) {
              znaczki w HUD-zie liczą za dziecko. */
           /* `\n` łamie kartę tam, gdzie kończy się myśl (patrz `.popup-postaci-tekst`,
              `white-space: pre-line`): obietnica w pierwszej linijce, pierwszy ruch w drugiej. */
-          tekstEkranu: "Zbudujemy domek na drzewie.\nZetnij trzy drzewa i znieś drewno tutaj.",
+          tekstEkranu: "Zbudujemy domek na drzewie.\nZetnij trzy drzewa i przynieś drewno.",
           wyroznienie: "domek na drzewie",
           przycisk: "Biorę się za to",
           akcja: "zlecDrewno",
@@ -254,7 +306,7 @@ function powitanieCzarodziejaSurowe(z, misja, drewnoZewn = null) {
         ...baza,
         ...POCHWALA,
         tekst:
-          "Wszystko leży pod drzewem — sam to przyniosłeś. " +
+          "Wszystko leży pod drzewem — {sam|sama} to {przyniosłeś|przyniosłaś}. " +
           "Stawiamy domek na drzewie: ściany, dach i drabinkę.",
         tekstEkranu: "Budujemy domek na drzewie!",
         wyroznienie: "domek na drzewie",
@@ -273,16 +325,18 @@ function powitanieCzarodziejaSurowe(z, misja, drewnoZewn = null) {
       const real = stanZadaniaWizkora();
 
       if (real.doOdbioru) {
-        const nagroda = real.nagroda || real.def.nagroda || 25;
+        /* MENTOR ZAUWAŻA, ŚWIAT DOKŁADA (`02` §2.2 `:248`, decyzja 17.09):
+           zero monet w ustach Wizkora, zero „przyjął". Dodatek po zauważeniu
+           to kwiat w nowym kolorze przy drabince (hak sceny — drugi zespół). */
         return {
           ...baza,
           ...POCHWALA,
           tekst:
-            `Mentor przeczytał to, co mu wysłałeś, i przyjął. ` +
-            `Przyznał ci ${nagroda} monet — bierz.`,
-          tekstEkranu: `Mentor przyznał ci ${nagroda} monet.`,
-          wyroznienie: `${nagroda} monet`,
-          przycisk: "Odbieram nagrodę!",
+            "Mentor {zobaczył|zobaczyła} to, co {zrobiłeś|zrobiłaś}. " +
+            "A przy drzewie wyrósł nowy kwiat — idź, zobacz.",
+          tekstEkranu: "Mentor to {zobaczył|zobaczyła}.\nPrzy drzewie wyrósł nowy kwiat.",
+          wyroznienie: "nowy kwiat",
+          przycisk: "Idę zobaczyć",
           akcja: "otworzZadanie",
         };
       }
@@ -295,16 +349,19 @@ function powitanieCzarodziejaSurowe(z, misja, drewnoZewn = null) {
            ma, karta kończy się na pierwszym zdaniu — nie obiecuje miejsca,
            którego scena jeszcze nie zmienia. Głos zostaje do kroku 2. */
         const miejsceReakcji = real.def?.miejsce_reakcji || null;
+        /* GŁOS NIE OBIECUJE MENTORA (weto psychologa, `02` §7): w demo i bez
+           konta dorosłego „Mentor już to widzi" byłoby obietnicą bez pokrycia.
+           Mówi świat: ślad jest, reakcja jest od ciebie. */
         return {
           ...baza,
           tekst:
-            "Twoje zadanie jest u Mentora.\n" +
-            "Baw się dalej — zajrzyj do Zadań za jakiś czas.",
+            `To, co {zrobiłeś|zrobiłaś}, zostawiło ślad ${miejsceReakcji || "na polanie"}. ` +
+            "Idź, zobacz — to od ciebie.",
           tekstEkranu: miejsceReakcji
             ? `Ślad zostawiony. Zobacz ${miejsceReakcji}.`
             : "Ślad zostawiony.",
-          wyroznienie: "u Mentora",
-          przycisk: "Dobrze!",
+          wyroznienie: "Ślad zostawiony",
+          przycisk: "Dobrze",
           akcja: null,
         };
       }
@@ -325,7 +382,7 @@ function powitanieCzarodziejaSurowe(z, misja, drewnoZewn = null) {
            nie tu” w drugim — bez „na zewnątrz” (weto rodzica 1–3). */
         return {
           ...baza,
-          tekst: `Pamiętasz o zadaniu?\n„${real.def.tytul}"\nczeka w zakładce Zadania.`,
+          tekst: `„${real.def.tytul}" dalej czeka — u ciebie. Jak zrobisz swoje, polana to zauważy.`,
           tekstEkranu: `„${real.def.tytul}" czeka.\nU ciebie, nie tu.`,
           wyroznienie: real.def.tytul,
           przycisk: "Otwieram zadanie",
@@ -352,24 +409,30 @@ function powitanieCzarodziejaSurowe(z, misja, drewnoZewn = null) {
         return {
           ...baza,
           tekst:
-            "Mapę już znasz, wędrowcze. Czas na zadanie poza ekranem. " +
-            "Zakręć kołem przeznaczenia — wskaże, którą siłę dziś ćwiczysz.",
-          tekstEkranu: "Zakręć kołem przeznaczenia.",
-          wyroznienie: "kołem przeznaczenia",
+            "Tu na polanie zrobiliśmy swoje. Teraz coś, czego magią nie zrobię. " +
+            "Zakręć kołem — wskaże, którą siłą dziś działasz.",
+          tekstEkranu: "Zakręć kołem. Wskaże dzisiejszą siłę.",
+          wyroznienie: "kołem",
           przycisk: "Kręcę kołem!",
           akcja: "kolo",
+          warianty: {
+            "1-3": { tekst: "Zakręć kołem. Ono pokaże, co dziś robimy naprawdę." },
+          },
         };
       }
 
       return {
         ...baza,
         tekst:
-          "Dobrze się spisałeś, mały wędrowcze. " +
-          "Odpocznij chwilę — przygotowuję dla ciebie nowe zadanie.",
-        tekstEkranu: "Odpocznij. Nowe zadanie już się szykuje.",
-        wyroznienie: "Nowe zadanie",
-        przycisk: "Do zobaczenia!",
+          "Na dziś nie mam już nic. Polana poczeka. " +
+          "U ciebie dzieje się więcej niż tu.",
+        tekstEkranu: "Na dziś koniec zleceń. Polana poczeka.",
+        wyroznienie: "Polana poczeka",
+        przycisk: "Idę",
         akcja: null,
+        warianty: {
+          "4-8": { tekst: "Dziś nic więcej ode mnie. Polana poczeka." },
+        },
       };
     }
 
@@ -443,12 +506,11 @@ function powitanieCzarodziejaSurowe(z, misja, drewnoZewn = null) {
       ...baza,
       ...POCHWALA,
       tekst:
-        `Masz je wszystkie! ${z.cel} gwiazdek, co do jednej. ` +
-        `Należy ci się ${NAGRODA_MONET} monet — bierz.`,
-      tekstEkranu: `Masz wszystkie gwiazdki! Odbierz ${NAGRODA_MONET} monet.`,
+        "Wszystkie, co do jednej. Popatrz na polanę — jest jaśniej niż rano.",
+      tekstEkranu: "Wszystkie gwiazdki! Polana jaśniej świeci.",
       wizualizacja: { typ: "gwiazdki", wartosc: z.cel, cel: z.cel },
-      wyroznienie: `${NAGRODA_MONET} monet`,
-      przycisk: "Odbieram nagrodę!",
+      wyroznienie: "jaśniej",
+      przycisk: "Patrzę!",
       akcja: "nagroda",
     };
   }
@@ -459,15 +521,13 @@ function powitanieCzarodziejaSurowe(z, misja, drewnoZewn = null) {
   // gdy rozmowa w trakcie zadania znów będzie miała co wnosić; na razie
   // dosięga jej `window.popupPostaci.pokaz()` i pulpit testowy.
   if (z.istnieje) {
-    const zostalo = z.cel - z.zebrane;
     return {
       ...baza,
       tekst:
-        `Widzę, że szukasz. Masz ${z.zebrane} z ${z.cel} gwiazdek — ` +
-        `zostało ${zostalo}. Świecą w trawie, trzeba tylko wbiec.`,
-      tekstEkranu: "Szukaj świecących gwiazdek na polanie.",
+        "Widzę, że szukasz. Jeszcze kilka świeci w trawie — trzeba tylko wbiec.",
+      tekstEkranu: "Szukaj gwiazdek w trawie.",
       wizualizacja: { typ: "gwiazdki", wartosc: z.zebrane, cel: z.cel },
-      wyroznienie: `${z.zebrane} z ${z.cel} gwiazdek`,
+      wyroznienie: "w trawie",
       przycisk: "Zbieram dalej!",
       akcja: null,
     };
@@ -476,12 +536,15 @@ function powitanieCzarodziejaSurowe(z, misja, drewnoZewn = null) {
   return {
     ...baza,
     tekst:
-      `Witaj, mały wędrowcze! Jestem Wizkor, opiekun Świata Ewolucji. ` +
-      `Na polanie ukryło się ${CEL_DOMYSLNY} złotych gwiazdek. Znajdziesz wszystkie?`,
-    tekstEkranu: "Zbierz złote gwiazdki ukryte na polanie.",
+      "Jestem Wizkor. W nocy z polany spadło dziesięć gwiazdek i leżą w trawie. " +
+      "Pozbierasz je?",
+    tekstEkranu: "Na polanie spadło dziesięć gwiazdek. Znajdziesz je?",
     wizualizacja: { typ: "gwiazdki", wartosc: 0, cel: CEL_DOMYSLNY },
-    wyroznienie: `${CEL_DOMYSLNY} złotych gwiazdek`,
+    wyroznienie: "dziesięć gwiazdek",
     przycisk: "Ruszam po gwiazdki!",
     akcja: "start",
+    warianty: {
+      "1-3": { tekst: "Na polanie spadło dziesięć gwiazdek. Znajdziesz je? Leżą w trawie." },
+    },
   };
 }

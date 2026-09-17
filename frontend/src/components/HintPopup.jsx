@@ -23,7 +23,8 @@ import RewardScreen from "./RewardScreen.jsx";
 const POLL_INTERVAL_MS = 8_000; // co 8s - szybkie powiadomienia o nowych zadaniach/wiadomosciach od mentora
 const MENTOR_PATHS = ["/mentor", "/gm", "/dev"]; // sciezki na ktorych NIE pollujemy hintow ucznia
 // Sciezki, na ktorych popup jest wyciszony (uzytkownik widzi liste w inboxie)
-const SILENT_POPUP_PATHS = ["/w2", "/porady", "/swiat", "/backpack", "/profile"]; // warianty pokazują własne komunikaty
+// Warianty pokazują własne komunikaty; `/games` — nic nie wyskakuje w trakcie gry (02 §2.5).
+const SILENT_POPUP_PATHS = ["/w2", "/porady", "/swiat", "/backpack", "/profile", "/games"];
 
 export default function HintPopup() {
   const location = useLocation();
@@ -100,7 +101,7 @@ export default function HintPopup() {
 
   if (!current) return null;
 
-  // REWARD - mentor zatwierdzil zadanie. Wlasny celebration popup z animacja coinow.
+  // REWARD (klucz techniczny) — Mentor ZAUWAŻYŁ ślad. Karta bez monet (06 §4.7).
   if (current.kind === "reward") {
     return <RewardPopup hint={current} onClose={dismiss} />;
   }
@@ -181,34 +182,33 @@ export default function HintPopup() {
   );
 }
 
-// ─── RewardPopup — wyswietla sie gdy mentor zatwierdzil zadanie ─────────────
-// Cienki wrapper na wspolny RewardScreen — parsuje hint i przekazuje propsy.
-// Caly wyglad (konfetti, animacja, zlota karta) jest w RewardScreen.
+// ─── RewardPopup — Mentor ZAUWAŻYŁ ślad dziecka ─────────────────────────────
+// Cienki wrapper na wspolny RewardScreen. Bez monet (poszły w tle przy śladzie)
+// i bez oceny („Świetna robota!"): karta z 02 §2.5 — kto zobaczył, co, i zaproszenie
+// na polanę. Rodzaj Mentora znamy tylko z formuły „Widziałem./Widziałam."
+// (gm_accounts nie ma pola płci) — bez niej czas teraźniejszy, bez tokenu.
+// Stare wieści „+N ✦ za …" (sprzed 17.09) czytamy tak samo, bez kwoty.
 function RewardPopup({ hint, onClose }) {
   const { refreshAll } = useAppData();
-  // Parsuj liczbe coinow z body lub title (format "+25 ✦ ..." -> 25)
-  const coinMatch = (hint.body || hint.title || "").match(/\+(\d+)/);
-  const targetCoins = coinMatch ? parseInt(coinMatch[1], 10) : 20;
-  // Komentarz mentora - body bez wiodacego "+N ✦ ·"
-  const subText = (hint.body || "").replace(/^\+\d+\s*✦\s*·?\s*/, "").trim();
-  // Tytul zadania - oczyszczony z "+N ✦ za " prefiksu
+  const body = (hint.body || "").replace(/^\+\d+\s*✦\s*·?\s*/, "").trim();
+  const formula = /^(Widziałem\.|Widziałam\.|Porozmawiamy o tym\.|Ciekawe, jak to)/.test(body) ? body : null;
+  const eyebrow = body.startsWith("Widziałam") ? "MENTOR ZOBACZYŁA" : body.startsWith("Widziałem") ? "MENTOR ZOBACZYŁ" : "MENTOR TO WIDZI";
   const taskTitle = hint.title
-    ? hint.title.replace(/^\+\d+\s*✦\s*za\s*„?/, "").replace(/[„""]$/, "")
+    ? hint.title.replace(/^\+\d+\s*✦\s*za\s*„?/, "").replace(/^Mentor zobaczył:\s*„?/, "").replace(/[„""]$/, "")
     : null;
 
   async function handleDismiss() {
-    // Odswiezamy AppData zeby player.coins zsynchronizowal sie z baza po zatwierdzeniu
     try { await refreshAll?.(); } catch {}
     onClose();
   }
 
   return (
     <RewardScreen
-      eyebrow="✨ MENTOR ZATWIERDZIŁ"
-      title="Świetna robota!"
-      subtitle={taskTitle ? `za „${taskTitle}"` : undefined}
-      coins={targetCoins}
-      note={subText || undefined}
+      eyebrow={`✨ ${eyebrow}`}
+      title="Zobacz, co się zmieniło"
+      subtitle={taskTitle ? `„${taskTitle}"` : undefined}
+      coins={0}
+      note={formula || undefined}
       noteStyle="quote"
       onDismiss={handleDismiss}
     />

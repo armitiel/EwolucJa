@@ -10,8 +10,10 @@
  * ZadaniePanel — zadanie od Wizkora, które robi się POZA ekranem.
  *
  * Ekran ma cztery odsłony, po jednej na stan zadania (`hub/zadanieWizkora.js`):
- * do zrobienia → wysłane → nagroda czeka → zrobione. Nigdy nie pokazuje dwóch
- * naraz: dziecko ma na ekranie jedną rzecz do zrobienia.
+ * czeka u ciebie → ślad zostawiony → Mentor zobaczył → zrobione (historia).
+ * Nigdy nie pokazuje dwóch naraz: dziecko ma na ekranie jedną rzecz do zrobienia.
+ * Mentor ZAUWAŻA, nie ocenia (docs/tresci/06 §4.7): świat reaguje już po
+ * śladzie, zauważenie dokłada mały dodatek — bez monet i bez werdyktu.
  *
  * Sekcja „Gdzie to zrobisz?" jest zbudowana jak karteczki Porady dnia — papier,
  * pinezka, jedno zdanie. To nie jest lista wymagań do odhaczenia, tylko
@@ -32,10 +34,12 @@ import { powiedzPostacia } from "../mowaPostaci.js";
 import { odmienDlaGracza } from "../../services/rodzaj.js";
 import {
   odbierzNagrode,
+  podtytulSladu,
   sprawdzMentora,
   stanZadania,
   wyslijDowod,
   zadanieDoZlecenia,
+  zapiszMiejsce,
   ZDARZENIE_ZMIANY,
 } from "../zadanieWizkora.js";
 
@@ -44,11 +48,21 @@ import {
    docs/tresci/06_DECYZJE_I_ZALEZNOSCI.md §4.5. Ślad = zdanie (i wybór). */
 export const ZDJECIA_WLACZONE = false;
 
-export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
+/* Reakcja świata po śladzie: panel nie ma dostępu do `scenaRef` z `Swiat.jsx`,
+   więc najpierw prosi rodzica o `onPokazMiejsce`, a gdy go nie dostał — woła
+   API sceny wystawione globalnie przez `scena-3d-src/src/index.js`
+   (`globalThis.__SCENA.pokazMiejsce`). Bez sceny (np. w testach) nic się nie
+   dzieje i to jest w porządku. */
+function pokazMiejsceNaPlanecie(onPokazMiejsce, stan) {
+  if (typeof onPokazMiejsce === "function") { try { onPokazMiejsce(stan); return; } catch {} }
+  try { globalThis.__SCENA?.pokazMiejsce?.(); } catch {}
+}
+
+export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot, onPokazMiejsce }) {
   const { refreshPlayer, player } = useAppData();
   const [stan, setStan] = useState(() => stanZadania());
   const [etap, setEtap] = useState("plan");
-  const [miejsce, setMiejsce] = useState(null);
+  const [miejsce, setMiejsce] = useState(() => stanZadania().miejsce || null);
   const [opis, setOpis] = useState("");
   const [zdjecieUrl, setZdjecieUrl] = useState(null);
   const [podglad, setPodglad] = useState(null);
@@ -159,7 +173,7 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
       // Zdjęcie nie poszło — ale zadanie zostaje wykonalne. To jest cała
       // różnica między „opisz to słowami" a ślepym zaułkiem.
       setZdjecieUrl(null);
-      setBlad("Zdjęcie nie chce się wysłać. Możesz opisać wszystko słowami — Mentor to zobaczy.");
+      setBlad("Zdjęcie nie chce się wysłać. Możesz opisać wszystko słowami.");
     } finally {
       setWgrywanie(false);
     }
@@ -173,8 +187,12 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
     setBlad(null);
     setWysylka(true);
     try {
-      setStan(await wyslijDowod({ opis: opis.trim(), zdjecieUrl }));
-      onKomunikat?.("Wysłane do Mentora");
+      const nowy = await wyslijDowod({ opis: opis.trim(), zdjecieUrl });
+      setStan(nowy);
+      onKomunikat?.("Ślad zostawiony");
+      // Świat reaguje od razu po śladzie — bez czekania na dorosłego.
+      pokazMiejsceNaPlanecie(onPokazMiejsce, nowy);
+      try { await refreshPlayer(); } catch {}
     } catch (err) {
       setBlad(err?.message || "Nie udało się wysłać. Spróbuj za chwilę.");
     } finally {
@@ -214,11 +232,13 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
     return () => { porzucone = true; };
   }, [stan.czeka]);
 
-  async function odbierz() {
+  /* „Zobacz, co się zmieniło": domyka kartę i obraca planetę do miejsca
+     reakcji. Monet tu nie ma — poszły w tle przy śladzie. */
+  async function zobaczZmiane() {
     const nowy = odbierzNagrode();
     setStan(nowy);
-    await refreshPlayer();
-    onKomunikat?.(stan.nagroda ? `+${stan.nagroda} monet od Mentora` : "Nagroda odebrana");
+    pokazMiejsceNaPlanecie(onPokazMiejsce, nowy);
+    onZamknij?.();
   }
 
   /* ── brak zadania ──────────────────────────────────────────────────
@@ -237,38 +257,39 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
           <GameIcon name={jestCoLosowac ? "star" : "hourglass"} size={jestCoLosowac ? 38 : 34} />
           <p>
             {o(jestCoLosowac
-              ? "Wizkor ma dziś dla Ciebie zadanie. Znajdź go na polanie i zakręć kołem przeznaczenia."
-              : "Wizkor nie ma dziś dla Ciebie zadania. Pobiegaj po mapie — znajdzie Cię sam.")}
+              ? "Wizkor ma dziś dla ciebie zadanie. Znajdź go na polanie i zakręć kołem przeznaczenia."
+              : "Wizkor stoi na polanie. Dziś nie ma nowego zlecenia.")}
           </p>
         </div>
       </div>
     );
   }
 
-  /* ── nagroda odebrana ──────────────────────────────────────────────── */
+  /* ── zrobione (historia) ───────────────────────────────────────────── */
   if (stan.wyplacone) {
     return (
       <div className="hub-pane" data-testid="hub-pane-zadanie">
         <div className="hub-empty">
           <GameIcon name="check" size={38} />
-          <h3 className="czat-naglowek">{o("Zrobione!")}</h3>
-          <p>{o(`${def.tytul} — masz to za sobą. Wizkor przygotuje kolejne.`)}</p>
+          <h3 className="czat-naglowek">{o("Zrobione")}</h3>
+          <p>{o(`„${def.tytul}” zostawiło ślad na polanie.`)}</p>
         </div>
       </div>
     );
   }
 
-  /* ── nagroda czeka ─────────────────────────────────────────────────── */
+  /* ── Mentor zobaczył ──────────────────────────────────────────────────
+     Bez kwoty i bez „przyjął": jedna z gotowych formuł Mentora (bez oceny),
+     jeśli ją wybrał, i przycisk, który obraca planetę do reakcji świata. */
   if (stan.doOdbioru) {
     return (
       <div className="hub-pane" data-testid="hub-pane-zadanie">
         <div className="zadanie-nagroda">
-          <GameIcon name="gift" size={40} />
-          <h3 className="czat-naglowek">{o("Mentor przyjął Twoje zadanie")}</h3>
+          <GameIcon name="star" size={40} />
+          <h3 className="czat-naglowek">{o(stan.etykieta)}</h3>
           {stan.notatka ? <p className="zadanie-notatka">„{o(stan.notatka)}”</p> : null}
-          {stan.nagroda ? <p className="zadanie-kwota">+{stan.nagroda} monet</p> : null}
-          <button type="button" className="hub-btn hub-btn-primary" onClick={odbierz}>
-            Odbieram nagrodę!
+          <button type="button" className="hub-btn hub-btn-primary" onClick={zobaczZmiane}>
+            {o(stan.cta)}
           </button>
         </div>
       </div>
@@ -288,7 +309,12 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
      tu siedzieć i czekać") odprawiał dziecko od ekranu, na który samo weszło
      sprawdzić, jak poszło — a przy okazji nie mówił ani słowa o tym, że jego
      odpowiedź jest właśnie oglądana. */
+  /* ŚLAD ZOSTAWIONY. Ilustracja Wizkora z lupą (`wizSprawdza.webp`) znaczyła
+     „ktoś sprawdza" — zostaje do czasu nowej grafiki (Wizkor patrzy na pomost,
+     `02` §2.5), ale tekst mówi o świecie, nie o kontroli. „Mentor już to widzi"
+     tylko przy prawdziwym, niedemowym Mentorze (`podtytulSladu`). */
   if (stan.czeka) {
+    const gdzie = def.miejsce_reakcji ? ` ${def.miejsce_reakcji}` : " na polanie";
     return (
       <div className="hub-pane" data-testid="hub-pane-zadanie">
         <div className="zadanie-czekanie">
@@ -299,12 +325,18 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
             aria-hidden="true"
             draggable="false"
           />
-          <h3 className="czat-naglowek">{o("Twoje zadanie jest sprawdzane")}</h3>
-          <p>{o("Wizkor zaniósł Twoją odpowiedź Mentorowi. Mentor właśnie ją ogląda. Zajrzyj tu później.")}</p>
+          <h3 className="czat-naglowek">{o("Ślad zostawiony")}</h3>
+          <p>{o(`To, co {zrobiłeś|zrobiłaś}, zostawiło ślad${gdzie}. Zobacz na polanie.`)}</p>
+          {podtytulSladu(stan) ? <p className="zadanie-notatka">{o(podtytulSladu(stan))}</p> : null}
           {stan.dowod?.zdjecieUrl ? (
             <img className="zadanie-podglad" src={stan.dowod.zdjecieUrl} alt="Twoje zdjęcie" />
           ) : null}
           {stan.dowod?.opis ? <p className="zadanie-notatka">„{stan.dowod.opis}”</p> : null}
+          <div className="hub-actions">
+            <button type="button" className="hub-btn hub-btn-primary" onClick={() => { pokazMiejsceNaPlanecie(onPokazMiejsce, stan); onZamknij?.(); }}>
+              {o("Zobacz na polanie")}
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -314,8 +346,9 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
   if (etap === "dowod") {
     return (
       <div ref={panelRef} className="hub-pane" data-testid="hub-pane-zadanie-dowod">
-        <h3 className="czat-naglowek czat-naglowek--pisz">{o("Pokaż Mentorowi")}</h3>
+        <h3 className="czat-naglowek czat-naglowek--pisz">{o("Pokaż, co {zrobiłeś|zrobiłaś}")}</h3>
         {def.dowod ? <p className="zadanie-dowod">{o(def.dowod)}</p> : null}
+        {stan.mentorPrawdziwy ? <p className="zadanie-notatka">{o("Mentor to zobaczy.")}</p> : null}
 
         {ZDJECIA_WLACZONE ? (<>
         <button
@@ -329,7 +362,7 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
           ) : (
             <>
               <GameIcon name="camera" size={30} />
-              <strong>{wgrywanie ? "Wysyłam zdjęcie…" : "Dodaj zdjęcie"}</strong>
+              <strong>{wgrywanie ? "Wysyłam zdjęcie…" : "Dodaj zdjęcie rzeczy (bez ludzi)"}</strong>
             </>
           )}
         </button>
@@ -348,9 +381,9 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
           className="zadanie-opis"
           value={opis}
           onChange={(zdarzenie) => setOpis(zdarzenie.target.value)}
-          placeholder={o("Napisz, co {zrobiłeś|zrobiłaś}…")}
-          maxLength={600}
-          rows={4}
+          placeholder={o("Jedno zdanie o tym, co powstało")}
+          maxLength={160}
+          rows={3}
         />
         {def.przyklad ? (
           <p className="zadanie-przyklad">
@@ -367,7 +400,7 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
             onClick={wyslij}
             disabled={wysylka || wgrywanie}
           >
-            {wysylka ? "Wysyłam…" : "Wyślij do Mentora"}
+            {wysylka ? "Zostawiam…" : "Zostaw ślad"}
           </button>
         </div>
       </div>
@@ -387,13 +420,6 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
         </button>
       </div>
 
-      {stan.status === "poprawka" && stan.notatka ? (
-        <p className="hub-note hub-note-warn">
-          <GameIcon name="pen" size={16} />
-          Mentor pisze: „{o(stan.notatka)}”
-        </p>
-      ) : null}
-
       <div className="hub-actions">
         <button type="button" className="hub-btn hub-btn-primary" onClick={() => setEtap("dowod")}>
           Do dzieła!
@@ -407,7 +433,7 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
             key={m.id}
             type="button"
             className={`zadanie-miejsce${miejsce === m.id ? " is-wybrane" : ""}`}
-            onClick={() => setMiejsce(miejsce === m.id ? null : m.id)}
+            onClick={() => { const nowe = miejsce === m.id ? null : m.id; setMiejsce(nowe); zapiszMiejsce(nowe); }}
           >
             <span className="zadanie-pinezka" aria-hidden="true" />
             <span className="zadanie-miejsce-emoji" aria-hidden="true">{m.emoji}</span>

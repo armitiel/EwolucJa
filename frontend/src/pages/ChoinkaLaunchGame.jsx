@@ -1447,7 +1447,7 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
           title={brama ? "Przez obie bramy!" : strzaly <= 4 ? "Ale lot!" : "Wszystkie obręcze trafione!"}
           subtitle={
             brama
-              ? `Jeden lot, ${BRAMY.length} bramy — i ani razu obok.`
+              ? "Jeden lot, dwie bramy — i ani razu obok."
               : "Choinka wystrzeliła liska przez trzy złote cele."
           }
           coins={monety + nagrodaMisji}
@@ -1455,7 +1455,7 @@ export default function ChoinkaLaunchGame({ osadzona = false, poziom = null, onW
              `RewardScreen`. Bez misji zostaje sama liczba za lot. */
           rozbicie={[
             { etykieta: "Za lot", monety },
-            { etykieta: "Od Wizkora za misję", monety: nagrodaMisji },
+            { etykieta: "Za zdobycie gry", monety: nagrodaMisji },
           ]}
           gwiazdki={
             brama
