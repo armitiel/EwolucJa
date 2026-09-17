@@ -1,3 +1,11 @@
+/*!
+ * SPDX-FileCopyrightText: © 2026 Amitiel Angelisme <armitiel@gmail.com>
+ * SPDX-License-Identifier: LicenseRef-EwolucJA-Proprietary
+ *
+ * EwolucJA — gra edukacyjna dla dzieci.
+ * Produkt powstał w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”;
+ * autorskie prawa majątkowe pozostają przy autorze. Licencja: LICENSE.
+ */
 /**
  * EwolucJA — TTS Player (Frontend)
  * Odtwarza narrację i głosy postaci przez ElevenLabs API.
@@ -8,6 +16,32 @@
 import bgMusic from "./bgMusic.js";
 
 const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "" : "http://localhost:3001");
+
+/**
+ * Skrót CAŁEGO tekstu (FNV-1a, 32 bity) + długość. Klucz brał wcześniej
+ * pierwsze 80 znaków, a porady dnia potrafią mieć wspólny początek i różnić
+ * się dopiero ostatnim zdaniem — dziecko słyszało wtedy nie tę kwestię,
+ * którą miało przed oczami.
+ */
+function skrotTekstu(tekst) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < tekst.length; i++) {
+    h ^= tekst.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return `${(h >>> 0).toString(36)}-${tekst.length}`;
+}
+
+/** Jeden klucz dla `speak` i `prefetch` — rozjechane klucze = prefetch na nic. */
+function kluczMowy(tekst, o = {}) {
+  return [
+    "v5", skrotTekstu(String(tekst)),
+    o.land || o.voiceId || "d",
+    o.tone || "", o.speed || "",
+    o.pauseBefore ?? "", o.pauseAfter ?? "",
+    o.inlinePauses ? "i" : "",
+  ].join("_");
+}
 
 class TTSPlayer {
   constructor() {
@@ -23,6 +57,8 @@ class TTSPlayer {
     this._useFallback = false;
     this._audioCtx = null;
     this._autoUnlockInstalled = false;
+    this._pauzaTimer = null;
+    this._domknij = null;
 
     this._checkElevenLabs();
     this._installAutoUnlock();
@@ -129,12 +165,12 @@ class TTSPlayer {
       return this._speakFallback(text);
     }
 
-    const cacheKey = `v4_${text.slice(0, 80)}_${land || voiceId || "d"}_${tone || ""}_${speed || ""}_${pauseBefore||""}_${pauseAfter||""}_${inlinePauses?"i":""}`;
+    const cacheKey = kluczMowy(text, { land, voiceId, tone, speed, pauseBefore, pauseAfter, inlinePauses });
 
     try {
-      let audioUrl = this._cache.get(cacheKey);
+      let wpis = this._cache.get(cacheKey);
 
-      if (!audioUrl) {
+      if (!wpis) {
         const res = await fetch(`${API_BASE}/api/tts/speak`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -146,18 +182,10 @@ class TTSPlayer {
           return this._speakFallback(text);
         }
 
-        const blob = await res.blob();
-        audioUrl = URL.createObjectURL(blob);
-
-        if (this._cache.size >= 50) {
-          const firstKey = this._cache.keys().next().value;
-          URL.revokeObjectURL(this._cache.get(firstKey));
-          this._cache.delete(firstKey);
-        }
-        this._cache.set(cacheKey, audioUrl);
+        wpis = await this._zapisz(cacheKey, res);
       }
 
-      return this._play(audioUrl);
+      return this._play(wpis.url, wpis.pauza);
     } catch (err) {
       console.warn("[TTS] Network error, fallback:", err.message);
       return this._speakFallback(text);
@@ -167,7 +195,7 @@ class TTSPlayer {
   async prefetch(text, options = {}) {
     if (!this._enabled || !text || this._useFallback) return;
     const { land, voiceId, tone, speed, pauseBefore, pauseAfter, inlinePauses } = options;
-    const cacheKey = `v4_${text.slice(0, 80)}_${land || voiceId || "d"}_${tone || ""}_${speed || ""}_${pauseBefore||""}_${pauseAfter||""}_${inlinePauses?"i":""}`;
+    const cacheKey = kluczMowy(text, { land, voiceId, tone, speed, pauseBefore, pauseAfter, inlinePauses });
     if (this._cache.has(cacheKey)) return;
     try {
       const res = await fetch(`${API_BASE}/api/tts/speak`, {
@@ -176,18 +204,29 @@ class TTSPlayer {
         body: JSON.stringify({ text, land, voiceId, tone, speed, pauseBefore, pauseAfter, inlinePauses }),
       });
       if (!res.ok) return;
-      const blob = await res.blob();
-      const audioUrl = URL.createObjectURL(blob);
-      if (this._cache.size >= 50) {
-        const firstKey = this._cache.keys().next().value;
-        URL.revokeObjectURL(this._cache.get(firstKey));
-        this._cache.delete(firstKey);
-      }
-      this._cache.set(cacheKey, audioUrl);
+      await this._zapisz(cacheKey, res);
     } catch {}
   }
 
-  _play(url) {
+  /**
+   * Odpowiedź serwera → wpis cache'u `{ url, pauza }`. `pauza` to cisza, którą
+   * mamy odczekać PRZED kwestią: serwer nie wkleja jej już w nagranie (wiodący
+   * <break> brzmiał jak sylaba „o" przed zdaniem), tylko podaje w nagłówku.
+   */
+  async _zapisz(cacheKey, res) {
+    const pauza = Math.max(0, Math.min(3000, Number(res.headers.get("X-Pauza-Przed")) || 0));
+    const blob = await res.blob();
+    const wpis = { url: URL.createObjectURL(blob), pauza };
+    if (this._cache.size >= 50) {
+      const firstKey = this._cache.keys().next().value;
+      URL.revokeObjectURL(this._cache.get(firstKey).url);
+      this._cache.delete(firstKey);
+    }
+    this._cache.set(cacheKey, wpis);
+    return wpis;
+  }
+
+  _play(url, pauza = 0) {
     return new Promise((resolve) => {
       if (!this._audio) this._audio = new Audio();
       this._audio.volume = this._volume;
@@ -195,16 +234,27 @@ class TTSPlayer {
       this._playing = true;
       let fadeTimer = null;
       let endedHandled = false;
+      // Muzykę ściszamy OD RAZU, jeszcze w ciszy przed kwestią: ta cisza ma
+      // być zapowiedzią, że ktoś zaraz powie coś ważnego.
       try { bgMusic.duck(); } catch {}
 
       const cleanup = () => {
         if (endedHandled) return;
         endedHandled = true;
         if (fadeTimer) clearInterval(fadeTimer);
+        if (this._pauzaTimer) { clearTimeout(this._pauzaTimer); this._pauzaTimer = null; }
+        this._domknij = null;
         this._playing = false;
         try { bgMusic.unduck(); } catch {}
         resolve();
       };
+
+      /* `stop()` domyka tę obietnicę SAM. Wcześniej liczyliśmy na zdarzenie
+         `error` po wyczyszczeniu `src` — a kwestia przerwana w ciszy przed
+         pierwszym dźwiękiem nie ma jeszcze czego przerwać, więc `await
+         speak(...)` (np. w `NarratorVoice`) wisiałby i `onEnd` nigdy by nie
+         przyszło: onboarding stanąłby na pytaniu. */
+      this._domknij = cleanup;
 
       // Fade-out ostatnich ~250ms żeby ukryć ewentualny artefakt klikającego końcówki
       const onTimeUpdate = () => {
@@ -230,11 +280,19 @@ class TTSPlayer {
       this._audio.ontimeupdate = onTimeUpdate;
       this._audio.onended = cleanup;
       this._audio.onerror = cleanup;
-      this._audio.play().catch((err) => {
-        console.warn("[TTS] Play error:", err.message);
-        cleanup();
-        this._speakFallback(url).then(resolve);
-      });
+
+      const start = () => {
+        this._pauzaTimer = null;
+        if (endedHandled) return;      // `stop()` w trakcie pauzy
+        this._audio.play().catch((err) => {
+          console.warn("[TTS] Play error:", err.message);
+          cleanup();
+        });
+      };
+
+      // Cisza przed kwestią — tu, a nie w nagraniu (patrz `_zapisz`).
+      if (pauza > 0) this._pauzaTimer = setTimeout(start, pauza);
+      else start();
     });
   }
 
@@ -259,7 +317,11 @@ class TTSPlayer {
   }
 
   stop() {
+    // Najpierw pauza przed kwestią: bez tego kwestia przerwana w ciszy
+    // odzywa się chwilę później, już w innej scenie.
+    if (this._pauzaTimer) { clearTimeout(this._pauzaTimer); this._pauzaTimer = null; }
     if (this._audio) { this._audio.pause(); this._audio.currentTime = 0; this._audio.src = ""; }
+    if (this._domknij) this._domknij();
     if (window.speechSynthesis) window.speechSynthesis.cancel();
     this._playing = false;
     this._pendingText = null;
@@ -289,7 +351,7 @@ class TTSPlayer {
   }
 
   clearCache() {
-    for (const url of this._cache.values()) URL.revokeObjectURL(url);
+    for (const wpis of this._cache.values()) URL.revokeObjectURL(wpis.url);
     this._cache.clear();
   }
 }

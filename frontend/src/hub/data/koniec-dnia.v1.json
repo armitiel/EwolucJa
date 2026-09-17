@@ -51,8 +51,8 @@
       "kto": "narratorka",
       "_uwaga": "W ostatnim kadrze obok pustego kształtu MUSI stać coś zamkniętego i ciepłego. Inaczej dziecko idzie spać z obrazem czegoś niedomkniętego jako treścią nocy.",
       "obraz": "planeta z daleka: jasny pusty obrys, a tuż obok małe ciepłe okno",
-      "tekst": "Stoi otwarty. Będzie stał.",
-      "glos": "Stoi otwarty. Będzie stał.",
+      "tekst": "Drzwi stoją otwarte.\nDomek czeka na ciebie.",
+      "glos": "Drzwi stoją otwarte. Domek czeka na ciebie.",
       "przycisk": "Dobranoc, planeto"
     }
   ],

@@ -1,3 +1,11 @@
+/*!
+ * SPDX-FileCopyrightText: © 2026 Amitiel Angelisme <armitiel@gmail.com>
+ * SPDX-License-Identifier: LicenseRef-EwolucJA-Proprietary
+ *
+ * EwolucJA — gra edukacyjna dla dzieci.
+ * Produkt powstał w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”;
+ * autorskie prawa majątkowe pozostają przy autorze. Licencja: LICENSE.
+ */
 /**
  * ElevenLabs TTS Service — głosy Świata Ewolucji (narratorka, Wizkor, lisek)
  *
@@ -6,6 +14,8 @@
  *
  * Endpoint: POST https://api.elevenlabs.io/v1/text-to-speech/{voice_id}
  */
+
+import { createHash } from "node:crypto";
 
 // ── Konfiguracja głosów ──────────────────────────────────────────────
 
@@ -116,12 +126,21 @@ function expandPolishAbbreviations(text) {
 }
 
 /**
- * Wstawia tagi SSML break/audio do tekstu.
- *  - pauseBefore: ms — wstaw <break time="X.Xs" /> NA POCZĄTKU
- *  - pauseAfter: IGNOROWANE — trailing <break> w eleven_flash_v2_5 powoduje
- *    słyszalny "urywek"/klik/szum na samym końcu klipu (znany artefakt modelu).
- *    Ciszę po wypowiedzi robimy klientem (setTimeout/onEnd), nie SSML-em.
- *  - inlinePauses: zamienia "…" na 600ms pauzę, "—" na 350ms (delikatnie)
+ * Przygotowuje tekst dla modelu.
+ *
+ * ŻADNA z pauz otaczających kwestię nie idzie do SSML-a — ani przed, ani po.
+ *  - pauseAfter: trailing <break> w eleven_flash_v2_5 daje słyszalny urywek
+ *    na końcu klipu (znany artefakt modelu).
+ *  - pauseBefore: wiodący <break> to NIE cisza. Model zaczyna klip krótkim
+ *    dźwiękiem, który dziecko słyszy jako wypowiedziane „o" przed kwestią
+ *    Wizkora czy liska. Zmierzone na tym samym tekście i głosie:
+ *       pauseBefore 400 → trzask w 0,000 s (−29 dB, 25 ms), mowa od 0,500 s
+ *       pauseBefore 0   → cisza, mowa od 0,050 s, bez trzasku
+ *    Obie pauzy odmierza klient (`ttsPlayer`), więc nagranie zawiera samą
+ *    mowę — i dlatego to samo nagranie nadaje się do wgrania do projektu.
+ *    Ile czekać przed startem, mówi nagłówek `X-Pauza-Przed` (`api/tts.js`).
+ *  - inlinePauses: zamienia "…" na 600ms pauzę, "—" na 350ms (delikatnie).
+ *    Te pauzy są W ŚRODKU wypowiedzi, więc artefakt ich nie dotyczy.
  *  - usuwa też trailing whitespace + dba o czyste zakończenie zdania
  */
 function decorateText(text, opts = {}) {
@@ -144,12 +163,36 @@ function decorateText(text, opts = {}) {
     t = t + ".";
   }
 
-  const before = Math.max(0, Math.min(3000, opts.pauseBefore || 0));
-  if (before > 0) t = `<break time="${(before/1000).toFixed(2)}s" /> ` + t;
-
-  // pauseAfter celowo nie dodajemy — trailing break = artefakt w eleven_flash_v2_5
+  // pauseBefore ani pauseAfter nie trafiają do tekstu — patrz opis wyżej.
 
   return t;
+}
+
+/**
+ * Ile ciszy należy się PRZED tą kwestią (ms). Liczone tu, bo presety tonów
+ * mieszkają w tym pliku, a odmierza to klient — dlatego trasa wysyła wynik
+ * w nagłówku zamiast wklejać pauzę w nagranie.
+ */
+export function pauzaPrzed(options = {}) {
+  const preset = TONE_PRESETS[options.tone] || TONE_PRESETS.warm;
+  const ms = Number(options.pauseBefore ?? preset.pauseBefore ?? 0);
+  return Math.max(0, Math.min(3000, Number.isFinite(ms) ? ms : 0));
+}
+
+/**
+ * Klucz cache'u. Musi zależeć od WSZYSTKIEGO, co zmienia dźwięk:
+ *  - skrót CAŁEGO tekstu (dawniej pierwsze 100 znaków — porady dnia potrafią
+ *    mieć wspólny początek i różnić się dopiero ostatnim zdaniem, więc
+ *    dziecko dostawało nagranie innej porady),
+ *  - głos,
+ *  - ustawienia głosu, czyli w praktyce ton: `mystery` i `warm` tej samej
+ *    kwestii miały do tej pory jeden klucz i drugi ton nigdy nie wychodził
+ *    z serwera.
+ * Pauzy do klucza nie wchodzą, bo nie ma ich już w nagraniu.
+ */
+function kluczCache(tekst, voiceId, ust) {
+  const skrot = createHash("sha1").update(tekst, "utf8").digest("hex").slice(0, 16);
+  return [skrot, voiceId, ust.stability, ust.similarity_boost, ust.style, ust.speed].join("_");
 }
 
 const ELEVENLABS_API = "https://api.elevenlabs.io/v1/text-to-speech";
@@ -200,35 +243,35 @@ export class TTSService {
       text.replace(/<[^>]*>/g, "").trim()
     ).slice(0, 4500);
 
-    // Cache check
-    const cacheKey = `${cleanText.slice(0, 100)}_${options.voiceId || options.land || "default"}`;
-    if (this._cache.has(cacheKey)) {
-      return this._cache.get(cacheKey);
-    }
-
     // Wybierz głos
     const voiceId = options.voiceId || (options.land ? this.getVoiceForLand(options.land) : this.defaultVoice);
 
     // Tone preset (warm/mystery/celebration/whisper/calm/neutral) lub explicit values
     const preset = TONE_PRESETS[options.tone] || TONE_PRESETS.warm;
 
-    // Ozdób tekst pauzami (eksplicytne pauseBefore/After lub z presetu, plus inlinePauses)
     const decorated = decorateText(cleanText, {
-      pauseBefore: options.pauseBefore ?? preset.pauseBefore,
-      pauseAfter:  options.pauseAfter  ?? preset.pauseAfter,
       inlinePauses: options.inlinePauses ?? false,
     });
+
+    const voice_settings = {
+      stability: options.stability ?? preset.stability,
+      similarity_boost: options.similarityBoost ?? preset.similarity_boost,
+      style: options.style ?? preset.style,
+      speed: options.speed ?? preset.speed ?? 1.0,
+      use_speaker_boost: true,
+    };
+
+    // Cache dopiero TU: klucz liczymy z gotowego tekstu i ustawień głosu,
+    // więc `inlinePauses` i ton same się w nim znajdują.
+    const cacheKey = kluczCache(decorated, voiceId, voice_settings);
+    if (this._cache.has(cacheKey)) {
+      return this._cache.get(cacheKey);
+    }
 
     const body = {
       text: decorated,
       model_id: this.model,
-      voice_settings: {
-        stability: options.stability ?? preset.stability,
-        similarity_boost: options.similarityBoost ?? preset.similarity_boost,
-        style: options.style ?? preset.style,
-        speed: options.speed ?? preset.speed ?? 1.0,
-        use_speaker_boost: true,
-      },
+      voice_settings,
     };
 
     const res = await fetch(`${ELEVENLABS_API}/${voiceId}`, {

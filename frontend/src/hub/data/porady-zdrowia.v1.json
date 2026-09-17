@@ -2,21 +2,21 @@
   "version": 1,
   "note": "Krótkie podpowiedzi prozdrowotne Wizkora, mówione w hubie jego głosem. Zasady: jedno zdanie, tryb zapraszający zamiast rozkazującego, zero straszenia i zero liczenia (żadnych „wypij 8 szklanek\"). Mają brzmieć jak życzliwa uwaga kogoś starszego, a nie jak plakat w gabinecie.",
   "porady": [
-    { "id": "woda",      "tekst": "Kubek wody teraz smakuje lepiej niż trzy później." },
+    { "id": "woda",      "tekst": "Napij się teraz kilku łyków wody. Mała przerwa też może dobrze zrobić." },
     { "id": "oczy",      "tekst": "Popatrz przez chwilę daleko za okno — oczy lubią dalekie widoki." },
     { "id": "plecy",     "tekst": "Wyprostuj plecy i opuść ramiona. O, właśnie tak." },
     { "id": "ruch",      "tekst": "Wstań i przeciągnij się — ciało lubi, gdy o nim pamiętasz." },
-    { "id": "oddech",    "tekst": "Trzy spokojne wdechy potrafią zmienić cały dzień." },
-    { "id": "dwor",      "tekst": "Nawet krótkie wyjście na dwór liczy się bardziej, niż myślisz." },
+    { "id": "oddech",    "tekst": "Weź trzy spokojne oddechy. Czasem już to pomaga trochę zwolnić." },
+    { "id": "dwor",      "tekst": "Nawet krótkie wyjście na dwór i trochę ruchu się liczy." },
     { "id": "sen",       "tekst": "Wieczorem jest ciemno nie bez powodu — sen to twoja supermoc." },
-    { "id": "przekaska", "tekst": "Coś chrupiącego i kolorowego na talerzu dodaje energii na dłużej." },
+    { "id": "przekaska", "tekst": "Dodaj dziś do posiłku coś chrupiącego i kolorowego — na przykład owoc albo warzywo." },
     { "id": "rece",      "tekst": "Umyte ręce to najprostsza tarcza, jaką masz." },
     { "id": "nogi",      "tekst": "Postój chwilę na jednej nodze — równowaga to też ćwiczenie." },
     { "id": "przerwa",   "tekst": "Po dłuższym patrzeniu w ekran należy ci się przerwa." },
-    { "id": "ramiona",   "tekst": "Zakręć ramionami do tyłu pięć razy — napięcie samo odpływa." },
-    { "id": "usmiech",   "tekst": "Uśmiech do siebie w lustrze działa nawet wtedy, gdy jest udawany." },
+    { "id": "ramiona",   "tekst": "Zakręć ramionami do tyłu pięć razy. Sprawdź, czy barki zrobiły się luźniejsze." },
+    { "id": "usmiech",   "tekst": "Uśmiechnij się do siebie w lustrze i zobacz, jak zmienia się twoja twarz." },
     { "id": "cisza",     "tekst": "Chwila ciszy bez dźwięków to odpoczynek dla uszu." },
     { "id": "posilek",   "tekst": "Jedz powoli — brzuch potrzebuje chwili, żeby nadążyć." },
-    { "id": "sluchawki", "tekst": "Ciszej w słuchawkach to więcej muzyki na całe życie." }
+    { "id": "sluchawki", "tekst": "Ścisz trochę słuchawki. Twój słuch też potrzebuje odpoczynku." }
   ]
 }

@@ -1,3 +1,11 @@
+/*!
+ * SPDX-FileCopyrightText: © 2026 Amitiel Angelisme <armitiel@gmail.com>
+ * SPDX-License-Identifier: LicenseRef-EwolucJA-Proprietary
+ *
+ * EwolucJA — gra edukacyjna dla dzieci.
+ * Produkt powstał w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”;
+ * autorskie prawa majątkowe pozostają przy autorze. Licencja: LICENSE.
+ */
 /**
  * misjeGier — łańcuch zadań Wizkora, w których dziecko ODKRYWA minigry.
  *
@@ -250,8 +258,8 @@ export const MISJE = [
     },
     wyplata: {
       tekst:
-        "Przebiegłeś całą trasę i jeszcze liczyłeś po drodze. Głowa i nogi " +
-        "naraz — to rzadkie. {nagroda} monet jest twoje.",
+        "Przebiegłeś całą trasę i jeszcze liczyłeś po drodze. " +
+        "Głowa i nogi pracowały razem — świetna robota. {nagroda} monet jest twoje.",
       wyroznienie: "{nagroda} monet",
       przycisk: "Odbieram nagrodę!",
     },

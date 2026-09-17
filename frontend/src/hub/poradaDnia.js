@@ -1,3 +1,11 @@
+/*!
+ * SPDX-FileCopyrightText: © 2026 Amitiel Angelisme <armitiel@gmail.com>
+ * SPDX-License-Identifier: LicenseRef-EwolucJA-Proprietary
+ *
+ * EwolucJA — gra edukacyjna dla dzieci.
+ * Produkt powstał w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”;
+ * autorskie prawa majątkowe pozostają przy autorze. Licencja: LICENSE.
+ */
 /**
  * poradaDnia — która karteczka wisi dziś na tablicy i co się z nią stało.
  *
@@ -53,7 +61,7 @@ export const KARTY_DNIA = [
     opis: "3 ruchy razem z liskiem",
     akcja: "ruch",
     ilustracja: "/assets/porady/karta-ruch.png",
-    zapowiedz: "Trzy ruchy: łapki, barki i głowa. Strząsamy z siebie napięcie. Gotowy?",
+    zapowiedz: "Trzy ruchy: łapki, barki i głowa. Poruszamy nimi chwilę i strząsamy napięcie. Gotowy?",
     odzew: "Łapki, barki i głowa są już lżejsze. Dobra robota.",
   },
 ];

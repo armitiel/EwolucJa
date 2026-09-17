@@ -1,3 +1,11 @@
+/*!
+ * SPDX-FileCopyrightText: © 2026 Amitiel Angelisme <armitiel@gmail.com>
+ * SPDX-License-Identifier: LicenseRef-EwolucJA-Proprietary
+ *
+ * EwolucJA — gra edukacyjna dla dzieci.
+ * Produkt powstał w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”;
+ * autorskie prawa majątkowe pozostają przy autorze. Licencja: LICENSE.
+ */
 /**
  * EwolucJA — TTS API Routes
  *
@@ -6,7 +14,7 @@
  */
 
 import { Router } from "express";
-import { ttsService } from "../services/ttsService.js";
+import { ttsService, pauzaPrzed } from "../services/ttsService.js";
 
 export function ttsRoutes() {
   const router = Router();
@@ -34,6 +42,12 @@ export function ttsRoutes() {
         "Content-Type": "audio/mpeg",
         "Content-Length": audioBuffer.length,
         "Cache-Control": "public, max-age=3600",
+        // Cisza PRZED kwestią nie jest już w nagraniu (patrz `decorateText`
+        // w ttsService.js) — odmierza ją klient. Bez `Expose-Headers`
+        // przeglądarka nie pozwoli jej odczytać przy zapytaniu z innego
+        // źródła (dev: 5173 → 3001).
+        "X-Pauza-Przed": String(pauzaPrzed({ tone, pauseBefore })),
+        "Access-Control-Expose-Headers": "X-Pauza-Przed",
       });
       res.send(audioBuffer);
     } catch (err) {

@@ -1,3 +1,11 @@
+/*!
+ * SPDX-FileCopyrightText: © 2026 Amitiel Angelisme <armitiel@gmail.com>
+ * SPDX-License-Identifier: LicenseRef-EwolucJA-Proprietary
+ *
+ * EwolucJA — gra edukacyjna dla dzieci.
+ * Produkt powstał w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”;
+ * autorskie prawa majątkowe pozostają przy autorze. Licencja: LICENSE.
+ */
 import React, { useState, useEffect, useRef } from "react";
 import { zapiszRodzajBohatera, rodzajStartowy } from "../services/rodzaj.js";
 import { useNavigate } from "react-router-dom";
@@ -393,7 +401,7 @@ export default function Onboarding() {
             <div style={{ display: "flex", justifyContent: "center", margin: "4px 0 8px" }}>
               {questionIdx === 0 ? (
                 <NarratorVoice
-                  text={`Witaj. Cieszę się, że tu jesteś. Świat Ewolucji właśnie otwiera przed tobą swoje bramy. Zanim ruszymy w drogę — chcę cię lepiej poznać. Przygotowałem dla ciebie kilka prostych pytań. Odpowiadaj szczerze, a dowiesz się, jaka siła w tobie drzemie. A teraz… ${quiz.questions[0].question}`}
+                  text={`Witaj. Cieszę się, że tu jesteś. Świat Ewolucji właśnie otwiera przed tobą swoje bramy. Zanim ruszymy w drogę, chcę cię lepiej poznać. Przygotowałam dla ciebie kilka prostych pytań. Odpowiadaj szczerze, a na końcu zobaczysz, jaka siła jest ci najbliższa. A teraz… ${quiz.questions[0].question}`}
                   land="las_decyzji"
                   tone="warm"
                   speed={0.92}
@@ -746,7 +754,7 @@ function CelebrationThenArchetype({ result, onEnter }) {
 
       <div style={{ position: "relative", zIndex: 1 }}>
         <NarratorVoice
-          text={`Brawo! Zdobyłeś pierwsze ${REWARD} złotych monet. Twój skarbiec dopiero się otwiera.`}
+          text={`Brawo! Pierwsze ${REWARD} złotych monet jest już w twoim skarbcu. To dopiero początek.`}
           land="gora_podsumowania"
           tone="celebration"
           pauseBefore={300}

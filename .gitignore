@@ -66,3 +66,6 @@ frontend/public/assets/onboarding/*.png
 
 # smieci Pythona przy skryptach generatorow
 scripts/__pycache__/
+
+# artefakty python
+__pycache__/
