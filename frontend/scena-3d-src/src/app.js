@@ -123,6 +123,39 @@ const KAMERA_PODNIESIENIE = -0.182;
  * zniknął: ma być widoczny na własnej planecie, kiedy dzień się kończy.
  */
 const ODDALENIE_NOCA = 0.62;
+
+/* ── OPAD KŁÓD PO ŚCIĘCIU ────────────────────────────────────────────────
+ *
+ * Do tej pory stos pojawiał się w jednej klatce: drzewo znikało, drewno było.
+ * Dziecko widziało WYNIK, ale nie widziało, że to ono go zrobiło — a to jest
+ * jedyny moment w tym zadaniu, w którym świat odpowiada na jego pracę.
+ * Teraz kłody zlatują z góry i układają się w ten sam szyk, co dotąd:
+ * układ stosu nie jest animowany, tylko DOCHODZONY — pozycje docelowe są
+ * dokładnie te z `natura.js`, więc po wylądowaniu stos wygląda identycznie
+ * jak przedtem i nic nie trzeba stroić w dwóch miejscach.
+ *
+ * Kolejność jest od dołu: najpierw ląduje spód, na końcu kłoda ze szczytu
+ * piramidy. Inaczej górna spadałaby na puste miejsce i czekała w powietrzu,
+ * aż dolne się pod nią podsuną.
+ */
+const OPAD_CZAS = 0.62;      // lot jednej kłody, sekundy
+const OPAD_ODSTEP = 0.085;   // przerwa między kolejnymi
+const OPAD_WYSOKOSC = 2.6;   // z jakiej wysokości, w skalach stosu
+
+/**
+ * Krzywa opadania: 0 = wysoko w powietrzu, 1 = na swoim miejscu w stosie.
+ *
+ * Pierwsze 68% to LOT Z PRZYSPIESZENIEM (`t²`) — kłoda nie płynie, tylko
+ * spada, i to jedno decyduje, czy ma ciężar. Reszta to jedno miękkie
+ * odbicie: wartość schodzi chwilowo poniżej jedynki, czyli kłoda podskakuje
+ * NAD docelowe miejsce i siada. Bez tego lądowanie wygląda jak przyklejenie.
+ */
+function opadKrzywa(u) {
+  if (u >= 1) return 1;
+  if (u < .68) { const t = u / .68; return t * t; }
+  const t = (u - .68) / .32;
+  return 1 - Math.sin(t * Math.PI) * .17 * (1 - t);
+}
 /**
  * To samo dla ekranu POZIOMEGO. Kadr jest wtedy niski i szeroki: gdyby lisek
  * stał tam, gdzie w pionie, na niebo nad nim nie zostaje miejsca i ogranicznik
@@ -1766,6 +1799,7 @@ export class Aplikacja {
     this._kinoKlatka(e);
     this._wejscieKlatka(e);
     this._nocKlatka(e);
+    this._opadKlodKlatka(e);
     this.camera.position.copy(this.camPos);
     this.camera.lookAt(this._kc.x, this._kc.y, this._kc.z);
 
@@ -2402,6 +2436,12 @@ export class Aplikacja {
     pracuje.zrobione = true;
     pracuje.zrodlo.visible = false;
     pracuje.wynik.visible = true;
+    /* Drzewo znika, a drewno zlatuje z góry i układa się w stos. Kamieniom
+       tego nie dajemy: głaz rozpada się NA MIEJSCU, więc kamyczki spadające
+       z nieba opowiadałyby co innego, niż dziecko przed chwilą zrobiło. */
+    if (pracuje.rodzaj !== "glaz") {
+      this._zacznijOpadKlod(pracuje.wynik, pracuje.skalaWyniku || 1);
+    }
     this._zdejmijKolizje(pracuje);
     w.visible = false;
     this.hint(pracuje.rodzaj === "glaz" ? "Kamienie się przydadzą!" : "Drewno gotowe!");
@@ -2423,6 +2463,29 @@ export class Aplikacja {
    * Świadomie JEDEN raz, po zleceniu zadania: powtarzany przy każdym wejściu
    * przestaje być odkryciem, a staje się ekranem ładowania.
    */
+  /**
+   * Najazd kamery na KONKRETNY ZNAK — np. na jedna z gwiazdek w chwili,
+   * gdy Wizkor zleca ich zbieranie.
+   *
+   * PO CO. "Zbierz 10 gwiazdek" bez pokazania ANI JEDNEJ to polecenie bez
+   * adresu: dziecko wie, ile ma zebrac, ale nie wie, czego szuka ani jak to
+   * wyglada w trawie. Jeden najazd zalatwia oba pytania naraz i nie zabiera
+   * sterowania na dluzej niz dwie sekundy.
+   *
+   * Pozycje bierzemy z ZYWEGO obiektu sceny, nie z `mapa.json`: od planety
+   * `root.position` to punkt NA KULI, a polozenie w ukladzie mapy trzyma
+   * `mapa` (patrz `pozycjaZnaku` w pulpicie testowym).
+   *
+   * Zwraca false, gdy znaku nie ma albo juz zszedl z mapy — wolajacy nie
+   * musi wtedy nic robic, bo brak najazdu niczego nie psuje.
+   */
+  pokazZnakWKadrze(znak, opcje = {}) {
+    const m = (this.markers || []).find((z) => z && z.id === znak && z.state !== "gone");
+    const p = m?.mapa || m?.root?.position;
+    if (!p) return false;
+    return this.pokazMiejsce([p.x, p.z], opcje);
+  }
+
   pokazMiejsce(pos, opcje = {}) {
     const p = Array.isArray(pos) ? pos : this.mapa.schronienie?.pos;
     if (!p || !this.hero) return false;
@@ -3256,6 +3319,103 @@ export class Aplikacja {
    * Hub czeka na to zdarzenie zamiast odliczać własnym `setTimeout` — inaczej
    * podsumowanie wchodziłoby w środku ruchu kamery na wolniejszym telefonie.
    */
+  /**
+   * Zaczyna opad kłód z grupy wyniku ścinania. Bierze DZIECI gotowego stosu
+   * i podnosi je do góry, zamiast budować cokolwiek osobno — dzięki temu
+   * animacja nie ma własnego układu i nie rozjedzie się z `natura.js`,
+   * gdy ktoś przestawi kłodę w stosie.
+   *
+   * PIENIEK NIE SPADA. Siedzi w tej samej grupie wyniku, ale jest tym, co
+   * ZOSTAŁO po drzewie, a nie tym, co z niego powstało — spadający z nieba
+   * pieniek przeczyłby całej scenie.
+   *
+   * Przy `prefers-reduced-motion` wychodzimy od razu: stos pojawia się jak
+   * dotąd, w jednej klatce. Ta animacja jest tu po to, żeby pokazać sprawstwo,
+   * a nie po to, żeby ją trzeba było wysiedzieć.
+   */
+  _zacznijOpadKlod(wynik, skala = 1) {
+    if (spokojnyRuch) return;
+    const stos = wynik.getObjectByName("stos-drewna") || wynik.getObjectByName("kamyczki");
+    if (!stos || !stos.children.length) return;
+
+    /* CEL ZAPAMIĘTANY PRZY BRYLE, nie odczytany z bieżącej pozycji. Pulpit dev
+       potrafi cofnąć łańcuch zdarzeń w środku animacji (`oznaczZuzyte`),
+       a wtedy ponowne ścięcie odczytałoby jako „miejsce w stosie" pozycję
+       kłody wiszącej w powietrzu — i układ stosu rozjechałby się na stałe,
+       bez śladu w kodzie. Docelowe wartości zapisujemy raz i trzymamy przy
+       siatce; drugie ścięcie tego samego drzewa zastaje je gotowe. */
+    const czesci = stos.children.map((m) => {
+      const cel = m.userData.opadCel || (m.userData.opadCel = {
+        y: m.position.y, rx: m.rotation.x, rz: m.rotation.z,
+      });
+      return { m, y: cel.y, rx: cel.rx, rz: cel.rz };
+    });
+    // Poprzedni lot tej samej grupy przestaje obowiązywać — inaczej dwie
+    // animacje szarpałyby te same kłody w przeciwne strony.
+    if (this._opadKlod) this._opadKlod = this._opadKlod.filter((a) => a.czesci[0]?.m.parent !== stos);
+    /* OD DOŁU DO GÓRY, a szczapy na samym końcu. Szczyt piramidy ma lądować
+       na czymś, a nie przed czymś — a szczapy są OPARTE o gotowy stos
+       (`natura.js`), więc spadające przed nim opierałyby się o powietrze.
+       Poznajemy je po geometrii: kłody to walce, szczapy to prostopadłościany.
+       Sprawdzamy typ, a nie kolejność w grupie, bo kolejność należy do
+       `natura.js` i ma prawo się tam zmienić. */
+    const szczapa = (m) => m.geometry?.type === "BoxGeometry";
+    czesci.sort((a, b) =>
+      (szczapa(a.m) ? 1 : 0) - (szczapa(b.m) ? 1 : 0) || a.y - b.y);
+
+    const wysokosc = Math.max(1.1, skala * OPAD_WYSOKOSC);
+    czesci.forEach((c, i) => {
+      c.opoznienie = i * OPAD_ODSTEP;
+      /* Wyżej w stosie = wyżej start, więc wszystkie lecą mniej więcej z tego
+         samego pułapu i żadna nie wyskakuje nisko tuż nad ziemią. */
+      c.start = c.y + wysokosc;
+      /* Przechył w locie jest LOSOWY, ale zawsze dochodzi do wartości
+         docelowej — kłoda wiruje w powietrzu i siada równo, zamiast wpadać
+         w stos krzywo i zostać tak na zawsze. */
+      c.obrotX = c.rx + (Math.random() - .5) * 1.2;
+      c.obrotZ = c.rz + (Math.random() - .5) * 1.2;
+      c.m.visible = false;
+    });
+
+    (this._opadKlod || (this._opadKlod = [])).push({ czesci, t: 0 });
+  }
+
+  /**
+   * Klatka opadu. Lista, nie pojedyncza animacja: dziecko potrafi ściąć drugie
+   * drzewo, zanim pierwszy stos doleci, a wtedy przerwana animacja zostawiłaby
+   * kłody wiszące w powietrzu na stałe.
+   */
+  _opadKlodKlatka(e) {
+    const lista = this._opadKlod;
+    if (!lista || !lista.length) return;
+    for (let i = lista.length - 1; i >= 0; i--) {
+      const a = lista[i];
+      a.t += e;
+      let wPowietrzu = false;
+      for (const c of a.czesci) {
+        const u = (a.t - c.opoznienie) / OPAD_CZAS;
+        if (u < 0) { wPowietrzu = true; continue; }
+        c.m.visible = true;
+        if (u >= 1) {
+          c.m.position.y = c.y;
+          c.m.rotation.x = c.rx;
+          c.m.rotation.z = c.rz;
+          continue;
+        }
+        wPowietrzu = true;
+        const p = opadKrzywa(u);
+        c.m.position.y = c.start + (c.y - c.start) * p;
+        // Obrót dochodzi do celu SZYBCIEJ niż pozycja (do końca lotu, nie do
+        // końca odbicia) — kłoda ma być już równo ułożona, gdy dotknie stosu.
+        const o = Math.min(1, u / .68);
+        const w = o * o * (3 - 2 * o);
+        c.m.rotation.x = c.obrotX + (c.rx - c.obrotX) * w;
+        c.m.rotation.z = c.obrotZ + (c.rz - c.obrotZ) * w;
+      }
+      if (!wPowietrzu) lista.splice(i, 1);
+    }
+  }
+
   _nocKlatka(e) {
     if (!this.doba || !this.doba.naCzas) return;
     // „koniec", nie „noc": noc to dalej gra, dopiero księżyc w zenicie domyka
