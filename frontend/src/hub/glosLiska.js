@@ -16,7 +16,11 @@
  * a przy trzeciej postaci nikt by już nie wiedział, która wygrywa.
  *
  * GDZIE LISEK SIĘ ODZYWA. Tylko tam, gdzie ZAPRASZA DO WSPÓLNEGO DZIAŁANIA —
- * w Poradzie dnia oraz w lekkiej wskazówce prowadzącej do Minigier. To jego
+ * w Poradzie dnia (pola `zapowiedz` i `odzew` z `dailyTipsData.js`, standard
+ * docs/tresci/04 §4.1: zapowiedź ≤ 120 znaków w dwóch zdaniach — jedyny wyjątek
+ * od limitu 70, bo lisek mówi, czym jest praktyka, zanim dziecko się zgodzi;
+ * odzew ≤ 70, „U mnie… A u ciebie?”, bez oceny i bez orzekania o dziecku)
+ * oraz w lekkiej wskazówce prowadzącej do Minigier. To jego
  * jedyna rola w mowie: nie opowiada świata (od tego jest narratorka) i nie
  * zleca zadań (od tego jest Wizkor). Mówi „zrobimy to razem" i tyle.
  *

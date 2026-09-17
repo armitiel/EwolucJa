@@ -7,7 +7,15 @@
  * autorskie prawa majątkowe pozostają przy autorze. Licencja: LICENSE.
  */
 /**
- * poradaDnia — która karteczka wisi dziś na tablicy i co się z nią stało.
+ * poradaDnia — DAWNE pule porad: karteczki z `data/porady.v1.json` i `KARTY_DNIA`.
+ *
+ * ODŁĄCZONE OD ZAKŁADKI PORADA (17.09.2026): jedynym źródłem porad dziecka jest
+ * `dailyTipsData.js` (docs/tresci/04 §4.1) przez `hub/poradaZBiblioteki.js`.
+ * Ten moduł zostaje, bo czytają go jeszcze `nowosci.js` (plakietka), `DomPanel.jsx`
+ * (`KARTY_DNIA`, `czytajSlady`) i `ZegarKlasyczny.jsx` (`PORY`). Do zdjęcia razem
+ * z nimi; `data/porady.v1.json` wtedy do `git rm`.
+ *
+ * (Stary opis:) która karteczka wisi dziś na tablicy i co się z nią stało.
  *
  * Cała pamięć siedzi w localStorage, bo porady nie mają nic wspólnego z kontem:
  * to jest tablica korkowa w pokoju dziecka, a nie zapis postępu. Zmiana
@@ -44,7 +52,7 @@ export const KARTY_DNIA = [
     akcja: "oddech",
     ilustracja: "/assets/porady/karta-oddech.png",
     zapowiedz: "Pięć wolnych oddechów. Nadmuchujemy balon i patrzymy, jak rośnie. Robimy to razem?",
-    odzew: "Balon zabrał trochę pośpiechu. Widziałem, jak zwolniłeś.",
+    odzew: "U mnie balon zabrał trochę pośpiechu. A u ciebie?",
   },
   {
     id: "zielony-trop",
@@ -52,8 +60,8 @@ export const KARTY_DNIA = [
     opis: "Znajdź 5 zielonych rzeczy",
     akcja: "trop",
     ilustracja: "/assets/porady/karta-trop.png",
-    zapowiedz: "Szukamy pięciu zielonych rzeczy dookoła siebie. Kto pierwszy zobaczy?",
-    odzew: "Masz bystre oczy. Pięć zielonych śladów już świeci na mapie.",
+    zapowiedz: "Szukamy pięciu zielonych rzeczy dookoła siebie. Robimy to razem?",
+    odzew: "Ja znalazłem liść i kubek. A ty, co {znalazłeś|znalazłaś}?",
   },
   {
     id: "strzasnij-napiecie",
@@ -61,8 +69,8 @@ export const KARTY_DNIA = [
     opis: "3 ruchy razem z liskiem",
     akcja: "ruch",
     ilustracja: "/assets/porady/karta-ruch.png",
-    zapowiedz: "Trzy ruchy: łapki, barki i głowa. Poruszamy nimi chwilę i strząsamy napięcie. Gotowy?",
-    odzew: "Łapki, barki i głowa są już lżejsze. Dobra robota.",
+    zapowiedz: "Trzy ruchy: łapki, barki i głowa. Poruszamy nimi chwilę i strząsamy napięcie. {Gotowy|Gotowa}?",
+    odzew: "U mnie łapy i barki są luźne. A u ciebie?",
   },
 ];
 

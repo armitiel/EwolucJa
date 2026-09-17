@@ -6,106 +6,161 @@
  * Produkt powstał w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”;
  * autorskie prawa majątkowe pozostają przy autorze. Licencja: LICENSE.
  */
-import React, { useEffect, useState } from "react";
+/**
+ * PoradaAkcja — wykonanie porady w aplikacji (silniki inne niż `oddech`).
+ *
+ * ZASADA: nic tu nie tyka. Każdy silnik przełącza dziecko DOTKNIĘCIEM,
+ * bez sekund i bez cyfr na ekranie (prompt §3 „nigdy odliczanie”; docs/tresci/04 §4.1).
+ *
+ *   szukanie — kropki do stuknięcia, ile wynika z `krok` (trzy / pięć…), bez „x z 5”;
+ *   fazy     — kolejne fazy ruchu z `krok` (np. „strząśnij → zamrzyj → wydech”),
+ *              następna po dotknięciu „Dalej”;
+ *   cisza    — ekran przygaszony, jedno dotknięcie „już cicho”;
+ *   napiecie — „trzymaj” (napnij, palec na ekranie) → „puść”; trzy rundy.
+ *
+ * Portal na `document.body`, tak jak `EkranOddechu`.
+ */
+import React, { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 
-const RUCHY = [
-  "Potrząśnij dłońmi",
-  "Unieś ramiona wysoko",
-  "Ziewnij i opuść barki",
-];
+const SLOWNE = { jedn: 1, dw: 2, trz: 3, czter: 4, pięć: 5, pięci: 5, sześ: 6, siedm: 7, ośm: 8, dziewię: 9, dziesię: 10 };
 
-function Trop({ onGotowe }) {
-  const [slady, setSlady] = useState(() => Array(5).fill(false));
-  const ile = slady.filter(Boolean).length;
-
-  function znajdz(indeks) {
-    setSlady((obecne) => obecne.map((stan, i) => (i === indeks ? true : stan)));
+/** Liczba z polecenia zapisana słownie („trzy rzeczy”) — bez cyfr w danych. */
+function liczbaZKroku(krok, domyslna = 3) {
+  const t = String(krok || "").toLowerCase();
+  for (const [rdzen, n] of Object.entries(SLOWNE)) {
+    if (new RegExp(`\\b${rdzen}\\w*`, "u").test(t)) return n;
   }
+  return domyslna;
+}
 
+/** Fazy z polecenia: rozcięte na przecinkach i kropkach, bez ogonków typu „trzy razy”. */
+function fazyZKroku(krok) {
+  const czesci = String(krok || "")
+    .split(/[.,;]\s*|\s+i\s+/u)
+    .map((x) => x.trim())
+    .filter((x) => x && !/^(trzy|dwa|pięć) razy$/iu.test(x) && !/^powtórz/iu.test(x));
+  return czesci.length ? czesci : [String(krok || "")];
+}
+
+function Szukanie({ porada, onGotowe }) {
+  const ile = useMemo(() => liczbaZKroku(porada?.krok, 3), [porada]);
+  const [znalezione, setZnalezione] = useState(() => Array(ile).fill(false));
+  const gotowe = znalezione.every(Boolean);
   return (
     <>
-      <p className="porada-akcja-instrukcja">
-        Rozejrzyj się. Gdy znajdziesz coś zielonego, dotknij kolejnego listka.
-      </p>
-      <div className="porada-trop-listki" aria-label={`Znalezione zielone rzeczy: ${ile} z 5`}>
-        {slady.map((znaleziony, i) => (
+      <p className="porada-akcja-instrukcja">{porada?.krok}</p>
+      <div className="porada-trop-listki" aria-label="Znalezione rzeczy">
+        {znalezione.map((jest, i) => (
           <button
             key={i}
             type="button"
-            className={znaleziony ? "jest-znaleziony" : undefined}
-            onClick={() => znajdz(i)}
-            disabled={znaleziony}
-            aria-label={znaleziony ? `Ślad ${i + 1} znaleziony` : `Znalazłem ślad ${i + 1}`}
+            className={jest ? "jest-znaleziony" : undefined}
+            onClick={() => setZnalezione((o) => o.map((x, k) => (k === i ? true : x)))}
+            disabled={jest}
+            aria-label={jest ? "Znalezione" : "Znalazłem kolejną rzecz"}
           >
             <span aria-hidden="true" />
           </button>
         ))}
       </div>
-      {ile === 5 ? (
+      {gotowe ? (
         <button type="button" className="hub-btn hub-btn-primary porada-akcja-gotowe" onClick={onGotowe}>
-          Mam wszystkie!
+          Mam wszystkie
         </button>
       ) : (
-        <p className="porada-akcja-licznik">{ile} z 5 śladów</p>
+        <p className="porada-akcja-licznik">Dotknij listka, gdy coś znajdziesz.</p>
       )}
     </>
   );
 }
 
-function Ruch({ onGotowe }) {
+function Fazy({ porada, onGotowe }) {
+  const fazy = useMemo(() => fazyZKroku(porada?.krok), [porada]);
   const [krok, setKrok] = useState(0);
-  const [sekundy, setSekundy] = useState(5);
-  const skonczone = krok >= RUCHY.length;
-
-  useEffect(() => {
-    if (skonczone) return undefined;
-    const zegar = window.setTimeout(() => {
-      if (sekundy > 1) {
-        setSekundy((s) => s - 1);
-      } else {
-        setKrok((k) => k + 1);
-        setSekundy(5);
-      }
-    }, 1000);
-    return () => window.clearTimeout(zegar);
-  }, [krok, sekundy, skonczone]);
-
+  const ostatnia = krok >= fazy.length - 1;
   return (
     <>
-      <div className="porada-ruch-kropki" aria-label={`Ruch ${Math.min(krok + 1, 3)} z 3`}>
-        {RUCHY.map((_, i) => <span key={i} className={i <= krok ? "jest-pelna" : undefined} />)}
+      <div className="porada-ruch-kropki" aria-label="Fazy ruchu">
+        {fazy.map((_, i) => <span key={i} className={i <= krok ? "jest-pelna" : undefined} />)}
       </div>
-      {skonczone ? (
-        <>
-          <p className="porada-akcja-instrukcja">Gotowe. Puść łapki luźno i sprawdź, czy są lżejsze.</p>
-          <button type="button" className="hub-btn hub-btn-primary porada-akcja-gotowe" onClick={onGotowe}>
-            Czuję różnicę
-          </button>
-        </>
+      <p className="porada-ruch-polecenie">{fazy[krok]}</p>
+      {ostatnia ? (
+        <button type="button" className="hub-btn hub-btn-primary porada-akcja-gotowe" onClick={onGotowe}>
+          Zrobione
+        </button>
       ) : (
-        <>
-          <p className="porada-ruch-polecenie">{RUCHY[krok]}</p>
-          <div className="porada-ruch-czas" aria-live="polite">{sekundy}</div>
-        </>
+        <button type="button" className="hub-btn hub-btn-primary porada-akcja-gotowe" onClick={() => setKrok((k) => k + 1)}>
+          Dalej
+        </button>
       )}
     </>
   );
 }
 
-export default function PoradaAkcja({ karta, onZamknij, onUkonczone }) {
-  const tytul = karta?.tytul || "Mała chwila";
-  if (!karta || karta.akcja === "oddech") return null;
+function Cisza({ porada, onGotowe }) {
+  return (
+    <>
+      <p className="porada-akcja-instrukcja">{porada?.krok}</p>
+      <p className="porada-akcja-licznik">Posłuchaj. Dotknij, gdy będzie już cicho.</p>
+      <button type="button" className="hub-btn hub-btn-primary porada-akcja-gotowe" onClick={onGotowe}>
+        Już cicho
+      </button>
+    </>
+  );
+}
 
+function Napiecie({ porada, onGotowe }) {
+  const RUNDY = 3;
+  const [runda, setRunda] = useState(0);
+  const [trzyma, setTrzyma] = useState(false);
+  const gotowe = runda >= RUNDY;
+  function pusc() {
+    if (!trzyma) return;
+    setTrzyma(false);
+    setRunda((r) => r + 1);
+  }
+  return (
+    <>
+      <p className="porada-akcja-instrukcja">{porada?.krok}</p>
+      <div className="porada-ruch-kropki" aria-label="Rundy">
+        {Array.from({ length: RUNDY }, (_, i) => <span key={i} className={i < runda ? "jest-pelna" : undefined} />)}
+      </div>
+      {gotowe ? (
+        <button type="button" className="hub-btn hub-btn-primary porada-akcja-gotowe" onClick={onGotowe}>
+          Zrobione
+        </button>
+      ) : (
+        <button
+          type="button"
+          className={`hub-btn hub-btn-primary porada-akcja-gotowe${trzyma ? " jest-klik" : ""}`}
+          onPointerDown={() => setTrzyma(true)}
+          onPointerUp={pusc}
+          onPointerCancel={pusc}
+          onPointerLeave={pusc}
+        >
+          {trzyma ? "Trzymaj… i puść" : "Przytrzymaj, gdy napinasz"}
+        </button>
+      )}
+    </>
+  );
+}
+
+const SILNIKI = { szukanie: Szukanie, fazy: Fazy, cisza: Cisza, napiecie: Napiecie };
+
+export default function PoradaAkcja({ porada, silnik, onZamknij, onUkonczone }) {
+  const Silnik = SILNIKI[silnik];
+  if (!porada || !Silnik) return null;
+  const tytul = porada.title || "Mała chwila";
   return createPortal(
     <div className="porada-akcja-ekran" role="dialog" aria-modal="true" aria-label={tytul}>
       <button type="button" className="porada-akcja-zamknij" onClick={onZamknij} aria-label="Zamknij">×</button>
       <div className="porada-akcja-scena">
         <span className="porada-akcja-obraz">
-          <img src={karta.ilustracja} alt="" aria-hidden="true" draggable="false" />
+          <img src="/assets/porady/lis-zdrowie-uniwersalny.png" alt="" aria-hidden="true" draggable="false" />
         </span>
         <h2>{tytul}</h2>
-        {karta.akcja === "trop" ? <Trop onGotowe={onUkonczone} /> : <Ruch onGotowe={onUkonczone} />}
+        <Silnik porada={porada} onGotowe={onUkonczone} />
       </div>
     </div>,
     document.body

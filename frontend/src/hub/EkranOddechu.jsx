@@ -56,6 +56,9 @@ import { zdarzenie } from "../services/analityka.jsx";
 
 /** Tempo za porą dnia — rano krócej, wieczorem dłużej. */
 const TEMPO = { rano: 3.4, poludnie: 3.8, popoludnie: 3.8, wieczor: 4.6, noc: 5 };
+/* Biblioteka porad zna trzy pory (`poradaZBiblioteki.poraTeraz`): poranek /
+   południe / wieczór. Mapujemy je na tempo powyżej; stare pięć pór dalej działa. */
+const PORA_NA_TEMPO = { poranek: "rano", poludnie: "poludnie", wieczor: "wieczor" };
 const CYKLE = 5;
 const ISKRY = 9;
 
@@ -76,7 +79,7 @@ const SLOWA = { wdech: "wdech", wstrzymaj: "trzymaj", wydech: "wydech" };
 const STRZALKA = "M16 5 27 16h-5.5v11h-11V16H5z";
 
 export default function EkranOddechu({ pora = "poludnie", onKoniec, onUkonczone }) {
-  const dlugosc = TEMPO[pora] || 4;
+  const dlugosc = TEMPO[PORA_NA_TEMPO[pora] || pora] || 4;
   const wstrzymanie = Math.min(1.6, dlugosc * 0.4);
   const [faza, setFaza] = useState("odliczanie"); // odliczanie | wdech | wstrzymaj | wydech | koniec
   const [licznik, setLicznik] = useState(3);

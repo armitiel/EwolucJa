@@ -237,6 +237,17 @@ const CHMURKA_DREWNO = [
   { src: IKONA_SIEKIERY_3D, opis: "siekiera" },
 ];
 const CHMURKA_GWIAZDKI = [{ src: "/star.png", opis: "gwiazdka" }];
+/* LUPA = „szukaj". Druga ikona mówi CZEGO. Ta para wraca wszędzie tam, gdzie
+   zadanie polega na znalezieniu czegoś na mapie — dzięki temu dziecko uczy
+   się jednego znaku zamiast osobnego rebusu do każdej misji. */
+const IKONA_LUPY_3D = "/assets/wskazowki/ikona-lupa.png";
+const CHMURKA_PUZZLE = [
+  { src: IKONA_LUPY_3D, opis: "szukanie" },
+  { src: "/assets/puzzle/ikona-puzzel.png", opis: "kawałek obrazka" },
+];
+/** Szukanie znaku misji: lupa + to, czego dziecko ma wypatrywać. */
+const chmurkaSzukania = (ikona, opis) =>
+  [{ src: IKONA_LUPY_3D, opis: "szukanie" }, ikona ? { src: ikona, opis } : null].filter(Boolean);
 
 /* TRZY STANY JEDNEGO MATERIAŁU, a nie dwa. „Mam" i „nie mam" nie wystarczy,
    odkąd materiał trzeba jeszcze donieść na plac:
@@ -1553,9 +1564,13 @@ export default function Swiat() {
       pokazKomunikat(`Znajdź ${ile} obrazka`, {
         opis: `Znajdź ${ile} obrazka na mapie`,
       });
+      /* TA SAMA CHMURKA, CO PO OKNIE WIZKORA. Zbieranie kawałków zaczyna się
+         dwiema drogami — z rozmowy i z biblioteki gier — a dla dziecka to
+         jedno i to samo zadanie, więc musi wyglądać tak samo. */
+      pokazChmurke(CHMURKA_PUZZLE);
       return true;
     },
-    [zamknij, odswiezPuzleNaMapie, pokazKomunikat]
+    [zamknij, odswiezPuzleNaMapie, pokazKomunikat, pokazChmurke]
   );
   useEffect(() => { bramaRef.current = bramaPuzzli; }, [bramaPuzzli]);
 
@@ -1661,8 +1676,12 @@ export default function Swiat() {
         const cel = stanPuzzli(id).cel;
         const ile = cel === 4 ? "4 kawałki" : `${cel} kawałków`;
         pokazKomunikat(`Znajdź ${ile} obrazka`, { opis: `Znajdź ${ile} obrazka na mapie` });
+        /* Lupa i kawałek — dokładnie ta sama rola, co drzewo i siekiera przy
+           drewnie: zdanie mówi ILE, chmurka pokazuje CO. */
+        pokazChmurke(CHMURKA_PUZZLE);
       } else if (stan) {
         pokazKomunikat(`Znajdź ${stan.def.szukaj}`, { opis: `Znajdź ${stan.def.szukaj} na polanie` });
+        pokazChmurke(chmurkaSzukania(stan.def.ikona, stan.def.szukaj));
       }
       return;
     }

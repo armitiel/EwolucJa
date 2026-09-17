@@ -7,36 +7,41 @@
  * autorskie prawa majątkowe pozostają przy autorze. Licencja: LICENSE.
  */
 /**
- * poradaZBiblioteki — świeża porada dnia dla dziecka i jej historia.
+ * poradaZBiblioteki — świeża porada dnia dla dziecka, jej wykonanie i historia.
  *
- * SKĄD SIĘ BIERZE. Z biblioteki `dailyTipsData.js` (387 wpisów, 6 profili),
- * ale wyłącznie z wpisów `audience: "dziecko"`. To nie jest drobiazg: 189 z 387
- * porad napisano DO RODZICA („Gdy dziecko o coś pyta, zanim odpowiesz…") i w
- * panelu dziecka brzmiałyby jak instrukcja obsługi samego siebie. Porady
- * rodzica nie mają dziś gdzie trafić w grze — naturalne miejsce to panel
- * Mentora — więc leżą w danych i czekają, zamiast wchodzić dziecku na ekran.
+ * SKĄD SIĘ BIERZE. Z biblioteki `dailyTipsData.js` (format docs/tresci/04 §4.1;
+ * porady rodzica leżą osobno w `dailyTipsRodzic.js` i nie mają tu wstępu).
  *
  * KTÓRA. Profil dziecka × dzień przygody (`services/dzienGry.js`) × pora dnia —
- * ten sam licznik, z którego korzysta `todaysTip()` w bibliotece. Wybór jest DETERMINISTYCZNY: odświeżenie ekranu nie losuje
- * nowej porady. Zmienia ją dopiero nowa pora dnia albo nowy dzień, więc karta
- * nie działa jak automat do gry.
+ * JEDNA definicja pory (`poraTeraz`: poranek / południe / wieczór). Wybór jest
+ * deterministyczny: odświeżenie nie losuje. Gdy w tej porze nic nie ma, bierzemy
+ * NAJBLIŻSZY NASTĘPNY DZIEŃ O TEJ SAMEJ PORZE (cyklicznie) — nigdy inną porę
+ * tego dnia, żeby wieczorem nie czytać „zanim wstaniesz z łóżka”.
  *
- * DZIURY W SIATCE. Od 14.09.2026 każdy profil ma poradę na KAŻDY z 30 dni
- * (32 brakujące dopisane — wcześniej ST miał obsadzone 21 dni z 30). Pory dnia
- * dalej są dziurawe: 33 porady na profil to 33 z 90 slotów. Dlatego schodzimy
- * po kolei: ta sama doba w innej porze → najbliższy następny dzień, który
- * cokolwiek ma (cyklicznie). Pusty ekran nie jest opcją.
+ * ETAP. Pole `etap` porady (1-3 | 4-8 | oba) kontra etap dziecka z onboardingu
+ * (`KLUCZ_ETAP`); bez zapisu etapu wszystko traktujemy jak `oba`. `warianty`
+ * nadpisują pola dla jednego etapu.
+ *
+ * RODZINA. Porada z polem `rodzina` nie wchodzi w dniu, gdy dziecko ma aktywne
+ * zadanie Wizkora z tą samą rodziną (ta sama czynność w dwóch miejscach).
+ *
+ * WYKONANIE (nowe). Jedna porada dziennie może być „zrobiona”; zapis w
+ * localStorage z kluczem dnia — bez licznika i bez serii. Odzew liska przy
+ * `gdzie: dzien` pada przy następnym wejściu tego dnia.
  *
  * HISTORIA siedzi w dwóch miejscach naraz. localStorage działa offline i od
- * razu, backend (`viewed_tips`) przenosi ją między urządzeniami. Przy starcie
- * scalamy oba zbiory — tak samo robi `pages/PoradyPage.jsx`.
+ * razu, backend (`viewed_tips`) przenosi ją między urządzeniami.
  */
 import { DAILY_TIPS, PROFILES_META } from "../dailyTipsData.js";
 import { dzienPrzygody } from "../services/dzienGry.js";
+import { KLUCZ_ETAP } from "./profilStartowy.js";
+import { stanZadania } from "./zadanieWizkora.js";
 
 const KLUCZ_HISTORIA = "ewolucja.porady.biblioteka";
+const KLUCZ_WYKONANE = "ewolucja.porady.wykonane";
 const HISTORIA_MAX = 60;
 const SLOTY = ["poranek", "poludnie", "wieczor"];
+const DNI = 30;
 
 /** Stare zapisy trzymały nazwę archetypu zamiast kodu profilu. */
 const LEGACY_NA_KOD = {
@@ -56,6 +61,7 @@ export function metaProfilu(wartosc) {
 
 export const PORA_NAZWA = { poranek: "Poranek", poludnie: "Południe", wieczor: "Wieczór" };
 
+/** Jedyna definicja pory dnia dla porad. `EkranOddechu` mapuje ją na tempo. */
 export function poraTeraz(data = new Date()) {
   const g = data.getHours();
   if (g < 12) return "poranek";
@@ -66,41 +72,124 @@ export function poraTeraz(data = new Date()) {
 /** Licznik dnia przygody mieszka w `services/dzienGry.js` — tu tylko przelot dalej. */
 export { dzienPrzygody };
 
-function kolejnoscPor(pora) {
-  const i = Math.max(0, SLOTY.indexOf(pora));
-  return [...SLOTY.slice(i), ...SLOTY.slice(0, i)];
+/** Etap szkolny dziecka: "1-3" | "4-8" | null (brak zapisu = wszystko pasuje). */
+export function etapDziecka() {
+  try {
+    const e = localStorage.getItem(KLUCZ_ETAP);
+    return e === "1-3" || e === "4-8" ? e : null;
+  } catch {
+    return null;
+  }
+}
+
+function pasujeEtap(t, etap) {
+  return !etap || !t.etap || t.etap === "oba" || t.etap === etap;
+}
+
+/** Porada z nałożonym wariantem etapu (`warianty["1-3"|"4-8"]` nadpisuje pola). */
+export function zWariantem(t, etap = etapDziecka()) {
+  if (!t) return null;
+  const w = etap && t.warianty ? t.warianty[etap] : null;
+  return w ? { ...t, ...w } : t;
+}
+
+/** Rodzina aktywnego zadania Wizkora (tylko odczyt) albo `null`. */
+function rodzinaAktywnegoZadania() {
+  try {
+    const z = stanZadania();
+    if (!z?.istnieje || z.wyplacone) return null;
+    return z.def?.rodzina || null;
+  } catch {
+    return null;
+  }
 }
 
 function dlaDziecka(profil) {
-  return DAILY_TIPS.filter((t) => t.profile === profil && t.audience === "dziecko");
+  return DAILY_TIPS.filter((t) => t.profile === profil && (t.audience || "dziecko") === "dziecko");
 }
 
-/** Ile porad dla dziecka ma ten profil — panel mówi o tym w stopce historii. */
+/** Ile porad dla dziecka ma ten profil (tylko do narzędzi, nie na ekran). */
 export function ilePorad(profil) {
   return dlaDziecka(kodProfilu(profil)).length;
 }
 
-export function poradaPoId(id) {
-  return DAILY_TIPS.find((t) => t.id === id) || null;
+export function poradaPoId(id, etap = etapDziecka()) {
+  return zWariantem(DAILY_TIPS.find((t) => t.id === id) || null, etap);
 }
 
 /**
- * Porada na teraz. Zwraca wpis z biblioteki albo `null`, gdy profil nie ma ani
- * jednej porady dla dziecka (dziś nie zdarza się to żadnemu z sześciu).
+ * Porada na teraz. Zwraca wpis (z wariantem etapu) albo `null`, gdy profil nie
+ * ma ani jednej porady dla dziecka.
  */
 export function swiezaPorada(profil, player = null, data = new Date()) {
-  const pula = dlaDziecka(kodProfilu(profil));
+  const etap = etapDziecka();
+  const rodzina = rodzinaAktywnegoZadania();
+  const pula = dlaDziecka(kodProfilu(profil))
+    .filter((t) => pasujeEtap(t, etap))
+    .filter((t) => !(rodzina && t.rodzina && t.rodzina === rodzina));
   if (!pula.length) return null;
-  const pory = kolejnoscPor(poraTeraz(data));
+  const pora = poraTeraz(data);
   const start = dzienPrzygody(player, data);
-  for (let krok = 0; krok < 30; krok += 1) {
-    const dzien = ((start - 1 + krok) % 30) + 1;
-    for (const pora of pory) {
-      const t = pula.find((x) => x.day === dzien && x.slot === pora);
-      if (t) return t;
-    }
+  for (let krok = 0; krok < DNI; krok += 1) {
+    const dzien = ((start - 1 + krok) % DNI) + 1;
+    const t = pula.find((x) => x.day === dzien && x.slot === pora);
+    if (t) return zWariantem(t, etap);
   }
-  return pula[0];
+  return zWariantem(pula[0], etap);
+}
+
+/* ── Wykonanie dzisiejszej porady ──────────────────────────────────────────── */
+
+/** Lokalna data, nie ISO w UTC — o 23:30 czasu polskiego ISO pokazuje już jutro. */
+export function kluczDnia(data = new Date()) {
+  return `${data.getFullYear()}-${data.getMonth() + 1}-${data.getDate()}`;
+}
+
+/** Zapis wykonania z dzisiaj albo `null`. Wczorajszy zapis nie liczy się i nie jest błędem. */
+export function czytajWykonanie(data = new Date()) {
+  try {
+    const z = JSON.parse(localStorage.getItem(KLUCZ_WYKONANE) || "null");
+    return z && z.dzien === kluczDnia(data) && z.id ? z : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Oznacza poradę jako zrobioną dzisiaj. `odzewPowiedziany: false` znaczy, że
+ * lisek jeszcze nie odpowiedział (porady `gdzie: dzien` — odzew przy następnym
+ * wejściu tego dnia). Nic nie jest liczone i nic nie przepada.
+ */
+export function zapiszWykonanie(porada, { odzewPowiedziany = true } = {}, data = new Date()) {
+  if (!porada) return null;
+  const zapis = { dzien: kluczDnia(data), id: porada.id, rodzaj: porada.rodzaj || null, slad: porada.slad || null, odzewPowiedziany, kiedy: data.toISOString() };
+  try { localStorage.setItem(KLUCZ_WYKONANE, JSON.stringify(zapis)); } catch {}
+  return zapis;
+}
+
+export function oznaczOdzewPowiedziany(data = new Date()) {
+  const z = czytajWykonanie(data);
+  if (!z) return null;
+  const nowy = { ...z, odzewPowiedziany: true };
+  try { localStorage.setItem(KLUCZ_WYKONANE, JSON.stringify(nowy)); } catch {}
+  return nowy;
+}
+
+/**
+ * Ślad porady w świecie 3D — wywołanie defensywne. API sceny jest wystawione
+ * jako `globalThis.__SCENA`; metoda `ustawSladPorady` powstanie po stronie
+ * sceny później (docs/tresci/04 §6.1). Bez niej nic się nie dzieje i nic nie pęka.
+ */
+export function pokazSladPorady(slad, opcje = {}) {
+  if (!slad) return false;
+  try {
+    const f = globalThis.__SCENA?.ustawSladPorady;
+    if (typeof f !== "function") return false;
+    f.call(globalThis.__SCENA, slad, { kolor: null, bezAnimacji: false, ...opcje });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /* ── Historia ─────────────────────────────────────────────────────────────── */
@@ -161,7 +250,7 @@ export function scalHistorie(zdalne) {
 }
 
 export function zresetujHistorie() {
-  try { localStorage.removeItem(KLUCZ_HISTORIA); } catch {}
+  try { localStorage.removeItem(KLUCZ_HISTORIA); localStorage.removeItem(KLUCZ_WYKONANE); } catch {}
   return [];
 }
 

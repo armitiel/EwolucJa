@@ -391,9 +391,24 @@ export class Aplikacja {
       c.normalBias = 0.05;
       c.bias = -0.0004;
       if (this.ziemia) this.ziemia.receiveShadow = true;
-      this.swiat.traverse((o) => {
-        if (o.isMesh && o !== this.ziemia) { o.castShadow = true; o.receiveShadow = true; }
-      });
+      this._cienieWlaczone = true;
+      this._wlaczCienie(this.swiat);
+      /* ŚWIAT ROŚNIE PO STARCIE, a to było jedyne miejsce, w którym
+         ktokolwiek ustawiał `castShadow`. Pień domku wczytuje się
+         asynchronicznie (`_wczytajPienDomku`), platforma, plac budowy, stosy
+         drewna i pieńki po ścince dochodzą dopiero, gdy dziecko popracuje —
+         wszystko to wchodziło do sceny BEZ cienia. Najbardziej było to widać
+         przy drzewie z domkiem: korona rzucała cień, a pień pod nią żadnego.
+         Zamiast dopisywać `_wlaczCienie` w dwudziestu miejscach i zgubić je
+         w dwudziestym pierwszym, świat oznacza sam to, co do niego wchodzi.
+         Obiekty dokładane do GAŁĘZI już przypiętej do świata omijają ten hak
+         — tam wołamy `_wlaczCienie` ręcznie (pień, korona, skład na placu). */
+      const dodajDoSwiata = this.swiat.add.bind(this.swiat);
+      this.swiat.add = (...co) => {
+        const wynik = dodajDoSwiata(...co);
+        for (const o of co) this._wlaczCienie(o);
+        return wynik;
+      };
     }
     this.kwiaty = sw.kwiaty;
     this.zasiewWlaczony = this.mapa.zasiew;
@@ -1107,6 +1122,23 @@ export class Aplikacja {
    * siatki terenu. Zwraca kotwicę (nie dodaje jej do sceny): wołający sam
    * decyduje, czy wiesza ją na świecie, czy w grupie wyniku.
    */
+  /**
+   * CIENIE DLA OBIEKTU, KTÓRY DOSZEDŁ DO ŚWIATA PO STARCIE SCENY.
+   *
+   * Ta sama reguła, co przy starcie: rzuca i przyjmuje wszystko poza ziemią.
+   * Ziemia cienie tylko PRZYJMUJE, bo kula z `castShadow` cieniuje samą
+   * siebie i cała nocna strona zachodzi morą.
+   *
+   * Bez `mapa.cienie` nie robi nic — pierwszy świat ma plamy pod obiektami
+   * (`plamaCienia`) i ma tak zostać.
+   */
+  _wlaczCienie(obj) {
+    if (!this._cienieWlaczone || !obj) return;
+    obj.traverse((o) => {
+      if (o.isMesh && o !== this.ziemia) { o.castShadow = true; o.receiveShadow = true; }
+    });
+  }
+
   _osadz(obj, x, z, zanurzenie = 0, obrot = 0) {
     const h = this.wysokoscGruntuSiatki ? this.wysokoscGruntuSiatki(x, z) : this.groundHeightAt(x, z);
     const kotwica = new Group();
@@ -2146,6 +2178,7 @@ export class Aplikacja {
          obrót wypada w tym samym miejscu, w którym drzewo rośnie z ziemi. */
       const gibana = (this.blockers || []).find((b) => b && b.domkowe && b.drzewo)?.drzewo;
       (gibana || k).add(pien);
+      this._wlaczCienie(pien);   // korona była w świecie wcześniej, hak z `add` tu nie sięga
       this._pienDomku = pien;   // trzymamy, żeby przebudowa korony go nie gubiła
     } catch (blad) {
       // Bez pnia zostaje sama korona z konarem — brzydko, ale świat stoi.
@@ -2220,6 +2253,7 @@ export class Aplikacja {
     const nowa = drzewoDomkowe(def.skala ?? 1, u);
     if (pien) nowa.add(pien);
     k.add(nowa);
+    this._wlaczCienie(nowa);
     b.drzewo = nowa;
 
     // 3. Pomost — tylko jeśli stoi. `ustawSchronienie` sam czyta `this._uklad`.
@@ -2858,7 +2892,9 @@ export class Aplikacja {
     const x = def.pos[0] + promien * Math.cos(kat);
     const z = def.pos[1] - promien * Math.sin(kat);
     const bryla = rodzaj === "glaz" ? kamyczki(skala * .8) : stosDrewna(skala * .7);
-    this._skladNaPlacu.add(this._osadz(bryla, x, z, .05, kat + .35));
+    const stos = this._osadz(bryla, x, z, .05, kat + .35);
+    this._skladNaPlacu.add(stos);
+    this._wlaczCienie(stos);
   }
 
   /** Czyści skład — woła `ustawSchronienie`, gdy materiał zamienia się w budowlę. */
@@ -3021,9 +3057,19 @@ export class Aplikacja {
     naZiemi.name = "schronienie-przy-ziemi";
     naZiemi.position.copy(bryla.position);   // to samo przesunięcie, bez kołysania
     kotwica.add(naZiemi);
-    for (const o of [...bryla.children]) {
-      if (o.userData?.przyZiemi) naZiemi.add(o);
-    }
+    /* SZUKAMY GLEBIEJ NIZ PIERWSZE DZIECKO. `schronienie()` pakuje KAZDY etap
+       w osobna grupe (`domek-na-drzewie-etap-1`), wiec klepisko i drabinka sa
+       WNUKAMI `bryla`, nie jej dziecmi. Petla po `bryla.children` nie trafiala
+       przez to na ani jeden element z `przyZiemi` i cala darn jechala z
+       kolyszacym sie drzewem: klepisko przechylalo sie razem z pniem, jednym
+       brzegiem wisialo nad trawa, drugim wjezdzalo pod nia.
+       Zbieramy przez `traverse` do OSOBNEJ listy — przepinanie w trakcie
+       chodzenia po drzewie gubi wezly, bo `add()` zmienia tablice dzieci pod
+       iteratorem. Grupy etapow maja transform tozsamosciowy, wiec pozycje
+       lokalne przenosza sie bez zadnego przeliczania. */
+    const doZiemi = [];
+    bryla.traverse((o) => { if (o.userData?.przyZiemi) doZiemi.push(o); });
+    for (const o of doZiemi) naZiemi.add(o);
     this._gibanaBudowla = bryla;
 
     this.swiat.add(kotwica);

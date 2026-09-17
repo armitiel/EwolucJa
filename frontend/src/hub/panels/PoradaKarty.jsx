@@ -7,11 +7,15 @@
  * autorskie prawa majątkowe pozostają przy autorze. Licencja: LICENSE.
  */
 /**
- * PoradaKarty — trzy małe aktywności: balon spokoju, zielony trop, strząśnij
- * napięcie. To BYŁA cała zakładka „Porada"; od 2026-09-14 jest schowana za
- * flagą `POKAZ_KARTY_AKTYWNOSCI` w `PoradaPanel.jsx`, bo wyglądała jak
- * przybornik ćwiczeń, a nie jak porada. Kod zostaje nietknięty — wraca
- * przestawieniem jednej stałej.
+ * PoradaKarty — DAWNE trzy karty aktywności (balon, trop, ruch).
+ *
+ * Od 17.09.2026 NIEUŻYWANE: `PoradaPanel.jsx` nie importuje już tego pliku, a
+ * silniki (`EkranOddechu`, `PoradaAkcja`) uruchamia bezpośrednio z pola
+ * `silnik` porady w bibliotece (docs/tresci/04 §4.1). Listki „x z 7” (ukryty
+ * licznik tygodnia) zdjęte. Plik zostaje do czasu decyzji o `git rm` — wraz
+ * z `KARTY_DNIA` w `poradaDnia.js`, których używa jeszcze `DomPanel.jsx`.
+ * `PoradaAkcja` ma dziś inny interfejs (`porada`, `silnik`) — ten komponent
+ * nie zbuduje się poprawnie w runtime i nie wolno go podpinać bez przepisania.
  *
  * Przepływ jest celowo taki sam jak w Minigrach: najpierw wybór dużym
  * obrazkiem, potem krótka aktywność i dopiero na końcu reakcja świata. Samo
@@ -24,7 +28,6 @@ import PoradaAkcja from "../PoradaAkcja.jsx";
 import {
   anulujWyborKarty,
   czytajRytual,
-  czytajSlady,
   kartyDnia,
   poraDnia,
   ukonczKarteDnia,
@@ -36,7 +39,6 @@ import { powiedzJakLisek, uciszLiska, zachetaDoKarty, zachetaDoWyboru } from "..
 
 export default function PoradaKarty({ onPowrot }) {
   const [stan, setStan] = useState(() => czytajRytual());
-  const [slady, setSlady] = useState(() => czytajSlady());
   const [akcja, setAkcja] = useState(false);
   const [karty] = useState(kartyDnia);
   const [pora] = useState(poraDnia);
@@ -70,7 +72,6 @@ export default function PoradaKarty({ onPowrot }) {
       reset: () => {
         zresetujPorade();
         setStan(czytajRytual());
-        setSlady([]);
         setAkcja(false);
       },
     };
@@ -111,7 +112,6 @@ export default function PoradaKarty({ onPowrot }) {
     // cos tu mowi: ile wybranych kart dziecko doprowadza do konca.
     zdarzenie("karta_ukonczona", { karta: wybrana.id, akcja: wybrana.akcja, pora: pora.id });
     setStan(ukonczKarteDnia(wybrana.id));
-    setSlady(czytajSlady());
     setAkcja(false);
   }
 
@@ -199,16 +199,6 @@ export default function PoradaKarty({ onPowrot }) {
         </>
       )}
 
-      <section className="porada-slady" aria-label="Ślady z ostatnich siedmiu dni">
-        <div>
-          <h3>Twoje listki</h3>
-        </div>
-        <div className="porada-slady-listki" aria-label={`${slady.length} z 7 listków`}>
-          {Array.from({ length: 7 }, (_, i) => (
-            <span key={i} className={i < slady.length ? "jest-pelny" : undefined} aria-hidden="true" />
-          ))}
-        </div>
-      </section>
     </div>
   );
 }

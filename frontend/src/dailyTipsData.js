@@ -1090,7 +1090,7 @@ export const DAILY_TIPS = [
     "rodzina": null,
     "title": "Sowa widzi za siebie",
     "body": "Sowa potrafi obrócić głowę o 270 stopni. Odkrywcy uczą się od niej: czasem warto popatrzeć tam, gdzie inni w ogóle nie patrzą.",
-    "zapowiedz": "Sowa potrafi obrócić głowę o 270 stopni.",
+    "zapowiedz": "Sowa widzi za siebie.",
     "krok": "Sowa potrafi obrócić głowę o 270 stopni.",
     "minimum": "Jedna rzecz, jeden zmysł.",
     "odzew": "Ja znalazłem swoją rzecz przy oczku. A ty, co?",
