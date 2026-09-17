@@ -38,6 +38,11 @@ import {
   ZDARZENIE_ZMIANY,
 } from "../zadanieWizkora.js";
 
+/* Zdjęcia-dowody wyłączone do czasu bezpiecznego toru obrazu (miniatura bez
+   EXIF, prywatny magazyn, uwierzytelnienie, retencja, zgoda opiekuna) —
+   docs/tresci/06_DECYZJE_I_ZALEZNOSCI.md §4.5. Ślad = zdanie (i wybór). */
+export const ZDJECIA_WLACZONE = false;
+
 export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
   const { refreshPlayer } = useAppData();
   const [stan, setStan] = useState(() => stanZadania());
@@ -154,7 +159,7 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
 
   async function wyslij() {
     if (!opis.trim() && !zdjecieUrl) {
-      setBlad("Napisz choć jedno zdanie albo dodaj zdjęcie.");
+      setBlad(ZDJECIA_WLACZONE ? "Napisz choć jedno zdanie albo dodaj zdjęcie." : "Napisz choć jedno zdanie.");
       return;
     }
     setBlad(null);
@@ -304,6 +309,7 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
         <h3 className="czat-naglowek czat-naglowek--pisz">Pokaż Mentorowi</h3>
         {def.dowod ? <p className="zadanie-dowod">{def.dowod}</p> : null}
 
+        {ZDJECIA_WLACZONE ? (<>
         <button
           type="button"
           className="zadanie-zdjecie"
@@ -328,6 +334,7 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot }) {
           style={{ display: "none" }}
           data-testid="zadanie-plik"
         />
+        </>) : null}
 
         <textarea
           className="zadanie-opis"
