@@ -7,7 +7,7 @@
     "Nic nie wymaga zgody, obecności ani czasu dorosłego JAKO WARUNKU.",
     "SZUKANIE JEST NA JUTRO, ZA DNIA. Sekwencja gra wieczorem; zadanie otwiera się przy następnym wejściu. Inaczej siedmiolatek idzie bebeszyć szafę dziesięć minut przed kąpielą, a dowód każe mu wziąć telefon z powrotem do ręki.",
     "DOWÓD NIE JEST SPRAWDZIANEM. Kadr to sama rzecz, nigdy szeroki — dziecko nie fotografuje swojego domu. Równorzędnie: jedno zdanie zamiast zdjęcia, i ładniejszy dowód nie daje nic więcej.",
-    "JĘZYK DLA SIEDMIOLATKA. 'Nad środkiem schronienia jest otwarte niebo' to zdanie dla dorosłego; dziecko potrzebuje 'Nie ma dachu'. Jedno nieznane słowo na zdanie to już za dużo."
+    "JĘZYK DLA SIEDMIOLATKA. 'Nad środkiem domku na drzewie jest otwarte niebo' to zdanie dla dorosłego; dziecko potrzebuje 'Nie ma dachu'. Jedno nieznane słowo na zdanie to już za dużo."
   ],
 
   "zadania": [
@@ -15,7 +15,7 @@
       "id": "dach-ze-znalezionego",
       "cecha": "tworzenie",
       "tytul": "Dachmistrz",
-      "brak": "Schronienie stoi bez dachu.",
+      "brak": "Domek na drzewie stoi bez dachu.",
       "wypelnia": "dach",
       "cel": "Znajdź coś płaskiego, co robi cień.\nTo z niego będzie dach.",
       "szept": "Coś, co robi cień.",
@@ -36,7 +36,7 @@
       "id": "swiatlo-w-dloni",
       "cecha": "ciekawosc",
       "tytul": "Latarnik",
-      "brak": "Przed schronieniem jest ciemno.",
+      "brak": "Przed domkiem na drzewie jest ciemno.",
       "wypelnia": "światło",
       "cel": "Poszukaj najmniejszego światła w domu.\nZgaś duże i zobacz, co zostaje.",
       "szept": "Najmniejsze światło.",

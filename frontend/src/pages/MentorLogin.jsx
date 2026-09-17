@@ -32,9 +32,9 @@ export default function MentorLogin() {
   return (
     <PageShell>
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 20px", gap: 18 }}>
-        {/* Maskotka mentora - sowa */}
+        {/* Znak Mentora — dorosły obok dziecka, nie maskotka */}
         <div style={{ animation: "float-mid 3s ease-in-out infinite", marginBottom: 4 }}>
-          <MentorOwlIcon size={120} />
+          <MentorIcon size={120} />
         </div>
 
         <div className="card card-paper" style={{ maxWidth: 380, width: "100%", padding: "26px 24px", textAlign: "center" }}>
@@ -107,44 +107,25 @@ function GoogleIcon({ size = 18 }) {
   );
 }
 
-function MentorOwlIcon({ size = 100 }) {
-  // Sowa-mentor: claymorphic, ciepe kolory
+function MentorIcon({ size = 100 }) {
+  // Znak Mentora: dorosły obok dziecka. Mentor to rola dorosłego (rodzica albo
+  // nauczyciela), a nie postać ze świata gry — dlatego zwykła, ciepła para
+  // sylwetek zamiast maskotki. Kolory z tej samej palety co reszta ekranu.
   return (
     <svg width={size} height={size} viewBox="0 0 120 120" aria-hidden="true">
       <defs>
-        <radialGradient id="owl-body" cx="50%" cy="40%">
-          <stop offset="0%" stopColor="#C8A0F0"/>
-          <stop offset="100%" stopColor="#7A4DC2"/>
-        </radialGradient>
-        <radialGradient id="owl-belly" cx="50%" cy="50%">
+        <radialGradient id="mentor-tlo" cx="50%" cy="40%">
           <stop offset="0%" stopColor="#FFF6E0"/>
           <stop offset="100%" stopColor="#F5DDA8"/>
         </radialGradient>
       </defs>
-      {/* Body */}
-      <ellipse cx="60" cy="68" rx="42" ry="44" fill="url(#owl-body)" />
-      {/* Belly */}
-      <ellipse cx="60" cy="76" rx="28" ry="32" fill="url(#owl-belly)" />
-      {/* Eye whites */}
-      <circle cx="42" cy="50" r="16" fill="#fff" />
-      <circle cx="78" cy="50" r="16" fill="#fff" />
-      {/* Glasses */}
-      <circle cx="42" cy="50" r="13" fill="none" stroke="#4e4d76" strokeWidth="3"/>
-      <circle cx="78" cy="50" r="13" fill="none" stroke="#4e4d76" strokeWidth="3"/>
-      <line x1="55" y1="50" x2="65" y2="50" stroke="#4e4d76" strokeWidth="3"/>
-      {/* Pupils */}
-      <circle cx="42" cy="50" r="5" fill="#4e4d76" />
-      <circle cx="78" cy="50" r="5" fill="#4e4d76" />
-      <circle cx="44" cy="48" r="1.5" fill="#fff" />
-      <circle cx="80" cy="48" r="1.5" fill="#fff" />
-      {/* Beak */}
-      <path d="M60 60 L55 70 L65 70 Z" fill="#E89A3D"/>
-      {/* Ears/tufts */}
-      <path d="M28 30 Q34 18 42 32" fill="#7A4DC2"/>
-      <path d="M92 30 Q86 18 78 32" fill="#7A4DC2"/>
-      {/* Wings */}
-      <ellipse cx="22" cy="74" rx="12" ry="20" fill="#7A4DC2" />
-      <ellipse cx="98" cy="74" rx="12" ry="20" fill="#7A4DC2" />
+      <circle cx="60" cy="60" r="54" fill="url(#mentor-tlo)" stroke="#7A4DC2" strokeWidth="4" />
+      {/* Dorosły */}
+      <circle cx="48" cy="40" r="12" fill="#7A4DC2" />
+      <path d="M26 96 Q26 58 48 58 Q70 58 70 96 Z" fill="#7A4DC2" />
+      {/* Dziecko */}
+      <circle cx="80" cy="58" r="9" fill="#E89A3D" />
+      <path d="M64 96 Q64 72 80 72 Q96 72 96 96 Z" fill="#E89A3D" />
     </svg>
   );
 }

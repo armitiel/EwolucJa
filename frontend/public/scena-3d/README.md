@@ -148,7 +148,7 @@ kolejne wejścia są natychmiastowe.
 
 Geometria sceny — ścieżka, rzeka, most, brama, latarnia, drzewa, głazy, budynki,
 znaki minigier, **suche drzewka do ścięcia** (`sucheDrzewka`) i **plac budowy
-schronienia** (`schronienie`) — leży w **`mapa.json`** obok tego pliku. Scena czyta ją przez
+domku na drzewie** (`schronienie`) — leży w **`mapa.json`** obok tego pliku. Scena czyta ją przez
 `globalThis.__SCENA3D_MAPA`, które musi być ustawione **przed** doładowaniem
 modułu (robi to `index.html` i `src/components/Scena3D.jsx`). Gdy pliku nie ma,
 bundle wraca do wartości wbudowanych i świat wygląda tak, jak przed edytorem.

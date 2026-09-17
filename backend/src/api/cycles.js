@@ -30,14 +30,14 @@ function mapToProfileCode(value) {
 }
 
 // narrative_intro nie jest w bibliotece — generujemy lekkie wprowadzenie zaleznie od profilu.
-// Krotkie, w trzeciej osobie z perspektywy Medrca, bez animizmu krain.
+// Krotkie, w trzeciej osobie z perspektywy Wizkora (docs/SWIAT_I_POSTACIE.md).
 const PROFILE_INTROS = {
-  DT: "Mędrzec szepcze: nowa zagadka czeka na tropiciela. Otwórz oczy uważniej niż zwykle.",
-  EM: "Mędrzec uśmiecha się: dziś masz szansę zauważyć kogoś sercem. To też supermoc.",
-  ST: "Mędrzec spogląda na mapę: dobry plan robi z małych rzeczy wielkie. Czas na ruch stratega.",
-  KR: "Mędrzec mruga: Twoja wyobraźnia ma dziś robotę. Coś nowego chce się narodzić.",
-  LD: "Mędrzec kiwa głową: odwaga zaczyna się od jednego małego kroku. Śmiałek próbuje.",
-  MD: "Mędrzec mówi spokojnie: czasem największa siła to umieć kogoś wysłuchać. Spróbuj dziś.",
+  DT: "Wizkor szepcze: nowa zagadka czeka. Rozejrzyj się uważniej niż zwykle.",
+  EM: "Wizkor uśmiecha się: dziś możesz zauważyć, czego ktoś potrzebuje.",
+  ST: "Wizkor spogląda na mapę: dobry plan zaczyna się od jednej małej rzeczy.",
+  KR: "Wizkor mruga: twoja wyobraźnia ma dziś robotę. Coś nowego chce powstać.",
+  LD: "Wizkor kiwa głową: odwaga zaczyna się od jednego małego kroku.",
+  MD: "Wizkor mówi spokojnie: zrób dziś jedną rzecz naraz, do samego końca.",
 };
 
 // Heurystyka: z tags + slow kluczowych w body wywnioskuj proof_type (kompatybilne z mission schema).
@@ -59,7 +59,7 @@ function mapLibraryItemToMission(item) {
   return {
     title: item.title,
     body: item.body,
-    narrative_intro: PROFILE_INTROS[profile] || "Mędrzec szepcze: nowe zadanie czeka.",
+    narrative_intro: PROFILE_INTROS[profile] || "Wizkor szepcze: nowe zadanie czeka.",
     competency_focus: Array.isArray(item.competency_focus) && item.competency_focus.length > 0
       ? item.competency_focus
       : (profile ? [profile] : ["DT"]),
@@ -289,13 +289,8 @@ export function missionRoutes(db) {
         await savePlayer(db, player);
       }
 
-      const dopamineArtifact = {
-        artifact_id: `dopamine_${Date.now()}`,
-        artifact_name: "Świecące Piórko",
-        cycle_id: mission.cycle_id,
-      };
-      await addArtifactToBackpack(db, mission.player_id, dopamineArtifact);
-      res.json({ ok: true, dopamine_reward: dopamineArtifact, scores: player?.lifetime_scores });
+      // Swiecace Piorko (artefakt za samo wyslanie) wycofane 17.09.2026 — docs/SWIAT_I_POSTACIE.md.
+      res.json({ ok: true, scores: player?.lifetime_scores });
     } catch (e) { console.error("[mission submit]", e); res.status(500).json({ error: e.message }); }
   });
 

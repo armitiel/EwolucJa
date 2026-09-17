@@ -19,7 +19,7 @@ trzy karty — *Gierki dla Ciebie +30*, *Zadania w Realu +12*, *Rozkmina Dnia*.
 **Gry:** „Wyprawa tygodnia" — jedna gra otwarta, następna z kłódką.
 **Zadania:** zwinięty zwój → „Rozwiń zwój ✦" → konfetti → tytuł, dwa zdania,
 „Daj odpowiedź ✦". Zadanie, które wypadło: *„Bądź obok kogoś smutnego —
-bez słów"*. **Porady:** „Komnata Mędrca", porada dnia w łuku trzydziestu dni
+bez słów"*. **Porady:** osobna zakładka porad, porada dnia w łuku trzydziestu dni
 („30 dni tropienia — dziś mija miesiąc twoich odkryć"), trzy pory dnia,
 i **historia dzień po dniu**: *Dzień 1 — Pierwsze spojrzenie dnia · Dzień 3 —
 Niebo jak mapa · Dzień 4 — Oddech jak mgła · Dzień 12 — Dźwięki domu ·
@@ -130,7 +130,7 @@ zwoju na roślinę — ten sam brak liczb, tylko widać go w świecie). Liść z
 dzień z poradą albo z wodą z oczka. Pusty dzień to brak liścia, nie wyrzut.
 
 **Miesiąc.** Kronika w domu (V1) — jedna linia na dzień, głosem narratorki,
-tytułami jak w Komnacie Mędrca: *„Dzień 12 — Dźwięki domu"*, *„Dzień 14 —
+tytułami jak w zakładce porad z V1: *„Dzień 12 — Dźwięki domu"*, *„Dzień 14 —
 Ola przyniosła Odwagę"*. Do tego łuk trzydziestu dni porad z V1, tym razem
 bez archetypu: miesiąc ma początek, środek i koniec.
 

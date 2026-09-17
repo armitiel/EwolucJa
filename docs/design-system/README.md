@@ -165,7 +165,7 @@ Chmurowa kurtyna zasłania pierwsze wejście do świata do chwili gotowości sce
 
 ### I. Wskaźnik ścinania — kołowy postęp
 
-Kołowy wskaźnik postępu HUD-u schronienia: ciemna tarcza, żywy złoto-pomarańczowy łuk z wewnętrznym glow, twardy obrys, w środku ikona siekiery i procent. Pokazuje CZYNNOŚĆ (rąbanie), nie stan magazynu — dlatego złoto jest mocniejsze niż bazowy amber i ma się „palić" na trawie. Pełna specyfikacja (tokeny, geometria łuku, glow, ikona i jej generacja przez `gpt-image-1`): [`wskaznik-scinania.md`](wskaznik-scinania.md).
+Kołowy wskaźnik postępu HUD-u placu budowy: ciemna tarcza, żywy złoto-pomarańczowy łuk z wewnętrznym glow, twardy obrys, w środku ikona siekiery i procent. Pokazuje CZYNNOŚĆ (rąbanie), nie stan magazynu — dlatego złoto jest mocniejsze niż bazowy amber i ma się „palić" na trawie. Pełna specyfikacja (tokeny, geometria łuku, glow, ikona i jej generacja przez `gpt-image-1`): [`wskaznik-scinania.md`](wskaznik-scinania.md).
 
 ![Wskaźnik ścinania](evidence/wskaznik-scinania.png)
 

@@ -14,9 +14,10 @@ i mogą się od tego pliku różnić — to on jest źródłem prawdy o tym, co 
 ## Wejście
 
 **Landing** (`/`) — jeden przycisk START → `/swiat`. Stare adresy (`/world`,
-`/map`, `/mapa`) przekierowują tam. Trasa `/onboarding` istnieje technicznie
-(urządzenie bez gracza), ale onboarding jako element gry nie jest częścią
-konceptu — póki co.
+`/map`, `/mapa`) przekierowują tam. Od 2026-09-14 nowy gracz idzie najpierw
+przez `/onboarding`: test obrazkowy daje profil startowy (jeden z sześciu,
+`docs/TEST_OBRAZKOWY.md`), a koniec testu prowadzi do `/swiat`. Łańcuch
+wejścia: `docs/WERSJA_AKTUALNA.md`.
 
 ---
 
@@ -34,14 +35,18 @@ trzynaście kwiatków. Drzewa gibią się, kwiaty kłaniają, gdy bohater przebi
 **Znaki na mapie** (24): czarodziej, dziesięć gwiazdek, dziewięć kawałków
 puzzli, trzy wejścia do gier (karty, drzewo lotu, bucik), drzwi domu.
 
-### Kto się odzywa (cztery głosy, ElevenLabs)
+### Kto się odzywa (trzy głosy, ElevenLabs)
 
 | głos | rola | czego nie robi |
 |---|---|---|
 | narratorka | opowiada | nie zleca zadań |
-| Wizkor (czarodziej na mapie) | zleca i rozlicza zadania | nie opowiada świata |
+| Wizkor (czarodziej na mapie) | zleca zadania i daje trop | nie opowiada świata |
 | lisek | zaprasza do wspólnej aktywności (porada dnia, wskazówka do gier) | nie zleca, nie opowiada |
-| Mędrzec | jedna myśl o ciele, głosem dorosłego, rzadko | nie prowadzi fabuły |
+
+Czwartego głosu nie ma: rzadką, spokojną myśl o ciele mówi Wizkor, tym samym
+głosem. Narratorka to bezimienny głos Świata Ewolucji. Mentor nie jest
+postacią — to rola dorosłego po stronie panelu. Kanon nazw:
+`docs/SWIAT_I_POSTACIE.md`.
 
 ### Co dziecko robi — cztery pętle
 
@@ -50,7 +55,7 @@ puzzli, trzy wejścia do gier (karty, drzewo lotu, bucik), drzwi domu.
 2. **Odkrywanie gry.** Wizkor zleca, kawałki obrazka rozsypują się po polanie,
    dziecko je zbiera i układa (2×2 albo 3×3) — gra ląduje w zakładce
    NA STAŁE i rusza od razu. Nagroda rozbita na dwie: za ułożenie i za partię.
-   Trzy gry idą po kolei: Pamięć Mędrca → Lot Liska → Bieg Liska.
+   Trzy gry idą po kolei: Gra na Pamięć → Lot Liska → Bieg Liska.
 3. **Zadanie poza ekranem.** Z rozmowy z Wizkorem otwiera się **Koło
    Przeznaczenia** — losuje cechę, a do cechy dobierane jest zadanie, którego
    nie da się zrobić w grze; dowodem jest zdjęcie albo zdanie. Idzie do Mentora, Mentor
@@ -62,7 +67,7 @@ puzzli, trzy wejścia do gier (karty, drzewo lotu, bucik), drzwi domu.
 
 | id | tytuł | mechanika | tutorial |
 |---|---|---|---|
-| `pamiec-medrca` | Pamięć Mędrca | pary kart | jest |
+| `pamiec-medrca` | Gra na Pamięć | pary kart | jest |
 | `lot-liska` | Lot Liska | naciągnij choinkę, traf w obręcze | **brak** |
 | `bieg-liska` | Bieg Liska | licz w biegu, skacz po wynik | **brak** |
 
@@ -81,8 +86,8 @@ Zwój Znaków).
 Poza dokiem: **Profil** (kafel z imieniem — awatar, imię, monety, mocne
 strony; nic więcej, decyzja 2026-08-20), **Dom** (drzwi na mapie → wnętrze
 i panel „co już masz"), **plakietki** z liczbą nowości,
-**chmurka wskazówki** celująca w ikonę doku, **Mędrzec** wychylający się
-z jedną myślą.
+**chmurka wskazówki** celująca w ikonę doku, **Wizkor** wychylający się
+z jedną myślą o ciele.
 
 ### Nagrody
 

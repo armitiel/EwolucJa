@@ -101,7 +101,7 @@ export default function Przygoda() {
   if (!scene || !step) {
     return (
       <SceneShell art={art} accent={accent} lit={litHere}>
-        <TopStrip place={location?.name || "Las Szeptów"} sparks={state.iskry.length} />
+        <TopStrip place={location?.name || "Polana"} sparks={state.iskry.length} />
         <Stage avatar={<AvatarArt size={130} color={state.color} grants={state.grants} grantDefs={adventure.grants} />} />
         <NextStepBar label={adv.nextStep.label} onGo={() => navigate("/swiat")} kicker="Dalej" />
       </SceneShell>

@@ -12,7 +12,7 @@ Czytaj `docs/PANEL_ZADAN.md` — tam są limity pól.
 ## Granica z `narrator-gama`
 
 `narrator-gama` trzyma kanon: ton świata, rodzaj żeński narratorki, podział
-ról (Wizkor zleca, lisek zaprasza, narratorka opowiada, Mędrzec mówi o ciele),
+ról (Wizkor zleca i daje trop, lisek zaprasza, narratorka opowiada — trzy głosy),
 zakaz cyfr w tekstach czytanych przez TTS. **Ostatnie przejście po tekście
 należy do niego.** Ty dowozisz warianty i precyzję — on decyduje, który
 wariant brzmi jak EwolucJA.

@@ -153,7 +153,7 @@ export default function GMPanel() {
       </div>
       <div style={{ flex: 1, overflowY: "auto", minHeight: 0, padding: "4px 18px 28px", display: "flex", flexDirection: "column", gap: 14 }}>
         <div style={{ display: "flex", background: "rgba(255,255,255,.7)", borderRadius: 14, padding: 4 }}>
-          {[["children", "Tropiciele"], ["week", "Ten cykl"], ["settings", "Ton i tempo"]].map(([k, l]) => (
+          {[["children", "Dzieci"], ["week", "Ten cykl"], ["settings", "Ton i tempo"]].map(([k, l]) => (
             <button key={k} onClick={() => setTab(k)} style={{ flex: 1, border: "none", cursor: "pointer", padding: "8px 6px", fontFamily: "Nunito, sans-serif", fontWeight: 800, fontSize: 12, borderRadius: 10, background: tab === k ? "linear-gradient(180deg,#FFD269,#E89A3D)" : "transparent", color: tab === k ? "#4A2A0E" : "var(--p-ink-soft)", boxShadow: tab === k ? "0 2px 0 #B47322" : "none" }}>{l}</button>
           ))}
         </div>

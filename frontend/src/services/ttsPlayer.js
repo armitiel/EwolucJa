@@ -1,6 +1,6 @@
 /**
  * EwolucJA — TTS Player (Frontend)
- * Odtwarza narrację głosem GAMA-1 przez ElevenLabs API.
+ * Odtwarza narrację i głosy postaci przez ElevenLabs API.
  * Fallback na Web Speech API gdy ElevenLabs niedostępny.
  * iOS Safari compatible — persistent Audio element + global auto-unlock.
  */

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "note": "Krótkie podpowiedzi prozdrowotne Mędrca, mówione w hubie. Zasady: jedno zdanie, tryb zapraszający zamiast rozkazującego, zero straszenia i zero liczenia (żadnych „wypij 8 szklanek\"). Mają brzmieć jak życzliwa uwaga kogoś starszego, a nie jak plakat w gabinecie.",
+  "note": "Krótkie podpowiedzi prozdrowotne Wizkora, mówione w hubie jego głosem. Zasady: jedno zdanie, tryb zapraszający zamiast rozkazującego, zero straszenia i zero liczenia (żadnych „wypij 8 szklanek\"). Mają brzmieć jak życzliwa uwaga kogoś starszego, a nie jak plakat w gabinecie.",
   "porady": [
     { "id": "woda",      "tekst": "Kubek wody teraz smakuje lepiej niż trzy później." },
     { "id": "oczy",      "tekst": "Popatrz przez chwilę daleko za okno — oczy lubią dalekie widoki." },

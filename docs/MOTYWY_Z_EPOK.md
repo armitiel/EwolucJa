@@ -26,15 +26,15 @@ weta zaznaczone.
 **Wraca (przepisane):** zwój jako ceremonia · kronika dzień po dniu · łuk
 trzydziestu dni liczony zamkniętymi dniami · dwie pory jako dwa pojemniki
 (poranek bez ekranu, wieczór ze światłem) · sytuacje z quizu jako scenki
-liska · nazwy krain jako nazwy planet-rozdziałów · element startowy jako
+liska · kolejne światy jako planety-rozdziały (W3–W6, bez nazw własnych) · element startowy jako
 przedmiot, który lisek niesie · tranzycja świata jako rytuał · dowód
 głosowy i rysunkowy · `highlighted` jako deszcz z tęczą · podział „resetuje
 się / zostaje" = listki / etapy · żywopłot, kładka, schody, kamień-ślad
 z doliny · trzy momenty rocznicowe jako zdarzenia świata.
 
-**Nie wraca:** profil/archetyp w jakiejkolwiek formie (kody, „Mały
-Gwardzisto", „urosłaś/urosłeś") · punkty, poziomy, paski, 11 kropek,
-0/1000 · Piórko jako nagroda „mid-week" i piątkowy deadline · selfie
+**Nie wraca:** etykietowanie dziecka profilem (kody na ekranie, nazwa
+profilu w wołaczu, „urosłaś/urosłeś") · punkty, poziomy, paski, 11 kropek,
+0/1000 · nagroda „mid-week" i piątkowy deadline · selfie
 i awatar z twarzy dziecka · regeneracja awatara przez AI po każdym
 przedmiocie i generowanie misji per gracz (duch dzisiejszego
 `/missions/generate`) · odliczanie z auto-wyborem · obserwator
@@ -442,7 +442,7 @@ mówiony. Linia narratorki, rodzaj żeński, bez cyfr w tekście mówionym.
 20. Trzy zapachy dnia — „Chleb, deszcz i coś jeszcze; zapisałam wszystkie trzy."
 21. Wielka klepsydra — „Świat się spieszył, a piasek leciał spokojnie."
 22. Pytanie do snu — „Pytanie poszło pod poduszkę; sen pracował nad nim do rana."
-23. Strażniczka pytań — „Sowa przyjęła jedno pytanie na przechowanie."
+23. Schowek na pytania — „Jedno pytanie zostało odłożone na przechowanie."
 24. Dźwiękowy ślad — „Jeden dźwięk został z całego dnia: niewidoczny, ale prawdziwy."
 25. Słońce na ścianie — „Plama światła przeszła dziś na drugą ścianę."
 26. Jedna lampka — „Zgasły górne światła; została lampka i latarnia."
@@ -470,8 +470,8 @@ dniami, grane raz, nigdy jako „przegapione":
 
 Po dwa zdania narratorki, bez zadania, bez nagrody, w funkcjach z
 `WERSJE_I_MOTYWY.md` (brama = gry, most = przejście, latarnia = światło,
-domek = kronika). Źródła obrazów: lore „kraina istnieje, gdy ktoś o niej
-pamięta", „Kronika nie ocenia, zapamiętuje", ślady stóp, które gasną.
+domek = kronika). Źródła obrazów: kronika, która nie ocenia, tylko
+zapamiętuje, i ślady stóp, które gasną.
 
 - **Brama:** „Ta brama nie ma zamka ani klucza. Stoi otworem dla każdego,
   kto tu wraca." *(zapas: „Za bramą jest to, czego jeszcze nie znasz. Lisek
@@ -507,21 +507,23 @@ pamięta", „Kronika nie ocenia, zapamiętuje", ślady stóp, które gasną.
 ## 6. Światy-rozdziały — W3 i dalej
 
 Dwa składy doszły niezależnie do tej samej triady: **fasola rośnie w górę,
-następna rzecz ma rosnąć wokół, kolejna w poprzek.** Krainy z majowego lore
-dają nazwy i obrazy, dolina z sierpnia daje gotowe mechanizmy (segment
+następna rzecz ma rosnąć wokół, kolejna w poprzek.** Kolejne światy nie mają
+nazw własnych (W3–W6, historie układa autor później); dolina z sierpnia daje
+gotowe mechanizmy (segment
 żywopłotu 1 m ze stykającymi się końcami, łuk z otworem na szerokość
 bohatera, kładka skalowana w Z, schody sztaplowane, kamień-krok w trzech
 obrotach) — wszystko jako wpisy w `mapa.json`, bez zmiany silnika.
 
-| świat | nazwa z lore | co rośnie i jak | co lisek nosi | przejście dalej |
-|---|---|---|---|---|
-| **W2** | Polana | fasola — **w górę** | krople z oczka | wspinaczka po pnączu |
-| **W3** | Las Pytań / Ogród | pierścień — **wokół**: żywopłot ogrodu (assety z doliny) albo krąg świecących grzybów wokół pnia (lore: „niektóre świecą po zmroku") | zarodniki z próchna / sadzonki | domknięty pierścień otwiera łuk albo drzwi w pniu |
-| **W4** | Góry (bez „Liczb") | kładka — **w poprzek** wąwozu | deski z wiatrołomu | gdy sięgnie drugiego brzegu; dopóki nie sięga, po prostu się urywa |
-| **W5** | Morze Słów | ławica muszli — **wynurza się** z odpływem; muszle grają dźwięk zamiast rosnąć | muszle z brzegu | gdy da się przejść po mieliźnie |
-| **W6** | Pustynia Pomysłów | łąka — **w szerz**, każdy dowód to roślina innej sylwetki | ziarna z wiatru | najpóźniej: najbliżej fasoli |
-| — | Zamek Czasu | nie świat: „komnaty z zapomnianymi chwilami" to **wnętrze domku** (kronika) | — | — |
-| — | Niebo Marzeń | nie rozdział: **ekran finału** — chmura, z której widać wszystkie przeszłe planety | — | — |
+| świat | co rośnie i jak | co lisek nosi | przejście dalej |
+|---|---|---|---|
+| **W2** (planeta z liskiem) | fasola — **w górę** | krople z oczka | wspinaczka po pnączu |
+| **W3** | pierścień — **wokół**: żywopłot ogrodu (assety z doliny) albo krąg świecących po zmroku grzybów wokół pnia | zarodniki z próchna / sadzonki | domknięty pierścień otwiera łuk albo drzwi w pniu |
+| **W4** | kładka — **w poprzek** wąwozu | deski z wiatrołomu | gdy sięgnie drugiego brzegu; dopóki nie sięga, po prostu się urywa |
+| **W5** | ławica muszli — **wynurza się** z odpływem; muszle grają dźwięk zamiast rosnąć | muszle z brzegu | gdy da się przejść po mieliźnie |
+| **W6** | łąka — **w szerz**, każdy dowód to roślina innej sylwetki | ziarna z wiatru | najpóźniej: najbliżej fasoli |
+
+Poza światami: **wnętrze domku na drzewie** jako miejsce kroniki i **ekran
+finału** — chmura, z której widać wszystkie przeszłe planety.
 
 Każdy świat: pięć etapów = pięć cech, jak w W2; inna waga i inny gest
 noszenia (sypie, kładzie, układa). Oczko i porady dają liście na tym, co
@@ -553,7 +555,7 @@ rozsypało się po podłodze. Jest mu głupio. Co byś zrobił?"*
 - Robię z tego nasz żart, żeby śmiech zastąpił „głupio". → Lisek robi
   fikołka; drzewa gibią się, jakby przeszedł wiatr.
 - Wstaję pierwszy i wołam: „pomagamy zbierać, kto ze mną?" → Lisek staje
-  na moście i macha; z domku wychyla się Mędrzec i kiwa głową.
+  na moście i macha; z domku wychyla się Wizkor i kiwa głową.
 
 **Drzewo na ścieżce** — *„Nocą wiatr powalił drzewo w poprzek ścieżki.
 Lisek stoi przed pniem. Co byś zrobił?"*
@@ -567,7 +569,7 @@ Lisek stoi przed pniem. Co byś zrobił?"*
 
 **Sześć w skrócie** (poprawki bezpieczeństwa zaznaczone):
 - **Klucz** — „W szufladzie znajdujesz stary klucz. Nikt nie wie, do czego
-  pasuje." · lista drzwi po kolei / klucz do krainy i mapa / pytam
+  pasuje." · lista drzwi po kolei / klucz do ukrytego miejsca i mapa / pytam
   najstarszą osobę w domu / próbuję każdy zamek od razu.
 - **Kot** — „Sąsiadka, którą znasz, zgubiła kota." · plakat / pytam ją,
   gdzie kot lubi chodzić, i rysuję trasę / zostaję z nią: koty wracają /
@@ -603,10 +605,9 @@ nie Koło". Pierwszy etap fasoli dostaje kolor tej cechy. Najtańszy test:
 położyć pięć statycznych obiektów na polanie i patrzeć, który dzieci
 podnoszą pierwszy — zanim ktoś napisze logikę.
 
-**Tranzycja świata jako rytuał** (marzec: splash z imieniem, paleta na
-krainę, świat odsłania się dopiero po). `swiat:dalej` po wspinaczce nie
-ładuje W3 od razu: chowa scenę, narratorka mówi nazwę świata i imię
-dziecka, W3 ma własną paletę, scena wraca zejściem przez chmury. Granica,
+**Tranzycja świata jako rytuał** (marzec: splash z imieniem, własna paleta
+na każdy etap, świat odsłania się dopiero po). `swiat:dalej` po wspinaczce nie
+ładuje W3 od razu: chowa scenę, narratorka mówi imię dziecka, W3 ma własną paletę, scena wraca zejściem przez chmury. Granica,
 którą się przekracza, nie ekran, który się otwiera.
 
 **Odpowiedź przez przedmiot, nie przez tekst** (marzec: narracja nigdy się
@@ -639,19 +640,17 @@ wybiera rytm.
 ## 9. Słownik — co zostaje w ustach świata
 
 **Zostaje:** trop (działanie, które zostawia ślad) · zwój (misja) · echo
-(przyjęty dowód — zamiast „weryfikacja") · Kronika (domek; „nie ocenia,
-zapamiętuje") · rozdział (świat — zamiast „kraina", „poziom") · Las Pytań,
-Góry, Morze Słów, Pustynia Pomysłów jako nazwy planet · „Mentor nie ocenia,
+(przyjęty dowód — zamiast „weryfikacja") · kronika (domek; „nie ocenia,
+zapamiętuje") · rozdział (świat — nie „poziom") · Świat Ewolucji jako jedyna
+nazwa świata; kolejne planety bez nazw własnych · „Mentor nie ocenia,
 zauważa" (panel dorosłego) · „tropią, słuchają, pytają i łączą" (cztery
-czasowniki bohatera bez walki — kręgosłup scenek) · „kraina istnieje, gdy
-ktoś o niej pamięta" (powód powrotu bez serii) · „mówi obrazami — zamiast
-plus trzy punkty empatii, Kompas zaświecił mocniej" (to dosłownie
+czasowniki bohatera bez walki — kręgosłup scenek) · „mówi obrazami — zamiast
+plus trzy punkty empatii pokazuje, co zmieniło się w świecie" (to dosłownie
 konstytucja o licznikach).
 
-**Wypada:** Świecące Piórko jako nagroda · Kompas Cieni i artefakty
-archetypowe · Iskra → Wędrowiec → Tropiciel → Mędrczyni jako poziomy
-(„Wędrowiec" zostaje, bo już jest imieniem awatara) · Agent, GAMA-1, „fale
-gamma" · cykl z deadlinem.
+**Wypada:** wszystko z listy nazw wycofanych w `docs/SWIAT_I_POSTACIE.md`,
+a do tego artefakty archetypowe, poziomy postaci („Wędrowiec" zostaje, bo już
+jest imieniem awatara) i cykl z deadlinem.
 
 ---
 
@@ -667,8 +666,7 @@ gamma" · cykl z deadlinem.
 4. **Kronika z §4** — trzydzieści linii to dane; domek dostaje wnętrze.
 5. **Pięć przedmiotów startowych** — test statyczny, potem logika.
 6. **W3** — decyzja: żywopłot czy grzyby. Assety z doliny przemawiają za
-   żywopłotem, lore za Lasem Pytań; nazwa może zostać z lore, mechanika
-   z doliny.
+   żywopłotem. Nazwy świata nie nadajemy — historie układa autor później.
 
 Czego nie ruszać przy okazji: rozdziału głosów, `szept`, przykładów
 głosem dziecka, dwóch dróg dowodu, braku ponaglania.

@@ -1,6 +1,7 @@
 /**
  * NarrativeService — generator opowieści/misji przez Claude API.
- * Zachowuje styl GAMA-1: język 6–12 lat, ton ciepły, claymorphism, bezpieczne misje w realu.
+ * Pisze głosem narratorki Świata Ewolucji: język 6–12 lat, ton ciepły, bezpieczne misje w realu.
+ * Kanon nazw i postaci: docs/SWIAT_I_POSTACIE.md.
  *
  * Endpointy backendu używają isAvailable() — jeśli nie ma klucza, fallback na seed library.
  */
@@ -16,7 +17,7 @@ const __dirname = path.dirname(__filename);
 let WORLD_LORE = "";
 let ARCHETYPE_LORE = "";
 try {
-  WORLD_LORE = fs.readFileSync(path.resolve(__dirname, "../../../agents/world/zakatek_gama.md"), "utf8");
+  WORLD_LORE = fs.readFileSync(path.resolve(__dirname, "../../../agents/world/swiat_ewolucji.md"), "utf8");
   ARCHETYPE_LORE = fs.readFileSync(path.resolve(__dirname, "../../../agents/world/archetypes.md"), "utf8");
 } catch (e) {
   console.warn("[narrativeService] Nie załadowano lore świata:", e.message);
@@ -87,7 +88,7 @@ export class NarrativeService {
     const lowest = Object.entries(scores).sort((a, b) => a[1] - b[1])[0];
     const focus = lowest ? `Słabiej rozwinięta kompetencja: ${lowest[0]}. Jeśli pasuje, dotknij jej delikatnie.` : "";
 
-    const system = `Jesteś GAMA-1, narratorem świata Zakątek Gamma, mentorem dla dzieci 6-12 lat w grze EwolucJA. Mówisz językiem ciepłym, prostym, lekko bajkowym. Twój styl: ${arch.voice}.
+    const system = `Jesteś narratorką Świata Ewolucji w grze EwolucJA dla dzieci 6-12 lat. Mówisz językiem ciepłym, prostym i konkretnym. Twój styl: ${arch.voice}.
 
 ═══ KONTEKST ŚWIATA ═══
 ${WORLD_LORE}
@@ -96,19 +97,19 @@ ${WORLD_LORE}
 ${ARCHETYPE_LORE}
 
 ═══ TWOJE ZADANIE ═══
-Generujesz misje "w realu" — krótkie, bezpieczne zadania do wykonania w domu lub blisko domu, które pasują do archetypu gracza i jego krainy domowej. Misja MUSI:
-- pasować do języka świata (używaj słów: trop, zwój, echo, Kronika, plecak, Kompas Cieni, Świecące Piórko)
-- pasować do osobowości archetypu (Odkrywca = pytania/ślady; Przyjaciel = uczucia; Strateg = plany itd.)
+Generujesz misje "w realu" — krótkie, bezpieczne zadania do wykonania w domu lub blisko domu, które pasują do profilu gracza. Misja MUSI:
+- pasować do Świata Ewolucji (mała planeta, Wizkor, lisek, domek na drzewie) — nie wymyślaj nowych miejsc, postaci ani przedmiotów-nagród
+- pasować do osobowości archetypu (Odkrywca = pytania i ślady; Przyjaciel = życzliwość; Myśliciel = plany; Wynalazca = pomysły; Śmiałek = odwaga; Spokojna Głowa = skupienie)
 - być konkretnym jednym krokiem (1-2 zdania)
 - być BEZPIECZNA (nigdy: kontakt z obcymi, samodzielne wychodzenie, ryzyko)
 - być pozytywna (nawet "nieudana" próba jest okazją do rozmowy)
-- rozwijać kompetencje miękkie: EM (empatia), ST (strateg), KR (kreator), LD (lider), DT (detektyw), MD (mediator)
+- rozwijać kompetencje miękkie: DT (ciekawość), EM (życzliwość), ST (mądrość), KR (kreatywność), LD (odwaga), MD (skupienie)
 
 Każda misja:
 - ma jeden konkretny krok (1-2 zdania)
 - jest BEZPIECZNA (nigdy: kontakt z obcymi, samodzielne wychodzenie, ryzyko)
 - jest pozytywna (nawet "nieudana" próba jest okazją do rozmowy)
-- rozwija kompetencje miękkie: EM (empatia), ST (strateg), KR (kreator), LD (lider), DT (detektyw), MD (mediator)
+- rozwija kompetencje miękkie: DT (ciekawość), EM (życzliwość), ST (mądrość), KR (kreatywność), LD (odwaga), MD (skupienie)
 
 ZAWSZE odpowiadasz CZYSTYM JSON-em w formacie:
 {
@@ -129,7 +130,7 @@ ${used}
 ${focus}
 Aktualny rozdział: ${chapter}.
 
-Wygeneruj jedną misję na ten tydzień. Misja musi być inna niż poprzednie. Wpleć imię gracza w narrative_intro.`;
+Wygeneruj jedną misję. Misja musi być inna niż poprzednie. Wpleć imię gracza w narrative_intro.`;
 
     const text = await this._callClaude({ system, user, maxTokens: 600 });
     // Próbuj wyciągnąć JSON (Claude czasem dodaje tekst dookoła)
@@ -147,13 +148,13 @@ Wygeneruj jedną misję na ten tydzień. Misja musi być inna niż poprzednie. W
     if (!this.isAvailable) throw new Error("ANTHROPIC_API_KEY not configured");
     const arch = ARCHETYPE_PROFILES[archetype] || ARCHETYPE_PROFILES.tropiciel_tajemnic;
 
-    const system = `Jesteś GAMA-1, narratorem świata Zakątek Gamma. Generujesz krótkie wstępy narracyjne (2-3 zdania) w stylu archetypu gracza: ${arch.voice}.
+    const system = `Jesteś narratorką Świata Ewolucji. Generujesz krótkie wstępy narracyjne (2-3 zdania) w stylu archetypu gracza: ${arch.voice}.
 
 ═══ KONTEKST ŚWIATA (skrócony) ═══
-Zakątek Gamma to kraina, która istnieje tylko, gdy ktoś o niej pamięta. Dziecko (Bohater) wchodzi tu kilka razy w tygodniu. Misje są w realu (rozmowy, rysunki, obserwacje). Mentor (sowa) czeka w piątek. Słownik świata: trop, zwój, echo, Kronika, plecak, Kompas Cieni, Świecące Piórko, rozdział, cykl.
+Świat Ewolucji to mała planeta, która zmienia się, gdy dziecko zrobi coś naprawdę poza ekranem. Postacie: Wizkor (czarodziej, przewodnik) i lisek (postać gracza i towarzysz). Mentor to dorosły — rodzic albo nauczyciel — który zauważa działanie dziecka; nie jest postacią w świecie. Misje są w realu (rozmowy, rysunki, obserwacje). Nie wymyślaj nowych miejsc ani postaci.
 
 ═══ TWOJE ZADANIE ═══
-Twój ton: bajkowy, ciepły, używasz interpunkcji rytmicznie (kropki, kropki kropki, myślniki).
+Twój ton: ciepły, spokojny, konkretny; używasz interpunkcji rytmicznie (kropki, kropki kropki, myślniki).
 ZAWSZE odpowiadasz JSON-em:
 { "text": "...", "tone": "warm" | "mystery" | "celebration" | "whisper" | "calm", "suggested_pause_before": 0-1500 }
 Bez \`\`\` i bez komentarzy.`;

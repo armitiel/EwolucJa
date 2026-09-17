@@ -26,8 +26,8 @@ Z tego wynikają rzeczy, których nie da się obejść:
 - **`miejsca` to nie warianty zadania.** To jedno zadanie w trzech–czterech
   kontekstach. Jeśli opisy miejsc zaczynają być osobnymi zadaniami — masz
   do napisania dwa zadania, nie jedno.
-- **Mentor jest człowiekiem.** Dowód ma się dać ocenić w piętnaście sekund,
-  bez dopytywania. „Wyślij zdjęcie tego, co zbudowałeś" da się. „Opisz, czego
+- **Mentor jest człowiekiem.** Dowód ma się dać zauważyć i zrozumieć
+  w piętnaście sekund, bez dopytywania. „Wyślij zdjęcie tego, co zbudowałeś" da się. „Opisz, czego
   się nauczyłeś" — nie.
 
 ## Co odróżnia misję od obowiązku

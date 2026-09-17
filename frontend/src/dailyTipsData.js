@@ -10,42 +10,36 @@ export const PROFILES_META = {
   "DT": {
     "name": "Odkrywca",
     "cecha": "Ciekawość",
-    "kraina": "Las Pytań",
     "color": "#5FA76F",
     "short": "Odkrywca"
   },
   "EM": {
     "name": "Przyjaciel",
     "cecha": "Życzliwość",
-    "kraina": "Morze Słów",
     "color": "#E4779C",
     "short": "Przyjaciel"
   },
   "ST": {
     "name": "Myśliciel",
     "cecha": "Mądrość",
-    "kraina": "Góry Liczb",
     "color": "#7A4DC2",
     "short": "Myśliciel"
   },
   "KR": {
     "name": "Wynalazca",
     "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów",
     "color": "#EF9F27",
     "short": "Wynalazca"
   },
   "LD": {
     "name": "Śmiałek",
     "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń",
     "color": "#E89A3D",
     "short": "Śmiałek"
   },
   "MD": {
     "name": "Spokojna Głowa",
     "cecha": "Skupienie",
-    "kraina": "Zamek Czasu",
     "color": "#378ADD",
     "short": "Spokojna Głowa"
   }
@@ -71,8 +65,7 @@ export const DAILY_TIPS = [
       "uwaznosc"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D01-S2",
@@ -93,8 +86,7 @@ export const DAILY_TIPS = [
       "ciekawosc"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D01-S3",
@@ -115,8 +107,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D02-S1",
@@ -137,8 +128,7 @@ export const DAILY_TIPS = [
       "bez_ekranu"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D02-S3",
@@ -159,8 +149,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D03-S1",
@@ -181,8 +170,7 @@ export const DAILY_TIPS = [
       "rytual_poranny"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D03-S3",
@@ -203,8 +191,7 @@ export const DAILY_TIPS = [
       "zmeczenie"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D04-S1",
@@ -225,8 +212,7 @@ export const DAILY_TIPS = [
       "wellbeing"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D04-S3",
@@ -247,8 +233,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D05-S1",
@@ -269,8 +254,7 @@ export const DAILY_TIPS = [
       "rytual_poranny"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D05-S2",
@@ -291,8 +275,7 @@ export const DAILY_TIPS = [
       "bez_ekranu"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D05-S3",
@@ -313,8 +296,7 @@ export const DAILY_TIPS = [
       "refleksja"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D06-S1",
@@ -335,8 +317,7 @@ export const DAILY_TIPS = [
       "akceptacja"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D06-S3",
@@ -346,7 +327,7 @@ export const DAILY_TIPS = [
     "category": "kraina",
     "subcategory": "natura",
     "audience": "dziecko",
-    "title": "Drzewa w Lesie Pytań",
+    "title": "Drzewa w starym lesie",
     "body": "W starych lasach pod korą drzew kryją się tysiące lat historii. Każdy słój to jedna zima. Drzewo to żywa kronika.",
     "icon": "artifact",
     "tone": "magic",
@@ -357,8 +338,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D07-S1",
@@ -379,8 +359,7 @@ export const DAILY_TIPS = [
       "rytual_poranny"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D07-S3",
@@ -401,8 +380,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D08-S1",
@@ -423,8 +401,7 @@ export const DAILY_TIPS = [
       "rytual_poranny"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D08-S3",
@@ -445,8 +422,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D09-S1",
@@ -467,8 +443,7 @@ export const DAILY_TIPS = [
       "poranek"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D09-S3",
@@ -489,8 +464,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D10-S1",
@@ -511,8 +485,7 @@ export const DAILY_TIPS = [
       "intencja"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D10-S2",
@@ -533,8 +506,7 @@ export const DAILY_TIPS = [
       "wellbeing"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D10-S3",
@@ -555,8 +527,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D11-S1",
@@ -577,8 +548,7 @@ export const DAILY_TIPS = [
       "bliskosc"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D11-S3",
@@ -589,7 +559,7 @@ export const DAILY_TIPS = [
     "subcategory": "natura",
     "audience": "dziecko",
     "title": "Polanka pod gwiazdami",
-    "body": "Wyobraź sobie polankę w środku Lasu Pytań. Leżysz na trawie. Nad tobą gwiazdy. Każda zna jedną odpowiedź. Którą wybierasz?",
+    "body": "Wyobraź sobie polankę w środku lasu. Leżysz na trawie. Nad tobą gwiazdy. Każda zna jedną odpowiedź. Którą wybierasz?",
     "icon": "artifact",
     "tone": "magic",
     "time": "2 min",
@@ -599,8 +569,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D12-S1",
@@ -621,8 +590,7 @@ export const DAILY_TIPS = [
       "rytual_poranny"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D12-S2",
@@ -643,8 +611,7 @@ export const DAILY_TIPS = [
       "zabawa"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D12-S3",
@@ -665,8 +632,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D13-S1",
@@ -687,8 +653,7 @@ export const DAILY_TIPS = [
       "wellbeing"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D13-S3",
@@ -709,8 +674,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D14-S1",
@@ -731,8 +695,7 @@ export const DAILY_TIPS = [
       "rytual_poranny"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D14-S3",
@@ -753,8 +716,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D15-S1",
@@ -775,8 +737,7 @@ export const DAILY_TIPS = [
       "spokoj"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D15-S3",
@@ -786,7 +747,7 @@ export const DAILY_TIPS = [
     "category": "kraina",
     "subcategory": "natura",
     "audience": "dziecko",
-    "title": "Echo w Lesie Pytań",
+    "title": "Echo w lesie",
     "body": "W głębi lasu jest skała, która powtarza pytania. Wyobraź sobie, że krzyczysz: kim jestem? Co ci odpowiada echo?",
     "icon": "artifact",
     "tone": "magic",
@@ -797,8 +758,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D16-S1",
@@ -819,8 +779,7 @@ export const DAILY_TIPS = [
       "uwaga"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D16-S3",
@@ -841,8 +800,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D17-S1",
@@ -863,8 +821,7 @@ export const DAILY_TIPS = [
       "rytual_poranny"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D17-S2",
@@ -885,8 +842,7 @@ export const DAILY_TIPS = [
       "rytmy"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D17-S3",
@@ -907,8 +863,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D18-S1",
@@ -929,8 +884,7 @@ export const DAILY_TIPS = [
       "rytual_poranny"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D18-S3",
@@ -951,8 +905,7 @@ export const DAILY_TIPS = [
       "bliskosc"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D19-S1",
@@ -973,8 +926,7 @@ export const DAILY_TIPS = [
       "rytual_poranny"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D19-S3",
@@ -985,7 +937,7 @@ export const DAILY_TIPS = [
     "subcategory": "natura",
     "audience": "dziecko",
     "title": "Mgła nad polanką",
-    "body": "Wieczorem na polance w Lesie Pytań pojawia się mgła. Wyobraź sobie, że jej kosmyki niosą twoje zmartwienia daleko. Jutro polana będzie czysta.",
+    "body": "Wieczorem na leśnej polance pojawia się mgła. Wyobraź sobie, że jej kosmyki niosą twoje zmartwienia daleko. Jutro polana będzie czysta.",
     "icon": "artifact",
     "tone": "magic",
     "time": "2 min",
@@ -995,8 +947,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D20-S1",
@@ -1017,8 +968,7 @@ export const DAILY_TIPS = [
       "kreatywnosc"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D20-S3",
@@ -1039,8 +989,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D21-S1",
@@ -1061,8 +1010,7 @@ export const DAILY_TIPS = [
       "sen"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D21-S3",
@@ -1083,8 +1031,7 @@ export const DAILY_TIPS = [
       "szczerosc"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D22-S1",
@@ -1105,8 +1052,7 @@ export const DAILY_TIPS = [
       "spokoj"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D22-S3",
@@ -1127,8 +1073,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D23-S1",
@@ -1149,8 +1094,7 @@ export const DAILY_TIPS = [
       "wellbeing"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D23-S3",
@@ -1161,7 +1105,7 @@ export const DAILY_TIPS = [
     "subcategory": "pytania",
     "audience": "dziecko",
     "title": "Strażniczka pytań",
-    "body": "W Lesie Pytań mieszka stara sowa, która zbiera pytania dzieci. Wyszepcz jej dziś jedno. Ona zaopiekuje się nim do rana.",
+    "body": "W głębi lasu mieszka stara sowa, która zbiera pytania dzieci. Wyszepcz jej dziś jedno. Ona zaopiekuje się nim do rana.",
     "icon": "artifact",
     "tone": "magic",
     "time": "2 min",
@@ -1171,8 +1115,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D24-S1",
@@ -1193,8 +1136,7 @@ export const DAILY_TIPS = [
       "ruch"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D24-S2",
@@ -1215,8 +1157,7 @@ export const DAILY_TIPS = [
       "sluchanie"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D24-S3",
@@ -1237,8 +1178,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D25-S1",
@@ -1259,8 +1199,7 @@ export const DAILY_TIPS = [
       "rytual_poranny"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D25-S3",
@@ -1281,8 +1220,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D26-S1",
@@ -1303,8 +1241,7 @@ export const DAILY_TIPS = [
       "ciekawosc"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D26-S3",
@@ -1325,8 +1262,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D27-S1",
@@ -1347,8 +1283,7 @@ export const DAILY_TIPS = [
       "spokoj"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D27-S3",
@@ -1369,8 +1304,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D28-S1",
@@ -1391,8 +1325,7 @@ export const DAILY_TIPS = [
       "rytual_poranny"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D28-S2",
@@ -1413,8 +1346,7 @@ export const DAILY_TIPS = [
       "regeneracja"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D28-S3",
@@ -1435,8 +1367,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D29-S1",
@@ -1457,8 +1388,7 @@ export const DAILY_TIPS = [
       "wellbeing"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D29-S3",
@@ -1479,8 +1409,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D30-S1",
@@ -1501,8 +1430,7 @@ export const DAILY_TIPS = [
       "rytual_poranny"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D30-S3",
@@ -1523,8 +1451,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "EM-D01-S1",
@@ -1544,8 +1471,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D01-S3",
@@ -1565,8 +1491,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "rozmowa_sluchanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D02-S1",
@@ -1574,7 +1499,7 @@ export const DAILY_TIPS = [
     "day": 2,
     "slot": "poranek",
     "category": "kraina",
-    "title": "Fala w Morzu Słów",
+    "title": "Fala w morzu",
     "body": "Każde dobre słowo to mała fala — biegnie dalej niż myślisz. Czasem słowo, które dziś szepniesz, wraca do ciebie po latach.",
     "icon": "map",
     "tone": "magic",
@@ -1586,8 +1511,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "rytual_kojacy",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D02-S3",
@@ -1607,8 +1531,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "granica_empaty",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D03-S1",
@@ -1628,8 +1551,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "rytual_kojacy",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D03-S3",
@@ -1649,8 +1571,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D04-S1",
@@ -1670,8 +1591,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D04-S3",
@@ -1691,8 +1611,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "granica_empaty",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D05-S3",
@@ -1712,8 +1631,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "emocje_rozpoznanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D06-S1",
@@ -1733,8 +1651,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "rozmowa_sluchanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D06-S3",
@@ -1743,7 +1660,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "kraina",
     "title": "Fala dnia wraca do morza",
-    "body": "Wyobraz sobie, ze dzien byl fala. Teraz fala wraca do Morza Slow. Wszystko, co bylo trudne - odplywa. To, co dobre - zostaje na brzegu.",
+    "body": "Wyobraz sobie, ze dzien byl fala. Teraz fala wraca do morza. Wszystko, co bylo trudne - odplywa. To, co dobre - zostaje na brzegu.",
     "icon": "map",
     "tone": "magic",
     "time": "1 min",
@@ -1754,8 +1671,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D07-S1",
@@ -1775,8 +1691,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D07-S3",
@@ -1796,8 +1711,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "rozmowa_sluchanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D08-S1",
@@ -1817,8 +1731,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "rytual_kojacy",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D08-S3",
@@ -1838,8 +1751,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "granica_empaty",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D09-S1",
@@ -1859,8 +1771,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "rytmy_dnia",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D09-S3",
@@ -1880,8 +1791,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D10-S1",
@@ -1901,8 +1811,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "empatia_komus",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D10-S3",
@@ -1922,8 +1831,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "granica_empaty",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D11-S1",
@@ -1943,8 +1851,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D11-S3",
@@ -1964,8 +1871,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "emocje_rozpoznanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D12-S1",
@@ -1985,8 +1891,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "rytual_kojacy",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D12-S3",
@@ -2006,8 +1911,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D13-S1",
@@ -2027,8 +1931,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "granica_empaty",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D13-S3",
@@ -2048,8 +1951,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "rozmowa_sluchanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D14-S3",
@@ -2069,8 +1971,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "samotnosc",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D15-S1",
@@ -2090,8 +1991,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "rozmowa_sluchanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D15-S3",
@@ -2099,7 +1999,7 @@ export const DAILY_TIPS = [
     "day": 15,
     "slot": "wieczor",
     "category": "kraina",
-    "title": "Wieczor nad Morzem Slow",
+    "title": "Wieczór nad morzem",
     "body": "Wieczorem powierzchnia wody bywa jak srebrne lustro. Jedno slowo, ktore chcesz tam zostawic, plynie i wraca jutro lzejsze.",
     "icon": "map",
     "tone": "magic",
@@ -2111,8 +2011,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D16-S1",
@@ -2132,8 +2031,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "empatia_komus",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D16-S3",
@@ -2153,8 +2051,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "empatia_komus",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D17-S1",
@@ -2174,8 +2071,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "rytual_kojacy",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D17-S3",
@@ -2195,8 +2091,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "granica_empaty",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D18-S1",
@@ -2216,8 +2111,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "rytmy_dnia",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D19-S3",
@@ -2237,8 +2131,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "rytmy_dnia",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D20-S1",
@@ -2258,8 +2151,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D20-S3",
@@ -2279,8 +2171,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "emocje_rozpoznanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D21-S1",
@@ -2300,8 +2191,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "emocje_rozpoznanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D21-S3",
@@ -2321,8 +2211,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D22-S1",
@@ -2342,8 +2231,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D22-S3",
@@ -2363,8 +2251,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "rytual_kojacy",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D23-S3",
@@ -2384,8 +2271,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "granica_empaty",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D24-S1",
@@ -2405,8 +2291,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "rytmy_dnia",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D24-S3",
@@ -2426,8 +2311,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "rytmy_dnia",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D25-S1",
@@ -2447,8 +2331,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "empatia_komus",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D25-S3",
@@ -2468,8 +2351,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "emocje_rozpoznanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D26-S1",
@@ -2489,8 +2371,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "rytual_kojacy",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D26-S3",
@@ -2510,8 +2391,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "emocje_rozpoznanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D27-S1",
@@ -2531,8 +2411,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "rytual_kojacy",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D27-S3",
@@ -2552,8 +2431,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D28-S1",
@@ -2573,8 +2451,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "emocje_rozpoznanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D28-S3",
@@ -2594,8 +2471,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "emocje_rozpoznanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D29-S3",
@@ -2604,7 +2480,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "medrzec",
     "title": "Twoje uczucia nie sa problemem",
-    "body": "Nikt nigdy nie powinien Ci mowic: 'nie czuj tego'. Twoje uczucia sa czescia Ciebie. Medrczyni mowi: 'czuj. zauwazaj. oddychaj.'",
+    "body": "Nikt nigdy nie powinien Ci mowic: 'nie czuj tego'. Twoje uczucia sa czescia Ciebie. Wizkor mowi: 'czuj. zauwazaj. oddychaj.'",
     "icon": "medrzec",
     "tone": "rose",
     "time": "2 min",
@@ -2615,8 +2491,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "emocje_rozpoznanie",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D30-S1",
@@ -2636,8 +2511,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "rytual_kojacy",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D30-S3",
@@ -2657,8 +2531,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "rytual_kojacy",
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "ST-D01-S3",
@@ -2667,7 +2540,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "medrzec",
     "title": "Co z mapy się udało",
-    "body": "Wieczorem spójrzcie razem na rysunek z rana. Mędrzec szepcze: zaznacz, co się udało, a co przesuwamy na jutro. Nic się nie psuje, tylko zmienia trasę.",
+    "body": "Wieczorem spójrzcie razem na rysunek z rana. Wizkor szepcze: zaznacz, co się udało, a co przesuwamy na jutro. Nic się nie psuje, tylko zmienia trasę.",
     "icon": "medrzec",
     "tone": "amber",
     "time": "2 min",
@@ -2679,8 +2552,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "elastycznosc_plan_b",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D02-S1",
@@ -2700,8 +2572,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "rytm_rytual_dnia",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D03-S1",
@@ -2709,8 +2580,8 @@ export const DAILY_TIPS = [
     "day": 3,
     "slot": "poranek",
     "category": "kraina",
-    "title": "Poranki w Górach Liczb",
-    "body": "Mędrzec opowiada: w starożytności mędrcy zaczynali dzień od liczenia oddechów. Pięć wdechów potrafi spowolnić cały świat.",
+    "title": "Poranki w górach",
+    "body": "Wizkor opowiada: w starożytności mędrcy zaczynali dzień od liczenia oddechów. Pięć wdechów potrafi spowolnić cały świat.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "1 min",
@@ -2722,8 +2593,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "liczby_logika",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D03-S3",
@@ -2743,8 +2613,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "elastycznosc_plan_b",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D05-S1",
@@ -2764,8 +2633,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "planowanie",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D05-S3",
@@ -2774,7 +2642,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "medrzec",
     "title": "Mosiężne okulary patrzą wstecz",
-    "body": "Mędrzec zakłada okulary do patrzenia w dzień. Spójrz wstecz na dziś i powiedz jednym słowem, jaki był ten dzień.",
+    "body": "Wizkor zakłada okulary do patrzenia w dzień. Spójrz wstecz na dziś i powiedz jednym słowem, jaki był ten dzień.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
@@ -2785,8 +2653,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "planowanie",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D07-S1",
@@ -2806,8 +2673,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "nagroda_proces",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D07-S3",
@@ -2815,8 +2681,8 @@ export const DAILY_TIPS = [
     "day": 7,
     "slot": "wieczor",
     "category": "kraina",
-    "title": "Wieczór w Górach Liczb",
-    "body": "W Górach Liczb wieczorem światła zapalają się po kolei, jedno po drugim. Wymień trzy światełka z twojego dnia, które warto zapamiętać.",
+    "title": "Wieczór w górach",
+    "body": "W górskiej wiosce wieczorem światła zapalają się po kolei, jedno po drugim. Wymień trzy światełka z twojego dnia, które warto zapamiętać.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "2 min",
@@ -2827,8 +2693,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "planowanie",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D08-S3",
@@ -2837,7 +2702,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "medrzec",
     "title": "Dobry-wystarczający, nie idealny",
-    "body": "Mędrzec szepcze: dziś coś było dobre-wystarczające? To też skarb. Idealny to nie jest cel każdej mapy.",
+    "body": "Wizkor szepcze: dziś coś było dobre-wystarczające? To też skarb. Idealny to nie jest cel każdej mapy.",
     "icon": "medrzec",
     "tone": "amber",
     "time": "1 min",
@@ -2848,8 +2713,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "perfekcjonizm_antidote",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D09-S1",
@@ -2869,8 +2733,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "planowanie",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D10-S1",
@@ -2878,8 +2741,8 @@ export const DAILY_TIPS = [
     "day": 10,
     "slot": "poranek",
     "category": "kraina",
-    "title": "Mosty nad doliną Liczb",
-    "body": "Mędrzec opowiada: między szczytami Gór Liczb wiszą mosty z mocnych sznurów. Wyobraź sobie jeden taki most i przejdź po nim w myślach.",
+    "title": "Mosty nad doliną",
+    "body": "Wizkor opowiada: między górskimi szczytami wiszą mosty z mocnych sznurów. Wyobraź sobie jeden taki most i przejdź po nim w myślach.",
     "icon": "map",
     "tone": "magic",
     "time": "1 min",
@@ -2890,8 +2753,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "planowanie",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D10-S3",
@@ -2911,8 +2773,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "zdrowie_strateg",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D12-S1",
@@ -2932,8 +2793,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "perfekcjonizm_antidote",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D12-S3",
@@ -2942,7 +2802,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "medrzec",
     "title": "Co się nie udało, czego nauczyło",
-    "body": "Mędrzec mówi: weź jedną rzecz, która się nie udała, i pomyśl, czego cię nauczyła. Błąd to też informacja na mapie.",
+    "body": "Wizkor mówi: weź jedną rzecz, która się nie udała, i pomyśl, czego cię nauczyła. Błąd to też informacja na mapie.",
     "icon": "medrzec",
     "tone": "amber",
     "time": "2 min",
@@ -2953,8 +2813,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "elastycznosc_plan_b",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D14-S1",
@@ -2974,8 +2833,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "planowanie",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D14-S3",
@@ -2984,7 +2842,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "kraina",
     "title": "Skarb na końcu mapy",
-    "body": "W Górach Liczb na końcu każdej mapy jest mały skarb. Twoim dzisiejszym skarbem może być spokój, śmiech albo nowa myśl. Wybierz jeden.",
+    "body": "Na końcu każdej górskiej mapy jest mały skarb. Twoim dzisiejszym skarbem może być spokój, śmiech albo nowa myśl. Wybierz jeden.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "1 min",
@@ -2995,8 +2853,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "mapy_kolejnosc",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D16-S1",
@@ -3016,8 +2873,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "elastycznosc_plan_b",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D16-S3",
@@ -3026,7 +2882,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "medrzec",
     "title": "Dziś byłem cierpliwy gdy",
-    "body": "Mędrzec pyta: dziś byłem cierpliwy, gdy... Dokończ zdanie. Nawet drobna cierpliwość zostawia ślad na mapie.",
+    "body": "Wizkor pyta: dziś byłem cierpliwy, gdy... Dokończ zdanie. Nawet drobna cierpliwość zostawia ślad na mapie.",
     "icon": "medrzec",
     "tone": "paper",
     "time": "1 min",
@@ -3037,8 +2893,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "odraczanie_gratyfikacji",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D17-S3",
@@ -3046,8 +2901,8 @@ export const DAILY_TIPS = [
     "day": 17,
     "slot": "wieczor",
     "category": "kraina",
-    "title": "Lampka w domku w Górach",
-    "body": "W Górach Liczb wieczorem w każdym oknie zapala się jedna lampka. Twoja dzisiejsza lampka to jedno dobre słowo o sobie. Powiedz je.",
+    "title": "Lampka w górskim domku",
+    "body": "W górskiej wiosce wieczorem w każdym oknie zapala się jedna lampka. Twoja dzisiejsza lampka to jedno dobre słowo o sobie. Powiedz je.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "1 min",
@@ -3058,8 +2913,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "planowanie",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D18-S1",
@@ -3079,8 +2933,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "planowanie",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D19-S3",
@@ -3088,8 +2941,8 @@ export const DAILY_TIPS = [
     "day": 19,
     "slot": "wieczor",
     "category": "medrzec",
-    "title": "Mędrzec o cichym sukcesie",
-    "body": "Mędrzec szepcze: są sukcesy, których nikt nie widzi, oprócz ciebie. Pomyśl o jednym takim z dziś.",
+    "title": "Wizkor o cichym sukcesie",
+    "body": "Wizkor szepcze: są sukcesy, których nikt nie widzi, oprócz ciebie. Pomyśl o jednym takim z dziś.",
     "icon": "medrzec",
     "tone": "amber",
     "time": "1 min",
@@ -3100,8 +2953,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "planowanie",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D20-S1",
@@ -3121,8 +2973,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "planowanie",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D21-S1",
@@ -3130,8 +2981,8 @@ export const DAILY_TIPS = [
     "day": 21,
     "slot": "poranek",
     "category": "kraina",
-    "title": "Trzy szczyty Gór Liczb",
-    "body": "W Górach Liczb są trzy szczyty: Wiem, Próbuję, Pytam. Wybierz dziś rano, na którym chcesz być najwięcej.",
+    "title": "Trzy górskie szczyty",
+    "body": "Wyobraź sobie góry z trzema szczytami: Wiem, Próbuję, Pytam. Wybierz dziś rano, na którym chcesz być najwięcej.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "1 min",
@@ -3142,8 +2993,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "planowanie",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D21-S3",
@@ -3163,8 +3013,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "odraczanie_gratyfikacji",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D22-S3",
@@ -3173,7 +3022,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "medrzec",
     "title": "Trzy rzeczy, które wiem o sobie",
-    "body": "Mędrzec pyta: wymień trzy rzeczy, które wiesz o sobie dzisiaj. Nawet drobne. Myśliciel zbiera wiedzę o sobie jak zwoje.",
+    "body": "Wizkor pyta: wymień trzy rzeczy, które wiesz o sobie dzisiaj. Nawet drobne. Myśliciel zbiera wiedzę o sobie jak zwoje.",
     "icon": "medrzec",
     "tone": "paper",
     "time": "2 min",
@@ -3184,8 +3033,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "planowanie",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D23-S1",
@@ -3205,8 +3053,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "nagroda_proces",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D24-S3",
@@ -3215,7 +3062,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "kraina",
     "title": "Mosiężne soczewki na zmianę",
-    "body": "Mędrzec zmienia w okularach soczewki: jedna pokazuje co było trudne, druga co było piękne. Dziś wybierz drugą.",
+    "body": "Wizkor zmienia w okularach soczewki: jedna pokazuje co było trudne, druga co było piękne. Dziś wybierz drugą.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
@@ -3226,8 +3073,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "planowanie",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D25-S1",
@@ -3247,8 +3093,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "planowanie",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D26-S3",
@@ -3257,7 +3102,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "medrzec",
     "title": "Jedna rzecz, która mnie zaskoczyła",
-    "body": "Mędrzec pyta: co cię dziś zaskoczyło? Może mała rzecz. Zaskoczenie jest znakiem, że mapa się rozszerza.",
+    "body": "Wizkor pyta: co cię dziś zaskoczyło? Może mała rzecz. Zaskoczenie jest znakiem, że mapa się rozszerza.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
@@ -3268,8 +3113,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "mapy_kolejnosc",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D27-S1",
@@ -3289,8 +3133,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "planowanie",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D28-S1",
@@ -3299,7 +3142,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "kraina",
     "title": "Zwój przed wyruszeniem",
-    "body": "W Górach Liczb przed wyjściem z domu rozwija się jeden zwój i czyta jedno zdanie. Twoje dzisiejsze zdanie: idę krok po kroku.",
+    "body": "W górskich domach przed wyjściem rozwija się jeden zwój i czyta jedno zdanie. Twoje dzisiejsze zdanie: idę krok po kroku.",
     "icon": "zwoj",
     "tone": "magic",
     "time": "1 min",
@@ -3310,8 +3153,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "planowanie",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D28-S3",
@@ -3331,8 +3173,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "elastycznosc_plan_b",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D29-S3",
@@ -3341,7 +3182,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "medrzec",
     "title": "Czego się o sobie dowiedziałem",
-    "body": "Mędrzec pyta: czego się w tym miesiącu dowiedziałeś o sobie? Jedna rzecz wystarczy. Zwiń jak zwój i schowaj w kieszeni serca.",
+    "body": "Wizkor pyta: czego się w tym miesiącu dowiedziałeś o sobie? Jedna rzecz wystarczy. Zwiń jak zwój i schowaj w kieszeni serca.",
     "icon": "medrzec",
     "tone": "paper",
     "time": "2 min",
@@ -3352,8 +3193,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "planowanie",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D30-S1",
@@ -3373,8 +3213,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "mapy_kolejnosc",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D30-S3",
@@ -3394,8 +3233,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "planowanie",
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "KR-D01-S1",
@@ -3416,8 +3254,7 @@ export const DAILY_TIPS = [
       "poranek"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D01-S3",
@@ -3438,8 +3275,7 @@ export const DAILY_TIPS = [
       "rytual"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D02-S3",
@@ -3460,8 +3296,7 @@ export const DAILY_TIPS = [
       "komunikacja"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D03-S1",
@@ -3482,8 +3317,7 @@ export const DAILY_TIPS = [
       "kolor"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D03-S3",
@@ -3504,8 +3338,7 @@ export const DAILY_TIPS = [
       "rytm_dnia"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D04-S3",
@@ -3526,8 +3359,7 @@ export const DAILY_TIPS = [
       "sprzatanie"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D05-S1",
@@ -3537,8 +3369,8 @@ export const DAILY_TIPS = [
     "category": "kraina",
     "subcategory": "iskra_pomyslu",
     "audience": "dziecko",
-    "title": "Sekret Pustyni Pomysłów",
-    "body": "Na Pustyni Pomysłów piasek mówi szeptem. Gdy zamkniesz oczy na chwilę rano, może usłyszysz jedną małą podpowiedź.",
+    "title": "Sekret pustyni",
+    "body": "Na pustyni piasek mówi szeptem. Gdy zamkniesz oczy na chwilę rano, może usłyszysz jedną małą podpowiedź.",
     "icon": "map",
     "tone": "amber",
     "time": "1 min",
@@ -3548,8 +3380,7 @@ export const DAILY_TIPS = [
       "sekret"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D05-S3",
@@ -3570,8 +3401,7 @@ export const DAILY_TIPS = [
       "uwaga"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D06-S3",
@@ -3592,8 +3422,7 @@ export const DAILY_TIPS = [
       "wartosc"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D07-S1",
@@ -3614,8 +3443,7 @@ export const DAILY_TIPS = [
       "dzien"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D07-S3",
@@ -3636,8 +3464,7 @@ export const DAILY_TIPS = [
       "regeneracja"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D08-S3",
@@ -3658,8 +3485,7 @@ export const DAILY_TIPS = [
       "system"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D09-S1",
@@ -3680,8 +3506,7 @@ export const DAILY_TIPS = [
       "wyobraznia"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D09-S3",
@@ -3702,8 +3527,7 @@ export const DAILY_TIPS = [
       "wzor"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D10-S1",
@@ -3713,8 +3537,8 @@ export const DAILY_TIPS = [
     "category": "kraina",
     "subcategory": "iskra_pomyslu",
     "audience": "dziecko",
-    "title": "Oaza na Pustyni Pomysłów",
-    "body": "Na Pustyni jest oaza, gdzie rosną drzewa z papierowymi liśćmi. Każdy liść to jeden pomysł. Weź sobie dziś jeden.",
+    "title": "Oaza na pustyni",
+    "body": "Na pustyni jest oaza, gdzie rosną drzewa z papierowymi liśćmi. Każdy liść to jeden pomysł. Weź sobie dziś jeden.",
     "icon": "map",
     "tone": "amber",
     "time": "1 min",
@@ -3724,8 +3548,7 @@ export const DAILY_TIPS = [
       "pustynia"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D10-S3",
@@ -3746,8 +3569,7 @@ export const DAILY_TIPS = [
       "akceptacja"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D11-S3",
@@ -3768,8 +3590,7 @@ export const DAILY_TIPS = [
       "wybor"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D12-S1",
@@ -3790,8 +3611,7 @@ export const DAILY_TIPS = [
       "wyobraznia"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D12-S3",
@@ -3812,8 +3632,7 @@ export const DAILY_TIPS = [
       "ramy"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D13-S1",
@@ -3834,8 +3653,7 @@ export const DAILY_TIPS = [
       "muzyka"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D13-S3",
@@ -3856,8 +3674,7 @@ export const DAILY_TIPS = [
       "walidacja"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D14-S3",
@@ -3878,8 +3695,7 @@ export const DAILY_TIPS = [
       "rytual"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D15-S1",
@@ -3889,7 +3705,7 @@ export const DAILY_TIPS = [
     "category": "kraina",
     "subcategory": "iskra_pomyslu",
     "audience": "dziecko",
-    "title": "Miraż na Pustyni Pomysłów",
+    "title": "Miraż na pustyni",
     "body": "Na pustyni czasem widzi się coś, czego nie ma. To miraż. Twoja wyobraźnia też umie tak czarować. Co dziś zobaczysz?",
     "icon": "map",
     "tone": "magic",
@@ -3900,8 +3716,7 @@ export const DAILY_TIPS = [
       "kraina"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D15-S3",
@@ -3922,8 +3737,7 @@ export const DAILY_TIPS = [
       "mysli"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D16-S1",
@@ -3944,8 +3758,7 @@ export const DAILY_TIPS = [
       "wyobraznia"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D16-S3",
@@ -3966,8 +3779,7 @@ export const DAILY_TIPS = [
       "myslenie"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D17-S3",
@@ -3988,8 +3800,7 @@ export const DAILY_TIPS = [
       "reset"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D18-S1",
@@ -4010,8 +3821,7 @@ export const DAILY_TIPS = [
       "ruch"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D18-S3",
@@ -4032,8 +3842,7 @@ export const DAILY_TIPS = [
       "ochrona"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D19-S1",
@@ -4054,8 +3863,7 @@ export const DAILY_TIPS = [
       "co_by_bylo"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D19-S3",
@@ -4076,8 +3884,7 @@ export const DAILY_TIPS = [
       "zapis"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D20-S1",
@@ -4087,8 +3894,8 @@ export const DAILY_TIPS = [
     "category": "kraina",
     "subcategory": "iskra_pomyslu",
     "audience": "dziecko",
-    "title": "Karawana pomysłów na Pustyni",
-    "body": "Na Pustyni Pomysłów idą długie karawany. Każdy wielbłąd niesie jeden pomysł. Co dziś niesie twój wielbłąd?",
+    "title": "Karawana pomysłów na pustyni",
+    "body": "Przez pustynię idą długie karawany. Każdy wielbłąd niesie jeden pomysł. Co dziś niesie twój wielbłąd?",
     "icon": "map",
     "tone": "amber",
     "time": "1 min",
@@ -4098,8 +3905,7 @@ export const DAILY_TIPS = [
       "pomysl"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D20-S3",
@@ -4120,8 +3926,7 @@ export const DAILY_TIPS = [
       "przestrzen"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D21-S1",
@@ -4142,8 +3947,7 @@ export const DAILY_TIPS = [
       "slowa"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D21-S3",
@@ -4164,8 +3968,7 @@ export const DAILY_TIPS = [
       "drobne"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D22-S3",
@@ -4186,8 +3989,7 @@ export const DAILY_TIPS = [
       "dom"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D23-S1",
@@ -4208,8 +4010,7 @@ export const DAILY_TIPS = [
       "tygodnia"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D23-S3",
@@ -4230,8 +4031,7 @@ export const DAILY_TIPS = [
       "proces"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D24-S3",
@@ -4252,8 +4052,7 @@ export const DAILY_TIPS = [
       "wartosc"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D25-S1",
@@ -4263,7 +4062,7 @@ export const DAILY_TIPS = [
     "category": "kraina",
     "subcategory": "iskra_pomyslu",
     "audience": "dziecko",
-    "title": "Wiatr na Pustyni szepcze pomysł",
+    "title": "Wiatr na pustyni szepcze pomysł",
     "body": "Zamknij oczy i posłuchaj wiatru, choć tylko swojego oddechu. Jaki pomysł ci przynosi dziś? Jedno słowo wystarczy.",
     "icon": "map",
     "tone": "magic",
@@ -4274,8 +4073,7 @@ export const DAILY_TIPS = [
       "pomysl"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D25-S3",
@@ -4296,8 +4094,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D26-S1",
@@ -4318,8 +4115,7 @@ export const DAILY_TIPS = [
       "humor"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D26-S3",
@@ -4340,8 +4136,7 @@ export const DAILY_TIPS = [
       "skarbnica"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D27-S1",
@@ -4362,8 +4157,7 @@ export const DAILY_TIPS = [
       "brzmienie"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D27-S3",
@@ -4384,8 +4178,7 @@ export const DAILY_TIPS = [
       "spacer"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D28-S1",
@@ -4406,8 +4199,7 @@ export const DAILY_TIPS = [
       "wyobraznia"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D28-S3",
@@ -4428,8 +4220,7 @@ export const DAILY_TIPS = [
       "plan"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D29-S1",
@@ -4450,8 +4241,7 @@ export const DAILY_TIPS = [
       "uczucia"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D29-S3",
@@ -4472,8 +4262,7 @@ export const DAILY_TIPS = [
       "wartosc"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D30-S1",
@@ -4494,8 +4283,7 @@ export const DAILY_TIPS = [
       "kronika"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D30-S3",
@@ -4516,8 +4304,7 @@ export const DAILY_TIPS = [
       "razem"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "LD-D01-S1",
@@ -4537,8 +4324,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "odwaga_mala",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D01-S3",
@@ -4558,8 +4344,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "inicjatywa_grupa",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D02-S1",
@@ -4579,8 +4364,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D03-S1",
@@ -4600,8 +4384,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D03-S3",
@@ -4610,7 +4393,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "medrzec",
     "title": "Pycha czy troska?",
-    "body": "Wieczorne pytanie Mędrzec: dziś kiedy byłam/byłem pierwszy — z pychy, czy z troski? Obie odpowiedzi są w porządku. Ważne, żeby je zobaczyć.",
+    "body": "Wieczorne pytanie Wizkora: kiedy dziś {byłem pierwszy|byłam pierwsza} — z pychy czy z troski? Obie odpowiedzi są w porządku. Ważne, żeby je zobaczyć.",
     "icon": "medrzec",
     "tone": "amber",
     "time": "1 min",
@@ -4621,8 +4404,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D04-S1",
@@ -4642,8 +4424,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D04-S3",
@@ -4663,8 +4444,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "regeneracja_lidera",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D05-S1",
@@ -4684,8 +4464,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "odwaga_mala",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D05-S3",
@@ -4705,8 +4484,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D06-S1",
@@ -4726,8 +4504,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D06-S3",
@@ -4747,8 +4524,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D07-S1",
@@ -4757,7 +4533,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "medrzec",
     "title": "Dziś jestem uczestnikiem",
-    "body": "Mała tajemnica Mędrzec: prawdziwy lider umie też nie prowadzić. Dziś spróbuj być uczestnikiem. Pozwól komuś innemu wybrać. Patrz, jak inni prowadzą.",
+    "body": "Mała tajemnica Wizkora: prawdziwy lider umie też nie prowadzić. Dziś spróbuj być uczestnikiem. Pozwól komuś innemu wybrać. Patrz, jak inni prowadzą.",
     "icon": "medrzec",
     "tone": "rose",
     "time": "1 min",
@@ -4768,8 +4544,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "granica_lidera",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D07-S3",
@@ -4778,7 +4553,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "medrzec",
     "title": "Tydzień pierwszy — co czuję?",
-    "body": "Minął tydzień z Mędrzecą. Połóż dłoń na piersi. Powiedz na głos: „jestem Śmiałkiem”. Posłuchaj, jak to brzmi. Twoja tarcza już lśni jaśniej.",
+    "body": "Minął tydzień z Wizkorem. Połóż dłoń na piersi. Powiedz na głos: „{jestem Śmiałkiem|jestem Śmiałką}”. Posłuchaj, jak to brzmi. Twoja tarcza już lśni jaśniej.",
     "icon": "artifact",
     "tone": "magic",
     "time": "1 min",
@@ -4789,8 +4564,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D08-S1",
@@ -4810,8 +4584,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "odwaga_mala",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D08-S3",
@@ -4831,8 +4604,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D09-S1",
@@ -4852,8 +4624,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "odwaga_mala",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D09-S3",
@@ -4861,8 +4632,8 @@ export const DAILY_TIPS = [
     "day": 9,
     "slot": "wieczor",
     "category": "kraina",
-    "title": "Pod Niebem Marzeń",
-    "body": "Czy wiesz, że nawet największe odkrycia zaczynały się od jednego marzenia? Mędrzec mówi, że marzenie zostawione pod chmurami nigdy nie ginie.",
+    "title": "Pod chmurami",
+    "body": "Czy wiesz, że nawet największe odkrycia zaczynały się od jednego marzenia? Wizkor mówi, że marzenie zostawione pod chmurami nigdy nie ginie.",
     "icon": "artifact",
     "tone": "magic",
     "time": "1 min",
@@ -4873,8 +4644,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D10-S1",
@@ -4883,7 +4653,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "medrzec",
     "title": "Woda — sekret grzywy",
-    "body": "Czy wiesz, że twój mózg składa się w 75% z wody? Śmiałek, który zapomina pić, traci blask grzywy. Mędrzec mówi: woda to ciche paliwo odwagi.",
+    "body": "Czy wiesz, że twój mózg składa się w 75% z wody? Śmiałek, który zapomina pić, traci blask grzywy. Wizkor mówi: woda to ciche paliwo odwagi.",
     "icon": "pulse",
     "tone": "amber",
     "time": "1 min",
@@ -4894,8 +4664,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "regeneracja_lidera",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D10-S3",
@@ -4915,8 +4684,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "pomoc_proaktywna",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D11-S3",
@@ -4936,8 +4704,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D12-S1",
@@ -4957,8 +4724,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D12-S3",
@@ -4967,7 +4733,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "medrzec",
     "title": "Czy zostawiłam/zostawiłem miejsce?",
-    "body": "Wieczorne pytanie Mędrzec: czy dziś zostawiłam/zostawiłem komuś miejsce, żeby też był ważny? Śmiałek, który nie zostawia miejsca, staje się małym tyranem. A ty nie jesteś tyranem.",
+    "body": "Wieczorne pytanie Wizkora: czy dziś {zostawiłem|zostawiłam} komuś miejsce, żeby też był ważny? Śmiałek, który nie zostawia miejsca, staje się małym tyranem. A ty nie jesteś tyranem.",
     "icon": "medrzec",
     "tone": "rose",
     "time": "1 min",
@@ -4978,8 +4744,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D13-S1",
@@ -4999,8 +4764,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D13-S3",
@@ -5020,8 +4784,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D14-S1",
@@ -5041,8 +4804,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D14-S3",
@@ -5062,8 +4824,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D15-S1",
@@ -5083,8 +4844,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "granica_lidera",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D15-S3",
@@ -5104,8 +4864,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "odwaga_mala",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D16-S1",
@@ -5125,8 +4884,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "odwaga_mala",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D16-S3",
@@ -5146,8 +4904,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D17-S1",
@@ -5156,7 +4913,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "kraina",
     "title": "Ognisko w piersi",
-    "body": "W Niebie Marzeń pali się ognisko Śmiałków. Wyobraź sobie, że masz takie małe ognisko w piersi. Grzeje cię i grzeje innych. Niesiesz je dziś przez dzień.",
+    "body": "Gdzieś pod gwiazdami pali się ognisko Śmiałków. Wyobraź sobie, że masz takie małe ognisko w piersi. Grzeje cię i grzeje innych. Niesiesz je dziś przez dzień.",
     "icon": "artifact",
     "tone": "magic",
     "time": "1 min",
@@ -5167,8 +4924,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D17-S3",
@@ -5188,8 +4944,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D18-S1",
@@ -5209,8 +4964,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D18-S3",
@@ -5230,8 +4984,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "odwaga_mala",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D19-S1",
@@ -5251,8 +5004,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D19-S3",
@@ -5260,8 +5012,8 @@ export const DAILY_TIPS = [
     "day": 19,
     "slot": "wieczor",
     "category": "kraina",
-    "title": "Mędrzec patrzy z chmury",
-    "body": "Wyobraź sobie, że Mędrzec patrzy z chmury i widzi twój dzień. Co mówi? Nie krzyczy. Mówi: „widzę cię, mała Śmiałku, mały Śmiałku. Jesteś w porządku”.",
+    "title": "Wizkor patrzy z chmury",
+    "body": "Wyobraź sobie, że Wizkor patrzy z chmury i widzi twój dzień. Co mówi? Nie krzyczy. Mówi: „widzę cię, {mały Śmiałku|mała Śmiałko}. Jesteś w porządku”.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
@@ -5272,8 +5024,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D20-S1",
@@ -5293,8 +5044,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "odwaga_mala",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D20-S3",
@@ -5314,8 +5064,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D21-S1",
@@ -5335,8 +5084,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D21-S3",
@@ -5356,8 +5104,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D22-S1",
@@ -5377,8 +5124,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "granica_lidera",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D22-S3",
@@ -5398,8 +5144,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D23-S1",
@@ -5419,8 +5164,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D23-S3",
@@ -5429,7 +5173,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "medrzec",
     "title": "Z kim mam coś do naprawienia?",
-    "body": "Wieczorem pomyśl spokojnie: czy jest ktoś, z kim mam dziś coś do uładzenia? Może wystarczy jedno zdanie jutro. Mędrzec przypomni.",
+    "body": "Wieczorem pomyśl spokojnie: czy jest ktoś, z kim mam dziś coś do uładzenia? Może wystarczy jedno zdanie jutro. Wizkor przypomni.",
     "icon": "medrzec",
     "tone": "rose",
     "time": "1 min",
@@ -5440,8 +5184,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D24-S1",
@@ -5450,7 +5193,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "kraina",
     "title": "Drużyna Śmiałków wokół ciebie",
-    "body": "W Niebie Marzeń jest cała drużyna takich jak ty. Wyobraź sobie, że stoją wokół ciebie dzisiaj rano. Nie jesteś {sam|sama}. Idziesz w drużynie, nawet kiedy idziesz {sam|sama}.",
+    "body": "Gdzieś pod tym samym niebem jest cała drużyna takich jak ty. Wyobraź sobie, że stoją wokół ciebie dzisiaj rano. Nie jesteś {sam|sama}. Idziesz w drużynie, nawet kiedy idziesz {sam|sama}.",
     "icon": "artifact",
     "tone": "magic",
     "time": "1 min",
@@ -5461,8 +5204,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D24-S3",
@@ -5482,8 +5224,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "regeneracja_lidera",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D25-S1",
@@ -5503,8 +5244,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D25-S3",
@@ -5524,8 +5264,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D26-S1",
@@ -5534,7 +5273,7 @@ export const DAILY_TIPS = [
     "slot": "poranek",
     "category": "medrzec",
     "title": "Nie musisz dziś wygrać",
-    "body": "Mały Śmiałku, dzisiejszy poranny szept Mędrzec: nie musisz dziś niczego wygrać. Nie musisz być najlepsza/najlepszy. Wystarczy, że będziesz sobą. Tyle.",
+    "body": "{Mały Śmiałku|Mała Śmiałko}, dzisiejszy poranny szept Wizkora: nie musisz dziś niczego wygrać. Nie musisz być {najlepszy|najlepsza}. Wystarczy, że będziesz sobą. Tyle.",
     "icon": "medrzec",
     "tone": "rose",
     "time": "1 min",
@@ -5545,8 +5284,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D26-S3",
@@ -5566,8 +5304,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D27-S1",
@@ -5575,8 +5312,8 @@ export const DAILY_TIPS = [
     "day": 27,
     "slot": "poranek",
     "category": "kraina",
-    "title": "Słońce nad Niebem Marzeń",
-    "body": "Spójrz dziś rano w okno. Gdziekolwiek jesteś — słońce nad Niebem Marzeń wschodzi razem ze słońcem u ciebie. To samo słońce świeci wszystkim Śmiałkum na świecie.",
+    "title": "Jedno słońce dla wszystkich",
+    "body": "Spójrz dziś rano w okno. Gdziekolwiek jesteś — to samo słońce wschodzi właśnie dla ciebie i dla wszystkich Śmiałków na świecie.",
     "icon": "artifact",
     "tone": "magic",
     "time": "1 min",
@@ -5587,8 +5324,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D27-S3",
@@ -5608,8 +5344,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D28-S3",
@@ -5618,7 +5353,7 @@ export const DAILY_TIPS = [
     "slot": "wieczor",
     "category": "medrzec",
     "title": "Czy ktoś inny musi wiedzieć?",
-    "body": "Wieczorne pytanie: czy potrafię zrobić dobro i nie powiedzieć o tym? Tarcza Słońca świeci najjaśniej, gdy nikt nie patrzy. Mędrzec i tak widzi.",
+    "body": "Wieczorne pytanie: czy potrafię zrobić dobro i nie powiedzieć o tym? Tarcza Słońca świeci najjaśniej, gdy nikt nie patrzy. Wizkor i tak widzi.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
@@ -5629,8 +5364,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D29-S1",
@@ -5650,8 +5384,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D29-S3",
@@ -5671,8 +5404,7 @@ export const DAILY_TIPS = [
     "audience": "rodzic",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D30-S1",
@@ -5692,8 +5424,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D30-S3",
@@ -5701,8 +5432,8 @@ export const DAILY_TIPS = [
     "day": 30,
     "slot": "wieczor",
     "category": "kraina",
-    "title": "Pod Niebem Marzeń — zawsze",
-    "body": "Drogi/Droga Śmiałku, kończymy 30 dni. Pamiętaj: pod Niebem Marzeń zawsze znajdziesz dla siebie miejsce. Tarcza Słońca nigdy nie znika. Idziesz pierwsza, idziesz pierwszy — nie z pychy, z troski.",
+    "title": "Twoje miejsce — zawsze",
+    "body": "{Drogi Śmiałku|Droga Śmiałko}, kończymy 30 dni. Pamiętaj: pod tym niebem zawsze znajdziesz dla siebie miejsce. Tarcza Słońca nigdy nie znika. Idziesz {pierwszy|pierwsza} — nie z pychy, z troski.",
     "icon": "artifact",
     "tone": "magic",
     "time": "1 min",
@@ -5713,8 +5444,7 @@ export const DAILY_TIPS = [
     "audience": "dziecko",
     "subcategory": "asertywnosc",
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "MD-D01-S1",
@@ -5725,7 +5455,7 @@ export const DAILY_TIPS = [
     "subcategory": "spokoj_dystans",
     "audience": "dziecko",
     "title": "Trzy spokojne oddechy na start",
-    "body": "Zanim wstaniesz z łóżka, weź trzy spokojne oddechy. Pomyśl: „Jak ja się dzisiaj czuję?„. To Twój pierwszy most — do siebie.",
+    "body": "Zanim wstaniesz z łóżka, weź trzy spokojne oddechy. Dopiero po trzecim wydechu postaw stopy na podłodze.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
@@ -5735,8 +5465,7 @@ export const DAILY_TIPS = [
       "ja"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D01-S3",
@@ -5744,20 +5473,19 @@ export const DAILY_TIPS = [
     "day": 1,
     "slot": "wieczor",
     "category": "mentor",
-    "subcategory": "cudza_emocja_a_moja",
+    "subcategory": "spokoj",
     "audience": "rodzic",
-    "title": "Wieczorne pytanie: co tu jest moje?",
-    "body": "Dzieci-mediatorzy chłoną emocje innych. Zapytajcie razem łagodnie: „Co dzisiaj było Twoje, a co cudze?„. To rozdziela, nie ocenia.",
+    "title": "Wieczorem trzy wolne wydechy",
+    "body": "Wieczorem usiądźcie razem na chwilę i zróbcie trzy wolne wydechy. Nie trzeba o nic pytać — wystarczy, że dziecko zwolni razem z wami.",
     "icon": "rodzic",
     "tone": "rose",
     "time": "2 min",
     "tags": [
-      "emocje",
-      "granica"
+      "oddech",
+      "wieczor"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D02-S1",
@@ -5765,20 +5493,19 @@ export const DAILY_TIPS = [
     "day": 2,
     "slot": "poranek",
     "category": "medrzec",
-    "subcategory": "perspektywa",
+    "subcategory": "skupienie",
     "audience": "dziecko",
-    "title": "Dwie strony tej samej rzeki",
-    "body": "Pomyśl o czymś, co Cię dzisiaj czeka. Spójrz na to z jednej strony, potem z drugiej. Mędrzec mówi: most widzi obie brzegi.",
+    "title": "Obie strony jednej rzeczy",
+    "body": "Weź do ręki jeden mały przedmiot. Obejrzyj go powoli z jednej strony, potem z drugiej. Odłóż go dopiero wtedy, gdy {obejrzałeś|obejrzałaś} dokładnie obie strony.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
     "tags": [
-      "perspektywa",
-      "most"
+      "skupienie",
+      "obserwacja"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D02-S3",
@@ -5788,8 +5515,8 @@ export const DAILY_TIPS = [
     "category": "mentor",
     "subcategory": "rytmy_dnia",
     "audience": "rodzic",
-    "title": "Sen mediatora — 9 do 13 godzin",
-    "body": "Dzieci, które dużo słuchają innych, potrzebują głębokiego odpoczynku. Spokojny wieczór, ciemny pokój, stała pora — to odbudowuje wstęgę.",
+    "title": "Sen — dziewięć do dwunastu godzin",
+    "body": "Skupienie potrzebuje wypoczętej głowy. Spokojny wieczór, ciemny pokój, stała pora snu — dzięki temu rano łatwiej zebrać uwagę.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "2 min",
@@ -5798,8 +5525,7 @@ export const DAILY_TIPS = [
       "rytm"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D03-S1",
@@ -5807,20 +5533,19 @@ export const DAILY_TIPS = [
     "day": 3,
     "slot": "poranek",
     "category": "medrzec",
-    "subcategory": "granica_mediatora",
+    "subcategory": "skupienie",
     "audience": "dziecko",
-    "title": "Nie musisz dziś łączyć wszystkich",
-    "body": "Mędrzec szepcze: „Jesteś mostem, ale most też odpoczywa”. Dziś możesz tylko być, nie godzić nikogo. To też jest mądrość.",
+    "title": "Jedna rzecz naraz",
+    "body": "Wizkor szepcze: dziś rób jedną rzecz naraz. Wybierz pierwszą, zrób ją do końca i dopiero wtedy sięgnij po następną.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
     "tags": [
-      "granica",
-      "odpoczynek"
+      "skupienie",
+      "kolejnosc"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D03-S3",
@@ -5828,20 +5553,19 @@ export const DAILY_TIPS = [
     "day": 3,
     "slot": "wieczor",
     "category": "mentor",
-    "subcategory": "granica_mediatora",
+    "subcategory": "skupienie",
     "audience": "rodzic",
-    "title": "Dziecko to nie mediator dorosłych",
-    "body": "Jeśli w domu są spięcia między dorosłymi, powiedzcie wprost: „To praca dorosłych, nie Twoja”. Dziecko nie ma nieść tego ciężaru.",
+    "title": "Stałe miejsce do skupienia",
+    "body": "Pomóżcie dziecku urządzić jedno stałe miejsce do spokojnej pracy: blat, lampka, nic zbędnego. Kiedy tam siada, w pokoju na chwilę robi się ciszej.",
     "icon": "rodzic",
     "tone": "rose",
     "time": "2 min",
     "tags": [
-      "granica",
-      "ochrona"
+      "miejsce",
+      "skupienie"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D04-S1",
@@ -5852,7 +5576,7 @@ export const DAILY_TIPS = [
     "subcategory": "cudza_emocja_a_moja",
     "audience": "dziecko",
     "title": "Jaki dzisiaj jest mój kolor?",
-    "body": "Zanim spotkasz innych ludzi, zauważ swój własny nastrój. Mędrzec mówi: poznaj swój kolor, zanim zaczniesz mieszać go z innymi.",
+    "body": "Zanim spotkasz innych ludzi, zauważ swój własny nastrój. Wizkor mówi: poznaj swój kolor, zanim zaczniesz mieszać go z innymi.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
@@ -5861,8 +5585,7 @@ export const DAILY_TIPS = [
       "ja"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D04-S3",
@@ -5870,10 +5593,10 @@ export const DAILY_TIPS = [
     "day": 4,
     "slot": "wieczor",
     "category": "mentor",
-    "subcategory": "slowa_lacznikow",
+    "subcategory": "slowa",
     "audience": "rodzic",
-    "title": "Słowa, które budują kładkę",
-    "body": "„Słyszę Cię”, „rozumiem, że to trudne”, „a co Ty czujesz?”. Te zdania nie kosztują nic, a dziecku-mediatorowi pokazują, jak się to robi.",
+    "title": "Słowa, które zwalniają tempo",
+    "body": "„Mamy czas”, „po kolei”, „najpierw jedno”. Mówcie je spokojnie przy codziennych czynnościach — dziecko szybciej przejmuje wasze tempo niż polecenia.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "2 min",
@@ -5882,8 +5605,7 @@ export const DAILY_TIPS = [
       "modelowanie"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D05-S1",
@@ -5891,10 +5613,10 @@ export const DAILY_TIPS = [
     "day": 5,
     "slot": "poranek",
     "category": "medrzec",
-    "subcategory": "sluchanie_obu_stron",
+    "subcategory": "sluchanie",
     "audience": "dziecko",
     "title": "Dwa uszy, jedne usta",
-    "body": "Mędrzec przypomina: masz dwa uszy i jedne usta nie przez przypadek. Dzisiaj posłuchaj dwa razy więcej, niż mówisz.",
+    "body": "Wizkor przypomina: masz dwa uszy i jedne usta nie przez przypadek. Dzisiaj posłuchaj dwa razy więcej, niż mówisz.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
@@ -5903,8 +5625,7 @@ export const DAILY_TIPS = [
       "uwaga"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D05-S3",
@@ -5915,7 +5636,7 @@ export const DAILY_TIPS = [
     "subcategory": "rytmy_dnia",
     "audience": "rodzic",
     "title": "Woda, ruch, regularne posiłki",
-    "body": "Spokojna Głowa daje innym dużo uwagi. Pilnujcie podstaw: woda przy ręce, 60 minut ruchu, jedzenie o stałych porach. Ciało pierwsze, potem słuchanie.",
+    "body": "Skupienie zaczyna się od ciała. Pilnujcie podstaw: woda przy ręce, godzina ruchu, jedzenie o stałych porach. Najpierw ciało, potem uwaga.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "2 min",
@@ -5925,8 +5646,7 @@ export const DAILY_TIPS = [
       "woda"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D06-S1",
@@ -5946,8 +5666,7 @@ export const DAILY_TIPS = [
       "klepsydra"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D06-S3",
@@ -5967,8 +5686,7 @@ export const DAILY_TIPS = [
       "rytual"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D07-S1",
@@ -5978,18 +5696,17 @@ export const DAILY_TIPS = [
     "category": "kraina",
     "subcategory": "spokoj_dystans",
     "audience": "dziecko",
-    "title": "Cicha pora w Zamku Czasu",
-    "body": "W Zamku Czasu poranek jest najcichszą porą. Mędrzec mówi: cisza między dwoma uderzeniami serca to twoja prawdziwa ojczyzna.",
+    "title": "Cicha pora poranka",
+    "body": "Poranek to najcichsza pora dnia. Wizkor mówi: cisza między dwoma uderzeniami serca to twoja prawdziwa ojczyzna.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "1 min",
     "tags": [
-      "zamek",
+      "poranek",
       "cisza"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D07-S3",
@@ -5997,20 +5714,19 @@ export const DAILY_TIPS = [
     "day": 7,
     "slot": "wieczor",
     "category": "mentor",
-    "subcategory": "granica_mediatora",
+    "subcategory": "skupienie",
     "audience": "rodzic",
-    "title": "Pochwała za nie-mediowanie",
-    "body": "Pochwalcie dziecko nie tylko za to, że kogoś pogodziło, ale też za to, że odpuściło. „Dobrze, że zadbałeś o siebie” — to ważna lekcja.",
+    "title": "Zauważcie skończoną rzecz",
+    "body": "Gdy dziecko skończy coś w swoim tempie, powiedzcie, co widzicie: „{Ułożyłeś|Ułożyłaś} wszystkie klocki po kolei”. Opis działa lepiej niż ocena.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "1 min",
     "tags": [
-      "pochwala",
-      "granica"
+      "zauwazanie",
+      "skupienie"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D08-S1",
@@ -6018,20 +5734,19 @@ export const DAILY_TIPS = [
     "day": 8,
     "slot": "poranek",
     "category": "medrzec",
-    "subcategory": "perspektywa",
+    "subcategory": "skupienie",
     "audience": "dziecko",
-    "title": "Klucz, który otwiera dwoje drzwi",
-    "body": "Wyobraź sobie klucz z dwoma końcami. Twoja Wstęga Łączeń jest taka — potrafi otworzyć drzwi do Twojej myśli i do cudzej. Cudowne, prawda?",
+    "title": "Klucz do jednych drzwi",
+    "body": "Wyobraź sobie klucz, który otwiera tylko jedne drzwi naraz. Wybierz jedną rzecz do zrobienia. Gdy będzie gotowa, przekręć klucz w myślach i otwórz następne drzwi.",
     "icon": "artifact",
     "tone": "magic",
     "time": "1 min",
     "tags": [
       "klucz",
-      "wstega"
+      "skupienie"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D08-S3",
@@ -6042,7 +5757,7 @@ export const DAILY_TIPS = [
     "subcategory": "rytmy_dnia",
     "audience": "rodzic",
     "title": "Wieczór bez ekranu na 30 minut",
-    "body": "Dziecko, które cały dzień słuchało innych, wieczorem potrzebuje ciszy. Książka, kąpiel, rozmowa — zamiast bodźców z ekranu. Mózg wycisza wstęgę.",
+    "body": "Po całym dniu bodźców dziecko potrzebuje wieczorem ciszy. Książka, kąpiel, rozmowa — zamiast ekranu. Tak głowa łatwiej się wycisza.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "2 min",
@@ -6051,8 +5766,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D09-S1",
@@ -6060,20 +5774,19 @@ export const DAILY_TIPS = [
     "day": 9,
     "slot": "poranek",
     "category": "medrzec",
-    "subcategory": "sluchanie_obu_stron",
+    "subcategory": "sluchanie",
     "audience": "dziecko",
-    "title": "Każdy ma rację po swojemu",
-    "body": "Mędrzec mówi: dwie osoby mogą widzieć tę samą rzecz inaczej i obie mieć trochę racji. Dzisiaj pamiętaj o tym, gdy kogoś posłuchasz.",
+    "title": "Dźwięk do samego końca",
+    "body": "Wizkor mówi: posłuchaj dziś jednego dźwięku aż do końca. Może to być dzwonek, czajnik albo przejeżdżające auto. Poczekaj, aż całkiem ucichnie.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
     "tags": [
-      "racja",
-      "perspektywa"
+      "sluchanie",
+      "dzwiek"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D09-S3",
@@ -6081,10 +5794,10 @@ export const DAILY_TIPS = [
     "day": 9,
     "slot": "wieczor",
     "category": "mentor",
-    "subcategory": "slowa_lacznikow",
+    "subcategory": "slowa",
     "audience": "rodzic",
     "title": "Walidacja zamiast naprawiania",
-    "body": "Gdy dziecko opowiada o kłótni, najpierw: „rozumiem, że było Ci ciężko”. Dopiero potem ewentualne pytania. Walidacja to najprostszy most.",
+    "body": "Gdy dziecko opowiada o trudnej chwili, najpierw: „rozumiem, że było Ci ciężko”. Dopiero potem ewentualne pytania. Nazwane uczucie pomaga głowie się uspokoić.",
     "icon": "rodzic",
     "tone": "rose",
     "time": "1 min",
@@ -6093,8 +5806,7 @@ export const DAILY_TIPS = [
       "sluchanie"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D10-S1",
@@ -6102,20 +5814,19 @@ export const DAILY_TIPS = [
     "day": 10,
     "slot": "poranek",
     "category": "medrzec",
-    "subcategory": "granica_mediatora",
+    "subcategory": "spokoj",
     "audience": "dziecko",
-    "title": "Twoje uczucia są na początku listy",
-    "body": "Mędrzec szepcze: zanim zatroszczysz się o cudze uczucia, sprawdź swoje. Pomyśl: „Ja dziś jestem…” i dokończ jednym słowem.",
+    "title": "Najpierw jeden długi wydech",
+    "body": "Wizkor szepcze: zanim zaczniesz coś nowego, zrób jeden długi wydech. Weź się do pracy dopiero wtedy, gdy wypuścisz całe powietrze.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
     "tags": [
-      "granica",
-      "uczucia"
+      "oddech",
+      "spokoj"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D10-S3",
@@ -6135,8 +5846,7 @@ export const DAILY_TIPS = [
       "granica"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D11-S1",
@@ -6147,7 +5857,7 @@ export const DAILY_TIPS = [
     "subcategory": "perspektywa",
     "audience": "dziecko",
     "title": "Spójrz na świat z dachu",
-    "body": "Wyobraź sobie, że stoisz na dachu Zamku Czasu i widzisz cały dzień, który Cię czeka. Z góry wszystko wygląda spokojniej, prawda?",
+    "body": "Wyobraź sobie, że stoisz na dachu wysokiej wieży i widzisz cały dzień, który Cię czeka. Z góry wszystko wygląda spokojniej, prawda?",
     "icon": "krysztal",
     "tone": "magic",
     "time": "1 min",
@@ -6156,8 +5866,7 @@ export const DAILY_TIPS = [
       "perspektywa"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D11-S3",
@@ -6167,7 +5876,7 @@ export const DAILY_TIPS = [
     "category": "mentor",
     "subcategory": "rytmy_dnia",
     "audience": "rodzic",
-    "title": "Stała pora snu — most do jutra",
+    "title": "Stała pora snu — spokojny wieczór",
     "body": "Spokojna Głowa potrzebuje przewidywalności wieczora. Ta sama godzina, te same czynności (mycie zębów, książka, światło). Rytuał uspokaja wrażliwy system nerwowy.",
     "icon": "rodzic",
     "tone": "amber",
@@ -6177,8 +5886,7 @@ export const DAILY_TIPS = [
       "rytual"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D12-S1",
@@ -6186,7 +5894,7 @@ export const DAILY_TIPS = [
     "day": 12,
     "slot": "poranek",
     "category": "medrzec",
-    "subcategory": "slowa_lacznikow",
+    "subcategory": "slowa",
     "audience": "dziecko",
     "title": "Cztery słowa, które otwierają",
     "body": "„Rozumiem”, „opowiedz mi”, „co czujesz”, „dziękuję”. Wybierz dzisiaj jedno z nich i użyj go choć raz. Zobacz, co się stanie.",
@@ -6198,8 +5906,7 @@ export const DAILY_TIPS = [
       "otwarcie"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D12-S3",
@@ -6207,20 +5914,19 @@ export const DAILY_TIPS = [
     "day": 12,
     "slot": "wieczor",
     "category": "mentor",
-    "subcategory": "granica_mediatora",
+    "subcategory": "skupienie",
     "audience": "rodzic",
     "title": "Kiedy dziecko mówi „nie wiem, co robić”",
-    "body": "Nie zawsze trzeba podpowiadać rozwiązanie. Czasem wystarczy: „Nie musisz tego rozwiązywać”. Dajecie wtedy zgodę na bycie dzieckiem, nie sędzią.",
+    "body": "Nie zawsze trzeba podpowiadać rozwiązanie. Czasem wystarczy: „Zróbmy najpierw jeden mały krok”. Dziecku łatwiej się skupić, gdy widzi tylko najbliższy ruch.",
     "icon": "rodzic",
     "tone": "rose",
     "time": "2 min",
     "tags": [
-      "granica",
-      "zgoda"
+      "krok",
+      "skupienie"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D13-S1",
@@ -6240,8 +5946,7 @@ export const DAILY_TIPS = [
       "spokoj"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D13-S3",
@@ -6249,10 +5954,10 @@ export const DAILY_TIPS = [
     "day": 13,
     "slot": "wieczor",
     "category": "mentor",
-    "subcategory": "slowa_lacznikow",
+    "subcategory": "slowa",
     "audience": "rodzic",
     "title": "Pytanie, które kończy dobrze dzień",
-    "body": "Zamiast „jak było w szkole?” spróbujcie: „Co dzisiaj było dla Ciebie najtrudniejsze, a co najjaśniejsze?”. Dwie strony tego samego mostu.",
+    "body": "Zamiast „jak było w szkole?” spróbujcie: „Co dzisiaj było dla Ciebie najtrudniejsze, a co najjaśniejsze?”. Dwie krótkie odpowiedzi wystarczą.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "1 min",
@@ -6261,8 +5966,7 @@ export const DAILY_TIPS = [
       "wieczor"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D14-S1",
@@ -6282,8 +5986,7 @@ export const DAILY_TIPS = [
       "wizualizacja"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D14-S3",
@@ -6294,7 +5997,7 @@ export const DAILY_TIPS = [
     "subcategory": "cudza_emocja_a_moja",
     "audience": "rodzic",
     "title": "Nazwijcie emocje, które weszły dziś do domu",
-    "body": "„Z czyich emocji dzisiaj coś przyniosłeś?”. Spokojne Głowy często nieświadomie przenoszą cudze uczucia. Nazwanie ich pomaga zostawić je za drzwiami.",
+    "body": "„Z czyich emocji dzisiaj coś {przyniosłeś|przyniosłaś}?”. Dzieci często nieświadomie przenoszą cudze uczucia. Nazwanie ich pomaga zostawić je za drzwiami.",
     "icon": "rodzic",
     "tone": "rose",
     "time": "2 min",
@@ -6303,8 +6006,7 @@ export const DAILY_TIPS = [
       "rytual"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D15-S1",
@@ -6312,20 +6014,19 @@ export const DAILY_TIPS = [
     "day": 15,
     "slot": "poranek",
     "category": "kraina",
-    "subcategory": "perspektywa",
+    "subcategory": "skupienie",
     "audience": "dziecko",
-    "title": "Komnata Dwóch Luster",
-    "body": "W Zamku Czasu jest komnata z dwoma lustrami naprzeciwko siebie. Mędrzec mówi: tam każda historia ma dwa odbicia. Pamiętaj o tym dzisiaj.",
+    "title": "Płomień między lustrami",
+    "body": "Wyobraź sobie dwa lustra naprzeciwko siebie i świeczkę między nimi. Wizkor mówi: patrz tylko na płomień, aż powoli policzysz w myślach do dziesięciu.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "1 min",
     "tags": [
-      "zamek",
-      "lustro"
+      "lustro",
+      "skupienie"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D15-S3",
@@ -6336,7 +6037,7 @@ export const DAILY_TIPS = [
     "subcategory": "rytmy_dnia",
     "audience": "rodzic",
     "title": "Półmetek — krótka rozmowa o tym, co działa",
-    "body": "Minęło 15 dni. Zapytajcie dziecko: „Co z naszych wieczornych rytuałów lubisz najbardziej?”. Wzmocnijcie to, co już buduje most.",
+    "body": "Minęło 15 dni. Zapytajcie dziecko: „Co z naszych wieczornych rytuałów lubisz najbardziej?”. Wzmocnijcie to, co już pomaga się wyciszyć.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "2 min",
@@ -6345,8 +6046,7 @@ export const DAILY_TIPS = [
       "rytm"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D16-S1",
@@ -6354,10 +6054,10 @@ export const DAILY_TIPS = [
     "day": 16,
     "slot": "poranek",
     "category": "medrzec",
-    "subcategory": "sluchanie_obu_stron",
+    "subcategory": "sluchanie",
     "audience": "dziecko",
     "title": "Echo, które zwraca słowa",
-    "body": "Mędrzec mówi: dobre słuchanie jest jak echo — odbija to, co słyszy. Dzisiaj spróbuj powtórzyć krótko to, co ktoś Ci powiedział.",
+    "body": "Wizkor mówi: dobre słuchanie jest jak echo — odbija to, co słyszy. Dzisiaj spróbuj powtórzyć krótko to, co ktoś Ci powiedział.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
@@ -6366,8 +6066,7 @@ export const DAILY_TIPS = [
       "sluchanie"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D16-S3",
@@ -6375,10 +6074,10 @@ export const DAILY_TIPS = [
     "day": 16,
     "slot": "wieczor",
     "category": "mentor",
-    "subcategory": "granica_mediatora",
+    "subcategory": "spokoj",
     "audience": "rodzic",
     "title": "Zauważcie, kiedy dziecko bierze za dużo",
-    "body": "Sygnały przeciążenia: zmęczenie, drażliwość, trudności ze snem, ból brzucha. Wtedy mniej zadań „naprawiania” innych, więcej zabawy dla siebie.",
+    "body": "Sygnały przeciążenia: zmęczenie, drażliwość, trudności ze snem, ból brzucha. Wtedy mniej zadań naraz, więcej spokojnej zabawy w jednym miejscu.",
     "icon": "rodzic",
     "tone": "rose",
     "time": "2 min",
@@ -6387,8 +6086,7 @@ export const DAILY_TIPS = [
       "przeciazenie"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D17-S1",
@@ -6396,20 +6094,19 @@ export const DAILY_TIPS = [
     "day": 17,
     "slot": "poranek",
     "category": "medrzec",
-    "subcategory": "nie-mediowanie",
+    "subcategory": "spokoj",
     "audience": "dziecko",
-    "title": "Dzień, w którym tylko jestem",
-    "body": "Mędrzec mówi: dzisiaj nie musisz nic naprawiać, łączyć ani tłumaczyć. Możesz po prostu być. To też jest mądrość mostu.",
+    "title": "Najwolniej, jak potrafię",
+    "body": "Wizkor mówi: wybierz jedną czynność — zakładanie butów albo picie wody. Zrób ją najwolniej, jak potrafisz, aż do ostatniego supełka albo łyku.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
     "tags": [
-      "bycie",
-      "odpoczynek"
+      "wolno",
+      "spokoj"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D17-S3",
@@ -6417,7 +6114,7 @@ export const DAILY_TIPS = [
     "day": 17,
     "slot": "wieczor",
     "category": "mentor",
-    "subcategory": "slowa_lacznikow",
+    "subcategory": "slowa",
     "audience": "rodzic",
     "title": "Unikajmy „musisz” i „powinieneś”",
     "body": "Zamiast „musisz przeprosić” — „jak myślisz, co teraz pomogłoby?”. Spokojna Głowa uczy się przez modelowanie, nie nakaz. Wasze słowa to jej słownik.",
@@ -6429,8 +6126,7 @@ export const DAILY_TIPS = [
       "modelowanie"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D18-S1",
@@ -6438,20 +6134,19 @@ export const DAILY_TIPS = [
     "day": 18,
     "slot": "poranek",
     "category": "medrzec",
-    "subcategory": "perspektywa",
+    "subcategory": "skupienie",
     "audience": "dziecko",
-    "title": "Trzecia strona historii",
-    "body": "Mędrzec szepcze: w każdej kłótni są trzy strony — Twoja, jego i prawda gdzieś pośrodku. Dzisiaj pomyśl o tej trzeciej.",
+    "title": "Najwolniejsze kroki",
+    "body": "Wizkor szepcze: przejdź dziś przez pokój najwolniejszymi krokami, jakie potrafisz. Stawiaj stopę dopiero wtedy, gdy druga stoi pewnie. Zatrzymaj się przy drzwiach.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
     "tags": [
-      "perspektywa",
-      "prawda"
+      "ruch",
+      "skupienie"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D18-S3",
@@ -6462,7 +6157,7 @@ export const DAILY_TIPS = [
     "subcategory": "rytmy_dnia",
     "audience": "rodzic",
     "title": "Ruch w ciągu dnia — 60 minut",
-    "body": "Dziecko-mediator dużo trzyma głową. Codzienny ruch (rower, plac zabaw, taniec) pomaga rozładować napięcie z całego ciała. Krótkie sesje też się liczą.",
+    "body": "Skupiona głowa potrzebuje ruchu ciała. Codzienny ruch (rower, plac zabaw, taniec) pomaga rozładować napięcie. Krótkie sesje też się liczą.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "2 min",
@@ -6471,8 +6166,7 @@ export const DAILY_TIPS = [
       "cialo"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D19-S1",
@@ -6480,20 +6174,19 @@ export const DAILY_TIPS = [
     "day": 19,
     "slot": "poranek",
     "category": "medrzec",
-    "subcategory": "granica_mediatora",
+    "subcategory": "skupienie",
     "audience": "dziecko",
-    "title": "Mosty, których dziś nie zbudujesz",
-    "body": "Mędrzec mówi: są mosty, których nie potrafisz zbudować. To nie znaczy, że jesteś gorsza/gorszy. To znaczy, że dobrze znasz siebie.",
+    "title": "Wieża z trzech rzeczy",
+    "body": "Wizkor mówi: ułóż wieżę z trzech małych rzeczy, na przykład z książki, pudełka i klocka. Kładź każdą powoli i poczekaj, aż przestanie się chwiać.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
     "tags": [
-      "granica",
-      "samowiedza"
+      "budowanie",
+      "skupienie"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D19-S3",
@@ -6513,8 +6206,7 @@ export const DAILY_TIPS = [
       "cialo"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D20-S1",
@@ -6522,20 +6214,19 @@ export const DAILY_TIPS = [
     "day": 20,
     "slot": "poranek",
     "category": "medrzec",
-    "subcategory": "slowa_lacznikow",
+    "subcategory": "spokoj",
     "audience": "dziecko",
-    "title": "„I” zamiast „ale”",
-    "body": "Mędrzec zdradza sekret: zamiast „masz rację, ale…” spróbuj „masz rację i…”. To małe słówko zmienia mur w kładkę.",
+    "title": "Jedno słowo na wydechu",
+    "body": "Wizkor zdradza sekret: wybierz jedno słowo, na przykład „spokój”. Powiedz je szeptem na długim wydechu, trzy razy. Za trzecim razem mów najciszej.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
     "tags": [
       "slowa",
-      "trik"
+      "oddech"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D20-S3",
@@ -6543,20 +6234,19 @@ export const DAILY_TIPS = [
     "day": 20,
     "slot": "wieczor",
     "category": "mentor",
-    "subcategory": "granica_mediatora",
+    "subcategory": "skupienie",
     "audience": "rodzic",
-    "title": "Nie czyńcie dziecka swoim powiernikiem",
-    "body": "Nawet jeśli dziecko świetnie słucha — Wasze trudne sprawy dorosłe omawiajcie z innym dorosłym. Spokojna Głowa-dziecko musi mieć dzieciństwo.",
+    "title": "Chwila, której nikt nie przerywa",
+    "body": "Gdy dziecko jest zajęte jedną rzeczą — rysuje, buduje, czyta — nie przerywajcie pytaniami ani poleceniami. Poczekajcie, aż samo skończy i podniesie głowę.",
     "icon": "rodzic",
     "tone": "rose",
     "time": "2 min",
     "tags": [
-      "ochrona",
-      "granica"
+      "uwaga",
+      "skupienie"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D21-S1",
@@ -6566,18 +6256,17 @@ export const DAILY_TIPS = [
     "category": "kraina",
     "subcategory": "spokoj_dystans",
     "audience": "dziecko",
-    "title": "Wielka klepsydra Zamku Czasu",
-    "body": "W środku Zamku stoi ogromna klepsydra. Mędrzec mówi: gdy świat się spieszy, popatrz, jak piasek leci spokojnie. Dzisiaj Ty bądź jak ten piasek.",
+    "title": "Wielka klepsydra",
+    "body": "Wyobraź sobie ogromną klepsydrę. Wizkor mówi: gdy świat się spieszy, popatrz, jak piasek leci spokojnie. Dzisiaj Ty bądź jak ten piasek.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "1 min",
     "tags": [
-      "zamek",
-      "klepsydra"
+      "klepsydra",
+      "spokoj"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D21-S3",
@@ -6585,7 +6274,7 @@ export const DAILY_TIPS = [
     "day": 21,
     "slot": "wieczor",
     "category": "mentor",
-    "subcategory": "slowa_lacznikow",
+    "subcategory": "slowa",
     "audience": "rodzic",
     "title": "Powtarzanie uczuć — proste narzędzie",
     "body": "Gdy dziecko mówi „byłam zła”, odpowiedzcie: „byłaś zła…” i poczekajcie. Powtórzenie nazywa, walidauje, otwiera dalsze opowiadanie. Bez doradzania.",
@@ -6597,8 +6286,7 @@ export const DAILY_TIPS = [
       "powtorzenie"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D22-S1",
@@ -6609,7 +6297,7 @@ export const DAILY_TIPS = [
     "subcategory": "cudza_emocja_a_moja",
     "audience": "dziecko",
     "title": "Sprawdź, czyje to jest",
-    "body": "Jeśli rano czujesz coś dziwnego, zapytaj siebie: „Czy to moje, czy ktoś mi to dał?”. Mędrzec mówi: nie wszystko, co czujesz, jest Twoje.",
+    "body": "Jeśli rano czujesz coś dziwnego, zapytaj siebie: „Czy to moje, czy ktoś mi to dał?”. Wizkor mówi: nie wszystko, co czujesz, jest Twoje.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
@@ -6618,8 +6306,7 @@ export const DAILY_TIPS = [
       "granica"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D22-S3",
@@ -6630,7 +6317,7 @@ export const DAILY_TIPS = [
     "subcategory": "rytmy_dnia",
     "audience": "rodzic",
     "title": "Posiłki o stałych porach — kotwica dnia",
-    "body": "Spokojna Głowa dużo daje innym. Regularne pory jedzenia (śniadanie, drugie śniadanie, obiad, podwieczorek, kolacja) trzymają układ nerwowy w pionie.",
+    "body": "Skupienie potrzebuje stałego rytmu. Regularne pory jedzenia (śniadanie, drugie śniadanie, obiad, podwieczorek, kolacja) trzymają układ nerwowy w pionie.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "2 min",
@@ -6639,8 +6326,7 @@ export const DAILY_TIPS = [
       "rytm"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D23-S1",
@@ -6650,18 +6336,17 @@ export const DAILY_TIPS = [
     "category": "medrzec",
     "subcategory": "spokoj_dystans",
     "audience": "dziecko",
-    "title": "Wstąga, która tańczy spokojnie",
-    "body": "Wyobraź sobie swoją Wstęgę Łączeń — lekka, świetlista, tańczy w powietrzu. Niech dzisiaj porusza się powoli, bez nerwów. Twoje tempo, Twój rytm.",
+    "title": "Wstążka, która tańczy spokojnie",
+    "body": "Wyobraź sobie lekką, świetlistą wstążkę, która tańczy w powietrzu. Poruszaj ręką razem z nią, bardzo powoli, aż wstążka opadnie na ziemię.",
     "icon": "artifact",
     "tone": "magic",
     "time": "1 min",
     "tags": [
-      "wstega",
+      "wstazka",
       "spokoj"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D23-S3",
@@ -6669,20 +6354,19 @@ export const DAILY_TIPS = [
     "day": 23,
     "slot": "wieczor",
     "category": "mentor",
-    "subcategory": "perspektywa",
+    "subcategory": "skupienie",
     "audience": "rodzic",
-    "title": "Pytajcie o dwa punkty widzenia",
-    "body": "Po opowieści dziecka o sporze zapytajcie: „A jak myślisz, co mogło czuć drugie dziecko?”. To nie usprawiedliwianie — to trening perspektywy.",
+    "title": "Pytajcie o jeden szczegół",
+    "body": "Gdy dziecko coś pokazuje — rysunek, budowlę, znaleziony kamyk — zapytajcie o jeden szczegół: „Od czego {zacząłeś|zaczęłaś}?”. Jedno pytanie zatrzymuje uwagę dłużej niż pięć.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "2 min",
     "tags": [
-      "perspektywa",
-      "rozmowa"
+      "pytanie",
+      "uwaga"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D24-S1",
@@ -6690,20 +6374,19 @@ export const DAILY_TIPS = [
     "day": 24,
     "slot": "poranek",
     "category": "medrzec",
-    "subcategory": "nie-mediowanie",
+    "subcategory": "skupienie",
     "audience": "dziecko",
-    "title": "Dziś jestem tylko dzieckiem",
-    "body": "Mędrzec przypomina: dzisiaj możesz się bawić, śmiać, biegać, nic nie naprawiać. Bycie dzieckiem to też ważna część mostu.",
+    "title": "Jedna zabawka naraz",
+    "body": "Wizkor przypomina: wybierz dziś jedną zabawkę i baw się tylko nią, dopóki zabawa się nie skończy. Potem odłóż ją na miejsce.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
     "tags": [
       "zabawa",
-      "dziecko"
+      "skupienie"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D24-S3",
@@ -6723,8 +6406,7 @@ export const DAILY_TIPS = [
       "emocje"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D25-S1",
@@ -6732,20 +6414,19 @@ export const DAILY_TIPS = [
     "day": 25,
     "slot": "poranek",
     "category": "medrzec",
-    "subcategory": "perspektywa",
+    "subcategory": "skupienie",
     "audience": "dziecko",
-    "title": "Most ma dwie głowice",
-    "body": "Każdy most opiera się na dwóch brzegach. Mędrzec mówi: dzisiaj zauważ, że i Ty masz prawo być jednym z brzegów, nie tylko deską między nimi.",
+    "title": "Kamyk na dłoni",
+    "body": "Połóż na otwartej dłoni mały kamyk albo guzik. Przejdź z nim powoli od drzwi do okna tak, żeby nie spadł. Przy oknie odłóż go na parapet.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
     "tags": [
-      "most",
-      "granica"
+      "ruch",
+      "skupienie"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D25-S3",
@@ -6753,20 +6434,19 @@ export const DAILY_TIPS = [
     "day": 25,
     "slot": "wieczor",
     "category": "mentor",
-    "subcategory": "granica_mediatora",
+    "subcategory": "skupienie",
     "audience": "rodzic",
-    "title": "Konflikty dorosłych — wyraźnie poza dzieckiem",
-    "body": "Jeśli zdarzy się spięcie między dorosłymi, powiedzcie dziecku: „To nasza sprawa, nie musisz się tym zajmować”. Ulga jest natychmiastowa.",
+    "title": "Cisza przed zadaniem",
+    "body": "Zanim dziecko zacznie coś, co wymaga uwagi, wyłączcie na chwilę telewizor i radio. Kilka minut ciszy działa lepiej niż przypominanie „skup się”.",
     "icon": "rodzic",
     "tone": "rose",
     "time": "2 min",
     "tags": [
-      "granica",
-      "doroslych"
+      "cisza",
+      "skupienie"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D26-S1",
@@ -6774,10 +6454,10 @@ export const DAILY_TIPS = [
     "day": 26,
     "slot": "poranek",
     "category": "medrzec",
-    "subcategory": "sluchanie_obu_stron",
+    "subcategory": "sluchanie",
     "audience": "dziecko",
     "title": "Słuchaj nie tylko słów",
-    "body": "Mędrzec szepcze: gdy ktoś mówi, spójrz też na jego twarz i oczy. Czasem to, co najważniejsze, jest między słowami.",
+    "body": "Wizkor szepcze: gdy ktoś mówi, spójrz też na jego twarz i oczy. Czasem to, co najważniejsze, jest między słowami.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
@@ -6786,8 +6466,7 @@ export const DAILY_TIPS = [
       "twarz"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D26-S3",
@@ -6798,7 +6477,7 @@ export const DAILY_TIPS = [
     "subcategory": "rytmy_dnia",
     "audience": "rodzic",
     "title": "Sygnały, że dziecko jest „pełne”",
-    "body": "Spokojna Głowa pełna cudzych spraw mówi mniej, gryzie paznokcie, ma mokre oczy bez powodu. To moment na ciszę, kąpiel, przytulenie — bez wypytywania.",
+    "body": "Przebodźcowane dziecko mówi mniej, gryzie paznokcie, ma mokre oczy bez powodu. To moment na ciszę, kąpiel, przytulenie — bez wypytywania.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "2 min",
@@ -6807,8 +6486,7 @@ export const DAILY_TIPS = [
       "regulacja"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D27-S1",
@@ -6816,20 +6494,19 @@ export const DAILY_TIPS = [
     "day": 27,
     "slot": "poranek",
     "category": "medrzec",
-    "subcategory": "slowa_lacznikow",
+    "subcategory": "skupienie",
     "audience": "dziecko",
-    "title": "„Razem” — jedno z najmocniejszych słów",
-    "body": "Mędrzec mówi: gdy poczujesz, że ktoś jest sam ze swoim problemem, powiedz „pomyślmy razem”. Słowo „razem” jest jak Twoja Wstęga.",
+    "title": "Ostatnia kredka na miejscu",
+    "body": "Wizkor mówi: uporządkuj dziś jedną małą rzecz, na przykład kredki w pudełku. Wkładaj je po jednej. Skończ, gdy ostatnia kredka jest na swoim miejscu.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
     "tags": [
-      "razem",
-      "wstega"
+      "porzadek",
+      "skupienie"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D27-S3",
@@ -6837,20 +6514,19 @@ export const DAILY_TIPS = [
     "day": 27,
     "slot": "wieczor",
     "category": "mentor",
-    "subcategory": "slowa_lacznikow",
+    "subcategory": "slowa",
     "audience": "rodzic",
-    "title": "Mówcie głośno, gdy coś dobrze rozwiązaliście",
-    "body": "Po małym sporze w domu powiedzcie wprost: „Cieszę się, że się dogadaliśmy”. Dziecko uczy się, że konflikt może mieć dobry koniec.",
+    "title": "Mówcie głośno, gdy coś skończyliście",
+    "body": "Kiedy skończycie coś w domu — obiad, porządki, list — powiedzcie spokojnie: „Zrobione, po kolei”. Dziecko widzi, że każda rzecz ma swój koniec.",
     "icon": "rodzic",
     "tone": "amber",
     "time": "1 min",
     "tags": [
       "modelowanie",
-      "konflikt"
+      "koniec"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D28-S1",
@@ -6858,20 +6534,19 @@ export const DAILY_TIPS = [
     "day": 28,
     "slot": "poranek",
     "category": "medrzec",
-    "subcategory": "granica_mediatora",
+    "subcategory": "spokoj",
     "audience": "dziecko",
-    "title": "Mam prawo powiedzieć „nie potrafię”",
-    "body": "Mędrzec mówi: nawet najmądrzejszy most czasem powie „nie udźwignę”. To nie porażka — to uczciwość wobec siebie. Bardzo Ci wolno.",
+    "title": "Pięć wydechów",
+    "body": "Wizkor mówi: usiądź i policz swoje wydechy od jednego do pięciu. Jeśli liczenie ci ucieknie, zacznij spokojnie od nowa. Skończ na piątym.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
     "tags": [
-      "nie",
-      "granica"
+      "oddech",
+      "liczenie"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D28-S3",
@@ -6882,7 +6557,7 @@ export const DAILY_TIPS = [
     "subcategory": "cudza_emocja_a_moja",
     "audience": "rodzic",
     "title": "„Co dzisiaj było tylko Twoje?”",
-    "body": "To pytanie zamyka dzień dla dziecka-mediatora najlepiej. Pomaga znaleźć w sobie własne ślady — radość, smutek, dumę — wśród cudzych emocji.",
+    "body": "To pytanie dobrze zamyka dzień. Pomaga dziecku znaleźć w sobie własne ślady — radość, smutek, dumę — wśród cudzych emocji.",
     "icon": "rodzic",
     "tone": "rose",
     "time": "2 min",
@@ -6891,8 +6566,7 @@ export const DAILY_TIPS = [
       "ja"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D29-S1",
@@ -6903,7 +6577,7 @@ export const DAILY_TIPS = [
     "subcategory": "spokoj_dystans",
     "audience": "dziecko",
     "title": "Wdech na cztery, wydech na sześć",
-    "body": "Wdychaj powietrze licząc do czterech, wydychaj do sześciu. Powtórz trzy razy. Mędrzec mówi: dłuższy wydech to klucz do spokojnego dnia.",
+    "body": "Wdychaj powietrze licząc do czterech, wydychaj do sześciu. Powtórz trzy razy. Wizkor mówi: dłuższy wydech to klucz do spokojnego dnia.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
@@ -6912,8 +6586,7 @@ export const DAILY_TIPS = [
       "spokoj"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D29-S3",
@@ -6933,8 +6606,7 @@ export const DAILY_TIPS = [
       "lekarz"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D30-S1",
@@ -6942,20 +6614,19 @@ export const DAILY_TIPS = [
     "day": 30,
     "slot": "poranek",
     "category": "kraina",
-    "subcategory": "perspektywa",
+    "subcategory": "spokoj",
     "audience": "dziecko",
-    "title": "Mosty starsze od miast",
-    "body": "Najstarszy znany most ma ponad 3500 lat — wciąż stoi. Spokojna Głowa wie, że jeden dobrze postawiony most łączy ludzi przez stulecia.",
+    "title": "Osiem spokojnych ramion",
+    "body": "Ośmiornica ma osiem ramion i każde z nich potrafi samo dotykać i smakować. Spróbuj dziś poruszyć powoli palcami jednej ręki, jednym po drugim, od kciuka do małego palca.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "1 min",
     "tags": [
-      "zamek",
-      "podsumowanie"
+      "osmiornica",
+      "ruch"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "MD-D30-S3",
@@ -6963,10 +6634,10 @@ export const DAILY_TIPS = [
     "day": 30,
     "slot": "wieczor",
     "category": "mentor",
-    "subcategory": "granica_mediatora",
+    "subcategory": "skupienie",
     "audience": "rodzic",
-    "title": "Dziecko, które łączy — chronicie cuda",
-    "body": "Wasze dziecko nosi w sobie rzadki dar mostu. Wasza rola: chronić go, by nie został nadużyty. Dziecko ma być dzieckiem, nawet jeśli pięknie słucha.",
+    "title": "Dziecko, które umie się skupić",
+    "body": "Wasze dziecko potrafi zatrzymać się przy jednej rzeczy. Chrońcie ten czas: mniej pośpiechu, mniej przerywania, więcej zwykłej zabawy. Dziecko ma być dzieckiem.",
     "icon": "rodzic",
     "tone": "rose",
     "time": "2 min",
@@ -6975,8 +6646,7 @@ export const DAILY_TIPS = [
       "podsumowanie"
     ],
     "profileName": "Spokojna Głowa",
-    "cecha": "Skupienie",
-    "kraina": "Zamek Czasu"
+    "cecha": "Skupienie"
   },
   {
     "id": "ST-D02-S2-NEW1",
@@ -6987,14 +6657,13 @@ export const DAILY_TIPS = [
     "subcategory": "liczby_logika",
     "audience": "dziecko",
     "title": "Liczby lubią się powtarzać",
-    "body": "A czy wiesz, że dni tygodnia powtarzają się co siedem? Mędrzec mówi: świat lubi wzory. Spróbuj dziś znaleźć jakąś trójkę, która się powtarza.",
+    "body": "A czy wiesz, że dni tygodnia powtarzają się co siedem? Wizkor mówi: świat lubi wzory. Spróbuj dziś znaleźć jakąś trójkę, która się powtarza.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "1 min",
     "tags": ["wzor", "liczby", "obserwacja"],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D04-S1-NEW2",
@@ -7005,14 +6674,13 @@ export const DAILY_TIPS = [
     "subcategory": "mapy_kolejnosc",
     "audience": "dziecko",
     "title": "Trzy kroki przed sobą",
-    "body": "Mędrzec szepcze: zanim ruszysz, pomyśl o trzech rzeczach po kolei. Pierwsze, drugie, trzecie. Plan w głowie waży mniej niż plecak.",
+    "body": "Wizkor szepcze: zanim ruszysz, pomyśl o trzech rzeczach po kolei. Pierwsze, drugie, trzecie. Plan w głowie waży mniej niż plecak.",
     "icon": "map",
     "tone": "amber",
     "time": "1 min",
     "tags": ["plan", "kolejnosc", "poranek"],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D04-S2-NEW3",
@@ -7029,8 +6697,7 @@ export const DAILY_TIPS = [
     "time": "1 min",
     "tags": ["ciekawostka", "liczby", "natura"],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D06-S1-NEW4",
@@ -7041,14 +6708,13 @@ export const DAILY_TIPS = [
     "subcategory": "planowanie",
     "audience": "dziecko",
     "title": "Mała mapa dnia",
-    "body": "Wyobraź sobie, że dzień to ścieżka z trzema przystankami. Który będzie najfajniejszy? Mędrzec mówi: ten, który sobie wyobrazisz, łatwiej znajdziesz.",
+    "body": "Wyobraź sobie, że dzień to ścieżka z trzema przystankami. Który będzie najfajniejszy? Wizkor mówi: ten, który sobie wyobrazisz, łatwiej znajdziesz.",
     "icon": "map",
     "tone": "magic",
     "time": "1 min",
     "tags": ["plan", "wyobraznia", "poranek"],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D06-S2-NEW5",
@@ -7065,8 +6731,7 @@ export const DAILY_TIPS = [
     "time": "1 min",
     "tags": ["ciekawostka", "liczby", "historia"],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D08-S1-NEW6",
@@ -7077,14 +6742,13 @@ export const DAILY_TIPS = [
     "subcategory": "mapy_kolejnosc",
     "audience": "dziecko",
     "title": "Strzałka w głowie",
-    "body": "Mędrzec radzi: jeśli czujesz zamęt, narysuj w głowie jedną strzałkę. To pierwszy znak na nowej mapie. Reszta drogi sama się ułoży.",
+    "body": "Wizkor radzi: jeśli czujesz zamęt, narysuj w głowie jedną strzałkę. To pierwszy znak na nowej mapie. Reszta drogi sama się ułoży.",
     "icon": "map",
     "tone": "paper",
     "time": "1 min",
     "tags": ["porzadek", "wyobraznia"],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D09-S2-NEW7",
@@ -7101,8 +6765,7 @@ export const DAILY_TIPS = [
     "time": "1 min",
     "tags": ["ciekawostka", "cialo", "liczby"],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D11-S1-NEW8",
@@ -7113,14 +6776,13 @@ export const DAILY_TIPS = [
     "subcategory": "planowanie",
     "audience": "dziecko",
     "title": "Dwa zadania to dużo",
-    "body": "Mędrzec mówi: kiedy masz dwa zadania, wybierz jedno na początek. Nie wszystko naraz. Myśliciel wie, że kolejność to też plan.",
+    "body": "Wizkor mówi: kiedy masz dwa zadania, wybierz jedno na początek. Nie wszystko naraz. Myśliciel wie, że kolejność to też plan.",
     "icon": "medrzec",
     "tone": "amber",
     "time": "1 min",
     "tags": ["wybor", "poranek", "plan"],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D11-S3-NEW9",
@@ -7131,14 +6793,13 @@ export const DAILY_TIPS = [
     "subcategory": "liczby_logika",
     "audience": "dziecko",
     "title": "Trzy rzeczy, które się powiodły",
-    "body": "Wieczorem policz trzy rzeczy, które dziś się udały. Mogą być malutkie. Mędrzec mówi: liczenie dobra robi z dnia skarbiec.",
+    "body": "Wieczorem policz trzy rzeczy, które dziś się udały. Mogą być malutkie. Wizkor mówi: liczenie dobra robi z dnia skarbiec.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "1 min",
     "tags": ["wdziecznosc", "wieczor", "liczby"],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D13-S1-NEW10",
@@ -7149,14 +6810,13 @@ export const DAILY_TIPS = [
     "subcategory": "mapy_kolejnosc",
     "audience": "dziecko",
     "title": "Kompas w kieszeni",
-    "body": "Wyobraź sobie mały kompas w kieszeni. Strzałka pokazuje to, co dziś najważniejsze. Mędrzec mówi: kierunek jest cenniejszy niż prędkość.",
+    "body": "Wyobraź sobie mały kompas w kieszeni. Strzałka pokazuje to, co dziś najważniejsze. Wizkor mówi: kierunek jest cenniejszy niż prędkość.",
     "icon": "map",
     "tone": "magic",
     "time": "1 min",
     "tags": ["intencja", "wyobraznia"],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D13-S2-NEW11",
@@ -7173,8 +6833,7 @@ export const DAILY_TIPS = [
     "time": "1 min",
     "tags": ["ciekawostka", "natura", "ksztalty"],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D15-S1-NEW12",
@@ -7185,14 +6844,13 @@ export const DAILY_TIPS = [
     "subcategory": "planowanie",
     "audience": "dziecko",
     "title": "Mały krok, duża droga",
-    "body": "Mędrzec szepcze: nawet najdłuższa droga zaczyna się od jednego kroku. Nie myśl o całej trasie. Pomyśl o pierwszym kroku z łóżka.",
+    "body": "Wizkor szepcze: nawet najdłuższa droga zaczyna się od jednego kroku. Nie myśl o całej trasie. Pomyśl o pierwszym kroku z łóżka.",
     "icon": "medrzec",
     "tone": "amber",
     "time": "1 min",
     "tags": ["poranek", "krok", "odwaga"],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D15-S3-NEW13",
@@ -7209,8 +6867,7 @@ export const DAILY_TIPS = [
     "time": "1 min",
     "tags": ["ciekawostka", "sen", "mozg"],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D17-S1-NEW14",
@@ -7221,14 +6878,13 @@ export const DAILY_TIPS = [
     "subcategory": "mapy_kolejnosc",
     "audience": "dziecko",
     "title": "Najpierw to, co najtrudniejsze",
-    "body": "Mędrzec radzi: spróbuj zacząć od trudniejszej rzeczy, gdy głowa jest świeża. Łatwe poczeka. Myśliciel wie, że poranek ma najwięcej siły.",
+    "body": "Wizkor radzi: spróbuj zacząć od trudniejszej rzeczy, gdy głowa jest świeża. Łatwe poczeka. Myśliciel wie, że poranek ma najwięcej siły.",
     "icon": "map",
     "tone": "paper",
     "time": "1 min",
     "tags": ["kolejnosc", "poranek", "moc"],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D18-S3-NEW15",
@@ -7239,14 +6895,13 @@ export const DAILY_TIPS = [
     "subcategory": "liczby_logika",
     "audience": "dziecko",
     "title": "Tydzień to siedem światełek",
-    "body": "Wieczorem pomyśl: dziś było jedno światełko, jutro będzie drugie. W tygodniu jest siedem. Każde inne. Mędrzec mówi: liczenie dni dodaje im wartości.",
+    "body": "Wieczorem pomyśl: dziś było jedno światełko, jutro będzie drugie. W tygodniu jest siedem. Każde inne. Wizkor mówi: liczenie dni dodaje im wartości.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "2 min",
     "tags": ["wieczor", "tydzien", "refleksja"],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D20-S3-NEW16",
@@ -7257,14 +6912,13 @@ export const DAILY_TIPS = [
     "subcategory": "planowanie",
     "audience": "dziecko",
     "title": "Plan B to nie porażka",
-    "body": "Mędrzec opowiada: kiedy żeglarze widzieli sztorm, zmieniali kurs, nie cel. Plan B to inna droga, nie mniejsze marzenie.",
+    "body": "Wizkor opowiada: kiedy żeglarze widzieli sztorm, zmieniali kurs, nie cel. Plan B to inna droga, nie mniejsze marzenie.",
     "icon": "map",
     "tone": "amber",
     "time": "1 min",
     "tags": ["plan_b", "wieczor", "elastycznosc"],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D22-S1-NEW17",
@@ -7281,8 +6935,7 @@ export const DAILY_TIPS = [
     "time": "1 min",
     "tags": ["ciekawostka", "gwiazdy", "wzor"],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D26-S1-NEW18",
@@ -7293,14 +6946,13 @@ export const DAILY_TIPS = [
     "subcategory": "mapy_kolejnosc",
     "audience": "dziecko",
     "title": "Mapa to też pamięć",
-    "body": "Mędrzec mówi: kiedy rysujesz plan, twoja głowa uczy się drogi szybciej. Mapa nie jest tylko na papierze. Mapa jest też w tobie.",
+    "body": "Wizkor mówi: kiedy rysujesz plan, twoja głowa uczy się drogi szybciej. Mapa nie jest tylko na papierze. Mapa jest też w tobie.",
     "icon": "map",
     "tone": "paper",
     "time": "1 min",
     "tags": ["pamiec", "plan", "poranek"],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "EM-D04-S2-NEW1",
@@ -7311,14 +6963,13 @@ export const DAILY_TIPS = [
     "subcategory": "emocje_rozpoznanie",
     "audience": "dziecko",
     "title": "Złość ma kolor i temperaturę",
-    "body": "A czy wiesz, że złość zwykle czujemy ciepło w twarzy? Mędrzec mówi: emocje mają adres w ciele. Sprawdź dziś, gdzie mieszka twoja radość.",
+    "body": "A czy wiesz, że złość zwykle czujemy ciepło w twarzy? Wizkor mówi: emocje mają adres w ciele. Sprawdź dziś, gdzie mieszka twoja radość.",
     "icon": "medrzec",
     "tone": "rose",
     "time": "1 min",
     "tags": ["emocje", "cialo", "ciekawostka"],
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D11-S2-NEW2",
@@ -7329,14 +6980,13 @@ export const DAILY_TIPS = [
     "subcategory": "empatia",
     "audience": "dziecko",
     "title": "Uśmiech jest zaraźliwy",
-    "body": "A czy wiesz, że uśmiech jednej osoby potrafi rozjaśnić twarze kilku innych? Mędrzec mówi: to mały dar, który mnoży się sam.",
+    "body": "A czy wiesz, że uśmiech jednej osoby potrafi rozjaśnić twarze kilku innych? Wizkor mówi: to mały dar, który mnoży się sam.",
     "icon": "medrzec",
     "tone": "rose",
     "time": "1 min",
     "tags": ["empatia", "ciekawostka", "drobny_gest"],
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D19-S2-NEW3",
@@ -7347,14 +6997,13 @@ export const DAILY_TIPS = [
     "subcategory": "empatia",
     "audience": "dziecko",
     "title": "Słuchanie to też dar",
-    "body": "Mędrzec szepcze: czasem najpiękniejszym prezentem dla kogoś jest twoja cisza. Wystarczy słuchać i nie spieszyć z radą.",
+    "body": "Wizkor szepcze: czasem najpiękniejszym prezentem dla kogoś jest twoja cisza. Wystarczy słuchać i nie spieszyć z radą.",
     "icon": "medrzec",
     "tone": "paper",
     "time": "1 min",
     "tags": ["sluchanie", "empatia", "obecnosc"],
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "KR-D04-S2-NEW1",
@@ -7371,8 +7020,7 @@ export const DAILY_TIPS = [
     "time": "1 min",
     "tags": ["wyobraznia", "co_gdyby", "zabawa"],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D08-S2-NEW2",
@@ -7383,14 +7031,13 @@ export const DAILY_TIPS = [
     "subcategory": "iskra_pomyslu",
     "audience": "dziecko",
     "title": "Każdy pomysł zaczyna się od pytania",
-    "body": "A czy wiesz, że żarówka powstała, bo ktoś zapytał: jak zatrzymać światło w domu? Mędrzec mówi: pytanie to początek wynalazku.",
+    "body": "A czy wiesz, że żarówka powstała, bo ktoś zapytał: jak zatrzymać światło w domu? Wizkor mówi: pytanie to początek wynalazku.",
     "icon": "krysztal",
     "tone": "amber",
     "time": "1 min",
     "tags": ["ciekawostka", "wynalazcy", "pytanie"],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D13-S2-NEW3",
@@ -7401,14 +7048,13 @@ export const DAILY_TIPS = [
     "subcategory": "iskra_pomyslu",
     "audience": "dziecko",
     "title": "Bazgroły też są sztuką",
-    "body": "Mędrzec mówi: nawet najsłynniejsi malarze zaczynali od kresek bez sensu. Bazgrolenie rozgrzewa wyobraźnię jak biegacza rozgrzewka.",
+    "body": "Wizkor mówi: nawet najsłynniejsi malarze zaczynali od kresek bez sensu. Bazgrolenie rozgrzewa wyobraźnię jak biegacza rozgrzewka.",
     "icon": "krysztal",
     "tone": "rose",
     "time": "1 min",
     "tags": ["tworczosc", "ciekawostka", "swoboda"],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D17-S2-NEW4",
@@ -7419,14 +7065,13 @@ export const DAILY_TIPS = [
     "subcategory": "iskra_pomyslu",
     "audience": "dziecko",
     "title": "A gdyby drzewa rozmawiały?",
-    "body": "Wyobraź sobie, że drzewa szepczą do siebie korzeniami. Mędrzec mówi: właśnie tak jest naprawdę, tylko my tego nie słyszymy.",
+    "body": "Wyobraź sobie, że drzewa szepczą do siebie korzeniami. Wizkor mówi: właśnie tak jest naprawdę, tylko my tego nie słyszymy.",
     "icon": "krysztal",
     "tone": "leaf",
     "time": "1 min",
     "tags": ["co_gdyby", "natura", "ciekawostka"],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D23-S2-NEW5",
@@ -7437,14 +7082,13 @@ export const DAILY_TIPS = [
     "subcategory": "iskra_pomyslu",
     "audience": "dziecko",
     "title": "Pomyłka to początek pomysłu",
-    "body": "A czy wiesz, że plastelina powstała przez przypadek? Ktoś próbował zrobić coś innego. Mędrzec mówi: pomyłka bywa drzwiami do nowego.",
+    "body": "A czy wiesz, że plastelina powstała przez przypadek? Ktoś próbował zrobić coś innego. Wizkor mówi: pomyłka bywa drzwiami do nowego.",
     "icon": "krysztal",
     "tone": "amber",
     "time": "1 min",
     "tags": ["ciekawostka", "wynalazcy", "blad"],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D27-S2-NEW6",
@@ -7455,14 +7099,13 @@ export const DAILY_TIPS = [
     "subcategory": "iskra_pomyslu",
     "audience": "dziecko",
     "title": "Wyobraźnia jest jak mięsień",
-    "body": "Mędrzec szepcze: im częściej coś sobie wyobrażasz, tym szybciej przychodzą nowe obrazy. Wynalazca ćwiczy umysł zabawą.",
+    "body": "Wizkor szepcze: im częściej coś sobie wyobrażasz, tym szybciej przychodzą nowe obrazy. Wynalazca ćwiczy umysł zabawą.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "1 min",
     "tags": ["wyobraznia", "cwiczenie", "pomysl"],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "LD-D08-S2-NEW1",
@@ -7473,14 +7116,13 @@ export const DAILY_TIPS = [
     "subcategory": "odwaga_mala",
     "audience": "dziecko",
     "title": "Strach to znak, że ci zależy",
-    "body": "A czy wiesz, że gdy się denerwujesz, twoje serce bije szybciej, by dać ci więcej siły? Mędrzec mówi: strach pomaga, jeśli się go nie boi.",
+    "body": "A czy wiesz, że gdy się denerwujesz, twoje serce bije szybciej, by dać ci więcej siły? Wizkor mówi: strach pomaga, jeśli się go nie boi.",
     "icon": "medrzec",
     "tone": "amber",
     "time": "1 min",
     "tags": ["odwaga", "ciekawostka", "mozg"],
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D14-S2-NEW2",
@@ -7491,14 +7133,13 @@ export const DAILY_TIPS = [
     "subcategory": "odwaga_mala",
     "audience": "dziecko",
     "title": "Pierwszy krok zawsze jest najtrudniejszy",
-    "body": "Mędrzec mówi: drugi krok jest już lżejszy od pierwszego, a trzeci sam się robi. Śmiałek zaczyna, nawet jeśli się trochę boi.",
+    "body": "Wizkor mówi: drugi krok jest już lżejszy od pierwszego, a trzeci sam się robi. Śmiałek zaczyna, nawet jeśli się trochę boi.",
     "icon": "medrzec",
     "tone": "magic",
     "time": "1 min",
     "tags": ["odwaga", "krok", "inicjatywa"],
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D22-S2-NEW3",
@@ -7509,14 +7150,13 @@ export const DAILY_TIPS = [
     "subcategory": "odwaga_mala",
     "audience": "dziecko",
     "title": "Twój głos ma wagę",
-    "body": "A czy wiesz, że twój głos słychać, nawet jeśli mówisz cicho, ale pewnie? Mędrzec mówi: odwaga to nie krzyk, tylko spokojne 'tak myślę'.",
+    "body": "A czy wiesz, że twój głos słychać, nawet jeśli mówisz cicho, ale pewnie? Wizkor mówi: odwaga to nie krzyk, tylko spokojne 'tak myślę'.",
     "icon": "medrzec",
     "tone": "rose",
     "time": "1 min",
     "tags": ["odwaga", "glos", "asertywnosc"],
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "DT-D15-S2-NEW1",
@@ -7527,14 +7167,13 @@ export const DAILY_TIPS = [
     "subcategory": "obserwacja",
     "audience": "dziecko",
     "title": "Mrówki idą po nitce zapachu",
-    "body": "A czy wiesz, że mrówki zostawiają sobie ślad zapachowy, by koleżanki znalazły drogę? Mędrzec mówi: ciekawostki idą za uważnymi oczami.",
+    "body": "A czy wiesz, że mrówki zostawiają sobie ślad zapachowy, by koleżanki znalazły drogę? Wizkor mówi: ciekawostki idą za uważnymi oczami.",
     "icon": "krysztal",
     "tone": "leaf",
     "time": "1 min",
     "tags": ["ciekawostka", "natura", "obserwacja"],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D02-S2-LUKA",
@@ -7545,7 +7184,7 @@ export const DAILY_TIPS = [
     "subcategory": "obserwacja",
     "audience": "dziecko",
     "title": "Najmniejsza rzecz w pokoju",
-    "body": "Rozejrzyj się i znajdź najmniejszą rzecz w pokoju. Naprawdę najmniejszą. Weź ją do ręki i popatrz chwilę. Mędrzec mówi: małe rzeczy czekają najdłużej, aż ktoś je zauważy.",
+    "body": "Rozejrzyj się i znajdź najmniejszą rzecz w pokoju. Naprawdę najmniejszą. Weź ją do ręki i popatrz chwilę. Wizkor mówi: małe rzeczy czekają najdłużej, aż ktoś je zauważy.",
     "icon": "krysztal",
     "tone": "leaf",
     "time": "1 min",
@@ -7555,8 +7194,7 @@ export const DAILY_TIPS = [
       "dom"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D13-S2-LUKA",
@@ -7576,8 +7214,7 @@ export const DAILY_TIPS = [
       "ciekawosc"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D16-S2-LUKA",
@@ -7588,7 +7225,7 @@ export const DAILY_TIPS = [
     "subcategory": "natura",
     "audience": "dziecko",
     "title": "Paprocie znały dinozaury",
-    "body": "W Lesie Pytań rosną paprocie starsze niż kwiaty. Prawdziwe też takie są — rosły, zanim pojawiły się dinozaury. Jeśli zobaczysz dziś paproć, przyjrzyj się, jak rozwija liść ze spirali.",
+    "body": "Paprocie są starsze niż kwiaty — rosły na Ziemi, zanim pojawiły się dinozaury. Jeśli zobaczysz dziś paproć, przyjrzyj się, jak rozwija liść ze spirali.",
     "icon": "artifact",
     "tone": "leaf",
     "time": "2 min",
@@ -7598,8 +7235,7 @@ export const DAILY_TIPS = [
       "rosliny"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D18-S2-LUKA",
@@ -7610,7 +7246,7 @@ export const DAILY_TIPS = [
     "subcategory": "pamiec_szczegoly",
     "audience": "dziecko",
     "title": "Droga z zamkniętymi oczami",
-    "body": "Pomyśl o drodze, którą chodzisz najczęściej. Ile jest po niej drzew? Dziś, idąc, policz je naprawdę. Mędrzec mówi: znane miejsca kryją najwięcej niespodzianek.",
+    "body": "Pomyśl o drodze, którą chodzisz najczęściej. Ile jest po niej drzew? Dziś, idąc, policz je naprawdę. Wizkor mówi: znane miejsca kryją najwięcej niespodzianek.",
     "icon": "map",
     "tone": "amber",
     "time": "1 min",
@@ -7620,8 +7256,7 @@ export const DAILY_TIPS = [
       "droga"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D21-S2-LUKA",
@@ -7642,8 +7277,7 @@ export const DAILY_TIPS = [
       "uwaznosc"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "DT-D29-S2-LUKA",
@@ -7654,7 +7288,7 @@ export const DAILY_TIPS = [
     "subcategory": "rytmy_dnia",
     "audience": "dziecko",
     "title": "Kto wstał dziś wcześniej niż ty",
-    "body": "Pomyśl, kto dziś wstał przed tobą. Ptak, kot, sąsiad z psem, ktoś w domu? Mędrzec mówi: świat zaczyna się kręcić, zanim zdążysz otworzyć oczy.",
+    "body": "Pomyśl, kto dziś wstał przed tobą. Ptak, kot, sąsiad z psem, ktoś w domu? Wizkor mówi: świat zaczyna się kręcić, zanim zdążysz otworzyć oczy.",
     "icon": "medrzec",
     "tone": "amber",
     "time": "1 min",
@@ -7664,8 +7298,7 @@ export const DAILY_TIPS = [
       "dom"
     ],
     "profileName": "Odkrywca",
-    "cecha": "Ciekawość",
-    "kraina": "Las Pytań"
+    "cecha": "Ciekawość"
   },
   {
     "id": "EM-D05-S1-LUKA",
@@ -7676,7 +7309,7 @@ export const DAILY_TIPS = [
     "subcategory": "empatia_komus",
     "audience": "dziecko",
     "title": "Jedno dobre zdanie na start dnia",
-    "body": "Mędrzec mówi, że ciepłe słowo działa najmocniej, gdy nikt się go nie spodziewa. Powiedz dziś komuś jedną prawdziwą rzecz, którą w nim lubisz. Zobacz, co zrobi jego twarz.",
+    "body": "Wizkor mówi, że ciepłe słowo działa najmocniej, gdy nikt się go nie spodziewa. Powiedz dziś komuś jedną prawdziwą rzecz, którą w nim lubisz. Zobacz, co zrobi jego twarz.",
     "icon": "medrzec",
     "tone": "rose",
     "time": "1 min",
@@ -7686,8 +7319,7 @@ export const DAILY_TIPS = [
       "empatia"
     ],
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D14-S2-LUKA",
@@ -7698,7 +7330,7 @@ export const DAILY_TIPS = [
     "subcategory": "granica_empaty",
     "audience": "dziecko",
     "title": "Nie musisz naprawiać każdego smutku",
-    "body": "Czasem ktoś obok jest smutny i nic na to nie poradzisz. To nie Twoja wina. Możesz po prostu być blisko i milczeć. Mędrzec mówi: obecność też pomaga, nawet bez słów.",
+    "body": "Czasem ktoś obok jest smutny i nic na to nie poradzisz. To nie Twoja wina. Możesz po prostu być blisko i milczeć. Wizkor mówi: obecność też pomaga, nawet bez słów.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "1 min",
@@ -7708,8 +7340,7 @@ export const DAILY_TIPS = [
       "spokoj"
     ],
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D18-S2-LUKA",
@@ -7719,8 +7350,8 @@ export const DAILY_TIPS = [
     "category": "kraina",
     "subcategory": "empatia",
     "audience": "dziecko",
-    "title": "Latarnia na brzegu Morza Słów",
-    "body": "Na brzegu Morza Słów stoi latarnia, która świeci tylko dla tych, którzy zgubili drogę. Poszukaj dziś kogoś, kto stoi trochę z boku, i zaproś go do siebie. Bądź czyjąś latarnią.",
+    "title": "Latarnia na brzegu morza",
+    "body": "Na brzegu morza stoi latarnia, która świeci tylko dla tych, którzy zgubili drogę. Poszukaj dziś kogoś, kto stoi trochę z boku, i zaproś go do siebie. Bądź czyjąś latarnią.",
     "icon": "map",
     "tone": "amber",
     "time": "2 min",
@@ -7730,8 +7361,7 @@ export const DAILY_TIPS = [
       "kraina"
     ],
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D23-S2-LUKA",
@@ -7752,8 +7382,7 @@ export const DAILY_TIPS = [
       "spokoj"
     ],
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "EM-D29-S1-LUKA",
@@ -7774,8 +7403,7 @@ export const DAILY_TIPS = [
       "pytanie"
     ],
     "profileName": "Przyjaciel",
-    "cecha": "Życzliwość",
-    "kraina": "Morze Słów"
+    "cecha": "Życzliwość"
   },
   {
     "id": "ST-D01-S1-LUKA",
@@ -7786,7 +7414,7 @@ export const DAILY_TIPS = [
     "subcategory": "liczby_logika",
     "audience": "dziecko",
     "title": "Ile kroków do drzwi",
-    "body": "Mędrzec szepcze: pomiędzy Tobą a drzwiami jest jakaś liczba kroków. Nikt jej dziś nie zna. Policz je po drodze i zapamiętaj — to Twoja liczba na dziś.",
+    "body": "Wizkor szepcze: pomiędzy Tobą a drzwiami jest jakaś liczba kroków. Nikt jej dziś nie zna. Policz je po drodze i zapamiętaj — to Twoja liczba na dziś.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "1 min",
@@ -7795,8 +7423,7 @@ export const DAILY_TIPS = [
       "krok"
     ],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D05-S2-LUKA",
@@ -7807,7 +7434,7 @@ export const DAILY_TIPS = [
     "subcategory": "planowanie",
     "audience": "dziecko",
     "title": "Co robisz najpierw",
-    "body": "Mędrzec pyta jedno: co robisz jako pierwsze? Nie całą listę, tylko pierwszą rzecz. Kiedy wiesz, od czego zaczynasz, reszta dnia robi się lżejsza.",
+    "body": "Wizkor pyta jedno: co robisz jako pierwsze? Nie całą listę, tylko pierwszą rzecz. Kiedy wiesz, od czego zaczynasz, reszta dnia robi się lżejsza.",
     "icon": "zwoj",
     "tone": "paper",
     "time": "1 min",
@@ -7816,8 +7443,7 @@ export const DAILY_TIPS = [
       "start"
     ],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D12-S2-LUKA",
@@ -7828,7 +7454,7 @@ export const DAILY_TIPS = [
     "subcategory": "liczby_logika",
     "audience": "dziecko",
     "title": "Echo w dolinie liczy za Ciebie",
-    "body": "W Górach Liczb echo wraca tym później, im dalej jest ściana. Tak samo działa burza: policz sekundy między błyskiem a grzmotem. Co trzy sekundy to mniej więcej kilometr.",
+    "body": "W górach echo wraca tym później, im dalej jest skalna ściana. Tak samo działa burza: policz sekundy między błyskiem a grzmotem. Co trzy sekundy to mniej więcej kilometr.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "2 min",
@@ -7838,8 +7464,7 @@ export const DAILY_TIPS = [
       "burza"
     ],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D16-S2-LUKA",
@@ -7850,7 +7475,7 @@ export const DAILY_TIPS = [
     "subcategory": "mapy_kolejnosc",
     "audience": "dziecko",
     "title": "Droga w drugą stronę",
-    "body": "Mędrzec podpowiada: przypomnij sobie drogę, którą chodzisz często, ale od końca do początku. Ta sama trasa, odwrócona, wygląda jak zupełnie nowe miejsce.",
+    "body": "Wizkor podpowiada: przypomnij sobie drogę, którą chodzisz często, ale od końca do początku. Ta sama trasa, odwrócona, wygląda jak zupełnie nowe miejsce.",
     "icon": "map",
     "tone": "amber",
     "time": "1 min",
@@ -7859,8 +7484,7 @@ export const DAILY_TIPS = [
       "pamiec"
     ],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D19-S1-LUKA",
@@ -7871,7 +7495,7 @@ export const DAILY_TIPS = [
     "subcategory": "liczby_logika",
     "audience": "dziecko",
     "title": "Pary chodzą wszędzie",
-    "body": "Mędrzec szepcze: niektóre rzeczy chodzą parami — buty, rękawiczki, skarpetki. Rozejrzyj się dziś i znajdź trzy pary. Potem pomyśl, ile to razem sztuk.",
+    "body": "Wizkor szepcze: niektóre rzeczy chodzą parami — buty, rękawiczki, skarpetki. Rozejrzyj się dziś i znajdź trzy pary. Potem pomyśl, ile to razem sztuk.",
     "icon": "krysztal",
     "tone": "magic",
     "time": "1 min",
@@ -7880,8 +7504,7 @@ export const DAILY_TIPS = [
       "liczenie"
     ],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D23-S2-LUKA",
@@ -7891,8 +7514,8 @@ export const DAILY_TIPS = [
     "category": "kraina",
     "subcategory": "mapy_kolejnosc",
     "audience": "dziecko",
-    "title": "Ścieżki w Górach nie idą prosto",
-    "body": "W Górach Liczb ścieżki wiją się zakosami, bo tak wchodzi się łatwiej niż prosto pod górę. Prawdziwe górskie szlaki robią dokładnie to samo. Poszukaj dziś drogi, która kręci nieprzypadkowo.",
+    "title": "Górskie ścieżki nie idą prosto",
+    "body": "Górskie ścieżki wiją się zakosami, bo tak wchodzi się łatwiej niż prosto pod górę. Tak samo prowadzi się drogi na strome wzgórza. Poszukaj dziś drogi, która kręci nieprzypadkowo.",
     "icon": "map",
     "tone": "amber",
     "time": "2 min",
@@ -7901,8 +7524,7 @@ export const DAILY_TIPS = [
       "zakosy"
     ],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D25-S2-LUKA",
@@ -7913,7 +7535,7 @@ export const DAILY_TIPS = [
     "subcategory": "planowanie",
     "audience": "dziecko",
     "title": "Rzecz, która zajmuje minutę",
-    "body": "Mędrzec radzi: jeśli coś zajmuje mniej niż minutę, zrób to od razu. Odstawiony kubek, zamknięta szuflada. Znajdź dziś jedną taką rzecz i miej ją z głowy.",
+    "body": "Wizkor radzi: jeśli coś zajmuje mniej niż minutę, zrób to od razu. Odstawiony kubek, zamknięta szuflada. Znajdź dziś jedną taką rzecz i miej ją z głowy.",
     "icon": "zwoj",
     "tone": "paper",
     "time": "1 min",
@@ -7922,8 +7544,7 @@ export const DAILY_TIPS = [
       "porzadek"
     ],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D27-S3-LUKA",
@@ -7934,7 +7555,7 @@ export const DAILY_TIPS = [
     "subcategory": "liczby_logika",
     "audience": "dziecko",
     "title": "Policz dzisiejsze decyzje",
-    "body": "Mędrzec szepcze wieczorem: dzisiaj coś {wybrałeś|wybrałaś} sam na sam ze sobą. Może dwa razy, może pięć. Policz w głowie te momenty — było ich więcej, niż się wydaje.",
+    "body": "Wizkor szepcze wieczorem: dzisiaj coś {wybrałeś|wybrałaś} sam na sam ze sobą. Może dwa razy, może pięć. Policz w głowie te momenty — było ich więcej, niż się wydaje.",
     "icon": "medrzec",
     "tone": "paper",
     "time": "1 min",
@@ -7943,8 +7564,7 @@ export const DAILY_TIPS = [
       "decyzje"
     ],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "ST-D29-S2-LUKA",
@@ -7955,7 +7575,7 @@ export const DAILY_TIPS = [
     "subcategory": "planowanie",
     "audience": "dziecko",
     "title": "Jedna rzecz odłożona na jutro",
-    "body": "Mędrzec mówi: nie wszystko musi się udać dzisiaj. Wybierz jedną rzecz, która spokojnie poczeka do jutra, i zostaw ją tam. Reszta dnia zrobi się cichsza.",
+    "body": "Wizkor mówi: nie wszystko musi się udać dzisiaj. Wybierz jedną rzecz, która spokojnie poczeka do jutra, i zostaw ją tam. Reszta dnia zrobi się cichsza.",
     "icon": "zwoj",
     "tone": "paper",
     "time": "1 min",
@@ -7964,8 +7584,7 @@ export const DAILY_TIPS = [
       "spokoj"
     ],
     "profileName": "Myśliciel",
-    "cecha": "Mądrość",
-    "kraina": "Góry Liczb"
+    "cecha": "Mądrość"
   },
   {
     "id": "KR-D02-S1-LUKA",
@@ -7986,8 +7605,7 @@ export const DAILY_TIPS = [
       "pokoj"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D06-S1-LUKA",
@@ -8008,8 +7626,7 @@ export const DAILY_TIPS = [
       "otoczenie"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D11-S2-LUKA",
@@ -8030,8 +7647,7 @@ export const DAILY_TIPS = [
       "czesci"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D14-S1-LUKA",
@@ -8052,8 +7668,7 @@ export const DAILY_TIPS = [
       "zbieranie"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D22-S1-LUKA",
@@ -8074,8 +7689,7 @@ export const DAILY_TIPS = [
       "zmiana"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "KR-D24-S2-LUKA",
@@ -8085,7 +7699,7 @@ export const DAILY_TIPS = [
     "category": "kraina",
     "subcategory": "slowa_jezyk",
     "audience": "dziecko",
-    "title": "Nocna mapa Pustyni",
+    "title": "Nocna mapa pustyni",
     "body": "Nocą piasek układa się w nowe kształty i rano mapa nigdy nie wygląda tak samo. Wymyśl dziś nazwę jednego miejsca, które chcesz tam znaleźć.",
     "icon": "map",
     "tone": "magic",
@@ -8096,8 +7710,7 @@ export const DAILY_TIPS = [
       "pustynia"
     ],
     "profileName": "Wynalazca",
-    "cecha": "Kreatywność",
-    "kraina": "Pustynia Pomysłów"
+    "cecha": "Kreatywność"
   },
   {
     "id": "LD-D02-S2-LUKA",
@@ -8117,8 +7730,7 @@ export const DAILY_TIPS = [
       "start"
     ],
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D04-S2-LUKA",
@@ -8129,7 +7741,7 @@ export const DAILY_TIPS = [
     "subcategory": "asertywnosc",
     "audience": "dziecko",
     "title": "Nie chcę — to całe zdanie",
-    "body": "Mędrzec mówi: czasem najodważniejsze słowo jest krótkie. Możesz powiedzieć spokojnie: nie chcę. Bez tłumaczenia się, bez krzyku. Poćwicz je dziś raz, cicho, dla siebie.",
+    "body": "Wizkor mówi: czasem najodważniejsze słowo jest krótkie. Możesz powiedzieć spokojnie: nie chcę. Bez tłumaczenia się, bez krzyku. Poćwicz je dziś raz, cicho, dla siebie.",
     "icon": "medrzec",
     "tone": "amber",
     "time": "1 min",
@@ -8138,8 +7750,7 @@ export const DAILY_TIPS = [
       "granice"
     ],
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D11-S2-LUKA",
@@ -8150,7 +7761,7 @@ export const DAILY_TIPS = [
     "subcategory": "granica_lidera",
     "audience": "dziecko",
     "title": "Most z chmur ma barierki",
-    "body": "W Niebie Marzeń każdy most ma barierki — nie po to, by przeszkadzać, ale by dało się iść spokojnie. Ty też masz swoje. Pomyśl o jednej rzeczy, na którą dziś się nie zgadzasz. To twoja barierka.",
+    "body": "Nawet most z chmur ma barierki — nie po to, by przeszkadzać, ale by dało się iść spokojnie. Ty też masz swoje. Pomyśl o jednej rzeczy, na którą dziś się nie zgadzasz. To twoja barierka.",
     "icon": "map",
     "tone": "magic",
     "time": "2 min",
@@ -8159,8 +7770,7 @@ export const DAILY_TIPS = [
       "kraina"
     ],
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D23-S2-LUKA",
@@ -8180,8 +7790,7 @@ export const DAILY_TIPS = [
       "ciekawosc"
     ],
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D28-S2-LUKA",
@@ -8201,8 +7810,7 @@ export const DAILY_TIPS = [
       "pytanie"
     ],
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   },
   {
     "id": "LD-D29-S2-LUKA",
@@ -8213,7 +7821,7 @@ export const DAILY_TIPS = [
     "subcategory": "regeneracja_lidera",
     "audience": "dziecko",
     "title": "Latawiec też siada na ziemi",
-    "body": "W Niebie Marzeń latawce nie latają całą noc. Opadają powoli i leżą w trawie do rana. Ty też możesz dziś opaść. Jutro wiatr wróci sam, bez twojej pomocy.",
+    "body": "Latawce nie latają całą noc. Opadają powoli i leżą w trawie do rana. Ty też możesz dziś opaść. Jutro wiatr wróci sam, bez twojej pomocy.",
     "icon": "artifact",
     "tone": "magic",
     "time": "2 min",
@@ -8223,8 +7831,7 @@ export const DAILY_TIPS = [
       "latawiec"
     ],
     "profileName": "Śmiałek",
-    "cecha": "Odwaga",
-    "kraina": "Niebo Marzeń"
+    "cecha": "Odwaga"
   }
 ];
 

@@ -112,7 +112,7 @@ Dane już istnieją i **są otagowane sześcioma archetypami**:
 |---|---|---|
 | porady-ciekawostki dla 6 typów | `frontend/src/data/dailyTipsData.js` (7591 linii) | ma `PROFILES_META`, `DAILY_TIPS`, gotowe `tipsForProfile`, `todaysTip`, `tipsForAudience` |
 | karty porady dnia (aktywność z liskiem) | `frontend/src/hub/data/porady.v1.json` + `hub/poradaDnia.js` | deterministyczne w dobie, **bez typu** |
-| porady zdrowotne Mędrca | `frontend/src/hub/data/porady-zdrowia.v1.json` | 16 zdań, **bez typu** |
+| porady zdrowotne (myśli o ciele, mówi Wizkor) | `frontend/src/hub/data/porady-zdrowia.v1.json` | 16 zdań, **bez typu** |
 
 Do zrobienia: `poradaDnia.js` przyjmuje typ i woła `tipsForProfile(typ)`;
 porady zdrowotne dostają pole `typ` albo zostają wspólne dla wszystkich

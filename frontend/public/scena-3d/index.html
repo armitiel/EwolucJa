@@ -50,7 +50,7 @@
         <i class="game-hud-progress" aria-hidden="true"><i style="width: 55%"></i></i>
       </span>
 
-      <button class="game-hud-music" type="button" aria-pressed="true" aria-label="Wycisz muzykę krainy">
+      <button class="game-hud-music" type="button" aria-pressed="true" aria-label="Wycisz muzykę">
         <img src="/music.png" alt="" aria-hidden="true">
       </button>
     </div>
@@ -368,7 +368,7 @@ Jeśli to nie zadziała: uruchom <code>npm run dev</code> i wejdź na
   muzyka.addEventListener('click', function () {
     var gra = muzyka.classList.toggle('is-off') === false;
     muzyka.setAttribute('aria-pressed', String(gra));
-    muzyka.setAttribute('aria-label', gra ? 'Wycisz muzykę krainy' : 'Włącz muzykę krainy');
+    muzyka.setAttribute('aria-label', gra ? 'Wycisz muzykę' : 'Włącz muzykę');
   });
 })();
 </script>

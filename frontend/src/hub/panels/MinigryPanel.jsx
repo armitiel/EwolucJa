@@ -43,7 +43,7 @@ const ID_MISJI = new Set(MISJE.map((m) => m.id));
 
 export default function MinigryPanel({ onGra, onZamknij, onKomunikat }) {
   const navigate = useNavigate();
-  const { adventure, state } = useAdventureDane();
+  const { state } = useAdventureDane();
   // Odkrycie może paść przy otwartej zakładce (znak dotknięty, panel wraca),
   // więc czytamy listę na zdarzenie, a nie tylko przy montowaniu.
   const [odkryte, setOdkryte] = useState(() => gryWZakladce());
@@ -79,7 +79,7 @@ export default function MinigryPanel({ onGra, onZamknij, onKomunikat }) {
         .map((gra) => ({
           ...gra,
           // Gra bez trasy jeszcze nie istnieje - i ma tak wygladac. Wczesniej
-          // liczylo sie samo odblokowanie krainy, wiec kafel zapalal sie na
+          // liczylo sie samo odblokowanie, wiec kafel zapalal sie na
           // pelny kolor, a dotkniecie konczylo sie suchym "Wkrotce". Kafel
           // obiecywal cos, czego nie ma.
           otwarta:
@@ -88,11 +88,10 @@ export default function MinigryPanel({ onGra, onZamknij, onKomunikat }) {
             !(teraz && ID_MISJI.has(gra.id) && gra.id !== teraz.id),
           /* Po co osobna flaga, skoro `otwarta` już jest fałszem: komunikat
              po dotknięciu ma powiedzieć CO ROBIĆ TERAZ, a nie „otworzy się
-             w krainie X". To dwa różne powody blokady i dwa różne zdania. */
+             później". To dwa różne powody blokady i dwa różne zdania. */
           wstrzymana: Boolean(teraz && ID_MISJI.has(gra.id) && gra.id !== teraz.id),
-          kraina: gra.wymaga ? adventure.locations?.[gra.wymaga]?.name || gra.wymaga : null,
         })),
-    [adventure, state.unlocked, odkryte, teraz]
+    [state.unlocked, odkryte, teraz]
   );
 
   function uruchom(gra) {
@@ -105,7 +104,7 @@ export default function MinigryPanel({ onGra, onZamknij, onKomunikat }) {
       return;
     }
     if (!gra.otwarta) {
-      onKomunikat?.(`${gra.tytul} otworzy się w krainie: ${gra.kraina}`);
+      onKomunikat?.(`${gra.tytul} otworzy się później`);
       return;
     }
     // Zakładki NIE zamykamy. Gra rysuje się nad hubem, a otwarta zakładka pod

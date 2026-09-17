@@ -109,7 +109,7 @@ nagroda jest atrapą.
 
 Do tego trzy rzeczy, które kłamią dziecku w twarz: **atrapa Rozmów** w doku
 z plakietką nowości, **trzy wpisy minigier z `trasa: null`** i kłódkami do
-krain, których nie ma, oraz **przycisk „⚙️ DEV"** renderowany każdemu, także
+miejsc, których nie ma, oraz **przycisk „⚙️ DEV"** renderowany każdemu, także
 dziecku.
 
 I jedno marnotrawstwo: `AppData` przy **każdym** wczytaniu woła płatne
@@ -139,7 +139,7 @@ i karta porady na dziś. To jest puls — ma być krótki i zawsze dostępny.
 
 | dzień | co się dzieje |
 |---|---|
-| 1 | gwiazdki (pełna stawka) → Pamięć Mędrca: puzzle 2×2, tutorial, partia |
+| 1 | gwiazdki (pełna stawka) → Gra na Pamięć: puzzle 2×2, tutorial, partia |
 | 2 | gwiazdki (mała stawka) → Lot Liska **z tutorialem** |
 | 3 | Bieg Liska **z tutorialem** |
 | 4 | **pierwsze zadanie poza ekranem — cechę wybiera dziecko, nie Koło** |
@@ -250,7 +250,7 @@ i po południu).
 
 **Czego nie robić teraz:** druga polana i nowe obiekty 3D · trzy gry
 z katalogu bez trasy · cechy jako personalizacja (pięć powitań, pięć roślin)
-· Mędrzec jako czwarty głos · sklep za monety.
+· czwarty głos postaci · sklep za monety.
 
 ---
 

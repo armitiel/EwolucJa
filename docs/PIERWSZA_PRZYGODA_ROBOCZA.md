@@ -76,9 +76,9 @@ Istniejących plików .claude/agents/* oraz docs/PANEL_ZADAN.md nie nadpisujemy.
 3. Dopracować wyprawę do realu i dokładny efekt powrotu.
 4. Dopiero potem przygotować wdrożenie wariantu i sprawdzić je w przeglądarce.
 
-## Karta PLANETA-01 — Dach dla Piórka
+## Karta PLANETA-01 — Dach dla mieszkańca
 
-Piórko to robocze imię mieszkańca, nie zatwierdzony projekt postaci. Cel edukacyjny: dopasowanie kształtów przez porównywanie i obracanie. Czas orientacyjny całego spotkania: 5–8 minut, bez odliczania.
+Mieszkaniec nie ma imienia ani zatwierdzonego projektu postaci. Cel edukacyjny: dopasowanie kształtów przez porównywanie i obracanie. Czas orientacyjny całego spotkania: 5–8 minut, bez odliczania.
 
 1. Przy domku mieszkaniec otrzepuje poduszkę z liści wpadających przez otwór w dachu. Kwestia: „Liście wpadają mi do łóżka. Pomożesz zasłonić tę dziurę?”.
 2. Po „Pomogę!” przybliżamy dach. Dwa duże trójkątne elementy leżą obok. Instrukcja: „Połóż ten kawałek na dachu”.

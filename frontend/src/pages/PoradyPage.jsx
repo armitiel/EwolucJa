@@ -1,5 +1,5 @@
 /**
- * PoradyPage — "Porady / Komnata Mędrca" + inbox wiadomości od mentora.
+ * PoradyPage — "Porady / Porady Wizkora" + inbox wiadomości od mentora.
  *
  * Zakładki:
  *  1. PORADY DNIA — TYLKO porada aktualnej pory dnia jest "świeża" (duża karta).
@@ -36,9 +36,9 @@ function profileCode(v) {
 
 const PORADY_CATEGORIES = [
   { id: "wszystko", label: "Wszystko" },
-  { id: "medrzec", label: "Od Mędrca" },
+  { id: "medrzec", label: "Od Wizkora" },
   { id: "misje", label: "Sztuczki misji" },
-  { id: "kraina", label: "Sekrety krainy" },
+  { id: "kraina", label: "Sekrety świata" },
   { id: "mentor", label: "Dla mentora" },
 ];
 
@@ -273,7 +273,7 @@ function PushPrompt({ onEnable, onSkip }) {
           <img src="/wizhead.svg" alt="" style={{ width: 56, height: "auto", flex: "none", filter: "drop-shadow(0 4px 8px rgba(0,0,0,.4))" }} />
           <div style={{ flex: 1, minWidth: 0 }}>
             <h3 className="t-display" style={{ margin: 0, fontSize: 18, lineHeight: 1.2, color: "rgb(252, 244, 221)" }}>
-              Mędrzec może Ci codziennie szeptać
+              Wizkor może Ci codziennie szeptać
             </h3>
             <div style={{ marginTop: 6, fontSize: 13, lineHeight: 1.4, opacity: 0.9 }}>
               Trzy małe wiadomości dziennie — gdy masz nową poradę. Bez spamu.
@@ -508,7 +508,7 @@ export default function PoradyPage() {
 
   // OCZEKUJACE: sloty bieżącego dnia, które jeszcze nie nadeszły (np. wieczór gdy jest południe).
   // Pokazane z ikoną zegarka jako "Czeka na poranek/południe/wieczór" - daje dziecku poczucie,
-  // że Mędrzec ma jeszcze coś w zanadrzu na ten dzień.
+  // że Wizkor ma jeszcze coś w zanadrzu na ten dzień.
   const todayFutureSlots = useMemo(() => {
     return ["poranek", "poludnie", "wieczor"].filter((s) => SLOT_ORDER[s] > nowOrder);
   }, [nowOrder]);
@@ -543,7 +543,7 @@ export default function PoradyPage() {
             color: tab === "porady" ? "var(--p-magic-dk)" : "#A66A1A",
             textTransform: "uppercase",
           }}>
-            {tab === "porady" ? "Komnata Mędrca" : "Skrzynka Mentora"}
+            {tab === "porady" ? "Porady Wizkora" : "Skrzynka Mentora"}
           </div>
           <h1 className="t-display" style={{ fontSize: 28, margin: "2px 0 0", lineHeight: 1, color: "var(--p-ink)" }}>
             {tab === "porady" ? "Porady" : "Wiadomości"}
@@ -682,7 +682,7 @@ export default function PoradyPage() {
             {/* Empty state - tylko gdy profile nie ma zadnych porad w bazie */}
             {!freshTip && (
               <div className="card" style={{ textAlign: "center", padding: "22px 16px", marginTop: 8 }}>
-                <div className="t-display" style={{ fontSize: 17 }}>Mędrzec zbiera myśli…</div>
+                <div className="t-display" style={{ fontSize: 17 }}>Wizkor zbiera myśli…</div>
                 <div style={{ fontSize: 13, color: "var(--p-ink-soft)", marginTop: 4 }}>Wróć tu za chwilę — pierwsza porada już w drodze.</div>
               </div>
             )}

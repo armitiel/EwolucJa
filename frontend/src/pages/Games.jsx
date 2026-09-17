@@ -12,7 +12,7 @@ import { Coin, Sparkle } from "../components/art.jsx";
 const GAMES = [
   {
     id: "memory",
-    title: "Pamięć Mędrca",
+    title: "Gra na Pamięć",
     desc: "Znajdź pary magicznych symboli — im mniej ruchów, tym więcej ech.",
     emoji: "🧠",
     bg: "linear-gradient(135deg,#FFE0B5,#FFD269)",
@@ -25,7 +25,7 @@ const GAMES = [
   },
   {
     id: "trap-tropiciela",
-    title: "Trop Tropiciela",
+    title: "Na Tropie",
     desc: "Idź ścieżką dedukcji — wybierz właściwy znak na rozdrożu.",
     emoji: "🔍",
     bg: "linear-gradient(135deg,#E6D6FA,#B886E8)",

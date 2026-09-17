@@ -11,28 +11,28 @@
       "id": "zosia",
       "imie": "Zosia",
       "emoji": "🦊",
-      "gdzie": "Dolina Dźwięków",
+      "gdzie": "Na polanie",
       "wStatusie": "gra"
     },
     {
       "id": "kuba",
       "imie": "Kuba",
       "emoji": "🐻",
-      "gdzie": "Wyspa Talentów",
+      "gdzie": "Przy choince",
       "wStatusie": "gra"
     },
     {
       "id": "lena",
       "imie": "Lena",
       "emoji": "🦉",
-      "gdzie": "Las Pytań",
+      "gdzie": "Przy oczku wodnym",
       "wStatusie": "misja"
     },
     {
       "id": "antek",
       "imie": "Antek",
       "emoji": "🐢",
-      "gdzie": "Przystań Współpracy",
+      "gdzie": "Przy wielkim drzewie",
       "wStatusie": "gra"
     },
     {
@@ -50,7 +50,7 @@
       {
         "id": "f1",
         "kto": "zosia",
-        "tekst": "Cześć! Kto idzie ze mną do Doliny Dźwięków?",
+        "tekst": "Cześć! Kto idzie ze mną na polanę?",
         "kiedy": "14:02",
         "brawa": 4
       },
@@ -97,11 +97,11 @@
         "id": "p-zosia",
         "ktoId": "zosia",
         "nowe": true,
-        "zajawka": "Idziesz ze mną do Doliny Dźwięków?",
+        "zajawka": "Idziesz ze mną na polanę?",
         "wiadomosci": [
           {
             "od": "on",
-            "tekst": "Cześć! Idziesz ze mną do Doliny Dźwięków?"
+            "tekst": "Cześć! Idziesz ze mną na polanę?"
           },
           {
             "od": "on",

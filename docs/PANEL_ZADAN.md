@@ -127,4 +127,4 @@ oddechów", nie „5 oddechów".
 
 **Głos świata należy do `narrator-gama`.** Panel dostarcza substancję;
 ostatnie przejście po tekście — ton, rodzaj żeński narratorki, rozdział ról
-Wizkor / lisek / narratorka / Mędrzec — robi `narrator-gama`.
+Wizkor / lisek / narratorka — robi `narrator-gama`.

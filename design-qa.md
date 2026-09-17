@@ -1,7 +1,7 @@
 **Porównywane źródła**
 
 - Mówiony dymek: `C:/Users/DELL/AppData/Local/Temp/codex-clipboard-25a2914d-e436-4837-942e-e0a0109eb647.png` (594 × 249 px).
-- Istniejąca porada Mędrca: `C:/Users/DELL/AppData/Local/Temp/codex-clipboard-d81bb827-9f3c-48ca-8472-2559ff6459b9.png` (416 × 137 px).
+- Istniejąca podpowiedź o ciele (Wizkor): `C:/Users/DELL/AppData/Local/Temp/codex-clipboard-d81bb827-9f3c-48ca-8472-2559ff6459b9.png` (416 × 137 px).
 - Wzorzec ogonka myśli: `C:/Users/DELL/AppData/Local/Temp/codex-clipboard-05858d76-910e-4985-b03e-c4cd2fc0c437.png` (152 × 152 px).
 
 **Implementacja**

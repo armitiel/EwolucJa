@@ -9,7 +9,7 @@
 
   Czym jest: rzut z góry na `mapa.json` — plik, z którego scena bierze całą
   geometrię (ścieżkę, rzekę, most, bramę, drzewa, głazy, kwiaty, budynki, znaki
-  minigier, a od wersji 95 także suche drzewka do ścięcia i plac budowy schronienia).
+  minigier, a od wersji 95 także suche drzewka do ścięcia i plac budowy domku na drzewie).
   Scena (źródła: `frontend/scena-3d-src/`) czyta mapę z `globalThis.__SCENA3D_MAPA`.
   Tu tę mapę rysujemy i zapisujemy z powrotem.
 
@@ -212,7 +212,7 @@ const TRYBY = [
   { id:'budynek', nazwa:'+ Budynek', opis:'Model GLB stojący na ziemi. „Kolizja r” to kółko, którego dziecko nie przejdzie — ustaw je mniej więcej na obrys bryły.' },
   { id:'drzewo',  nazwa:'+ Drzewo',  opis:'Drzewo z generatora sceny: sosna albo liściaste. Kolizja stała 0,75.' },
   { id:'glaz',    nazwa:'+ Głaz',    opis:'Głaz z generatora sceny. Kolizja rośnie ze skalą. Zaznacz „do rozbicia”, żeby dziecko mogło go rozbić na kamienie — wtedy głaz potrzebuje też własnego id.' },
-  { id:'suche',   nazwa:'+ Suche drzewko', opis:'Uschnięte drzewko do ścięcia — z niego biorą się kłody na schronienie. Ścinamy TYLKO takie: żywy las zostaje. Model z pliku GLB, kolizja mniejsza niż zasięg pracy, żeby lisek zdążył podejść.' },
+  { id:'suche',   nazwa:'+ Suche drzewko', opis:'Uschnięte drzewko do ścięcia — z niego biorą się kłody na domek na drzewie. Ścinamy TYLKO takie: żywy las zostaje. Model z pliku GLB, kolizja mniejsza niż zasięg pracy, żeby lisek zdążył podejść.' },
   { id:'kwiat',   nazwa:'+ Kwiat',   opis:'Kwiat z generatora sceny — pięć odmian koloru. Nie blokuje chodzenia i ugina się, gdy bohater go mija. Wzrost i przechył losuje się z numeru kwiatu, więc po przestawieniu wygląda inaczej.' },
   { id:'oczko',   nazwa:'+ Oczko',   opis:'Staw z ręcznie rysowanym brzegiem. Klikaj punkty obrysu — pierwszy klik zaczyna nowy staw, każdy następny go przedłuża. Ten sam obrys robi nieckę w ziemi, piaskowy brzeg i taflę wody. Lisek nabiera z niego wody i nie tonie: staw nie blokuje chodzenia.' },
   { id:'wzgorze', nazwa:'+ Wzgórze',  opis:'Pagórek z ręcznie rysowanym obrysem. Klikaj punkty, tak samo jak przy oczku. Wysokość ustawiasz po prawej — powyżej 0,9 teren zaczyna zasłaniać liska przy tej kamerze, więc edytor ostrzeże.' },
@@ -798,7 +798,7 @@ function rysuj() {
   }
   /* PLAC BUDOWY. Pojedynczy obiekt, jak fasola czy oczko — bo całe zadanie
      prowadzi do JEDNEJ rzeczy, której światu brakuje. Rysujemy dwa kręgi:
-     ciągły to obrys klepiska (tyle miejsca zajmie schronienie), przerywany to
+     ciągły to obrys klepiska (tyle miejsca zajmie domek na drzewie), przerywany to
      `zasieg` — z tej odległości lisek oddaje materiał.
 
      Kreskowane linie do celów rąbania NIE SĄ OZDOBĄ. Od ich długości zależy,
@@ -1028,7 +1028,7 @@ function rysujListe() {
   if (mapa.start) dodaj('start', 0, 'start liska');
   if (mapa.fasola) dodaj('fasola', 0, 'magiczna fasola');
   if (mapa.oczko) dodaj('oczko', 0, 'oczko wody');
-  if (mapa.schronienie) dodaj('schronienie', 0, 'plac budowy schronienia');
+  if (mapa.schronienie) dodaj('schronienie', 0, 'plac budowy domku na drzewie');
   oczkaPary().forEach(({ k, gi }) =>
     dodaj('oczko', gi + ':0', 'staw ' + (gi + 1) + ' · ' + (k.punkty?.length ?? 0) + ' pkt'));
   wzgorzaPary().forEach(({ k, gi }) =>
@@ -1276,14 +1276,14 @@ function rysujWlasciwosci() {
        resztę robi się przeciąganiem. */
     if (!mapa.schronienie) {
       const postaw = document.createElement('button');
-      postaw.textContent = '+ Plac budowy schronienia';
+      postaw.textContent = '+ Plac budowy domku na drzewie';
       postaw.onclick = () => {
         mapa.schronienie = { opis:'', pos:[0, 0], skala:1, obrot:0, zasieg:1.35 };
         wybor = { typ:'schronienie', idx:0 };
         zapisz(); rysuj();
       };
       box.appendChild(postaw);
-      podpowiedz(box, 'Ta mapa nie ma placu budowy — bez niego dziecko nie ma gdzie zanieść drewna i kamieni, a zadanie schronienia nie ruszy.');
+      podpowiedz(box, 'Ta mapa nie ma placu budowy — bez niego dziecko nie ma gdzie zanieść drewna i kamieni, a budowa domku na drzewie nie ruszy.');
     }
 
     /* USTAWIENIA ŚWIATA W2. Edytor powstal dla pierwszej mapy i o tych polach
@@ -1433,7 +1433,7 @@ function rysujWlasciwosci() {
     poleSuwak(box, 'obrót [rad]', o.obrot ?? 0, { min:-3.15, max:3.15, krok:.01 }, (v) => { o.obrot = v; zmiana(); });
     poleSuwak(box, 'zasięg oddania', o.zasieg ?? 1.35, { min:.8, max:3, krok:.05 }, (v) => { o.zasieg = v; zmiana(); });
     poleTekst(box, 'opis (tylko dla ludzi)', o.opis, (v) => { o.opis = v; zmiana(); });
-    podpowiedz(box, 'Tu stanie schronienie — i tu dziecko przynosi materiał. Przerywany krąg to odległość, z której lisek oddaje ładunek; obrót ustawia, w którą stronę patrzy budowla i po których stronach klepiska ląduje drewno i kamienie.');
+    podpowiedz(box, 'Tu stanie domek na drzewie — i tu dziecko przynosi materiał. Przerywany krąg to odległość, z której lisek oddaje ładunek; obrót ustawia, w którą stronę patrzy budowla i po których stronach klepiska ląduje drewno i kamienie.');
     podpowiedz(box, 'Liczby przy kreskowanych liniach to długość kursu z materiałem. Poniżej ~2,5 doniesienie przestaje być kursem, a robi się krokiem w bok — a to właśnie ten kurs zamienia „zdobyłem” w „przyniosłem”.');
     const kasuj = document.createElement('button');
     kasuj.className = 'groza';

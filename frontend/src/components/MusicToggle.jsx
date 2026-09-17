@@ -31,7 +31,7 @@ export default function MusicToggle() {
   return MusicToggle.inline ? null : (
     <button
       onClick={handleToggle}
-      title={enabled ? "Wycisz muzykę krainy" : "Włącz muzykę krainy"}
+      title={enabled ? "Wycisz muzykę" : "Włącz muzykę"}
       style={{
         position: "fixed",
         top: 14,
@@ -106,7 +106,7 @@ export function MusicToggleInline() {
   return (
     <button
       onClick={handleToggle}
-      title={enabled ? "Wycisz muzykę krainy" : "Włącz muzykę krainy"}
+      title={enabled ? "Wycisz muzykę" : "Włącz muzykę"}
       style={enabled ? activeStyle : mutedStyle}
     >
       {enabled ? (

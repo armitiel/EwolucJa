@@ -7,7 +7,7 @@
  *    płaskim dołem (tak przyszedł asset), więc wstęga z imieniem siada
  *    dokładnie na tym cięciu i je zakrywa — czyta się to jako jedną bryłę,
  *    a nie obrazek doklejony nad prostokątem. Ta sama zasada rządzi głową
- *    Mędrca w `PodpowiedzMedrca` i monetą w HUD-zie.
+ *    Wizkora w `PodpowiedzMedrca` i monetą w HUD-zie.
  *
  * 2. KOLORY WYŁĄCZNIE Z TOKENÓW `styles/ewolucja.css`. Fiolet (`--p-magic`)
  *    to w tym projekcie barwa magii i mentorów, papier to karta, zieleń

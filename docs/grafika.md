@@ -13,7 +13,7 @@ Prompty dawnej gry w piórka („Sekret pod puchem", usunięta 2026-09-09) leż�
 
 | źródło | kiedy | przykłady |
 |---|---|---|
-| **generator (OpenAI `gpt-image-1`)** | przedmioty, postacie, tła — wszystko, co ma wyglądać na ulepione z gliny | piórka, klucz, kryształ, sowa, Wizkor przy stole |
+| **generator (OpenAI `gpt-image-1`)** | przedmioty, postacie, tła; postacie i ikony zawsze z referencją stylu (2b) | piórka, klucz, kryształ, sowa, Wizkor przy stole |
 | **rysowane w kodzie (Pillow)** | rzeczy geometryczne i takie, które muszą się zgadzać co do piksela z UI | rewers karty, tekstura karty 3D |
 | **pliki od Ciebie** | gdy masz gotowy element albo poprawiłeś wygenerowany | `stol_.png`, `lis_.png`, `wi_.png`, `tra.png` |
 
@@ -24,9 +24,16 @@ który trafia do `public/`, nigdy nie jest tym, co wyszło z generatora.
 
 ## 2. DNA stylu
 
-Ten blok wchodzi do **każdego** promptu bez zmiany słowa. To on trzyma
-kilkadziesiąt plików w jednej rodzinie — zwłaszcza stały kierunek światła,
-który model gubi najczęściej.
+> **Do decyzji autora.** Pierwsze zdania bloku poniżej (`claymorphism`,
+> `Pixar-like`, `clay surface`) opisują styl, którego kanon nie używa —
+> świat to niska poligonowo planeta, a postacie to kreskówkowe ilustracje
+> z grubym obrysem (`docs/SWIAT_I_POSTACIE.md`). Dopóki autor nie zatwierdzi
+> nowego brzmienia, nowych postaci ani ikon nie generuj z tego bloku: idą
+> przez referencje (2b i `docs/design-system/styl-ikon-3d.md`). Paleta,
+> kierunek światła i zakazy z bloku obowiązują dalej.
+
+Blok trzyma kilkadziesiąt plików w jednej rodzinie — zwłaszcza stały kierunek
+światła, który model gubi najczęściej.
 
 ```
 STYLE: stylized 3D claymorphism, Pixar-like children's game art. Soft rounded
@@ -48,9 +55,10 @@ kolorystycznie z własną grafiką.
 
 ### 2b. Drugi styl — ilustracje pop-upowe (pop-upy, ekrany startu)
 
-Glina jest dobra dla **assetów wewnątrz gry** (pionki, symbole kart, przedmioty).
-Ilustracje, które mówią do dziecka z całego ekranu — pop-upy zaproszeń, splash
-screeny minigier — są w drugim stylu: renderowana kreskówkowa ikona. Gruby,
+Blok z punktu 2 powstał dla **drobnych assetów wewnątrz gry** (pionki, symbole
+kart, przedmioty). Ilustracje, które mówią do dziecka z całego ekranu — pop-upy
+zaproszeń, splash screeny minigier — i postacie są w stylu kanonu: renderowana
+kreskówkowa ikona. Gruby,
 ciemny obrys wokół całej sylwetki, nasycony fiolet i złoto, gładkie cieniowanie
 z połyskiem, duże okrągłe kształty. Bliżej ikony gry mobilnej niż płaskiego
 wektora.
@@ -207,8 +215,8 @@ z `music.png`, gdzie została magentowa obwódka po nieprzezroczystym tle).
 ```
 frontend/public/
   star.png                      ikonki globalne (gwiazdka, music, avatary)
-  assets/piorka/                piórka i obiekty (gra usunięta; obrazków używa ekran startowy gier, Pamięć Mędrca, Lot Liska)
-  assets/karty/                 „Pamięć Mędrca": symbole, rewers, scena stołu
+  assets/piorka/                piórka i obiekty (gra usunięta; obrazków używa ekran startowy gier, Gra na Pamięć, Lot Liska)
+  assets/karty/                 „Gra na Pamięć": symbole, rewers, scena stołu
   assets/wejscie/               ekran startowy: klucz, tło
   scena-3d/assets/*.glb         modele 3D (w tym karta.glb)
 docs/

@@ -239,7 +239,7 @@ export function mentorRoutes() {
         [
           missionId, cycleId, req.params.playerId,
           title.trim(), body.trim(),
-          "Mędrzec szepcze: Twój mentor przygotował dla Ciebie nowe zadanie...",
+          "Wizkor szepcze: twój Mentor przygotował dla ciebie nowe zadanie...",
           JSON.stringify(focus),
           safetyNotes,
         ]

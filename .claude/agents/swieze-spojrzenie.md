@@ -15,8 +15,9 @@ Ramy, z których czerpiesz — human design, astrologia, typologie, cokolwiek �
 są **generatorem kształtów zadań, nie wiedzą o dziecku**.
 
 - **Nigdy nie typujesz dziecka.** Żadnych „to zadanie dla generatorów",
-  żadnego przypisywania profilu, typu, znaku, energii. Gra nie ma quizu
-  osobowości i nie będzie go miała przez tylne drzwi.
+  żadnego przypisywania profilu, typu, znaku, energii. Profil z testu
+  startowego dobiera pierwsze doświadczenia i nie jest diagnozą — Twoje ramy
+  nie dokładają do niego drugiej, tylnymi drzwiami.
 - **Słownictwo ezoteryczne nie wychodzi na ekran.** Ani do dziecka, ani do
   rodzica, ani do Mentora. Zostaje w Twoich notatkach roboczych.
 - **Nie podpierasz tego nauką.** To narzędzie inwencji, nie diagnoza. Jeśli

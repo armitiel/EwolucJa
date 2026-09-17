@@ -31,7 +31,7 @@ const PROFILE_LORE = {
   ST: { tagline: "Trzy kroki do przodu, zawsze.", description: "Rozpisujesz świat w mapy i strategie. Rozwijasz logikę, planowanie i samokontrolę.", artifact: "Kompas Strategiczny" },
   KR: { tagline: "Robisz z kartonu kosmiczny statek.", description: "Z prostych elementów tworzysz nieprawdopodobne historie. Rozwijasz myślenie nieszablonowe i ekspresję.", artifact: "Atrament Kronikarski" },
   LD: { tagline: "Idziesz pierwszy, nie z pychy — z troski.", description: "Pociągasz innych za sobą, bo widzą w Tobie odwagę i ciepło. Rozwijasz inicjatywę i troskę o innych.", artifact: "Tarcza Słońca" },
-  MD: { tagline: "Łączysz dwie strony, gdy nikt inny nie może.", description: "Słuchasz obu głosów i znajdujesz wspólny punkt. Rozwijasz mediację i empatyczną komunikację.", artifact: "Wstęga Łączeń" },
+  MD: { tagline: "Słyszysz to, czego inni nie zauważają.", description: "Umiesz się skupić, nawet gdy wokół jest głośno. Rozwijasz uważność, spokój i robienie jednej rzeczy do końca.", artifact: "Wstęga Łączeń" },
 };
 function profileCodeFrom(v) {
   if (!v) return null;

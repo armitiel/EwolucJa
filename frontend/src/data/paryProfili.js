@@ -55,7 +55,7 @@ export const NAZWY_PAR = {
 };
 
 /** Nazwa zapasowa, gdy para nie ma wpisu (nie powinno się zdarzyć). */
-export const NAZWA_ZAPASOWA = "{Bohater Nieznanych Krain|Bohaterka Nieznanych Krain}";
+export const NAZWA_ZAPASOWA = "{Bohater Świata Ewolucji|Bohaterka Świata Ewolucji}";
 
 /** Klucz pary z dwóch kodów profilu — kolejność nie ma znaczenia. */
 export function kluczPary(a, b) {

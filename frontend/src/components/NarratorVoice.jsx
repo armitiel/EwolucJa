@@ -2,14 +2,14 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { ttsPlayer } from "../services/ttsPlayer";
 
 /**
- * NarratorVoice — Automatycznie czyta narrację głosem GAMA-1.
+ * NarratorVoice — Automatycznie czyta narrację głosem narratorki.
  *
  * Startuje automatycznie po zamontowaniu (po odblokowaniu audio).
  * Przycisk pozwala powtórzyć / zatrzymać / wyciszyć.
  *
  * Props:
  *  - text: string — tekst do wypowiedzenia
- *  - land: string — nazwa krainy (dobiera głos)
+ *  - land: string — klucz głosu lektora (np. `las_decyzji` = Wizkor)
  *  - autoPlay: boolean — auto-odtwarzanie (domyślnie true)
  *  - compact: boolean — kompaktowy tryb
  */

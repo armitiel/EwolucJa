@@ -58,8 +58,8 @@ export const MISJE = [
   {
     id: "pamiec-medrca",
     znak: "karty",
-    tytul: "Pamięć Mędrca",
-    szukaj: "kartę Mędrca",
+    tytul: "Gra na Pamięć",
+    szukaj: "kartę Wizkora",
     ikona: "/assets/karty/rewers-3d.png",
     // Ksztalt ikony w HUD-zie: karta to prostokat 2:3 (dostaje wezsze
     // pudelko i zaokraglone rogi), zeton to kwadrat. Bez tego HUD musialby
@@ -79,9 +79,9 @@ export const MISJE = [
        i obiecuje grę, a nie kolejne szukanie. */
     zlecenie: {
       tekst:
-        "Masz oko do gwiazdek, wędrowcze. Teraz coś trudniejszego: obrazek " +
-        "Mędrca rozsypał się na kawałki i wiatr rozniósł je po polanie. " +
-        "Pozbieraj je i ułóż w całość, a karta Mędrca będzie twoja.",
+        "Masz oko do gwiazdek, wędrowcze. Teraz coś trudniejszego: mój obrazek " +
+        "rozsypał się na kawałki i wiatr rozniósł je po polanie. " +
+        "Pozbieraj je i ułóż w całość, a moja karta będzie twoja.",
       wyroznienie: "kawałki",
       przycisk: "Zbieram kawałki!",
     },
@@ -90,7 +90,7 @@ export const MISJE = [
     zbieranie: {
       tekst:
         "Kawałki obrazka błyszczą w trawie po całej polanie. " +
-        "Zbierz wszystkie, a ułożymy z nich obrazek Mędrca.",
+        "Zbierz wszystkie, a ułożymy z nich mój obrazek.",
       wyroznienie: "Kawałki obrazka",
       przycisk: "Zbieram dalej!",
     },
@@ -117,34 +117,34 @@ export const MISJE = [
     },
     nagrodaEkranUlozenie: {
       title: "Obrazek ułożony!",
-      subtitle: "Karta Mędrca jest twoja — czeka w skrzyni z grami i na polanie.",
+      subtitle: "Karta Wizkora jest twoja — czeka w skrzyni z grami i na polanie.",
     },
     nagrodaEkran: {
       title: "Pamięć jak sowa!",
-      subtitle: "Dobrałeś wszystkie pary z karty Mędrca.",
+      subtitle: "Dobrałeś wszystkie pary z karty Wizkora.",
     },
   },
   {
     id: "lot-liska",
-    /* Znak tej misji to DRZEWO, nie leżący przedmiot. Sosna widać z drugiego
+    /* Znak tej misji to DRZEWO, nie leżący przedmiot. Choinkę widać z drugiego
        końca polany, więc dziecko nie szuka jej po trawie — idzie prosto do
        niej. To celowe: trzecia misja z rzędu polegająca na wypatrywaniu
        drobiazgu w trawie byłaby tym samym zadaniem trzeci raz.
        Sam znak jest budowany z generatora sceny (`file: "drzewo"` w mapa.json),
        bo pliku `drzewo.glb` nie ma — patrz patch `loadGLB` w bundlu. */
     znak: "drzewo-lotu",
-    /* Sosna miała tu kiedyś `zostajeNaMapie: true` — była JEDYNYM znakiem,
+    /* Choinka miała tu kiedyś `zostajeNaMapie: true` — była JEDYNYM znakiem,
        który przeżywał rozliczenie misji, bo jako drzewo nie czytała się jako
        „zbierz mnie". Flaga zniknęła, gdy zasada stała się ogólna: raz zdobyty
        znak stoi na polanie na stałe (patrz `naMapie`). Jeden wyjątek mniej. */
-    /* Bez kafelka „0/1" w HUD. Sosnę widać z drugiego końca polany
+    /* Bez kafelka „0/1" w HUD. Choinkę widać z drugiego końca polany
        i wystarczy do niej podbiec — licznik nie niesie wtedy żadnej
        informacji, tylko zajmuje górę ekranu. */
     bezLicznikaHud: true,
     tytul: "Lot Liska",
-    szukaj: "wysoką sosnę",
+    szukaj: "wysoką choinkę",
     // Ikona zadania to CHOINKA, a nie lisek: kafelek w HUD ma 30 px i mowi,
-    // CZEGO SIE SZUKA na mapie ("wysoka sosne"), a nie kto szuka. Lisek w tym
+    // CZEGO SIE SZUKA na mapie ("wysoka choinke"), a nie kto szuka. Lisek w tym
     // rozmiarze byl pomaranczowa plamka - kazde zadanie wygladalo tak samo.
     ikona: "/assets/minigry/choinka.png",
     ksztaltIkony: "zeton",
@@ -156,7 +156,7 @@ export const MISJE = [
       tekst:
         "Czas polatać, wędrowcze. Obrazek lotu rozsypał się na dziewięć " +
         "kawałków i leżą teraz po całej polanie. Pozbieraj je i ułóż " +
-        "w całość, a staniesz na szczycie sosny.",
+        "w całość, a staniesz na szczycie choinki.",
       wyroznienie: "dziewięć kawałków",
       przycisk: "Zbieram kawałki!",
     },
@@ -170,7 +170,7 @@ export const MISJE = [
     ukladanie: {
       tekst:
         "Masz wszystkie kawałki! Ułóż z nich obrazek, " +
-        "a od razu wejdziesz na sosnę.",
+        "a od razu wejdziesz na choinkę.",
       wyroznienie: "Ułóż z nich obrazek",
       przycisk: "Układam!",
     },
@@ -190,7 +190,7 @@ export const MISJE = [
     },
     nagrodaEkranUlozenie: {
       title: "Obrazek ułożony!",
-      subtitle: "Sosna jest twoja — od teraz startujesz z niej, kiedy chcesz.",
+      subtitle: "Choinka jest twoja — od teraz startujesz z niej, kiedy chcesz.",
     },
     nagrodaEkran: {
       title: "Ale lot!",

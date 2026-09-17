@@ -27,7 +27,7 @@
  *     nowe okno, nowa postać, nowy panel wchodzą na miejsce poprzedniego.
  *     Dwa głosy naraz nie zdarzą się nigdy.
  *  2. KTOŚ ŚWIADOMIE UCISZA (`uciszPostac`) — wejście w minigrę, przejście
- *     między krainami, pulpit dev. To jest wyjątek, nie odruch: zwykłe
+ *     między ekranami, pulpit dev. To jest wyjątek, nie odruch: zwykłe
  *     zamknięcie okna go NIE używa.
  *
  * Osobny wyłącznik samego lektora istnieje (`ttsPlayer.enabled`, sprawdzany
@@ -36,7 +36,7 @@
  * rodzicowi, to jest ten przełącznik, a nie nutka.
  *
  * Kto tego używa: `PopupPostaci` (Wizkor i lisek na mapie),
- * `PodpowiedzMedrca` (podpowiedź Mędrca), `panels/ZadaniePanel`
+ * `PodpowiedzMedrca` (myśl Wizkora o ciele), `panels/ZadaniePanel`
  * (Wizkor czyta zadanie poza ekranem). Każde nowe powiadomienie z głosem
  * postaci ma wchodzić tędy, a nie wołać `ttsPlayer` po swojemu — inaczej
  * zasada znów rozjedzie się na cztery kopie.

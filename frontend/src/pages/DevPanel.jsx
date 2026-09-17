@@ -177,7 +177,6 @@ export default function DevPanel() {
           <button style={styles.btn} onClick={() => navigate("/mission")}>/mission</button>
           <button style={styles.btn} onClick={() => navigate("/invite-gm")}>/invite-gm</button>
           <button style={styles.btn} onClick={() => navigate("/gm")}>/gm</button>
-          <button style={styles.btn} onClick={() => navigate("/play")}>/play (V1)</button>
         </div>
       </section>
     </div>

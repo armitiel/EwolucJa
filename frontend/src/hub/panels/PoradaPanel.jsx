@@ -96,7 +96,7 @@ function PoradaDnia({ onPowrot }) {
   }, [onPowrot, otwarta, zamknijSzczegol]);
 
   // Historia to wpisy, które umiemy rozwinąć w poradę TEGO dziecka. Wpisy po
-  // poradach dla rodzica (czytanych w Komnacie Mędrca) i po innym profilu
+  // poradach dla rodzica (czytanych na stronie porad) i po innym profilu
   // odpadają — inaczej dziecko dostałoby listę cudzych rad.
   const wpisy = useMemo(() => historia
     .map((w) => ({ ...w, porada: poradaPoId(w.id) }))
@@ -104,7 +104,7 @@ function PoradaDnia({ onPowrot }) {
     .filter((w) => w.id !== swieza?.id), [historia, profil, swieza]);
 
   function przeczytaj(tekst) {
-    // Czyta lisek — to jego zakładka w doku, a Mędrzec nie ma własnego głosu.
+    // Czyta lisek — to jego zakładka w doku.
     powiedzJakLisek(tekst);
   }
 

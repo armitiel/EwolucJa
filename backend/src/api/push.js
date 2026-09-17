@@ -35,9 +35,9 @@ async function getWebpush() {
 }
 
 const SLOT_COPY = {
-  poranek:  { title: "EwolucJA — poranek",  body: "Mędrzec szepcze: na ciebie czeka nowa porada. Otwórz Komnatę." },
-  poludnie: { title: "EwolucJA — południe", body: "Mędrzec ma dla ciebie coś do przemyślenia. Wpadnij do Komnaty." },
-  wieczor:  { title: "EwolucJA — wieczór",  body: "Wieczorna porada od Mędrca już na ciebie czeka." },
+  poranek:  { title: "EwolucJA — poranek",  body: "Wizkor ma dla ciebie nową poradę dnia." },
+  poludnie: { title: "EwolucJA — południe", body: "Wizkor ma dla ciebie coś do przemyślenia." },
+  wieczor:  { title: "EwolucJA — wieczór",  body: "Wieczorna porada od Wizkora już na ciebie czeka." },
 };
 
 export function pushRoutes() {

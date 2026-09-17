@@ -328,7 +328,7 @@ export default function Reflektor({ wskazowka, onZamknij }) {
           >
             <defs>
               {/* GLINA. Pięć stopni z `tokeny.css` sekcja 7 — te same, którymi
-                  maluje się karta Mędrca, więc obie chmurki mają identyczne
+                  maluje się karta Wizkora, więc obie chmurki mają identyczne
                   światło u góry i zejście w cień u dołu.
                   `gradientUnits="userSpaceOnUse"` jest tu konieczne: procenty
                   liczyłyby się od całej wysokości SVG, czyli RAZEM z dzióbkiem,

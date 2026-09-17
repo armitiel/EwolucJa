@@ -89,7 +89,7 @@ export const ARCHETYPES = {
     accent_color: "#1abc9c",
     glow_color: "rgba(26, 188, 156, 0.25)",
     starter_artifact: { id: "wstega_laczen", name: "Wstęga Łączeń" },
-    voice_persona: "łagodzący, łączący, spokojny",
+    voice_persona: "spokojny, skupiony, powolny",
     available_in_mvp: true,
   },
 };

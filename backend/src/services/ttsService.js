@@ -1,5 +1,5 @@
 /**
- * ElevenLabs TTS Service — Głos narratora GAMA-1
+ * ElevenLabs TTS Service — głosy Świata Ewolucji (narratorka, Wizkor, lisek)
  *
  * Konwertuje tekst narracji na mowę za pomocą ElevenLabs API.
  * Zwraca audio jako Buffer (mp3) do strumieniowania przez Express.
@@ -11,7 +11,7 @@
 
 const VOICES = {
   // Głosy ElevenLabs — ID mogą się zmieniać, sprawdź w panelu.
-  // Narrator GAMA-1 (kobiecy, ciepły, lekko tajemniczy)
+  // Narratorka Świata Ewolucji (kobiecy, ciepły, lekko tajemniczy)
   narrator: (process.env.ELEVENLABS_VOICE_ID || "").trim() || "XrYxa2QP5oFX1cg3JPdt",
   mystical: (process.env.ELEVENLABS_VOICE_ID || "").trim() || "XrYxa2QP5oFX1cg3JPdt",
   excited:  (process.env.ELEVENLABS_VOICE_ID || "").trim() || "XrYxa2QP5oFX1cg3JPdt",

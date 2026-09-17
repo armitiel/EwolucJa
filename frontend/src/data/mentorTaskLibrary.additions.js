@@ -990,7 +990,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Mapa dnia na trzech krokach",
-    "body": "Mędrzec mówi: poproś dziecko, by narysowało dziś trzy małe kółka i wpisało w nie trzy rzeczy do zrobienia. Mapa dnia gotowa.",
+    "body": "Wizkor mówi: poproś dziecko, by narysowało dziś trzy małe kółka i wpisało w nie trzy rzeczy do zrobienia. Mapa dnia gotowa.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1023,7 +1023,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Policz drobne dobre rzeczy",
-    "body": "Mędrzec prosi: policz w głowie pięć drobnych dobrych rzeczy z dzisiaj. Mały promień słońca też się liczy.",
+    "body": "Wizkor prosi: policz w głowie pięć drobnych dobrych rzeczy z dzisiaj. Mały promień słońca też się liczy.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1071,7 +1071,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Mapa pokoju z czterech stref",
-    "body": "Narysuj swój pokój i podziel go na cztery strefy: spanie, nauka, zabawa, spokój. Mędrzec mówi: każda kraina ma swoje miejsce.",
+    "body": "Narysuj swój pokój i podziel go na cztery strefy: spanie, nauka, zabawa, spokój. Wizkor mówi: każda strefa ma swoje miejsce.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1103,7 +1103,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Jutro zaczynamy od jednego",
-    "body": "Wieczorem wybierz jedną rzecz, od której chcesz zacząć jutro. Tylko jedną. Mędrzec mówi: pierwszy kamień milowy waży najmniej.",
+    "body": "Wieczorem wybierz jedną rzecz, od której chcesz zacząć jutro. Tylko jedną. Wizkor mówi: pierwszy kamień milowy waży najmniej.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1135,7 +1135,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Plan poranka na trzy kółka",
-    "body": "Narysuj trzy kółka i wpisz: umyć się, ubrać, zjeść. Odhacz, gdy zrobione. Mędrzec mówi: zwykłe rzeczy też zasługują na mapę.",
+    "body": "Narysuj trzy kółka i wpisz: umyć się, ubrać, zjeść. Odhacz, gdy zrobione. Wizkor mówi: zwykłe rzeczy też zasługują na mapę.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1167,7 +1167,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Co zrobiłbym inaczej",
-    "body": "Powiedz wieczorem jedną rzecz, którą jutro zrobisz inaczej. Bez wyrzutów. Mędrzec nazywa to przepisaniem mapy.",
+    "body": "Powiedz wieczorem jedną rzecz, którą jutro zrobisz inaczej. Bez wyrzutów. Wizkor nazywa to przepisaniem mapy.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1199,7 +1199,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Plan B na wszelki wypadek",
-    "body": "Zaplanuj dziś coś prostego, a obok napisz plan B. Mędrzec mówi: dobry strateg ma zawsze drugą ścieżkę w kieszeni.",
+    "body": "Zaplanuj dziś coś prostego, a obok napisz plan B. Wizkor mówi: dobry strateg ma zawsze drugą ścieżkę w kieszeni.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1231,7 +1231,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Sekwencja pięciu kroków do wody",
-    "body": "Idź po szklankę wody i policz w głowie kroki: jeden, dwa, trzy. Wypij powoli. Mędrzec mówi: woda też podróżuje w sekwencji.",
+    "body": "Idź po szklankę wody i policz w głowie kroki: jeden, dwa, trzy. Wypij powoli. Wizkor mówi: woda też podróżuje w sekwencji.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1279,7 +1279,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Mapa drogi do szkoły",
-    "body": "Narysuj prostą mapę drogi z domu do szkoły lub przedszkola. Zaznacz trzy ciekawe punkty po drodze. Mędrzec mówi: każda droga jest opowieścią.",
+    "body": "Narysuj prostą mapę drogi z domu do szkoły lub przedszkola. Zaznacz trzy ciekawe punkty po drodze. Wizkor mówi: każda droga jest opowieścią.",
     "points_reward": 30,
     "competency_focus": [
       "ST",
@@ -1344,7 +1344,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Zaplanuj poranek w trzech zdaniach",
-    "body": "Wymyśl trzy zdania o tym, co dziś rano się wydarzy. Powiedz je na głos. Mędrzec mówi: słowo wypowiedziane jest pierwszym krokiem mapy.",
+    "body": "Wymyśl trzy zdania o tym, co dziś rano się wydarzy. Powiedz je na głos. Wizkor mówi: słowo wypowiedziane jest pierwszym krokiem mapy.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1377,7 +1377,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Schody dnia",
-    "body": "Wyobraź sobie dzisiejszy dzień jako schody. Ile masz stopni? Który był najwyższy? Mędrzec mówi: schody widać dopiero z dołu.",
+    "body": "Wyobraź sobie dzisiejszy dzień jako schody. Ile masz stopni? Który był najwyższy? Wizkor mówi: schody widać dopiero z dołu.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1409,7 +1409,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Połowa miesiąca w drodze",
-    "body": "Mędrzec mówi: jesteś w połowie miesiącznej wędrówki. Narysuj kreskę pośrodku kartki i napisz po lewej, co już umiesz, po prawej, czego chcesz spróbować.",
+    "body": "Wizkor mówi: jesteś w połowie miesiącznej wędrówki. Narysuj kreskę pośrodku kartki i napisz po lewej, co już umiesz, po prawej, czego chcesz spróbować.",
     "points_reward": 30,
     "competency_focus": [
       "ST"
@@ -1441,7 +1441,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Lista TODO i trzy odhaczenia",
-    "body": "Spójrz, co dziś zrobiłeś. Napisz krótką listę i odhacz trzy rzeczy. Mędrzec mówi: odhaczanie to dźwięk kończonego kroku.",
+    "body": "Spójrz, co dziś zrobiłeś. Napisz krótką listę i odhacz trzy rzeczy. Wizkor mówi: odhaczanie to dźwięk kończonego kroku.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1457,7 +1457,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Sekwencja zwierząt",
-    "body": "Misja: wymień pięć zwierząt od najmniejszego do największego. Mędrzec mówi: porządkowanie też jest formą myślenia.",
+    "body": "Misja: wymień pięć zwierząt od najmniejszego do największego. Wizkor mówi: porządkowanie też jest formą myślenia.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1473,7 +1473,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Trzy najważniejsze dziś",
-    "body": "Wybierz trzy rzeczy najważniejsze na dziś. Tylko trzy. Mędrzec mówi: kto wybiera mniej, ten dochodzi dalej.",
+    "body": "Wybierz trzy rzeczy najważniejsze na dziś. Tylko trzy. Wizkor mówi: kto wybiera mniej, ten dochodzi dalej.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1505,7 +1505,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Zbuduj wieżę z pięciu rzeczy",
-    "body": "Misja: zbuduj wieżę z pięciu różnych przedmiotów. Najpierw zaplanuj kolejność. Mędrzec mówi: dobra wieża zaczyna się od dobrego dołu.",
+    "body": "Misja: zbuduj wieżę z pięciu różnych przedmiotów. Najpierw zaplanuj kolejność. Wizkor mówi: dobra wieża zaczyna się od dobrego dołu.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1521,7 +1521,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Dwie rzeczy łatwe, jedna trudna",
-    "body": "Wieczorem nazwij dwie rzeczy, które dziś były łatwe, i jedną, która była trudna. Mędrzec mówi: trudne też ma swoje miejsce na mapie.",
+    "body": "Wieczorem nazwij dwie rzeczy, które dziś były łatwe, i jedną, która była trudna. Wizkor mówi: trudne też ma swoje miejsce na mapie.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1537,7 +1537,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Plan na sześćdziesiąt minut ruchu",
-    "body": "Mędrzec mówi: zaplanuj, jak dziś uzbierasz godzinę ruchu. Może spacer, podskoki, taniec. Mapa ciała też istnieje.",
+    "body": "Wizkor mówi: zaplanuj, jak dziś uzbierasz godzinę ruchu. Może spacer, podskoki, taniec. Mapa ciała też istnieje.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1587,7 +1587,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Mapa jutra w trzech słowach",
-    "body": "Zanim zaśniesz, wymyśl trzy słowa opisujące jutro: na przykład spokojnie, ciekawie, wspólnie. Mędrzec mówi: słowa wyciągają mapę z ciemności.",
+    "body": "Zanim zaśniesz, wymyśl trzy słowa opisujące jutro: na przykład spokojnie, ciekawie, wspólnie. Wizkor mówi: słowa wyciągają mapę z ciemności.",
     "points_reward": 30,
     "competency_focus": [
       "ST"
@@ -1619,7 +1619,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Sześć minut ciszy o poranku",
-    "body": "Mędrzec mówi: zanim zaczniesz dzień, posiedź sześć minut bez rozmowy i ekranu. Może być z herbatą, może z oknem. Sprawdź, co usłyszysz.",
+    "body": "Wizkor mówi: zanim zaczniesz dzień, posiedź sześć minut bez rozmowy i ekranu. Może być z herbatą, może z oknem. Sprawdź, co usłyszysz.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1667,7 +1667,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Jutrzejszy poranek na kartce",
-    "body": "Narysuj jutrzejszy poranek w trzech obrazkach: obudzenie, śniadanie, wyjście. Mędrzec mówi: poranek narysowany dziś łatwiej idzie jutro.",
+    "body": "Narysuj jutrzejszy poranek w trzech obrazkach: obudzenie, śniadanie, wyjście. Wizkor mówi: poranek narysowany dziś łatwiej idzie jutro.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1731,7 +1731,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Co jutro przeniosę z dzisiaj",
-    "body": "Mędrzec mówi: wybierz jedną rzecz z dziś, którą warto wziąć ze sobą do jutra. Pomysł, słowo albo uśmiech.",
+    "body": "Wizkor mówi: wybierz jedną rzecz z dziś, którą warto wziąć ze sobą do jutra. Pomysł, słowo albo uśmiech.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -1747,7 +1747,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Mapa uczuć na trzy pola",
-    "body": "Narysuj kartkę z trzema polami: spokój, ciekawość, niepokój. Postaw kropkę tam, gdzie jesteś dziś rano. Mędrzec mówi: mapy uczuć też się rysuje.",
+    "body": "Narysuj kartkę z trzema polami: spokój, ciekawość, niepokój. Postaw kropkę tam, gdzie jesteś dziś rano. Wizkor mówi: mapy uczuć też się rysuje.",
     "points_reward": 30,
     "competency_focus": [
       "ST"
@@ -1795,7 +1795,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Co poszło inaczej niż w planie",
-    "body": "Wieczorem nazwij jedną rzecz, która poszła inaczej niż w planie, i jedną dobrą rzecz, która z tego wyszła. Mędrzec mówi: zakręty bywają skrótami.",
+    "body": "Wieczorem nazwij jedną rzecz, która poszła inaczej niż w planie, i jedną dobrą rzecz, która z tego wyszła. Wizkor mówi: zakręty bywają skrótami.",
     "points_reward": 30,
     "competency_focus": [
       "ST"
@@ -1811,7 +1811,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Posprzątaj jedno miejsce",
-    "body": "Misja: wybierz jedno małe miejsce, na przykład biurko, i posprzątaj je w czterech krokach. Mędrzec mówi: porządek na zewnątrz pomaga porządkowi w środku.",
+    "body": "Misja: wybierz jedno małe miejsce, na przykład biurko, i posprzątaj je w czterech krokach. Wizkor mówi: porządek na zewnątrz pomaga porządkowi w środku.",
     "points_reward": 30,
     "competency_focus": [
       "ST"
@@ -1827,7 +1827,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "ST",
     "kind": "task",
     "title": "Co chcę zapamiętać z tego miesiąca",
-    "body": "Mędrzec mówi: zostały dwa dni wędrówki. Pomyśl rano o jednej rzeczy, którą chcesz zapamiętać z tego miesiąca.",
+    "body": "Wizkor mówi: zostały dwa dni wędrówki. Pomyśl rano o jednej rzeczy, którą chcesz zapamiętać z tego miesiąca.",
     "points_reward": 25,
     "competency_focus": [
       "ST"
@@ -2578,7 +2578,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "LD",
     "kind": "task",
     "title": "Wieczorne marzenie",
-    "body": "Spójrz wieczorem przez okno na niebo. Powiedz cicho jedno swoje marzenie. Wyobraź sobie, że Mędrzec zapisuje je gwiazdami, żebyś nie zapomniał.",
+    "body": "Spójrz wieczorem przez okno na niebo. Powiedz cicho jedno swoje marzenie. Wyobraź sobie, że Wizkor zapisuje je gwiazdami, żebyś {nie zapomniał|nie zapomniała}.",
     "points_reward": 25,
     "competency_focus": [
       "LD"
@@ -3077,7 +3077,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "MD",
     "kind": "task",
     "title": "Misja: posłuchaj kogoś do końca",
-    "body": "Wybierz jedną osobę i posłuchaj jej, nie przerywając, aż skończy mówić. Mędrzec mówi: czasem ucho jest mostem.",
+    "body": "Wybierz jedną osobę i posłuchaj jej, nie przerywając, aż skończy mówić. Dopiero wtedy weź oddech i odpowiedz.",
     "points_reward": 25,
     "competency_focus": [
       "MD"
@@ -3085,7 +3085,7 @@ export const ADDITIONAL_TASKS = [
     "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "sluchanie",
-      "most"
+      "skupienie"
     ]
   },
   {
@@ -3093,7 +3093,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "MD",
     "kind": "task",
     "title": "Misja: powiedz „rozumiem”",
-    "body": "Gdy ktoś dziś coś Ci opowie, spróbuj zacząć odpowiedź od słowa „rozumiem”. To krótkie słowo jest jak mała kładka.",
+    "body": "Gdy ktoś dziś coś Ci opowie, spróbuj zacząć odpowiedź od słowa „rozumiem”. To krótkie słowo daje chwilę, żeby spokojnie pomyśleć.",
     "points_reward": 25,
     "competency_focus": [
       "MD"
@@ -3101,55 +3101,55 @@ export const ADDITIONAL_TASKS = [
     "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "slowa",
-      "lacznik"
+      "spokoj"
     ]
   },
   {
     "id": "MD-TASK-013",
     "profile": "MD",
     "kind": "task",
-    "title": "Misja: jedno pytanie zamiast oceny",
-    "body": "Gdy kolega lub koleżanka się pokłócą, zamiast mówić „kto ma rację”, zapytaj: „Co się stało?”. Pytanie otwiera, ocena zamyka.",
+    "title": "Misja: jeden dźwięk do końca",
+    "body": "Stuknij łyżeczką w szklankę i słuchaj, jak dźwięk cichnie. Nie ruszaj się, dopóki całkiem nie zniknie. Powtórz trzy razy, za każdym razem stukając ciszej.",
     "points_reward": 25,
     "competency_focus": [
       "MD"
     ],
     "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
-      "konflikt",
-      "pytanie"
+      "sluchanie",
+      "dzwiek"
     ]
   },
   {
     "id": "MD-TASK-014",
     "profile": "MD",
     "kind": "task",
-    "title": "Misja: spotkanie w połowie drogi",
-    "body": "Gdy nie zgadzacie się o coś małego (zabawkę, miejsce, kolejność), zaproponuj: „A może po połowie?”. Mały kompromis to początek dużego mostu.",
+    "title": "Misja: wszystko na swoje miejsce",
+    "body": "Wybierz jedno pudełko — z kredkami, klockami albo guzikami. Układaj rzeczy po kolei, jedną naraz. Misja kończy się, gdy ostatnia leży na swoim miejscu.",
     "points_reward": 30,
     "competency_focus": [
       "MD"
     ],
     "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
-      "kompromis",
-      "polowa"
+      "porzadek",
+      "skupienie"
     ]
   },
   {
     "id": "MD-TASK-015",
     "profile": "MD",
     "kind": "task",
-    "title": "Misja: opowiedz cudzą wersję",
-    "body": "Po małej kłótni spróbuj powiedzieć: „Czyli Ty myślałeś, że…”. To pokazuje, że naprawdę słuchałeś. Często to wystarczy, by się rozluźnić.",
+    "title": "Misja: najwolniejsze kroki",
+    "body": "Przejdź od drzwi do okna najwolniejszymi krokami, jakie potrafisz. Stawiaj stopę dopiero wtedy, gdy druga stoi pewnie. Przy oknie zatrzymaj się i zrób długi wydech.",
     "points_reward": 25,
     "competency_focus": [
       "MD"
     ],
     "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
-      "perspektywa",
-      "powtorzenie"
+      "ruch",
+      "spokoj"
     ]
   },
   {
@@ -3173,48 +3173,48 @@ export const ADDITIONAL_TASKS = [
     "id": "MD-TASK-017",
     "profile": "MD",
     "kind": "task",
-    "title": "Misja: dziś nic nie godzę",
-    "body": "Jeśli wokół Ciebie zaiskrzy, możesz odejść kawałek dalej. Mędrzec mówi: czasem największą mądrością jest „dziś nie moja sprawa”.",
+    "title": "Misja: jedna rzecz naraz",
+    "body": "Wybierz trzy małe rzeczy do zrobienia dziś. Rób je po kolei: następną zaczynasz dopiero wtedy, gdy poprzednia jest skończona. Misja kończy się po trzeciej.",
     "points_reward": 25,
     "competency_focus": [
       "MD"
     ],
     "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
-      "granica",
-      "odpoczynek"
+      "skupienie",
+      "kolejnosc"
     ]
   },
   {
     "id": "MD-TASK-018",
     "profile": "MD",
     "kind": "task",
-    "title": "Misja: trzy kroki w sporze",
-    "body": "Gdy dwoje się kłóci: 1) niech każdy powie jedno zdanie, 2) powtórz, co usłyszałeś, 3) zapytaj, co dalej. Krótko, spokojnie.",
+    "title": "Misja: wydech dłuższy niż wdech",
+    "body": "Usiądź wygodnie. Wdychaj powietrze, licząc w myślach do czterech, a wydychaj, licząc do sześciu. Zrób tak pięć razy i dopiero wtedy wstań.",
     "points_reward": 25,
     "competency_focus": [
       "MD"
     ],
     "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
-      "konflikt",
-      "kroki"
+      "oddech",
+      "spokoj"
     ]
   },
   {
     "id": "MD-TASK-019",
     "profile": "MD",
     "kind": "task",
-    "title": "Misja: trzecia propozycja",
-    "body": "Gdy Wy chcecie różnych rzeczy, wymyśl trzecią — taką, której nikt jeszcze nie powiedział. Często ta trzecia jest najlepsza.",
+    "title": "Misja: wieża z trzech rzeczy",
+    "body": "Zbuduj wieżę z trzech różnych rzeczy, na przykład z książki, pudełka i klocka. Kładź każdą powoli i czekaj, aż przestanie się chwiać. Na koniec policz w myślach do dziesięciu.",
     "points_reward": 25,
     "competency_focus": [
       "MD"
     ],
     "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
-      "kompromis",
-      "kreatywnosc"
+      "skupienie",
+      "budowanie"
     ]
   },
   {
@@ -3253,40 +3253,40 @@ export const ADDITIONAL_TASKS = [
     "id": "MD-TASK-022",
     "profile": "MD",
     "kind": "task",
-    "title": "Misja: pomóż, ale nie wybieraj stron",
-    "body": "Gdy ktoś prosi: „powiedz, kto ma rację”, możesz odpowiedzieć: „Słyszę was oboje”. Mędrzec mówi: most nie wybiera brzegu.",
+    "title": "Misja: chusteczka w powietrzu",
+    "body": "Podrzuć skrawek chusteczki i patrz, jak powoli opada. Śledź go wzrokiem, aż dotknie podłogi. Zrób tak trzy razy, bez pośpiechu.",
     "points_reward": 25,
     "competency_focus": [
       "MD"
     ],
     "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
-      "konflikt",
-      "neutralnosc"
+      "obserwacja",
+      "spokoj"
     ]
   },
   {
     "id": "MD-TASK-023",
     "profile": "MD",
     "kind": "task",
-    "title": "Misja: ustal małą zasadę",
-    "body": "Z bratem, siostrą lub kolegą ustal jedną prostą zasadę na dzień (np. „kto pierwszy skończy, ten wybiera”). Wspólna zasada to wspólny most.",
+    "title": "Misja: łyk po łyku",
+    "body": "Nalej sobie szklankę wody. Pij ją małymi łykami i po każdym łyku odstaw szklankę na stół. Misja kończy się, gdy szklanka jest pusta.",
     "points_reward": 25,
     "competency_focus": [
       "MD"
     ],
     "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
-      "zasada",
-      "kompromis"
+      "woda",
+      "spokoj"
     ]
   },
   {
     "id": "MD-TASK-024",
     "profile": "MD",
     "kind": "task",
-    "title": "Misja: zamień miejsce w wyobraźni",
-    "body": "Gdy z kimś się nie zgadzasz, zamknij na chwilę oczy i wyobraź sobie, że stoisz po jego stronie. Co teraz widzisz inaczej?",
+    "title": "Misja: jedna chmura",
+    "body": "Znajdź za oknem jedną chmurę i patrz tylko na nią. Obserwuj, jak powoli zmienia kształt. Skończ, gdy zacznie przypominać coś innego niż na początku.",
     "points_reward": 25,
     "competency_focus": [
       "MD",
@@ -3294,8 +3294,8 @@ export const ADDITIONAL_TASKS = [
     ],
     "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
-      "perspektywa",
-      "wyobraznia"
+      "obserwacja",
+      "cisza"
     ]
   },
   {
@@ -3319,7 +3319,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "MD",
     "kind": "task",
     "title": "Misja: krok w tył",
-    "body": "Gdy zrobi się głośno albo nerwowo, zrób mały krok w tył — fizycznie albo w wyobraźni. Z dalszej odległości łatwiej zobaczyć most.",
+    "body": "Gdy zrobi się głośno albo nerwowo, zrób mały krok w tył — fizycznie albo w wyobraźni. Potem zrób jeden długi wydech i dopiero wtedy wróć.",
     "points_reward": 25,
     "competency_focus": [
       "MD"
@@ -3334,16 +3334,16 @@ export const ADDITIONAL_TASKS = [
     "id": "MD-TASK-027",
     "profile": "MD",
     "kind": "task",
-    "title": "Misja: zamiana na dziś",
-    "body": "Spróbuj zamienić się z kimś czymś małym — miejscem przy stole, kolejnością, kredką. Drobna zamiana uczy dużej sztuki kompromisu.",
+    "title": "Misja: buty w parach",
+    "body": "Znajdź w przedpokoju wszystkie buty i ustaw je w pary, jedną obok drugiej. Rób to powoli, jedną parę naraz. Misja kończy się, gdy nie zostanie żaden samotny but.",
     "points_reward": 25,
     "competency_focus": [
       "MD"
     ],
     "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
-      "zamiana",
-      "kompromis"
+      "porzadek",
+      "skupienie"
     ]
   },
   {
@@ -3351,7 +3351,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "MD",
     "kind": "task",
     "title": "Misja: pozwól drugiej osobie zacząć",
-    "body": "W rozmowie dzisiaj nie zaczynaj pierwsza/pierwszy. Daj komuś innemu otworzyć temat. Czasem dar mediatora to przestrzeń na cudze słowa.",
+    "body": "W rozmowie przy stole nie zaczynaj dziś {pierwszy|pierwsza}. Policz w myślach do pięciu i poczekaj, aż ktoś inny otworzy temat. Dopiero wtedy się odezwij.",
     "points_reward": 25,
     "competency_focus": [
       "MD"
@@ -3366,8 +3366,8 @@ export const ADDITIONAL_TASKS = [
     "id": "MD-TASK-029",
     "profile": "MD",
     "kind": "task",
-    "title": "Misja: zaproś dorosłego, gdy trzeba",
-    "body": "Jeśli kłótnia robi się za duża (krzyki, popychanie), nie musisz tego dźwigać sama/sam. Zawołaj dorosłego. To też jest mądry ruch.",
+    "title": "Misja: spirala od środka",
+    "body": "Na kartce narysuj spiralę: zacznij w samym środku i prowadź kredkę bardzo powoli na zewnątrz. Nie odrywaj ręki. Skończ, gdy linia dojdzie do brzegu kartki.",
     "points_reward": 25,
     "competency_focus": [
       "MD",
@@ -3375,72 +3375,72 @@ export const ADDITIONAL_TASKS = [
     ],
     "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
-      "pomoc",
-      "doroslego"
+      "rysunek",
+      "skupienie"
     ]
   },
   {
     "id": "MD-TASK-030",
     "profile": "MD",
     "kind": "task",
-    "title": "Misja: zapytaj „dlaczego tak myślisz?”",
-    "body": "Gdy ktoś powie coś, z czym się nie zgadzasz, zamiast się kłócić — zapytaj „dlaczego tak myślisz?”. Mędrzec mówi: pytanie jest mądrzejsze od sporu.",
+    "title": "Misja: stań jak czapla",
+    "body": "Stań na jednej nodze i patrz na jeden punkt na ścianie. Policz w myślach do dziesięciu, potem zmień nogę. Jeśli się zachwiejesz, zacznij liczyć od nowa.",
     "points_reward": 30,
     "competency_focus": [
       "MD"
     ],
     "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
-      "pytanie",
-      "ciekawosc"
+      "rownowaga",
+      "skupienie"
     ]
   },
   {
     "id": "MD-TASK-031",
     "profile": "MD",
     "kind": "task",
-    "title": "Misja: lista „co dla nas obojga”",
-    "body": "Gdy z kimś coś planujecie, wymyślcie razem listę 3 rzeczy, które obojgu się podobają. Łatwiej wybrać z tego, co łączy.",
+    "title": "Misja: klocki w prostym rzędzie",
+    "body": "Ułóż pięć klocków w prostym rzędzie, jeden przy drugim. Kładź każdy tak delikatnie, żeby nie przesunąć poprzedniego. Na koniec sprawdź rząd, patrząc z boku.",
     "points_reward": 25,
     "competency_focus": [
       "MD"
     ],
     "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
-      "lista",
-      "kompromis"
+      "klocki",
+      "skupienie"
     ]
   },
   {
     "id": "MD-TASK-032",
     "profile": "MD",
     "kind": "task",
-    "title": "Misja: dwa zdania od każdej strony",
-    "body": "Jeśli ktoś chce, żebyś pomógł rozsądzić spór — poproś, by każda osoba powiedziała tylko dwa zdania. Krótko = uczciwiej dla obu.",
+    "title": "Misja: ślimak z plasteliny",
+    "body": "Ulep z plasteliny długi wałek, a potem powoli zwiń go w ślimaka. Zaczynaj od środka i dociskaj delikatnie. Misja kończy się, gdy cały wałek jest zwinięty.",
     "points_reward": 25,
     "competency_focus": [
       "MD"
     ],
     "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
-      "sluchanie",
-      "zasada"
+      "tworzenie",
+      "skupienie"
     ]
   },
   {
     "id": "MD-TASK-033",
     "profile": "MD",
     "kind": "task",
-    "title": "Misja: powiedz „chwila, oddychamy”",
-    "body": "Gdy spór się rozgrzewa, zaproponuj krótką przerwę: „chwila, oddychamy”. Mędrzec mówi: pauza to też część rozmowy.",
+    "title": "Misja: balonik w brzuchu",
+    "body": "Połóż dłonie na brzuchu. Przy wdechu brzuch rośnie jak balonik, przy wydechu powoli opada. Zrób tak pięć razy, a ostatni wydech zrób najwolniej.",
     "points_reward": 25,
     "competency_focus": [
       "MD"
     ],
     "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
-      "pauza",
-      "konflikt"
+      "oddech",
+      "pauza"
     ]
   },
   {
@@ -3448,7 +3448,7 @@ export const ADDITIONAL_TASKS = [
     "profile": "MD",
     "kind": "task",
     "title": "Misja: jedno szczere „dziękuję”",
-    "body": "Powiedz dzisiaj komuś szczere „dziękuję” — nie z grzeczności, ale z serca. Wybierz konkret: „dziękuję, że…”. Mosty wdzięczności są mocne.",
+    "body": "Powiedz dzisiaj komuś szczere „dziękuję” — nie z grzeczności, ale z serca. Wybierz konkret: „dziękuję, że…”. Wystarczy jedno spokojne zdanie.",
     "points_reward": 25,
     "competency_focus": [
       "MD"
@@ -3463,16 +3463,16 @@ export const ADDITIONAL_TASKS = [
     "id": "MD-TASK-035",
     "profile": "MD",
     "kind": "task",
-    "title": "Misja: po trochu dla każdego",
-    "body": "Gdy dzielisz coś z kimś (czas, miejsce, zabawkę), spróbuj: „trochę Ty, trochę ja”. Sprawiedliwie nie zawsze znaczy „po równo”, ale „uczciwie”.",
+    "title": "Misja: składanie w kostkę",
+    "body": "Weź jedną koszulkę albo ręcznik i złóż w równą kostkę. Wygładź dłonią każdy brzeg, zanim złożysz dalej. Skończ, gdy kostka leży prosto na półce.",
     "points_reward": 30,
     "competency_focus": [
       "MD"
     ],
     "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
-      "sprawiedliwosc",
-      "podzial"
+      "porzadek",
+      "skupienie"
     ]
   },
   {
@@ -3495,8 +3495,8 @@ export const ADDITIONAL_TASKS = [
     "id": "MD-TASK-037",
     "profile": "MD",
     "kind": "task",
-    "title": "Misja: powtórz spokojnie, co usłyszysz",
-    "body": "Jeśli ktoś przy Tobie krzyczy, powtórz to spokojnym głosem, ale bez przedrzeźniania: „mówisz, że to było niesprawiedliwe?”. Spokój wygładza fale.",
+    "title": "Misja: szept na wydechu",
+    "body": "Wybierz jedno spokojne słowo, na przykład „cisza” albo „powoli”. Powiedz je szeptem na długim wydechu, trzy razy. Za trzecim razem mów najciszej, jak potrafisz.",
     "points_reward": 30,
     "competency_focus": [
       "MD"
@@ -3504,7 +3504,7 @@ export const ADDITIONAL_TASKS = [
     "proof_hint": "Krótko opisz albo wyślij zdjęcie tego, co zrobiłeś.",
     "tags": [
       "spokoj",
-      "powtorzenie"
+      "glos"
     ]
   },
   {
@@ -3543,8 +3543,8 @@ export const ADDITIONAL_TASKS = [
     "id": "MD-TASK-040",
     "profile": "MD",
     "kind": "task",
-    "title": "Misja: powiedz, co się {nauczyłeś|nauczyłaś}",
-    "body": "Komuś bliskiemu opowiedz jedną rzecz, którą {zrozumiałeś|zrozumiałaś} przez te 30 dni o sobie albo o ludziach. Dzielenie się to też most.",
+    "title": "Misja: powiedz, czego się {nauczyłeś|nauczyłaś}",
+    "body": "Komuś bliskiemu opowiedz jedną rzecz, którą {zrozumiałeś|zrozumiałaś} przez te 30 dni o sobie albo o ludziach. Wystarczy jedno zdanie.",
     "points_reward": 25,
     "competency_focus": [
       "MD"

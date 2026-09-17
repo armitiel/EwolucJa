@@ -15,7 +15,7 @@
  * Użycie:
  *   <EkranStartuGry
  *     ilustracja="/assets/karty/wizkor-karty.png"
- *     tytul="Pamięć Mędrca"
+ *     tytul="Gra na Pamięć"
  *     opis="Znajdź pary symboli."
  *     poziomy={[{ id:"easy", nazwa:"Łatwy", opis:"6 par · 3×4", monetyMax:15 }, …]}
  *     wybrany={diff} onWybor={setDiff}

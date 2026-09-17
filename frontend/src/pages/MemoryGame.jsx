@@ -1,5 +1,5 @@
 /**
- * MemoryGame — "Pamięć Mędrca" — klikalna mini-gra w pamięć par.
+ * MemoryGame — "Gra na Pamięć" — klikalna mini-gra w pamięć par.
  * Z handoff Ewolucja-handoff(4)/game-memory.jsx, zaadaptowana do projektu EwolucJA:
  *  - TRYB GRY: bez wspolnego chromu aplikacji (PageShell/TopBar/TabBar).
  *    Gra zajmuje caly ekran, a jedynym wyjsciem jest przycisk w lewym gornym
@@ -480,7 +480,7 @@ export default function MemoryGame({ osadzona = false, poziom = null, onWyjscie 
             {({ laduje }) => (
               <EkranStartuGry
                 ilustracja="/assets/karty/wizkor-karty.png"
-                tytul="Pamięć Mędrca"
+                tytul="Gra na Pamięć"
                 haslo="Odkryj wszystkie pary!"
                 wariant="pamiec"
                 laduje={laduje}
@@ -570,10 +570,10 @@ export default function MemoryGame({ osadzona = false, poziom = null, onWyjscie 
         <RewardScreen
           /* Sama nazwa gry — „· UKOŃCZONA" nie mieściło się na wstędze
              i ucinało się wielokropkiem w środku słowa. */
-          eyebrow="PAMIĘĆ MĘDRCA"
+          eyebrow="GRA NA PAMIĘĆ"
           title={stars === 3 ? "Wspaniale!" : stars === 2 ? "Super!" : "Brawo!"}
           subtitle={
-            stars === 3 ? "Twoja pamięć jest jak zwój Mędrca." :
+            stars === 3 ? "Twoja pamięć jest jak zwój Wizkora." :
             stars === 2 ? "Niezła robota — spróbuj jeszcze raz!" :
                          "Każdy ruch to krok do wprawy."
           }

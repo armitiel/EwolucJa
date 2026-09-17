@@ -303,8 +303,8 @@
     {
       "id": "karty",
       "file": "karta",
-      "label": "Pamięć Mędrca",
-      "toast": "Karty Mędrca — dobierz pary",
+      "label": "Gra na Pamięć",
+      "toast": "Gra na Pamięć — dobierz pary",
       "pos": [
         1.59,
         8.28
@@ -588,7 +588,7 @@
       "id": "drzewo-lotu",
       "file": "drzewo",
       "label": "Lot Liska",
-      "toast": "Wysoka sosna - stad sie startuje",
+      "toast": "Wysoka choinka — stąd się startuje",
       "pos": [
         1.86,
         -8.78

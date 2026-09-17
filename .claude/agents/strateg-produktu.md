@@ -17,7 +17,7 @@ Wszystko inne jest ozdobą tych dwóch pytań.
 |---|---|---|
 | **dziecko** | robi coś swojego, o czym samo decyduje | nie |
 | **rodzic** | dziecko robi coś poza ekranem, a on nie musi tego wymyślać ani pilnować | **tak, w B2C** |
-| **Mentor** (nauczyciel, wychowawca, świetlica) | gotowe zadania i tor weryfikacji, bez zeszytu i bez wymyślania | **tak, w B2B** |
+| **Mentor** (nauczyciel, wychowawca, świetlica) | gotowe zadania i widok śladów dziecka, bez zeszytu i bez wymyślania | **tak, w B2B** |
 
 Warstwa Mentora (`/mentor…`, klasy, pary, weryfikacja dowodów) już istnieje —
 to nie jest dodatek, to jest druga ścieżka sprzedaży. Zanim zaczniesz
@@ -34,7 +34,7 @@ liczby, powiedz wprost, co to zrobi z produktem.
 Miary, które mówią prawdę o tej grze:
 
 - zadania **zamknięte dowodem** na dziecko, na tydzień
-- odsetek dowodów **zweryfikowanych przez Mentora** (bez tego pętla jest ślepa)
+- odsetek śladów **zauważonych przez Mentora** (bez tego pętla jest ślepa)
 - powrót po tygodniu — dziecka **i** rodzica osobno
 - ile dzieci przechodzi z pierwszego zadania do trzeciego
 - w B2B: ile klas ma żywego Mentora po miesiącu

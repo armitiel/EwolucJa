@@ -30,7 +30,7 @@ kolejnych pięć pytań. Wskazali to wszyscy, co do jednego.
 ### 2.2 Dwa pytania mierzyły grzeczność, nie dziecko
 
 Q3 i Q6 zaczynały się od „ktoś ma problem". Ośmiolatek zna klucz odpowiedzi
-na pamięć i w obu wygrywa `EM` — algorytm wysyłał „Zaklinacza" dzieciom, które
+na pamięć i w obu wygrywa `EM` — algorytm wysyłał profil `EM` dzieciom, które
 po prostu wiedzą, jak się należy zachować.
 
 Q6 było gorsze: wszystkie cztery odpowiedzi („podaję piłkę", „wołam
@@ -135,7 +135,7 @@ cztery cechy przenoszą się jeden do jednego.
 
 Zmiany: **druga postać ma neutralną minę i już sama zbiera**. Smutna mina robiła
 z kafelka EM „odpowiedź dobrego dziecka", a z pozostałych trzech — „zostawiłem
-kogoś smutnego". *Trzymam pudełko* (rola asystenta, mediacja) → *Zbieram jedną
+kogoś smutnego". *Trzymam pudełko* (rola asystenta zamiast skupienia) → *Zbieram jedną
 po jednej*: jedna rzecz do końca w ruchu dookoła, bez dotykania drugiej osoby,
 więc nie koliduje z EM.
 
@@ -152,7 +152,7 @@ piątoklasista nie chce być tym, kto zbiera kredki. Odpowiedzi i cechy zostają
 | *Robię z niego sanki* | bohater siedzi na rozłożonym kartonie w połowie zjazdu z trawiastej górki | `LD` | |
 
 Zmiany: *Domek dla misia* (serce, kocyk, pluszak) → *Budka dla dwojga* —
-schronienie z zaproszeniem zamiast laurki; trzynastolatek to kliknie, domku dla
+kryjówka z zaproszeniem zamiast laurki; trzynastolatek to kliknie, domku dla
 misia nie. *Tarcza i wieża* → *sanki*: jeden przedmiot zamiast trzech, ruch
 zamiast rycerskiej otoczki, i kafelek przestaje być „dla chłopców".
 
@@ -198,12 +198,14 @@ DT: Q2·Q3·Q4·Q5 · LD: Q1·Q2·Q4·Q6). Sekwencja `tylko48` bez zmian:
 
 ---
 
-## 4. Nazwy, które trzeba zmienić
+## 4. Nazwy profili
 
-| kod | dziś | panel proponuje | dlaczego |
-|---|---|---|---|
-| `MD` | Strażnik Mostu | **Łowca Ciszy** | „Strażnik" brzmi jak dyżurny, a nazwa ma stać w tej samej lidze prestiżu, co Gwardzista Odwagi i Mistrz Map. Wszystko w rodzaju „Uważny", „Spokojny", „Cierpliwy" odpada — to brzmi jak pochwała od nauczycielki i w siódmej klasie staje się przezwiskiem w jedną przerwę. *(Warianty w grze: Strażnik Mostu, Strażnik Ciszy.)* **Decyzja autora 14.09: `MD` nazywa się Spokojna Głowa** — razem z całym zestawem prostych nazw (Odkrywca, Przyjaciel, Myśliciel, Wynalazca, Śmiałek). Argument panelu o „pochwale od nauczycielki" został odnotowany i przegłosowany. |
-| `EM` | Zaklinacz Uczuć | **Przyjaciel** | Słowo „uczucia" na ekranie widocznym dla sąsiada z ławki to gotowa amunicja. |
+| kod | nazwa | uzasadnienie |
+|---|---|---|
+| `MD` | **Spokojna Głowa** | **Decyzja autora 14.09** — razem z całym zestawem prostych nazw (Odkrywca, Przyjaciel, Myśliciel, Wynalazca, Śmiałek). Panel proponował nazwę bardziej „prestiżową" z argumentem, że określenia w rodzaju „Uważny", „Spokojny", „Cierpliwy" brzmią jak pochwała od nauczycielki i w siódmej klasie stają się przezwiskiem; argument został odnotowany i przegłosowany. |
+| `EM` | **Przyjaciel / Przyjaciółka** | Słowo „uczucia" w nazwie, na ekranie widocznym dla sąsiada z ławki, to gotowa amunicja. |
+
+Pełna tabela nazw: `docs/SWIAT_I_POSTACIE.md`.
 
 ---
 
@@ -249,7 +251,7 @@ przy drugim albo trzecim zadaniu, i z jednodniowym wyprzedzeniem.
 
 **5.7 Nazwa typu ma mówić, co dziecko teraz zrobi, a nie kim jest.** Wizkor
 mówi to sam, na głos, zaraz po awatarze, jednym zdaniem, które dziecko powtórzy
-w szkole: *„Tropiciel Tajemnic to ktoś, kto zawsze chce wiedzieć, co jest dalej. Mam dla
+w szkole: *„Odkrywca to ktoś, kto zawsze chce wiedzieć, co jest dalej. Mam dla
 ciebie coś do sprawdzenia."*
 
 ---
@@ -276,7 +278,7 @@ Nikt na panelu tego nie policzy, bo wszyscy patrzą na dziecko. Stąd reguła 5.
 
 **„Co robisz?" mieści tylko te cechy, które mają czasownik** *(świeże
 spojrzenie)*. LD, KR, DT, ST są czasownikami; EM jest połową czasownika; MD nie
-jest czasownikiem w ogóle — i dlatego samo z siebie migrowało w mediację.
+jest czasownikiem w ogóle — i dlatego samo z siebie migrowało w godzenie innych.
 Przepisanie kafelka nie usuwa przyczyny. **Test przed każdym nowym pytaniem:
 czy każda z sześciu cech ma na TO zdanie naturalną odpowiedź, czy którąś muszę
 przerobić na coś innego?** Cecha, która nie umie odpowiedzieć, potrzebuje innego

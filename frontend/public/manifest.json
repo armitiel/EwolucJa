@@ -1,7 +1,7 @@
 {
-  "name": "EwolucJA — Twoja Przygoda Rozwoju",
+  "name": "EwolucJA — Gra Edukacyjna",
   "short_name": "EwolucJA",
-  "description": "Innowacyjna gra rozwojowa dla dzieci i dorosłych. Codziennie nowa porada od Mędrca i mała przygoda — odkrywaj swoje supermoce: ciekawość, empatię, odwagę.",
+  "description": "Gra edukacyjna dla dzieci. Mała przygoda w Świecie Ewolucji i porada na każdy dzień — odkrywaj ciekawość, empatię i odwagę.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",

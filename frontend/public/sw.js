@@ -18,7 +18,7 @@ self.addEventListener("push", (event) => {
   }
   const title = data.title || "EwolucJA";
   const options = {
-    body: data.body || "Mędrzec ma dla ciebie wiadomość.",
+    body: data.body || "Wizkor ma dla ciebie wiadomość.",
     icon: "/icons/icon-192.png",
     badge: "/icons/icon-192.png",
     tag: data.tag || "ewolucja",

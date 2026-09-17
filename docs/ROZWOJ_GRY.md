@@ -10,8 +10,8 @@ brak odliczania i losowych nagród, jedna liczba — jedno źródło.
 ## Obecny koncept w jednym akapicie
 
 Dziecko wchodzi na planetę z jedną polaną. Wizkor zleca łańcuch: dziesięć
-gwiazdek → trzy gry odkrywane przez zbieranie i układanie puzzli (Pamięć
-Mędrca → Lot Liska → Bieg Liska). Równolegle, z rozmowy z Wizkorem, Koło
+gwiazdek → trzy gry odkrywane przez zbieranie i układanie puzzli (Gra na
+Pamięć → Lot Liska → Bieg Liska). Równolegle, z rozmowy z Wizkorem, Koło
 Przeznaczenia losuje jedną z pięciu cech i zadanie poza ekranem, które
 weryfikuje Mentor. Lisek zaprasza raz dziennie do porady dnia. Za wszystko
 płacą monety, cechy rosną w profilu, dom pokazuje „co już masz".

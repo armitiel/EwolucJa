@@ -26,12 +26,25 @@ sercem gry (zadanie poza ekranem z dowodem dla Mentora), co jest zakazane,
 z czego projekt ma żyć i pod jakim kątem patrzy każda rola. Każdy agent
 ocenia swoją zmianę wobec tego pliku, zanim ją zrobi.
 
+**Nadrzędny jest opis projektu z ustawień projektu** (claude.ai / Cowork);
+`docs/OPIS_PROJEKTU.md` zaczyna się od jego pełnej kopii, a pod nią ma część
+praktyczną dla repo. Gdy opis w ustawieniach się zmieni, zaktualizuj kopię.
+
+## Świat, miejsca i postacie — kanon nazw
+
+**[docs/SWIAT_I_POSTACIE.md](./docs/SWIAT_I_POSTACIE.md)** — jedno źródło
+prawdy o nazwach: świat to **Świat Ewolucji**, trzy głosy (narratorka, Wizkor,
+lisek), Mentor jako rola dorosłego, miejsca na planecie, sześć profili,
+nazwy minigier, nazwy techniczne, które zostają, i lista nazw wycofanych.
+Każdy tekst, dokument i prompt ma być z nim zgodny.
+
 ## Wersja aktualna — którędy idzie dziecko
 
 **[docs/WERSJA_AKTUALNA.md](./docs/WERSJA_AKTUALNA.md)** — obowiązujący łańcuch
-wejścia: `START (/)` → `onboarding` → **świat W2 (`/w2`)**, a dalej porady
-i zadania dobierane po typie oraz profil awatara pod kliknięciem. Tor W1
-(`/swiat`) zostaje żywy jako poprzednia wersja; jego elementy przenosimy do W2
+wejścia: `START (/)` → `onboarding` → **świat 3D (`/swiat`)** — planeta
+z liskiem, która jest bazą gry — a dalej porady i zadania dobierane po typie
+oraz profil awatara pod kliknięciem. Tor `/w2` zostaje żywy pod swoim adresem
+(limit sesji, karta profilu); jego elementy przenosimy do `/swiat`
 pojedynczo. Zanim przepniesz jakąkolwiek trasę albo ekran — zmień najpierw ten
 plik.
 
@@ -102,8 +115,8 @@ Drugi raz może nie być tak łagodnie.
 `backend/src/services/narrativeService.js` czyta przy starcie:
 
 ```
-agents/world/zakatek_gama.md    -> WORLD_LORE
-agents/world/archetypes.md      -> ARCHETYPE_LORE
+agents/world/swiat_ewolucji.md -> WORLD_LORE
+agents/world/archetypes.md     -> ARCHETYPE_LORE
 ```
 
 Katalog `agents/` wygląda na martwy (skrypt `game_master.py` nie jest nigdzie
@@ -143,7 +156,7 @@ statycznie z powrotem.
 - **Scroll wewnętrzny:** klasa `.screen-scroll` (overflow-y:auto + overscroll-behavior contain). Padding `12px 18px 52px` daje "oddech" na granicach.
 - **Kolory:** `#4e4d76` zamiast czarnego w UI (var `--p-ink`). Brak czarnych elementów.
 - **Czcionki:** Display = Baloo 2, Body = Nunito, Handwritten = Caveat/Fredoka.
-- **Styl 3D:** Stylized Claymorphism / Pixar — obłe kształty, żywe kolory, matowe tekstury.
+- **Styl:** planeta niska poligonowo — fasetki zamiast tekstur, ciepłe, spokojne barwy; postacie to kreskówkowe ilustracje z grubym obrysem.
 
 ## Koncept gry — co jest naprawdę na ekranie
 
@@ -156,13 +169,14 @@ awatar, imię, monety, mocne strony. Dom: „co już masz".
 
 Trasy bez dojścia z interfejsu (`/play`, `/przygoda`, stara aplikacja
 zakładkowa) **nie są częścią gry** — nie buduj na nich i nie opisuj ich jako
-gry. `project_instructions` w ustawieniach Cowork są nieaktualne wobec
-`KONCEPT_GRY.md` — do poprawki po stronie ustawień, nie repo.
+gry. Po co gra jest i dokąd zmierza, mówi opis nadrzędny z ustawień projektu
+(kopia w `docs/OPIS_PROJEKTU.md`); co dziś jest na ekranie — `KONCEPT_GRY.md`.
 
 Kierunki rozwoju i granice dzisiejszej gry: [`docs/ROZWOJ_GRY.md`](./docs/ROZWOJ_GRY.md).
 
-Język: dzieci 6–12 lat, ciepły, tajemniczy, pełen przygód; narratorka w rodzaju
-żeńskim. Styl: Stylized 3D Claymorphism / Pixar.
+Język: dzieci 6–12 lat, ciepły, konkretny, pełen przygód, bez infantylizacji;
+narratorka — bezimienny głos Świata Ewolucji — w rodzaju żeńskim. Styl: niska
+poligonowo planeta, kreskówkowe postacie z grubym obrysem.
 
 ## Co NIE działa (znane problemy)
 

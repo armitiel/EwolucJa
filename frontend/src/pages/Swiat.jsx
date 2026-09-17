@@ -295,7 +295,7 @@ const GRY_OSADZONE = {
 const WCHLANIANIE_MS = 950;
 /**
  * Ile czekamy ze wpuszczeniem okna, gdy znak NIE znika po dotknięciu (dziś:
- * sosna Lotu Liska). Nie jest to „czas na błysk" — sosna po wbiegnięciu
+ * choinka Lotu Liska). Nie jest to „czas na błysk" — choinka po wbiegnięciu
  * KOŁYSZE SIĘ, i to kołysanie ma być widoczne, zanim ekran przykryje mapa.
  *
  * 800 ms to nie okrągła liczba z sufitu, tylko moment z animacji: drzewo
@@ -316,14 +316,14 @@ const WYPRZEDZENIE_MS = 160;
  */
 const ZAPROSZENIA = {
   "pamiec-medrca": {
-    tekst: "Znalazłem kartę Mędrca!\nWybierz, jak trudno gramy:",
-    wyroznienie: "kartę Mędrca",
+    tekst: "Znalazłem kartę Wizkora!\nWybierz, jak trudno gramy:",
+    wyroznienie: "kartę Wizkora",
   },
   "lot-liska": {
     // Od czasu dołożenia poziomu „brama" lot MA wybór trudności, więc
-    // zaproszenie znów o niego pyta — jak przy kartach Mędrca.
-    tekst: "Wszedłem na sosnę!\nWybierz, jak lecimy:",
-    wyroznienie: "na sosnę",
+    // zaproszenie znów o niego pyta — jak przy kartach Wizkora.
+    tekst: "Wszedłem na choinkę!\nWybierz, jak lecimy:",
+    wyroznienie: "na choinkę",
   },
   "bieg-liska": {
     // Od czasu, gdy bieg dostał swój znak na mapie, lisek trzyma w łapach
@@ -637,7 +637,7 @@ export default function Swiat() {
    */
   const wskazowkaBlokuje = !!wskazowka && wskazowka.tryb === "reflektor";
   /**
-   * Łańcuch misji z grami (karta Mędrca, złote piórko, …). Trzymamy CAŁĄ
+   * Łańcuch misji z grami (karta Wizkora, choinka, bucik). Trzymamy CAŁĄ
    * listę, a nie samą bieżącą misję, bo hub czyta z niej trzy różne rzeczy:
    * kafelek w HUD (pierwsza aktywna), zestaw znaków na mapie (wszystkie
    * ujawnione) i kwestię Wizkora (pierwsza nierozliczona).
@@ -1167,7 +1167,7 @@ export default function Swiat() {
    * w `mapa.json`). Dziecko uczyło się wtedy nie drogi do niego, tylko
    * czekania — a wracając na polanę nie wiedziało, czy go w ogóle zastanie.
    * Teraz stoi w jednym miejscu na stałe i jest punktem orientacyjnym mapy,
-   * jak sosna Lotu Liska.
+   * jak choinka Lotu Liska.
    *
    * Powtórnemu zagadaniu zapobiega sama scena: znak ma `raz: true`, więc
    * odzywa się RAZ na podejście i uzbraja się dopiero, gdy lis odbiegnie
@@ -1585,23 +1585,23 @@ export default function Swiat() {
         odpal: () => okno(stanZadania(), aktualnaMisja()),
       },
       {
-        grupa: "Schronienie",
+        grupa: "Domek na drzewie",
         etykieta: "Materiał: zlecenie",
         odpal: () => okno(gwiazdkiRozliczone(), null, drewnoStan({ istnieje: false, aktywne: false })),
       },
       {
-        grupa: "Schronienie",
+        grupa: "Domek na drzewie",
         etykieta: "Materiał: w trakcie",
         odpal: () => okno(gwiazdkiRozliczone(), null, drewnoStan({ drzewka: 1 })),
       },
       {
-        grupa: "Schronienie",
+        grupa: "Domek na drzewie",
         etykieta: "Materiał: komplet (pochwała)",
         odpal: () => okno(gwiazdkiRozliczone(), null, drewnoStan({
           drzewka: 1, glazy: 1, drewnoNaPlacu: true, kamienNaPlacu: true, spelnione: true })),
       },
       {
-        grupa: "Schronienie",
+        grupa: "Domek na drzewie",
         etykieta: "Postaw etap 1 (zapisuje!)",
         odpal: () => {
           setDrewno(postawEtap());
@@ -1609,12 +1609,12 @@ export default function Swiat() {
         },
       },
       {
-        grupa: "Schronienie",
+        grupa: "Domek na drzewie",
         etykieta: "Edytor drzewa z domkiem",
         odpal: () => scenaRef.current?.edytorDomku?.(),
       },
       {
-        grupa: "Schronienie",
+        grupa: "Domek na drzewie",
         etykieta: "Rąbanie: włącz na próbę",
         odpal: () => {
           scenaRef.current?.ustawRabanieAktywne?.(true);
@@ -1622,37 +1622,37 @@ export default function Swiat() {
         },
       },
       {
-        grupa: "Schronienie",
+        grupa: "Domek na drzewie",
         etykieta: "Materiał: ścięty, leży w lesie",
         odpal: () => okno(gwiazdkiRozliczone(), null, drewnoStan({ drzewka: 1, glazy: 1 })),
       },
       {
-        grupa: "Schronienie",
+        grupa: "Domek na drzewie",
         etykieta: "Kamera: pokaż plac budowy",
         odpal: () => { scenaRef.current?.pokazMiejsce?.(); },
       },
       {
-        grupa: "Schronienie",
+        grupa: "Domek na drzewie",
         etykieta: "Dostarcz drewno na plac",
         odpal: () => setDrewno(zaliczDostawe("drzewko", "drzewko-polana")),
       },
       {
-        grupa: "Schronienie",
+        grupa: "Domek na drzewie",
         etykieta: "Dostarcz kamienie na plac",
         odpal: () => setDrewno(zaliczDostawe("glaz", "glaz-polana")),
       },
       {
-        grupa: "Schronienie",
+        grupa: "Domek na drzewie",
         etykieta: "Plac budowy: pokaż (gotowy)",
         odpal: () => {
           scenaRef.current?.ustawSchronienie?.(0);
           scenaRef.current?.ustawPlacBudowy?.(true, true);
           etapPokazany.current = 0;
-          pokazKomunikat("Plac budowy", { ikona: IKONA_STOSU, opis: "Znacznik na polanie — tam stanie schronienie" });
+          pokazKomunikat("Plac budowy", { ikona: IKONA_STOSU, opis: "Znacznik na polanie — tam stanie domek na drzewie" });
         },
       },
       {
-        grupa: "Schronienie",
+        grupa: "Domek na drzewie",
         etykieta: "Rąbanie: stan do konsoli",
         odpal: () => {
           const st = scenaRef.current?.stan?.();
@@ -1661,7 +1661,7 @@ export default function Swiat() {
         },
       },
       {
-        grupa: "Schronienie",
+        grupa: "Domek na drzewie",
         etykieta: "Skasuj zadanie drewna",
         odpal: () => { skasujZadanieDrewna(); setDrewno(stanDrewna()); },
       },
@@ -1930,7 +1930,7 @@ export default function Swiat() {
         dopiszDoDziennika(
           "materialy",
           nowy.spelnione
-            ? "Przyniosłeś na plac wszystko na schronienie"
+            ? "Przyniosłeś wszystko na domek na drzewie"
             : "Przyniosłeś materiał na plac budowy",
           dane?.rodzaj === "glaz" ? IKONA_KAMYKA : IKONA_STOSU,
         );
@@ -2160,7 +2160,7 @@ export default function Swiat() {
           odkryjGre(doGry);
           if (rozmowaRef.current) return;
           /**
-           * ZNAK, KTÓRY NIE ZNIKA (sosna Lotu Liska), nie ma czego „wchłaniać".
+           * ZNAK, KTÓRY NIE ZNIKA (choinka Lotu Liska), nie ma czego „wchłaniać".
            * Rozpoznajemy go po zdarzeniu: `minigra:start` przychodzi tylko od
            * znaków z `absorb`, a `znak:dotkniety` — od tych, które zostają.
            * Taki znak nie znika, tylko się KOŁYSZE (`bujanie` w mapie), więc
@@ -2408,7 +2408,7 @@ export default function Swiat() {
     return () => document.removeEventListener("visibilitychange", naZmiane);
   }, []);
 
-  /* ── muzyka krainy ───────────────────────────────────────────────────── */
+  /* ── muzyka świata ───────────────────────────────────────────────────── */
   // bgMusic ma własny localStorage i bywa przełączany spoza tego ekranu
   // (DevTools, inne widoki), więc stan czytamy przy montowaniu i co sekundę
   // dosynchronizowujemy — inaczej ikona kłamałaby po powrocie do huba.
@@ -2517,7 +2517,7 @@ export default function Swiat() {
             {drewno.istnieje && !drewno.zbudowane ? (
               <span
                 className={`game-hud-counter game-hud-counter--drewno${drewno.spelnione ? " jest-spelnione" : ""}`}
-                aria-label={`Materiał na schronienie: drzewko ${stanMaterialu(drewno.drzewka, drewno.drewnoNaPlacu, niesie === "drewno")}, głaz ${stanMaterialu(drewno.glazy, drewno.kamienNaPlacu, niesie === "kamien")}`}
+                aria-label={`Materiał na domek na drzewie: drzewko ${stanMaterialu(drewno.drzewka, drewno.drewnoNaPlacu, niesie === "drewno")}, głaz ${stanMaterialu(drewno.glazy, drewno.kamienNaPlacu, niesie === "kamien")}`}
                 data-testid="hub-zadanie-drewno"
               >
                 {/* Zapalona ikonka mówi „mam to", ale dopiero PTASZEK mówi
@@ -2622,8 +2622,8 @@ export default function Swiat() {
               className={`game-hud-music${muzykaGra ? "" : " is-off"}`}
               onClick={przelaczMuzyke}
               aria-pressed={muzykaGra}
-              aria-label={muzykaGra ? "Wycisz muzykę krainy" : "Włącz muzykę krainy"}
-              title={muzykaGra ? "Wycisz muzykę krainy" : "Włącz muzykę krainy"}
+              aria-label={muzykaGra ? "Wycisz muzykę" : "Włącz muzykę"}
+              title={muzykaGra ? "Wycisz muzykę" : "Włącz muzykę"}
               data-testid="hub-music"
             >
               <img src="/music.png" alt="" aria-hidden="true" draggable="false" />
@@ -2654,7 +2654,7 @@ export default function Swiat() {
         </div>
       </div>
 
-      {/* Mędrzec odzywa się tylko w spokojnym hubie: nie nad panelem, nie nad
+      {/* Myśl Wizkora o ciele pojawia się tylko w spokojnym hubie: nie nad panelem, nie nad
           zwojem i nie zanim rozsuną się chmury. Po zamknięciu dnia też nie —
           ostatnie słowo należy do podsumowania. */}
       <PodpowiedzMedrca
@@ -2674,10 +2674,10 @@ export default function Swiat() {
         onZamknij={() => setPodsumowanie(null)}
       />
 
-      {/* Głos czarodzieja: kraina „las decyzji" mapuje się w backendzie na
-          barwę `mystical`, a ton `mystery` zwalnia tempo i dokłada pauzy —
-          brzmi wtedy inaczej niż Mędrzec, który mówi głosem Mentora w tonie
-          `calm`. Mowa NIE milknie przy zamknięciu okna ani przy wyciszonej
+      {/* Głos czarodzieja: klucz lektora `las_decyzji` mapuje się w backendzie
+          na barwę `mystical`, a ton `mystery` zwalnia tempo i dokłada pauzy.
+          Ten sam klucz, w tonie `calm`, niesie myśli Wizkora o ciele
+          (`PodpowiedzMedrca`) — jedna postać, jeden głos. Mowa NIE milknie przy zamknięciu okna ani przy wyciszonej
           nutce — zasada i jej powód stoją w `hub/mowaPostaci.js`. */}
       <PopupPostaci
         otwarty={!!powitanie}
@@ -2882,7 +2882,7 @@ export default function Swiat() {
                  i wpuszcza jej znak na polanę jako skrót — a dziecko idzie
                  PROSTO do gry, bez szukania czegokolwiek po trawie.
 
-                 Wcześniej stał tu etap „znajdź kartę Mędrca na mapie":
+                 Wcześniej stał tu etap „znajdź kartę Wizkora na mapie":
                  ułożony obrazek tylko odsłaniał znak, a partię odpalało
                  wbiegnięcie w niego. Było to drugie polowanie pod rząd, tuż
                  po zbieraniu dziewięciu kawałków — czyli kara za skończenie

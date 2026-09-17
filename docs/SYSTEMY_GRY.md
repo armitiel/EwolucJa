@@ -39,7 +39,7 @@ Nowy element, który je łamie, jest błędem projektowym, nie funkcją.
 | 1 | Plakietki w doku | nie | localStorage (per urządzenie) | `hub/nowosci.js`, `hub/HubDock.jsx` |
 | 2 | Skrzynka / zwój | nie | localStorage + baza | `hub/wiadomosci.js`, `hub/MessageScroll.jsx`, `adventure/engine/notifications.js` |
 | 3 | Wskazówka „dymek" | nie | localStorage | `hub/wskazowki.js`, `hub/Reflektor.jsx`, `hub/ksztaltChmurki.js` |
-| 4 | Podpowiedź Mędrca | nie | pamięć sesji | `hub/PodpowiedzMedrca.jsx` |
+| 4 | Podpowiedź o ciele (Wizkor) | nie | pamięć sesji | `hub/PodpowiedzMedrca.jsx` |
 | 5 | Kwestia postaci (Wizkor / lisek / narratorka) | zależnie | stan misji | `hub/kwestieWizkora.js`, `hub/glosLiska.js`, `components/NarratorVoice.jsx` |
 | 6 | Tutorial gry | tak, raz | localStorage | `hub/zasadyGier.js`, `hub/TutorialGry.jsx` |
 | 7 | Wskazówka „reflektor" | tak, blokuje świat | localStorage | `hub/wskazowki.js` — **gotowy, nieużywany** |
@@ -91,11 +91,14 @@ Treść jest danymi — dopisanie wpisu do `WSKAZOWKI` to wszystko, czego trzeba
 Wymaga selektora `cel` i pola `obszar` (bo dzióbek celuje w *widoczne* koło
 68×68, nie w komórkę siatki).
 
-### 1.4 Podpowiedź Mędrca — mrugnięcie okiem o ciele
+### 1.4 Podpowiedź o ciele — mrugnięcie okiem Wizkora
 
 Rzadko, nigdy w drodze, nie przerywa. Chowa się przy otwartym panelu.
-Mówi **głosem Mentora** (`land: "mentor"`, osobny `ELEVENLABS_MENTOR_VOICE_ID`),
-bo jest po stronie dorosłego, a nie fabuły. Odzywa się tylko przy włączonej muzyce.
+Myśl o ciele mówi **Wizkor, tym samym głosem** co w pozostałych kwestiach
+(klucz `las_decyzji`) — nie jest to czwarty głos. Kod wciąż woła tu
+`glos: "mentor"` (osobny `ELEVENLABS_MENTOR_VOICE_ID`); do przepięcia, bo
+klucz `mentor` zostaje wyłącznie po stronie dorosłego. Odzywa się tylko przy
+włączonej muzyce.
 
 ### 1.5 Kwestie postaci — trzy głosy, trzy role
 
@@ -105,7 +108,9 @@ Rozdział ról jest twardy i warto go nie mieszać:
 - **Wizkor / czarodziej** — zleca zadania (`kwestieWizkora.js`)
 - **lisek** — zaprasza do wspólnego działania: porada dnia i lekka wskazówka
   do minigier (`glosLiska.js`). Nic więcej. „Zrobimy to razem" i tyle.
-- **Mędrzec** — głos dorosłego (patrz 1.4)
+
+Czwartego głosu nie ma — myśl o ciele mówi Wizkor (patrz 1.4). Kanon nazw
+i ról: `docs/SWIAT_I_POSTACIE.md`.
 
 Backend dobiera barwę po polu `land` (`ttsService.js`) — dla postaci używa się
 tego samego pola, żeby nie było dwóch dróg do jednej decyzji.
@@ -124,7 +129,7 @@ chmurki ani wyjście z szuflady NIE ucinają mowy — dziecko stuka w zielony
 przycisk po pierwszej linijce, bo już wie, co robić, i wcześniej traciło przez
 to resztę kwestii. Głos milknie dokładnie dwa razy: gdy zaczyna mówić coś
 innego (`interrupt: true` w każdym wywołaniu) i gdy ktoś świadomie ucisza
-(`uciszPostac` — wejście w ćwiczenie, przejście krainy).
+(`uciszPostac` — wejście w ćwiczenie, przejście między światami).
 
 **Nutka w HUD-zie to wyłącznik TŁA, nie głosu** (decyzja właściciela,
 2026-09-16). Ścisza muzykę i dźwięki otoczenia; postacie mówią dalej. Przez

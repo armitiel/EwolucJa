@@ -24,7 +24,7 @@ import { celPuzzli, stanPuzzli } from "./puzzleGier.js";
  * STOI NA STAŁE, W JEDNYM MIEJSCU. Miał kiedyś rytm znikania i powrotów
  * (`cykl`/`respawn` + losowanie z listy `pozycje` w `mapa.json`) — dziecko
  * uczyło się wtedy czekania zamiast drogi do niego i wracając na polanę nie
- * wiedziało, czy go zastanie. Dziś jest punktem orientacyjnym mapy, jak sosna
+ * wiedziało, czy go zastanie. Dziś jest punktem orientacyjnym mapy, jak choinka
  * Lotu Liska: `absorb: false` + `raz: true`, więc odzywa się raz na podejście
  * i uzbraja dopiero, gdy lis odbiegnie dalej niż `zbrojenie`.
  */
@@ -429,8 +429,8 @@ export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
   return {
     ...baza,
     tekst:
-      `Witaj, mały wędrowcze! Jestem Wizkor, opiekun Świata Gama. ` +
-      `W krainie ukryło się ${CEL_DOMYSLNY} złotych gwiazdek. Znajdziesz wszystkie?`,
+      `Witaj, mały wędrowcze! Jestem Wizkor, opiekun Świata Ewolucji. ` +
+      `Na polanie ukryło się ${CEL_DOMYSLNY} złotych gwiazdek. Znajdziesz wszystkie?`,
     tekstEkranu: "Zbierz złote gwiazdki ukryte na polanie.",
     wizualizacja: { typ: "gwiazdki", wartosc: 0, cel: CEL_DOMYSLNY },
     wyroznienie: `${CEL_DOMYSLNY} złotych gwiazdek`,

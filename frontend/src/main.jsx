@@ -49,11 +49,9 @@ import PoradyPage from "./pages/PoradyPage.jsx";
 // Minigry osobnymi paczkami. Statyczny import wciagalby je z powrotem do
 // glownego pliku i lazy w `Swiat.jsx` nie dawaloby nic — Vite dzieli po
 // grafie importow, a nie po tym, jak komponent jest uzyty.
-// Prototyp V1 (`App.jsx`, 1698 linii) siedzi na /play i jest osiagalny wylacznie
-// z pulpitu deweloperskiego. Statyczny import wciagal jego caly ogon
-// (AvatarBuilder, AvatarSVG, AvatarDisplay, AvatarAI, growthData) do paczki
-// startowej KAZDEGO dziecka, ktore laduje na /swiat i nigdy tego kodu nie zobaczy.
-const App = leniwy(() => import("./App.jsx"));
+// Prototyp V1 (`App.jsx`) nie jest juz podpiety pod zadna trase: /play
+// przekierowuje do swiata (17.09.2026 — prototyp nosil wycofane nazwy krain
+// i postaci). Plik zostaje w repo, ale nie trafia do paczki.
 const MemoryGame = leniwy(() => import("./pages/MemoryGame.jsx"));
 const ChoinkaLaunchGame = leniwy(() => import("./pages/ChoinkaLaunchGame.jsx"));
 const BiegLiskaGame = leniwy(() => import("./pages/BiegLiskaGame.jsx"));
@@ -119,10 +117,7 @@ function AppRoutes() {
       <Route path="/invite-gm" element={<InviteGM />} />
       <Route path="/gm" element={<GMPanel />} />
       <Route path="/dev" element={<DevPanel />} />
-      <Route
-        path="/play"
-        element={<Suspense fallback={<Loading text="Otwieram prototyp V1…" />}><App /></Suspense>}
-      />
+      <Route path="/play" element={<Navigate to="/swiat" replace />} />
       {/* Mentor & klasy */}
       <Route path="/mentor/zaloguj" element={<MentorLogin />} />
       <Route path="/mentor" element={<MentorDashboard />} />

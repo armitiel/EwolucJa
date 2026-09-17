@@ -295,8 +295,8 @@ export default function Wariant() {
         <div className="game-hud-resources">
           <button type="button" className={`game-hud-music${muzyka ? '' : ' is-off'}`}
             onClick={() => setMuzyka(bgMusic.toggle())} aria-pressed={muzyka}
-            aria-label={muzyka ? 'Wycisz muzykę krainy' : 'Włącz muzykę krainy'}
-            title={muzyka ? 'Wycisz muzykę krainy' : 'Włącz muzykę krainy'} data-testid="hub-music">
+            aria-label={muzyka ? 'Wycisz muzykę' : 'Włącz muzykę'}
+            title={muzyka ? 'Wycisz muzykę' : 'Włącz muzykę'} data-testid="hub-music">
             <img src="/music.png" alt="" aria-hidden="true" draggable="false" />
           </button>
         </div>

@@ -606,7 +606,7 @@ export default function DevRezyserka({
 
           <Grupa tytul="Wskazówki (chmurki)">
             <Guzik onClick={() => { setOtwarty(false); onPokazMyslMedrca?.(); }}>
-              Pokaż: Myśl Mędrca
+              Pokaż: Myśl Wizkora
             </Guzik>
             {WSKAZOWKI.map((w) => (
               <Guzik key={w.id} onClick={() => { setOtwarty(false); onPokazWskazowke?.(w.id); }}>

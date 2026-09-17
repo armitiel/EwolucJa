@@ -1,5 +1,7 @@
 /**
- * PodpowiedzMedrca — Mędrzec wychyla się czasem w hubie z jedną myślą o ciele.
+ * PodpowiedzMedrca — Wizkor wychyla się czasem w hubie z jedną myślą o ciele.
+ * (Nazwa pliku, klasy `medrzec-*` i klucze zapisu zostają po dawnym „Mędrcu”
+ * — to ta sama postać, patrz `docs/SWIAT_I_POSTACIE.md`.)
  *
  * Trzy decyzje, które warto znać przed zmianą:
  *
@@ -12,13 +14,13 @@
  *    zanim rozsuną się chmury. Nie łapie też dotknięć poza własnym dymkiem,
  *    więc nie blokuje chodzenia po świecie.
  *
- * 3. GŁOS MENTORA, NIE NARRATORA. `land: "mentor"` to w backendzie osobny
- *    klucz (`ELEVENLABS_MENTOR_VOICE_ID`) — ten sam, którym mówi Mentor
- *    w panelu opiekuna. Mędrzec jest po stronie dorosłego, więc brzmi jak on,
- *    a nie jak narrator prowadzący fabułę.
+ * 3. GŁOS WIZKORA. `glos: "las_decyzji"` to ten sam klucz lektora, którym
+ *    Wizkor mówi w oknie postaci i w zadaniach — jedna postać, jeden głos
+ *    (kanon 17.09.2026). Ton `calm`, bo to spokojna myśl, a nie zlecenie.
+ *    Głos `mentor` zostaje wyłącznie po stronie dorosłego.
  *
  * Mówi niezależnie od nutki w HUD-zie — ta ścisza muzykę w tle, nie postacie
- * (`hub/mowaPostaci.js`). Głos Mędrca bywa jedyną wersją porady dostępną dla
+ * (`hub/mowaPostaci.js`). Głos Wizkora bywa jedyną wersją porady dostępną dla
  * dziecka, które jeszcze nie czyta płynnie.
  */
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
@@ -55,11 +57,11 @@ const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true }
   const wymuszone = useRef(false);
 
   const powtorz = useCallback((tekst) => {
-    powiedzPostacia(tekst, { glos: "mentor", ton: "calm" });
+    powiedzPostacia(tekst, { glos: "las_decyzji", ton: "calm" });
   }, []);
 
   /**
-   * Chowa dymek, ale NIE ucisza Mędrca — ta sama zasada, co w oknie postaci:
+   * Chowa dymek, ale NIE ucisza Wizkora — ta sama zasada, co w oknie postaci:
    * lektor kończy zdanie (`hub/mowaPostaci.js`). Dymek znika po jedenastu
    * sekundach albo po dotknięciu; zdanie bywa dłuższe niż cierpliwość palca,
    * a urwane w połowie brzmi jak usterka, nie jak koniec rozmowy.
@@ -96,7 +98,7 @@ const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true }
       localStorage.removeItem(KLUCZ_OSTATNIA);
       localStorage.removeItem(KLUCZ_HISTORIA);
     } catch {}
-    return "Medrzec: limit i historia wyzerowane";
+    return "Mysl Wizkora: limit i historia wyzerowane";
   }, []);
 
   const lista = useCallback(() => (DANE.porady || []).map((p) => p.id), []);
@@ -128,7 +130,7 @@ const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true }
     let ostatnia = 0;
     try { ostatnia = Number(localStorage.getItem(KLUCZ_OSTATNIA)) || 0; } catch {}
     const odOstatniej = Date.now() - ostatnia;
-    // Pierwsze wejście w tej sesji liczymy od zera, ale jeśli Mędrzec odezwał się
+    // Pierwsze wejście w tej sesji liczymy od zera, ale jeśli Wizkor odezwał się
     // niedawno (np. dziecko wróciło do huba po minucie), czekamy do pełnej przerwy.
     const pierwsze = licznik.current === 0;
     const zwloka = pierwsze

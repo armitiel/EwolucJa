@@ -15,7 +15,7 @@ punktacji i pierścienia sąsiedztwa). Implementacja: `backend/src/api/onboardin
 > Reszta tego dokumentu (punktacja, pola profilu, weta) obowiązuje dalej.
 > Implementacja treści: `backend/src/api/quizObrazkowy.js`.
 >
-> 1. **`MD` to Skupienie**, nie mediacja. Archetyp: **Spokojna Głowa**
+> 1. **`MD` to Skupienie** — spokój i uważność. Profil: **Spokojna Głowa**
 >    (id `straznik_mostu` zostaje jako legacy). Etykieta radaru „Skupienie"
 >    bez zmian — to archetyp dojechał do etykiety, nie odwrotnie.
 > 2. **Pytamy o bohatera, nie o dziecko.** „Co robi twój bohater?" w każdym
@@ -35,7 +35,7 @@ punktacji i pierścienia sąsiedztwa). Implementacja: `backend/src/api/onboardin
 
 ## 1. Decyzje, pod które to jest zaprojektowane
 
-1. Zostaje **sześć typów**: `ST` Mądrość, `MD` Skupienie/łączenie,
+1. Zostaje **sześć typów**: `ST` Mądrość, `MD` Skupienie,
    `EM` Życzliwość, `KR` Kreatywność, `DT` Ciekawość, `LD` Odwaga.
 2. Odpowiedź = **ilustracja w stylu gry + podpis 2–4 słowa**. Pytanie czyta
    Wizkor (lektor). Podpis dziecko może usłyszeć po dotknięciu kafelka.
@@ -96,10 +96,9 @@ Testy z `quiz_osobowosci.md` §7 (Monte Carlo 13–20 %, pokrycie, brak zerowych
 wierzchołków radaru) trzeba przeliczyć od nowa — zmiana z 8×4 na 6×4
 unieważnia stare liczby. Skrypt: `backend/scripts/test-quiz-balance.mjs`.
 
-**Do rozstrzygnięcia:** `MD` ma dziś dwie niezgodne definicje — radar mówi
-„Skupienie”, archetyp to Strażnik Mostu (mediacja). Ilustracja może pokazać
-jedno albo drugie. Rekomendacja: zostawić **mediację/łączenie** i zmienić
-etykietę radaru na „Łączenie”.
+**Rozstrzygnięte 14.09:** `MD` to **Skupienie**, a profil nazywa się
+Spokojna Głowa (patrz aktualizacja na górze i `docs/SWIAT_I_POSTACIE.md`).
+Kafelki `MD` mają pokazywać spokój i uważność, nie godzenie innych.
 
 ## 4. Sześć pytań
 

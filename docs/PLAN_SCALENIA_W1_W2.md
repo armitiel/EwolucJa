@@ -46,7 +46,7 @@ mapy** podawany propem: `<Scena3D mapa="…" />`.
 
 **Znaki W1 do przeniesienia** (`mapa.json`, pozycje `[x, z]`):
 
-`czarodziej` · `karty` (Pamięć Mędrca) · `gwiazda-1…10` · `drzewo-lotu`
+`czarodziej` · `karty` (Gra na Pamięć) · `gwiazda-1…10` · `drzewo-lotu`
 (Lot Liska) · `bucik` (Bieg Liska) · `puzel-1…9` · `drzwi-domu` (Dom).
 
 **Komponenty W1 do przeniesienia** (linie):

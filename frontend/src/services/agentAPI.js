@@ -1,5 +1,5 @@
 /**
- * agentAPI.js — Serwis komunikacji frontendu z agentami AI (GAMA-1)
+ * agentAPI.js — Serwis komunikacji frontendu z agentami AI
  *
  * Wszystkie wywołania idą przez backend Express → GameOrchestrator → Agenci Claude
  *
@@ -45,7 +45,7 @@ async function agentFetch(endpoint, body = {}) {
 // ═══════════════════════════════════════════════════════════════════════
 
 /**
- * 1. NARRACJA — Pobierz dynamiczną narrację dla krainy/zadania.
+ * 1. NARRACJA — Pobierz dynamiczną narrację dla miejsca/zadania.
  *
  * Użycie w komponencie:
  *   const narration = await agentAPI.getNarration(playerId, "las_decyzji", 2);

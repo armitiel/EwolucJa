@@ -1,14 +1,14 @@
 {
   "version": 1,
-  "note": "Katalog minigier huba. `wymaga` to id krainy z mapa-iskier.v1.json — odblokowanie czytamy ze stanu przygody (state.unlocked), żeby biblioteka i mapa nigdy się nie rozjechały. `trasa` = istniejący ekran gry; brak trasy oznacza grę jeszcze niezbudowaną.",
+  "note": "Katalog minigier huba. `wymaga` to opcjonalny id odblokowania ze stanu przygody (state.unlocked); dziś żadna gra go nie używa (stare id zdjęte 17.09.2026). `trasa` = istniejący ekran gry; brak trasy oznacza grę jeszcze niezbudowaną. `wejscieFabularne` to notatka dla projektanta, nie tekst na ekranie.",
   "gry": [
     {
       "id": "pamiec-medrca",
-      "tytul": "Pamięć Mędrca",
+      "tytul": "Gra na Pamięć",
       "opis": "Pary symboli ze zwoju",
       "monety": 10,
       "trasa": "/games/memory",
-      "wejscieFabularne": "medal w Przystani",
+      "wejscieFabularne": "karta Wizkora na polanie",
       "wymaga": null,
       "ikona": "/assets/minigry/karty.png"
     },
@@ -39,18 +39,18 @@
       "opis": "Powtórz dźwięk Szeptuna",
       "monety": 14,
       "trasa": null,
-      "wejscieFabularne": "misja Szeptuna w Dolinie Dźwięków",
-      "wymaga": "dolina-dzwiekow",
+      "wejscieFabularne": "misja Szeptuna",
+      "wymaga": null,
       "ikona": "/assets/minigry/nuta.png"
     },
     {
       "id": "trop-tropiciela",
-      "tytul": "Trop Tropiciela",
+      "tytul": "Na Tropie",
       "opis": "Znak na rozdrożu",
       "monety": 12,
       "trasa": null,
-      "wejscieFabularne": "rozdroże w Lesie Szeptów",
-      "wymaga": "las-szeptow",
+      "wejscieFabularne": "rozdroże na polanie",
+      "wymaga": null,
       "ikona": "/assets/minigry/lupa.png"
     },
     {
@@ -59,8 +59,8 @@
       "opis": "Odczytaj, co mówi zwój",
       "monety": 16,
       "trasa": null,
-      "wejscieFabularne": "pulpit w Pracowni Gwiazd",
-      "wymaga": "pracownia-gwiazd",
+      "wejscieFabularne": "pulpit ze zwojami",
+      "wymaga": null,
       "ikona": "/assets/minigry/zwoj.png"
     }
   ]

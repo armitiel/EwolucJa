@@ -1,8 +1,8 @@
-# Wskaźnik ścinania — kołowy wskaźnik postępu (HUD schronienia)
+# Wskaźnik ścinania — kołowy wskaźnik postępu (HUD placu budowy)
 
 Kołowy wskaźnik, który **wypełnia się w miarę rąbania** suchego drzewka.
-Należy do HUD-u schronienia (łańcuch: gwiazdki → schronienie → gry). Nie jest
-licznikiem „ile zebrano" — pokazuje postęp jednej czynności, więc znika, gdy
+Należy do HUD-u placu budowy (łańcuch: gwiazdki → plac budowy → domek na
+drzewie → gry). Nie jest licznikiem „ile zebrano" — pokazuje postęp jednej czynności, więc znika, gdy
 szkielet stanie. Wzorzec jest ogólny (dowolny postęp 0–100%), a siekiera to
 jego pierwsze zastosowanie.
 

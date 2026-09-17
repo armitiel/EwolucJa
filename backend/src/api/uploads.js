@@ -41,7 +41,7 @@ export function uploadRoutes() {
           return {
             allowedContentTypes: [
               "image/jpeg", "image/png", "image/webp", "image/heic", "image/heif",
-              // Dowody dzwiekowe (melodia, rytm, nagrany odglos) — rdzen misji w Dolinie Dzwiekow.
+              // Dowody dzwiekowe (melodia, rytm, nagrany odglos) — rdzen misji dzwiekowych.
               "audio/mpeg", "audio/mp4", "audio/aac", "audio/ogg", "audio/wav", "audio/webm", "audio/x-m4a",
             ],
             maximumSizeInBytes: 10 * 1024 * 1024,

@@ -28,7 +28,7 @@ RAMY TEORETYCZNE:
 - KR (Wynalazca): myślenie nieszablonowe, elastyczność poznawcza
 - LD (Śmiałek): odwaga, inicjatywa, gotowość do ryzyka
 - DT (Odkrywca): dociekliwość, eksploracja, ciekawość poznawcza
-- MD (Spokojna Głowa): sprawiedliwość, mediacja, praca zespołowa
+- MD (Spokojna Głowa): skupienie, spokój, robienie jednej rzeczy do końca
 
 ODPOWIADAJ ZAWSZE w formacie JSON. Używaj polskiego języka w treści, ale kluczy JSON po angielsku.`;
 

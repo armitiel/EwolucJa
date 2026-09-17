@@ -21,7 +21,7 @@ Radar w [`frontend/src/components/CharakterBohatera.jsx`](../../frontend/src/com
 | **Życzliwość** | róż `#E4779C` | `EM` | Przyjaciel / Przyjaciółka | `zaklinacz_uczuc` | Żółw |
 | **Kreatywność** | żółty `#EF9F27` | `KR` | Wynalazca / Wynalazczyni | `tkacz_snow` | Panda |
 
-**Slugi są identyfikatorami, nie nazwami.** Siedzą w bazie starszych graczy, w `PROFILE_TO_ARCHETYPE`, w `MVP_AVAILABLE_ARCHETYPES` i w `LEGACY_TO_PROFILE` we froncie. **Nie zmieniamy ich.** Zmieniły się wyłącznie nazwy wyświetlane (14.09.2026, zestaw „krótka rola"); `MD` to dziś **Skupienie**, nie mediacja — i dlatego nazywa się Spokojna Głowa, a nie Strażnik Mostu.
+**Slugi są identyfikatorami, nie nazwami.** Siedzą w bazie starszych graczy, w `PROFILE_TO_ARCHETYPE`, w `MVP_AVAILABLE_ARCHETYPES` i w `LEGACY_TO_PROFILE` we froncie. **Nie zmieniamy ich.** Zmieniły się wyłącznie nazwy wyświetlane (14.09.2026, zestaw „krótka rola"); `MD` to **Skupienie** — spokój i uważność — i dlatego profil nazywa się Spokojna Głowa. Pełna tabela nazw: [`docs/SWIAT_I_POSTACIE.md`](../../docs/SWIAT_I_POSTACIE.md).
 
 Rodzaj gramatyczny obsługuje [`frontend/src/services/rodzaj.js`](../../frontend/src/services/rodzaj.js): kolejność to wybór z onboardingu → `player.gender` → końcówka imienia → rodzaj męski. Teksty niosą tokeny `{forma męska|forma żeńska}`, które rozwija `odmien()`. **Agent piszący nową treść dla dziecka pisze w tokenach**, nie w samym rodzaju męskim.
 
@@ -146,4 +146,4 @@ Reguła 3 jest jawna i da się ją wytłumaczyć rodzicowi.
 - Radar: [`frontend/src/components/CharakterBohatera.jsx`](../../frontend/src/components/CharakterBohatera.jsx)
 - Rodzaj gramatyczny: [`frontend/src/services/rodzaj.js`](../../frontend/src/services/rodzaj.js)
 - Nazwy par (dwie najmocniejsze cechy): [`frontend/src/data/paryProfili.js`](../../frontend/src/data/paryProfili.js)
-- Opis archetypów (świat narracyjny): [`agents/world/archetypes.md`](./archetypes.md)
+- Opis sześciu profili (tekst do promptów backendu): [`agents/world/archetypes.md`](./archetypes.md)

@@ -286,10 +286,11 @@ przy obu trasach tego samego dnia i patrzeć, przy której siedzi dłużej bez p
 
 ## 10. Czego nie robić (lekcje, które to repo już zapłaciło)
 
-- **Nie zaczynać od lore.** `agents/world/*.md`, `project_instructions`
-  i archiwalne dokumenty wciąż opisują sześć krain, Iskrę, quiz osobowości
-  i sześć profili. Nic z tego nie jest w grze. Punkt wyjścia to
-  `docs/KONCEPT_GRY.md` i ekran, nie dokument.
+- **Nie zaczynać od lore.** Historie Świata Ewolucji będą ułożone później,
+  a archiwalne dokumenty opisują miejsca, postacie i nagrody, których w grze
+  nie ma. Punkt wyjścia to opis nadrzędny (`docs/OPIS_PROJEKTU.md`), kanon
+  nazw (`docs/SWIAT_I_POSTACIE.md`), `docs/KONCEPT_GRY.md` i ekran, nie
+  dokument.
 - **Nie „przy okazji" refaktorować `Swiat.jsx`.** 2497 linii z gęstymi
   komentarzami o tym, dlaczego coś jest właśnie tak. Dotknięcie go w trakcie
   eksperymentu zamienia dwa niezależne ryzyka w jedno wielkie.
