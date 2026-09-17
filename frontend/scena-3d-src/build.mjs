@@ -1,8 +1,10 @@
 /*!
+ * SPDX-FileCopyrightText: © 2026 Amitiel Angelisme <armitiel@gmail.com>
+ * SPDX-License-Identifier: LicenseRef-EwolucJA-Proprietary
+ *
  * EwolucJA — gra edukacyjna dla dzieci.
- * © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
- * Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
- * Prawa autorskie należą do autora. Pełna nota: LICENSE.
+ * Produkt powstał w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”;
+ * autorskie prawa majątkowe pozostają przy autorze. Licencja: LICENSE.
  */
 /**
  * build.mjs — buduje moduł sceny 3D do `public/scena-3d/`.
@@ -46,10 +48,12 @@ const wspolne = {
   banner: {
     js: [
       "/*!",
+      " * SPDX-FileCopyrightText: © 2026 Amitiel Angelisme <armitiel@gmail.com>",
+      " * SPDX-License-Identifier: LicenseRef-EwolucJA-Proprietary",
+      " *",
       " * EwolucJA — gra edukacyjna dla dzieci.",
-      " * © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.",
-      " * Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.",
-      " * Prawa autorskie należą do autora. Pełna nota: LICENSE.",
+      " * Produkt powstał w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”;",
+      " * autorskie prawa majątkowe pozostają przy autorze. Licencja: LICENSE.",
       " *",
       " * Scena 3D (planeta). Źródła: frontend/scena-3d-src/. NIE EDYTOWAĆ RĘCZNIE.",
       " */",

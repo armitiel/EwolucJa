@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: © 2026 Amitiel Angelisme <armitiel@gmail.com>
+# SPDX-License-Identifier: LicenseRef-EwolucJA-Proprietary
+#
 # EwolucJA — gra edukacyjna dla dzieci.
-# © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
-# Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
-# Prawa autorskie należą do autora. Pełna nota: LICENSE.
+# Produkt powstał w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”;
+# autorskie prawa majątkowe pozostają przy autorze. Licencja: LICENSE.
 """cien-pod-nogi — przesuwa cień bohatera lekko DO PRZODU, w stronę, w którą patrzy.
 
 DLACZEGO. Cień siedział dokładnie pod środkiem postaci (`hero.position`), a

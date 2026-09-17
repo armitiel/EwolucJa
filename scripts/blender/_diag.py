@@ -1,7 +1,9 @@
+# SPDX-FileCopyrightText: © 2026 Amitiel Angelisme <armitiel@gmail.com>
+# SPDX-License-Identifier: LicenseRef-EwolucJA-Proprietary
+#
 # EwolucJA — gra edukacyjna dla dzieci.
-# © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
-# Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
-# Prawa autorskie należą do autora. Pełna nota: LICENSE.
+# Produkt powstał w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”;
+# autorskie prawa majątkowe pozostają przy autorze. Licencja: LICENSE.
 import bpy, math, mathutils, os, json
 V = mathutils.Vector
 SRC = r"assets/postac/kroliczek/tripo/tripo-out/kroliczek-walk-d91ea2c1/model.glb"

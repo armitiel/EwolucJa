@@ -1,8 +1,10 @@
 /*!
+ * SPDX-FileCopyrightText: © 2026 Amitiel Angelisme <armitiel@gmail.com>
+ * SPDX-License-Identifier: LicenseRef-EwolucJA-Proprietary
+ *
  * EwolucJA — gra edukacyjna dla dzieci.
- * © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
- * Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
- * Prawa autorskie należą do autora. Pełna nota: LICENSE.
+ * Produkt powstał w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”;
+ * autorskie prawa majątkowe pozostają przy autorze. Licencja: LICENSE.
  */
 .map-motion-prototype{--night:var(--noc-700);--violet:#6543a3;--gold:var(--zloto-250);min-height:100dvh;display:grid;place-items:center;overflow:hidden;color:var(--night);background:radial-gradient(circle at 50% 8%,rgba(205,184,255,.45),transparent 30%),linear-gradient(180deg,#1b163c,#30225b 58%,#20183f)}
 .map-motion-stage{position:relative;width:min(100%,430px);height:100dvh;min-height:700px;max-height:920px;overflow:hidden;isolation:isolate;background:linear-gradient(180deg,#eee9ff,var(--p-paper));box-shadow:0 0 80px rgba(0,0,0,.42)}

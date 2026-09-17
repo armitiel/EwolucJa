@@ -1,8 +1,10 @@
 /*!
+ * SPDX-FileCopyrightText: © 2026 Amitiel Angelisme <armitiel@gmail.com>
+ * SPDX-License-Identifier: LicenseRef-EwolucJA-Proprietary
+ *
  * EwolucJA — gra edukacyjna dla dzieci.
- * © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
- * Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
- * Prawa autorskie należą do autora. Pełna nota: LICENSE.
+ * Produkt powstał w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”;
+ * autorskie prawa majątkowe pozostają przy autorze. Licencja: LICENSE.
  */
 /**
  * Scena3D — most między aplikacją React i modułem WebGL z `public/scena-3d/`.
@@ -29,7 +31,7 @@ import { idPostaci, postacWybranaJawnie, DOSTEPNE_POSTACIE } from "../utils/post
 // UWAGA: numer ma tylko ROSNĄĆ. Numery 3–13 zostały już wydane przeglądarce
 // z inną zawartością modułu (kolejne wersje znaków, gwiazdki, tempo ruchu),
 // więc cofnięcie go serwuje z cache starą scenę zamiast aktualnej.
-export const WERSJA_SCENY = "126";  // nota o prawach autorskich w banerze paczki
+export const WERSJA_SCENY = "127";  // nota SPDX w banerze paczki
 const ZASOBY = "/scena-3d/assets/";
 
 /**

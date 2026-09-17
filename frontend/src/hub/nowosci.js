@@ -1,8 +1,10 @@
 /*!
+ * SPDX-FileCopyrightText: © 2026 Amitiel Angelisme <armitiel@gmail.com>
+ * SPDX-License-Identifier: LicenseRef-EwolucJA-Proprietary
+ *
  * EwolucJA — gra edukacyjna dla dzieci.
- * © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
- * Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
- * Prawa autorskie należą do autora. Pełna nota: LICENSE.
+ * Produkt powstał w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”;
+ * autorskie prawa majątkowe pozostają przy autorze. Licencja: LICENSE.
  */
 /**
  * nowosci — co w hubie czeka na dziecko, policzone dla plakietek w doku.

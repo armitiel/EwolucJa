@@ -1,7 +1,9 @@
+# SPDX-FileCopyrightText: © 2026 Amitiel Angelisme <armitiel@gmail.com>
+# SPDX-License-Identifier: LicenseRef-EwolucJA-Proprietary
+#
 # EwolucJA — gra edukacyjna dla dzieci.
-# © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
-# Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
-# Prawa autorskie należą do autora. Pełna nota: LICENSE.
+# Produkt powstał w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”;
+# autorskie prawa majątkowe pozostają przy autorze. Licencja: LICENSE.
 # blender -b -P scripts/blender/kroliczek_build.py
 # Etap C pipeline'u: normalizacja, klipy (idle/hop/walk), tekstury 512, eksport glb + podglad.
 import bpy, math, mathutils, os, json

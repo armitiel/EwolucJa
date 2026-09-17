@@ -1,15 +1,47 @@
 <!DOCTYPE html>
 <!--
+  SPDX-FileCopyrightText: © 2026 Amitiel Angelisme <armitiel@gmail.com>
+  SPDX-License-Identifier: LicenseRef-EwolucJA-Proprietary
+
   EwolucJA — gra edukacyjna dla dzieci.
-  © 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.
-  Powstało w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”.
-  Prawa autorskie należą do autora. Pełna nota: LICENSE.
+  Produkt powstał w ramach projektu Stowarzyszenia na Rzecz Edukacji „Pomost”;
+  autorskie prawa majątkowe pozostają przy autorze. Licencja: LICENSE.
 -->
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#FFE0B5" />
+
+  <!-- OZNACZENIE PRODUKTU CYFROWEGO. `author` i `copyright` to nota dla
+       czlowieka i dla robotow indeksujacych, `rel="license"` to standardowy
+       sposob wskazania licencji ze strony (HTML5, link type "license"),
+       a JSON-LD nizej mowi to samo w formie, ktora czytaja maszyny.
+       Zasada jest jedna: kto autorem, na jakiej licencji, gdzie jej szukac. -->
+  <meta name="author" content="Amitiel Angelisme" />
+  <meta name="copyright" content="© 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone." />
+  <link rel="license" href="/LICENSE.txt" title="Licencja EwolucJA (LicenseRef-EwolucJA-Proprietary)" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "EwolucJA",
+    "description": "Gra edukacyjna dla dzieci 6–12 lat: krótka sesja na ekranie prowadzi do działania w prawdziwym świecie.",
+    "applicationCategory": "GameApplication",
+    "audience": { "@type": "PeopleAudience", "suggestedMinAge": 6, "suggestedMaxAge": 12 },
+    "inLanguage": "pl-PL",
+    "creator": { "@type": "Person", "name": "Amitiel Angelisme", "email": "armitiel@gmail.com" },
+    "copyrightHolder": { "@type": "Person", "name": "Amitiel Angelisme" },
+    "copyrightYear": 2026,
+    "copyrightNotice": "© 2026 Amitiel Angelisme. Wszelkie prawa zastrzeżone.",
+    "license": "/LICENSE.txt",
+    "sourceOrganization": {
+      "@type": "Organization",
+      "name": "Stowarzyszenie na Rzecz Edukacji „Pomost”",
+      "location": "Świebodzin, Polska"
+    }
+  }
+  </script>
   <link rel="manifest" href="/manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
