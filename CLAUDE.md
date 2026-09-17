@@ -144,10 +144,22 @@ Przeniesienie albo zmiana nazwy tego pliku **wywala produkcję**, a nic w
 `frontend/` o tym nie uprzedza. To jedyne takie miejsce w repo i dług
 do spłacenia (dane powinny być wspólną paczką albo tabelą w bazie).
 
-**Prototyp V1** (`src/App.jsx`, 1698 linii — koncept porzucony)
-wisi na `/play`, osiągalny tylko z pulpitu `/dev`. Od 2026-09-08 jest ładowany
-leniwie — jego 72 KB nie jedzie już w paczce startowej. Nie importuj go
-statycznie z powrotem.
+**Prototyp V1** (marcowe krainy: `src/App.jsx`, awatary `Avatar*`,
+`LandTransition`, `WorldHub`, backendowe `src/agents/` z `GameOrchestrator`,
+trasy `/api/agents` i `/api/images`, `falService.js`) oraz **ekran Mapy Iskier**
+(`src/pages/Przygoda.jsx` ze scenami) — **usunięte z repo 2026-09-17**. Są
+w historii gita (np. `git show 2d04959:frontend/src/App.jsx`). Adresy `/play`
+i `/przygoda/*` zostały wyłącznie jako przekierowania na `/swiat`.
+
+**`src/adventure/` NIE jest martwe**, choć jego ekran zniknął: silnik
+(`engine/useAdventure.js`, `adventureState.js`, `notifications.js`), dane
+`mapa-iskier.v1.json`, `art/characters.jsx`, `components/icons.jsx`,
+`audio/sceneAudio.js` i `styles/adventure.css` importują hub `/swiat`,
+`/backpack` i `/profile` (stan `iskry`, `grants`, skrzynka wieści).
+
+**Klucze głosu TTS mają historyczne nazwy krain** (`dolina_selfie`,
+`las_decyzji` = Wizkor, `gora_podsumowania` = narratorka) — żywa gra je
+wysyła, nie zmieniaj ich w `ttsService.js` bez zmiany frontendu.
 
 ## Konwencje kodu
 
@@ -167,9 +179,10 @@ poza ekranem (cechę losuje Koło Przeznaczenia, dowód idzie do Mentora). Lisek
 zaprasza do porady dnia. Dok: Minigry · Rozmowy · Zadania · Porada. Profil:
 awatar, imię, monety, mocne strony. Dom: „co już masz".
 
-Trasy bez dojścia z interfejsu (`/play`, `/przygoda`, stara aplikacja
-zakładkowa) **nie są częścią gry** — nie buduj na nich i nie opisuj ich jako
-gry. Po co gra jest i dokąd zmierza, mówi opis nadrzędny z ustawień projektu
+Stare adresy `/play`, `/przygoda/*`, `/mapa`, `/map` i `/world` tylko
+przekierowują na `/swiat` — ich ekrany usunięto (V1 i Mapa Iskier:
+2026-09-17). Stara aplikacja zakładkowa **nie jest częścią gry** — nie buduj
+na niej i nie opisuj jej jako gry. Po co gra jest i dokąd zmierza, mówi opis nadrzędny z ustawień projektu
 (kopia w `docs/OPIS_PROJEKTU.md`); co dziś jest na ekranie — `KONCEPT_GRY.md`.
 
 Kierunki rozwoju i granice dzisiejszej gry: [`docs/ROZWOJ_GRY.md`](./docs/ROZWOJ_GRY.md).
@@ -192,16 +205,16 @@ Sprawdzone 2026-08-16 wywołaniem na maszynie autora.
 | co | klucz | gdzie leży | stan |
 |---|---|---|---|
 | **OpenAI** | `OPENAI_API_KEY` | `backend/.env` | działa, prefiks `sk-proj-`, 164 znaki |
-| **fal.ai** | `FAL_KEY` | `backend/.env` | działa, wpięty w `backend/src/services/falService.js` |
+| **fal.ai** | `FAL_KEY` | `backend/.env` | działa; `backend/src/services/falService.js` usunięty 2026-09-17 z prototypem V1 — wzory wywołań w `scripts/kafelki-fal.py` (img2img) i `scripts/gen-ikony.mjs` |
 
 **Modele obrazowe dostępne na koncie OpenAI:** `gpt-image-2`, `gpt-image-2-2026-04-21`,
 `gpt-image-1.5`, `gpt-image-1`, `gpt-image-1-mini`, `chatgpt-image-latest`.
 
-**Co potrafi fal.ai (już w kodzie, nie trzeba pisać od zera):**
+**Co potrafi fal.ai (wzory w `scripts/`, stary serwis w historii gita):**
 
-- `fal-ai/flux/schnell` — tekst → obraz (`falService.generate`)
+- `fal-ai/flux/schnell` — tekst → obraz (`scripts/gen-ikony.mjs`)
 - `fal-ai/flux/dev/image-to-image` — **obraz → obraz**, czyli styl brany z gotowej
-  ilustracji zamiast zgadywany z opisu (`falService.img2img`)
+  ilustracji zamiast zgadywany z opisu (`scripts/kafelki-fal.py`)
 - `fal-ai/bria/background/remove` — usuwanie tła
 
 **Do zadań „w stylu istniejącej grafiki" wybieraj img2img z fal.ai.** Podanie

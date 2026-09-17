@@ -1,5 +1,5 @@
 /**
- * znak.js — znak na mapie (medal/karta/piórko/gwiazdka/czarodziej/próg…).
+ * znak.js — znak na mapie (medal/karta/gwiazdka/czarodziej/próg…).
  *
  * Kontrakt z Reactem (`hub/znakiMapy.js`, `hub/DevRezyserka.jsx`): pola
  * `id`, `state`, `phase`, `def.respawn`, `def.respawnPierwszy`, `touches`,

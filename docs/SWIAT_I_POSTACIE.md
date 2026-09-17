@@ -68,9 +68,13 @@ Sowa jest zwierzęciem profilu Myśliciel — i niczym więcej.
 
 | id techniczne | nazwa na ekranie |
 |---|---|
-| `pamiec-medrca` | **Gra na Pamięć** |
+| `pamiec-medrca` | **Gra na Pamięć** (na mapie skrót w postaci karty 3D) |
 | `lot-liska` | Lot Liska (start z choinki) |
 | `bieg-liska` | Bieg Liska |
+
+## Styl grafiki
+
+Świat to niska poligonowo planeta. Postacie to renderowane kreskówkowe ilustracje z grubym obrysem, ikony HUD to błyszczące ikony ze złotymi ramami. **Claymorphism jest jednym z dostępnych stylów** (drobne przedmioty, ikony miejsc w świecie). Opis wszystkich rodzin: `docs/design-system/styl-ilustracji-i-ikon.md`.
 
 ## Nazwy techniczne, które zostają bez zmian
 
@@ -93,5 +97,4 @@ klasy CSS i tokeny `medrzec-*`, slugi starych archetypów w bazie
 - „schronienie” jako nazwa budowli
 - stare nazwy archetypów (Tropiciel Tajemnic, Zaklinacz Uczuć, Mistrz Map, Tkacz Snów, Gwardzista Odwagi, Strażnik Mostu/Ciszy) i „Tropiciele” jako nazwa grupy dzieci
 - Spokojna Głowa jako „mediator”
-- styl „claymorphism / Pixar” (świat to niska poligonowo planeta, postacie to kreskówkowe ilustracje z grubym obrysem)
 - cykl tygodniowy z piątkowym terminem, punkty, poziomy, losowe mikronagrody

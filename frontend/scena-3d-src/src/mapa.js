@@ -41,16 +41,10 @@ const DOMYSLNE_ZNAKI = [
     lightBase: 0, iskry: 38, iskrySila: 1.9,
   },
   {
-    id: "karty", file: "karta", label: "Pamięć Mędrca", toast: "Karty Mędrca — dobierz pary",
+    id: "karty", file: "karta", label: "Gra na Pamięć", toast: "Gra na Pamięć — dobierz pary",
     pos: [3, 2.6], scale: 1.3, height: 1.15, glow: 8015298, ringColor: 13148400,
     haloOpacity: 0.2, haloScale: 1.2, ringOpacity: 0.22, lightBase: 0, metalness: 0,
     roughness: 0.85, jasnosc: 1.7, absorb: true, absorbLift: 1.7, respawn: 3.2,
-  },
-  {
-    id: "leaf", file: "lisc", label: "Sekret pod puchem", toast: "Piórko — sekret pod puchem",
-    pos: [-1.3, 3.1], scale: 1.6, height: 1.55, glow: 10481874, ringColor: 12451048,
-    haloOpacity: 0.13, ringOpacity: 0, lightBase: 0, haloScale: 1.15, metalness: 0,
-    roughness: 0.9, absorb: true, absorbLift: 1.7, respawn: 3.2,
   },
   GWIAZDKA("gwiazda-1", [-0.4, 4.6]), GWIAZDKA("gwiazda-2", [2.4, 5.2]),
   GWIAZDKA("gwiazda-3", [-4.6, 1.2]), GWIAZDKA("gwiazda-4", [0.8, -2.4]),
@@ -168,6 +162,11 @@ export function wczytajMape() {
     drzewa: M.drzewa || null,
     glazy: M.glazy || null,
     kwiaty: M.kwiaty || [],
+    /* GRZYBY. `swiat.js` czyta `mapa.grzyby` i rysuje kępki muchomorów, ale
+       tej linii tu nie było — więc wpisy z `mapa.json` nigdy nie docierały do
+       sceny i grzyby po prostu się nie pojawiały. Klasyczna dziura w przepustce:
+       renderer gotowy, dane w pliku, brak jednego przepisania. */
+    grzyby: M.grzyby || [],
     budynki: M.budynki ?? DOMYSLNE_BUDYNKI,
     // Suche drzewka nie maja domyslnej listy: brak wpisu w mapie znaczy
     // "na tej planecie nie ma czego scinac", a nie "wstaw jakies".

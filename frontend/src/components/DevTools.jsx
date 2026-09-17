@@ -16,7 +16,7 @@ import { ttsPlayer } from "../services/ttsPlayer";
 import { KLUCZ_ETAP, KLUCZ_TYP } from "../hub/profilStartowy.js";
 
 // Trasy doswiadczenia dziecka — tu narzedzia programisty sa ukryte.
-const CHILD_ROUTES = ["/w2", "/przygoda", "/swiat", "/backpack", "/profile"];
+const CHILD_ROUTES = ["/w2", "/swiat", "/backpack", "/profile"];
 
 export default function DevTools() {
   const navigate = useNavigate();

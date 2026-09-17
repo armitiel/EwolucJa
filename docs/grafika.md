@@ -24,13 +24,12 @@ który trafia do `public/`, nigdy nie jest tym, co wyszło z generatora.
 
 ## 2. DNA stylu
 
-> **Do decyzji autora.** Pierwsze zdania bloku poniżej (`claymorphism`,
-> `Pixar-like`, `clay surface`) opisują styl, którego kanon nie używa —
-> świat to niska poligonowo planeta, a postacie to kreskówkowe ilustracje
-> z grubym obrysem (`docs/SWIAT_I_POSTACIE.md`). Dopóki autor nie zatwierdzi
-> nowego brzmienia, nowych postaci ani ikon nie generuj z tego bloku: idą
-> przez referencje (2b i `docs/design-system/styl-ikon-3d.md`). Paleta,
-> kierunek światła i zakazy z bloku obowiązują dalej.
+> **Claymorphism to jeden z dostępnych stylów** (decyzja autora 17.09.2026).
+> Blok poniżej opisuje właśnie ten styl: nadaje się do drobnych przedmiotów
+> wewnątrz gry i ikon miejsc w świecie (np. domek nad placem budowy). Postacie
+> (pop-upy Wizkora i liska) i ikony HUD mają własne style i idą przez referencje
+> (2b, `docs/design-system/styl-ikon-3d.md`). Opis wszystkich rodzin grafik:
+> [`design-system/styl-ilustracji-i-ikon.md`](design-system/styl-ilustracji-i-ikon.md).
 
 Blok trzyma kilkadziesiąt plików w jednej rodzinie — zwłaszcza stały kierunek
 światła, który model gubi najczęściej.

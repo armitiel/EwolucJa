@@ -297,7 +297,7 @@ export function useAdventure(adventureId = "mapa-iskier", { dzwiek = true } = {}
           kind: "mentor_accepted",
           title: "Mentor zobaczył twój dowód",
           body: "Iskra jest gotowa, żeby wrócić na mapę.",
-          to: "/przygoda/nagroda",
+          to: "/swiat",
         });
         persist((prev) => ({ ...prev, activeMission: { ...prev.activeMission, status: "accepted" } }));
         return "accepted";
@@ -361,16 +361,17 @@ export function useAdventure(adventureId = "mapa-iskier", { dzwiek = true } = {}
 
   /* ── Mapa ──────────────────────────────────────────────────────────── */
 
-  /** Jeden jasny następny krok — mapa nigdy nie zostawia dziecka bez odpowiedzi. */
+  /** Jeden jasny następny krok — mapa nigdy nie zostawia dziecka bez odpowiedzi.
+   *  Ekran `/przygoda` usunięto 17.09.2026, więc wszystkie cele prowadzą do świata. */
   const nextStep = useMemo(() => {
     if (state.activeMission?.status === "sent") {
-      return { kind: "waiting", label: "Opiekun czeka na Mentora", to: "/przygoda/czekam" };
+      return { kind: "waiting", label: "Opiekun czeka na Mentora", to: "/swiat" };
     }
     if (state.activeMission?.status === "accepted") {
-      return { kind: "reward", label: "Iskra wraca", to: "/przygoda/nagroda" };
+      return { kind: "reward", label: "Iskra wraca", to: "/swiat" };
     }
     if (state.activeMission?.status === "offered" || state.activeMission?.status === "changes") {
-      return { kind: "mission", label: "Dokończ zadanie", to: "/przygoda/zadanie" };
+      return { kind: "mission", label: "Dokończ zadanie", to: "/swiat" };
     }
     if (!state.doneScenes.includes("przystan.przybycie")) {
       return { kind: "scene", label: "Wejdź do Przystani", sceneId: "przystan.przybycie" };

@@ -194,7 +194,7 @@ function zapiszUiKwiatow() {
  * własny model wgrany przyciskiem „Wgraj model 3D…" pojawia się tu od razu,
  * bez dopisywania czegokolwiek w kodzie.
  */
-const MODELE_WBUDOWANE = ['karta','gwiazda','medal','lisc','wizard','drzewo','drzewo-lisciaste','hut2','hut','postac'];
+const MODELE_WBUDOWANE = ['karta','gwiazda','medal','wizard','drzewo','drzewo-lisciaste','hut2','hut','postac'];
 let MODELE = [...MODELE_WBUDOWANE];
 
 let mapa = null;
@@ -214,6 +214,7 @@ const TRYBY = [
   { id:'glaz',    nazwa:'+ Głaz',    opis:'Głaz z generatora sceny. Kolizja rośnie ze skalą. Zaznacz „do rozbicia”, żeby dziecko mogło go rozbić na kamienie — wtedy głaz potrzebuje też własnego id.' },
   { id:'suche',   nazwa:'+ Suche drzewko', opis:'Uschnięte drzewko do ścięcia — z niego biorą się kłody na domek na drzewie. Ścinamy TYLKO takie: żywy las zostaje. Model z pliku GLB, kolizja mniejsza niż zasięg pracy, żeby lisek zdążył podejść.' },
   { id:'kwiat',   nazwa:'+ Kwiat',   opis:'Kwiat z generatora sceny — pięć odmian koloru. Nie blokuje chodzenia i ugina się, gdy bohater go mija. Wzrost i przechył losuje się z numeru kwiatu, więc po przestawieniu wygląda inaczej.' },
+  { id:'grzyb',   nazwa:'+ Grzybki', opis:'Kępka muchomorów — jeden wpis to DWA grzyby (duży i mały obok siebie), bo pojedynczy wygląda jak zgubiony rekwizyt. Dekoracja: nie blokuje chodzenia, lisek przez nią przebiega. Skala 1 to grzyb do kolan liska.' },
   { id:'oczko',   nazwa:'+ Oczko',   opis:'Staw z ręcznie rysowanym brzegiem. Klikaj punkty obrysu — pierwszy klik zaczyna nowy staw, każdy następny go przedłuża. Ten sam obrys robi nieckę w ziemi, piaskowy brzeg i taflę wody. Lisek nabiera z niego wody i nie tonie: staw nie blokuje chodzenia.' },
   { id:'wzgorze', nazwa:'+ Wzgórze',  opis:'Pagórek z ręcznie rysowanym obrysem. Klikaj punkty, tak samo jak przy oczku. Wysokość ustawiasz po prawej — powyżej 0,9 teren zaczyna zasłaniać liska przy tej kamerze, więc edytor ostrzeże.' },
   { id:'sciezka', nazwa:'Ścieżka',   opis:'Klik dokłada punkt na końcu ścieżki, klik w punkt zaznacza go, przeciąganie przesuwa. Ścieżka to trasa spaceru i rysunek na trawie — nie blokuje chodzenia.' },
@@ -896,6 +897,20 @@ function rysuj() {
     else kolko.style.pointerEvents = 'none';
   });
 
+  /* GRZYBKI. Kółko w promieniu PLAMY CIENIA ze sceny (.62 · skala), nie
+     w promieniu kapelusza — na planie ma być widać tyle miejsca, ile kępka
+     naprawdę zajmuje wzrokowo. Jasna kropka odróżnia je od głazu: przy
+     oddalonym widoku oba byłyby kółkami podobnej wielkości. */
+  (mapa.grzyby || []).forEach((g, i) => {
+    if (!Array.isArray(g?.pos)) return;
+    const sk = g.skala ?? 1;
+    uchwyt('grzyb', i, el('circle', { cx:g.pos[0], cy:g.pos[1], r:.62 * sk,
+      fill:'#E8806B', 'fill-opacity':.75, stroke:'#9c3f2e', 'stroke-width':.07 }));
+    el('circle', { cx:g.pos[0] - .12 * sk, cy:g.pos[1] - .06 * sk, r:.13 * sk,
+      fill:'#FBEFE6', 'pointer-events':'none' });
+    kreskaObrotu({ ...g, obrot: g.obrot ?? g.pos[0] * 1.7 }, .62 * sk, '#9c3f2e');
+  });
+
   (mapa.budynki || []).forEach((b, i) => {
     const r = b.promien ?? 1.4, p = b.pos, kat = b.obrot ?? 0;
     uchwyt('budynek', i, el('rect', { x:p[0]-r, y:p[1]-r, width:r*2, height:r*2, rx:.25,
@@ -926,9 +941,9 @@ function rysuj() {
 }
 
 /** Pola, po ktorych „skaluje sie" dany typ — kazdy ma inna jednostke. */
-const POLE_SKALI = { znak:'scale', drzewo:'skala', glaz:'skala', budynek:'wysokosc', oczko:'promien',
+const POLE_SKALI = { znak:'scale', drzewo:'skala', glaz:'skala', budynek:'wysokosc', oczko:'promien', grzyb:'skala',
                      suche:'wysokosc', schronienie:'skala' };
-const POLE_OBROTU = { znak:'obrotY', budynek:'obrot', drzewo:'obrot', glaz:'obrot', start:'obrot', fasola:'obrot',
+const POLE_OBROTU = { znak:'obrotY', budynek:'obrot', drzewo:'obrot', glaz:'obrot', start:'obrot', fasola:'obrot', grzyb:'obrot',
                       suche:'obrot', schronienie:'obrot' };
 
 /**
@@ -969,11 +984,21 @@ function rysujUchwyty() {
   skala.style.cursor = 'ew-resize';
 }
 
+/** Kąt sprowadzony do (−π, π]. Suwaki obrotu mają zakres ±3,15, a wzór sceny
+ *  na domyślny kąt grzyba (`x · 1,7`) przy x = −2,4 daje −4,08 — poza skalą.
+ *  Dla obrotu to ta sama wartość, ale w polu liczbowym wyglądałoby na błąd. */
+function doPelnegoKata(k) {
+  const T = Math.PI * 2;
+  let v = ((k + Math.PI) % T + T) % T - Math.PI;
+  return Math.round(v * 1000) / 1000;
+}
+
 function promienRysunku(typ, o) {
   if (typ === 'znak') return .45 * (o.scale ?? 1);
   if (typ === 'drzewo') return .75 * (o.skala ?? 1);
   if (typ === 'glaz') return .55 * (o.skala ?? 1);
   if (typ === 'suche') return .42 * ((o.wysokosc ?? 2.4) / 2.4);
+  if (typ === 'grzyb') return .62 * (o.skala ?? 1);
   if (typ === 'schronienie') return 1.02 * (o.skala ?? 1);
   if (typ === 'budynek') return o.promien ?? 1.4;
   if (typ === 'fasola') return o.zasieg ?? 1.9;
@@ -986,7 +1011,7 @@ const KOLORY = { znak:'#FFD269', budynek:'#E2B98C', drzewo:'#4E8F5E', glaz:'#B9B
                  latarnia:'#FFE08A', brama:'#B58A5B', most:'#C9A06A', kwiat:'#F08FB4',
                  galaz:'#CDA96F', fasola:'#6FB84A', oczko:'#8FCBE8',
                  suche:'#D8C7A4', schronienie:'#C9B48A',
-                 oczko:'#5FC4DE', wzgorze:'#A8C078' };
+                 oczko:'#5FC4DE', wzgorze:'#A8C078', grzyb:'#D6604A' };
 
 // Te same pięć odmian, co w scenie (`scena3d.js`, tablica PALETA przy kwiatach).
 // Kolejność jest znacząca: `wariant` to indeks w tej tablicy.
@@ -1018,6 +1043,7 @@ function rysujListe() {
     dodaj('glaz', i, 'głaz ' + (i + 1) + (g.doRozbicia ? ' · do rozbicia' : '')));
   (mapa.sucheDrzewka || []).forEach((d, i) =>
     dodaj('suche', i, 'suche drzewko ' + (i + 1) + (d.id ? ' · ' + d.id : '')));
+  (mapa.grzyby || []).forEach((g, i) => dodaj('grzyb', i, 'grzybki ' + (i + 1)));
   wierszKwiatow(lista, dodaj);
   (mapa.galezie || []).forEach((g, i) =>
     dodaj('galaz', i + ':1', 'gałąź ' + (i + 1) + ' · od węzła ' + (g.od ?? 0)));
@@ -1110,6 +1136,7 @@ function obiektWyboru() {
   if (typ === 'budynek') return mapa.budynki?.[idx];
   if (typ === 'drzewo') return mapa.drzewa?.[idx];
   if (typ === 'glaz') return mapa.glazy?.[idx];
+  if (typ === 'grzyb') return mapa.grzyby?.[idx];
   if (typ === 'suche') return mapa.sucheDrzewka?.[idx];
   if (typ === 'oczko' || typ === 'wzgorze') {
     const [gi, i] = String(idx).split(':').map(Number);
@@ -1441,6 +1468,18 @@ function rysujWlasciwosci() {
     kasuj.onclick = () => { delete mapa.schronienie; wybor = null; zapisz(); rysuj(); };
     box.appendChild(kasuj);
   }
+  if (wybor.typ === 'grzyb') {
+    poleSuwak(box, 'skala', o.skala ?? 1, { min:.4, max:2.5, krok:.05 }, (v) => { o.skala = v; zmiana(); });
+    poleSuwak(box, 'obrót [rad]', o.obrot ?? doPelnegoKata(o.pos[0] * 1.7), { min:-3.15, max:3.15, krok:.01 },
+      (v) => { o.obrot = v; zmiana(); });
+    podpowiedz(box, 'Jeden wpis to KĘPKA: duży muchomor i mniejszy obok, odwrócony w drugą stronę. Skala 1 daje grzyb wysokości ok. 45 cm, czyli do kolan liska — to skala bajkowa, nie botaniczna, bo przy prawdziwych 10 cm kępka ginie w trawie.');
+    podpowiedz(box, 'Grzyby NIE blokują chodzenia: lisek przez nie przebiega. Jeśli chcesz przeszkodę, postaw głaz.');
+    /* Bez ustawionego kąta scena losuje go z własnego X (`gx * 1.7`) — dokładnie
+       jak przy kwiatach. Warto o tym powiedzieć, bo inaczej przesunięcie kępki
+       obraca ją „samo z siebie" i wygląda to na błąd. */
+    if (o.obrot == null)
+      podpowiedz(box, 'Kąt nie jest zapisany — scena liczy go z pozycji X, więc po przesunięciu kępka obróci się sama. Ruch suwakiem przejmuje nad tym kontrolę.');
+  }
   if (wybor.typ === 'kwiat') {
     poleWybor(box, 'odmiana', KWIATY_ODMIANY[o.wariant ?? 0].nazwa, KWIATY_ODMIANY.map((w) => w.nazwa),
       (v) => { o.wariant = KWIATY_ODMIANY.findIndex((w) => w.nazwa === v); zmiana(); });
@@ -1640,6 +1679,12 @@ function dodajWPunkcie(x, z) {
   } else if (tryb === 'suche') {
     (mapa.sucheDrzewka ||= []).push(noweSucheDrzewko(x, z));
     wybor = { typ:'suche', idx: mapa.sucheDrzewka.length - 1 };
+  } else if (tryb === 'grzyb') {
+    /* Kąt zapisujemy OD RAZU, choć scena umie go wyliczyć z X. Inaczej pierwsze
+       przeciągnięcie świeżo postawionej kępki obracałoby ją przy okazji —
+       a to wygląda na błąd narzędzia, nie na funkcję. */
+    (mapa.grzyby ||= []).push({ pos:[x, z], skala:1, obrot: doPelnegoKata(x * 1.7) });
+    wybor = { typ:'grzyb', idx: mapa.grzyby.length - 1 };
   } else if (tryb === 'kwiat') {
     (mapa.kwiaty ||= []).push({ wariant: Math.floor(Math.random() * KWIATY_ODMIANY.length), pos:[x, z], skala:1 });
     // Postawiony kwiat musi byc widoczny i chwytliwy od razu, inaczej narzedzie
@@ -1799,7 +1844,7 @@ function usunWybor() {
     return;
   }
   const tablice = { znak:'znaki', budynek:'budynki', drzewo:'drzewa', glaz:'glazy', kwiat:'kwiaty',
-                    suche:'sucheDrzewka' };
+                    suche:'sucheDrzewka', grzyb:'grzyby' };
   const nazwa = tablice[wybor.typ];
   if (!nazwa) return;
   mapa[nazwa].splice(Number(wybor.idx), 1);

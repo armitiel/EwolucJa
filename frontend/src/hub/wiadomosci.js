@@ -129,7 +129,7 @@ export function wpisZadania(adventure, state, nextStep) {
     cta: status.cta,
     nieprzeczytana: false,
     przypieta: true,
-    to: nextStep?.to?.startsWith("/przygoda") ? nextStep.to : "/przygoda/zadanie",
+    to: nextStep?.to || "/swiat",
     autor: null,
     ikona: "/plecak.png",
   };

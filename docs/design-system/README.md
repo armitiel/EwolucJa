@@ -169,6 +169,10 @@ Kołowy wskaźnik postępu HUD-u placu budowy: ciemna tarcza, żywy złoto-pomar
 
 ![Wskaźnik ścinania](evidence/wskaznik-scinania.png)
 
+### J. Styl ilustracji i ikon
+
+Pięć rodzin grafik — postacie w pop-upach, ikony HUD (widoczne i ukryte), surowce, ikony wskaźników nad światem i symbole płaskie — z inwentarzem plików, paletą próbek, oprawą w UI i drogą dodania nowej grafiki: [`styl-ilustracji-i-ikon.md`](styl-ilustracji-i-ikon.md).
+
 ## 5. Poziomy komunikatów i moment użycia
 
 | Poziom | Forma | Kiedy | Czy blokuje |

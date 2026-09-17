@@ -28,15 +28,17 @@ const VOICES = {
   lisek:    (process.env.ELEVENLABS_LISEK_VOICE_ID || "").trim() || "pXmYPDwdEllwGVxpqLZr",
 };
 
+/**
+ * Klucz głosu → głos. Nazwy kluczy są historyczne (marcowe krainy prototypu V1,
+ * usuniętego 17.09.2026), ale żywa gra dalej je wysyła jako „kto mówi":
+ * `dolina_selfie` (TopBar, onboarding), `las_decyzji` (Wizkor),
+ * `gora_podsumowania` (narratorka). Nie zmieniaj ich bez zmiany frontendu.
+ * Nieznany klucz spada na narratorkę.
+ */
 const LAND_VOICES = {
   dolina_selfie:       "narrator",
   las_decyzji:         "mystical",
-  jaskinia_emocji:     "narrator",
-  wyspa_talentow:      "excited",
-  przystan_wspolpracy: "narrator",
   gora_podsumowania:   "mystical",
-  // V2 — rozdziały spójnego świata
-  wezwanie_kroniki:    "mystical",
   // Mentor (osobny ton)
   mentor:              "mentor",
   // Lisek — nie kraina, tylko postać; klucz działa tak samo, bo frontend
@@ -167,7 +169,7 @@ export class TTSService {
     return !!this.apiKey;
   }
 
-  /** Pobierz voice_id dla danej krainy */
+  /** Pobierz voice_id dla klucza głosu (patrz `LAND_VOICES`) */
   getVoiceForLand(landName) {
     const voiceKey = LAND_VOICES[landName] || "narrator";
     return VOICES[voiceKey] || this.defaultVoice;
@@ -178,7 +180,7 @@ export class TTSService {
    * @param {string} text — tekst do odczytania
    * @param {object} options
    * @param {string} options.voiceId — ID głosu (domyślnie narrator)
-   * @param {string} options.land — nazwa krainy (automatycznie dobiera głos)
+   * @param {string} options.land — klucz głosu z `LAND_VOICES` (automatycznie dobiera głos)
    * @param {number} options.stability — stabilność głosu 0-1 (domyślnie 0.5)
    * @param {number} options.similarityBoost — podobieństwo 0-1 (domyślnie 0.75)
    * @returns {Promise<Buffer>} audio MP3

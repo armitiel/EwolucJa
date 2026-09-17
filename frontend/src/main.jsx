@@ -29,7 +29,6 @@ function ScrollToTop() {
 }
 import Landing from "./pages/Landing.jsx";
 import Onboarding from "./pages/Onboarding.jsx";
-import Przygoda from "./pages/Przygoda.jsx";
 import Swiat from "./pages/Swiat.jsx";
 import Wariant from "./wariant/Wariant.jsx";
 import MissionView from "./pages/MissionView.jsx";
@@ -49,9 +48,8 @@ import PoradyPage from "./pages/PoradyPage.jsx";
 // Minigry osobnymi paczkami. Statyczny import wciagalby je z powrotem do
 // glownego pliku i lazy w `Swiat.jsx` nie dawaloby nic — Vite dzieli po
 // grafie importow, a nie po tym, jak komponent jest uzyty.
-// Prototyp V1 (`App.jsx`) nie jest juz podpiety pod zadna trase: /play
-// przekierowuje do swiata (17.09.2026 — prototyp nosil wycofane nazwy krain
-// i postaci). Plik zostaje w repo, ale nie trafia do paczki.
+// Prototyp V1 (`App.jsx`, marcowe krainy) usuniety z repo 17.09.2026 —
+// adres /play zostaje tylko jako przekierowanie do swiata.
 const MemoryGame = leniwy(() => import("./pages/MemoryGame.jsx"));
 const ChoinkaLaunchGame = leniwy(() => import("./pages/ChoinkaLaunchGame.jsx"));
 const BiegLiskaGame = leniwy(() => import("./pages/BiegLiskaGame.jsx"));
@@ -76,10 +74,10 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/onboarding" element={<Onboarding />} />
-      {/* Fabula dziala takze bez sieci (localStorage jest zrodlem prawdy),
-          ale dane gracza dociagamy — HUD ich potrzebuje. */}
-      <Route path="/przygoda" element={<Przygoda />} />
-      <Route path="/przygoda/:view" element={<Przygoda />} />
+      {/* `/przygoda` to dawny ekran Mapy Iskier (usuniety 17.09.2026). Adres
+          zyje dalej jako przekierowanie: siedzi w zakladkach, historii
+          i starych wiesciach w skrzynce — bez tego bialy ekran. */}
+      <Route path="/przygoda/*" element={<Navigate to="/swiat" replace />} />
       {/* Hub 3D: scena z public/scena-3d jako tlo, sekcje UI jako panele nad nia.
           To jest BAZA gry — tu ladujemy po logowaniu i tu wracaja stare adresy. */}
       <Route path="/swiat" element={<Swiat />} />

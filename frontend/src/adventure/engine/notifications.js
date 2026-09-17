@@ -47,7 +47,8 @@ export function setPref(kind, on) {
 /**
  * Skrzynka żyje w localStorage, więc wpisy z poprzednich wersji gry zostają
  * u dziecka na zawsze — razem z nieaktualnym słownictwem („Mapa się
- * rozjaśniła") i celem `/mapa`, który dziś nie jest już bazą. Przepisujemy je
+ * rozjaśniła") i celami `/mapa` oraz `/przygoda/...` (oba ekrany usunięte,
+ * adresy tylko przekierowują do świata). Przepisujemy je
  * przy ODCZYCIE, a nie migracją jednorazową: migracja odpaliłaby się tylko raz
  * i ominęła urządzenia, na których dziecko nie weszło do gry w tym oknie.
  *
@@ -55,7 +56,8 @@ export function setPref(kind, on) {
  * ostatnich powiadomień.
  */
 function odswiezStareWpisy(wpis) {
-  const stareOdniesienieDoMapy = typeof wpis?.to === "string" && wpis.to.startsWith("/mapa");
+  const stareOdniesienieDoMapy =
+    typeof wpis?.to === "string" && (wpis.to.startsWith("/mapa") || wpis.to.startsWith("/przygoda"));
   const staryTytul = wpis?.kind === "map_ready" && /^Mapa się rozjaśniła/i.test(wpis?.title || "");
   if (!stareOdniesienieDoMapy && !staryTytul) return wpis;
   return {

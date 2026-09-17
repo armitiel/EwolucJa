@@ -1,7 +1,10 @@
 # Styl ikon HUD / znaczników — wzorzec: siekiera
 
-Ikony w HUD-zie i w znaczkach na mapie (siekiera we wskaźniku ścinania, domek
-placu budowy, kolejne narzędzia) mają jeden styl. **Tego stylu nie opisujemy
+Ikony w znaczkach nad światem (siekiera we wskaźniku ścinania, domek
+placu budowy, kolejne narzędzia) mają jeden styl. Opis wszystkich rodzin grafik
+(postacie, HUD, surowce, wskaźniki): [`styl-ilustracji-i-ikon.md`](styl-ilustracji-i-ikon.md).
+Domek wyszedł w wariancie claymorphism, który od 17.09.2026 jest dozwolonym stylem —
+przy kolejnej ikonie wskaźnika wybierz wzorzec (siekiera albo domek) i trzymaj się go. **Tego stylu nie opisujemy
 słowami — podajemy go OBRAZEM.**
 
 ## Lekcja, która kosztowała dwie generacje

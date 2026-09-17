@@ -28,15 +28,14 @@ const STATUS = {
 
 export default function Backpack() {
   const navigate = useNavigate();
-  const { adventure, state, nextStep } = useAdventureDane();
+  const { adventure, state } = useAdventureDane();
   const active = state.activeMission;
   const mission = active ? adventure.missions[active.ref] : null;
   const status = STATUS[active?.status] || STATUS.offered;
   const collected = state.grants.map((id) => ({ id, ...adventure.grants[id] })).filter((item) => item.label);
 
   function openMission() {
-    if (nextStep.to?.startsWith("/przygoda")) navigate(nextStep.to);
-    else navigate("/swiat");
+    navigate("/swiat");
   }
 
   return (
