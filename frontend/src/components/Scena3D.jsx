@@ -23,7 +23,7 @@ import { idPostaci, postacWybranaJawnie, DOSTEPNE_POSTACIE } from "../utils/post
 // UWAGA: numer ma tylko ROSNĄĆ. Numery 3–13 zostały już wydane przeglądarce
 // z inną zawartością modułu (kolejne wersje znaków, gwiazdki, tempo ruchu),
 // więc cofnięcie go serwuje z cache starą scenę zamiast aktualnej.
-export const WERSJA_SCENY = "124";  // trzy stosy drewna na placu, glaz nie jest juz celem
+export const WERSJA_SCENY = "125";  // ladunek wiekszy i bez szczap + slad po ziemi do placu
 const ZASOBY = "/scena-3d/assets/";
 
 /**

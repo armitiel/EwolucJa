@@ -117,7 +117,7 @@ export function pieniek(s = 1) {
  * (wzdłuż osi X), żeby z każdego kąta było widać jasne krążki i od razu
  * czytało się „ktoś to porąbał".
  */
-export function stosDrewna(s = 1) {
+export function stosDrewna(s = 1, { szczapy = true } = {}) {
   const e = new Group();
   e.name = "stos-drewna";
   // Obrót całości: cięcia nie patrzą prosto w oś świata, więc jasne krążki
@@ -143,9 +143,15 @@ export function stosDrewna(s = 1) {
   gora.position.set(-.04 * s, r * 4.4, 0);
   e.add(gora);
 
-  // Szczapy: rozłupane połówki oparte o stos od czoła. Ciemna kora z jednej
-  // strony, jasne cięcie z drugiej — dlatego BoxGeometry, a nie walec.
-  [[-.62, .34, .42], [.66, -.3, -.5]].forEach(([x, z, rz]) => {
+  /* Szczapy: rozłupane połówki oparte o stos od czoła. Ciemna kora z jednej
+     strony, jasne cięcie z drugiej — dlatego BoxGeometry, a nie walec.
+
+     OPCJONALNE (decyzja właściciela 2026-09-17). Stos LEŻĄCY w lesie i na
+     placu ma je mieć — bez nich jest gładką kostką. Ale ten sam stos NA
+     PLECACH liska pokazywał je z boku jako sterczącą deskę i z góry, w biegu,
+     czytało się to jak usterka, a nie jak drewno. Ładunek prosi więc
+     o wersję bez szczap. */
+  if (szczapy) [[-.62, .34, .42], [.66, -.3, -.5]].forEach(([x, z, rz]) => {
     const sz = mesh(new BoxGeometry(.13 * s, .62 * s, .17 * s), MAT_DREWNO.ciecie,
       [x * s, .3 * s, z * s], [.12, .6, rz]);
     e.add(sz);
