@@ -134,6 +134,12 @@ export function wczytajMape() {
     terenShader: M.swiat?.terenShader || null,
     // Ile obłoków na niebie (0 = brak; pierwszy świat nie ma żadnych).
     chmury: M.swiat?.chmury ?? 0,
+    // MOTYLE (motyle.js): liczba albo obiekt strojenia `{ ile, barwy, … }`
+    // (klucze jak w `MOTYLE`). Brak wpisu = brak motyli — starsze mapy nic
+    // nie zauważą; `mapa.json` (/swiat) ma swój wpis.
+    motyle: M.swiat?.motyle && typeof M.swiat.motyle === "object"
+      ? { ile: 7, ...M.swiat.motyle }
+      : { ile: Math.max(0, Number(M.swiat?.motyle) || 0) },
     // Przybliżenie kamery dla TEGO świata. Większa liczba = większy
     // bohater. `?zoom=` w adresie ma pierwszeństwo (do strojenia).
     zoom: M.swiat?.zoom,

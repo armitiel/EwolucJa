@@ -1334,6 +1334,9 @@ function rysujWlasciwosci() {
     poleTak(box, 'cienie', sw.cienie, (v) => { sw.cienie = v; zmiana(); });
     poleSuwak(box, 'kanciastość terenu', sw.terenKanciasty ?? 0, { min:0, max:16, krok:1 }, (v) => { sw.terenKanciasty = Math.round(v); zmiana(); });
     poleSuwak(box, 'chmury', sw.chmury ?? 0, { min:0, max:12, krok:1 }, (v) => { sw.chmury = Math.round(v); zmiana(); });
+    // Motyle (motyle.js): liczba, albo obiekt strojenia — wtedy suwak rusza tylko `ile`.
+    poleSuwak(box, 'motyle', (sw.motyle && typeof sw.motyle === 'object') ? (sw.motyle.ile ?? 0) : (sw.motyle ?? 0), { min:0, max:30, krok:1 },
+      (v) => { if (sw.motyle && typeof sw.motyle === 'object') sw.motyle.ile = Math.round(v); else sw.motyle = Math.round(v); zmiana(); });
     poleTak(box, 'kwiaty za liskiem (zasiew)', sw.zasiew, (v) => { sw.zasiew = v; zmiana(); });
     poleSuwak(box, 'zoom kamery', sw.zoom ?? 1, { min:.6, max:2, krok:.01 }, (v) => { sw.zoom = v; zmiana(); });
     poleSuwak(box, 'podniesienie kamery', sw.kameraPodniesienie ?? 0, { min:-8, max:8, krok:.25 }, (v) => { sw.kameraPodniesienie = v; zmiana(); });

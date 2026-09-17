@@ -41,6 +41,7 @@ import { Swiatlo } from "./swiatlo.js";
 import { Fasola, zbudujOczko, FASOLA } from "./fasola.js";
 import { formyTerenu } from "./teren.js";
 import { Dymki } from "./dymki.js";
+import { Motyle } from "./motyle.js";
 
 const DOTYK = typeof matchMedia !== "undefined" && matchMedia("(pointer:coarse)").matches;
 
@@ -399,6 +400,24 @@ export class Aplikacja {
     this._zasiewOstatnia = null;
     this._zasiewDroga = 0;
     this.nurtTik = sw.nurtTik;
+    /* MOTYLE (motyle.js). Wiszą na grupie planety jak kwiaty i dymki: lot
+       liczy się w układzie mapy, siadają na kwiatach z `sw.kwiaty.lista`
+       (także tych z zasiewu), omijają pnie z `blockers`. Pułap lotu bierze
+       się z analitycznej formy terenu (tanio, co klatkę), a siadanie na
+       ziemi — z miernika siatki (dokładnie, raz na lądowanie). `ile: 0`
+       (brak wpisu `swiat.motyle` w mapie) = obiekt w ogóle nie powstaje. */
+    this.motyle = this.mapa.motyle?.ile > 0
+      ? new Motyle(this.swiat, this.planeta, {
+          ...this.mapa.motyle,
+          kwiaty: this.kwiaty,
+          przeszkody: this.blockers,
+          wysokoscGruntu: (x, z) => this.formy.h(x, z),
+          gruntDokladny: this.wysokoscGruntuSiatki || ((x, z) => this.formy.h(x, z)),
+          woda: (x, z) => !!this.formy.niecka(x, z),
+          zasieg: this.mapa.motyle.zasieg ?? this.mapa.promienTresci * 0.9,
+          srodek: this.mapa.start?.pos || [0, 0],
+        })
+      : null;
     /* PIEŃ DOMKOWEGO DRZEWA jest modelem, więc dojeżdża asynchronicznie.
        `zbudujSwiat` przygotował kotwicę z koroną i konarem; tu wkładamy do niej
        bryłę. Nie czekamy na nią — świat ma wstać nawet wtedy, gdy jeden plik
@@ -932,6 +951,7 @@ export class Aplikacja {
         pochylenieDeg: +(((this.lean || 0) * 180) / Math.PI).toFixed(1),
       }),
       planeta: () => ({ R: this.planeta.R, obrot: this.swiat.quaternion.toArray().map((v) => +v.toFixed(3)) }),
+      motyle: () => (this.motyle ? this.motyle.stan() : null),
     };
   }
 
@@ -1865,6 +1885,7 @@ export class Aplikacja {
     this._poswiataTik(e);
     this._sladTik(e);
     if (this.dymki) this.dymki.aktualizuj(e, this.hn, this.hf, this.doba?.stan || null);
+    if (this.motyle) this.motyle.aktualizuj(e, this.hp, this.doba?.stan || null, spokojnyRuch);
     this._czasGry = (this._czasGry || 0) + e;
 
     if (this.heroShadowKotwica) {
@@ -3719,6 +3740,7 @@ export class Aplikacja {
       animacja: this.current,
       predkosc: +(this.moveSpeed || 0).toFixed(3),
       zasiew: { wlaczony: this.zasiewWlaczony, ...this.kwiaty?.stanZasiewu() },
+      motyle: this.motyle ? this.motyle.stan() : null,
       fasola: this.fasola ? { etap: this.fasola.etap, etapow: this.fasola.ostatni, gotowa: this.fasola.gotowa, kropla: !!this.kropla?.ile } : null,
       bohater: this.hero ? { x: +this.hp.x.toFixed(2), z: +this.hp.z.toFixed(2) } : null,
       znaki: (this.markers || []).map((e) => ({ id: e.id, stan: e.state, dotkniecia: e.touches })),

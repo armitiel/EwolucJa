@@ -103,6 +103,7 @@ ustawione przed startem sceny). React nadpisuje przez `globalThis.SCENA3D_ZOOM`
 | `src/mapa.js` | czytanie `__SCENA3D_MAPA` + wartości zapasowe prototypu |
 | `src/swiat.js` | teren, nurt rzeki, most, latarnia, brama, drzewa, głazy, rośliny (InstancedMesh), plamy cienia |
 | `src/chmury.js` | zmienne chmury 2.5D nadciągające od horyzontu w stronę widza |
+| `src/motyle.js` | motyle latające wokół planety: dwa `InstancedMesh`, barwa w kolorze instancji, siadanie na kwiatach, płoszenie przez liska (niżej) |
 | `src/znak.js` | klasa `Znak` — halo, krąg ze smugą, iskry, cykle absorb/gone/appear, wędrówka czarodzieja |
 | `src/app.js` | `Aplikacja`: renderer, kamera, bohater (kalibracja stóp, run→walk), joystick/klawiatura/dotknięcie, gibanie drzew i kwiatów, kino, API |
 | `src/postacie.js` | rejestr `SCENA3D_POSTACIE` (chłopiec, lis) |
@@ -134,6 +135,62 @@ i gęste rumowisko. Wariant zmienia zarówno układ głównych brył, jak i licz
 rozsypanych kamieni; duże skały mają ostre fasety, a tylko drobne kamienie są
 łagodniejsze. Środek przy starcie bohatera pozostaje wolny, a obiekty mają
 kolizje i cienie.
+
+## Motyle — życie w powietrzu
+
+`mapa.swiat.motyle` (liczba albo `{ ile, … }` z kluczami jak w `MOTYLE`
+w `src/motyle.js`; brak wpisu = brak motyli, suwak jest w edytorze w sekcji
+„Niebo, teren, kamera"). `/swiat` ma siedem — decyzja właściciela
+2026-09-17: „mniej motyli, niech sobie śmigają wokół planety".
+
+**Jak zbudowane.** Dwa `InstancedMesh` na wszystkie motyle: skrzydła (dwa na
+motyla, jedna geometria — drugie to pierwsze w lustrze, skala −x) i tułowie.
+Skrzydło to płaski wachlarz fasetek z barwą w wierzchołkach (ciemny brzeg,
+kremowa plamka jaśniejsza od tła — wartości > 1 w atrybucie `color`),
+a barwę całego motyla niesie `instanceColor`; Lambert mnoży jedno z drugim.
+Zero tekstur, dwa rysunki na klatkę niezależnie od liczby motyli.
+`frustumCulled = false`, bo kula obwiedni instancji nie zna ich pozycji.
+
+**Gdzie żyją.** W grupie planety, w układzie mapy (x, z) + wysokość, na kulę
+przez `naKule`/`ramka` jak wszystko inne. Pułap lotu liczy się z analitycznej
+formy terenu (`formy.h`, tanio co klatkę), siadanie na ziemi — z miernika
+siatki (`wysokoscGruntuSiatki`, raz na lądowanie), a kwiatek daje swoją
+wysokość sam (`k.grunt + (k.h + 0,045)·skala`, patrz `odswiez` w `swiat.js`).
+Zasięg: `0,9·promienTresci` (~115° od bieguna) — motyl znika za horyzontem
+i wraca z drugiej strony.
+
+**Zachowanie** (`aktualizuj(dt, hp, stanDoby, spokojnie)` z pętli `tick`):
+
+- cel: 30 % kwiat z trzech najbliższych wolnych, 20 % punkt koło liska
+  (dzięki temu w kadrze zwykle są dwa–trzy), reszta — daleki punkt
+  gdziekolwiek w zasięgu (≥ 5 jednostek);
+- lot: skręt do celu + meandrowanie sumą sinusów (losowanie co klatkę drga,
+  sinusy falują), rytm „seria uderzeń (0,9–2 s) → szybowanie (0,4–1,1 s)"
+  z odpowiednio wznoszeniem i opadaniem, średnio raz na `petlaCo` (22 s)
+  pełna pętla; omija pnie z `blockers` i liska (`omijanie`);
+- skrzydła: 2,6–3,6 Hz w locie (celowo wolno — prawdziwe 8–12 Hz to na
+  ekranie drganie), od −17° do 80°; szybując rozłożone, na kwiatku złożone
+  z „oddechem" 0,7 Hz;
+- kwiatek: zejście z hamowaniem, lądowanie 0,55 s, odpoczynek 3–8 s, odlot;
+  kwiat zajęty przez innego motyla i kwiat pod nosem liska (`ploszenie` +
+  0,4) odpadają — bez tego motyl wpadał w pętlę siadania i zrywania się;
+  przy siadaniu i odlocie kwiatek dostaje pchnięcie w `k.gib` (sprężynę
+  liczy `_gibKwiaty` w app.js);
+- lisek bliżej niż `ploszenie` (1,35) zrywa siedzącego — ucieka OD niego
+  z rozpędem 1,9; lecący bliżej niż `omijanie` skręca i przyspiesza;
+- noc (`Doba.stan.noc > 0,5`): każdy nowy cel to najbliższy wolny kwiat albo
+  trawa obok (nie staw — `formy.niecka`), odpoczynek nie odlicza; budzi tylko
+  lisek, i to na chwilę;
+- `prefers-reduced-motion`: pół tempa ruchu i trzepotu.
+
+Motyle są częścią świata, nie zasobem: nic tu się nie zbiera i nic nie liczy,
+czy dziecko je goni (`docs/OPIS_PROJEKTU.md`). `stan().motyle` i
+`__POC.motyle()` dają `{ ile, lataja, siedza, noc }`.
+
+**Test bezgłowy:** logika jest czystą matematyką na `Planeta`, więc chodzi
+w Node bez WebGL — `new Motyle(new Group(), planeta, { ziarno, kwiaty:
+{ lista }, … })` i tysiące `aktualizuj(1/60, hp, stan)`; sprawdzaj brak NaN,
+zasięg, wysokości, liczbę lądowań. Sam wygląd — tylko w przeglądarce.
 
 ## Skóra planety — proceduralne plamy zieleni
 
