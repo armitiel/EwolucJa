@@ -1612,6 +1612,7 @@
   font-family:var(--font-body,"Nunito"),system-ui,sans-serif;
   font-size:15.5px; font-weight:800; line-height:1.18;
   color:var(--p-ink,#4e4d76);
+  text-wrap: balance;   /* jak w .popup-postaci-tekst — bez sierot */
 }
 .medrzec-akcje{ position:absolute; top:-14px; right:-14px; }
 
@@ -1859,6 +1860,14 @@
      a nie tam, gdzie skonczyla sie szerokosc okna. Teksty bez \n wygladaja
      jak dotad - pre-line nie rusza zwyklego zawijania. */
   white-space:pre-line;
+  /* ROWNE LAMANIE WIERSZY (decyzja wlasciciela 2026-09-17). Bez tego
+     przegladarka wypychala ostatnie slowo do wlasnej linijki
+     ("...ukryte na / polanie.") i zdanie konczylo sie sierota. `balance`
+     rozklada znaki rowno na wszystkie wiersze, wiec to samo zdanie lamie
+     sie na "Zbierz zlote gwiazdki / ukryte na polanie.".
+     Swiadome `\n` z `pre-line` zostaje nietkniete: balance dzieli tylko to,
+     co i tak zawijala szerokosc okna. */
+  text-wrap: balance;
 }
 
 /* Wyroznik zamalowany "od polowy w gore" - to zakreslacz, a nie inny kolor
@@ -2084,6 +2093,7 @@
 .popup-pytanie-tekst{
   font-size:17.5px; line-height:1.4;
   padding:0 22px;
+  text-wrap: balance;   /* jak w .popup-postaci-tekst — bez sierot */
 }
 
 /* Pion, nie poziom. Dwa przyciski obok siebie na telefonie robią się wąskie,

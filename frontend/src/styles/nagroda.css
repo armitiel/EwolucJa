@@ -138,6 +138,7 @@
   font-weight: 600;
   line-height: 1.4;
   color: var(--p-ink, #4e4d76);
+  text-wrap: balance;   /* jak w .popup-postaci-tekst — bez sierot */
 }
 
 /* Pigułka z licznikiem: złoto HUD-u, ten sam kant z gradientu co kafelek monet
