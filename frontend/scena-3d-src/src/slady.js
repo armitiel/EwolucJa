@@ -29,13 +29,16 @@
  */
 
 import {
-  Group, Mesh, MeshLambertMaterial, MeshBasicMaterial, BoxGeometry, CylinderGeometry, TorusGeometry,
+  Color, Group, Mesh, MeshLambertMaterial, MeshBasicMaterial, BoxGeometry, CylinderGeometry, TorusGeometry,
   SphereGeometry, CircleGeometry, PlaneGeometry, DodecahedronGeometry, IcosahedronGeometry,
   Sprite, SpriteMaterial, CanvasTexture, SRGBColorSpace, AdditiveBlending, DoubleSide,
 } from "three";
+import { Vector3 } from "three";
 import { kamyczki, MAT_DREWNO } from "./natura.js";
 import { grzyby, latarnia, KOLORY } from "./swiat.js";
 import { MAT_BUDOWY } from "./schronienie.js";
+import { Swiatlo } from "./swiatlo.js";
+import { stycznaDo } from "./planeta.js";
 
 /* SYMBOLE DO RAMKI (hybryda KR, zestaw REAL-01: liść, gwiazda, słońce, fala,
    łapka, spirala) — jedna kreska na papierze, w tym samym duchu co rysunek
@@ -100,6 +103,8 @@ function wokol(kotwica, i) {
    te, których zasiew liska i zwykłe ślady dają najmniej w oczy. */
 const LICZBA_KOLOROW = 5;
 const KOLEJNOSC_NOWYCH = [2, 3, 4, 1, 0];
+/* Barwa „o krok cieplejszego" wypełnienia dla śladu `niebo-cichnie` (04 §6.1). */
+const _CIEPLO = new Color(0xffd9a8);
 
 /* MATERIAŁY ZNAKU — z tego, co planeta już ma: kora i jasne cięcie z kłód
    (`natura.js`), złoto z ognia latarni (`KOLORY.flame`). Jeden zestaw na
@@ -246,6 +251,10 @@ export class Slady {
     /* EM: ławka na ganku (+ rzecz, + królik); KR: ramka na ścianie domku (+ mała). */
     this._lawka = null;
     this._ramka = null;
+    /* ŚLAD PORADY DNIA (`ustawSladPorady`) — jeden na dobę, schodzi z nocą. */
+    this._porada = null;
+    this._v = new Vector3();
+    this._w = new Vector3();
   }
 
   /** Rejestruje obiekt, przy którym lisek ma „dotknąć" hybrydy (raz na podejście). */
@@ -555,6 +564,7 @@ export class Slady {
     const app = this.app;
     this._lampkaTik(e);
     this._swietlikiTik(e);
+    this._poradaTik(e);
     if (!app.hn || !app.hero) return;
     if (app._kino || app.sequence || app._podglad) return;
     for (const o of this._dotykowe) {
@@ -985,6 +995,234 @@ export class Slady {
     };
     requestAnimationFrame(bujaj);
     return true;
+  }
+
+  /* ── ŚLAD PORADY DNIA (docs/tresci/04 §6) ───────────────────────────────
+     Lisek robi w świecie to samo, co dziecko zrobiło obok ekranu, a świat
+     zmienia się delikatnie i TYLKO DO KOŃCA DOBY. To nie jest nagroda: bez
+     licznika, bez monet, bez Fasoli (`fasola:podlana` nie idzie), jeden ślad
+     na dzień (drugi tego dnia ZASTĘPUJE pierwszy, nie dokłada), schodzi z nocą
+     (`_etapSesji` = noc) tak jak mokre ślady łap. Żadnego światła w oknie ani
+     nocnego — to reakcje hybryd (`05`, MD). Wszystko z tego, co scena już ma:
+     klipy `idle`/`happy`, sprężyny gibania, `Chmury`, `Swiatlo`, `kwiaty.posadz`,
+     `kamyczki`, `MokreSlady`, `Dymki`. Żadnego nowego modelu ani klipu.
+
+     `ustawSladPorady(slad, { kolor, bezAnimacji })`:
+       lisek-oddycha           — puls skali bohatera (1,00→1,03) pięć razy; drzewa
+                                 i kwiaty gibają o połowę wolniej (`_spokojGib`),
+                                 chmury ×0,6 — do końca doby
+       lisek-strzasa           — `happy` dwa razy + dymki pod łapami; trzy kwiaty
+                                 wokół miejsca, w którym stał
+       swiatlo-dnia            — kula światła (`Swiatlo`, bez światła punktowego)
+                                 krąży przy stopie drabinki, gaśnie o zachodzie
+       kamyczek-przy-drabince  — ozdobny kamyczek u stóp drabinki (etap 0: obok
+                                 placu); NIE liczy się jako materiał
+       niebo-cichnie           — lisek staje; chmury wolniej, wypełnienie o krok
+                                 cieplsze (tylko barwa, NIE `doba.przewin`)
+       slady-lap               — lisek biegnie kawałek ku choince i wraca; mokre
+                                 łapy, ślady nie wysychają do końca doby
+       kropla-swiatla          — błękitna kropla unosi się nad oczkiem wschodnim,
+                                 do zmierzchu
+       kwiat-koloru            — jeden kwiat przy oczku w kolorze z karty odzewu
+                                 (`kolor` = indeks palety `zbudujKwiaty`)
+     `bezAnimacji` = odtworzenie po wejściu do świata tego samego dnia: sam
+     stan, bez pulsu, biegu i `happy`. */
+  ustawSladPorady(...a) {
+    const [dane, opcje] = rozdziel(a);
+    const slad = dane[0];
+    const app = this.app;
+    if (!slad || !app.hero) return false;
+    const bez = !!opcje.bezAnimacji;
+    const kolor = Number.isInteger(opcje.kolor) ? opcje.kolor : null;
+    if (this._porada && this._porada.slad === slad && (kolor == null || this._porada.kolor === kolor)) return true;
+    this.zdejmijSladPorady();
+    const P = this._porada = { slad, kolor, t: 0, obiekty: [], kule: [], puls: null, happy: 0, bieg: null, cieplo: 0 };
+
+    const wolniejszeChmury = () => {
+      if (!app.chmury?.sztuki || P.chmury) return;
+      P.chmury = app.chmury.sztuki.map((s) => s.tempo);
+      for (const s of app.chmury.sztuki) s.tempo *= .6;
+    };
+    const kula = (kotwica, h, barwa) => {
+      if (!kotwica) return false;
+      const g = new Group();
+      g.name = "swiatlo-porady";
+      app.planeta.ustaw(g, kotwica[0], kotwica[1], h, 0);
+      const sw = new Swiatlo(g, { ile: 1, barwa, mocLatarni: 0, wielkoscKuli: .13, promienOrbity: .32, wysokosc: 0, tempoOrbity: .45 });
+      sw.grupa.remove(sw.latarnia);    // budżet świateł punktowych zostaje nietknięty
+      sw.dodaj();
+      this.grupa.add(g);
+      P.obiekty.push(g);
+      P.kule.push(sw);
+      return true;
+    };
+    const stan = () => {
+      if (!app.walking && !app.sequence && !app._kino) app.play("idle", .3);
+    };
+
+    switch (slad) {
+      case "lisek-oddycha": {
+        app._spokojGib = .5;
+        wolniejszeChmury();
+        if (!bez) { stan(); P.puls = { baza: app.hero.scale.x, t: 0, okres: 4, cykli: 5 }; }
+        return true;
+      }
+      case "lisek-strzasa": {
+        const k = [app.hp.x, app.hp.z];
+        let posadzone = 0;
+        for (let i = 0; i < 12 && posadzone < 3; i += 1) {
+          const [x, z] = wokol(k, i);
+          if (app.kwiaty?.posadz?.(x, z, { bezAnimacji: bez, typ: "kwiat", wariant: (i + 1) % LICZBA_KOLOROW })) posadzone += 1;
+        }
+        if (posadzone) app.kwiaty.oznacz?.();
+        if (!bez) { P.happy = 2; P.happyT = 0; }
+        return true;
+      }
+      case "swiatlo-dnia": {
+        const S = this.kotwica("stopa-drabinki") || this.kotwica("pod-drzewem");
+        if (!S) { console.warn("[slady] ślad porady: nie ma drabinki dla światła dnia"); this._porada = null; return false; }
+        const [x, z] = wokol(S, 2);
+        const h = (app.wysokoscGruntuSiatki ? app.wysokoscGruntuSiatki(x, z) : 0) + 1.05;
+        stan();
+        return kula([x, z], h, 0xffe9a8);
+      }
+      case "kamyczek-przy-drabince": {
+        const S = this.kotwica("stopa-drabinki") || this.kotwica("przy-drabince");
+        if (!S) { console.warn("[slady] ślad porady: nie ma gdzie położyć kamyczka"); this._porada = null; return false; }
+        const [x, z] = wokol(S, 4);
+        const kot = app._osadz(kamyczki(.42), x, z, .03, 1.1);
+        kot.name = "kamyczek-porady";
+        this.grupa.add(kot);
+        app._wlaczCienie?.(kot);
+        P.obiekty.push(kot);
+        return true;
+      }
+      case "niebo-cichnie": {
+        wolniejszeChmury();
+        P.cieplo = 1;
+        if (!bez) stan();
+        return true;
+      }
+      case "slady-lap": {
+        const M = app.mokreSlady;
+        if (M) { M.bezWysychania = true; M.zamocz(); }
+        if (!bez) {
+          const c = this.kotwica("przy-choince");
+          if (c) P.bieg = { t: 0, tam: 1.15, powrot: 1.25, celN: app.planeta.normalna(c[0], c[1]), startN: app.hn.clone() };
+        }
+        return true;
+      }
+      case "kropla-swiatla": {
+        const o = app.oczka?.[0];
+        if (!o?.pos) { console.warn("[slady] ślad porady: nie ma oczka dla kropli"); this._porada = null; return false; }
+        stan();
+        return kula(o.pos, (o.poziomWody ?? -.15) + 1.1, 0x8fdcff);
+      }
+      case "kwiat-koloru": {
+        const o = app.oczka?.[0];
+        if (!o?.pos) { console.warn("[slady] ślad porady: nie ma oczka dla kwiatu"); this._porada = null; return false; }
+        /* Brzeg od strony drabinki, poza wodą: promień stawu + zapas. */
+        const D = this.kotwica("stopa-drabinki") || this.kotwica("pod-drzewem") || [o.pos[0] + 1, o.pos[1]];
+        const dx = D[0] - o.pos[0], dz = D[1] - o.pos[1], dl = Math.hypot(dx, dz) || 1;
+        const r = (o.promien || 1.4) + .7;
+        const brzeg = [o.pos[0] + dx / dl * r, o.pos[1] + dz / dl * r];
+        const wariant = kolor == null ? 2 : Math.max(0, Math.min(LICZBA_KOLOROW - 1, kolor));
+        let ok = false;
+        for (let i = 0; i < 10 && !ok; i += 1) {
+          const [x, z] = wokol(brzeg, i);
+          if (Math.hypot(x - o.pos[0], z - o.pos[1]) < (o.promien || 1.4) + .35) continue;
+          ok = !!app.kwiaty?.posadz?.(x, z, { bezAnimacji: bez, typ: "kwiat", wariant });
+        }
+        if (ok) app.kwiaty.oznacz?.();
+        if (ok && !bez) app.pokazMiejsce?.(brzeg, { trzym: 1.2 });
+        return ok;
+      }
+      default:
+        console.warn("[slady] nieznany ślad porady:", slad);
+        this._porada = null;
+        return false;
+    }
+  }
+
+  /** Zdejmuje ślad porady i przywraca tempo chmur, gibanie, wysychanie łap, skalę liska. */
+  zdejmijSladPorady() {
+    const P = this._porada;
+    const app = this.app;
+    if (!P) return;
+    this._porada = null;
+    for (const o of P.obiekty) o.parent?.remove(o);
+    if (P.chmury && app.chmury?.sztuki) app.chmury.sztuki.forEach((s, i) => { if (P.chmury[i] != null) s.tempo = P.chmury[i]; });
+    app._spokojGib = 1;
+    if (P.puls && app.hero) app.hero.scale.setScalar(P.puls.baza);
+    if (app.mokreSlady) app.mokreSlady.bezWysychania = false;
+    if (P.bieg && app.inputSource === "api") { app.input.set(0, 0); app.inputSource = null; }
+  }
+
+  _poradaTik(e) {
+    const P = this._porada;
+    if (!P) return;
+    const app = this.app;
+    /* NOC ZDEJMUJE ŚLAD — tak samo jak mokre ślady łap: rano jest czysto. */
+    if (app._etapSesji === "noc" || app._etapSesji === "koniec") { this.zdejmijSladPorady(); return; }
+    P.t += e;
+    const dzien = app.doba?.stan ? Math.max(0, Math.min(1, app.doba.stan.dzien || 0)) : 1;
+
+    // Kule światła: krążą w dzień, gasną o zachodzie (skala → 0, bez nocnego światła).
+    for (const sw of P.kule) {
+      sw.aktualizuj(e);
+      const k = sw.kule[0]?.obj;
+      if (k) { k.visible = dzien > .05; k.scale.multiplyScalar(Math.max(.001, dzien)); }
+    }
+
+    // Puls oddechu: 1,00 → 1,03 → 1,00 na cykl, pięć cykli, potem skala bazowa.
+    if (P.puls && app.hero) {
+      const U = P.puls;
+      U.t += e;
+      const faza = U.t / U.okres;
+      if (faza >= U.cykli) { app.hero.scale.setScalar(U.baza); P.puls = null; }
+      else app.hero.scale.setScalar(U.baza * (1 + .03 * .5 * (1 - Math.cos(faza * Math.PI * 2))));
+    }
+
+    // Dwa `happy` po kolei + kłębki pod łapami (Dymki mają własny wyrzut).
+    if (P.happy > 0) {
+      P.happyT += e;
+      if (!app.sequence && !app.walking && !app._kino && P.happyT > .25) {
+        P.happy -= 1;
+        P.happyT = 0;
+        app.play("happy", .12);
+        app.sequence = "happy";
+        app.seqTimer = 0;
+        if (app.dymki?._wyrzuc && app.hn && app.hf) for (let i = 0; i < 3; i += 1) app.dymki._wyrzuc(app.hn, app.hf);
+      }
+    }
+
+    // Wypełnienie o krok cieplejsze — tylko barwa, po `Doba.aktualizuj` (ona ją ustawia co klatkę).
+    if (P.cieplo > 0 && app.wypelnienie?.color) app.wypelnienie.color.lerp(_CIEPLO, .22 * P.cieplo * dzien);
+
+    this._biegTik(e);
+  }
+
+  /* Bieg liska ku choince i z powrotem — przez drążek „z api": to ta sama
+     droga, którą idzie palec dziecka, więc kolizje, kroki i dymki działają
+     same. Palec dziecka na drążku albo kino przerywają bieg od razu. */
+  _biegTik(e) {
+    const P = this._porada;
+    const B = P?.bieg;
+    if (!B) return;
+    const app = this.app;
+    const koniec = () => { if (app.inputSource === "api") { app.input.set(0, 0); app.inputSource = null; } P.bieg = null; };
+    if (app.stick?.active || app._kino || app._podglad || app._drabinka || app.keys?.size) { koniec(); return; }
+    B.t += e;
+    const doCelu = B.t < B.tam;
+    const cel = doCelu ? B.celN : B.startN;
+    if (B.t >= B.tam + B.powrot || (!doCelu && app.planeta.odleglosc(app.hn, B.startN) < .3)) { koniec(); return; }
+    const dir = stycznaDo(app.hn, cel, app.hf, this._v);
+    this._w.copy(dir).applyQuaternion(app.swiat.quaternion);
+    const ix = this._w.dot(app.camRight), iy = this._w.dot(app.camFwd);
+    const dl = Math.hypot(ix, iy) || 1;
+    app.enterFreeMode?.();
+    app.input.set(ix / dl, iy / dl);
+    app.inputSource = "api";
   }
 
   /**

@@ -1276,6 +1276,9 @@ export class Aplikacja {
   ustawOczko(...a) { return this.slady?.ustawOczko(...a) || false; }
   ustawLawke(...a) { return this.slady?.ustawLawke(...a) || false; }
   ustawRamke(...a) { return this.slady?.ustawRamke(...a) || false; }
+  /* Ślad porady dnia (docs/tresci/04 §6) — jeden na dobę, schodzi z nocą. */
+  ustawSladPorady(...a) { return this.slady?.ustawSladPorady(...a) || false; }
+  zdejmijSladPorady() { this.slady?.zdejmijSladPorady(); return true; }
   /** Kadr na obiekt hybrydy po nazwie kotwicy (`kladka`, `oczko-wschodnie`, `pomost`…). */
   pokazKotwice(nazwa, opcje = {}) {
     const p = this.slady?.kotwica(nazwa);
@@ -1589,7 +1592,9 @@ export class Aplikacja {
     for (const k of K.lista) {
       const st = k.gib;
       if (!st.x && !st.z && !st.vx && !st.vz) continue;
-      this._sprezyna(st, 52, 4.6, 1.05, dt, 3e-4, 3e-3);
+      /* `_spokojGib` < 1 = ślad porady `lisek-oddycha`: sztywność w dół, więc
+         kwiaty kołyszą się wolniej — do końca doby (`slady.js`). */
+      this._sprezyna(st, 52 * (this._spokojGib || 1), 4.6, 1.05, dt, 3e-4, 3e-3);
       K.odswiez(k);
       ruszone = true;
     }
@@ -1602,7 +1607,7 @@ export class Aplikacja {
       const st = d.userData.gib;
       if (!st || (!st.x && !st.z && !st.vx && !st.vz)) continue;
       const masa = b.skalaDrzewa || 1;
-      this._sprezyna(st, 40 / masa, 4.6, 0.26 / masa, dt, 2e-4, 2e-3);
+      this._sprezyna(st, (40 / masa) * (this._spokojGib || 1), 4.6, 0.26 / masa, dt, 2e-4, 2e-3);
       d.rotation.z = -st.x;
       d.rotation.x = st.z;
       /* POMOST JEDZIE Z DRZEWEM. Domek stoi na własnej kotwicy (o 0,10 wyżej),

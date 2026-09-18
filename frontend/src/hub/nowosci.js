@@ -27,7 +27,7 @@
 import KATALOG_GIER from "./data/minigry.v1.json";
 import DANE_CZATU from "./data/czat.mock.json";
 import { gryWZakladce, MISJE } from "./misjeGier.js";
-import { poradaDnia, poradyNaPore, poraDnia } from "./poradaDnia.js";
+import { kluczDnia, poraTeraz } from "./poradaZBiblioteki.js";
 
 export const ZDARZENIE_ZMIANY = "ewolucja:nowosciZmiana";
 
@@ -99,18 +99,16 @@ export function oznaczMinigryObejrzane() {
    dnia. Półki zmieniają się razem z porą, więc licznik sam odżywa po południu
    i wieczorem — i o to chodzi: to jest zaproszenie „zajrzyj teraz", a nie
    zaległość do nadrobienia. */
+/* Od 17.09.2026 jedynym źródłem porad jest biblioteka (`poradaZBiblioteki.js`):
+   jedna porada na dzień × porę. Plakietka mówi więc tylko „w tej porze jeszcze
+   tu nie {byłeś|byłaś}" — klucz dnia + pora, bez zaglądania do żadnej puli
+   (stare pule `porady.v1.json` / `KARTY_DNIA` są odłączone). */
 function dostepnePorady() {
-  const lista = [];
   try {
-    const dzis = poradaDnia();
-    if (dzis) lista.push(`dzis:${dzis.id}`);
-  } catch {}
-  try {
-    const pora = poraDnia().id;
-    const { zdrowie, samopoczucie } = poradyNaPore(pora);
-    [...zdrowie, ...samopoczucie].forEach((p) => lista.push(`${pora}:${p.id}`));
-  } catch {}
-  return lista;
+    return [`${kluczDnia()}:${poraTeraz()}`];
+  } catch {
+    return [];
+  }
 }
 
 export function nowychPorad() {

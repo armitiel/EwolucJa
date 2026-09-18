@@ -126,6 +126,13 @@ export async function utworzScena3D(s = {}) {
     /* EM / KR (05 karty 5–6): ławka na ganku z rzeczą i królikiem, ramka z symbolem na ścianie domku. */
     ustawLawke: (...a) => n.ustawLawke(...a),
     ustawRamke: (...a) => n.ustawRamke(...a),
+    /* ŚLAD PORADY DNIA (docs/tresci/04 §6): `ustawSladPorady(slad, { kolor, bezAnimacji })`
+       — klucze `slad` z `dailyTipsData.js` (lisek-oddycha, lisek-strzasa, swiatlo-dnia,
+       kamyczek-przy-drabince, niebo-cichnie, slady-lap, kropla-swiatla, kwiat-koloru).
+       Dzienny, nie trwały: React trzyma go w `ewolucja.porada.slad` (nie w `sladySwiata`)
+       i woła z `bezAnimacji` po `gotowa` tego samego dnia. `zdejmijSladPorady()` zdejmuje. */
+    ustawSladPorady: (...a) => n.ustawSladPorady(...a),
+    zdejmijSladPorady: () => n.zdejmijSladPorady(),
     pokazKotwice: (r, a) => n.pokazKotwice(r, a),
     stan: () => n.stan(),
     zniszcz: () => { n.zniszcz(); t.remove(); },

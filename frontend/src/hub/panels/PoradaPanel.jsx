@@ -23,9 +23,11 @@
  * ODZEW: po wykonaniu lisek mówi `odzew` (jedno zdanie, o sobie, z pytaniem).
  * Przy `gdzie: dzien` odzew pada przy następnym wejściu tego dnia.
  *
- * ŚLAD: `pokazSladPorady(slad)` woła defensywnie API sceny
+ * ŚLAD: `pokazSladPorady(slad, { kolor })` woła defensywnie API sceny
  * (`globalThis.__SCENA.ustawSladPorady`) — do końca doby, bez licznika,
- * bez monet, bez Fasoli. Zdarzenie analityki: `porada_wykonana`.
+ * bez monet, bez Fasoli; zapis dzienny w `ewolucja.porada.slad`, odtwarzany
+ * po `gotowa` w `Swiat.jsx` (`odtworzSladPorady`). Ślad `kwiat-koloru` bierze
+ * kolor z trzech kropek na karcie odzewu. Zdarzenie analityki: `porada_wykonana`.
  *
  * NIE MA: stopki z nazwą profilu (etykieta), listków „x z 7”, „zajrzyj później”,
  * przełącznika `POKAZ_KARTY_AKTYWNOSCI`, osobnych pul `KARTY_DNIA` i `porady.v1.json`.
@@ -43,9 +45,11 @@ import PoradaAkcja from "../PoradaAkcja.jsx";
 import {
   PORA_NAZWA,
   czytajHistorie,
+  czytajSladPorady,
   czytajWykonanie,
   etykietaDnia,
   kodProfilu,
+  odtworzSladPorady,
   oznaczOdzewPowiedziany,
   pokazSladPorady,
   poradaPoId,
@@ -54,6 +58,19 @@ import {
   zanotujPorade,
   zapiszWykonanie,
 } from "../poradaZBiblioteki.js";
+
+/* Trzy kolory kwiatu dla śladu `kwiat-koloru` — indeksy palety kwiatów sceny
+   (`zbudujKwiaty`, `swiat.js`: 1 żółty, 2 różowy, 3 błękitny). Bez nazw na
+   ekranie: dziecko wybiera barwę, nie słowo. */
+const KOLORY_KWIATU = [
+  { kolor: 1, hex: "#f7c948", nazwa: "żółty" },
+  { kolor: 2, hex: "#f08fb4", nazwa: "różowy" },
+  { kolor: 3, hex: "#7aa6e8", nazwa: "błękitny" },
+];
+
+/* Zapowiedź mówiona RAZ na wejście z daną poradą w tej sesji — nie przy
+   każdym renderze i nie po powrocie z historii. */
+const zapowiedziane = new Set();
 
 export default function PoradaPanel({ onPowrot }) {
   return <PoradaDnia onPowrot={onPowrot} />;
@@ -70,6 +87,7 @@ function PoradaDnia({ onPowrot }) {
   const [otwarta, setOtwarta] = useState(null);
   const [wykonane, setWykonane] = useState(() => czytajWykonanie());
   const [silnik, setSilnik] = useState(null);
+  const [kolorKwiatu, setKolorKwiatu] = useState(() => czytajSladPorady()?.kolor ?? null);
 
   /** Samo zajrzenie gasi plakietkę „nowe" na doku. */
   useEffect(() => { oznaczPoradyObejrzane(); }, []);
@@ -96,14 +114,21 @@ function PoradaDnia({ onPowrot }) {
   }, []);
 
   // Porada `gdzie: dzien` zrobiona wcześniej tego dnia: lisek odpowiada teraz,
-  // przy wejściu — raz. Ślad w świecie przywracamy bez animacji.
+  // przy wejściu — raz. Ślad w świecie przywracamy bez animacji (z zapisu
+  // dziennego, razem z kolorem). Inaczej lisek mówi zapowiedź świeżej porady.
   useEffect(() => {
-    if (!wykonane) return;
-    const p = poradaPoId(wykonane.id);
-    if (p) pokazSladPorady(p.slad, { bezAnimacji: true });
-    if (!wykonane.odzewPowiedziany && p?.odzew) {
-      powiedzJakLisek(p.odzew);
-      setWykonane(oznaczOdzewPowiedziany());
+    if (wykonane) {
+      const p = poradaPoId(wykonane.id);
+      odtworzSladPorady();
+      if (!wykonane.odzewPowiedziany && p?.odzew) {
+        powiedzJakLisek(p.odzew);
+        setWykonane(oznaczOdzewPowiedziany());
+      }
+      return;
+    }
+    if (swieza?.zapowiedz && !zapowiedziane.has(swieza.id)) {
+      zapowiedziane.add(swieza.id);
+      powiedzJakLisek(swieza.zapowiedz);
     }
     // tylko przy wejściu do panelu
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -143,8 +168,17 @@ function PoradaDnia({ onPowrot }) {
     setWykonane(zapis);
     setSilnik(null);
     zdarzenie("porada_wykonana", { porada: swieza.id, rodzaj: swieza.rodzaj, gdzie: swieza.gdzie, wersja: swieza.wersja || 1 });
-    pokazSladPorady(swieza.slad);
+    /* `kwiat-koloru` czeka na kolor z karty odzewu — reszta śladów od razu. */
+    if (swieza.slad !== "kwiat-koloru") pokazSladPorady(swieza.slad);
     if (odRazu && swieza.odzew) powiedzJakLisek(swieza.odzew);
+  }
+
+  /** Kolor kwiatu przy oczku (ślad `kwiat-koloru`) — raz; zmiana koloru nie dokłada drugiego. */
+  function wybierzKolor(kolor) {
+    if (!swieza || kolorKwiatu != null) return;
+    setKolorKwiatu(kolor);
+    pokazSladPorady(swieza.slad, { kolor });
+    zdarzenie("porada_kolor", { porada: swieza.id, kolor });
   }
 
   function pozniej() {
@@ -229,17 +263,35 @@ function PoradaDnia({ onPowrot }) {
               </button>
             </footer>
             {dzisiejszaZrobiona ? (
-              swieza.odzew ? (
-                <button
-                  type="button"
-                  className="porada-lisek porada-lisek--wybor"
-                  onClick={() => przeczytaj(swieza.odzew)}
-                  data-testid="porada-odzew"
-                >
-                  <img src="/lisPop.webp" alt="" aria-hidden="true" draggable="false" />
-                  <span>{odmienDlaGracza(swieza.odzew, player)}</span>
-                </button>
-              ) : null
+              <>
+                {swieza.odzew ? (
+                  <button
+                    type="button"
+                    className="porada-lisek porada-lisek--wybor"
+                    onClick={() => przeczytaj(swieza.odzew)}
+                    data-testid="porada-odzew"
+                  >
+                    <img src="/lisPop.webp" alt="" aria-hidden="true" draggable="false" />
+                    <span>{odmienDlaGracza(swieza.odzew, player)}</span>
+                  </button>
+                ) : null}
+                {swieza.slad === "kwiat-koloru" ? (
+                  <div className="porada-akcje porada-kolory" data-testid="porada-kolory" role="group" aria-label="Kolor kwiatu">
+                    {KOLORY_KWIATU.map((k) => (
+                      <button
+                        key={k.kolor}
+                        type="button"
+                        className={`porada-kolor${kolorKwiatu === k.kolor ? " jest-wybrany" : ""}`}
+                        style={{ background: k.hex, width: 44, height: 44, borderRadius: "50%", border: kolorKwiatu === k.kolor ? "3px solid #4e4d76" : "3px solid transparent", opacity: kolorKwiatu != null && kolorKwiatu !== k.kolor ? 0.45 : 1 }}
+                        onClick={() => wybierzKolor(k.kolor)}
+                        disabled={kolorKwiatu != null}
+                        aria-label={`Kwiat ${k.nazwa}`}
+                        data-testid={`porada-kolor-${k.kolor}`}
+                      />
+                    ))}
+                  </div>
+                ) : null}
+              </>
             ) : (
               <div className="porada-akcje" data-testid="porada-akcje">
                 {swieza.silnik ? (

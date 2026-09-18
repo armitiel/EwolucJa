@@ -23,7 +23,8 @@
  * nadpisują pola dla jednego etapu.
  *
  * RODZINA. Porada z polem `rodzina` nie wchodzi w dniu, gdy dziecko ma aktywne
- * zadanie Wizkora z tą samą rodziną (ta sama czynność w dwóch miejscach).
+ * zadanie Wizkora albo hybrydę z tą samą rodziną (ta sama czynność w dwóch
+ * miejscach; rejestr rodzin: docs/tresci/06 §6). Tylko odczyt stanu.
  *
  * WYKONANIE (nowe). Jedna porada dziennie może być „zrobiona”; zapis w
  * localStorage z kluczem dnia — bez licznika i bez serii. Odzew liska przy
@@ -36,9 +37,15 @@ import { DAILY_TIPS, PROFILES_META } from "../dailyTipsData.js";
 import { dzienPrzygody } from "../services/dzienGry.js";
 import { KLUCZ_ETAP } from "./profilStartowy.js";
 import { stanZadania } from "./zadanieWizkora.js";
+import { stanHybrydy } from "./hybryda.js";
 
 const KLUCZ_HISTORIA = "ewolucja.porady.biblioteka";
 const KLUCZ_WYKONANE = "ewolucja.porady.wykonane";
+/* Ślad porady w świecie 3D — dzienny, nie trwały: NIE idzie do dziennika
+   `sladySwiata` (tam są ślady zadań w realu). Klucz dnia, kasowany przez datę. */
+const KLUCZ_SLAD = "ewolucja.porada.slad";
+/* Kiedy lisek ostatnio powiedział odzew — R7: Wizkor milczy trzy minuty po nim. */
+const KLUCZ_ODZEW = "ewolucja.porada.odzew";
 const HISTORIA_MAX = 60;
 const SLOTY = ["poranek", "poludnie", "wieczor"];
 const DNI = 30;
@@ -93,15 +100,18 @@ export function zWariantem(t, etap = etapDziecka()) {
   return w ? { ...t, ...w } : t;
 }
 
-/** Rodzina aktywnego zadania Wizkora (tylko odczyt) albo `null`. */
-function rodzinaAktywnegoZadania() {
+/** Rodziny aktywnego zadania Wizkora i otwartej hybrydy (tylko odczyt). */
+function rodzinyAktywne() {
+  const r = new Set();
   try {
     const z = stanZadania();
-    if (!z?.istnieje || z.wyplacone) return null;
-    return z.def?.rodzina || null;
-  } catch {
-    return null;
-  }
+    if (z?.istnieje && !z.wyplacone && z.def?.rodzina) r.add(z.def.rodzina);
+  } catch {}
+  try {
+    const h = stanHybrydy();
+    if (h?.istnieje && h.otwarta && h.def?.rodzina) r.add(h.def.rodzina);
+  } catch {}
+  return r;
 }
 
 function dlaDziecka(profil) {
@@ -123,10 +133,10 @@ export function poradaPoId(id, etap = etapDziecka()) {
  */
 export function swiezaPorada(profil, player = null, data = new Date()) {
   const etap = etapDziecka();
-  const rodzina = rodzinaAktywnegoZadania();
+  const rodziny = rodzinyAktywne();
   const pula = dlaDziecka(kodProfilu(profil))
     .filter((t) => pasujeEtap(t, etap))
-    .filter((t) => !(rodzina && t.rodzina && t.rodzina === rodzina));
+    .filter((t) => !(t.rodzina && rodziny.has(t.rodzina)));
   if (!pula.length) return null;
   const pora = poraTeraz(data);
   const start = dzienPrzygody(player, data);
@@ -136,6 +146,11 @@ export function swiezaPorada(profil, player = null, data = new Date()) {
     if (t) return zWariantem(t, etap);
   }
   return zWariantem(pula[0], etap);
+}
+
+/** Dzisiejsza porada dziecka z obiektu gracza (skrót dla huba, np. filtra tematu Wizkora). */
+export function dzisiejszaPorada(player = null, data = new Date()) {
+  return swiezaPorada(kodProfilu(player?.archetype), player, data);
 }
 
 /* ── Wykonanie dzisiejszej porady ──────────────────────────────────────────── */
@@ -164,6 +179,7 @@ export function zapiszWykonanie(porada, { odzewPowiedziany = true } = {}, data =
   if (!porada) return null;
   const zapis = { dzien: kluczDnia(data), id: porada.id, rodzaj: porada.rodzaj || null, slad: porada.slad || null, odzewPowiedziany, kiedy: data.toISOString() };
   try { localStorage.setItem(KLUCZ_WYKONANE, JSON.stringify(zapis)); } catch {}
+  if (odzewPowiedziany) oznaczOdzewLiska(data);
   return zapis;
 }
 
@@ -172,7 +188,18 @@ export function oznaczOdzewPowiedziany(data = new Date()) {
   if (!z) return null;
   const nowy = { ...z, odzewPowiedziany: true };
   try { localStorage.setItem(KLUCZ_WYKONANE, JSON.stringify(nowy)); } catch {}
+  oznaczOdzewLiska(data);
   return nowy;
+}
+
+/** Znacznik czasu odzewu liska (R7: Wizkor nie wchodzi z myślą przez 3 min po nim). */
+export function oznaczOdzewLiska(data = new Date()) {
+  try { localStorage.setItem(KLUCZ_ODZEW, String(data.getTime())); } catch {}
+}
+
+/** Kiedy lisek ostatnio powiedział odzew (ms od epoki); 0 = nigdy. */
+export function kiedyOdzewLiska() {
+  try { return Number(localStorage.getItem(KLUCZ_ODZEW)) || 0; } catch { return 0; }
 }
 
 /**
@@ -182,10 +209,49 @@ export function oznaczOdzewPowiedziany(data = new Date()) {
  */
 export function pokazSladPorady(slad, opcje = {}) {
   if (!slad) return false;
+  const o = { kolor: null, bezAnimacji: false, ...opcje };
+  /* Zapis PRZED wywołaniem sceny: scena bywa jeszcze niezbudowana (panel
+     otwarty przed `gotowa`), a ślad ma wrócić przy następnym wejściu. */
+  if (!o.bezAnimacji) zapiszSladPorady(slad, o.kolor);
   try {
     const f = globalThis.__SCENA?.ustawSladPorady;
     if (typeof f !== "function") return false;
-    f.call(globalThis.__SCENA, slad, { kolor: null, bezAnimacji: false, ...opcje });
+    f.call(globalThis.__SCENA, slad, o);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Ślad porady z dzisiaj: `{ dzien, slad, kolor }` albo `null` (wczorajszy nie liczy się). */
+export function czytajSladPorady(data = new Date()) {
+  try {
+    const z = JSON.parse(localStorage.getItem(KLUCZ_SLAD) || "null");
+    return z && z.dzien === kluczDnia(data) && z.slad ? z : null;
+  } catch {
+    return null;
+  }
+}
+
+export function zapiszSladPorady(slad, kolor = null, data = new Date()) {
+  if (!slad) return null;
+  const zapis = { dzien: kluczDnia(data), slad, kolor: kolor ?? null };
+  try { localStorage.setItem(KLUCZ_SLAD, JSON.stringify(zapis)); } catch {}
+  return zapis;
+}
+
+/**
+ * Odtworzenie śladu porady po `gotowa` tego samego dnia — bez animacji, jak
+ * `oznaczZuzyte`. Woła `Swiat.jsx` obok `odtworzSlady`. Jeden ślad dziennie:
+ * druga porada tego dnia nie dokłada drugiego (docs/tresci/04 §6).
+ */
+export function odtworzSladPorady(scena = globalThis.__SCENA) {
+  const z = czytajSladPorady();
+  if (!z) return false;
+  try {
+    const f = scena?.ustawSladPorady;
+    if (typeof f !== "function") return false;
+    f.call(scena, z.slad, { kolor: z.kolor ?? null, bezAnimacji: true });
     return true;
   } catch {
     return false;
@@ -250,7 +316,12 @@ export function scalHistorie(zdalne) {
 }
 
 export function zresetujHistorie() {
-  try { localStorage.removeItem(KLUCZ_HISTORIA); localStorage.removeItem(KLUCZ_WYKONANE); } catch {}
+  try {
+    localStorage.removeItem(KLUCZ_HISTORIA);
+    localStorage.removeItem(KLUCZ_WYKONANE);
+    localStorage.removeItem(KLUCZ_SLAD);
+    localStorage.removeItem(KLUCZ_ODZEW);
+  } catch {}
   return [];
 }
 

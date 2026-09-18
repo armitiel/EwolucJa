@@ -37,6 +37,14 @@ export const GLOS_LISKA = "lisek";
 /** Preset barwy: żywo i odrobinę szybciej niż narrator. */
 export const TON_LISKA = "zabawa";
 
+/* ── DAWNE KARTY DNIA ────────────────────────────────────────────────────
+   `ZACHETY`, `WEJSCIA`, `zachetaDoWyboru`, `zachetaDoKarty` obsługiwały trzy
+   karty z `KARTY_DNIA` (`poradaDnia.js`) i importuje je już tylko odłączony
+   `PoradaKarty.jsx`. Zostają do `git rm` razem z nim; żywy przepływ porady
+   używa wyłącznie `powiedzJakLisek` z polami `zapowiedz`/`odzew` biblioteki.
+   Uwaga: „Świetny wybór" / „Dobra" to ocena — dlatego w żywym kodzie nie ma
+   już żadnej z tych kwestii. */
+
 /**
  * Zachęty przy WYBORZE karty. Deterministyczne w obrębie dnia, tak jak same
  * karty — dziecko, które wraca do szuflady po pięciu minutach, ma usłyszeć to
@@ -52,7 +60,7 @@ export const ZACHETY = [
 
 /**
  * Zapasowe „wchodzimy w to", gdy karta nie ma własnej zapowiedzi. Normalnie
- * lisek mówi KONKRETNIE, co to za praktyka (pole `zapowiedz` w `poradaDnia.js`)
+ * lisek mówi KONKRETNIE, co to za praktyka (pole `zapowiedz` porady w `dailyTipsData.js`)
  * — samo „świetny wybór" nie niesie żadnej informacji, a dziecko właśnie
  * zgodziło się na coś, czego jeszcze nie zna.
  */
@@ -71,7 +79,7 @@ function zZiarna(lista, ziarno) {
 
 function kluczDnia(data = new Date()) {
   // Lokalna data, nie ISO w UTC — o 23:30 czasu polskiego ISO pokazuje już
-  // jutro. Ta sama zasada, co przy kartach dnia (`poradaDnia.js`).
+  // jutro. Ta sama zasada, co w `poradaZBiblioteki.kluczDnia`.
   return `${data.getFullYear()}-${data.getMonth() + 1}-${data.getDate()}`;
 }
 

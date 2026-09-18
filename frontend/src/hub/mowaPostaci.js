@@ -59,8 +59,20 @@ import { odmienDlaGracza } from "../services/rodzaj.js";
  * Cicho zawodzi: wszystko, co postać mówi, stoi także napisane na ekranie,
  * więc brak TTS-a nie zabiera dziecku informacji, tylko wrażenie.
  */
+/* ZNACZNIK CZASU OSTATNIEJ KWESTII KAŻDEGO GŁOSU. Czyta go `PodpowiedzMedrca`
+   (R7 z `docs/tresci/01`): myśl Wizkora o ciele nie wchodzi, gdy od jego
+   ostatniego okna minęło mniej niż dwie minuty. Pamięć modułu, nie
+   localStorage — liczy się ta sesja, nie wczorajsza rozmowa. */
+const _ostatnia = {};
+
+/** Kiedy (ms od epoki) dany głos mówił ostatnio w tej sesji; 0 = jeszcze nie. */
+export function kiedyMowil(glos) {
+  return _ostatnia[glos] || 0;
+}
+
 export function powiedzPostacia(tekst, { glos, ton = "mystery" } = {}) {
   if (!tekst || !glos) return null;
+  _ostatnia[glos] = Date.now();
   /* TOKENY RODZAJU `{m|ż}` ODMIENIAMY TUTAJ, nie u wołających. To jedyne
      wejście głosu postaci, więc lektor nigdy nie przeczyta klamry ani obu
      form naraz — niezależnie od tego, które okno go zawołało

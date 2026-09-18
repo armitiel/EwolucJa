@@ -17,6 +17,12 @@
  *    (`PIERWSZA`), potem co kilka minut i najwyżej `MAX_NA_SESJE` razy. Znika
  *    sama albo po dotknięciu. To ma być mrugnięcie okiem, nie przypomnienie
  *    z aplikacji zdrowotnej — dziecko nie zrobi nic „źle", ignorując ją.
+ *    REGUŁA R7 (`docs/tresci/01` + `04` §4.5): pierwsza nie wcześniej niż po
+ *    4 min, kolejna po 5 min, maks. 2 na sesję, ŻADNEJ po zachodzie
+ *    (`poZachodzie()` z `hybryda.js`), ≥ 2 min od ostatniej kwestii Wizkora
+ *    (`kiedyMowil("las_decyzji")`), ≥ 3 min od odzewu liska
+ *    (`kiedyOdzewLiska()`), i JEDEN TEMAT DZIENNIE: myśl o temacie
+ *    kolidującym z `rodzaj` dzisiejszej porady liska nie wchodzi.
  *
  * 2. NIE PRZERYWA. Chowa się, gdy otwarty jest panel albo zwój, i nie wchodzi,
  *    zanim rozsuną się chmury. Nie łapie też dotknięć poza własnym dymkiem,
@@ -33,13 +39,20 @@
  */
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import ChmurkaKsztalt from "./ChmurkaKsztalt.jsx";
-import { powiedzPostacia } from "./mowaPostaci.js";
+import { kiedyMowil, powiedzPostacia } from "./mowaPostaci.js";
 import { odmienDlaGracza } from "../services/rodzaj.js";
+import { useAppData } from "../contexts/AppData.jsx";
+import { poZachodzie } from "./hybryda.js";
+import { dzisiejszaPorada, kiedyOdzewLiska } from "./poradaZBiblioteki.js";
 import DANE from "../hub/data/porady-zdrowia.v1.json";
 import "../styles/wizkor-mysl.css";
 
-const PIERWSZA = 75_000;        // ile spokojnej gry przed pierwszym wejściem
-const KOLEJNA = 300_000;        // odstęp między kolejnymi
+const PIERWSZA = 240_000;       // ile spokojnej gry przed pierwszym wejściem (R7: 4 min)
+const KOLEJNA = 300_000;        // odstęp między kolejnymi (R7: 5 min)
+const CISZA_PO_WIZKORZE = 120_000;   // od ostatniego okna Wizkora (R7)
+const CISZA_PO_ODZEWIE = 180_000;    // od odzewu liska (`04` §4.5)
+const PONOWNA_PROBA = 30_000;        // gdy warunki nie stoją — sprawdzamy znowu za pół minuty
+const GLOS_WIZKORA = "las_decyzji";
 const WIDOCZNA = 11_000;        // jak długo wisi, jeśli nikt jej nie dotknie
 /* Najpierw w róg wjeżdża awatar, dopiero potem rozwija się myśl. Pół sekundy
    to tyle, ile trwa wjazd — chmurka wchodzi w chwili, w której Wizkor już
@@ -50,7 +63,17 @@ const ZWLOKA_CHMURKI = 520;
    idzie 340 ms. Ta liczba MUSI być sumą z `wizkor-mysl.css` — komponent zdejmuje
    się dopiero po niej, a krótsza ucięłaby animację w połowie. */
 const ZEJSCIE = 460;
-const MAX_NA_SESJE = 3;
+const MAX_NA_SESJE = 2;         // R7
+
+/* JEDEN TEMAT DZIENNIE. `rodzaj` porady liska → tematy myśli Wizkora, które
+   tego dnia milczą (`04` §4.5). Tematy siedzą w `porady-zdrowia.v1.json`. */
+const KOLIZJE_TEMATOW = {
+  oddech: ["oddech"],
+  ruch: ["ruch", "plecy", "ramiona", "rownowaga"],
+  "napiecie-pusc": ["ruch", "plecy", "ramiona", "rownowaga"],
+  wyciszenie: ["cisza", "sen"],
+  zmysly: ["oczy"],
+};
 
 /* ── MASZYNA DO PISANIA ──────────────────────────────────────────────────
    Trzeci takt wejścia: awatar wjeżdża, rozwija się chmurka, dopiero potem
@@ -86,9 +109,13 @@ function chceSpokoju() {
 const KLUCZ_OSTATNIA = "ewolucja.medrzec.ostatnia";   // znacznik czasu
 const KLUCZ_HISTORIA = "ewolucja.medrzec.historia";   // ostatnio pokazane id
 
-/** Losowa porada, ale nie ta sama co ostatnio — powtórka psuje wrażenie uwagi. */
-function wybierzPorade() {
-  const porady = DANE.porady || [];
+/**
+ * Losowa porada, ale nie ta sama co ostatnio — powtórka psuje wrażenie uwagi —
+ * i nie o temacie dzisiejszej porady liska (`rodzajDnia`).
+ */
+function wybierzPorade(rodzajDnia = null) {
+  const zakazane = new Set(KOLIZJE_TEMATOW[rodzajDnia] || []);
+  const porady = (DANE.porady || []).filter((p) => !zakazane.has(p.temat));
   if (!porady.length) return null;
   let historia = [];
   try { historia = JSON.parse(localStorage.getItem(KLUCZ_HISTORIA) || "[]"); } catch {}
@@ -108,6 +135,7 @@ function wybierzPorade() {
  * patrzeć. Podział kanałów: `docs/design-system/powiadomienia.md`.
  */
 const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true, onWidoczna }, ref) {
+  const { player } = useAppData();
   const [porada, setPorada] = useState(null);
   /* Osobny stan, a nie `porada !== null`: awatar stoi w rogu przez pół
      sekundy ZANIM wejdzie chmurka, więc widok ma dwie fazy, nie jedną. */
@@ -167,11 +195,16 @@ const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true, 
     timerZejscia.current = window.setTimeout(zwin, ZEJSCIE);
   }, [zwin, onWidoczna]);
 
+  /** Rodzaj dzisiejszej porady liska (do filtra tematu); `null`, gdy nie ma. */
+  const rodzajDnia = useCallback(() => {
+    try { return dzisiejszaPorada(player)?.rodzaj || null; } catch { return null; }
+  }, [player]);
+
   const pokaz = useCallback((id) => {
     if (!id && licznik.current >= MAX_NA_SESJE) return;
     const wybrana = id
-      ? (DANE.porady || []).find((p) => p.id === id) || wybierzPorade()
-      : wybierzPorade();
+      ? (DANE.porady || []).find((p) => p.id === id) || wybierzPorade(rodzajDnia())
+      : wybierzPorade(rodzajDnia());
     if (!wybrana) return;
     window.clearTimeout(timerChmurki.current);
     window.clearTimeout(timerUkrycia.current);
@@ -196,7 +229,7 @@ const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true, 
       const czekaj = WIDOCZNA + (chceSpokoju() ? 0 : czasPisania(odmienDlaGracza(wybrana.tekst)));
       timerUkrycia.current = window.setTimeout(schowaj, czekaj);
     }, ZWLOKA_CHMURKI);
-  }, [powtorz, schowaj, onWidoczna]);
+  }, [powtorz, schowaj, onWidoczna, rodzajDnia]);
 
   const pokazWymuszone = useCallback((id) => {
     wymuszone.current = true;
@@ -249,12 +282,23 @@ const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true, 
       ? Math.max(PIERWSZA, ostatnia ? KOLEJNA - odOstatniej : 0)
       : KOLEJNA;
 
-    timerPokazu.current = window.setTimeout(() => pokaz(), Math.max(1000, zwloka));
+    /* WARUNKI R7 SPRAWDZANE W CHWILI WEJŚCIA, nie przy nastawianiu zegara:
+       po zachodzie — wcale; tuż po oknie Wizkora albo odzewie liska — jeszcze
+       nie, sprawdzimy za pół minuty. Zegar nie zeruje licznika. */
+    const sprobuj = () => {
+      const teraz = Date.now();
+      const wolno = !poZachodzie()
+        && teraz - kiedyMowil(GLOS_WIZKORA) >= CISZA_PO_WIZKORZE
+        && teraz - kiedyOdzewLiska() >= CISZA_PO_ODZEWIE;
+      if (wolno) pokaz();
+      else timerPokazu.current = window.setTimeout(sprobuj, PONOWNA_PROBA);
+    };
+    timerPokazu.current = window.setTimeout(sprobuj, Math.max(1000, zwloka));
     return () => window.clearTimeout(timerPokazu.current);
   }, [aktywna, porada, pokaz, schowaj]);
 
-  // Uchwyt do konsoli: czekanie 75 s przy kazdym sprawdzeniu tekstu jest nie do
-  // zniesienia, a limit na sesje sprawia, ze po trzech probach nic juz nie wchodzi.
+  // Uchwyt do konsoli: czekanie 4 min przy kazdym sprawdzeniu tekstu jest nie do
+  // zniesienia, a limit na sesje sprawia, ze po dwoch probach nic juz nie wchodzi.
   //   window.medrzec.pokaz()        - wejscie teraz, z losowa porada
   //   window.medrzec.pokaz('woda')  - konkretna porada po id z JSON-a
   //   window.medrzec.schowaj()      - zdejmij dymek

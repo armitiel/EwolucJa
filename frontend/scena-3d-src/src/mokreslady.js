@@ -159,6 +159,10 @@ export class MokreSlady {
     this.wilgoc = 1;
   }
 
+  /* `bezWysychania` — ślad porady `slady-lap` (`slady.js`): plamki nie
+     starzeją się, a łapy nie schną z drogą, aż `Slady` zdejmie flagę
+     (noc). Pojemność bufora się nie zmienia: zostaje ostatnie 28 plamek. */
+
   /**
    * @param dt    sekundy od poprzedniej klatki
    * @param hn    normalna bohatera (punkt na kuli)
@@ -195,7 +199,7 @@ export class MokreSlady {
 
     /* Wysychanie łap liczone DROGĄ, nie czasem: lisek stojący w miejscu nie
        wysycha szybciej od tego, który biegnie — a to on rozciera wodę. */
-    this.wilgoc = Math.max(0, this.wilgoc - dystans / DROGA_SUCHA);
+    if (!this.bezWysychania) this.wilgoc = Math.max(0, this.wilgoc - dystans / DROGA_SUCHA);
 
     // Głęboko w stawie plamek nie ma po co stawiać: leżałyby pod taflą.
     if (brodzi) { this.droga = 0; this.brodzil = true; return; }
@@ -274,6 +278,7 @@ export class MokreSlady {
   }
 
   _wysuszaj(dt) {
+    if (this.bezWysychania) return;
     for (let i = 0; i < POJEMNOSC; i++) {
       const s = this.plamki[i];
       if (!s.zyje) continue;

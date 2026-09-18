@@ -30,6 +30,7 @@ import PodpowiedzMedrca from "../hub/PodpowiedzMedrca.jsx";
 import PopupPostaci from "../hub/PopupPostaci.jsx";
 import PodsumowanieDnia from "../hub/PodsumowanieDnia.jsx";
 import { odtworzSlady, wyczyscSlady } from "../hub/sladySwiata.js";
+import { odtworzSladPorady } from "../hub/poradaZBiblioteki.js";
 import { wyczyscRysunki } from "../hub/ramkaDomku.js";
 import RewardScreen from "../components/RewardScreen.jsx";
 import { bonusMonet, ZDARZENIE_ZMIANY as MONETY_ZMIANA } from "../services/monety.js";
@@ -2593,6 +2594,10 @@ export default function Swiat() {
            sprawa: świat ma pamiętać, co dziecko zrobiło. Bez animacji —
            wejście do świata nie jest chwilą, w której coś rośnie. */
         odtworzSlady(scenaRef.current);
+        /* ŚLAD PORADY DNIA — dzienny, nie trwały (nie ma go w dzienniku
+           `sladySwiata`): wraca z `ewolucja.porada.slad` tylko tego samego dnia,
+           bez animacji (docs/tresci/04 §6). */
+        odtworzSladPorady(scenaRef.current);
         /* Znacznik braku hybrydy (W6) — nie jest śladem, więc nie ma go
            w dzienniku; wraca tu, dopóki hybryda jest otwarta. */
         odtworzHybrydeWScenie(scenaRef.current);
