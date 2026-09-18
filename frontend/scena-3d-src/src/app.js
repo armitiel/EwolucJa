@@ -30,10 +30,13 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Planeta, stycznaDo, doStycznej, obrocStyczna, katMiedzy, przytnijDoPromienia } from "./planeta.js";
 import { wczytajMape } from "./mapa.js";
 import { zbudujSwiat, sosna, drzewoLisciaste, kamiennyPak, plamaCienia, taflaNaGruncie, punktNaGruncie, drzewoDomkowe, ukladDomku, DOMEK_DRZEWO, ZANURZENIE_DOMKU, MAT_PIEN_DOMKU, PALETA } from "./swiat.js";
-import { stosDrewna, kamyczki, pieniek } from "./natura.js";
+// `pieniek` zostaje w `natura.js`, ale scena go nie stawia — ścięte drzewo
+// to same kłody (decyzja właściciela 2026-09-18).
+import { stosDrewna, kamyczki } from "./natura.js";
 import { schronienie, LICZBA_ETAPOW } from "./schronienie.js";
 import { Znak, krag, smugaKregu } from "./znak.js";
 import { MokreSlady } from "./mokreslady.js";
+import { Slady } from "./slady.js";
 import { postac } from "./postacie.js";
 import { Doba } from "./doba.js";
 import { Chmury } from "./chmury.js";
@@ -62,6 +65,20 @@ const MAX_TEMPO_KLIPU = 2.6;
 const POCHYLENIE_MAX = 0.13;
 const POCHYLENIE_BIEG = -0.375;
 const OS_POCHYLENIA = 0.55;
+/* DRABINKA DOMKU — wejście liska po szczeblach do wnętrza (`_drabinkaStart`).
+   Czasy w sekundach, odległości w jednostkach mapy. */
+const DRABINKA = {
+  prog: 1.05,         // jak blisko stopy trzeba stanąć, żeby lisek wszedł (bocznice stoją ±0,38 od osi)
+  uzbrojenie: 1.6,    // po odejściu tak daleko wejście uzbraja się na nowo
+  podejscie: .38,     // z miejsca, gdzie stał, do pierwszego szczebla
+  wspinanie: 3.4,     // pierwszy szczebel → krawędź desek (bocznice mają ok. 4,5 jednostki)
+  ganek: .55,         // z krawędzi desek do drzwi
+  czekanie: 1.6,      // ile stoi w drzwiach, zanim uzna, że nikt nie otworzył wnętrza
+  wysuw: .06,         // o tyle łapy stoją PRZED szczeblem (ponad jego promień)
+  krycie: .85,        // jaka część kąta drabinki idzie w pochylenie ciała
+  tempoKlipu: 1.15,   // klip `walk` na szczeblach
+  odstepOdStopy: .6,  // gdzie staje po zejściu: tyle przed stopą, tyłem do drabinki
+};
 const MARTWA_STREFA = 0.14;
 const PROG_TRZYMANIA = 0.45;
 const CZAS_DO_BIEGU = 1.6;
@@ -151,6 +168,21 @@ const OPAD_CZAS = 0.62;      // lot jednej kłody, sekundy
 const OPAD_ODSTEP = 0.085;   // przerwa między kolejnymi
 const OPAD_WYSOKOSC = 2.6;   // z jakiej wysokości, w skalach stosu
 
+/* WSKOK ŁADUNKU NA PLECY — krótszy i żwawszy niż opad kłód. Tam drewno SPADA
+   z wysokości i ma ważyć; tu jest PODRZUCONE w górę i ma być lekkie. Sześć
+   kłód mieści się w ~0,65 s, czyli w tyle, ile dziecko i tak stoi przy stosie,
+   zanim ruszy dalej. Dłużej i podniesienie zaczyna wyglądać jak zacięcie. */
+const WSKOK_CZAS = 0.30;     // lot jednej kłody, sekundy
+const WSKOK_ODSTEP = 0.07;   // przerwa między kolejnymi
+const WSKOK_SPAD = 1.15;     // z jak nisko startuje, w skalach ładunku
+
+/* ZRZUT NA PLAC — odwrotność wskoku: kłody zlatują z grzbietu na miejsce
+   składowania. Dłużej niż wskok (0,46 vs 0,30), bo TU drewno spada, a nie jest
+   podrzucane — i dłuższy lot daje mu ciężar. Krzywą dzieli z opadem po ścięciu
+   (`opadKrzywa`), razem z jej miękkim odbiciem na końcu. */
+const ZRZUT_CZAS = 0.46;     // lot jednej kłody, sekundy
+const ZRZUT_ODSTEP = 0.075;  // przerwa między kolejnymi
+
 /* POŚWIATA MATERIAŁU CZEKAJĄCEGO NA ZABRANIE. Barwa ta sama, co ślad do placu
    (`_sladDoPlacu`) i łuk wskaźnika rąbania — w tej scenie ciepły amber znaczy
    „tu jest coś do zrobienia", i ma znaczyć to samo za każdym razem. */
@@ -172,6 +204,19 @@ function opadKrzywa(u) {
   if (u < .68) { const t = u / .68; return t * t; }
   const t = (u - .68) / .32;
   return 1 - Math.sin(t * Math.PI) * .17 * (1 - t);
+}
+
+/**
+ * Krzywa wskoku: 0 = kłoda jeszcze przy ziemi, 1 = na swoim miejscu na plecach.
+ *
+ * Odwrotność opadania — RZUT, nie spadek: najszybciej na starcie, najwolniej
+ * tuż przed grzbietem (`1 − (1−u)^2,5`). Samo wyhamowanie to jeszcze winda,
+ * więc łuk ponad cel dokłada `_wskokLadunkuKlatka`; tu zostaje sam przelot.
+ */
+function wskokKrzywa(u) {
+  if (u >= 1) return 1;
+  const t = 1 - u;
+  return 1 - t * t * Math.sqrt(t);
 }
 /**
  * To samo dla ekranu POZIOMEGO. Kadr jest wtedy niski i szeroki: gdyby lisek
@@ -411,6 +456,13 @@ export class Aplikacja {
       };
     }
     this.kwiaty = sw.kwiaty;
+    /* ŚLADY PRZYGÓD (`slady.js`) — to, co planeta robi z tym, co dziecko
+       zrobiło POZA ekranem. Tworzymy je tutaj, bo potrzebują trzech rzeczy
+       naraz: kwiatów (najczęstsza forma śladu), tablicy `blockers`
+       (odsłonięta brama musi zagradzać) i haka na `swiat.add` wyżej, żeby
+       postawione bryły od razu rzucały cień. */
+    this._zapamietajUkryte(sw);
+    this.slady = new Slady(this);
     this.zasiewWlaczony = this.mapa.zasiew;
     this._zasiewOstatnia = null;
     this._zasiewDroga = 0;
@@ -523,6 +575,10 @@ export class Aplikacja {
     this.idleAtLantern = 0;
     this.camRight = new Vector3();
     this.camFwd = new Vector3();
+    /* Od razu, nie dopiero po wczytaniu modeli. Do 18.09 baza była zerowa aż
+       do zdarzenia „gotowa"; dotknięcie dżojstika wcześniej dawało
+       `normalize()` na wektorze zerowym, czyli NaN w kierunku ruchu. */
+    this.updateCameraBasis();
     this.raycaster = new Raycaster();
     this.clock = new Clock();
 
@@ -745,8 +801,16 @@ export class Aplikacja {
            o wysokości 2,4 nie może zostać kupka wielkości kamyka. Przy .48
            stos ma około metra w poprzek — tyle, ile zajmują trzy kłody. */
         const skalaStosu = (e.wysokosc ?? 2.4) * .48;
-        wynik.add(this._osadz(stosDrewna(skalaStosu), e.pos[0] + .72, e.pos[1] + .3, .05, .4));
-        wynik.add(this._osadz(pieniek((e.wysokosc ?? 2.4) * .42), e.pos[0], e.pos[1], .04, 0));
+        /* SAME KŁODY (właściciel, 2026-09-18). Ścięte drzewo to stos kłód
+           i nic więcej: bez pieńka w ziemi i bez szczap opartych z boku.
+           Szczapy (prostopadłościany z jasnym cięciem) czytały się jak
+           deski wetknięte w stos, a pieniek — jako drugi, konkurencyjny
+           obiekt tuż obok drewna, po które dziecko ma przyjść.
+           `_ostatniPieniek` zostaje: to WSPÓŁRZĘDNE miejsca po drzewie
+           (kotwica śladów przygód), a nie bryła. */
+        wynik.add(this._osadz(stosDrewna(skalaStosu, { szczapy: false }),
+          e.pos[0] + .72, e.pos[1] + .3, .05, .4));
+        this._ostatniPieniek = [e.pos[0], e.pos[1]];
         this.swiat.add(wynik);
 
         /* KOLIZJA MNIEJSZA NIŻ ZASIĘG PRACY. Bez blockera lisek przechodził
@@ -778,10 +842,11 @@ export class Aplikacja {
     this._zarejestrujGlazy();
     const sch = this.mapa.schronienie;
     // Normalna placu liczona RAZ: sprawdzamy ją w każdej klatce transportu.
-    this._nPlacu = sch ? this.planeta.normalna(sch.pos[0], sch.pos[1]) : null;
+    const posPlacu = this._posPlacu();
+    this._nPlacu = posPlacu ? this.planeta.normalna(posPlacu[0], posPlacu[1]) : null;
     // Jedna linia w konsoli zamiast zgadywania, czy cele w ogóle powstały.
     console.info("[rabanie] cele:", this._doScinania.map((c) => `${c.id} (${c.rodzaj}, zasieg ${c.zasieg})`));
-    console.info("[schronienie] miejsce:", sch?.pos ?? "brak w mapie");
+    console.info("[schronienie] drzewo:", sch?.pos ?? "brak w mapie", "| plac:", posPlacu ?? "brak");
   }
 
   async loadBudynki() {
@@ -1044,21 +1109,66 @@ export class Aplikacja {
     t("replay", () => { this.replayWalk(); this.setActive("replay"); });
   }
 
+  /**
+   * BAZA STEROWANIA — „góra dżojstika" i „prawo dżojstika" wyrażone w świecie.
+   *
+   * LICZY SIĘ Z `camDir`, NIE Z BIEŻĄCEJ KAMERY, i to jest cała poprawka
+   * z 18.09. Wcześniej brała obrót kamery w chwili wywołania, a kamera przy
+   * starcie NIE stoi tam, gdzie zwykle: najazd wejścia (`_wejscieKlatka`)
+   * trzyma ją przez prawie dwie sekundy niemal PIONOWO NAD planetą i na
+   * azymucie obróconym o 2,62 rad — czyli sto pięćdziesiąt stopni od
+   * domyślnego. Dwie rzeczy szły z tego nie tak:
+   *
+   *  1. Gdy cokolwiek przeliczyło kadr w trakcie najazdu (zmiana zoomu,
+   *     obrót ekranu — `updateCameraBasis` wisi na końcu tamtej funkcji),
+   *     baza zapamiętywała orientację Z NAJAZDU. Nic jej potem nie cofało:
+   *     przywracanie bazy miało tylko kino podejścia (`_kino`), a najazd
+   *     wejścia swojego nie ma. Sterowanie zostawało obrócone do końca sesji
+   *     i pomagało wyłącznie odświeżenie strony.
+   *  2. Przy kamerze patrzącej prawie prosto w dół rzut jej osi na płaszczyznę
+   *     poziomą jest bliski zeru, a `normalize()` na takim wektorze zwraca
+   *     kierunek wyznaczony przez szum ostatnich bitów. Stąd „raz góra to
+   *     góra, raz góra to dół" — przy każdym wejściu inaczej.
+   *
+   * `camDir` jest stałą kierunku patrzenia (kamera w tej grze stoi w miejscu,
+   * to planeta obraca się pod bohaterem), więc baza z niej jest zawsze ta
+   * sama i zawsze zgodna z tym, co dziecko widzi po wylądowaniu kadru.
+   * Wynik jest co do znaku identyczny z tym, co dawała poprawnie ustawiona
+   * kamera: `lookAt` buduje oś X jako `cross(góra, camDir)`.
+   */
   updateCameraBasis() {
-    this.camRight.set(1, 0, 0).applyQuaternion(this.camera.quaternion);
-    this.camRight.y = 0;
-    this.camRight.normalize();
-    this.camFwd.set(0, 0, -1).applyQuaternion(this.camera.quaternion);
-    this.camFwd.y = 0;
+    const d = this.camDir;
+    this.camFwd.set(-d.x, 0, -d.z);
+    // Domyślny kierunek nigdy nie jest pionowy, ale gdyby ktoś kiedyś ustawił
+    // `camDir` prosto z góry, lepiej mieć sensowne „przód" niż NaN w pozycji
+    // bohatera.
+    if (this.camFwd.lengthSq() < 1e-8) this.camFwd.set(0, 0, -1);
     this.camFwd.normalize();
+    this.camRight.set(-this.camFwd.z, 0, this.camFwd.x).normalize();
+  }
+
+  /**
+   * SEKWENCJE, KTÓRYCH STEROWANIE NIE PRZERYWA: lisek na drabince i na
+   * łodydze fasoli. Przez chwilę to scena prowadzi bohatera po torze, który
+   * nie jest ziemią — przerwanie w połowie zostawiłoby go pochylonego
+   * i zawieszonego na złej wysokości, bez drogi powrotu. Ten błąd był
+   * realny: `readKeys` woła `enterFreeMode` CO KLATKĘ, gdy klawisz jest
+   * wciśnięty, więc na klawiaturze wejście po drabince ginęło w pierwszej
+   * klatce — lisek tylko się pochylał i szedł dalej.
+   */
+  _sekwencjaNieprzerywalna() {
+    return !!this._drabinka || this.sequence === "wspinaczka";
   }
 
   enterFreeMode() {
     if (this.mode !== "free") { this.mode = "free"; this.walking = false; this.setActive(null); }
-    if (this.sequence) this.sequence = null;
+    if (this.sequence && !this._sekwencjaNieprzerywalna()) this.sequence = null;
   }
 
   onPointerDown(e) {
+    // W trakcie wejścia po drabince palec nic nie zaczyna: ani drążka, ani
+    // tapnięcia, ani skrócenia kina — to jest kilka sekund, które mają się dograć.
+    if (this._sekwencjaNieprzerywalna()) return;
     this.kinoSkroc();
     if (!this.stick) {
       this.stick = { id: e.pointerId, x0: e.clientX, y0: e.clientY, active: false };
@@ -1082,7 +1192,7 @@ export class Aplikacja {
     this.stick = null;
     this.hideStick();
     if (t.active) { this.input.set(0, 0); this.inputSource = null; this.setRunFlag(false); }
-    else this.tapAt(e.clientX, e.clientY);
+    else if (!this._sekwencjaNieprzerywalna()) this.tapAt(e.clientX, e.clientY);
   }
   showStick(e, t) {
     if (!this.stickBase) return;
@@ -1122,6 +1232,42 @@ export class Aplikacja {
    * siatki terenu. Zwraca kotwicę (nie dodaje jej do sceny): wołający sam
    * decyduje, czy wiesza ją na świecie, czy w grupie wyniku.
    */
+  /**
+   * UKRYTE OBIEKTY MAPY, ODŁOŻONE NA PÓŹNIEJ.
+   *
+   * `zbudujSwiat` buduje most, bramę i latarnię ZAWSZE, a tylko nie wkłada
+   * ich do świata, gdy mapa mówi `ukryty` — i zwraca je mimo to. Trzymamy
+   * te referencje razem z kolizjami, których tamten warunek nie dołożył:
+   * brama bez blockerów byłaby bramą, przez którą się przechodzi na wylot.
+   * Odsłania je `slady.pokazUkryty` po zadaniu zrobionym w realu.
+   */
+  _zapamietajUkryte(sw) {
+    const m = this.mapa;
+    if (m.most?.ukryty && sw.bridge) this._mostUkryty = { obj: sw.bridge, blockers: [] };
+    if (m.latarnia?.ukryta && sw.lantern) {
+      const c = m.latarnia.pos;
+      this._latarniaUkryta = { obj: sw.lantern, blockers: [{ x: c.x, z: c.z, r: 0.45 }] };
+    }
+    if (m.brama?.ukryta && sw.gate) {
+      const [x, z] = m.brama.pos;
+      this._bramaUkryta = { obj: sw.gate, blockers: [
+        { x: x - 1.3, z, r: 0.55 },
+        { x: x + 1.3, z, r: 0.55 },
+      ] };
+    }
+  }
+
+  /* ── ŚLADY PRZYGÓD: WEJŚCIE DLA REACTA ────────────────────────────────
+     Nazwy są dokładnie te, które siedzą w `reakcja_swiata.metoda`
+     w `zadania-wizkora.v2.json` — React woła je po nazwie z danych
+     (`hub/zadanieWizkora.js`, `odpalReakcjeSwiata`), więc zmiana nazwy tutaj
+     rozłącza kanał po cichu. */
+  posadzKwiat(...a) { return this.slady?.posadzKwiat(...a) || false; }
+  ulozKamyczki(...a) { return this.slady?.ulozKamyczki(...a) || false; }
+  dodajGrzyb(...a) { return this.slady?.dodajGrzyb(...a) || false; }
+  pokazUkryty(...a) { return this.slady?.pokazUkryty(...a) || false; }
+  dodajZnak(...a) { return this.slady?.dodajZnak(...a) || false; }
+
   /**
    * CIENIE DLA OBIEKTU, KTÓRY DOSZEDŁ DO ŚWIATA PO STARCIE SCENY.
    *
@@ -1651,7 +1797,7 @@ export class Aplikacja {
   }
   stopWalk() {
     this.walking = false;
-    this.sequence = null;
+    if (!this._sekwencjaNieprzerywalna()) this.sequence = null;
     this.input.set(0, 0);
     this.inputSource = null;
     this.holdTime = 0;
@@ -1790,11 +1936,16 @@ export class Aplikacja {
       if (this.seqTimer > 1.55) { this.sequence = null; this.idleAtLantern = 0; this.play("idle", 0.3); }
     } else if (this.sequence === "wspinaczka") {
       this._wspinaczkaKlatka(e);
+    } else if (this._drabinka) {
+      // Po OBIEKCIE, nie po nazwie: `_drabinka` jest źródłem prawdy o wejściu,
+      // a nazwa sekwencji bywała kasowana przez sterowanie (patrz `enterFreeMode`).
+      this._drabinkaKlatka(e);
     }
 
-    // pochylenie w biegu
+    // pochylenie w biegu (na drabince: pochylenie CIAŁA do kąta bocznic)
     let n;
-    if (this.sequence || !this.moveSpeed) n = 0;
+    if (this._drabinka) n = this._drabinka.pochyl || 0;
+    else if (this.sequence || !this.moveSpeed) n = 0;
     else if (this.current === KLIP_BIEG) n = POCHYLENIE_BIEG;
     else n = POCHYLENIE_MAX * clamp((this.moveSpeed - V_CHOD * 0.8) / (V_BIEG - V_CHOD * 0.8), 0, 1);
     this.lean = dogon(this.lean || 0, n, 6, e);
@@ -1807,6 +1958,9 @@ export class Aplikacja {
     this.footOffset = dogon(this.footOffset, r, 12, e);
     const a = (this.leanDip || 0) * Math.max(0, (this.lean || 0) / POCHYLENIE_MAX);
     this.heroLift = this.groundY + this.footOffset + a + (this._wspDodatek || 0);
+    /* Na drabince wysokość nie jest „grunt + stopy", tylko punktem na bocznicach
+       — liczy ją `_drabinkaKlatka`, tu tylko ją bierzemy zamiast tamtej. */
+    if (this._drabinka?.lift != null) this.heroLift = this._drabinka.lift;
     this.syncHero();
     /* Ślady PO `syncHero` (dopiero tam `hn` jest pozycją z tej klatki),
        ale PRZED sianiem: `tik` liczy przy okazji, czy bohater stoi w wodzie,
@@ -1868,6 +2022,8 @@ export class Aplikacja {
     this._wejscieKlatka(e);
     this._nocKlatka(e);
     this._opadKlodKlatka(e);
+    this._wskokLadunkuKlatka(e);
+    this._zrzutKlatka(e);
     this.camera.position.copy(this.camPos);
     this.camera.lookAt(this._kc.x, this._kc.y, this._kc.z);
 
@@ -1912,6 +2068,7 @@ export class Aplikacja {
     if (this.swiatlo) this.swiatlo.aktualizuj(e);
     if (this.kropla) this.kropla.aktualizuj(e);
     this._fasolaTik(e);
+    this._drabinkaTik(e);
     this._rabanieTik(e);
     this._transportTik(e);
     this._poswiataTik(e);
@@ -2329,8 +2486,12 @@ export class Aplikacja {
          kupka wielkości kamyka. 1,2 daje mniej więcej metr w poprzek — tyle,
          ile zajmują trzy kłody. */
       const skalaStosu = sk * 1.2;
-      wynik.add(this._osadz(stosDrewna(skalaStosu), pos[0] + .72, pos[1] + .3, .05, .4));
-      wynik.add(this._osadz(pieniek(sk * 1.05), pos[0], pos[1], .04, 0));
+      // SAME KŁODY — bez pieńka i bez szczap; patrz komentarz przy suchych drzewkach.
+      wynik.add(this._osadz(stosDrewna(skalaStosu, { szczapy: false }),
+        pos[0] + .72, pos[1] + .3, .05, .4));
+      /* Kotwica „na-pienku" dla śladów przygód: miejsce po drzewie, które
+         dziecko ścięło samo, jest najlepszym adresem, jaki ta gra ma. */
+      this._ostatniPieniek = [pos[0], pos[1]];
       this.swiat.add(wynik);
 
       const posWyniku = [pos[0] + .72, pos[1] + .3];
@@ -2779,7 +2940,8 @@ export class Aplikacja {
     this._sladFaza = ((this._sladFaza || 0) + e * .45) % 1;
 
     const ax = this.hp.x, az = this.hp.z;
-    const bx = def.pos[0], bz = def.pos[1];
+    const cel = this._posPlacu();
+    const bx = cel[0], bz = cel[1];
     const n = this._sladKropki.length;
     for (let i = 0; i < n; i += 1) {
       const t = (i + 1) / (n + 1);
@@ -2825,6 +2987,7 @@ export class Aplikacja {
       const model = this._ladunekModel(c.rodzaj, c.skalaWyniku ?? 1);
       this.swiat.add(model);
       this._ladunek = { rodzaj: c.rodzaj, id: c.id, cel: c, model };
+      this._zacznijWskokLadunku(model, c.skalaWyniku ?? 1);
       this.hint(c.rodzaj === "glaz" ? "Niosę kamienie" : "Niosę drewno");
       this.emit("surowiec:podniesiony", { rodzaj: c.rodzaj, id: c.id });
       try { navigator.vibrate?.(14); } catch {}
@@ -2843,19 +3006,26 @@ export class Aplikacja {
     this.swiat.remove(L.model);
     L.model.traverse((o) => { o.geometry?.dispose?.(); });
     if (L.cel) L.cel.niesione = false;
+    this._wskokLadunku = null;   // animacja pokazuje na bryły, których już nie ma
     this._ladunek = null;
   }
 
   _oddajLadunek() {
     const L = this._ladunek;
     if (!L) return;
+    /* SKĄD LECI DREWNO — pozycja ładunku ZANIM go zdejmiemy z pleców.
+       Świat (planeta) obraca się pod bohaterem, więc bierzemy punkt w układzie
+       świata, a nie lokalną pozycję w grupie. */
+    const zrodlo = L.model.getWorldPosition(new Vector3());
     this.swiat.remove(L.model);
     L.model.traverse((o) => { o.geometry?.dispose?.(); });
     L.cel.niesione = false;
     L.cel.dostarczone = true;
+    this._wskokLadunku = null;   // ładunek zszedł z pleców w trakcie wskoku
     // Numer dostawy = ile już leży na placu. Liczymy PRZED dołożeniem tego stosu.
-    this._polozNaPlacu(L.rodzaj, L.cel.skalaWyniku ?? 1,
+    const stosNaPlacu = this._polozNaPlacu(L.rodzaj, L.cel.skalaWyniku ?? 1,
       this._doScinania.filter((c) => c.dostarczone && c !== L.cel).length);
+    if (stosNaPlacu) this._zacznijZrzut(stosNaPlacu, L.cel.skalaWyniku ?? 1, zrodlo);
     this._ladunek = null;
     this.hint(L.rodzaj === "glaz" ? "Kamienie na placu!" : "Drewno na placu!");
     this.emit("surowiec:dostarczony", { rodzaj: L.rodzaj, id: L.id });
@@ -2897,17 +3067,23 @@ export class Aplikacja {
        kurs wygląda więc tak samo jak wcześniej, a rozsuwa się dopiero drugi. */
     const kat = (def.obrot ?? 0) + Math.PI + (nr - 1) * .55;
     const promien = 1.25 * s;
-    const x = def.pos[0] + promien * Math.cos(kat);
-    const z = def.pos[1] - promien * Math.sin(kat);
+    const srodek = this._posPlacu();
+    const x = srodek[0] + promien * Math.cos(kat);
+    const z = srodek[1] - promien * Math.sin(kat);
     const bryla = rodzaj === "glaz" ? kamyczki(skala * .8) : stosDrewna(skala * .7);
     const stos = this._osadz(bryla, x, z, .05, kat + .35);
     this._skladNaPlacu.add(stos);
     this._wlaczCienie(stos);
+    // Zwracamy kotwicę, żeby `_oddajLadunek` mógł puścić po niej zrzut.
+    // Odtwarzanie dostaw z poprzedniej sesji nic z tym nie robi — i dobrze:
+    // stosy sprzed zamknięcia apki mają po prostu leżeć, a nie spadać z nieba.
+    return stos;
   }
 
   /** Czyści skład — woła `ustawSchronienie`, gdy materiał zamienia się w budowlę. */
   _zabierzSklad() {
     if (!this._skladNaPlacu) return;
+    this._zrzut = null;   // skład znika — nie ma na czym dokończyć lotu
     this.swiat.remove(this._skladNaPlacu);
     this._skladNaPlacu.traverse((o) => { o.geometry?.dispose?.(); });
     this._skladNaPlacu = null;
@@ -2991,6 +3167,9 @@ export class Aplikacja {
       this._schronienie = null;
       this._gibanaBudowla = null;
     }
+    // Drabinka liczy się z kotwic bryły — nowa bryła, nowe kotwice.
+    this._drabinkaDaneCache = null;
+    if (this._drabinka) this._drabinkaZejdz(true);
     for (const b of this._schronBlockers || []) {
       const i = this.blockers.indexOf(b);
       if (i >= 0) this.blockers.splice(i, 1);
@@ -3031,28 +3210,10 @@ export class Aplikacja {
     bryla.position.set(PRZ_X, 0, PRZ_Z);
     kotwica.add(bryla);
 
-    /* KLEPISKO na taflę idącą za kulą i terenem — ten sam powód, co przy
-       placu budowy: płaska tarcza o promieniu 1 styka się z planetą tylko
-       w środku, więc darń przebijała przez jej środek zieloną dziurą.
-       `schronienie.js` buduje tarczę awaryjną i tylko ją nazywa; planetę zna
-       dopiero scena, więc podmiana siedzi tutaj.
-       Zanurzenie kotwicy schronienia to 0,02 — patrz komentarz przy placu. */
-    const klepisko = bryla.getObjectByName("schronienie-klepisko");
-    if (klepisko) {
-      klepisko.geometry.dispose();
-      /* Tafla liczy się w układzie kotwicy, a klepisko siedzi w przesuniętej
-         bryle — podajemy więc `taflaNaGruncie` macierz kotwicy Z TYM
-         przesunięciem. Bez tego wierzchołki chodziłyby za terenem w jednym
-         miejscu, a leżały w drugim, i darń znów przebijałaby przez środek. */
-      kotwica.updateMatrix();
-      const m = kotwica.matrix.clone().multiply(
-        new Matrix4().makeTranslation(PRZ_X, 0, PRZ_Z));
-      klepisko.geometry = taflaNaGruncie(this.planeta, { matrix: m, updateMatrix() {} },
-        klepisko.userData.promien ?? 1.06 * s, this.wysokoscGruntuSiatki,
-        ZANURZENIE_DOMKU + .03 * s);
-      klepisko.rotation.set(0, 0, 0);
-      klepisko.position.set(0, 0, 0);
-    }
+    /* KLEPISKA TU JUŻ NIE MA. Wydeptana ziemia pod drzewem nie jest bryłą:
+       maluje ją shader terenu z formy `wykop` w `mapa.json` (patrz komentarz
+       w `schronienie.js`). Nie ma więc czego podmieniać ani przepinać —
+       plama jest darnią, a nie czymś, co na darni leży. */
 
     /* CO JEDZIE Z DRZEWEM, A CO ZOSTAJE. Pomost leży na konarze, więc kiedy
        lisek wpadnie w pień i drzewo się zakołysze, deski muszą pojechać razem
@@ -3251,6 +3412,23 @@ export class Aplikacja {
     return spr;
   }
 
+  /**
+   * GDZIE JEST PLAC BUDOWY — jedno źródło dla WSZYSTKIEGO, co go dotyczy:
+   * tarczy z palikami, POLA ZRZUTU drewna (`_nPlacu`), śladu prowadzącego
+   * i stosów dostarczonego materiału.
+   *
+   * `schronienie.pos` to KOTWICA DRZEWA, a pień jest od niej odsunięty
+   * o `pienX/pienZ` — dlatego plac ma własny wpis `schronienie.plac`.
+   * Gdy każde z tych czterech miejsc czytało `pos` samo z siebie, przesunięcie
+   * placu zostawiało pole zrzutu i ślad w starym miejscu: tarcza stała gdzie
+   * indziej, niż działało oddanie ładunku. Brak wpisu = po staremu, w kotwicy.
+   */
+  _posPlacu() {
+    const def = this.mapa.schronienie;
+    if (!def) return null;
+    return Array.isArray(def.plac) ? def.plac : def.pos;
+  }
+
   ustawPlacBudowy(widoczny, gotowy = false) {
     const def = this.mapa.schronienie;
     if (!def || !Array.isArray(def.pos)) return;
@@ -3278,9 +3456,16 @@ export class Aplikacja {
     }
 
     const s = def.skala ?? 1;
+    /* PLAC MA WŁASNE MIEJSCE NA MAPIE (`schronienie.plac`).
+       Dotąd stawiał się w `schronienie.pos`, czyli w KOTWICY drzewa — a pień
+       jest od niej odsunięty o `pienX/pienZ` (dziś prawie dwie jednostki),
+       więc plac lądował za drzewem zamiast obok niego. Poza tym to są dwie
+       różne rzeczy: kotwica mówi, gdzie rośnie drzewo, a plac — gdzie dziecko
+       ma znosić drewno. Brak wpisu = po staremu, w kotwicy. */
+    const POS = this._posPlacu();
     if (!this._plac) {
       const bryla = this._placBudowy(s);
-      const kotwica = this._osadz(bryla, def.pos[0], def.pos[1], .01, def.obrot ?? 0);
+      const kotwica = this._osadz(bryla, POS[0], POS[1], .01, def.obrot ?? 0);
 
       /* WYDEPTANA ZIEMIA dopiero tutaj, bo tafla liczy się w układzie kotwicy
          i musi próbkować teren pod nią. Bledsza i mniejsza niż gotowe
@@ -3316,13 +3501,13 @@ export class Aplikacja {
       // Ikona wisi w układzie planety, tak jak pierścień pracy: pozycja placu
       // plus normalna, a nie sztywne +Y (na kuli „góra" zależy od miejsca).
       ik.position.copy(kotwica.position).addScaledVector(
-        this.planeta.normalna(def.pos[0], def.pos[1]), 1.45 * s);
+        this.planeta.normalna(POS[0], POS[1]), 1.45 * s);
       this.swiat.add(kotwica);
       this.swiat.add(ik);
       this._plac = kotwica;
       this._placIk = ik;
       this._placBaza = ik.position.clone();
-      this._placN = this.planeta.normalna(def.pos[0], def.pos[1]).clone();
+      this._placN = this.planeta.normalna(POS[0], POS[1]).clone();
 
       this._placPierscien = pierscien;
       const bujaj = () => {
@@ -3464,6 +3649,236 @@ export class Aplikacja {
     }
   }
 
+  /* ── DRABINKA DOMKU — wejście liska po szczeblach do wnętrza ─────────────
+   *
+   * PO CO TO JEST. Wnętrze domku (`pages/WnetrzeDomku.jsx`) otwierało się
+   * dotąd tylko z panelu. Dziecko widziało drabinkę, stawiało pod nią liska —
+   * i nic. Teraz drabinka jest DRZWIAMI: stanięcie pod nią oddaje sterowanie
+   * scenie, lisek wchodzi po szczeblach, staje w drzwiach i scena zgłasza
+   * `domek:wejscie`; hub otwiera wnętrze, a scena zostaje zapauzowana z liskiem
+   * na górze. Po powrocie (`wznow`) lisek stoi już pod drabinką.
+   *
+   * GEOMETRIA Z KOTWIC, NIE Z RACHUNKU. `schronienie.js` zostawia w bryle puste
+   * węzły (`kotwica-drabinka-stopa`, `-szczyt`, `kotwica-drzwi`); tu czytamy
+   * ich pozycje w układzie planety (`swiat`) i po nich prowadzimy bohatera.
+   * Wysokość i punkt na kuli idą PROSTO z odcinka bocznic (`_drabinka.lift`,
+   * `hn`), a nie z gruntu — dlatego pętla podmienia `heroLift`.
+   *
+   * POCHYLENIE. Ciało liska prowadzi `tilt.rotation.x` (ta sama oś, co
+   * pochylenie w biegu; dodatnie = łeb do przodu). Docelowy kąt to kąt między
+   * pionem W MIEJSCU LISKA a kierunkiem bocznic — i to jest więcej niż samo
+   * odchylenie drabinki od pionu kotwicy, bo trzy jednostki od pnia kula
+   * odeszła już o kilkanaście stopni. Pochylenie dzieje się wokół osi
+   * `OS_POCHYLENIA` nad łapami, więc łapy uciekłyby spod szczebla; punkt
+   * bohatera przesuwamy o tyle, o ile obrót przesuwa łapy — i łapy zostają.
+   *
+   * SPOKOJNY RUCH = CIĘCIE. Bez sekwencji i bez kina: zdarzenie idzie od razu,
+   * a lisek zostaje pod drabinką.
+   */
+  _drabinkaDane() {
+    if (this._drabinkaDaneCache) return this._drabinkaDaneCache;
+    const K = this._schronienie;
+    if (!K || this._etapSchronienia <= 0) return null;
+    const stopa = K.getObjectByName("kotwica-drabinka-stopa");
+    const szczyt = K.getObjectByName("kotwica-drabinka-szczyt");
+    const drzwi = K.getObjectByName("kotwica-drzwi");
+    if (!stopa || !szczyt) return null;
+    /* Pozycje kotwic względem `K` (macierze świata przez odwrotność `K`),
+       potem do układu planety przez `K.matrix` — niezależnie od tego, jak
+       akurat stoi obrócona kula. */
+    K.updateMatrix();
+    K.updateMatrixWorld(true);
+    const odwr = K.matrixWorld.clone().invert();
+    const doPlanety = (o) => new Vector3().setFromMatrixPosition(o.matrixWorld).applyMatrix4(odwr).applyMatrix4(K.matrix);
+    const dol = doPlanety(stopa);
+    const gora = doPlanety(szczyt);
+    const kier = gora.clone().sub(dol);
+    const dlugosc = kier.length();
+    if (dlugosc < 1e-4) return null;
+    kier.divideScalar(dlugosc);
+    // „do pnia" to −X układu domku (drabinka opiera się o krawędź desek od strony +X)
+    const doPnia = new Vector3(-1, 0, 0).applyQuaternion(K.quaternion).normalize();
+    // na zewnątrz drabinki: „od pnia" bez składowej wzdłuż bocznic
+    const naZewnatrz = doPnia.clone().negate();
+    naZewnatrz.addScaledVector(kier, -naZewnatrz.dot(kier)).normalize();
+    const grubosc = Number(stopa.userData?.grubosc) || .08;
+    // Drzwi: punkt na deskach w progu; bez kotwicy — krawędź desek.
+    const prog = drzwi ? doPlanety(drzwi) : gora.clone();
+    // Lisek staje w progu ODSUNIĘTY na ganek, żeby nie wbić się w nadproże,
+    // i na WIERZCHU desek (kotwica drzwi siedzi w osi płyty, nie na jej licu).
+    prog.addScaledVector(doPnia, -.22);
+    prog.addScaledVector(prog.clone().normalize(), .10);
+    /* Wejście zaczyna się na PIERWSZYM SZCZEBLU, nie na samej stopie: przy
+       u = 0 pochylone ciało wpychało zad liska pod darń (origin między łapami
+       schodzi poniżej łap, gdy tułów jest przechylony). */
+    const odstep = Number(stopa.userData?.odstep) || dlugosc / 8;
+    const dane = {
+      dol, gora, kier, dlugosc, doPnia, naZewnatrz, grubosc, prog,
+      u0: Math.min(.2, (odstep * .5) / dlugosc),
+      nStopy: dol.clone().normalize(),
+    };
+    this._drabinkaDaneCache = dane;
+    return dane;
+  }
+
+  /** Czy lisek stoi pod drabinką z pustymi łapami — i czy wolno mu wejść. */
+  _drabinkaTik(e) {
+    if (!this.hero || this._etapSchronienia <= 0 || !this._schronienie) return;
+    if (this._kino || this.sequence || this._podglad || this._ladunek || this._drabinka) return;
+    const D = this._drabinkaDane();
+    if (!D) return;
+    const d = this.planeta.odleglosc(this.hn, D.nStopy);
+    if (d > DRABINKA.uzbrojenie) { this._drabinkaUzbrojona = true; return; }
+    if (d < DRABINKA.prog && this._drabinkaUzbrojona) this._drabinkaStart();
+  }
+
+  /**
+   * Punkt BOHATERA (jego origin między łapami) dla położenia `u` na bocznicach
+   * (0 = stopa, 1 = krawędź desek). Łapy stoją na szczeblu, ciało pochylone
+   * do kąta drabinki; `W.pochyl` dostaje docelowe pochylenie dla tej klatki.
+   */
+  _drabinkaPunkt(u, W, cel) {
+    const D = W.D;
+    const F = cel.copy(D.dol).addScaledVector(D.kier, D.dlugosc * u)
+      .addScaledVector(D.naZewnatrz, D.grubosc + DRABINKA.wysuw);
+    const up = this._v1.copy(F).normalize();
+    const f = doStycznej(this._v2.copy(D.doPnia), up);
+    // kąt między pionem w tym miejscu a bocznicami, dodatni = łeb ku pniowi
+    W.pochyl = Math.atan2(D.kier.dot(f), D.kier.dot(up)) * DRABINKA.krycie;
+    // korekta za obrót wokół osi nad łapami — łapy mają zostać na szczeblu
+    const a = this.lean || 0;
+    const os = OS_POCHYLENIA * SKALA_BOHATERA;
+    F.addScaledVector(f, os * Math.sin(a)).addScaledVector(up, -os * (1 - Math.cos(a)));
+    return F;
+  }
+
+  _drabinkaStart() {
+    const D = this._drabinkaDane();
+    if (!D) return false;
+    this._drabinkaUzbrojona = false;
+    if (spokojnyRuch) {
+      // cięcie: bez wspinaczki, wnętrze otwiera się od razu
+      this.stopWalk();
+      this.emit("domek:wejscie", { etap: this._etapSchronienia, pominiete: true });
+      return true;
+    }
+    this.stopWalk();
+    this.moveSpeed = 0;
+    this.mode = "free";
+    this.sequence = "drabinka";
+    this.seqTimer = 0;
+    this._drabinka = {
+      faza: "podejscie", t: 0, D,
+      lift: this.heroLift, pochyl: 0, naGorze: false,
+      p0: this.hn.clone().multiplyScalar(this.planeta.R + this.heroLift),
+      cel: new Vector3(),
+    };
+    if (this.actions.walk) this.actions.walk.timeScale = (V_CHOD / DL_KROKU_CHOD) * DRABINKA.tempoKlipu;
+    this.play("walk", .2);
+    /* Kino: bliżej, od strony gracza (azymut kamery domyślnej, niżej niż
+       zwykle), na cały czas wejścia; powrót dokończy się po wznowieniu. */
+    this.kino("bohater", {
+      trzym: DRABINKA.podejscie + DRABINKA.wspinanie + DRABINKA.ganek + .4,
+      powrot: .8, kadr: 4.6, luk: .22, el: .5,
+      az: Math.atan2(this.camDir.x, this.camDir.z),
+    });
+    this.emit("domek:drabinka", { etap: this._etapSchronienia });
+    return true;
+  }
+
+  _drabinkaKlatka(e) {
+    const W = this._drabinka;
+    if (!W) { if (this.sequence === "drabinka") this.sequence = null; return; }
+    // Nazwa sekwencji trzyma z daleka `moveFree`, ślady i znaki — odnawiamy ją
+    // co klatkę, żeby żadne wejście z zewnątrz nie zostawiło liska „wolnego" na szczeblach.
+    this.sequence = "drabinka";
+    this.walking = false;
+    const D = W.D;
+    W.t += e;
+    const R = this.planeta.R;
+    const gladko = (k) => { k = Math.max(0, Math.min(1, k)); return k * k * (3 - 2 * k); };
+    let cel = W.cel;
+    if (W.faza === "podejscie") {
+      const k = W.t / DRABINKA.podejscie;
+      const F = this._drabinkaPunkt(D.u0, W, this._v3);
+      cel.copy(W.p0).lerp(F, gladko(k));
+      if (k >= 1) { W.faza = "wspinanie"; W.t = 0; }
+    } else if (W.faza === "wspinanie") {
+      const k = Math.min(1, W.t / DRABINKA.wspinanie);
+      this._drabinkaPunkt(D.u0 + (1 - D.u0) * gladko(k), W, cel);
+      if (k >= 1) { W.faza = "ganek"; W.t = 0; W.p0.copy(cel); }
+    } else if (W.faza === "ganek") {
+      const k = W.t / DRABINKA.ganek;
+      W.pochyl = 0;
+      cel.copy(W.p0).lerp(D.prog, gladko(k));
+      if (k >= 1) {
+        W.faza = "trzym"; W.t = 0; W.naGorze = true;
+        this.play("idle", .25);
+        this.emit("domek:wejscie", { etap: this._etapSchronienia });
+      }
+    } else {
+      W.pochyl = 0;
+      cel.copy(D.prog);
+      /* Nikt nie zapauzował sceny = wnętrze się nie otworzyło (podgląd, brak
+         słuchacza). Lisek nie może zostać na deskach bez sterowania — schodzi. */
+      if (W.t > DRABINKA.czekanie) { this._drabinkaZejdz(false); return; }
+    }
+    /* Tempo klipu z prędkości, jak przy chodzeniu (`setLocomotion`): łapy mają
+       przebierać tyle, ile lisek naprawdę się przesuwa — inaczej na rozpędzie
+       i przy hamowaniu ślizgają się po szczeblach. */
+    if (W.poprz && e > 1e-4 && this.actions.walk && this.current === KLIP_CHOD) {
+      const v = cel.distanceTo(W.poprz) / e;
+      this.actions.walk.timeScale = clamp(v / DL_KROKU_CHOD, .5, MAX_TEMPO_KLIPU) * DRABINKA.tempoKlipu;
+    }
+    (W.poprz ||= new Vector3()).copy(cel);
+    this.hn.copy(cel).normalize();
+    W.lift = cel.length() - R;
+    this.hf.copy(D.doPnia);
+    doStycznej(this.hf, this.hn);
+    this.aktualizujHp();
+  }
+
+  /**
+   * Lisek z powrotem pod drabinką: przed stopą, tyłem do szczebli, na ziemi.
+   * `natychmiast` obraca też planetę pod niego bez dogonienia — na powrót
+   * z wnętrza, gdy ekran był zasłonięty.
+   */
+  _drabinkaZejdz(natychmiast = false) {
+    const W = this._drabinka;
+    const D = W?.D || this._drabinkaDane();
+    this._drabinka = null;
+    this.sequence = null;
+    this.moveSpeed = 0;
+    this.lean = 0;
+    if (this.tilt) this.tilt.rotation.x = 0;
+    if (this.actions.walk) this.actions.walk.timeScale = V_CHOD / DL_KROKU_CHOD;
+    if (D) {
+      const n = D.nStopy.clone();
+      const odPnia = doStycznej(D.doPnia.clone().negate(), n);
+      this.planeta.punktObok(n, odPnia, DRABINKA.odstepOdStopy, this.hn);
+      this.hf.copy(odPnia);
+      doStycznej(this.hf, this.hn);
+      this.aktualizujHp();
+    }
+    this.groundY = this.groundHeightAt(this.hp.x, this.hp.z);
+    this.footOffset = this.clipY?.idle ?? this.footOffset;
+    this.heroLift = this.groundY + this.footOffset;
+    this.play("idle", natychmiast ? 0 : .25);
+    if (natychmiast) {
+      this.planeta.obrotPodPunkt(this.hp.x, this.hp.z, this.swiat.quaternion);
+      this.kinoSkroc();
+    }
+    this.syncHero();
+    this._drabinkaUzbrojona = false;
+  }
+
+  /** API: lisek wchodzi po drabince do domku (o ile domek stoi). */
+  wejdzDoDomku() {
+    if (!this.hero || this._etapSchronienia <= 0 || !this._schronienie) return false;
+    if (this._kino || this.sequence || this._podglad || this._ladunek || this._drabinka) return false;
+    return this._drabinkaStart();
+  }
+
   /* ── API publiczne ────────────────────────────────────────────────────────── */
 
   pauza() {
@@ -3475,6 +3890,12 @@ export class Aplikacja {
   wznow() {
     if (!this.paused || this.destroyed) return;
     this.paused = false;
+    /* POWRÓT Z WNĘTRZA. Scena stała z liskiem w drzwiach domku; ekran zasłaniał
+       pokój, więc teraz — jeszcze przed pierwszą klatką — stawiamy go pod
+       drabinką, jakby właśnie zszedł. Skok jest niewidoczny, bo dzieje się
+       pod zasłoną; a bez niego dziecko zastałoby liska stojącego w powietrzu
+       przy drzwiach, bez sterowania. */
+    if (this._drabinka?.naGorze) this._drabinkaZejdz(true);
     this.clock.getDelta();
     this.renderer.setAnimationLoop(() => this.tick());
     this.emit("wznowienie");
@@ -3520,12 +3941,15 @@ export class Aplikacja {
     const b = new Box3().setFromObject(this.hero);
     const gy = Math.min(2.2, Math.max(0.4, (b.max.y - hw.y) * 0.86));
     const szer = Math.max(0.001, this.camera.right - this.camera.left);
-    const h = this.heading || 0;
+    /* Azymut ujęcia: domyślnie od strony PYSKA (`heading`) — tak grają
+       wejście i błysk. `az` podaje go wprost, w układzie świata: drabinka
+       chce kamery od strony, z której patrzy gracz (kierunek `camDir`), bo
+       ujęcie z przodu liska wchodzącego ku pniowi wpadało w koronę i dach. */
+    const h = p.az != null ? p.az : (this.heading || 0);
     this._kino = {
       faza: "trzym", t: 0, trzymDl: p.trzym, powrotDl: p.powrot, gy,
       zoom: Math.max(1.05, szer / (p.kadr || 1.7)),
       az0: h - p.luk * 0.38, az1: h + p.luk * 0.62, el: p.el,
-      br: this.camRight.clone(), bf: this.camFwd.clone(),
     };
     this.mode = "free";
     this.walking = false;
@@ -3714,6 +4138,167 @@ export class Aplikacja {
     }
   }
 
+  /**
+   * WSKOK ŁADUNKU — kłody (albo kamyki) wskakują liskowi na plecy dokładnie
+   * w chwili, w której je podnosi. Bez tego stos pojawiał się na grzbiecie
+   * jedną klatką: dziecko widziało SKUTEK podniesienia, ale nie samo
+   * podniesienie, więc kurs po drewno zaczynał się od teleportu.
+   *
+   * ANIMUJEMY W UKŁADZIE ŁADUNKU, nie świata. Grupa ładunku jest w każdej
+   * klatce przyklejana do grzbietu bohatera (`_transportTik`), więc lisek może
+   * w tym czasie ruszyć i skręcić — a kłody i tak wylądują dokładnie tam, gdzie
+   * mają leżeć. Lot liczony we współrzędnych świata trzeba by przeliczać co
+   * klatkę i na pierwszym zakręcie i tak by się rozjechał.
+   *
+   * Start jest POD miejscem docelowym (plus drobny rozrzut na boki): lisek stoi
+   * wtedy w samym stosie, więc „z dołu" to dokładnie tam, gdzie leży drewno.
+   */
+  _zacznijWskokLadunku(model, skala = 1) {
+    this._wskokLadunku = null;
+    if (spokojnyRuch) return;
+    const bryla = model.getObjectByName("stos-drewna") || model.getObjectByName("kamyczki");
+    if (!bryla || !bryla.children.length) return;
+
+    const spad = Math.max(.55, skala * WSKOK_SPAD);
+    const czesci = bryla.children.map((m) => ({
+      m, cel: { p: m.position.clone(), rx: m.rotation.x, rz: m.rotation.z },
+    }));
+    // Od spodu stosu: najpierw to, na czym reszta ma się oprzeć.
+    czesci.sort((a, b) => a.cel.p.y - b.cel.p.y);
+    czesci.forEach((c, i) => {
+      c.opoznienie = i * WSKOK_ODSTEP;
+      /* Rozrzut liczony Z NUMERU, nie losowy: dwie kłody nie startują z tego
+         samego punktu, a układ jest ten sam przy każdym podniesieniu — bo to
+         ma wyglądać jak jeden ruch, a nie jak inna animacja za każdym razem. */
+      c.start = c.cel.p.clone().add(new Vector3(
+        Math.cos(i * 2.4) * spad * .22, -spad, Math.sin(i * 2.4) * spad * .22));
+      c.luk = spad * .3;
+      /* Przechył w locie jest losowy, ale zawsze dochodzi do docelowego —
+         kłoda obraca się w powietrzu i siada równo (tak samo jak przy opadzie). */
+      c.obrotX = c.cel.rx + (Math.random() - .5) * 1.5;
+      c.obrotZ = c.cel.rz + (Math.random() - .5) * 1.5;
+      c.m.visible = false;
+    });
+    this._wskokLadunku = { czesci, t: 0 };
+  }
+
+  /** Klatka wskoku. Jedna animacja naraz — ładunek też jest jeden. */
+  _wskokLadunkuKlatka(e) {
+    const a = this._wskokLadunku;
+    if (!a) return;
+    a.t += e;
+    let wPowietrzu = false;
+    for (const c of a.czesci) {
+      const u = (a.t - c.opoznienie) / WSKOK_CZAS;
+      if (u < 0) { wPowietrzu = true; continue; }
+      c.m.visible = true;
+      if (u >= 1) {
+        c.m.position.copy(c.cel.p);
+        c.m.rotation.x = c.cel.rx;
+        c.m.rotation.z = c.cel.rz;
+        continue;
+      }
+      wPowietrzu = true;
+      c.m.position.lerpVectors(c.start, c.cel.p, wskokKrzywa(u));
+      /* Łuk PONAD cel: kłoda wyskakuje wyżej i dosiada, zamiast wjechać po
+         prostej jak na windzie. Sinus wraca do zera na końcu lotu, więc
+         miejsce docelowe zostaje trafione co do milimetra. */
+      c.m.position.y += Math.sin(Math.PI * u) * c.luk;
+      // Obrót dochodzi SZYBCIEJ niż pozycja — drewno ma być już ułożone,
+      // zanim dotknie grzbietu.
+      const o = Math.min(1, u / .72);
+      const w = o * o * (3 - 2 * o);
+      c.m.rotation.x = c.obrotX + (c.cel.rx - c.obrotX) * w;
+      c.m.rotation.z = c.obrotZ + (c.cel.rz - c.obrotZ) * w;
+    }
+    if (!wPowietrzu) this._wskokLadunku = null;
+  }
+
+  /**
+   * ZRZUT NA PLAC — kłody zlatują liskowi z grzbietu na stos, zamiast
+   * zniknąć z pleców i pojawić się na ziemi w tej samej klatce.
+   *
+   * To domknięcie kursu: dziecko widzi, że drewno, które niosło, JEST tym
+   * drewnem, które leży na placu. Bez tego oddanie ładunku było najcichszym
+   * momentem całej pętli — a jest jej nagrodą.
+   *
+   * ANIMUJEMY W UKŁADZIE STOSU, nie świata, tak samo jak przy wskoku. Różnica
+   * jest taka, że tu układ docelowy STOI (stos leży na placu), więc punkt
+   * startu — grzbiet liska w chwili oddania — przeliczamy RAZ, przy starcie
+   * animacji (`worldToLocal`). Lisek może potem odejść; kłody i tak lecą
+   * stamtąd, skąd je rzucił, a nie za nim.
+   *
+   * Krzywa jest ta sama, co przy opadzie po ścięciu (`opadKrzywa`): przyspieszenie
+   * i jedno miękkie odbicie. To ma być SPADANIE, w odróżnieniu od podrzutu
+   * przy podnoszeniu.
+   */
+  _zacznijZrzut(kotwicaStosu, skala = 1, zrodloSwiat = null) {
+    this._zrzut = null;
+    if (spokojnyRuch || !zrodloSwiat) return;
+    const bryla = kotwicaStosu.getObjectByName("stos-drewna")
+      || kotwicaStosu.getObjectByName("kamyczki");
+    if (!bryla || !bryla.children.length) return;
+
+    /* Macierze świeże NA ŻĄDANIE: kotwica powstała w tej samej klatce i nie
+       przeszła jeszcze przez render, więc `worldToLocal` bez tego liczyłby
+       z macierzy sprzed jej postawienia. */
+    bryla.updateWorldMatrix(true, false);
+    const start = bryla.worldToLocal(zrodloSwiat.clone());
+
+    const czesci = bryla.children.map((m) => ({
+      m, cel: { p: m.position.clone(), rx: m.rotation.x, rz: m.rotation.z },
+    }));
+    // Od spodu stosu: szczyt piramidy ma lądować na czymś, a nie przed czymś.
+    czesci.sort((a, b) => a.cel.p.y - b.cel.p.y);
+    const rozrzut = Math.max(.18, skala * .16);
+    czesci.forEach((c, i) => {
+      c.opoznienie = i * ZRZUT_ODSTEP;
+      /* Rozrzut z numeru, nie losowy — dwie kłody nie wylatują z jednego
+         punktu, a rzut wygląda tak samo przy każdej dostawie. */
+      c.start = start.clone().add(new Vector3(
+        Math.cos(i * 2.4) * rozrzut,
+        Math.sin(i * 1.7) * rozrzut * .6,
+        Math.sin(i * 2.4) * rozrzut));
+      c.luk = Math.max(.22, skala * .4);
+      c.obrotX = c.cel.rx + (Math.random() - .5) * 1.6;
+      c.obrotZ = c.cel.rz + (Math.random() - .5) * 1.6;
+      c.m.visible = false;
+    });
+    this._zrzut = { czesci, t: 0 };
+  }
+
+  /** Klatka zrzutu. Jeden stos naraz — ładunek też jest jeden. */
+  _zrzutKlatka(e) {
+    const a = this._zrzut;
+    if (!a) return;
+    a.t += e;
+    let wPowietrzu = false;
+    for (const c of a.czesci) {
+      const u = (a.t - c.opoznienie) / ZRZUT_CZAS;
+      if (u < 0) { wPowietrzu = true; continue; }
+      c.m.visible = true;
+      if (u >= 1) {
+        c.m.position.copy(c.cel.p);
+        c.m.rotation.x = c.cel.rx;
+        c.m.rotation.z = c.cel.rz;
+        continue;
+      }
+      wPowietrzu = true;
+      /* `opadKrzywa` schodzi na końcu chwilowo poniżej jedynki, więc kłoda
+         przelatuje nad swoim miejscem i dosiada — to samo odbicie, co przy
+         ścinaniu. */
+      c.m.position.lerpVectors(c.start, c.cel.p, opadKrzywa(u));
+      // Łuk: drewno leci po torze, a nie po sznurku. Sinus wraca do zera,
+      // więc miejsce docelowe zostaje trafione co do milimetra.
+      c.m.position.y += Math.sin(Math.PI * Math.min(1, u)) * c.luk;
+      const o = Math.min(1, u / .7);
+      const w = o * o * (3 - 2 * o);
+      c.m.rotation.x = c.obrotX + (c.cel.rx - c.obrotX) * w;
+      c.m.rotation.z = c.obrotZ + (c.cel.rz - c.obrotZ) * w;
+    }
+    if (!wPowietrzu) this._zrzut = null;
+  }
+
   _nocKlatka(e) {
     if (!this.doba || !this.doba.naCzas) return;
     // „koniec", nie „noc": noc to dalej gra, dopiero księżyc w zenicie domyka
@@ -3757,8 +4342,10 @@ export class Aplikacja {
       w = 1 - q * q * (3 - 2 * q);
       if (K.t >= K.powrotDl) {
         this._kino = null;
-        this.camRight.copy(K.br);
-        this.camFwd.copy(K.bf);
+        /* Bazy nie ma po co przywracać — od 18.09 nie zależy od tego, gdzie
+           kamera akurat jest (patrz `updateCameraBasis`). Kopia trzymana tu
+           wcześniej była drugim źródłem prawdy i wracała tylko tą jedną
+           ścieżką wyjścia z kina. */
         if (this.camera.zoom !== 1) { this.camera.zoom = 1; this.camera.updateProjectionMatrix(); }
         return;
       }
@@ -3814,7 +4401,7 @@ export class Aplikacja {
       schronienie: {
         etap: this._etapSchronienia || 0,
         etapow: LICZBA_ETAPOW,
-        miejsce: this.mapa.schronienie?.pos || null,
+        miejsce: this._posPlacu() || null,
         plac: this._plac ? (this._placGotowy ? "gotowy" : "czeka") : "ukryty",
       },
     };

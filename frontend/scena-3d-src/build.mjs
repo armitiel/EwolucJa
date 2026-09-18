@@ -16,6 +16,12 @@
  * Wyjścia:
  *   public/scena-3d/scena3d.esm.js — ES module (React: `components/Scena3D.jsx`)
  *   public/scena-3d/scena3d.js     — ten sam moduł z autostartem (`index.html`)
+ *   public/scena-3d/teren-obrysy.js — samo `teren.js` jako globalna `EwolucjaTeren`,
+ *     dla `edytor.html`. Edytor rysuje brzeg stawów i form terenu TĄ SAMĄ
+ *     funkcją, co scena; do 18.09 miał jej własną kopię i kopie zdążyły się
+ *     rozjechać (różna liczba próbek splajnu), więc plan pokazywał inny brzeg
+ *     niż gra. Edytor jest zwykłym `<script>`, nie modułem, stąd `iife`
+ *     i nazwa globalna zamiast `import`.
  *
  * three.js wchodzi do bundla z `node_modules` frontendu — moduł dalej NIE
  * jest zależnością buildu Vite (leży w public/), więc po każdej przebudowie
@@ -64,6 +70,14 @@ const wspolne = {
 const cele = [
   { entryPoints: [path.join(tu, "src", "index.js")], outfile: path.join(wyjscie, "scena3d.esm.js") },
   { entryPoints: [path.join(tu, "src", "autostart.js")], outfile: path.join(wyjscie, "scena3d.js") },
+  /* `teren.js` nie importuje niczego (czysta geometria), więc ten plik to
+     kilka kilobajtów — edytor nie musi wciągać całej sceny po jedną krzywą. */
+  {
+    entryPoints: [path.join(tu, "src", "teren.js")],
+    outfile: path.join(wyjscie, "teren-obrysy.js"),
+    format: "iife",
+    globalName: "EwolucjaTeren",
+  },
 ];
 
 if (watch) {

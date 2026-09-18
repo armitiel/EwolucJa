@@ -50,6 +50,9 @@ const szkielet = (co) =>
   "FRAMING: one single object, centred, filling the frame with an even margin, isolated on a fully " +
   "transparent background. No ground, no cast shadow, no text, no letters, no frame, no background elements.";
 
+/* POMIJAMY TO, CO JUŻ JEST. Ikona raz zaakceptowana jest częścią gry, a każde
+   kolejne uruchomienie tego skryptu wygenerowałoby INNĄ — gpt-image-1 nie ma
+   seeda. Żeby powtórzyć którąś, skasuj jej mistrza z `docs/styl/rabanie/`. */
 const IKONY = [
   {
     plik: 'lupa-surowa.png',
@@ -65,10 +68,33 @@ const IKONY = [
     co: "a single jigsaw puzzle piece seen slightly from above, turquoise blue, "
       + "with one round knob on one side and one matching socket on the other",
   },
+  {
+    /* Stos kłód — „to jest do wzięcia". Ta sama rzecz, która leży w trawie po
+       ścięciu drzewa, więc dziecko ma poznać ją bez tłumaczenia. */
+    plik: 'stos-surowy.png',
+    co: "a small neat stack of three chopped logs lying on top of each other, "
+      + "warm brown bark with pale cut ends facing the viewer",
+  },
+  {
+    /* Gwiazdka do zbierania — wersja 3D dla chmurki; złota `\/star.png` w HUD
+       zostaje, bo tam jest licznikiem, nie poleceniem. */
+    plik: 'gwiazdka-surowa.png',
+    co: "a single plump five-pointed golden star with softly rounded tips",
+  },
+  {
+    /* Zadanie poza ekranem: zwinięty pergamin ze wstążką. Nie koperta i nie
+       kartka w kratkę — to ma pachnieć wyprawą, a nie pracą domową. */
+    plik: 'zwoj-surowy.png',
+    co: "a rolled-up parchment scroll tied with a ribbon, lying at a slight angle",
+  },
 ];
 
 fs.mkdirSync(MISTRZE, { recursive: true });
 for (const ikona of IKONY) {
+  if (fs.existsSync(path.join(MISTRZE, ikona.plik))) {
+    console.log('POMIJAM (jest)', ikona.plik);
+    continue;
+  }
   const fd = new FormData();
   fd.append('model', 'gpt-image-1');
   fd.append('prompt', szkielet(ikona.co));

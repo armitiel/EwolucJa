@@ -37,8 +37,14 @@ export const BARWY_TERENU = {
   szalwia: 0x7f8f71,  // szarozielone przetarcie (te chłodne plamy z concept artu)
   brzeg: 0xdcd69c,    // kremowy piasek — i przetarcia, i brzeg oczka
   dno: 0x7b7a55,      // błotniste dno niecki
-  ziemia: 0x6a4b33,   // przekopana ziemia (grządka fasoli)
-  ziemiaJasna: 0x8a6a48, // jej obsypany, suchszy brzeg
+  /* ZIEMIA JEST BEŻOWA, NIE RUDA (właściciel, 2026-09-17). Ta para maluje
+     wydeptaną ziemię pod drzewem domkowym i grządkę fasoli. Poprzednie
+     0x6a4b33 siedziało w tym samym rudym brązie, co pień — plama pod
+     drzewem czytała się jak jego cokół, a nie jak wydeptana darń.
+     Piaskowy beż odcina się i od kory, i od trawy. `ziemiaJasna` wchodzi
+     przy MAŁEJ wadze (brzeg plamy), `ziemia` przy dużej (środek). */
+  ziemia: 0xa89372,      // wydeptana / przekopana ziemia — piaskowy beż
+  ziemiaJasna: 0xc4b291, // jaśniejszy, suchszy brzeg plamy
 };
 
 /** Pokrętła — mapa: `swiat.terenShader`. */

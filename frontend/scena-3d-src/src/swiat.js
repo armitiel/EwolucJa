@@ -1050,6 +1050,13 @@ export const DOMEK_DRZEWO = {
   klepiskoR: 1.06,
   /** Wysokość barierki. */
   barierka: 0.50,
+  /* ── CHATKA ── tylko ona, bez drzewa i pomostu (`schronienie.js`, etap 1). */
+  /** Wysokość ścian; okna, nadproże i dach idą za nią. */
+  wysokoscScian: 0.62,
+  /** Szerokość otworu drzwi (front od strony drabinki). */
+  szerokoscDrzwi: 0.44,
+  /** Głębokość ganku przed drzwiami — reszta pomostu to dom. */
+  ganek: 0.34,
   /** O ile stopa drabinki jest odsunięta za krawędź desek. */
   drabinkaOdsun: 0.62,
   /**
@@ -1108,8 +1115,17 @@ export function ukladDomku(def) {
  */
 export const ZANURZENIE_DOMKU = 0.02;
 
-/** Barwa pnia domkowego: kora żywego drzewa, nie suche drewno stosu. */
-export const MAT_PIEN_DOMKU = matKanciasty(0x6f4e2e);
+/**
+ * Barwa pnia domkowego: kora żywego drzewa, nie suche drewno stosu.
+ *
+ * TA SAMA BARWA, CO PNIE POZOSTAŁYCH DRZEW (właściciel, 2026-09-17):
+ * `MAT_DRZEWA.pien` / `MAT_NATURA.pien` to 0x765331 i drzewo domkowe nie ma
+ * powodu być inne — własny, ciemniejszy brąz (0x6f4e2e, potem 0x614e3c)
+ * wyróżniał je na polanie bez powodu. Różnica: tamte pnie mają pionowy
+ * gradient z `GRAD.pien` (ciemniej u dołu), a ten jest modelem GLB bez
+ * barw wierzchołków — czyta się więc odrobinę równiej.
+ */
+export const MAT_PIEN_DOMKU = matKanciasty(0x765331);
 
 /**
  * Korona — jedyne, czego w modelu nie ma. Dodaje się to do tej samej kotwicy,
@@ -1449,22 +1465,18 @@ function utworzMiernikGruntu(planeta, ziemia) {
   };
 }
 
-function zbudujKwiaty(DEF, planeta, ziemia, wysokoscGruntu = utworzMiernikGruntu(planeta, ziemia)) {
-  const REZERWA = 256; // Fixed capacity for the living trail; no per-flower draw calls.
-  const PALETA_K = [
-    { p: 0xfdf6e6, s: 0xf2c14a }, { p: 0xf7c948, s: 0xe08a1e }, { p: 0xf08fb4, s: 0xf6d76b },
-    { p: 0x7aa6e8, s: 0xf3e07a }, { p: 0xb98ae0, s: 0xf6e08a },
-  ];
-  const LISCIE = [
-    { strona: 1, wys: 0.34, sk: 1, obr: -0.5 },
-    { strona: -1, wys: 0.58, sk: 0.78, obr: 0.5 },
-  ];
-  const mLodyga = new MeshLambertMaterial({ color: 0x5c8c3a, flatShading: true });
-  const mLisc = new MeshLambertMaterial({ color: 0x6ea34a, flatShading: true });
-  const gLodyga = new CylinderGeometry(0.008, 0.012, 1, 5);
-  const gLisc = new SphereGeometry(0.058, 9, 6);
-  const gPlatek = new SphereGeometry(0.052, 10, 7);
-  const gSrodek = new SphereGeometry(0.040, 10, 7);
+/**
+ * ŹDŹBŁO TRAWY — jedna geometria i jeden materiał na cały świat.
+ *
+ * Mają je dwa systemy: pęki z zasiewu (`zbudujKwiaty`, rosną pod stopami
+ * liska) i kołnierze przy pniach (`trawaPrzyPniach`). Gdyby każdy budował
+ * swoją kopię, byłyby to dwa materiały, dwie geometrie i dwa miejsca, w
+ * których trzeba poprawić odcień. Liczymy raz i oddajemy tę samą bryłę —
+ * `InstancedMesh` i tak trzyma wszystko w macierzach instancji.
+ */
+let _zdzblo = null;
+function zdzbloTrawy() {
+  if (_zdzblo) return _zdzblo;
   const ZDZBLA = 18;
   /**
    * ŹDŹBŁO — bryła z modelu (`traw.fbx`), nie płatek.
@@ -1537,6 +1549,177 @@ function zbudujKwiaty(DEF, planeta, ziemia, wysokoscGruntu = utworzMiernikGruntu
   // Odcienie podniesione o ~10%, bo gradient wierzchołkowy jest w średniej
   // ciemniejszy od jedynki i bez tego cały pęk zszedłby w ciemną zieleń.
   const barwyTrawy = [new Color(0x58913c), new Color(0x6fa84a), new Color(0x86bb58)];
+  _zdzblo = { ZDZBLA, gTrawa, mTrawa, barwyTrawy };
+  return _zdzblo;
+}
+
+/**
+ * KOŁNIERZ TRAWY U PODSTAWY PNIA.
+ *
+ * Pień wchodzi w darń płaskim ściętym walcem i ta styczna linia jest widoczna
+ * z każdej strony — zwłaszcza na stoku, gdzie fasetka terenu podchodzi pod
+ * kąt. Kępka trawy dookoła nasady chowa tę linię i robi z drzewa coś, co
+ * z ziemi WYROSŁO, a nie zostało w nią wbite.
+ *
+ * TA SAMA ZASADA, CO W PĘKACH: źdźbła stoją do siebie grzbietami, czubkami
+ * na zewnątrz — tyle że „na zewnątrz" liczy się tu od ŚRODKA PNIA, nie od
+ * środka kępki. Bryła źdźbła jest wygięta w +Z, a obrót wokół Y o θ przenosi
+ * +Z na `(sin θ, cos θ)`, więc dla kierunku promienistego `(cos k, sin k)`
+ * właściwe jest θ = π/2 − k. (Na tym samym błędzie znaku siedziała do 18.09
+ * cała trawa z zasiewu.)
+ *
+ * WSZYSTKO W JEDNYM `InstancedMesh` — dwadzieścia parę drzew razy kilkanaście
+ * źdźbeł to trzysta brył; jako osobne obiekty byłoby to trzysta wywołań
+ * rysowania na każdą klatkę.
+ *
+ * GRUNT MIERZYMY RAZ NA PIEŃ, nie raz na źdźbło: `wysokoscGruntu` to raycast
+ * w całą siatkę terenu, a kołnierz ma promień poniżej pół jednostki, więc
+ * teren pod nim jest praktycznie płaski. Zamiast tego chowamy nasadę głębiej
+ * niż w pękach (dwanaście procent wysokości), żeby na stoku żadne źdźbło nie
+ * zawisło nad darnią.
+ *
+ * `pnie`: `[{ x, z, promien, skala, seed }]` — `promien` to promień pnia przy
+ * ziemi, bo od niego liczy się, gdzie trawa ma się zacząć.
+ */
+export function trawaPrzyPniach(pnie, planeta, wysokoscGruntu) {
+  const { gTrawa, mTrawa, barwyTrawy } = zdzbloTrawy();
+  /* ZIARNO BYWA UJEMNE. Liczymy je z pozycji drzewa, a połowa mapy leży po
+     ujemnej stronie osi — przy `x` ujemnym `x / 4294967296` też wychodziło
+     ujemne, więc `Math.floor(los() * 3)` dawało indeks −1, a `setColorAt`
+     dostawało `undefined` i wywalało całą scenę przy wczytywaniu. Wcześniejsze
+     `losownik` w tym pliku tego nie widziały, bo wołane są wyłącznie
+     z licznikami dodatnimi.
+     `Math.imul` mnoży dokładnie w trzydziestu dwóch bitach, a `>>> 0` trzyma
+     wynik bez znaku — losy są przez to zawsze w [0, 1). */
+  const los1 = (z) => {
+    let x = Math.imul(Math.trunc(z) | 0, 2654435761) >>> 0;
+    return () => { x = (Math.imul(x, 1664525) + 1013904223) >>> 0; return x / 4294967296; };
+  };
+
+  /* Scratch: kotwica na kuli → korzeń (miejsce i pochylenie) → źdźbło (obrót
+     twarzy i skala). Ta sama trójka, co przy pękach — macierz świata czytamy
+     z najgłębszego ogniwa. */
+  const wKula = new Group(), korzen = new Group(), zdzblo = new Group();
+  wKula.add(korzen); korzen.add(zdzblo);
+
+  const wpisy = [];
+  for (const p of pnie || []) {
+    if (!p || !Number.isFinite(p.x) || !Number.isFinite(p.z)) continue;
+    const promien = p.promien || .19 * (p.skala || 1);
+    const los = los1((p.seed ?? Math.round((p.x * 131 + p.z * 977) * 100)) | 0);
+    /* WSZYSTKO SKALUJE SIĘ GRUBOŚCIĄ PNIA, nie skalą drzewa. To jedna liczba
+       zamiast dwóch, które dla drzewa domkowego rozjeżdżały się o rząd
+       wielkości: jego skala to 1,45, ale pień jest pięć razy grubszy od sosny
+       (0,62 wobec 0,19). Kołnierz liczony ze skali wychodził przy nim jak
+       rzadka szczotka dookoła słupa. */
+    const grubosc = promien / .19;
+    /* PĘKI, NIE RÓWNY PIERŚCIEŃ. Źdźbła rozłożone po jednym na działkę
+       obwodu czytały się jak szczotka nasadzona na pień — a trawa przy
+       drzewie rośnie kępami, między którymi widać gołą darń. Liczba pęków
+       rośnie z obwodem WOLNIEJ niż rosłaby liczba źdźbeł, więc przy grubym
+       pniu kępy robią się większe, a nie gęściej upchane. */
+    const ilePekow = Math.max(3, Math.round((4 + los() * 2.2) * Math.pow(grubosc, .40) * (p.gestosc || 1)));
+    const obrotKolnierza = los() * Math.PI * 2;
+    /* Charakter całego kołnierza, losowany raz: jak wysoko trawa podchodzi
+       i jak mocno się rozkłada. Dwa drzewa obok siebie mają przez to inną
+       kępę, mimo tej samej reguły. */
+    const wysokoscKolnierza = .84 + los() * .42;
+    const rozlozenie = .85 + los() * .45;
+    const dzialka = (Math.PI * 2) / ilePekow;
+    for (let k = 0; k < ilePekow; k += 1) {
+      /* Pęk dostaje swoją działkę obwodu i rusza się tylko w jej granicach.
+         Przy czystym losowaniu dwa pęki siadają na sobie, a po drugiej
+         stronie pnia zostaje pusto na pół obwodu — przerwy mają być
+         nierówne, ale mają BYĆ. */
+      const katPeku = obrotKolnierza + (k + .5) * dzialka + (los() - .5) * dzialka * .5;
+      /* Grubszy pień dostaje WIĘKSZE kępy, nie tylko więcej kęp — inaczej
+         pod drzewem domkowym stoi dziewięć kępek wielkości tych spod sosny
+         i wygląda to jak obrzeżenie klombu. */
+      const ileZdzbel = 3 + Math.floor(los() * 2.4 + Math.min(1.6, (grubosc - 1) * .35));
+      const rPeku = promien * (.92 + los() * .22);
+      /* WACHLARZ NIE MOŻE ZJEŚĆ CAŁEJ DZIAŁKI. Rozwarcie jest kątowe, więc
+         nie maleje razem z obwodem: przy grubym pniu, gdzie kęp jest więcej,
+         a działki węższe, sąsiednie wachlarze zaczynały się stykać i kołnierz
+         wracał do bycia pierścieniem. Sufit na 45% działki zostawia zawsze
+         ponad połowę gołej darni między kępami — to ta przerwa robi z tego
+         kępy, a nie samo grupowanie źdźbeł. */
+      const wachlarz = Math.min(.42 + los() * .30, dzialka * .45);
+      const hPeku = (.15 + los() * .10) * wysokoscKolnierza * Math.pow(grubosc, .35) * (p.wysokosc || 1);
+      for (let j = 0; j < ileZdzbel; j += 1) {
+        /* `t` biegnie od −1 do +1 w poprzek wachlarza. Środkowe źdźbło jest
+           najwyższe i najbardziej promieniste, skrajne najniższe i najmocniej
+           odgięte — kształt kępy bierze się stąd, a nie z losowania każdego
+           źdźbła osobno. Dlatego dwa sąsiednie pęki wyglądają jak dwie kępy
+           tej samej trawy, a nie jak dwa przypadkowe zestawy patyków. */
+        const t = ileZdzbel > 1 ? (j / (ileZdzbel - 1)) * 2 - 1 : 0;
+        // Kierunek czubka rozkłada się na pełne rozwarcie wachlarza…
+        const kierunek = katPeku + t * wachlarz;
+        // …a nasady niemal się stykają: to ma być JEDNA kępa, nie trzy
+        // źdźbła stojące obok siebie w rzędzie.
+        const kat = katPeku + t * wachlarz * .30;
+        const r = rPeku + (los() - .5) * promien * .12;
+        const h = hPeku * (1 - .26 * Math.abs(t)) * (.88 + los() * .24);
+        /* Skrajne źdźbła kładą się mocniej — wachlarz ma się rozkładać, a nie
+           sterczeć. Sufit 0,80 rad (46°) jest twardy: wyżej czubek, który
+           dodatkowo ucieka łukiem w tę samą stronę, schodzi pod darń. */
+        const odchylenie = Math.min(.80, (.28 + los() * .26 + .20 * Math.abs(t)) * rozlozenie);
+        wpisy.push({
+          x: p.x, z: p.z, grunt: null,
+          dx: Math.cos(kat) * r, dz: Math.sin(kat) * r,
+          // θ = π/2 − kierunek: czubek leci od pnia, grzbiet zostaje przy korze.
+          obrot: Math.PI / 2 - kierunek + (los() - .5) * .22,
+          pochylenieX: Math.sin(kierunek) * odchylenie,
+          pochylenieZ: -Math.cos(kierunek) * odchylenie,
+          h, szer: .82 + los() * .38, luk: .72 + los() * .45,
+          barwa: barwyTrawy[Math.floor(los() * barwyTrawy.length)],
+          pien: p,
+        });
+      }
+    }
+  }
+
+  const im = new InstancedMesh(gTrawa, mTrawa, Math.max(1, wpisy.length));
+  im.name = "trawa-przy-pniach";
+  im.count = wpisy.length;
+  im.frustumCulled = false;
+  const gruntPnia = new Map();
+  wpisy.forEach((o, i) => {
+    let g = gruntPnia.get(o.pien);
+    if (g == null) { g = wysokoscGruntu(o.x, o.z); gruntPnia.set(o.pien, g); }
+    planeta.ustaw(wKula, o.x, o.z, g, 0);
+    korzen.position.set(o.dx, 0, o.dz);
+    korzen.rotation.set(o.pochylenieX, 0, o.pochylenieZ);
+    zdzblo.position.set(0, -.12 * o.h, 0);
+    zdzblo.rotation.set(0, o.obrot, 0);
+    // Wszystkie trzy osie przez `h` — geometria jest znormalizowana do
+    // wysokości 1, więc szerokość i łuk są MNOŻNIKAMI względem wysokości.
+    zdzblo.scale.set(o.h * o.szer, o.h, o.h * o.luk);
+    wKula.updateMatrixWorld(true);
+    im.setMatrixAt(i, zdzblo.matrixWorld);
+    im.setColorAt(i, o.barwa);
+  });
+  im.instanceMatrix.needsUpdate = true;
+  if (im.instanceColor) im.instanceColor.needsUpdate = true;
+  return im;
+}
+
+function zbudujKwiaty(DEF, planeta, ziemia, wysokoscGruntu = utworzMiernikGruntu(planeta, ziemia)) {
+  const REZERWA = 256; // Fixed capacity for the living trail; no per-flower draw calls.
+  const PALETA_K = [
+    { p: 0xfdf6e6, s: 0xf2c14a }, { p: 0xf7c948, s: 0xe08a1e }, { p: 0xf08fb4, s: 0xf6d76b },
+    { p: 0x7aa6e8, s: 0xf3e07a }, { p: 0xb98ae0, s: 0xf6e08a },
+  ];
+  const LISCIE = [
+    { strona: 1, wys: 0.34, sk: 1, obr: -0.5 },
+    { strona: -1, wys: 0.58, sk: 0.78, obr: 0.5 },
+  ];
+  const mLodyga = new MeshLambertMaterial({ color: 0x5c8c3a, flatShading: true });
+  const mLisc = new MeshLambertMaterial({ color: 0x6ea34a, flatShading: true });
+  const gLodyga = new CylinderGeometry(0.008, 0.012, 1, 5);
+  const gLisc = new SphereGeometry(0.058, 9, 6);
+  const gPlatek = new SphereGeometry(0.052, 10, 7);
+  const gSrodek = new SphereGeometry(0.040, 10, 7);
+  const { ZDZBLA, gTrawa, mTrawa, barwyTrawy } = zdzbloTrawy();
 
   function losownik(z) {
     let x = (z * 2654435761) % 4294967296;
@@ -1604,7 +1787,7 @@ function zbudujKwiaty(DEF, planeta, ziemia, wysokoscGruntu = utworzMiernikGruntu
       x: k.pos[0], z: k.pos[1], typ: k.typ === "trawa" ? "trawa" : "kwiat",
       wariant, h: wysokosc, iTrawa: k.iTrawa ?? null,
       grunt: wysokoscGruntu(k.pos[0], k.pos[1]), gruntX: k.pos[0], gruntZ: k.pos[1],
-      skala: (0.85 + los() * 0.5) * (k.skala != null ? k.skala : 1),
+      skala: (0.92 + los() * 0.42) * (k.skala != null ? k.skala : 1),
       obrotY: k.obrot != null ? k.obrot : los() * Math.PI * 2,
       bazaZ: (los() - 0.5) * 0.28, bazaX: (los() - 0.5) * 0.2, glowaX: -0.34 + los() * 0.14,
       katy: [0, 0, 0, 0, 0].map((_, j) => (j / 5) * Math.PI * 2 + los() * 0.1),
@@ -1619,12 +1802,24 @@ function zbudujKwiaty(DEF, planeta, ziemia, wysokoscGruntu = utworzMiernikGruntu
   /**
    * PĘK TRAWY — losowany raz, przy sadzeniu.
    *
-   * Dawniej każdy pęk wychodził taki sam: źdźbła stały co złoty kąt, każde
-   * odchylone od środka o ten sam rząd wielkości i obrócone DOKŁADNIE w
-   * stronę swojego pochylenia. Z lotu ptaka dawało to idealną rozetę —
-   * powtórzoną przy każdej kępce. Teraz losujemy trzy rzeczy na CAŁY pęk
-   * (rozrzut, smukłość, rozchylenie), a twarz źdźbła odklejamy od kierunku
-   * pochylenia, więc dwa pęki obok siebie nie są tym samym obiektem.
+   * ŹDŹBŁA STOJĄ DO SIEBIE GRZBIETAMI, CZUBKAMI NA ZEWNĄTRZ. Bryła źdźbła
+   * jest wygięta w +Z, więc strona wklęsła (twarz) patrzy tam, gdzie leci
+   * czubek, a grzbiet zostaje po przeciwnej. Gdy każde źdźbło wygina się
+   * w stronę od środka pęku, grzbiety schodzą się w środku i kępka czyta się
+   * jak jedna roślina, a nie jak garść patyków.
+   *
+   * DO 18.09 BYŁO ODWROTNIE, i to przez pomyłkę w układzie osi. Kierunek
+   * „na zewnątrz" to `(cos kat, sin kat)` w płaszczyźnie (x, z), ale obrót
+   * wokół Y o kąt θ przenosi lokalne +Z na `(sin θ, cos θ)`. `obrot = kat`
+   * dawało więc kierunek ODBITY względem prostej 45°: przy `kat` bliskim
+   * ¾π źdźbło wyginało się dokładnie DO ŚRODKA pęku, a sąsiednie rosły
+   * przeciwko sobie i przecinały się. Do tego dochodziło ±60° szumu.
+   * Stąd bierze się poprawne θ = π/2 − kąt.
+   *
+   * Różnicę między kępkami niosą teraz trzy liczby losowane na CAŁY pęk
+   * (rozrzut, smukłość, rozchylenie) plus wysokość i łuk każdego źdźbła —
+   * a nie losowy kierunek wygięcia. Szumu w kierunku zostaje tyle, żeby pęk
+   * nie był cyrklem: około ±12°.
    */
   function losujTrawa(k, seed) {
     const los = losownik(seed);
@@ -1643,8 +1838,20 @@ function zbudujKwiaty(DEF, planeta, ziemia, wysokoscGruntu = utworzMiernikGruntu
     // Charakter pęku: jak szeroko siedzi, jak wysoki jest i jak mocno się
     // rozkłada. Te trzy liczby robią większość różnicy między kępkami.
     const rozrzut = .05 + los() * .075;
-    const smuklosc = .8 + los() * .55;
-    const rozchylenie = .5 + los() * 1.05;
+    /* PODŁOGA SMUKŁOŚCI, nie sam rozrzut. Przy .8 najniższy pęk schodził
+       poniżej pięciu centymetrów świata i z kamery gry nie było go widać
+       wcale — a zasiew stawia je właśnie tam, gdzie dziecko przed chwilą
+       przeszło. Rozpiętość zostaje, podnosi się tylko dół. */
+    const smuklosc = 1 + los() * .30;
+    /* KĄT ROZWARCIA. Do 18.09 rozchylenie schodziło do .5, a odchylenie
+       zaczynało się od .02 rad — czyli źdźbło stało praktycznie pionowo
+       i cały rozrzut pęku robił sam łuk bryły. Pęk czytał się wtedy jak
+       garść pionowych szpilek, wysoka i wąska. Trawa przy ziemi rozkłada
+       się na boki, więc nasada dostaje teraz kilkanaście do czterdziestu
+       paru stopni.
+       GÓRNEGO KOŃCA PILNUJ: przy ok. 60° czubek, który dodatkowo ucieka
+       łukiem w tę samą stronę, schodzi pod darń i źdźbło znika. */
+    const rozchylenie = .85 + los() * .45;
     k.ukladTrawy = indeksUkladu;
     k.trawa = Array.from({ length: ZDZBLA }, (_, j) => {
       const srodek = uklad[j % uklad.length];
@@ -1655,23 +1862,43 @@ function zbudujKwiaty(DEF, planeta, ziemia, wysokoscGruntu = utworzMiernikGruntu
       // Samo źdźbło jest już wygięte, więc losowe pochylenie korzenia musi być
       // DUŻO mniejsze niż przy dawnym, prawie prostym liściu — inaczej pęk
       // kładzie się na ziemi zamiast stać.
-      const odchylenie = (.02 + los() * .13) * rozchylenie;
+      const odchylenie = (.26 + los() * .34) * rozchylenie;
       const kolor = Math.floor(los() * barwyTrawy.length);
       if (k.iTrawa != null) imTrawa.setColorAt(k.iTrawa + j, barwyTrawy[kolor]);
+      const px = sx + Math.cos(kat) * promien;
+      const pz = sz + Math.sin(kat) * promien;
+      /* „Na zewnątrz" liczymy z FAKTYCZNEGO miejsca źdźbła, a nie z kąta
+         losowania. Układy wieloogniskowe (`UKLADY`) odsuwają całe gniazdo od
+         środka pęku, więc dla nich `kat` wskazuje zupełnie co innego niż
+         kierunek od środka. Źdźbło dokładnie w osi nie ma „zewnątrz" —
+         zostaje przy swoim kącie. */
+      const odSrodka = Math.hypot(px, pz);
+      const naZewnatrz = odSrodka > 1e-3 ? Math.atan2(pz, px) : kat;
       return {
         aktywne: j < ile,
-        x: sx + Math.cos(kat) * promien, z: sz + Math.sin(kat) * promien,
-        h: (.115 + los() * .09 + (1 - Math.min(1, promien / rozrzut)) * .03) * smuklosc,
-        szer: .75 + los() * .5,
+        x: px, z: pz,
+        // Górny koniec ścięty razem z podniesieniem rozwarcia: pochylone
+        // źdźbło jest w pionie krótsze, ale kępka zajmuje więcej miejsca —
+        // przy dawnej wysokości robiła się z tego kępa siana.
+        h: (.135 + los() * .055 + (1 - Math.min(1, promien / rozrzut)) * .03) * smuklosc,
+        szer: .78 + los() * .42,
         // Łuk osobno od szerokości: w dawnym źdźble oś Z niosła tylko drobne
         // odgięcie czubka, teraz niesie CAŁY łuk, więc skalowanie go
         // szerokością robiłoby ze źdźbeł raz laski, raz obwarzanki.
-        luk: .75 + los() * .55,
-        // Twarz źdźbła ODKLEJONA od kierunku pochylenia. Gdy `obrot === kat`,
-        // każde źdźbło wygina się dokładnie na zewnątrz i pęk jest rozetą.
-        obrot: kat + (los() - .5) * 2.1,
-        pochylenieX: Math.sin(kat) * odchylenie + (los() - .5) * .1,
-        pochylenieZ: -Math.cos(kat) * odchylenie + (los() - .5) * .1,
+        // Górny pułap łuku ścięty: przy 1,3 czubek odlatywał w bok dalej, niż
+        // źdźbło było wysokie, i kępka kładła się na darni zamiast z niej
+        // rosnąć. Teraz najmocniej wygięte źdźbło ma czubek mniej więcej nad
+        // krawędzią własnego pęku.
+        luk: .62 + los() * .45,
+        /* θ = π/2 − kąt: lokalne +Z (czubek) trafia dokładnie w kierunek od
+           środka pęku. Szum ±0,22 rad ≈ ±12° — tyle, żeby dwa sąsiednie
+           źdźbła nie były równoległe, i o tyle mało, żeby żadne nie zawróciło
+           do środka. */
+        obrot: Math.PI / 2 - naZewnatrz + (los() - .5) * .44,
+        // Nasada pochyla się w tę samą stronę, w którą leci czubek — inaczej
+        // źdźbło jest wygięte w jedną stronę, a przewrócone w drugą.
+        pochylenieX: Math.sin(naZewnatrz) * odchylenie + (los() - .5) * .06,
+        pochylenieZ: -Math.cos(naZewnatrz) * odchylenie + (los() - .5) * .06,
       };
     });
   }
@@ -1771,7 +1998,22 @@ function zbudujKwiaty(DEF, planeta, ziemia, wysokoscGruntu = utworzMiernikGruntu
   // `utworzMiernikGruntu` — to zmienna lokalna tamtej funkcji i poza nią
   // jest niezdefiniowana; wyjątek leciał aż z pętli renderowania i wieszał scenę.
   const nSasiad = new Vector3();
-  function posadz(x, z, bezAnimacji = false) {
+  /**
+   * Sadzi roślinę w punkcie mapy. Trzeci argument to albo `bezAnimacji`
+   * (tak woła zasiew liska — bez zmian), albo OPCJE:
+   *   `{ bezAnimacji, typ, wariant }`
+   * `typ: "kwiat"` wymusza kwiat zamiast losowania (zasiew daje ~45 % trawy,
+   * a ślad przygody obiecuje kwiat); `wariant` 0–4 to barwa z `PALETA_K`
+   * zamiast tej z licznika — ślady przygód (`slady.js`) muszą dawać ten sam
+   * kolor przy pierwszym posadzeniu i przy odtworzeniu, a licznik `kolejny`
+   * rośnie też od pęków spod łap liska. Strumień losowy jest ciągnięty tak
+   * samo w obu trybach, więc wymuszenie nie przestawia niczego zasiewowi.
+   */
+  function posadz(x, z, bezAnimacji = false, opcje = {}) {
+    if (bezAnimacji && typeof bezAnimacji === "object") {
+      opcje = bezAnimacji;
+      bezAnimacji = !!opcje.bezAnimacji;
+    }
     if (!Number.isFinite(x) || !Number.isFinite(z)) return false;
     const n = planeta.normalna(x, z);
     // Avoid piling up flowers on a path the fox has already walked.
@@ -1781,11 +2023,19 @@ function zbudujKwiaty(DEF, planeta, ziemia, wysokoscGruntu = utworzMiernikGruntu
     // ziarna. Wcześniej wielkość szła z `kolejny % 4`, więc co czwarty pęk
     // był co do joty tej samej wielkości — widać to było jak wzór na tapecie.
     const losRosliny = losownik(seed);
-    const typ = losRosliny() < .45 ? "trawa" : "kwiat";
-    const skalaRosliny = .62 + losRosliny() * .46;
+    const typLosowy = losRosliny() < .45 ? "trawa" : "kwiat";
+    const typ = opcje.typ === "kwiat" || opcje.typ === "trawa" ? opcje.typ : typLosowy;
+    const wariant = Number.isInteger(opcje.wariant)
+      ? Math.max(0, Math.min(PALETA_K.length - 1, opcje.wariant))
+      : kolejny % 5;
+    /* Dolna granica podniesiona z .62: mnoży się jeszcze przez rozrzut
+       z `utworzKwiat`, więc najmniejszy pęk wychodził w skali 0,53 — czyli
+       źdźbło wysokie na pięć centymetrów świata przy planecie o promieniu
+       8,5. Zmienności zostaje tyle samo, najmniejszy jest o połowę większy. */
+    const skalaRosliny = .78 + losRosliny() * .42;
     let k;
     if (zasiane < REZERWA) {
-      k = utworzKwiat({pos:[x,z],typ,wariant:kolejny%5,
+      k = utworzKwiat({pos:[x,z],typ,wariant,
         skala:skalaRosliny,iTrawa:zasiane*ZDZBLA}, lista.length);
       lista.push(k);
       zasiane++;
@@ -1897,9 +2147,14 @@ export function zbudujSwiat(mapa, planeta) {
      tej zmiany wczytuje się bez konwersji. */
   const RODZAJE_DRZEW = { sosna, lisciaste: drzewoLisciaste, podwojna: choinkaPodwojna };
   const drzewa = mapa.drzewa
-    ? mapa.drzewa.map((d) => [(RODZAJE_DRZEW[d.typ] || sosna)(d.skala ?? 1), d.pos[0], d.pos[1], d.obrot, d.skala ?? 1, d.typ])
+    ? mapa.drzewa.map((d) => [(RODZAJE_DRZEW[d.typ] || sosna)(d.skala ?? 1), d.pos[0], d.pos[1], d.obrot, d.skala ?? 1, d.typ, d.trawa])
     : [[sosna(1.3), -3.6, 1.3], [sosna(0.9), 4.6, -4.2], [drzewoLisciaste(1), 4.2, 0.6], [sosna(1.1), -5.2, -3]];
-  for (const [l, c, h, obrot, skala, typ] of drzewa) {
+  /* Nasady pni do kołnierzy trawy (`trawaPrzyPniach`). Zbieramy je TU, bo
+     tylko tutaj widać naraz rodzaj drzewa i jego skalę — promień pnia przy
+     ziemi jest inny dla sosny, inny dla liściastego i jeszcze inny dla kępy
+     dwóch pni. */
+  const pnieDoObrosniecia = [];
+  for (const [l, c, h, obrot, skala, typ, trawa] of drzewa) {
     // Drzewo dostaje własną grupę-kotwicę na kuli; gibanie obraca WEWNĘTRZNĄ
     // grupę `l`, więc ramka kuli i wychył nie mieszają się ze sobą.
     const kotwica = new Group();
@@ -1914,6 +2169,29 @@ export function zbudujSwiat(mapa, planeta) {
        się w połowie kępy — widać wtedy, że to dwa obiekty, nie jeden. */
     const podwojna = typ === "podwojna";
     blockers.push({ x: c, z: h, r: podwojna ? 1.02 : 0.75, drzewo: l, skalaDrzewa: skala || 1 });
+    /* PROMIEŃ PNIA PRZY ZIEMI, nie promień kolizji. Walec sosny ma u dołu
+       0,19, liściastego 0,22, a kotwica jest zanurzona o 0,10 — na wysokości
+       darni walec zdążył się już odrobinę zwęzić. Kępa dwóch pni dostaje
+       jeden szerszy kołnierz zamiast dwóch, bo między pniami i tak nic nie
+       widać. Bez tej liczby trawa albo tkwi w korze, albo stoi od niej
+       o pół metra. */
+    /* ATRYBUT `trawa` PRZY DRZEWIE W MAPIE. Brak wpisu albo `true` znaczy
+       „obrośnij domyślnie" — dzięki temu mapa sprzed tej zmiany wygląda tak
+       samo jak po niej i nikt nie musi dopisywać pola do każdego drzewa.
+       `false` zdejmuje kołnierz z tego jednego drzewa (np. gdy stoi na skale
+       albo w wodzie). Obiekt `{ gestosc, wysokosc, promien }` to mnożniki —
+       dla drzewa, które ma być zarośnięte mocniej albo ledwie muśnięte.
+       Wartości poza 0,3–2,5 nie mają sensu i są przycinane. */
+    if (trawa !== false) {
+      const t = (trawa && typeof trawa === "object") ? trawa : {};
+      const mn = (v) => Math.max(.3, Math.min(2.5, Number(v) || 1));
+      pnieDoObrosniecia.push({
+        x: c, z: h, skala: skala || 1,
+        promien: (podwojna ? .38 : typ === "lisciaste" ? .213 : .18) * (skala || 1) * mn(t.promien),
+        gestosc: mn(t.gestosc), wysokosc: mn(t.wysokosc),
+        seed: Math.round((c * 7919 + h * 104729) * 16) | 0,
+      });
+    }
     const u = plamaCienia(podwojna ? 3.1 : 2.2, 0.3);
     planeta.ustaw(u, c, h, grunt + .006, 0);
     s.add(u);
@@ -2022,6 +2300,17 @@ export function zbudujSwiat(mapa, planeta) {
        i dorabiamy UV, bo gradient cienia jest tekstura.
        Promien zostaje ten, co byl: `plamaCienia(s)` robilo kwadrat o boku s,
        a gradient gasl na wpisanym w niego kole — czyli na `s/2`. */
+    /* Drzewo domkowe obrasta tak samo jak reszta, i widać je najczęściej —
+       dziecko stoi pod nim przy drabince. Kołnierz idzie wokół `pienMapa`,
+       nie wokół `pos`: to ta sama pułapka, co przy kolizji i cieniu wyżej,
+       tylko że tu trawa wyrosłaby w szczerym polu obok drzewa. Promień to
+       promień pnia (0,62) z blockera. */
+    if (mapa.schronienie.trawa !== false) {
+      pnieDoObrosniecia.push({
+        x: pienMapa.x, z: pienMapa.z, skala: sk, promien: .62 * sk, seed: 20260918,
+      });
+    }
+
     const R_CIEN = 2.0 * sk;
     const cienD = plamaCienia(2 * R_CIEN, .32);
     planeta.ustaw(cienD, pienMapa.x, pienMapa.z, wysokoscGruntu(pienMapa.x, pienMapa.z), 0);
@@ -2033,6 +2322,12 @@ export function zbudujSwiat(mapa, planeta) {
     plama.position.set(0, 0, 0);
     s.add(cienD);
   }
+
+  /* Kołnierze trawy przy pniach — jeden `InstancedMesh` na wszystkie drzewa.
+     Stawiamy PO drzewach i po schronieniu, bo dopiero wtedy lista pni jest
+     pełna, a przed kwiatami, żeby zasiew liska kładł się na wierzchu. */
+  const trawaPni = trawaPrzyPniach(pnieDoObrosniecia, planeta, wysokoscGruntu);
+  if (trawaPni.count) s.add(trawaPni);
 
   const kwiaty = zbudujKwiaty(mapa.kwiaty, planeta, ziemia, wysokoscGruntu);
   if (kwiaty) kwiaty.meshe.forEach((m) => s.add(m));

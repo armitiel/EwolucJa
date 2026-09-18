@@ -211,7 +211,7 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot, onPokaz
       setStan(nowy);
       // Świat reaguje od razu po śladzie — bez czekania na dorosłego:
       // metoda sceny z definicji (defensywnie) + toast z definicji.
-      const toast = odpalReakcjeSwiata(def.reakcja_swiata);
+      const toast = odpalReakcjeSwiata(def.reakcja_swiata, def.id);
       onKomunikat?.(toastReakcji(toast));
       pokazMiejsceNaPlanecie(onPokazMiejsce, nowy);
       try { await refreshPlayer(); } catch {}

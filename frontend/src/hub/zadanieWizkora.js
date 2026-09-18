@@ -36,6 +36,7 @@ import { api, session } from "../services/api.js";
 import { dodajMonety } from "../services/monety.js";
 import { loadState, wzmocnijCeche } from "../adventure/engine/adventureState.js";
 import { etapSzkolny, typStartowy } from "./profilStartowy.js";
+import { zapiszSlad } from "./sladySwiata.js";
 
 
 const KLUCZ = "ewolucja.zadanie.wizkora";
@@ -322,20 +323,32 @@ export function zapiszSladOpcje(opcja) {
 }
 
 /**
- * REAKCJA ŚWIATA — kanał ślad → scena (06 §4.3). Metody sceny z
- * `reakcja_swiata.metoda` w większości jeszcze nie istnieją (wejdą w kroku 5),
- * więc wołamy defensywnie: gdy `globalThis.__SCENA[metoda]` jest — wołamy,
- * gdy nie ma — `console.info` i tyle. Zwraca toast z definicji (tytuł ≤ 28).
+ * REAKCJA ŚWIATA — kanał ślad → scena (06 §4.3, krok 5).
+ *
+ * Metody z `reakcja_swiata.metoda` żyją w `scena-3d-src/src/slady.js`
+ * i wychodzą na zewnątrz przez `globalThis.__SCENA`. Wołamy je po nazwie
+ * z danych, więc literówka w JSON-ie rozłącza kanał bez błędu — zostaje
+ * ostrzeżenie w konsoli.
+ *
+ * ŚLAD ZAPISUJEMY NIEZALEŻNIE OD TEGO, CZY SCENA GO PRZYJĘŁA. Dziecko może
+ * zostawić ślad w panelu otwartym, zanim scena zdąży wstać, albo w ogóle poza
+ * światem 3D. Wpis w dzienniku (`sladySwiata.js`) sprawia, że kwiat wyrośnie
+ * przy najbliższym wejściu — a to jest ta sama obietnica, tylko odroczona.
+ * Odwrotna kolejność (zapis dopiero po udanym wywołaniu) gubiłaby dokładnie
+ * te ślady, przy których najbardziej widać, że świat nie zauważył.
+ *
+ * Zwraca toast z definicji (tytuł ≤ 28 znaków).
  */
-export function odpalReakcjeSwiata(reakcja) {
+export function odpalReakcjeSwiata(reakcja, zrodlo = null) {
   if (!reakcja || !reakcja.metoda) return null;
+  zapiszSlad(reakcja, zrodlo);
   const scena = globalThis.__SCENA;
   const fn = scena?.[reakcja.metoda];
   if (typeof fn === "function") {
     try { fn(...(Array.isArray(reakcja.args) ? reakcja.args : [])); }
     catch (err) { console.warn("[zadanieWizkora] reakcja świata nie poszła:", reakcja.metoda, err); }
   } else {
-    console.info("[zadanieWizkora] scena nie ma jeszcze metody", reakcja.metoda, reakcja.args, "—", reakcja.opis);
+    console.warn("[zadanieWizkora] scena nie zna metody", reakcja.metoda, "— ślad czeka w dzienniku");
   }
   try { scena?.pokazMiejsce?.(); } catch {}
   return reakcja.toast || null;
@@ -443,7 +456,7 @@ export async function sprawdzMentora() {
     // bez oceny idzie do dziecka jako `notatka`; z niej też rodzaj Mentora.
     // Dodatek w świecie (kwiat w nowym kolorze przy drabince) — raz.
     const def = definicjaZadania(zapis.id);
-    if (!zapis.reakcjaMentorOdpalona) odpalReakcjeSwiata(def?.reakcja_mentor);
+    if (!zapis.reakcjaMentorOdpalona) odpalReakcjeSwiata(def?.reakcja_mentor, zapis.id);
     return zapisz({
       ...zapis,
       status: "zatwierdzone",
@@ -563,7 +576,7 @@ export function ustawStatus(status, notatka = null) {
   if (!zapis) return stanZadania();
   // Skrót z pulpitu: „zatwierdzone" symuluje zauważenie (bez monet — te poszły
   // przy śladzie); notatka domyślnie jawnie demowa; dodatek w świecie raz.
-  if (status === "zatwierdzone" && !zapis.reakcjaMentorOdpalona) odpalReakcjeSwiata(definicjaZadania(zapis.id)?.reakcja_mentor);
+  if (status === "zatwierdzone" && !zapis.reakcjaMentorOdpalona) odpalReakcjeSwiata(definicjaZadania(zapis.id)?.reakcja_mentor, zapis.id);
   return zapisz({
     reakcjaMentorOdpalona: status === "zatwierdzone" ? true : zapis.reakcjaMentorOdpalona,
     ...zapis,

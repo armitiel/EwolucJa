@@ -76,7 +76,8 @@
         5.0
       ],
       "skala": 0.92,
-      "obrot": 0.35
+      "obrot": 0.35,
+      "trawa": true
     },
     {
       "typ": "sosna",
@@ -85,7 +86,8 @@
         4.5
       ],
       "skala": 0.88,
-      "obrot": 1.15
+      "obrot": 1.15,
+      "trawa": true
     },
     {
       "typ": "sosna",
@@ -94,7 +96,8 @@
         1.1
       ],
       "skala": 0.78,
-      "obrot": 2.35
+      "obrot": 2.35,
+      "trawa": true
     },
     {
       "typ": "lisciaste",
@@ -103,7 +106,8 @@
         0.7
       ],
       "skala": 0.82,
-      "obrot": 0.8
+      "obrot": 0.8,
+      "trawa": true
     },
     {
       "typ": "lisciaste",
@@ -112,7 +116,8 @@
         -3.5
       ],
       "skala": 0.84,
-      "obrot": 1.9
+      "obrot": 1.9,
+      "trawa": true
     },
     {
       "typ": "sosna",
@@ -121,7 +126,8 @@
         -4.6
       ],
       "skala": 0.86,
-      "obrot": 0.45
+      "obrot": 0.45,
+      "trawa": true
     },
     {
       "typ": "lisciaste",
@@ -130,7 +136,8 @@
         -7.1
       ],
       "skala": 0.74,
-      "obrot": 2.75
+      "obrot": 2.75,
+      "trawa": true
     }
   ],
   "glazy": [

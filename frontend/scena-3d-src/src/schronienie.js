@@ -32,7 +32,7 @@
  */
 import {
   Group, Mesh, MeshLambertMaterial, BoxGeometry, BufferGeometry, CylinderGeometry,
-  CircleGeometry, Float32BufferAttribute,
+  CircleGeometry, Float32BufferAttribute, Object3D,
 } from "three";
 /* WYMIARY DRZEWA SĄ JEDNE. Poziom konaru i jego zasięg trzyma `swiat.js`,
    bo to on stawia pień — tutaj tylko je czytamy. Dwie listy liczb, które
@@ -58,7 +58,12 @@ export const MAT_BUDOWY = {
   // którym leżą. Bez tego kontrastu platforma zlewa się z drzewem.
   deska: matKanciasty(0xc79a5f),
   deskaCiemna: matKanciasty(0xa87f4c),
-  sznur: matKanciasty(0xd9c9a4),
+  /* SZCZEBLE DRABINKI. Nazwa `sznur` została po wiązanej drabince ze
+     szczebli na linach — dziś to struganie drewno, a nie sznur, i barwa
+     ma to mówić: 0xd9c9a4 było blade jak słoma i drabinka gubiła się na
+     tle nieba. Średnie drewno: ciemniejsze od desek pokładu, jaśniejsze
+     od kory bocznic, więc szczeble widać na jednym i na drugim. */
+  drewnoSrednie: matKanciasty(0xb0854e),
 };
 
 /**
@@ -160,24 +165,18 @@ function etap1(s = 1, u = DOMEK_DRZEWO) {
   const g = new Group();
   g.name = "domek-na-drzewie-etap-1";
 
-  /* Płaska tarcza jest tu TYLKO AWARYJNA. Scena podmienia jej geometrię na
-     taflę idącą za kulą i terenem (`taflaNaGruncie` w `swiat.js`) — bez tego
-     środek klepiska siada dokładnie na darni i przebijają przez nie trójkąty
-     terenu (ta zielona dziura). Podmiana idzie po nazwie, więc ten plik nie
-     musi nic wiedzieć o planecie. */
-  const R_KLEPISKA = (u.klepiskoR ?? 1.06) * s;
-  const klepisko = mesh(new CircleGeometry(R_KLEPISKA, 14), MAT_BUDOWY.klepisko,
-    [0, .012 * s, 0], [-Math.PI / 2, 0, .3]);
-  klepisko.name = "schronienie-klepisko";
-  klepisko.userData.krok = 0;
-  klepisko.userData.promien = R_KLEPISKA;
-  /* `przyZiemi` MÓWI SCENIE, ŻEBY TEGO NIE KOŁYSAŁA. Drzewo gibie się, kiedy
-     lisek w nie wpadnie, i pomost z barierką jedzie razem z nim — bo na nim
-     leży. Ale klepisko jest kawałkiem DARNI, a darń nie chodzi za drzewem:
-     obrócona o te kilka stopni jednym brzegiem wjeżdżałaby pod ziemię,
-     drugim wystawała ponad trawę. Scena przepina takie elementy do kotwicy. */
-  klepisko.userData.przyZiemi = true;
-  g.add(klepisko);
+  /* KLEPISKA NIE MA JAKO BRYŁY — i to jest cała poprawka.
+     Wydeptana ziemia pod drzewem była tarczą leżącą NA darni. Płaska tarcza
+     na kuli o R = 8,5 styka się z terenem tylko w środku, więc brzegiem
+     wisiała nad trawą albo w nią wjeżdżała; scena łatała to własną geometrią
+     idącą za gruntem, a i tak zostawał osobny obiekt do utrzymania (z-fighting,
+     kołysanie razem z drzewem, przeliczanie przy każdym ruchu suwaka).
+     Teraz plamę maluje SHADER TERENU: w `mapa.json` stoi forma `wykop`
+     („Wydeptana ziemia pod drzewem domkowym"), `teren.js` zamienia ją na wagę
+     `ziemiaForma`, a `shader-terenu.js` miesza w tym miejscu barwę ziemi.
+     Kolor jest częścią darni, więc przylega do niej idealnie — także na garbie
+     — i nie ma czego kołysać ani przepinać. Pozycję i wielkość plamy zmienia
+     się w mapie, niezależnie od drzewa. */
 
   /* WYSOKOŚCI Z JEDNEGO ŹRÓDŁA. `poziom` to wysokość konaru w układzie
      DRZEWA; kotwica domku stoi 0,10 wyżej, więc tyle odejmujemy. Pomost kończy
@@ -233,10 +232,17 @@ function etap1(s = 1, u = DOMEK_DRZEWO) {
 
      Domek zajmuje część pomostu od strony pnia; przed drzwiami zostaje GANEK,
      bo wchodząc po drabince trzeba gdzieś stanąć, zanim się wejdzie. */
-  const GANEK = .34 * s;
+  /* WIELKOŚĆ DOMKU MA WŁASNE SUWAKI (właściciel, 2026-09-18: „powiększyć
+     domek"). `skala` mapy rośnie razem z drzewem, więc nie nadaje się do
+     powiększania samej chatki — pień rósłby z nią. Te trzy liczby (w
+     jednostkach kotwicy, jak reszta układu) ruszają TYLKO chatkę: wysokość
+     ścian ciągnie za sobą okna, nadproże i dach; szerokość drzwi i głębokość
+     ganku dzielą pomost między dom a miejsce, gdzie lisek staje po drabince.
+     Domyślne wartości to dawne stałe — mapa bez tych pól wygląda jak przedtem. */
+  const GANEK = (u.ganek ?? .34) * s;
   const D_OD = X0, D_DO = Math.max(X0 + .30 * s, X1 - GANEK);
   const D_POL = POL_Z - .04 * s;              // ściany ociupinę w głąb pomostu
-  const WYS_S = .62 * s;                      // wysokość ścian
+  const WYS_S = (u.wysokoscScian ?? .62) * s; // wysokość ścian
   const GRUB = .07 * s;                       // grubość bala
   const SR_D = (D_OD + D_DO) / 2, GLEB = D_DO - D_OD;
 
@@ -248,7 +254,8 @@ function etap1(s = 1, u = DOMEK_DRZEWO) {
     /* OKNO JEST NAKLEJKĄ, NIE DZIURĄ. Wycięcie otworu w bryle wymagałoby CSG
        albo ściany złożonej z sześciu klocków — a z odległości, z jakiej patrzy
        kamera, ciemniejszy kwadrat na ścianie czyta się dokładnie tak samo. */
-    const okno = new Mesh(new BoxGeometry(.26 * s, .24 * s, GRUB * .6), MAT_BUDOWY.kora);
+    // Okno rośnie ze ścianą (proporcja, nie stała), inaczej wysoki dom miałby lufciki.
+    const okno = new Mesh(new BoxGeometry(WYS_S * .42, WYS_S * .39, GRUB * .6), MAT_BUDOWY.kora);
     okno.position.set(SR_D, Y + WYS_S * .58, k * (D_POL + GRUB * .55));
     okno.userData.krok = 3;
     g.add(okno);
@@ -263,7 +270,7 @@ function etap1(s = 1, u = DOMEK_DRZEWO) {
   /* FRONT Z OTWOREM NA DRZWI — dwa węższe kawałki po bokach i nadproże nad
      nimi. Otworu nie zamykamy skrzydłem: otwarte drzwi mówią „można wejść",
      a zamknięte trzeba by jeszcze umieć otworzyć. */
-  const SZER_DRZWI = .44 * s;
+  const SZER_DRZWI = Math.min((u.szerokoscDrzwi ?? .44) * s, D_POL * 2 - .08 * s);
   const BOK_FRONTU = Math.max(.02 * s, D_POL - SZER_DRZWI / 2);
   for (const k of [-1, 1]) {
     const czesc = new Mesh(new BoxGeometry(GRUB, WYS_S, BOK_FRONTU), MAT_BUDOWY.deska);
@@ -271,8 +278,9 @@ function etap1(s = 1, u = DOMEK_DRZEWO) {
     czesc.userData.krok = 3;
     g.add(czesc);
   }
-  const nadproze = new Mesh(new BoxGeometry(GRUB, .15 * s, D_POL * 2 + GRUB), MAT_BUDOWY.deskaCiemna);
-  nadproze.position.set(D_DO, Y + WYS_S - .075 * s, 0);
+  const NADPROZE = Math.min(.15 * s, WYS_S * .2);
+  const nadproze = new Mesh(new BoxGeometry(GRUB, NADPROZE, D_POL * 2 + GRUB), MAT_BUDOWY.deskaCiemna);
+  nadproze.position.set(D_DO, Y + WYS_S - NADPROZE / 2, 0);
   nadproze.userData.krok = 3;
   g.add(nadproze);
 
@@ -376,13 +384,50 @@ function etap1(s = 1, u = DOMEK_DRZEWO) {
     const t = (i + .5) / SZCZEBLE;      // 0 = dół, 1 = góra
     // Szczeble GRUBE (0,055): przy 0,035 ginęły za bocznicami i drabinka
     // czytała się jak dwie kreski bez stopni.
-    const sz = new Mesh(new CylinderGeometry(.055 * s, .055 * s, .60 * s, 6), MAT_BUDOWY.sznur);
+    const sz = new Mesh(new CylinderGeometry(.055 * s, .055 * s, .60 * s, 6), MAT_BUDOWY.drewnoSrednie);
     sz.position.set(DOL_X + KX * DL_D * t, DOL_Y + KY * DL_D * t, 0);
     sz.rotation.set(Math.PI / 2, 0, 0);
     sz.userData.krok = 4;
     sz.userData.przyZiemi = true;   // szczeble trzymają się bocznic, a te stoją
     g.add(sz);
   }
+
+  /* ── KOTWICE — PUSTE WĘZŁY Z NAZWĄ, po których scena znajduje MIEJSCA domku
+     bez liczenia jego wymiarów od nowa. Wcześniej każdy, kto chciał wiedzieć,
+     gdzie stoi stopa drabinki, musiał powtórzyć rachunek z tej funkcji
+     (odsunięcie, spadek gruntu, skala) — i przy pierwszej zmianie proporcji
+     dwa rachunki przestawały się zgadzać. Teraz jest jedno źródło: `etap1`
+     stawia węzeł tam, gdzie postawiło element, a scena pyta o niego po nazwie
+     (`kotwica.getObjectByName("kotwica-drabinka-stopa")`).
+
+     Węzły idą z tym, przy czym stoją: drabinka nie kołysze się z drzewem
+     (`przyZiemi`), więc jej kotwice też nie; ganek, drzwi i ramka jadą
+     z pomostem. `userData` niesie liczby, które i tak tu wyszły z rachunku
+     (kierunek bocznic, kąt, liczba szczebli) — scena czyta, nie liczy. */
+  const kotwica = (nazwa, x, y, z, dane) => {
+    const o = new Object3D();
+    o.name = nazwa;
+    o.position.set(x, y, z);
+    o.userData.kotwica = true;
+    Object.assign(o.userData, dane || {});
+    g.add(o);
+    return o;
+  };
+  kotwica("kotwica-drabinka-stopa", DOL_X, DOL_Y, 0, {
+    przyZiemi: true,
+    kierunek: [KX, KY],          // jednostkowy, w górę bocznic (płaszczyzna XY)
+    kat: KAT,                    // odchylenie od pionu, radiany
+    dlugosc: DL_D,
+    szczeble: SZCZEBLE,
+    odstep: DL_D / SZCZEBLE,
+    grubosc: .055 * s,           // promień szczebla — o tyle łapy stoją PRZED linią bocznic
+  });
+  // Górna kotwica to KRAWĘDŹ DESEK, nie szczyt bocznic: tu kończy się wchodzenie.
+  kotwica("kotwica-drabinka-szczyt", GORA_X, GORA_Y, 0, { przyZiemi: true });
+  kotwica("kotwica-ganek", (D_DO + X1) / 2, Y, 0, { szerokosc: POL_Z * 2 - .16 * s });
+  kotwica("kotwica-drzwi", D_DO, Y, 0, { szerokosc: SZER_DRZWI, wysokosc: WYS_S - NADPROZE });
+  // Ramka na obrazek — środek wnętrza, na ścianie od pnia, na wysokości oczu liska.
+  kotwica("kotwica-ramka", D_OD + GRUB, Y + WYS_S * .62, 0, { bok: Math.min(.5 * s, WYS_S * .5) });
 
   return g;
 }

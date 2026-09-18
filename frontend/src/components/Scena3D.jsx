@@ -31,7 +31,7 @@ import { idPostaci, postacWybranaJawnie, DOSTEPNE_POSTACIE } from "../utils/post
 // UWAGA: numer ma tylko ROSNĄĆ. Numery 3–13 zostały już wydane przeglądarce
 // z inną zawartością modułu (kolejne wersje znaków, gwiazdki, tempo ruchu),
 // więc cofnięcie go serwuje z cache starą scenę zamiast aktualnej.
-export const WERSJA_SCENY = "135";  // domek: kolizja i cien ida za pniem, cien lezy na terenie
+export const WERSJA_SCENY = "155";  // ślady przygód: znak z lupą obok Wizkora (proceduralny), kwiat zawsze kwiatem i w stałym kolorze
 const ZASOBY = "/scena-3d/assets/";
 
 /**

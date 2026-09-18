@@ -35,7 +35,7 @@
 import {
   Group, Mesh, MeshLambertMaterial, MeshBasicMaterial, Box3, Vector3, Quaternion,
   SphereGeometry, IcosahedronGeometry,
-  RingGeometry, DoubleSide, AdditiveBlending, Sprite, SpriteMaterial,
+  DoubleSide, AdditiveBlending, Sprite, SpriteMaterial,
   CanvasTexture, SRGBColorSpace, PointLight, Color, BufferGeometry, Float32BufferAttribute,
 } from "three";
 import { Pnacze } from "./pnacze.js";
@@ -320,6 +320,66 @@ function siatkaOczka(r, mnoznik, R, ro0, ro1, h, ringi = 6, punkty = 44) {
 }
 
 /**
+ * KRĄG NA WODZIE O KSZTAŁCIE STAWU.
+ *
+ * Do 18.09 fala była `RingGeometry`, czyli idealnym kołem, rozciąganym skalą.
+ * Dwie rzeczy z tego nie wychodziły i obie widać było na zrzucie z gry:
+ *
+ *  1. Staw nie jest kołem. Koło o promieniu bliskim NAJWIĘKSZEMU promieniowi
+ *     stawu wychodzi poza brzeg wszędzie tam, gdzie staw jest węższy — fala
+ *     wypływała na piasek i na trawę.
+ *  2. Koło było PŁASKIE, a tafla wody idzie za kulą. Przy promieniu 2,7
+ *     i R = 8,5 powierzchnia wody opada na brzegu o 0,43 — czyli cztery razy
+ *     więcej, niż wynosi głębokość stawu. Płaski pierścień wisiał więc nad
+ *     wodą, a przy brzegu nad gruntem.
+ *
+ * Dlatego fala ma własną siatkę: te same kierunki i ten sam mnożnik `r(θ)`,
+ * co tafla, a wysokość każdego wierzchołka liczona z kuli. Animacja nie
+ * skaluje obiektu (skalowanie zepsułoby dopasowanie do kuli), tylko
+ * PRZEPISUJE pozycje — dwa okręgi po `punkty` wierzchołków, więc to kilkaset
+ * liczb na klatkę.
+ */
+function falaOczka(r, mnoznik, R, punkty, material) {
+  const kier = new Float64Array(punkty * 3);
+  for (let j = 0; j < punkty; j++) {
+    const t = (j / punkty) * Math.PI * 2;
+    kier[j * 3] = Math.cos(t);
+    kier[j * 3 + 1] = Math.sin(t);
+    kier[j * 3 + 2] = r * mnoznik(t);
+  }
+  const atr = new Float32BufferAttribute(new Float32Array(punkty * 2 * 3), 3);
+  const idx = [];
+  for (let j = 0; j < punkty; j++) {
+    const a = j, b = (j + 1) % punkty, c = a + punkty, d = b + punkty;
+    idx.push(a, d, c, a, b, d);
+  }
+  const g = new BufferGeometry();
+  g.setAttribute("position", atr);
+  g.setIndex(idx);
+  const mesh = new Mesh(g, material);
+  mesh.name = "fala-oczka";
+  mesh.frustumCulled = false;          // pozycje zmieniają się co klatkę
+  return {
+    mesh,
+    /** `roWew`/`roZew` w ułamku promienia stawu; 1 = dokładnie brzeg. */
+    ustaw(roWew, roZew, y) {
+      const a = atr.array;
+      for (let krag = 0; krag < 2; krag++) {
+        const ro = krag === 0 ? roWew : roZew;
+        for (let j = 0; j < punkty; j++) {
+          const rr = ro * kier[j * 3 + 2];
+          const o = (krag * punkty + j) * 3;
+          a[o] = kier[j * 3] * rr;
+          a[o + 1] = Math.sqrt(Math.max(0, R * R - rr * rr)) - R + y;
+          a[o + 2] = kier[j * 3 + 1] * rr;
+        }
+      }
+      atr.needsUpdate = true;
+    },
+  };
+}
+
+/**
  * Oczko wody: tafla dopasowana do kuli + lekkie falowanie. Niecka i brzeg
  * są WPISANE W TEREN (`teren.js` daje nieckę pod `mapa.oczko`, `swiat.js`
  * koloruje dno i stok), więc tafla leży w ziemi, a nie na niej. Lisek
@@ -337,9 +397,17 @@ export function zbudujOczko(def, planeta) {
     ? promienZObrysu(def.punkty, { gladkosc: def.gladkosc, probki: def.probki }) : null;
   const r = reczny ? 1 : (def.promien ?? 1.4);
   const mn = reczny ? reczny.r : mnoznikObrysu(def.ziarno ?? 1);
-  // Gęstość obwodu rośnie z rozmiarem: przy ręcznym obrysie 44 punkty
-  // zaokrągliłyby narysowaną zatoczkę tak, że nie byłoby jej widać.
-  const obwod = reczny ? Math.min(160, Math.max(56, Math.round(reczny.max * 26))) : 44;
+  /* GĘSTOŚĆ OBWODU rośnie z rozmiarem: przy ręcznym obrysie garść punktów
+     zaokrągliłaby narysowaną zatoczkę tak, że nie byłoby jej widać.
+     MNOŻNIK PODNIESIONY Z 26 NA 60 (18.09). Przy 26 staw o promieniu 2,5
+     dostawał 66 segmentów, czyli odcinki po 0,22 jednostki z załamaniami do
+     13,5° — a kamera gry pokazuje staw na jakieś sto pikseli na jednostkę,
+     więc każdy taki odcinek to dwadzieścia parę pikseli prostej krawędzi
+     i widoczne, drobne WCIĘCIE w brzegu wody. Przy 60 odcinek ma 0,10
+     jednostki, największe załamanie spada do 4,8°, a załamań powyżej 10°
+     nie ma już wcale. Koszt: tafla to kilkaset wierzchołków więcej, raz,
+     przy budowie świata. */
+  const obwod = reczny ? Math.min(240, Math.max(72, Math.round(reczny.max * 60))) : 64;
   const R = planeta.R;
   const g = new Group();
   g.name = "oczko";
@@ -351,16 +419,19 @@ export function zbudujOczko(def, planeta) {
     new MeshLambertMaterial({ color: 0x5fc4de, emissive: 0x1a6a88, emissiveIntensity: 0.35, transparent: true, opacity: 0.92 }),
   );
   g.add(tafla);
-  // Kręgi na wodzie skalują się do ROZMIARU stawu, nie do `r` — przy ręcznym
-  // obrysie `r` to 1 i fale byłyby wielkości spodka na całym jeziorze.
-  const rFal = reczny ? reczny.max : r;
+  /* Kręgi na wodzie biegną po TYM SAMYM kształcie, co tafla (`r`, `mn`), więc
+     nie mają jak wyjść na brzeg — najszerszy dochodzi do 0,92 promienia
+     w każdym kierunku z osobna. Szerokość pasma jest ułamkiem promienia,
+     żeby na dużym stawie fala nie była nitką, a na małym obręczą. */
+  const yFali = -gl + 0.055;
   const fale = [];
   for (let i = 0; i < 3; i++) {
-    const f = new Mesh(new RingGeometry(rFal * 0.2, rFal * 0.24, 32), new MeshBasicMaterial({ color: 0xdff6ff, transparent: true, opacity: 0.35, side: DoubleSide, depthWrite: false }));
-    f.rotation.x = -Math.PI / 2;
-    f.position.y = -gl + 0.055;
-    f.userData.faza = i / 3;
-    g.add(f);
+    const f = falaOczka(r, mn, R, obwod, new MeshBasicMaterial({
+      color: 0xdff6ff, transparent: true, opacity: 0.35, side: DoubleSide, depthWrite: false,
+    }));
+    f.faza = i / 3;
+    f.ustaw(0.06, 0.10, yFali);
+    g.add(f.mesh);
     fale.push(f);
   }
   // Środek ręcznego obrysu liczymy tak samo jak w `teren.js` (środek ciężkości),
@@ -378,11 +449,14 @@ export function zbudujOczko(def, planeta) {
     promien: reczny ? reczny.max : r,
     tik(dt) {
       for (const f of fale) {
-        f.userData.faza = (f.userData.faza + dt * 0.28) % 1;
-        const u = f.userData.faza;
-        const s = 0.35 + u * 3.6;
-        f.scale.set(s, s, 1);
-        f.material.opacity = 0.42 * (1 - u) * (1 - u);
+        f.faza = (f.faza + dt * 0.28) % 1;
+        const u = f.faza;
+        /* Krąg rusza spod środka i gaśnie, ZANIM dojdzie do samego brzegu:
+           0,92 zostawia pasek wody przy piasku, dzięki czemu fala wygląda,
+           jakby się rozeszła, a nie jakby uderzyła w krawędź. */
+        const zew = 0.10 + u * 0.82;
+        f.ustaw(Math.max(0, zew - 0.045), zew, yFali);
+        f.mesh.material.opacity = 0.42 * (1 - u) * (1 - u);
       }
     },
   };

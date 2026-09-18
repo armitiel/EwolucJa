@@ -25,6 +25,7 @@ import { etapSzkolny } from "./profilStartowy.js";
 import { stanDrewna } from "./zadanieDrewna.js";
 import { stanZadania as stanZadaniaWizkora, zadanieDoZlecenia } from "./zadanieWizkora.js";
 import { celPuzzli, stanPuzzli } from "./puzzleGier.js";
+import { czyRysowalDzis } from "./ramkaDomku.js";
 
 /**
  * Czarodziej na mapie: identyfikator jego znaku w module sceny (`xf`
@@ -129,6 +130,30 @@ export function kwestiaZachodu(realZewn = null) {
   const baza = { imie: "Wizkor", obrazek: "/wizPop.webp" };
   const real = realZewn || stanZadaniaWizkora();
   const miejsce = real.def?.miejsce_reakcji || "na polanie";
+
+  /* RYSUNEK DNIA — ostatnia rzecz przed nocą, raz dziennie, tylko gdy stoi
+     domek (ramka wisi w domku; bez domku nie ma gdzie powiesić). Ma
+     pierwszeństwo przed czterema wariantami niżej, bo one mówią o tym, co
+     czeka POZA ekranem — a rysunek jest tym jednym, co dziecko robi jeszcze
+     tu, zanim odłoży urządzenie. Jeśli zadanie w realu czeka, karta wspomina
+     o nim jednym zdaniem — nie znika, tylko ustępuje miejsca. Trzy zdania,
+     bez cyfr, jak każda kwestia Wizkora w głos (`01` standard). */
+  if (!czyRysowalDzis() && stanDrewna().zbudowane) {
+    const t = real.doZrobienia ? real.def?.tytul : null;
+    return zWariantem({
+      ...baza,
+      tekst:
+        "Słońce schodzi. Zanim zaśnie, narysuj jedną rzecz z dziś — jedną linią, powieszę ją w domku."
+        + (t ? ` A „${t}" czeka u ciebie, nie tu.` : ""),
+      tekstEkranu: "Słońce schodzi. Narysuj jedną rzecz z dziś.",
+      wyroznienie: "jedną rzecz z dziś",
+      przycisk: "Rysuję",
+      akcja: "rysunek",
+      warianty: {
+        "1-3": { tekst: "Słońce schodzi. Narysuj jedną rzecz z dziś, jedną linią. Powieszę ją w domku." },
+      },
+    });
+  }
 
   if (real.doZrobienia) {
     const t = real.def.tytul;

@@ -101,11 +101,25 @@ function katmull(p0, p1, p2, p3, u, t) {
  * ścieżce) przepuszcza krzywą DOKŁADNIE przez klikane punkty i tylko wygładza
  * to, co między nimi — więc przeciąganie węzła robi to, czego się spodziewasz.
  *
- * Tej samej funkcji musi używać edytor przy rysowaniu planu (ma swoją kopię
- * z komentarzem). Gdyby się rozjechały, plan pokazywałby inny brzeg niż scena.
+ * Tej samej funkcji używa edytor przy rysowaniu planu — przez globalną
+ * `EwolucjaTeren` (`teren-obrysy.js`), nie przez kopię. Jedno źródło, jeden brzeg.
  */
 export const OBRYS_GLADKOSC = 0.7;
-export const OBRYS_PROBKI = 6;
+/**
+ * PRÓBKI NA ODCINEK OBRYSU. Splajn przechodzi przez klikane punkty, ale sam
+ * jest łamaną o `punkty × probki` wierzchołkach — przy sześciu próbkach
+ * dziewięciopunktowy staw miał 54 wierzchołki i załamania do 13° NAWET przy
+ * gładkości na maksimum. Dwadzieścia cztery dają 216 wierzchołków i 3,6°,
+ * czyli krzywą, która czyta się jako krzywa. Kosztuje to jedno przeliczenie
+ * przy budowie świata (tablica `r(θ)` powstaje raz) i nic w czasie gry.
+ *
+ * Edytor (`public/scena-3d/edytor.html`) NIE MA już własnej kopii: czyta
+ * tę stałą i `wygladzObrys` z globalnej `EwolucjaTeren`, czyli z tego pliku
+ * zbudowanego jako `public/scena-3d/teren-obrysy.js` (cel w `build.mjs`).
+ * Po zmianie tutaj przebuduj scenę i podbij `?v=` przy tym skrypcie
+ * w edytorze — inaczej przeglądarka poda mu starą krzywą z cache.
+ */
+export const OBRYS_PROBKI = 24;
 export function wygladzObrys(P, gladkosc = OBRYS_GLADKOSC, probki = OBRYS_PROBKI) {
   if (!Array.isArray(P) || P.length < 3 || !(gladkosc > 0)) return (P || []).map((p) => [p[0], p[1]]);
   const n = P.length;

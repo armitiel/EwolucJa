@@ -37,6 +37,7 @@ export const ZDARZENIA = [
   "doba:pora", "doba:sesja", "sesja:zamknieta",
   "swiatlo:zebrane", "woda:nabrana", "fasola:podlana", "fasola:wspinaczka", "swiat:dalej",
   "surowiec:zdobyty", "surowiec:podniesiony", "surowiec:dostarczony", "miejsce:pokazane",
+  "domek:drabinka", "domek:wejscie",
   "pauza", "wznowienie", "zniszczona", "blad",
 ];
 
@@ -89,12 +90,23 @@ export async function utworzScena3D(s = {}) {
     oznaczDostarczone: (r) => n.oznaczDostarczone(r),
     ustawRabanieAktywne: (r) => n.ustawRabanieAktywne(r),
     ustawSchronienie: (r, a) => n.ustawSchronienie(r, a),
+    wejdzDoDomku: () => n.wejdzDoDomku(),
     /* Narzędzie właściciela: suwaki do domkowego drzewa, wprost w grze.
        Woła je pulpit reżyserki (`Swiat.jsx`) i adres `?edytorDomku=1`. */
     edytorDomku: () => n.edytorDomku(),
     ustawPlacBudowy: (r, a) => n.ustawPlacBudowy(r, a),
     pokazMiejsce: (r, a) => n.pokazMiejsce(r, a),
     pokazZnakWKadrze: (r, a) => n.pokazZnakWKadrze(r, a),
+    /* ŚLADY PRZYGÓD — planeta odpowiada na to, co dziecko zrobiło poza
+       ekranem. Nazwy muszą się zgadzać co do litery z `reakcja_swiata.metoda`
+       w `frontend/src/hub/data/zadania-wizkora.v2.json`: React woła je przez
+       `globalThis.__SCENA[metoda]`, więc literówka rozłącza kanał bez błędu.
+       Opis w `slady.js`. */
+    posadzKwiat: (...a) => n.posadzKwiat(...a),
+    ulozKamyczki: (...a) => n.ulozKamyczki(...a),
+    dodajGrzyb: (...a) => n.dodajGrzyb(...a),
+    pokazUkryty: (...a) => n.pokazUkryty(...a),
+    dodajZnak: (...a) => n.dodajZnak(...a),
     stan: () => n.stan(),
     zniszcz: () => { n.zniszcz(); t.remove(); },
     _app: n,

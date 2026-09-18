@@ -31,6 +31,14 @@
  *
  * Treść jest DANYMI, nie kodem: dopisanie wskazówki do `WSKAZOWKI` to wszystko,
  * czego trzeba — pomiar celu, chmurka i animacje są wspólne (`Reflektor.jsx`).
+ *
+ * CZEGO TU NIE MA — I GDZIE TO JEST. Wskazówki z tego pliku zapraszają do
+ * MIEJSC, których dziecko jeszcze nie zna (Porada dnia, Minigry), i milkną na
+ * zawsze, gdy raz tam zajrzy. O tym, CO TERAZ ZROBIĆ w otwartym zadaniu —
+ * ściąć drzewo, zanieść drewno, poszukać kawałków, wrócić do Wizkora — mówi
+ * `coTeraz.js` tą samą chmurką. Podpowiedź o szukaniu puzzli mieszkała przez
+ * jeden dzień tutaj; przeniesiona tam 18.09.2026, żeby etapy zadań były w
+ * JEDNYM miejscu, a nie w dwóch, które trzeba pamiętać razem.
  */
 
 import { etapSzkolny } from "./profilStartowy.js";
@@ -41,52 +49,6 @@ const KLUCZ = "ewolucja.wskazowki";
 export const ZDARZENIE_ZMIANY = "ewolucja:wskazowkiZmiana";
 
 export const WSKAZOWKI = [
-  {
-    /**
-     * SZUKANIE KAWAŁKÓW OBRAZKA — jedyna wskazówka, która mówi OBRAZKAMI.
-     *
-     * Stoi pierwsza, bo `nastepnaWskazowka` bierze pierwszą pasującą, a ta
-     * jest chwilowa: żyje tylko do pierwszego znalezionego kawałka. Porada
-     * dnia i minigry poczekają — one nie mają terminu.
-     *
-     * DLACZEGO OBRAZKI, A NIE ZDANIE. Sześciolatek w biegu nie przeczyta
-     * „kawałki obrazka leżą w świecie", a tu i tak wszystko mieści się
-     * w dwóch rysunkach: lupa (szukaj) i puzelek (czego). Zdanie zostaje pod
-     * nimi — dla tych, którzy czytają, i dla lektora.
-     */
-    id: "puzzle-szukaj",
-    tryb: "dymek",
-    /* Dzióbek celuje w SAM AWATAR, nie w cały chip z imieniem: chmurka ma
-       wychodzić od liska, a nie od pigułki z napisem. */
-    cel: '[data-testid="hub-chip-profil"] img',
-    promien: "50%",
-    postac: "/lisPop.webp",
-    tytul: "Szukamy kawałków",
-    /** Lupa i puzelek na przemian — para z `scripts/gen-ikony-wskazowki.mjs`. */
-    obrazki: ["/assets/wskazowki/ikona-lupa.png", "/assets/puzzle/ikona-puzzel.png"],
-    /* Zdanie MÓWIONE jest pełne, a na ekranie stoją dwie krótkie linijki —
-       obrazki zabierają lewą część chmurki, więc długie wersy zaczęłyby ją
-       rozpychać w dół. */
-    tekst: "Kawałki obrazka czekają w świecie. Rozejrzyj się!",
-    linie: ["Kawałki obrazka", "czekają w świecie!"],
-    glos: "lisek",
-    /**
-     * Zbieranie kawałków JEST misją, a hub domyślnie milczy w trakcie misji —
-     * bez tej zgody chmurka o szukaniu puzzli nigdy by się nie pokazała.
-     */
-    wMisji: true,
-    /**
-     * Tylko PRZED pierwszym kawałkiem. Dziecko, które już jeden znalazło, wie
-     * czego szuka — dlatego ta wskazówka nie potrzebuje `panelCelu` ani wpisu
-     * w pamięci: gaśnie sama, gdy licznik ruszy.
-     */
-    warunek: ({ puzzle }) => !!puzzle && !puzzle.komplet && !puzzle.zebrane,
-    /** Wcześniej niż pozostałe: zadanie już trwa, a dziecko nie wie, gdzie iść. */
-    poCzasie: 40000,
-    powtorkaCo: 150000,
-    maksNaSesje: 3,
-    czasNaEkranie: 9000,
-  },
   {
     id: "porada-dnia",
     tryb: "dymek",

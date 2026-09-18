@@ -1,0 +1,63 @@
+/* Karta rysunku dnia (`hub/RysunekJednaLinia.jsx`). Ten sam wzorzec nakładki
+   i karty, co `kolo-fortuny.css` — kolory z tokenów, żadnych #hex w regułach
+   komponentu (docs/SYSTEM_STYLOW.md). */
+.rysunek-tlo{
+  position:fixed; inset:0; z-index:70;
+  display:flex; align-items:center; justify-content:center;
+  padding:18px; background:color-mix(in srgb, var(--braz-950) 55%, transparent);
+  backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px);
+  animation:rysunek-wejscie .25s ease;
+  font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
+}
+@keyframes rysunek-wejscie{ from{ opacity:0; } to{ opacity:1; } }
+
+.rysunek-karta{
+  position:relative; width:min(94vw,440px);
+  padding:16px 18px 18px; border-radius:26px;
+  background:linear-gradient(180deg,var(--p-paper),var(--p-paper-2));
+  border:3px solid var(--zloto-450);
+  box-shadow:0 4px 0 var(--braz-400), 0 18px 40px color-mix(in srgb, var(--braz-950) 45%, transparent);
+  text-align:center; user-select:none; -webkit-user-select:none;
+  animation:rysunek-wjazd .35s cubic-bezier(.2,.9,.3,1.25);
+}
+@keyframes rysunek-wjazd{
+  from{ transform:translateY(18px) scale(.92); opacity:0; }
+  to{ transform:translateY(0) scale(1); opacity:1; }
+}
+.rysunek-x{ top:8px; right:8px; }
+
+.rysunek-nadtytul{
+  margin:2px 0 0; padding:0 46px; font-size:11px; font-weight:800; letter-spacing:2.2px;
+  color:var(--braz-400); text-transform:uppercase;
+}
+.rysunek-tytul{ margin:2px 0 4px; font-size:clamp(22px,5.4vw,28px); font-weight:800; color:var(--ochra-750); }
+.rysunek-opis{
+  margin:0 0 12px; min-height:2.6em; font-size:15px; line-height:1.3; color:var(--p-ink-soft);
+  font-family:var(--font-body,'Nunito'),system-ui,sans-serif;
+}
+
+/* Płótno: kwadrat mieszczący się i w szerokości karty, i w wysokości okna,
+   z „passe-partout" w kolorze drewna ramki — dziecko od razu widzi, że rysuje
+   DO ramki, nie na kartce. */
+.rysunek-plotno-ramka{
+  margin:0 auto; width:min(84vw, 42dvh, 360px); aspect-ratio:1;
+  padding:10px; border-radius:14px;
+  background:linear-gradient(160deg,var(--braz-500),var(--braz-700));
+  box-shadow:inset 0 2px 0 color-mix(in srgb, var(--biel-ciepla) 35%, transparent), 0 6px 14px color-mix(in srgb, var(--braz-950) 35%, transparent);
+  transition:box-shadow .3s ease;
+}
+.rysunek-plotno-ramka.is-gotowe{
+  box-shadow:inset 0 2px 0 color-mix(in srgb, var(--biel-ciepla) 35%, transparent), 0 0 0 4px var(--zloto-300), 0 6px 14px color-mix(in srgb, var(--braz-950) 35%, transparent);
+}
+.rysunek-plotno{
+  display:block; width:100%; height:100%; border-radius:6px;
+  touch-action:none;               /* palec ma rysować, nie przewijać */
+  cursor:crosshair;
+}
+.rysunek-przyciski{ display:flex; gap:10px; margin-top:14px; }
+.rysunek-btn{ flex:1; }
+
+@media (prefers-reduced-motion: reduce){
+  .rysunek-tlo, .rysunek-karta{ animation:none; }
+  .rysunek-plotno-ramka{ transition:none; }
+}

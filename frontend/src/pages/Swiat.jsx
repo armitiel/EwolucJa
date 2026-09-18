@@ -29,6 +29,8 @@ import MessageScroll from "../hub/MessageScroll.jsx";
 import PodpowiedzMedrca from "../hub/PodpowiedzMedrca.jsx";
 import PopupPostaci from "../hub/PopupPostaci.jsx";
 import PodsumowanieDnia from "../hub/PodsumowanieDnia.jsx";
+import { odtworzSlady, wyczyscSlady } from "../hub/sladySwiata.js";
+import { wyczyscRysunki } from "../hub/ramkaDomku.js";
 import RewardScreen from "../components/RewardScreen.jsx";
 import { bonusMonet, ZDARZENIE_ZMIANY as MONETY_ZMIANA } from "../services/monety.js";
 import {
@@ -125,6 +127,7 @@ import ProfilPanel from "../hub/panels/ProfilPanel.jsx";
 import CzatPanel from "../hub/panels/CzatPanel.jsx";
 import PoradaPanel from "../hub/panels/PoradaPanel.jsx";
 import ZadaniePanel from "../hub/panels/ZadaniePanel.jsx";
+import { coTeraz } from "../hub/coTeraz.js";
 import { GameIcon } from "../adventure/components/icons.jsx";
 import { unreadCount } from "../adventure/engine/notifications.js";
 import {
@@ -365,6 +368,7 @@ const PuzzleBrama = leniwy(() => import("../hub/PuzzleBrama.jsx"));
    pakietu huba wchodzić nie może, tak samo jak minigry. */
 const WnetrzeDomku = leniwy(() => import("./WnetrzeDomku.jsx"));
 const KoloFortuny = leniwy(() => import("../hub/KoloFortuny.jsx"));
+const RysunekJednaLinia = leniwy(() => import("../hub/RysunekJednaLinia.jsx"));
 
 /* KOŁO PRZEZNACZENIA nie jest osobnym ekranem huba: stoi w panelu zadania
    (`panels/ZadaniePanel.jsx`) jako jego pierwsza odsłona, więc losowanie
@@ -404,6 +408,9 @@ const GRY_OSADZONE = {
  * zazębiają się o te 160 ms i czyta się to jak jedno zdarzenie, a nie jak
  * animacja, pauza i dopiero okno.
  */
+/** Ile chmurka „co teraz" milczy po oknie postaci (Wizkor właśnie to powiedział). */
+const CISZA_PO_POSTACI = 60_000;
+
 const WCHLANIANIE_MS = 950;
 /**
  * Ile czekamy ze wpuszczeniem okna, gdy znak NIE znika po dotknięciu (dziś:
@@ -618,6 +625,8 @@ export default function Swiat() {
   const [ukladanka, setUkladanka] = useState(null);
   // Koło przeznaczenia stoi NAD mapą, nie w szufladzie — patrz akcja `kolo`.
   const [kolo, setKolo] = useState(false);
+  // Karta „jedna rzecz z dziś” — otwiera ją kwestia zachodu (`akcja: "rysunek"`).
+  const [rysunek, setRysunek] = useState(false);
   /**
    * Etap puzzli do LICZNIKA w HUD: `null` poza etapem, inaczej stan
    * z `puzzleGier` (zebrane/cel/komplet). Trzymany w stanie Reacta, bo
@@ -676,6 +685,10 @@ export default function Swiat() {
   const zegarZaproszeniaRef = useRef(0);
   // Zadanie od czarodzieja. Czytamy je z localStorage przy montowaniu, bo
   // zbieranie ma przeżyć zamknięcie apki.
+  /* Zadanie w realu było czytane doraźnie (`stanZadaniaWizkora()` w miejscu
+     użycia). Chmurka „co teraz" musi wiedzieć o nim NA BIEŻĄCO, więc trzyma je
+     stan — odświeżany tym samym zdarzeniem, co plakietka zakładki. */
+  const [realHud, setRealHud] = useState(() => stanZadaniaWizkora());
   const [zadanie, setZadanie] = useState(() => stanZadania());
   const [drewno, setDrewno] = useState(() => stanDrewna());
   /* CO LISEK NIESIE W TEJ CHWILI. Świadomie w pamięci, nie w zapisie: apka
@@ -977,7 +990,11 @@ export default function Swiat() {
   // Zadanie zmienia stan także spoza panelu (wysyłka, werdykt Mentora,
   // odebranie nagrody) — plakietka ma za tym nadążać bez przeładowania.
   useEffect(() => {
-    const odswiez = () => { przeliczNieprzeczytane(); setBonus(bonusMonet()); };
+    const odswiez = () => {
+      przeliczNieprzeczytane();
+      setBonus(bonusMonet());
+      setRealHud(stanZadaniaWizkora());
+    };
     window.addEventListener(ZDARZENIE_ZADANIA_WIZKORA, odswiez);
     return () => window.removeEventListener(ZDARZENIE_ZADANIA_WIZKORA, odswiez);
   }, [przeliczNieprzeczytane]);
@@ -1092,6 +1109,66 @@ export default function Swiat() {
    * niżej), bo dopiero wtedy spełniła swoje zadanie.
    */
   const zamknijWskazowke = useCallback(() => setWskazowka(null), []);
+
+  /* ── CO TERAZ — AWATAR MÓWI, CO JEST DO ZROBIENIA ──────────────────────────
+   *
+   * Jedna chmurka na wszystkie zadania (`hub/coTeraz.js`): po KAŻDEJ zmianie
+   * etapu — ścięte drzewo, doniesione drewno, pierwszy kawałek puzzla, komplet
+   * gwiazdek, zadanie od Mentora — lisek pokazuje obrazkami, co dalej.
+   *
+   * POKAZUJEMY PRZY ZMIANIE ETAPU, nie na zegarze. Chmurka jest odpowiedzią na
+   * nową sytuację, a nie przypominaczem: ten sam etap nie wraca drugi raz, bo
+   * dziecko, któremu świat powtarza to samo zdanie, przestaje go czytać.
+   *
+   * CZEKA NA SPOKÓJ. Jeśli akurat trwa okno Wizkora, minigra albo panel, etap
+   * zostaje w kolejce (`doPokazaniaRef`) i wchodzi, gdy ekran się uwolni —
+   * inaczej zmiana, która wydarzyła się „za oknem", przepadałaby bez śladu.
+   */
+  const terazWskazowka = useMemo(
+    () => coTeraz({ gwiazdki: zadanie, drewno, puzzle: puzzleHud, real: realHud }),
+    [zadanie, drewno, puzzleHud, realHud],
+  );
+  /* Budzik dla chmurki „co teraz": efekt nie ma na czym się oprzeć, gdy jedyną
+     zmianą jest UPŁYW CZASU od zamknięcia okna postaci. */
+  const [tikCoTeraz, setTikCoTeraz] = useState(0);
+  const etapCoTerazRef = useRef(null);
+  const doPokazaniaRef = useRef(null);
+  const ostatniePopupRef = useRef(0);
+
+  /* KIEDY POSTAĆ WŁAŚNIE TO POWIEDZIAŁA, CHMURKA MILCZY.
+     Etap zmienia się najczęściej w oknie Wizkora („zbierz dziesięć gwiazdek",
+     „przynieś drewno") — powtórzenie tego samego zdania trzy sekundy po jego
+     zamknięciu uczy dziecko, że świat mówi dwa razy to samo, i przestaje być
+     słuchane. Chmurka wraca do roli przypomnienia: wchodzi, gdy etap zmienił
+     się SAM (ścięte drzewo → jest co nieść) albo gdy od okna minęła minuta. */
+  useEffect(() => {
+    if (powitanie || zaproszenie || nagroda) ostatniePopupRef.current = Date.now();
+  }, [powitanie, zaproszenie, nagroda]);
+
+  useEffect(() => {
+    const id = terazWskazowka?.id || null;
+    if (id !== etapCoTerazRef.current) {
+      etapCoTerazRef.current = id;
+      doPokazaniaRef.current = id ? terazWskazowka : null;
+    }
+    const czeka = doPokazaniaRef.current;
+    if (!czeka || !odsloniete) return undefined;
+    if (panel || gra || powitanie || zaproszenie || nagroda || wskazowka) return undefined;
+    const odPopupu = Date.now() - ostatniePopupRef.current;
+    if (odPopupu < CISZA_PO_POSTACI) {
+      /* Nie gubimy etapu — wracamy do niego, gdy cisza minie. */
+      const zegar = window.setTimeout(() => setTikCoTeraz((t) => t + 1), CISZA_PO_POSTACI - odPopupu + 200);
+      return () => window.clearTimeout(zegar);
+    }
+    /* Oddech po zmianie: dziecko właśnie coś skończyło (ścięło, doniosło,
+       zebrało) i świat na to odpowiada — chmurka wchodzi PO tej odpowiedzi,
+       a nie na niej. */
+    const zegar = window.setTimeout(() => {
+      doPokazaniaRef.current = null;
+      setWskazowka(czeka);
+    }, 2600);
+    return () => window.clearTimeout(zegar);
+  }, [terazWskazowka, odsloniete, panel, gra, powitanie, zaproszenie, nagroda, wskazowka, tikCoTeraz]);
 
   // Otwarcie wskazanego panelu — obojętnie czy z chmurki, czy samodzielnie —
   // kończy podpowiedź na dobre.
@@ -1721,6 +1798,13 @@ export default function Swiat() {
       setKolo(true);
       return;
     }
+    if (akcja === "rysunek") {
+      // Zachód: okno Wizkora schodzi, wchodzi płótno. Po „Powieś w domku"
+      // otwiera się wnętrze — dziecko od razu widzi rysunek w ramce.
+      setPowitanie(null);
+      setRysunek(true);
+      return;
+    }
     rozstanie();
   }, [powitanie, rozstanie, pokazKomunikat, pokazChmurke, odswiezZnakiMisji, odswiezPuzleNaMapie, otworz, przeliczNieprzeczytane, mrugnijZadania]);
 
@@ -1936,6 +2020,33 @@ export default function Swiat() {
         grupa: "Domek na drzewie",
         etykieta: "Skasuj zadanie drewna",
         odpal: () => { skasujZadanieDrewna(); setDrewno(stanDrewna()); },
+      },
+      {
+        grupa: "Domek na drzewie",
+        etykieta: "Lisek wchodzi po drabince",
+        odpal: () => {
+          if (!scenaRef.current?.wejdzDoDomku?.()) pokazKomunikat("DEV: domek nie stoi albo lisek jest zajęty");
+        },
+      },
+      {
+        grupa: "Domek na drzewie",
+        etykieta: "Rysunek dnia (karta)",
+        odpal: () => { setPowitanie(null); setRysunek(true); },
+      },
+      {
+        grupa: "Domek na drzewie",
+        etykieta: "Wyczyść rysunki (pusta ramka)",
+        odpal: () => { wyczyscRysunki(); pokazKomunikat("DEV: rysunki wyczyszczone — ramka pusta, zachód poprosi od nowa"); },
+      },
+      {
+        grupa: "Ślady przygód",
+        etykieta: "Wyczyść ślady świata (przeładuje scenę)",
+        odpal: () => {
+          /* Ślady już stoją na planecie, a scena nie umie ich cofnąć — jedyna
+             uczciwa droga to dziennik do zera i świat od nowa. */
+          wyczyscSlady();
+          window.location.reload();
+        },
       },
       {
         grupa: "Okno Wizkora",
@@ -2252,6 +2363,17 @@ export default function Swiat() {
         return;
       }
 
+      /* DRABINKA = DRZWI. Lisek stanął w progu domku (scena poprowadziła go
+         po szczeblach), więc wchodzimy do środka. Otwarcie panelu pauzuje
+         scenę (efekt od `panel`), a przy wyjściu `wznow()` stawia liska
+         z powrotem pod drabinką — hub nie musi o tym nic wiedzieć. Nie nad
+         otwartą rozmową: gdyby Wizkor akurat mówił, pokój przykryłby okno. */
+      if (nazwa === "domek:wejscie") {
+        if (rozmowaRef.current || planetaSpiRef.current) return;
+        otworz("dom");
+        return;
+      }
+
       if (nazwa === "gotowa") {
         // Znaki wracają SAME, po swoim czasie z definicji (3,2 s). Wcześniej
         // wstrzymywaliśmy powrót do zamknięcia panelu (`ustawPowrotZnaku(…, false)`)
@@ -2277,6 +2399,11 @@ export default function Swiat() {
         scenaRef.current?.ustawSchronienie?.(d.etap, false);
         etapPokazany.current = d.etap;
         scenaRef.current?.ustawPlacBudowy?.(d.istnieje && !d.zbudowane, d.spelnione);
+        /* ŚLADY PRZYGÓD — to, co wyrosło po zadaniach zrobionych poza ekranem.
+           Odtwarzamy tu, razem z drzewami i domkiem, bo to jest ta sama
+           sprawa: świat ma pamiętać, co dziecko zrobiło. Bez animacji —
+           wejście do świata nie jest chwilą, w której coś rośnie. */
+        odtworzSlady(scenaRef.current);
         setScenaGotowa(true);
         return;
       }
@@ -3224,6 +3351,22 @@ export default function Swiat() {
         </Suspense>
       ) : null}
 
+      {/* RYSUNEK DNIA — karta o zachodzie, ten sam wzorzec nakładki co koło.
+          Po powieszeniu od razu wchodzi wnętrze domku: rysunek ma być
+          zobaczony w ramce w tej samej minucie, w której powstał. */}
+      {rysunek ? (
+        <Suspense fallback={null}>
+          <RysunekJednaLinia
+            onZamknij={() => setRysunek(false)}
+            onGotowe={() => {
+              setRysunek(false);
+              pokazKomunikat("Wisi w domku", { opis: "Twój rysunek jest w ramce nad półką." });
+              otworz("dom");
+            }}
+          />
+        </Suspense>
+      ) : null}
+
       {/* UKŁADANKA — brama przed minigrą. Nad HUD-em i arkuszem, pod samą
           grą (nigdy nie stoją naraz: jedna otwiera drugą). */}
       {ukladanka ? (
@@ -3346,7 +3489,13 @@ export default function Swiat() {
             zdarzenia={zdarzeniaDev}
             onWylacz={() => setDev(ustawDev(false))}
             onPokazWskazowke={(id) =>
-              setWskazowka(wskazowkaPoId(id) || nastepnaWskazowka({ chodzenieOswojone: true }))
+              /* „co-teraz" to nie wpis w `WSKAZOWKI`, tylko etap policzony ze
+                 stanu gry — pulpit prosi o to, co dziecko widziałoby teraz. */
+              setWskazowka(
+                id === "co-teraz"
+                  ? terazWskazowka
+                  : wskazowkaPoId(id) || nastepnaWskazowka({ chodzenieOswojone: true }),
+              )
             }
             onPokazMyslMedrca={() => {
               setWskazowka(null);

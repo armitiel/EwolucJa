@@ -61,10 +61,11 @@
     {
       "typ": "sosna",
       "pos": [
-        7.43,
-        2.21
+        7.09,
+        2.68
       ],
-      "skala": 1.3
+      "skala": 1.3,
+      "trawa": true
     },
     {
       "typ": "sosna",
@@ -72,24 +73,27 @@
         6.42,
         -5.08
       ],
-      "skala": 0.9
+      "skala": 0.9,
+      "trawa": true
     },
     {
       "typ": "lisciaste",
       "pos": [
-        8.69,
-        0.84
+        7.27,
+        -0.26
       ],
-      "skala": 1
+      "skala": 1,
+      "trawa": true
     },
     {
       "typ": "sosna",
       "pos": [
-        8.98,
-        3.5
+        9.25,
+        4.07
       ],
       "skala": 0.8,
-      "obrot": -1.81
+      "obrot": -1.81,
+      "trawa": true
     },
     {
       "typ": "sosna",
@@ -97,7 +101,8 @@
         -21.42,
         1.5
       ],
-      "skala": 1
+      "skala": 1,
+      "trawa": true
     },
     {
       "typ": "sosna",
@@ -106,7 +111,8 @@
         -17.85
       ],
       "skala": 1,
-      "obrot": -1.92
+      "obrot": -1.92,
+      "trawa": true
     },
     {
       "typ": "sosna",
@@ -114,7 +120,8 @@
         8.03,
         -20.27
       ],
-      "skala": 1.24
+      "skala": 1.24,
+      "trawa": true
     },
     {
       "typ": "lisciaste",
@@ -122,7 +129,8 @@
         -8.63,
         -9.27
       ],
-      "skala": 0.68
+      "skala": 0.68,
+      "trawa": true
     },
     {
       "typ": "lisciaste",
@@ -130,7 +138,8 @@
         12.7,
         -17.36
       ],
-      "skala": 0.71
+      "skala": 0.71,
+      "trawa": true
     },
     {
       "typ": "lisciaste",
@@ -139,7 +148,8 @@
         -20.03
       ],
       "skala": 1,
-      "obrot": 2.23
+      "obrot": 2.23,
+      "trawa": true
     },
     {
       "typ": "lisciaste",
@@ -148,7 +158,8 @@
         -7.95
       ],
       "skala": 1,
-      "obrot": -2.36
+      "obrot": -2.36,
+      "trawa": true
     },
     {
       "typ": "lisciaste",
@@ -156,7 +167,8 @@
         -11.37,
         18.45
       ],
-      "skala": 1.26
+      "skala": 1.26,
+      "trawa": true
     },
     {
       "typ": "sosna",
@@ -165,15 +177,17 @@
         -0.75
       ],
       "skala": 1.3,
-      "obrot": -1.84
+      "obrot": -1.84,
+      "trawa": true
     },
     {
       "typ": "podwojna",
       "pos": [
-        -9.57,
-        18.28
+        -8.96,
+        18.15
       ],
-      "skala": 1
+      "skala": 1,
+      "trawa": true
     },
     {
       "typ": "podwojna",
@@ -182,7 +196,8 @@
         -9.71
       ],
       "skala": 1.14,
-      "obrot": 1.1
+      "obrot": 1.1,
+      "trawa": true
     },
     {
       "typ": "sosna",
@@ -191,7 +206,8 @@
         -21.44
       ],
       "skala": 0.84,
-      "obrot": -1.89
+      "obrot": -1.89,
+      "trawa": true
     },
     {
       "typ": "sosna",
@@ -199,7 +215,8 @@
         -11.03,
         -19.3
       ],
-      "skala": 0.79
+      "skala": 0.79,
+      "trawa": true
     },
     {
       "typ": "lisciaste",
@@ -207,7 +224,8 @@
         -7.63,
         -19.88
       ],
-      "skala": 1.25
+      "skala": 1.25,
+      "trawa": true
     },
     {
       "typ": "lisciaste",
@@ -216,7 +234,8 @@
         -17.87
       ],
       "skala": 1.1,
-      "obrot": -1.22
+      "obrot": -1.22,
+      "trawa": true
     },
     {
       "typ": "sosna",
@@ -224,16 +243,18 @@
         20.32,
         -6.87
       ],
-      "skala": 1
+      "skala": 1,
+      "trawa": true
     },
     {
       "typ": "lisciaste",
       "pos": [
-        10.24,
-        18.67
+        9.66,
+        18.87
       ],
       "skala": 1,
-      "obrot": -1.55
+      "obrot": -1.55,
+      "trawa": true
     },
     {
       "typ": "sosna",
@@ -242,7 +263,8 @@
         17.77
       ],
       "skala": 1.49,
-      "obrot": 2.7
+      "obrot": 2.7,
+      "trawa": true
     }
   ],
   "glazy": [
@@ -1082,8 +1104,8 @@
     },
     {
       "pos": [
-        10.08,
-        17.05
+        9.91,
+        16.68
       ],
       "skala": 1,
       "obrot": -0.85
@@ -1098,8 +1120,8 @@
     },
     {
       "pos": [
-        19.31,
-        -3.18
+        20.66,
+        -2.33
       ],
       "skala": 1,
       "obrot": 1.411
@@ -1138,7 +1160,12 @@
     }
   ],
   "schronienie": {
-    "opis": "Drzewo, na ktorym powstaje domek. Polana PONAD drzewkiem i glazem — na tyle daleko, zeby doniesienie materialu bylo kursem, a nie krokiem w bok. `skala` skaluje DRZEWO I POMOST naraz (swiat.js: drzewoDomkowe, schronienie.js: etap1).",
+    "_placOpis": "Gdzie dziecko znosi drewno. OSOBNE miejsce od kotwicy drzewa: kotwica mowi, gdzie drzewo rosnie, a pien jest od niej odsuniety o pienX/pienZ (pien wypada w [2.0, 1.32]). Plac stoi po drugiej stronie pnia niz przedtem - w otwartej trawie, nie za drzewem. Brak tego pola = plac wraca do kotwicy.",
+    "plac": [
+      3.8,
+      2.1
+    ],
+    "opis": "Drzewo, na ktorym powstaje domek. Polana PONAD drzewkiem i glazem — na tyle daleko, zeby doniesienie materialu bylo kursem, a nie krokiem w bok. `skala` skaluje DRZEWO I POMOST naraz (swiat.js: drzewoDomkowe, schronienie.js: etap1). Chatka ma osobne suwaki (uklad.wysokoscScian/szerokoscDrzwi/ganek) - rosnie bez drzewa; edytor: ?edytorDomku=1.",
     "pos": [
       0.18,
       1.65
@@ -1153,7 +1180,7 @@
       "poziom": 2.6,
       "zasiegKonaru": 1.41,
       "pomostOd": 0.2,
-      "pomostPol": 0.56,
+      "pomostPol": 0.7,
       "pienX": 1.18,
       "pienY": 0.04,
       "pienZ": -0.52,
@@ -1203,52 +1230,56 @@
           0.72,
           0
         ]
-      ]
-    }
+      ],
+      "wysokoscScian": 1.25,
+      "szerokoscDrzwi": 0.66,
+      "ganek": 0.42
+    },
+    "trawa": true
   },
   "oczka": [
     {
       "punkty": [
         [
-          18.92,
-          -1.78
+          19.4,
+          -3.74
         ],
         [
-          17.82,
-          -1.15
+          18.49,
+          -1.18
         ],
         [
           17.08,
-          -0.57
+          -0.65
         ],
         [
           15.57,
-          -1.01
+          -1.09
         ],
         [
-          14.51,
-          -1.5
+          14.19,
+          -2.09
         ],
         [
-          13.85,
-          -2.91
+          13.69,
+          -4.61
         ],
         [
-          15.03,
-          -3.69
+          14.89,
+          -7.15
         ],
         [
-          17,
-          -3.35
+          17.53,
+          -7.17
         ],
         [
-          18.44,
-          -2.98
+          19,
+          -6.32
         ]
       ],
-      "glebokosc": 0.22,
-      "stok": 0.85,
-      "gladkosc": 1
+      "glebokosc": 0.2,
+      "stok": 0.8,
+      "gladkosc": 0.85
     },
     {
       "punkty": [
@@ -1286,6 +1317,18 @@
     }
   ],
   "formyTerenu": [
+    {
+      "typ": "wykop",
+      "opis": "Wydeptana ziemia pod drzewem domkowym. Nie ma tu ZADNEGO obiektu - kolor maluje shader terenu z atrybutu ziemiaForma (teren.js: formy.ziemia), wiec plama jest czescia darni i przylega do niej idealnie, takze na garbie. Pozycja to rzeczywiste miejsce PNIA (kotwica [0.18, 1.65] + pienX/pienZ ze skala 1.45), policzone przez planeta.zKuli; mozna ja przesuwac niezaleznie od drzewa.",
+      "pos": [
+        2,
+        1.32
+      ],
+      "promien": 1.2,
+      "glebokosc": 0.015,
+      "stok": 0.8,
+      "ziarno": 7
+    },
     {
       "typ": "wzgorze",
       "punkty": [

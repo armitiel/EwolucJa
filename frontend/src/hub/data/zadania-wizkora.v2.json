@@ -234,7 +234,7 @@
       "cel": "Zrób dziś coś pomocnego, zanim ktoś poprosi.\nTak, żeby nikt nie wiedział, że to ty.",
       "szept": "Nikt nie wie.",
       "jak": "Wybierz jedną drobną rzecz — kubek, buty, krzesło — i załatw ją po cichu.",
-      "dowod": "Napisz jedno zdanie albo zrób zdjęcie tej rzeczy — Mentor nikomu nie zdradzi.",
+      "dowod": "Napisz jedno zdanie albo zrób zdjęcie tej rzeczy — a komu o tym powiesz, {zdecydujesz|zdecydujesz} {sam|sama}.",
       "przyklad": "Kubki po śniadaniu umyte i odstawione. Nikt nie wie, kto.",
       "minimum": "Jedna rzecz odłożona na miejsce, o której nikt nie wie — i tak się liczy.",
       "etap": "oba",
@@ -564,7 +564,7 @@
       "tytul": "Zegar w głowie",
       "cel": "Zgadnij, ile trwa minuta, bez patrzenia na zegar.\nPotem spróbuj drugi raz — inaczej.",
       "szept": "Drugi raz inaczej.",
-      "jak": "Zamknij oczy, otwórz, gdy myślisz, że minęła minuta, i sprawdź na zegarze.",
+      "jak": "Usiądź, zamknij oczy i otwórz je, gdy myślisz, że minęła minuta — potem sprawdź zegar.",
       "dowod": "Napisz, o ile się {pomyliłeś|pomyliłaś} za pierwszym i za drugim razem, albo zrób zdjęcie zegara.",
       "przyklad": "Za pierwszym razem czterdzieści sekund. Za drugim {liczyłem|liczyłam} oddechy i wyszło prawie równo.",
       "minimum": "Jedna próba, jeden wynik — i tak się liczy.",
@@ -597,10 +597,10 @@
           "opis": "Zegar na piekarniku albo na ścianie."
         },
         {
-          "id": "przystanek",
-          "emoji": "🚌",
-          "nazwa": "Na przystanku",
-          "opis": "Tablica z czasem odjazdu, z dorosłym obok."
+          "id": "okno",
+          "emoji": "🪟",
+          "nazwa": "Przy oknie",
+          "opis": "Oprzyj się o parapet, zegar w pokoju za plecami."
         },
         {
           "id": "swietlica",
@@ -892,7 +892,7 @@
       "tytul": "Skoczek",
       "cel": "Dwie skarpetki na podłodze. Przeskocz między nimi.\nRozsuwaj, aż raz nie wyjdzie.",
       "szept": "Aż raz nie wyjdzie.",
-      "jak": "Skacz obunóż z miejsca, boso albo w butach, i po każdym skoku odsuń skarpetkę o jedną stopę.",
+      "jak": "Skacz obunóż, ląduj na obie nogi, boso albo w butach — nigdy w samych skarpetkach — i po każdym skoku odsuń skarpetkę o jedną stopę.",
       "dowod": "Zrób zdjęcie skarpetek w ostatnim odstępie albo napisz, ile skoków się udało.",
       "przyklad": "Siedem skoków wyszło, ósmy nie. Odstęp: sześć moich stóp.",
       "minimum": "Trzy skoki i jeden odstęp — i tak się liczy.",
@@ -1609,8 +1609,8 @@
       "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {powiedział|powiedziała} pierwsze słowo, zanim {usłyszał|usłyszała}.",
       "slad": {
         "opcje": [
-          "Odpowiedział pierwszy raz",
-          "Zdziwił się",
+          "Ktoś odpowiedział",
+          "Nikt nie odpowiedział — i tak to {zrobiłem|zrobiłam}",
           "{Powiedziałem|Powiedziałam} w myślach"
         ],
         "obrazki": [
@@ -1888,7 +1888,7 @@
           "id": "sznurek",
           "emoji": "🪢",
           "nazwa": "Ze sznurka",
-          "opis": "Zrób telefon z dwóch kubków i sznurka."
+          "opis": "Przewlecz sznurek przez ucha dwóch kubków i zrób telefon — dziurkę w denku, jeśli trzeba, zrobi dorosły."
         },
         {
           "id": "swietlica",
@@ -2027,9 +2027,9 @@
       },
       "slad": {
         "opcje": [
-          "Zrobiła to sama",
-          "Spróbowała raz",
-          "Tylko patrzyła"
+          "Udało się bez pomocy",
+          "Jedna próba",
+          "Na razie tylko patrzenie"
         ],
         "obrazki": [
           "dwie-osoby",
@@ -2213,7 +2213,7 @@
           "id": "biurko",
           "emoji": "📖",
           "nazwa": "Przy biurku",
-          "opis": "Doczytaj rozdział, który zostawiłeś w połowie."
+          "opis": "Doczytaj rozdział, który {zostawiłeś|zostawiłaś} w połowie."
         },
         {
           "id": "kartka",
@@ -2334,7 +2334,7 @@
           "id": "kuchnia",
           "emoji": "🥄",
           "nazwa": "W kuchni",
-          "opis": "Ćwicz nalewanie albo krojenie (z dorosłym)."
+          "opis": "Ćwicz nalewanie wody do kubka, aż ani kropla nie kapnie obok."
         }
       ],
       "minimum": "Trzy próby zamiast siedmiu — i tak się liczy.",

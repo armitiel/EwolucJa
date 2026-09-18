@@ -18,7 +18,12 @@
   overflow:hidden;
   font-family:var(--font-display,'Baloo 2'),system-ui,sans-serif;
   -webkit-tap-highlight-color:transparent;
+  /* Wejscie z ciemnosci: lisek wchodzi po drabince i „przechodzi przez drzwi"
+     — pokoj ma sie WYLONIC, nie wyskoczyc. Krotko, bo to przejscie, nie scena. */
+  animation: wnetrze-wejscie .55s ease-out both;
 }
+@keyframes wnetrze-wejscie{ from{ opacity:0; } to{ opacity:1; } }
+@media (prefers-reduced-motion: reduce){ .wnetrze-root{ animation:none; } }
 
 /* Plotno bierze CALY ekran, a sterowanie lezy nad nim. Dzieki temu palec
    trafia w scene wszedzie tam, gdzie nie ma przycisku — a przyciski sa

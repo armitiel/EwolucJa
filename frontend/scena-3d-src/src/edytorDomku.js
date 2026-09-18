@@ -57,6 +57,11 @@ const POLA_POMOSTU = [
   ["drabinkaOdsun", "odsunięcie drabinki", 0.1, 1.6, 0.01],
   ["drabinkaDlugosc", "długość drabinki", 0.6, 1.8, 0.01],
 ];
+const POLA_DOMKU = [
+  ["wysokoscScian", "wysokość ścian", 0.4, 1.8, 0.01],
+  ["szerokoscDrzwi", "szerokość drzwi", 0.2, 1.2, 0.01],
+  ["ganek", "głębokość ganku", 0.15, 1.2, 0.01],
+];
 /* Kula liści: [indeks w tablicy, etykieta, min, max]. */
 const POLA_KULI = [
   [0, "x", -4, 4],
@@ -174,6 +179,16 @@ export function otworzEdytorDomku(app) {
     });
   }
 
+  /* ── CHATKA ───────────────────────────────────────────────────────────── */
+  const sekDomek = el(panel, "section");
+  el(sekDomek, "h4", { textContent: "Chatka (bez drzewa)" });
+  for (const [klucz, etykieta, min, max, krok] of POLA_DOMKU) {
+    suwak(sekDomek, etykieta, u[klucz], { min, max, krok }, (v) => {
+      u[klucz] = v;
+      odswiez();
+    });
+  }
+
   /* ── KORONA ───────────────────────────────────────────────────────────── */
   const sekKorona = el(panel, "section");
   const glowaKorony = el(sekKorona, "h4", { textContent: "Kule liści" });
@@ -241,6 +256,9 @@ export function otworzEdytorDomku(app) {
     barierka: +Number(u.barierka).toFixed(3),
     drabinkaOdsun: +Number(u.drabinkaOdsun).toFixed(3),
     drabinkaDlugosc: +Number(u.drabinkaDlugosc ?? 1).toFixed(3),
+    wysokoscScian: +Number(u.wysokoscScian ?? 0.62).toFixed(3),
+    szerokoscDrzwi: +Number(u.szerokoscDrzwi ?? 0.44).toFixed(3),
+    ganek: +Number(u.ganek ?? 0.34).toFixed(3),
     korony: u.korony.map((k) => [
       +Number(k[0]).toFixed(3), +Number(k[1]).toFixed(3), +Number(k[2]).toFixed(3),
       +Number(k[3]).toFixed(3), k[4] ? 1 : 0,

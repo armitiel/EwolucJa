@@ -85,6 +85,7 @@ import { pokazZnakNaMapie } from "./znakiMapy.js";
 import { bonusMonet, dodajMonety, wyzerujBonus } from "../services/monety.js";
 import { czyLokalnie } from "../services/dev.js";
 import { WSKAZOWKI, czyPoznana, zresetujWskazowki } from "./wskazowki.js";
+import { ETAPY_CO_TERAZ } from "./coTeraz.js";
 
 /**
  * Pozycja znaku w świecie. Bierzemy ją z ŻYWEGO obiektu sceny, nie z
@@ -616,6 +617,16 @@ export default function DevRezyserka({
             <Guzik onClick={() => { setOtwarty(false); onPokazMyslMedrca?.(); }}>
               Pokaż: Myśl Wizkora
             </Guzik>
+            {/* CO TERAZ — chmurka etapu zadania (`hub/coTeraz.js`). Jeden guzik,
+                bo etap wynika ze STANU GRY, a nie z wyboru: pulpit pokazuje to,
+                co dziecko zobaczyłoby teraz, i nazywa etap, żeby było wiadomo,
+                czy trafił. Lista wszystkich etapów stoi obok, do podejrzenia. */}
+            <Guzik onClick={() => { setOtwarty(false); onPokazWskazowke?.("co-teraz"); }}>
+              Co teraz? (etap zadania)
+            </Guzik>
+            <p className="dev-opis">
+              Etapy: {ETAPY_CO_TERAZ.map((e) => e.tytul).join(" · ")}
+            </p>
             {WSKAZOWKI.map((w) => (
               <Guzik key={w.id} onClick={() => { setOtwarty(false); onPokazWskazowke?.(w.id); }}>
                 {`Pokaż: ${w.tytul}${czyPoznana(w.id) ? " ✓" : ""}`}

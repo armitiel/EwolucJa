@@ -30,6 +30,9 @@ ROZMIAR, MARGINES = 256, 0.06
 PARY = [
     ("lupa-surowa.png", PUBLIC / "wskazowki" / "ikona-lupa.png"),
     ("puzzel-surowy.png", PUBLIC / "puzzle" / "ikona-puzzel.png"),
+    ("stos-surowy.png", PUBLIC / "wskazowki" / "ikona-stos.png"),
+    ("gwiazdka-surowa.png", PUBLIC / "wskazowki" / "ikona-gwiazdka.png"),
+    ("zwoj-surowy.png", PUBLIC / "wskazowki" / "ikona-zwoj.png"),
 ]
 
 for zrodlo, cel in PARY:

@@ -158,6 +158,13 @@
   </aside>
 </main>
 
+<!-- OBRYSY LICZY SCENA, NIE EDYTOR. `teren-obrysy.js` to `scena-3d-src/src/
+     teren.js` zbudowany jako globalna `EwolucjaTeren` (cel w `build.mjs`).
+     Do 18.09 edytor miał własną kopię tych funkcji i kopie się rozjechały:
+     scena próbkowała splajn gęściej niż plan, więc brzeg stawu w grze był
+     inny niż narysowany. Teraz jest jedno źródło — po zmianie w `teren.js`
+     przebuduj scenę i podbij `?v=` niżej. -->
+<script src="teren-obrysy.js?v=1"></script>
 <script>
 /* ── Model danych ─────────────────────────────────────────────────────────
    `mapa` ma dokładnie kształt pliku `mapa.json`, który czyta scena. Edytor nie
@@ -248,13 +255,34 @@ async function wczytaj({ zSerwera = false } = {}) {
       const robocza = localStorage.getItem(KLUCZ);
       const zPliku = localStorage.getItem(KLUCZ_PLIKU) || 'mapa.json';
       if (robocza && zPliku === PLIK_MAPY) {
-        ustaw(JSON.parse(robocza), 'wersja robocza z tej przeglądarki · ' + PLIK_MAPY);
+        ustaw(JSON.parse(robocza), 'WERSJA ROBOCZA z tej przeglądarki — pliku na dysku jeszcze nie widzisz');
         return;
       }
     } catch (e) { console.warn(e); }
   }
   const odp = await fetch(PLIK_MAPY, { cache: 'no-cache' });
-  ustaw(await odp.json(), PLIK_MAPY + ' z serwera');
+  const lokalny = /^(localhost|127\.|\[::1\])/.test(location.hostname) || location.protocol === 'file:';
+  ustaw(await odp.json(), 'z serwera ' + (location.origin || 'file://') + (lokalny ? ' (lokalny)' : ' (ZDALNY — nie ten z Twojego dysku)'));
+}
+
+/**
+ * SKĄD SĄ DANE — na stałe przy nazwie pliku, nie w ulotnym pasku stanu.
+ *
+ * Edytor ma trzy źródła: plik z serwera, wersję roboczą z `localStorage` tej
+ * przeglądarki i plik wybrany z dysku. Wyglądają identycznie, a znaczą co
+ * innego — zwłaszcza wersja robocza, która pokazuje kształty, jakich w pliku
+ * NIE MA, dopóki nie klikniesz zapisu. Do 18.09 pasek stanu mówił o tym raz,
+ * po czym pierwszy komunikat o zapisie go nadpisywał i już nie było jak
+ * sprawdzić, co się właściwie ogląda.
+ *
+ * Przy serwerze dopisujemy jego adres, bo edytor da się otworzyć i z dev
+ * serwera, i z produkcji, a to są dwie różne mapy.
+ */
+function opiszZrodlo(skad) {
+  const chip = $('#plik-mapy');
+  if (!chip) return;
+  chip.textContent = PLIK_MAPY + (NAZWA_MAPY ? '' : ' (pierwszy świat)') + ' · ' + skad;
+  chip.title = 'Dane w edytorze pochodzą z: ' + skad;
 }
 
 function ustaw(m, skad) {
@@ -265,6 +293,7 @@ function ustaw(m, skad) {
   wybor = null;
   historia.length = 0;
   $('#info').textContent = skad;
+  opiszZrodlo(skad);
   zapisz({ bezHistorii: true });
   rysuj();
   odswiezPodglad();
@@ -314,13 +343,16 @@ async function zapiszWProjekcie({ cicho = false } = {}) {
       body: JSON.stringify(mapa),
     });
     const dane = await odp.json();
+    const godzina = new Date().toLocaleTimeString('pl');
     $('#info').textContent = dane.ok
-      ? 'zapisane → public/scena-3d/' + PLIK_MAPY + '  (' + new Date().toLocaleTimeString('pl') + ')'
+      ? 'zapisane → public/scena-3d/' + PLIK_MAPY + '  (' + godzina + ')'
       : 'błąd zapisu: ' + dane.blad;
+    if (dane.ok) opiszZrodlo('zapisane do pliku o ' + godzina);
     return dane.ok;
   } catch (e) {
     $('#info').textContent = cicho ? 'autozapis nieczynny (uruchom npm run dev)'
                                    : 'zapis działa tylko przy npm run dev — użyj „Pobierz plik"';
+    opiszZrodlo('NIEZAPISANE — ten serwer nie przyjmuje zapisu (potrzebny npm run dev)');
     return false;
   }
 }
@@ -510,34 +542,21 @@ function uchwyt(typ, idx, e) {
   return e;
 }
 
-/** Środek ciężkości obrysu — DOKŁADNIE ten sam wzór co `srodekObrysu`
- *  w `scena-3d-src/src/teren.js`. Gdyby się rozjechały, podpis i uchwyt
- *  na planie stanęłyby gdzie indziej niż niecka w scenie. */
-function srodekObrysu(punkty) {
-  let x = 0, z = 0;
-  for (const q of punkty) { x += q[0]; z += q[1]; }
-  return [x / punkty.length, z / punkty.length];
-}
-/* ZAOKRĄGLANIE NAROŻNIKÓW OBRYSU — kopia `wygladzObrys` ze `scena-3d-src/src/
-   teren.js`, tylko oparta o tutejszy `catmull()` (ten sam wzór). Klikane punkty
-   to WĘZŁY: krzywa przechodzi dokładnie przez nie, a wygładza to, co pomiędzy.
-   Różnica wobec ścieżki: indeksy ZAWIJAJĄ SIĘ dookoła zamiast przycinać na
-   końcach, bo staw jest zamknięty i ostatni odcinek wraca do pierwszego punktu.
+/* ŚRODEK I BRZEG OBRYSU BIERZEMY ZE SCENY, nie liczymy ich tu drugi raz.
+   `EwolucjaTeren` to `scena-3d-src/src/teren.js` wbudowany w `teren-obrysy.js`
+   (skrypt wyżej). Edytor rysuje więc DOKŁADNIE tę krzywą, którą scena zamieni
+   na taflę wody i nieckę w gruncie — łącznie z domyślną gładkością i gęstością
+   próbkowania splajnu.
 
-   Te dwie kopie MUSZĄ liczyć tak samo — inaczej plan pokazuje inny brzeg,
-   niż wychodzi w scenie. Zmieniasz tu, zmieniasz i tam. */
-const OBRYS_GLADKOSC = .7, OBRYS_PROBKI = 6;
-function wygladzObrys(P, gladkosc = OBRYS_GLADKOSC, probki = OBRYS_PROBKI) {
-  if (!Array.isArray(P) || P.length < 3 || !(gladkosc > 0)) return (P || []).map((q) => [q[0], q[1]]);
-  const n = P.length;
-  const wez = (i) => P[((i % n) + n) % n];
-  const kr = Math.max(1, Math.round(probki));
-  const out = [];
-  for (let i = 0; i < n; i++)
-    for (let sI = 0; sI < kr; sI++)
-      out.push(catmull(wez(i - 1), wez(i), wez(i + 1), wez(i + 2), sI / kr, gladkosc));
-  return out;
+   To jest miejsce po dwóch kopiach, które istniały do 18.09 i które zdążyły
+   się rozjechać liczbą próbek: plan pokazywał brzeg z 54 wierzchołków, scena
+   budowała z 216. Jeśli globalnej nie ma (ktoś otworzył edytor bez zbudowanej
+   sceny), mówimy o tym wprost zamiast cicho rysować co innego. */
+if (!globalThis.EwolucjaTeren) {
+  alert("Brak `teren-obrysy.js` — zbuduj scenę:\n  cd frontend && node scena-3d-src/build.mjs");
+  throw new Error("edytor: brak wspólnego modułu obrysów");
 }
+const { srodekObrysu, wygladzObrys, OBRYS_GLADKOSC, OBRYS_PROBKI } = globalThis.EwolucjaTeren;
 
 const oczkaPary = () => (mapa.oczka || []).map((k, gi) => ({ k, gi }));
 const wzgorzaPary = () => (mapa.formyTerenu || [])
@@ -2170,10 +2189,10 @@ $('#plik-model').onchange = async (ev) => {
 $('#btn-plik').onclick = () => $('#plik').click();
 $('#plik').onchange = async (ev) => {
   const f = ev.target.files[0];
-  if (f) ustaw(JSON.parse(await f.text()), 'plik ' + f.name);
+  if (f) ustaw(JSON.parse(await f.text()), 'plik z dysku: ' + f.name);
 };
 
-$('#plik-mapy').textContent = PLIK_MAPY + (NAZWA_MAPY ? '' : '  (pierwszy świat)');
+opiszZrodlo('wczytywanie…');
 document.title = 'Edytor mapy — ' + PLIK_MAPY;
 
 rysujNarzedzia();

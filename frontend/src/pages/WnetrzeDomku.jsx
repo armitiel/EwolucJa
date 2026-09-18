@@ -37,6 +37,7 @@ import { bonusMonet } from "../services/monety.js";
 import { MISJE, stanMisji } from "../hub/misjeGier.js";
 import { stanZadania as stanGwiazdek } from "../hub/zadanieGwiazdek.js";
 import DomPanel from "../hub/panels/DomPanel.jsx";
+import { namalujRysunek, rysunekAktualny } from "../hub/ramkaDomku.js";
 import "../hub/styles/hub.css";
 import "../styles/wnetrze.css";
 
@@ -344,6 +345,43 @@ export default function WnetrzeDomku({ onWyjscie }) {
     [[-1.2], [1.2]].forEach(([x]) =>
       scena.add(pudelko(0.1, 0.34, 0.3, polkaMat, x, 0.99, -BOK / 2 + 0.2))
     );
+
+    /* ── RAMKA Z RYSUNKIEM DNIA (ściana -z, NAD półką) ─────────────────────
+       Pierwsza rzecz, którą dziecko widzi po wejściu, wisi nad tym, co już
+       zrobiło: półka mówi „to masz za sobą", ramka — „to było dziś". Rysunek
+       przychodzi z `ramkaDomku.js` (jedna linia narysowana o zachodzie) i jest
+       malowany TĄ SAMĄ funkcją, którą widziało w panelu — żadnego „podobnego".
+
+       Płótno to zwykły kwadrat z `CanvasTexture`: kiedy stanie tor obrazu,
+       zdjęcie wejdzie tym samym otworem, ramka nie musi o tym wiedzieć.
+       Pusta ramka pokazuje pusty papier, a nie znika — puste jest tu
+       zaproszeniem (narrator: „nie obiecuj, czego nie widać", ale też nie
+       udawaj, że ramki nie ma). */
+    const RAMKA_Y = 1.8, RAMKA_Z = -BOK / 2 + 0.04, PLOTNO = 0.5;
+    const plotnoCanvas = document.createElement("canvas");
+    plotnoCanvas.width = plotnoCanvas.height = 512;
+    namalujRysunek(plotnoCanvas, rysunekAktualny());
+    const plotnoTex = zapamietaj(new THREE.CanvasTexture(plotnoCanvas));
+    plotnoTex.colorSpace = THREE.SRGBColorSpace;
+    plotnoTex.anisotropy = 4;
+    const plotno = new THREE.Mesh(
+      new THREE.PlaneGeometry(PLOTNO, PLOTNO),
+      new THREE.MeshStandardMaterial({ map: plotnoTex, roughness: 0.92, metalness: 0 })
+    );
+    plotno.position.set(0, RAMKA_Y, RAMKA_Z + 0.02);
+    plotno.userData.ramka = true;
+    scena.add(plotno);
+    const ramkaMat = mat(0x7d5330);
+    const listwa = 0.06;
+    [[0, PLOTNO / 2 + listwa / 2, PLOTNO + 2 * listwa, listwa],
+     [0, -(PLOTNO / 2 + listwa / 2), PLOTNO + 2 * listwa, listwa]].forEach(([x, y, w, h]) => {
+      scena.add(pudelko(w, h, 0.05, ramkaMat, x, RAMKA_Y + y, RAMKA_Z + 0.02));
+    });
+    [[-(PLOTNO / 2 + listwa / 2)], [PLOTNO / 2 + listwa / 2]].forEach(([x]) => {
+      scena.add(pudelko(listwa, PLOTNO, 0.05, ramkaMat, x, RAMKA_Y, RAMKA_Z + 0.02));
+    });
+    // Haczyk i sznurek — bez nich ramka wygląda jak przyklejona do ściany.
+    scena.add(pudelko(0.02, 0.16, 0.02, mat(0xb08a58), 0, RAMKA_Y + PLOTNO / 2 + listwa + 0.08, RAMKA_Z + 0.02));
 
     const wczytywacz = new THREE.TextureLoader();
     const rozstaw = 2.2 / Math.max(1, MISJE.length - 1);
