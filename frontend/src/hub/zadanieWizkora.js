@@ -38,6 +38,9 @@ import { loadState, wzmocnijCeche } from "../adventure/engine/adventureState.js"
 import { etapSzkolny, typStartowy } from "./profilStartowy.js";
 import { zapiszSlad } from "./sladySwiata.js";
 import { zdarzenie } from "../services/zdarzenia.js";
+/* Import krzyżowy (hybryda.js czyta stąd `historiaZadan` i `odpalReakcjeSwiata`)
+   — obie strony sięgają po siebie dopiero w funkcjach, nie przy ładowaniu. */
+import { hybrydaOtwarta } from "./hybryda.js";
 
 
 const KLUCZ = "ewolucja.zadanie.wizkora";
@@ -250,6 +253,10 @@ export function stanZadania() {
 export function zadanieDoZlecenia() {
   const stan = stanZadania();
   if (stan.istnieje && !stan.wyplacone) return null;
+  /* JEDNO ZADANIE NA DANY MOMENT (05 §1.2): dopóki hybryda jest otwarta
+     (trop / część A / „Czeka — u ciebie"), Koło nie ma czego losować. Gier
+     to nie blokuje — o tym decyduje oś w `etapyMisji`/`kwestieWizkora`. */
+  if (hybrydaOtwarta()) return null;
   const zrobione = new Set([...historiaZadan(), stan.istnieje ? stan.id : null].filter(Boolean));
   const etap = etapSzkolny();
   return pierwszeZadania()[0] || ZADANIA.find((z) => dlaEtapu(z, etap) && !zrobione.has(z.id)) || ZADANIA.find((z) => dlaEtapu(z, etap)) || null;
@@ -265,6 +272,7 @@ export function zadanieDoZlecenia() {
 export function zadanieDlaCechy(cecha) {
   const stan = stanZadania();
   if (stan.istnieje && !stan.wyplacone) return null;
+  if (hybrydaOtwarta()) return null;   // hybryda czeka u dziecka — Koło stoi (05 §1.2)
   /* Pierwsze trzy zadania idą z kolejki profilu, nie z losowania — Koło jest
      wtedy ceremonią, która staje na cesze zadania z kolejki
      (`cechaNastepnegoZadania` w `KoloFortuny`). */

@@ -18,6 +18,7 @@
 import { listNotifications, markRead } from "../adventure/engine/notifications.js";
 import { api, session } from "../services/api.js";
 import { stanZadania as stanZadaniaWizkora, zWariantemZadania } from "./zadanieWizkora.js";
+import { stanHybrydy } from "./hybryda.js";
 import { odmienDlaGracza } from "../services/rodzaj.js";
 
 const ETYKIETY_MENTORA = { hint: "Podpowiedź", artifact: "Artefakt", message: "Wiadomość" };
@@ -202,5 +203,10 @@ export function wpisZadaniaWizkora() {
 
 /** Ile pozycji ma się doliczyć do plakietki na zakładce wiadomości. */
 export function nieprzeczytaneZadaniaWizkora() {
-  return wpisZadaniaWizkora()?.nieprzeczytana ? 1 : 0;
+  /* Hybryda (05 W1) pali tę samą plakietkę: „Do zrobienia" (część A czeka
+     na ekranie) i „Mentor zobaczył" to coś do zrobienia / obejrzenia;
+     „Czeka — u ciebie" i „Ślad zostawiony" nie ponaglają. */
+  const h = stanHybrydy();
+  const hybryda = h.istnieje && ((h.trop || h.czescA) || (h.zauwazone && !h.zauwazoneObejrzane)) ? 1 : 0;
+  return (wpisZadaniaWizkora()?.nieprzeczytana ? 1 : 0) + hybryda;
 }

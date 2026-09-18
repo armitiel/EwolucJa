@@ -30,6 +30,7 @@
 
 import {
   Group, Mesh, MeshLambertMaterial, BoxGeometry, CylinderGeometry, TorusGeometry,
+  DodecahedronGeometry, IcosahedronGeometry, Sprite, SpriteMaterial, CanvasTexture, SRGBColorSpace,
 } from "three";
 import { kamyczki, MAT_DREWNO } from "./natura.js";
 import { grzyby, KOLORY } from "./swiat.js";
@@ -111,6 +112,52 @@ function znakProceduralny(rodzaj = "lupa", s = 1) {
 }
 
 /**
+ * KAMIEŃ-KROK (hybryda `kamienie-kroki`, 05 karta 1). Jedna płaska bryła,
+ * nie kupka `kamyczki`: po kamieniu-kroku się STAJE, więc ma mieć wierzch.
+ * Dwie barwy na przemian po numerze, żeby droga nie była szeregiem kopii.
+ */
+function kamienKrok(s = 1, i = 0) {
+  const g = new Group();
+  g.name = "kamien-krok";
+  const mat = [MAT_DREWNO.skala, MAT_DREWNO.skalaJasna, MAT_DREWNO.skalaCiemna][i % 3];
+  const k = new Mesh(new DodecahedronGeometry(.34 * s, 0), mat);
+  k.scale.set(1.25, .38, 1.05);
+  k.position.y = .09 * s;
+  k.rotation.y = i * .9;
+  g.add(k);
+  if (i % 2 === 0) {
+    const m = new Mesh(new IcosahedronGeometry(.11 * s, 0), MAT_DREWNO.mech);
+    m.scale.set(1.2, .3, 1);
+    m.position.set(.14 * s, .2 * s, -.1 * s);
+    g.add(m);
+  }
+  return g;
+}
+
+/** Ile kamieni-kroków ma pełna droga (pięć po śladzie, szósty po zauważeniu). */
+const KAMIENI_MAX = 6;
+/** Zasięg, w którym lisek „dotyka" pierwszego kamienia (część A) i próg ponownego uzbrojenia. */
+const KAMIEN_DOTYK = 1.05;
+const KAMIEN_UZBROJENIE = 2.2;
+
+/** Przecięcie odcinka A→B z wielokątem (lista [x, z]); zwraca punkt najbliższy A albo null. */
+function przeciecieZObrysem(A, B, punkty) {
+  let naj = null, najT = Infinity;
+  const n = punkty.length;
+  for (let i = 0; i < n; i += 1) {
+    const P = punkty[i], Q = punkty[(i + 1) % n];
+    const r = [B[0] - A[0], B[1] - A[1]], sPQ = [Q[0] - P[0], Q[1] - P[1]];
+    const den = r[0] * sPQ[1] - r[1] * sPQ[0];
+    if (Math.abs(den) < 1e-9) continue;
+    const AP = [P[0] - A[0], P[1] - A[1]];
+    const t = (AP[0] * sPQ[1] - AP[1] * sPQ[0]) / den;
+    const u = (AP[0] * r[1] - AP[1] * r[0]) / den;
+    if (t >= 0 && t <= 1 && u >= 0 && u <= 1 && t < najT) { najT = t; naj = [A[0] + r[0] * t, A[1] + r[1] * t]; }
+  }
+  return naj;
+}
+
+/**
  * ARGUMENTY PRZYCHODZĄ Z DANYCH, OPCJE Z KODU. `reakcja_swiata.args` w JSON-ie
  * jest tablicą różnej długości (`["przy-drabince"]`, `["przy-drabince", 2]`,
  * `["przy-drabince", 1, "nowy-wariant"]`), a odtwarzanie śladów dokłada na
@@ -137,6 +184,13 @@ export class Slady {
     this.grupa = new Group();
     this.grupa.name = "slady-przygod";
     app.swiat.add(this.grupa);
+    /* HYBRYDA LD: kamienie-kroki od drabinki do oczka zachodniego. Lista
+       postawionych brył (indeks = numer kamienia), trasa liczona raz,
+       znacznik braku (W6) i uzbrojenie „dotknięcia" pierwszego kamienia. */
+    this._kamienie = [];
+    this._trasa = null;
+    this._znacznik = null;
+    this._kamienUzbrojony = true;
   }
 
   /* ── KOTWICE ────────────────────────────────────────────────────────────
@@ -161,6 +215,24 @@ export class Slady {
         const a = (m.schronienie?.obrot ?? 0);
         const d = 1.15 * (m.schronienie?.skala ?? 1);
         return [domek[0] + d * Math.cos(a), domek[1] - d * Math.sin(a)];
+      }
+
+      /* STOPA DRABINKI — dokładnie tam, gdzie lisek staje przed wejściem do
+         domku (kotwica `kotwica-drabinka-stopa` w bryle, przeliczona z układu
+         planety na mapę). Bez domku: to samo miejsce z obrotu schronienia. */
+      case "stopa-drabinki": {
+        const D = this.app._drabinkaDane?.();
+        if (D?.dol) { const p = this.app.planeta.zKuli(D.dol); return [p.x, p.z]; }
+        return this.kotwica("przy-drabince");
+      }
+      /* Pomost = kotwica domku (obiekty na barierce liczą się od niej). */
+      case "pomost": return domek;
+      case "oczko-wschodnie": return this.app.oczka?.[0]?.pos ? [...this.app.oczka[0].pos] : null;
+      case "oczko-zachodnie": return this.app.oczka?.[1]?.pos ? [...this.app.oczka[1].pos] : null;
+      /* Brzeg oczka zachodniego od strony drabinki — koniec drogi z kamieni. */
+      case "brzeg-oczka-zachodniego": {
+        const t = this._trasaKamieni();
+        return t ? t[KAMIENI_MAX - 1] : null;
       }
 
       case "obok-karty": return znak("karty");
@@ -310,6 +382,172 @@ export class Slady {
     app.swiat.add(cel.obj);
     for (const b of cel.blockers || []) app.blockers.push(b);
     app._wlaczCienie?.(cel.obj);
+    return true;
+  }
+
+  /* ── KAMIENIE-KROKI (hybryda LD) ────────────────────────────────────────
+     Droga od stopy drabinki do brzegu oczka zachodniego. Sześć punktów liczy
+     się RAZ z mapy (stopa drabinki → środek oczka, przecięte z obrysem
+     stawu), bez losowania: ten sam świat daje tę samą drogę przy każdym
+     wejściu. Pierwszy kamień leży pod drabinką (kładzie go lisek w części A),
+     pięć po śladzie, szósty na samym brzegu po zauważeniu przez Mentora —
+     wtedy droga dochodzi do wody. */
+  _trasaKamieni() {
+    if (this._trasa) return this._trasa;
+    const S = this.kotwica("stopa-drabinki");
+    const oczko = this.app.oczka?.[1];
+    const obrys = this.app.mapa?.oczka?.[1]?.punkty;
+    if (!S || !oczko?.pos) return null;
+    const C = oczko.pos;
+    const E0 = (Array.isArray(obrys) && obrys.length >= 3) ? przeciecieZObrysem(S, C, obrys) : null;
+    const dx0 = C[0] - S[0], dz0 = C[1] - S[1];
+    const dl0 = Math.hypot(dx0, dz0) || 1;
+    const kier = [dx0 / dl0, dz0 / dl0];
+    const bok = [-kier[1], kier[0]];
+    // Brzeg: przecięcie z obrysem, a bez obrysu — promień stawu od środka. Ostatni kamień 0,45 przed wodą.
+    const doBrzegu = E0 ? Math.hypot(E0[0] - S[0], E0[1] - S[1]) : Math.max(1, dl0 - (oczko.promien || 1.4));
+    const a = .85;                       // pierwszy kamień pod drabinką
+    const b = Math.max(a + 1.5, doBrzegu - .45);
+    const t = [];
+    for (let i = 0; i < KAMIENI_MAX; i += 1) {
+      const u = i / (KAMIENI_MAX - 1);
+      const d = a + (b - a) * u;
+      // Lekki wąż wzdłuż drogi (pierwszy i ostatni na osi): tak biegł lisek.
+      const w = (i === 0 || i === KAMIENI_MAX - 1) ? 0 : Math.sin(i * 1.9) * .42;
+      t.push([S[0] + kier[0] * d + bok[0] * w, S[1] + kier[1] * d + bok[1] * w]);
+    }
+    this._trasa = t;
+    return t;
+  }
+
+  /** Pozycja kamienia numer `i` (1…6) na mapie — do kadru kamery; `null`, gdy trasy nie ma. */
+  pozycjaKamienia(i = 1) {
+    const t = this._trasaKamieni();
+    if (!t) return null;
+    const k = Math.max(1, Math.min(KAMIENI_MAX, Number(i) || 1));
+    return [...t[k - 1]];
+  }
+
+  /**
+   * `ulozKamienie(n, "kwiat"?)` — n to DOCELOWA liczba kamieni (1–6), nie
+   * przyrost: powtórzone wywołanie niczego nie dokłada, mniejsze n nic nie
+   * zabiera (droga nie znika). Z flagą `"kwiat"` przy szóstym kamieniu rośnie
+   * kwiat w nowym kolorze — dodatek po zauważeniu przez Mentora (05 karta 1).
+   * Bez `bezAnimacji` kamienie wchodzą jeden po drugim, od drabinki.
+   */
+  ulozKamienie(...a) {
+    const [dane, opcje] = rozdziel(a);
+    const n = Math.max(0, Math.min(KAMIENI_MAX, Math.floor(Number(dane[0]) || 0)));
+    const zKwiatem = dane.includes("kwiat");
+    const t = this._trasaKamieni();
+    if (!t) { console.warn("[slady] nie ma gdzie ułożyć kamieni-kroków (brak drabinki albo oczka)"); return false; }
+    const bez = !!opcje.bezAnimacji;
+    const start = this._kamienie.length;
+    for (let i = start; i < n; i += 1) {
+      const [x, z] = t[i];
+      const bryla = kamienKrok(1, i);
+      const kotwica = this.app._osadz(bryla, x, z, .05, i * .7);
+      kotwica.userData.n = this.app.planeta.normalna(x, z);
+      this.grupa.add(kotwica);
+      this._kamienie.push(kotwica);
+      if (!bez) this._animujKamien(bryla, (i - start) * .22);
+    }
+    if (zKwiatem && n >= KAMIENI_MAX && !this._kwiatPrzyWodzie) {
+      const [x, z] = t[KAMIENI_MAX - 1];
+      // Kwiat obok ostatniego kamienia, od strony drabinki i w bok — poza wodą.
+      const [px, pz] = t[KAMIENI_MAX - 2];
+      const dx = x - px, dz = z - pz, dl = Math.hypot(dx, dz) || 1;
+      const fx = x - (dx / dl) * .55 - (dz / dl) * .5, fz = z - (dz / dl) * .55 + (dx / dl) * .5;
+      this._kwiatPrzyWodzie = !!this.app.kwiaty?.posadz?.(fx, fz, { bezAnimacji: bez, typ: "kwiat", wariant: 3 });
+      if (this._kwiatPrzyWodzie) this.app.kwiaty.oznacz?.();
+    }
+    this.app._wlaczCienie?.(this.grupa);
+    return true;
+  }
+
+  /* Kamień „wyrasta" z ziemi: skala od zera, z lekkim przestrzeleniem. Raz. */
+  _animujKamien(bryla, opoznienie = 0) {
+    const t0 = performance.now() + opoznienie * 1000;
+    bryla.scale.setScalar(.001);
+    const krok = () => {
+      if (this.app.destroyed) return;
+      const u = Math.min(1, Math.max(0, (performance.now() - t0) / 520));
+      const s = u < 1 ? (1.08 - .08 * u) * (1 - Math.pow(1 - u, 3)) : 1;
+      bryla.scale.setScalar(Math.max(.001, s));
+      if (u < 1) requestAnimationFrame(krok);
+    };
+    requestAnimationFrame(krok);
+  }
+
+  /**
+   * DOTKNIĘCIE PIERWSZEGO KAMIENIA (część A). Lisek podchodzi pod drabinkę,
+   * staje przy kamieniu — scena melduje `hybryda:obiekt-dotkniety` raz na
+   * podejście (uzbraja się, gdy odejdzie), a hub decyduje, czy to jest ta
+   * chwila na chmurkę liska. Sam kamień nic nie robi: nie znika, nie świeci.
+   */
+  tik() {
+    const k = this._kamienie[0];
+    if (!k || !this.app.hn || !this.app.hero) return;
+    if (this.app._kino || this.app.sequence || this.app._podglad) return;
+    const d = this.app.planeta.odleglosc(this.app.hn, k.userData.n);
+    if (d > KAMIEN_UZBROJENIE) { this._kamienUzbrojony = true; return; }
+    if (d < KAMIEN_DOTYK && this._kamienUzbrojony) {
+      this._kamienUzbrojony = false;
+      this.app.emit("hybryda:obiekt-dotkniety", { obiekt: "kamien", n: this._kamienie.length });
+    }
+  }
+
+  /* ── ZNACZNIK BRAKU (W6) ────────────────────────────────────────────────
+     Ten sam pierścień, co na placu budowy (`_placIkona`), ale BEZ ikony domku
+     w środku — mówi tylko „tu czegoś brakuje". Jeden na wszystkie hybrydy;
+     wisi w układzie planety nad kotwicą i oddycha jak znaczek placu.
+     `pokazZnacznikBraku(null)` zdejmuje go. Niezależny od `ustawPlacBudowy`,
+     który schodzi przy etapie domku > 0. */
+  pokazZnacznikBraku(...a) {
+    const [dane] = rozdziel(a);
+    const nazwa = dane[0] || null;
+    const app = this.app;
+    if (this._znacznik) {
+      app.swiat.remove(this._znacznik);
+      this._znacznik.material.map?.dispose?.();
+      this._znacznik.material.dispose?.();
+      this._znacznik = null;
+    }
+    if (!nazwa) return true;
+    const k = this.kotwica(nazwa);
+    if (!k) { console.warn("[slady] znacznik braku bez kotwicy:", nazwa); return false; }
+    const S = 256;
+    const c = document.createElement("canvas");
+    c.width = c.height = S;
+    const g = c.getContext("2d");
+    g.lineCap = "round"; g.lineJoin = "round";
+    app._tloWskaznika(g, S, (g2, cc, u2) => {
+      g2.lineWidth = 11 * u2;
+      g2.strokeStyle = "#FFC061";
+      g2.beginPath(); g2.arc(cc, cc, 43.5 * u2, 0, Math.PI * 2); g2.stroke();
+    });
+    // Pusty środek = brak. Trzy kropki zamiast ikony, żeby tarcza nie była dziurą.
+    g.fillStyle = "#FFC061";
+    for (const dx of [-16, 0, 16]) { g.beginPath(); g.arc(S / 2 + dx * (S / 100), S / 2, 4.2 * (S / 100), 0, Math.PI * 2); g.fill(); }
+    const mapa = new CanvasTexture(c);
+    mapa.colorSpace = SRGBColorSpace;
+    const spr = new Sprite(new SpriteMaterial({ map: mapa, transparent: true, depthTest: false }));
+    spr.renderOrder = 58;
+    spr.scale.setScalar(1.0);
+    const n = app.planeta.normalna(k[0], k[1]).clone();
+    const h = app.wysokoscGruntuSiatki ? app.wysokoscGruntuSiatki(k[0], k[1]) : 0;
+    const baza = app.planeta.naKule(k[0], k[1], h + 1.35);
+    spr.position.copy(baza);
+    app.swiat.add(spr);
+    this._znacznik = spr;
+    const bujaj = () => {
+      if (app.destroyed || this._znacznik !== spr) return;
+      const t = performance.now() * .0022;
+      spr.position.copy(baza).addScaledVector(n, Math.sin(t) * .07);
+      spr.scale.setScalar(1.0 + Math.sin(t * 1.6) * .04);
+      requestAnimationFrame(bujaj);
+    };
+    requestAnimationFrame(bujaj);
     return true;
   }
 

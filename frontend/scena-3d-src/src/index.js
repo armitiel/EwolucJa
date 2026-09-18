@@ -38,6 +38,7 @@ export const ZDARZENIA = [
   "swiatlo:zebrane", "woda:nabrana", "fasola:podlana", "fasola:wspinaczka", "swiat:dalej",
   "surowiec:zdobyty", "surowiec:podniesiony", "surowiec:dostarczony", "miejsce:pokazane",
   "domek:drabinka", "domek:wejscie",
+  "hybryda:obiekt-dotkniety",
   "pauza", "wznowienie", "zniszczona", "blad",
 ];
 
@@ -107,6 +108,14 @@ export async function utworzScena3D(s = {}) {
     dodajGrzyb: (...a) => n.dodajGrzyb(...a),
     pokazUkryty: (...a) => n.pokazUkryty(...a),
     dodajZnak: (...a) => n.dodajZnak(...a),
+    /* HYBRYDY (05 W3/W6): `ulozKamienie(n, "kwiat"?)` — droga z kamieni-kroków
+       (LD); `pokazZnacznikBraku(kotwica|null)` — pierścień „tu czegoś brakuje";
+       `pokazKamien(i)` — kadr kamery na kamień. Nazwy ślad-metod muszą się
+       zgadzać z `hybrydy.v1.json` i `DOZWOLONE_METODY` w backendzie. */
+    ulozKamienie: (...a) => n.ulozKamienie(...a),
+    pokazZnacznikBraku: (...a) => n.pokazZnacznikBraku(...a),
+    pozycjaKamienia: (i) => n.pozycjaKamienia(i),
+    pokazKamien: (i, a) => n.pokazKamien(i, a),
     stan: () => n.stan(),
     zniszcz: () => { n.zniszcz(); t.remove(); },
     _app: n,

@@ -38,6 +38,8 @@ import { GameIcon } from "../../adventure/components/icons.jsx";
 import { powiedzPostacia } from "../mowaPostaci.js";
 import { odmienDlaGracza } from "../../services/rodzaj.js";
 import { etapSzkolny } from "../profilStartowy.js";
+import SladWybor from "./wspolne/SladWybor.jsx";
+import MiejscaZadania from "./wspolne/MiejscaZadania.jsx";
 import {
   obrazekSladu,
   odbierzNagrode,
@@ -419,22 +421,14 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot, onPokaz
         {/* ŚLAD WYBOREM: trzy kartki z `slad.opcje` (dla 1–3 z obrazkiem — dziś
             emoji z `OBRAZKI_SLADU`, docelowo rysunki). Wybór jest pełnoprawnym
             śladem; zdanie niżej jest dodatkiem, nie warunkiem (05 W1, 06 §4.2). */}
-        {def.slad?.opcje?.length ? (
-          <div className={`zadanie-miejsca zadanie-slad${Number.isInteger(sladOpcja) ? " ma-wybor" : ""}`} data-testid="zadanie-slad">
-            {def.slad.opcje.map((opcja, i) => (
-              <button
-                key={i}
-                type="button"
-                className={`zadanie-miejsce${sladOpcja === i ? " is-wybrane" : ""}`}
-                onClick={() => setSladOpcja(sladOpcja === i ? null : i)}
-              >
-                <span className="zadanie-pinezka" aria-hidden="true" />
-                <span className="zadanie-miejsce-emoji" aria-hidden="true">{obrazekSladu(def.slad.obrazki?.[i])}</span>
-                <strong>{o(opcja)}</strong>
-              </button>
-            ))}
-          </div>
-        ) : null}
+        <SladWybor
+          opcje={def.slad?.opcje || []}
+          obrazki={def.slad?.obrazki || []}
+          wybrana={sladOpcja}
+          onWybor={setSladOpcja}
+          obrazek={obrazekSladu}
+          o={o}
+        />
 
         {zdjeciaWlaczone(player) ? (<>
         <button
@@ -523,27 +517,16 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot, onPokaz
         </button>
       </div>
 
-      <h3 className="czat-naglowek">{o("Gdzie możesz to zrobić?")}</h3>
-      <div className={`zadanie-miejsca${miejsce ? " ma-wybor" : ""}`}>
-        {(def.miejsca || []).map((m) => (
-          <button
-            key={m.id}
-            type="button"
-            className={`zadanie-miejsce${miejsce === m.id ? " is-wybrane" : ""}`}
-            onClick={() => {
-              const nowe = miejsce === m.id ? null : m.id;
-              setMiejsce(nowe);
-              zapiszMiejsce(nowe);
-              if (nowe) zdarzenie("miejsce.wybrane", { zadanie: def.id, miejsce: nowe, etap: etapGracza || "oba" });
-            }}
-          >
-            <span className="zadanie-pinezka" aria-hidden="true" />
-            <span className="zadanie-miejsce-emoji" aria-hidden="true">{m.emoji}</span>
-            <strong>{o(m.nazwa)}</strong>
-            {miejsce === m.id ? <small>{o(m.opis)}</small> : null}
-          </button>
-        ))}
-      </div>
+      <MiejscaZadania
+        miejsca={def.miejsca || []}
+        wybrane={miejsce}
+        o={o}
+        onWybor={(nowe) => {
+          setMiejsce(nowe);
+          zapiszMiejsce(nowe);
+          if (nowe) zdarzenie("miejsce.wybrane", { zadanie: def.id, miejsce: nowe, etap: etapGracza || "oba" });
+        }}
+      />
 
     </div>
   );

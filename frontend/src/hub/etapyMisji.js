@@ -69,6 +69,17 @@ import {
 } from "./zadanieDrewna.js";
 import { typStartowy, upewnijProfil, zapomnijProfil } from "./profilStartowy.js";
 import {
+  HYBRYDY_AKTYWNE,
+  idz as idzHybryda,
+  pierwszaHybryda,
+  rozpocznij as rozpocznijHybryde,
+  skasujHybryde,
+  stanHybrydy,
+  wybierzA as wybierzAHybrydy,
+  zauwazDev as zauwazHybrydeDev,
+  zostawSladDev as zostawSladHybrydyDev,
+} from "./hybryda.js";
+import {
   MISJE,
   odbierzNagrode as odbierzNagrodeMisji,
   odkryj,
@@ -200,6 +211,54 @@ function etapySchronienia() {
   ];
 }
 
+/**
+ * HYBRYDA — cztery momenty między „Budujemy!” a pierwszą grą (05 §5, 06 §4.3
+ * pkt 6). Pierwsze zadanie w realu nie przychodzi z Koła po trzech grach,
+ * tylko ze świata po pierwszej rzeczy, którą dziecko zbudowało.
+ *
+ * `misja: -1` na tropie i na „czeka" trzyma pętlę gier z dala (jak etapy
+ * schronienia): dopóki zakład nie jest postawiony i dziecko nie odłożyło
+ * urządzenia, żadna gra nie jest zlecana. Po śladzie (`hybryda: "slad"`)
+ * Wizkor może zlecić pierwszą grę — dlatego te dwa momenty mają `misja: 0`
+ * z fazą `brak`, a od gier różni je tylko to, że pierwsza gra jeszcze nie
+ * ruszyła. `drewno: "zbudowane"` jawnie, bo `misja: -1` domyślnie znaczy
+ * „domku nie ma".
+ */
+function etapyHybrydy() {
+  const wspolne = { drewno: "zbudowane", zebrane: CEL_DOMYSLNY, wyplacone: true };
+  const tytul = () => pierwszaHybryda()?.tytul || HYBRYDY_AKTYWNE[0]?.tytul || "hybryda";
+  return [
+    {
+      ...wspolne, misja: -1, hybryda: "trop",
+      id: "hybryda:trop",
+      tytul: `Hybryda „${tytul()}” — trop`,
+      opis: "Domek stoi. Pod drabinką leży pierwszy kamień, nad nim znacznik braku; Wizkor zleca most (część A: zakład w Zadaniach). Gier jeszcze nie ma.",
+      akcja: "otworzZadanie",
+    },
+    {
+      ...wspolne, misja: -1, hybryda: "czeka",
+      id: "hybryda:czeka",
+      tytul: `Hybryda „${tytul()}” — czeka u ciebie`,
+      opis: "Zakład postawiony, dziecko nacisnęło „Idę”. Karta „Czeka — u ciebie”; Wizkor przypomina, Koło nie losuje, gra wchodzi dopiero następnego dnia.",
+      akcja: "otworzZadanie",
+    },
+    {
+      ...wspolne, misja: 0, faza: "brak", hybryda: "slad",
+      id: "hybryda:slad",
+      tytul: `Hybryda „${tytul()}” — ślad zostawiony`,
+      opis: "Świat już zareagował (pięć kamieni od drabinki do wody). Od tej chwili Wizkor zleca pierwszą grę.",
+      akcja: `zlec:${MISJE[0]?.id}`,
+    },
+    {
+      ...wspolne, misja: 0, faza: "brak", hybryda: "zauwazone",
+      id: "hybryda:zauwazone",
+      tytul: `Hybryda „${tytul()}” — Mentor zobaczył`,
+      opis: "Mentor nacisnął „Zauważam”: szósty kamień na brzegu i kwiat. Wizkor mówi o tym raz, potem zwykła kwestia stanu (gra).",
+      akcja: "hybryda:zobacz",
+    },
+  ];
+}
+
 /** Pięć momentów jednej misji z grą, w kolejności jej życia. */
 function etapyMisji(def, idx) {
   const kawalkow = celPuzzli(def.id);
@@ -312,6 +371,7 @@ export const ETAPY = [
   ...etapyWejscia(),
   ...etapyGwiazdek(),
   ...etapySchronienia(),
+  ...etapyHybrydy(),
   ...MISJE.flatMap((def, idx) => etapyMisji(def, idx)),
   ...etapyReala(),
 ];
@@ -320,8 +380,10 @@ export const ETAPY = [
 const WEJSCIE = etapyWejscia().length;
 /** Numer pierwszego etapu schronienia (osobne ogniwo tuż za gwiazdkami). */
 const PIERWSZE_SCHRON = WEJSCIE + etapyGwiazdek().length;
-/** Numer pierwszego etapu z grami — już ZA ogniwem schronienia. */
-const PIERWSZA_GRA = PIERWSZE_SCHRON + etapySchronienia().length;
+/** Numer pierwszego momentu hybrydy (między domkiem a grami). */
+const PIERWSZA_HYBRYDA = PIERWSZE_SCHRON + etapySchronienia().length;
+/** Numer pierwszego etapu z grami — już ZA ogniwem schronienia i hybrydą. */
+const PIERWSZA_GRA = PIERWSZA_HYBRYDA + etapyHybrydy().length;
 /** Numer pierwszego etapu zadania w realu (tuż za ostatnią misją). */
 const PIERWSZY_REAL = PIERWSZA_GRA + MISJE.length * FAZY.length;
 
@@ -368,6 +430,20 @@ export function etapBiezacy() {
 
   const misje = stanMisji();
   const idx = misje.findIndex((m) => !m.wyplacona);
+
+  /* HYBRYDA stoi między domkiem a grami. Trop i „czeka" zawsze są jej
+     momentem (gier wtedy nie ma). Ślad i zauważenie liczą się jako jej
+     moment tylko, dopóki pierwsza gra nie ruszyła — potem oś jest już
+     w grach, a hybryda żyje obok, w Zadaniach. */
+  const h = stanHybrydy();
+  if (h.istnieje) {
+    if (h.trop || h.czescA) return PIERWSZA_HYBRYDA;
+    if (h.czeka) return PIERWSZA_HYBRYDA + 1;
+    const graRuszyla = idx !== 0 || stopien(misje[0]) > 0;
+    if (!graRuszyla && h.slad) return PIERWSZA_HYBRYDA + 2;
+    if (!graRuszyla && h.zauwazone && !h.zauwazoneObejrzane) return PIERWSZA_HYBRYDA + 3;
+  }
+
   if (idx >= 0) {
     const faza = Math.min(stopien(misje[idx]), FAZY.length - 1);
     return PIERWSZA_GRA + idx * FAZY.length + faza;
@@ -397,6 +473,10 @@ export function zlamanaKolejnosc() {
   }
   if (ruszone.length && z.wyplacone && !stanDrewna().zbudowane) {
     return `„${ruszone[0].def.tytul}" ruszyła, choć domek na drzewie jeszcze nie stoi.`;
+  }
+  const h = stanHybrydy();
+  if (ruszone.length && h.istnieje && (h.trop || h.czescA)) {
+    return `„${ruszone[0].def.tytul}" ruszyła, choć zakład hybrydy „${h.def?.tytul}" nie jest postawiony.`;
   }
   for (let i = 1; i < misje.length; i += 1) {
     if (stopien(misje[i]) > 0 && stopien(misje[i - 1]) < 5) {
@@ -460,6 +540,32 @@ export function zastosujEtap(nr) {
   const fazaDrewna = etap.drewno
     || (typeof etap.misja === "number" && etap.misja < 0 ? "brak" : "zbudowane");
   zbudujDrewno(fazaDrewna);
+
+  /**
+   * HYBRYDA budowana tą samą drogą, co w grze: trop → zakład → „Idę" →
+   * ślad (lokalnie, jak `wyslijDowodDev`) → zauważenie (jawnie demo).
+   * Momenty PRZED hybrydą kasują ją (nie ma jeszcze domku), momenty hybrydy
+   * odbudowują do swojej fazy, a gry i real zostawiają ją w spokoju — tak
+   * samo, jak zostawiają zadanie z Koła.
+   */
+  if (etap.hybryda || fazaDrewna === "brak" || fazaDrewna === "zbieranie" || fazaDrewna === "komplet") skasujHybryde();
+  if (etap.hybryda) {
+    const karta = pierwszaHybryda() || HYBRYDY_AKTYWNE[0];
+    if (karta) {
+      rozpocznijHybryde(karta.id);
+      if (etap.hybryda !== "trop") {
+        wybierzAHybrydy(karta.czescA?.opcje?.[0]?.id);
+        idzHybryda();
+        if (etap.hybryda !== "czeka") {
+          // `zostawSladDev` jest asynchroniczne tylko formalnie (bez sieci) — stan
+          // zapisuje się w tym samym obiegu, zanim ktokolwiek go odczyta.
+          zostawSladHybrydyDev({ opcja: 0, zdanie: "DEV: ślad z osi etapów" }).then(() => {
+            if (etap.hybryda === "zauwazone") zauwazHybrydeDev("DEV: zauważenie z osi etapów");
+          });
+        }
+      }
+    }
+  }
 
   /**
    * Stan puzzli misji budowany TĄ SAMĄ drogą, którą idzie gra:

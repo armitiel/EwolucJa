@@ -1267,6 +1267,15 @@ export class Aplikacja {
   dodajGrzyb(...a) { return this.slady?.dodajGrzyb(...a) || false; }
   pokazUkryty(...a) { return this.slady?.pokazUkryty(...a) || false; }
   dodajZnak(...a) { return this.slady?.dodajZnak(...a) || false; }
+  /* HYBRYDA LD (`kamienie-kroki`, 05 karta 1) i znacznik braku W6 — opis w `slady.js`. */
+  ulozKamienie(...a) { return this.slady?.ulozKamienie(...a) || false; }
+  pokazZnacznikBraku(...a) { return this.slady?.pokazZnacznikBraku(...a) || false; }
+  pozycjaKamienia(i) { return this.slady?.pozycjaKamienia(i) || null; }
+  /** Kadr na kamień numer `i` (1–6) — po śladzie na drugi, po zauważeniu na szósty. */
+  pokazKamien(i = 2, opcje = {}) {
+    const p = this.pozycjaKamienia(i);
+    return p ? this.pokazMiejsce(p, opcje) : this.pokazMiejsce(null, opcje);
+  }
 
   /**
    * CIENIE DLA OBIEKTU, KTÓRY DOSZEDŁ DO ŚWIATA PO STARCIE SCENY.
@@ -2069,6 +2078,7 @@ export class Aplikacja {
     if (this.kropla) this.kropla.aktualizuj(e);
     this._fasolaTik(e);
     this._drabinkaTik(e);
+    this.slady?.tik(e);
     this._rabanieTik(e);
     this._transportTik(e);
     this._poswiataTik(e);
@@ -3169,6 +3179,8 @@ export class Aplikacja {
     }
     // Drabinka liczy się z kotwic bryły — nowa bryła, nowe kotwice.
     this._drabinkaDaneCache = null;
+    // Droga z kamieni-kroków (hybryda LD) zaczyna się od stopy drabinki — licz od nowa.
+    if (this.slady) this.slady._trasa = null;
     if (this._drabinka) this._drabinkaZejdz(true);
     for (const b of this._schronBlockers || []) {
       const i = this.blockers.indexOf(b);

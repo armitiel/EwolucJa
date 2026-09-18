@@ -1,0 +1,1263 @@
+{
+  "version": 1,
+  "note": "Zadania hybrydowe (docs/tresci/05, mapowanie pól §4). Ten sam schemat co zadania-wizkora.v2 (cel/jak/minimum/warianty/miejsca/slad/rozmowa/mentor_powiadomienie/kwestie) plus czescA, most, reakcja, reakcjaMentor, rodzina. `aktywna: false` = karta czeka na metodę sceny (reakcja.istnieje) i włączenie; `{wyborA}` / `{slad}` w args podstawia hub z zapisu. Generowane przez tmp/tresci-skrypty/hybrydy-zbuduj-json.py z 05 — edytuj dokument, nie plik.",
+  "kolejnosc": [
+    "kamienie-kroki",
+    "swiatlo-w-oknie",
+    "kladka-nad-oczkiem",
+    "co-jest-na-dnie",
+    "lawka-dla-goscia",
+    "ramka-w-domku"
+  ],
+  "hybrydy": [
+    {
+      "id": "kamienie-kroki",
+      "aktywna": true,
+      "profil_pierwszy": "LD",
+      "os": "odwaga",
+      "cecha": "odwaga",
+      "potrzeba": "ruch",
+      "etap": "oba",
+      "nagroda": 25,
+      "minuty": 15,
+      "competency_focus": [
+        "LD"
+      ],
+      "bezpieczenstwo": "tylko na płaskiej podłodze, z dala od stołu, schodów, balkonu i kantów; kamienie płaskie i nieśliskie (nie kartki na panelach, nie poduszki); boso albo w butach, nie w skarpetkach; oczy zamknięte tylko wtedy, gdy ręka dosięga ściany albo trzyma kogoś; nigdy na schodach ani na dworze bez dorosłego. Zdjęcie: kamienie na podłodze, bez ludzi.",
+      "dlaczego_to_dziala": "Odwaga w klasach 1–8 to zrobienie kroku, którego wyniku się nie zna, na własnych warunkach (ręka przy ścianie jest dozwolona, otwarte oczy są opcją śladu, nie porażką). Ciało zamiast rozmowy o odwadze; sufit zamknięty przez własną stopę, więc nie ma „jak najwięcej”. Świat odpowiada dosłownie: droga z kamieni tam, gdzie mokre ślady liska wyschły — trwałe zostaje to, co dziecko zrobiło naprawdę.",
+      "trwaly_obiekt": "Droga z kamieni od wielkiego drzewa do oczka zachodniego (pięć, po zauważeniu sześć + kwiat). Zostaje na planecie na zawsze; nie znika z nową dobą.",
+      "cel": "Ułóż na podłodze trzy kamienie z płaskich rzeczy: kapcie, złożone ubrania, ręczniki tylko na dywanie. Przejdź po nich raz patrząc, a potem raz z zamkniętymi oczami — ręka może trzymać ściany.",
+      "warianty": {
+        "4-8": {
+          "cel": "Pięć kamieni. Przejdź z zamkniętymi oczami. Jeśli trafisz wszystkie, przesuń jeden w bok o pół stopy i idź jeszcze raz — aż raz nie trafisz."
+        }
+      },
+      "minimum": "Jeden kamień z zamkniętymi oczami — i tak się liczy.",
+      "mentor_powiadomienie": "Zobacz, co {przeszedł|przeszła} {imie}. W Świecie Ewolucji od drzewa do wody leżą teraz kamienie.",
+      "rozmowa": "Który kamień był najtrudniejszy do trafienia?",
+      "tytul": "Kamienie-kroki",
+      "ksztalt": "odważ się",
+      "rodzina": null,
+      "jak": "Kamienie z kapci, złożonych ubrań albo ręczników na dywanie. Boso albo w butach, nie w skarpetkach. Oczy zamknięte tylko wtedy, gdy ręka dosięga ściany.",
+      "przyklad": "Trzy kapcie w przedpokoju, ręka przy ścianie, raz patrząc i raz bez patrzenia.",
+      "szept": "Bez patrzenia.",
+      "czescA": {
+        "miejsce": "od stopy drabinki pomostu w stronę oczka zachodniego",
+        "kotwica": "stopa-drabinki",
+        "wprowadzenie": "Lisek pobiegł po wodę i wrócił. Ślady wyschły, a kamień został jeden.",
+        "pytanie": "Ile kamieni trzeba do wody?",
+        "opcje": [
+          {
+            "id": "trzy",
+            "tekst": "Trzy",
+            "emoji": "🪨"
+          },
+          {
+            "id": "piec",
+            "tekst": "Pięć",
+            "emoji": "🪨🪨"
+          },
+          {
+            "id": "wiecej",
+            "tekst": "Więcej",
+            "emoji": "🪨🪨🪨"
+          }
+        ],
+        "przycisk": "Ułożę swoje",
+        "reakcja": {
+          "metoda": "ulozKamienie",
+          "args": [
+            1
+          ],
+          "opis": "pierwszy kamień-krok pod drabinką (lisek go położył)"
+        },
+        "zdarzenie": "hybryda:obiekt-dotkniety"
+      },
+      "most": {
+        "karta": "Od drzewa do wody nie ma drogi. Lisek położył jeden kamień.",
+        "wyroznienie": "nie ma drogi",
+        "glos": "Ślady liska wyschną do rana, a drogi do wody dalej nie będzie. Kamieni magią nie ułożę. Ułóż swoje i przejdź po nich bez patrzenia.",
+        "warianty": {
+          "1-3": {
+            "glos": "Od drzewa do wody nie ma drogi. Ułóż swoje kamienie i przejdź po nich bez patrzenia — ręka może trzymać ściany."
+          }
+        },
+        "przycisk": "Idę",
+        "przyciskOtwarte": "Zostaw otwarte"
+      },
+      "miejsca": [
+        {
+          "id": "pokoj",
+          "emoji": "🛋",
+          "nazwa": "W pokoju",
+          "opis": "Na dywanie, z dala od stołu i kantów; kamienie z ręczników i złożonych ubrań (ręcznik tylko na dywanie).",
+          "wszedzie": true
+        },
+        {
+          "id": "przedpokoj",
+          "emoji": "🚪",
+          "nazwa": "W przedpokoju",
+          "opis": "Kapcie i wycieraczka jako kamienie, drzwi zamknięte, nic na panelach, co się ślizga.",
+          "wszedzie": true
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🏫",
+          "nazwa": "W świetlicy",
+          "opis": "Woreczki gimnastyczne albo kartki na wykładzinie, gdy jest kawałek wolnej podłogi.",
+          "wszedzie": true
+        },
+        {
+          "id": "podworko",
+          "emoji": "🌳",
+          "nazwa": "Na podwórku",
+          "opis": "Kamienie narysowane kredą na chodniku, z dorosłym w zasięgu wzroku; oczy zamknięte tylko trzymając kogoś za rękę.",
+          "wszedzie": false
+        }
+      ],
+      "slad": {
+        "opcje": [
+          "{Trafiłem|Trafiłam} wszystkie",
+          "{Trafiłem|Trafiłam} część",
+          "{Przeszedłem|Przeszłam} z otwartymi oczami"
+        ],
+        "obrazki": [
+          "stopa-na-kamieniu",
+          "stopa-obok",
+          "oko"
+        ],
+        "zdanie": true,
+        "pytanieZdania": "Ile kamieni i który był najtrudniejszy?",
+        "zdjecie": false,
+        "podpowiedz": "Same kamienie na podłodze. Bez ludzi."
+      },
+      "reakcja": {
+        "metoda": "ulozKamienie",
+        "args": [
+          5
+        ],
+        "opis": "pięć kamieni-kroków od drabinki w stronę oczka zachodniego",
+        "toast": {
+          "tytul": "Kamienie do wody",
+          "opis": "Od drzewa w stronę wody leżą kamienie."
+        },
+        "kadr": {
+          "metoda": "pokazKamien",
+          "args": [
+            2
+          ]
+        },
+        "istnieje": true
+      },
+      "reakcjaMentor": {
+        "metoda": "ulozKamienie",
+        "args": [
+          6,
+          "kwiat"
+        ],
+        "opis": "szósty kamień na brzegu oczka i kwiat obok — droga dochodzi do wody",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Ostatni kamień dotyka wody. Obok wyrósł kwiat."
+        },
+        "kadr": {
+          "metoda": "pokazKamien",
+          "args": [
+            6
+          ]
+        },
+        "istnieje": true
+      },
+      "miejsce_reakcji": "od drzewa do wody",
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "most",
+          "wariant": "4-8",
+          "tekst": "Ślady liska wyschną do rana, a drogi do wody dalej nie będzie. Kamieni magią nie ułożę. Ułóż swoje i przejdź po nich bez patrzenia.",
+          "tekstEkranu": "Od drzewa do wody nie ma drogi. Lisek położył jeden kamień."
+        },
+        {
+          "glos": "wizkor",
+          "moment": "most",
+          "wariant": "1-3",
+          "tekst": "Od drzewa do wody nie ma drogi. Ułóż swoje kamienie i przejdź po nich bez patrzenia — ręka może trzymać ściany.",
+          "tekstEkranu": "Od drzewa do wody nie ma drogi. Lisek położył jeden kamień."
+        },
+        {
+          "glos": "wizkor",
+          "moment": "przypomnienie",
+          "wariant": "oba",
+          "tekst": "Ślady wyschły, kamienia jest jeden. Reszta leży u ciebie na podłodze — ułóż je, kiedy będziesz w domu.",
+          "tekstEkranu": "Kamienie czekają na podłodze u ciebie. Nie tu."
+        },
+        {
+          "glos": "lisek",
+          "moment": "zaproszenie",
+          "wariant": "oba",
+          "tekst": "Ja położyłem jeden kamień.\nUłożysz swoje? Bez patrzenia.",
+          "tekstEkranu": "Ja położyłem jeden kamień.\nUłożysz swoje? Bez patrzenia."
+        },
+        {
+          "glos": "narratorka",
+          "moment": "slad",
+          "wariant": "oba",
+          "tekst": "Od drzewa w stronę wody leżą kamienie.\nKtoś po nich szedł — i zrobiła się droga.",
+          "tekstEkranu": "Od drzewa w stronę wody leżą kamienie.\nKtoś po nich szedł — i zrobiła się droga."
+        },
+        {
+          "glos": "narratorka",
+          "moment": "slad",
+          "wariant": "1-3",
+          "tekst": "Od drzewa do wody leżą kamienie.\nTo od ciebie.",
+          "tekstEkranu": "Od drzewa do wody leżą kamienie.\nTo od ciebie."
+        },
+        {
+          "glos": "narratorka",
+          "moment": "zauwazone",
+          "wariant": "oba",
+          "tekst": "Ostatni kamień dotyka wody.\nObok wyrósł kwiat, jakby ktoś tędy chodził co dzień.",
+          "tekstEkranu": "Ostatni kamień dotyka wody.\nObok wyrósł kwiat, jakby ktoś tędy chodził co dzień."
+        },
+        {
+          "glos": "wizkor",
+          "moment": "zauwazone",
+          "wariant": "oba",
+          "tekst": "Mentor to {zobaczył|zobaczyła}. Kamienie doszły do wody.",
+          "tekstEkranu": "Mentor to {zobaczył|zobaczyła}. Kamienie doszły do wody."
+        }
+      ]
+    },
+    {
+      "id": "swiatlo-w-oknie",
+      "aktywna": false,
+      "profil_pierwszy": "MD",
+      "os": "wytrwalosc (regulacja)",
+      "cecha": "wytrwalosc",
+      "potrzeba": "regulacja",
+      "etap": "oba",
+      "nagroda": 25,
+      "minuty": 15,
+      "competency_focus": [
+        "MD"
+      ],
+      "bezpieczenstwo": "nie otwierać okna, nie wychylać się; balkon tylko z dorosłym. Bez zdjęcia — za oknem są cudze okna; ślad tylko wybór albo zdanie. Własne światło gasi tylko 4–8 i tylko „jeśli chcesz”.",
+      "dlaczego_to_dziala": "Regulacja przez skupienie na jednym bodźcu z zewnątrz, z końcem, który dziecko rozpozna samo (światło zgasło, ktoś przeszedł). Skupienie i spokój, nie mediacja (kanon: Spokojna Głowa). Świat odpowiada dosłownie tym, czego brakowało: światłem tam, gdzie było ciemno — więc dziecko widzi związek między swoim patrzeniem a lampką na pomoście.",
+      "trwaly_obiekt": "Lampka na pomoście (świeci każdej nocy); po zauważeniu trzy świetliki nocą wokół drzewa.",
+      "cel": "Usiądź przy oknie. Znajdź trzy światła albo błyski. Wybierz jedno i patrz na nie, aż coś się przy nim zmieni.",
+      "warianty": {
+        "4-8": {
+          "cel": "Jeśli chcesz, zgaś swoje światło. Usiądź przy oknie i wybierz jedno światło, które nie jest twoje: latarnię, samochód, okno daleko. Patrz, aż zauważysz coś, czego nie było, gdy {zaczynałeś|zaczynałaś}."
+        }
+      },
+      "minimum": "Trzy światła policzone przy oknie — i tak się liczy.",
+      "mentor_powiadomienie": "Zobacz, co {zauważył|zauważyła} {imie}. Na pomoście w Świecie Ewolucji zapaliła się lampka.",
+      "rozmowa": "Które światło za oknem {imie} {wybrał|wybrała} i co się przy nim zmieniło?",
+      "tytul": "Światło w oknie",
+      "ksztalt": "wytrzymaj",
+      "rodzina": "okno",
+      "jak": "Nie otwieraj okna i nie wychylaj się. Gdy jest jasno, światła to błyski słońca na szybach i samochodach.",
+      "szept": "Aż coś się zmieni.",
+      "czescA": {
+        "miejsce": "pomost na wielkim drzewie",
+        "kotwica": "pomost",
+        "pytanie": "Gdzie ma stanąć lampka?",
+        "opcje": [
+          {
+            "id": "barierka",
+            "tekst": "Na barierce",
+            "emoji": "🪵"
+          },
+          {
+            "id": "drabinka",
+            "tekst": "Na drabince",
+            "emoji": "🪜"
+          },
+          {
+            "id": "drzewo",
+            "tekst": "Pod drzewem",
+            "emoji": "🌳"
+          }
+        ],
+        "przycisk": "Idę do okna",
+        "zachod": true
+      },
+      "most": {
+        "karta": "Słońce schodzi, a na pomoście ciemno. Ognia nie wyczaruję.",
+        "wyroznienie": "ciemno",
+        "glos": "Słońce schodzi, a na pomoście nie ma żadnego światła. Ognia magią nie rozpalę. Usiądź przy swoim oknie i popatrz, skąd bierze się światło.",
+        "warianty": {
+          "1-3": {
+            "glos": "Słońce schodzi, a na pomoście ciemno. Ognia nie wyczaruję. Usiądź przy oknie i poszukaj świateł."
+          }
+        },
+        "przycisk": "Idę do okna",
+        "przyciskOtwarte": "Zostaw otwarte"
+      },
+      "miejsca": [
+        {
+          "id": "okno",
+          "emoji": "🪟",
+          "nazwa": "Przy oknie w domu",
+          "opis": "Okno w pokoju albo w kuchni; w bloku okna naprzeciwko to najlepsze światła.",
+          "wszedzie": true
+        },
+        {
+          "id": "klatka",
+          "emoji": "🚪",
+          "nazwa": "Na klatce",
+          "opis": "Okno na półpiętrze (dla starszych): drzwi mieszkania otwarte, ktoś w domu wie, że tam jesteś.",
+          "wszedzie": true,
+          "etap": "4-8"
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🏫",
+          "nazwa": "W świetlicy",
+          "opis": "Okno na parking albo ulicę po lekcjach: latarnie, błyski, światła aut.",
+          "wszedzie": true
+        },
+        {
+          "id": "balkon",
+          "emoji": "🏙",
+          "nazwa": "Na balkonie",
+          "opis": "Tylko z dorosłym obok; drzwi balkonowe otwarte, nie wychylać się.",
+          "wszedzie": false
+        }
+      ],
+      "slad": {
+        "opcje": [
+          "Światło zgasło",
+          "Ktoś przy nim przeszedł",
+          "{Zauważyłem|Zauważyłam} coś innego"
+        ],
+        "obrazki": [
+          "lampa-zgaszona",
+          "cien",
+          "oko"
+        ],
+        "zdanie": true,
+        "pytanieZdania": "Co się zmieniło przy świetle?",
+        "zdjecie": false,
+        "podpowiedz": null
+      },
+      "reakcja": {
+        "metoda": "ustawLampke",
+        "args": [
+          "{wyborA}"
+        ],
+        "opis": "mała lampka na pomoście w miejscu z części A; świeci po zachodzie",
+        "toast": {
+          "tytul": "Lampka na pomoście",
+          "opis": "Na pomoście świeci mała lampka."
+        },
+        "istnieje": false
+      },
+      "reakcjaMentor": {
+        "metoda": "dodajSwietlika",
+        "args": [
+          "pod-drzewem",
+          3
+        ],
+        "opis": "trzy świetliki wokół drzewa, tylko nocą, bez światła punktowego",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Wokół drzewa krążą świetliki."
+        },
+        "istnieje": false
+      },
+      "miejsce_reakcji": "na pomoście",
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "most",
+          "wariant": "4-8",
+          "tekst": "Słońce schodzi, a na pomoście nie ma żadnego światła. Ognia magią nie rozpalę. Usiądź przy swoim oknie i popatrz, skąd bierze się światło.",
+          "tekstEkranu": "Słońce schodzi, a na pomoście ciemno. Ognia nie wyczaruję."
+        },
+        {
+          "glos": "wizkor",
+          "moment": "most",
+          "wariant": "1-3",
+          "tekst": "Słońce schodzi, a na pomoście ciemno. Ognia nie wyczaruję. Usiądź przy oknie i poszukaj świateł.",
+          "tekstEkranu": "Słońce schodzi, a na pomoście ciemno. Ognia nie wyczaruję."
+        },
+        {
+          "glos": "wizkor",
+          "moment": "otwarcie",
+          "wariant": "oba",
+          "tekst": "Po zachodzie na pomoście będzie ciemno. Ognia magią nie rozpalę. Wybierz, gdzie ma stanąć lampka, a światła poszukaj u siebie za oknem.",
+          "tekstEkranu": "Po zachodzie na pomoście będzie ciemno. Gdzie stanie lampka?"
+        },
+        {
+          "glos": "lisek",
+          "moment": "zaproszenie",
+          "wariant": "oba",
+          "tekst": "Ja siadam na pomoście po ciemku.\nUsiądziesz przy oknie? Opowiesz mi.",
+          "tekstEkranu": "Ja siadam na pomoście po ciemku.\nUsiądziesz przy oknie? Opowiesz mi."
+        },
+        {
+          "glos": "narratorka",
+          "moment": "slad",
+          "wariant": "oba",
+          "tekst": "Na pomoście świeci mała lampka.\nZapaliła się, kiedy ktoś patrzył w okno.",
+          "tekstEkranu": "Na pomoście świeci mała lampka.\nZapaliła się, kiedy ktoś patrzył w okno."
+        },
+        {
+          "glos": "narratorka",
+          "moment": "slad",
+          "wariant": "1-3",
+          "tekst": "Na pomoście świeci lampka.\nTo od ciebie.",
+          "tekstEkranu": "Na pomoście świeci lampka.\nTo od ciebie."
+        },
+        {
+          "glos": "narratorka",
+          "moment": "zauwazone",
+          "wariant": "oba",
+          "tekst": "Wokół drzewa krążą świetliki.\nPrzyleciały do światła, które nie zgasło.",
+          "tekstEkranu": "Wokół drzewa krążą świetliki.\nPrzyleciały do światła, które nie zgasło."
+        },
+        {
+          "glos": "wizkor",
+          "moment": "zauwazone",
+          "wariant": "oba",
+          "tekst": "Mentor to {zobaczył|zobaczyła}. Przy drzewie są świetliki.",
+          "tekstEkranu": "Mentor to {zobaczył|zobaczyła}. Przy drzewie są świetliki."
+        }
+      ]
+    },
+    {
+      "id": "kladka-nad-oczkiem",
+      "aktywna": false,
+      "profil_pierwszy": "ST",
+      "os": "wytrwalosc",
+      "cecha": "wytrwalosc",
+      "potrzeba": "kompetencja",
+      "etap": "oba",
+      "nagroda": 25,
+      "minuty": 15,
+      "competency_focus": [
+        "ST"
+      ],
+      "bezpieczenstwo": "Brak narzędzi, brak nożyczek; kartka i drobiazgi z piórnika. Zdjęcie: sama kładka na stole, bez ludzi. Nic do kupienia.",
+      "dlaczego_to_dziala": "Plan → test → poprawka to kształt ST (`03` §6.1): dziecko stawia zakład na ekranie, sprawdza go rękami, a poprawka (drugi kształt) jest wpisana w polecenie. Kompetencja bierze się z tego, że wie, dlaczego kładka wygląda tak, a nie inaczej — sama to sprawdziła. Wytrwałość jako „sprawdź do końca”, nie jako „nie wstawaj”.",
+      "trwaly_obiekt": "Kładka nad oczkiem wschodnim, przechodnia, w kształcie wybranym przez dziecko; po zauważeniu z poręczą i kwiatem.",
+      "cel": "Połóż kartkę między dwiema książkami. Sprawdź, czy utrzyma gumkę. Potem złóż kartkę jak wachlarz i sprawdź to samo.",
+      "warianty": {
+        "4-8": {
+          "cel": "Trzy kształty z tej samej kartki — płaska, harmonijka, rurka. Ten sam odstęp, ten sam ciężarek. Ustal kolejność od najsłabszej do najmocniejszej."
+        }
+      },
+      "minimum": "Jedna kładka i jeden ciężarek — i tak się liczy.",
+      "mentor_powiadomienie": "Zobacz, co {zbudował|zbudowała} {imie}. Nad oczkiem w Świecie Ewolucji stanęła kładka — z takich desek, jakie wygrały na stole.",
+      "rozmowa": "Co {imie} {położył|położyła} na kładce jako ciężarek — i która kładka wygrała?",
+      "tytul": "Kładka",
+      "ksztalt": "zbuduj",
+      "rodzina": "kladka",
+      "jak": "Dwie książki, kartka z zeszytu i gumka albo temperówka. Bez nożyczek.",
+      "szept": "Która wygra.",
+      "czescA": {
+        "miejsce": "kładka nad przewężeniem oczka wschodniego",
+        "kotwica": "kladka",
+        "znak": "kladka",
+        "pytanie": "Którą deskę położyć?",
+        "opcje": [
+          {
+            "id": "plaska",
+            "tekst": "Płaska",
+            "emoji": "📄"
+          },
+          {
+            "id": "harmonijka",
+            "tekst": "Harmonijka",
+            "emoji": "📐"
+          },
+          {
+            "id": "rurka",
+            "tekst": "Rurka",
+            "emoji": "🧻"
+          }
+        ],
+        "przycisk": "Sprawdzę na kartce"
+      },
+      "most": {
+        "karta": "Kładka ma tylko brzegi. Która deska utrzyma liska?",
+        "wyroznienie": "tylko brzegi",
+        "glos": "Nad oczkiem została kładka bez desek. Płaska czy złożona — nie umiem tego policzyć. Sprawdź na kartce, która utrzyma więcej.",
+        "warianty": {
+          "1-3": {
+            "glos": "Kładka ma tylko brzegi. Która deska utrzyma liska? Sprawdź na kartce między książkami."
+          }
+        },
+        "przycisk": "Sprawdzę na kartce",
+        "przyciskOtwarte": "Zostaw otwarte"
+      },
+      "miejsca": [
+        {
+          "id": "biurko",
+          "emoji": "📚",
+          "nazwa": "Przy stole",
+          "opis": "Weź dwie książki, kartkę z zeszytu i gumkę.",
+          "wszedzie": true
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🏫",
+          "nazwa": "W świetlicy",
+          "opis": "Weź dwa pudełka od gier zamiast książek.",
+          "wszedzie": true
+        },
+        {
+          "id": "kuchnia",
+          "emoji": "🍽",
+          "nazwa": "W kuchni",
+          "opis": "Weź dwa kubki, serwetkę i łyżeczkę jako ciężarek.",
+          "wszedzie": true
+        },
+        {
+          "id": "lawka",
+          "emoji": "🎒",
+          "nazwa": "Na ławce w szkole",
+          "opis": "Na ławce: dwa piórniki, kartka i gumka.",
+          "wszedzie": true
+        }
+      ],
+      "slad": {
+        "opcje": [
+          "Płaska utrzymała więcej",
+          "Złożona utrzymała więcej",
+          "Obie tyle samo"
+        ],
+        "obrazki": [
+          "plaska",
+          "wachlarz",
+          "rowno"
+        ],
+        "zdanie": true,
+        "pytanieZdania": "Co {położyłeś|położyłaś} jako ciężarek i która wygrała?",
+        "zdjecie": false,
+        "podpowiedz": "Sama kładka na stole."
+      },
+      "reakcja": {
+        "metoda": "ustawKladke",
+        "args": [
+          "{slad}"
+        ],
+        "opis": "deski w kształcie zwycięskiej konstrukcji (płaska → deski, złożona → zygzak, tyle samo → przemiennie), lisek przechodzi",
+        "toast": {
+          "tytul": "Kładka ma deski",
+          "opis": "Nad oczkiem leży kładka z nowymi deskami."
+        },
+        "istnieje": false
+      },
+      "reakcjaMentor": {
+        "metoda": "ustawKladke",
+        "args": [
+          "{slad}",
+          "porecz"
+        ],
+        "opis": "sznurowa poręcz na słupkach i kwiat przy przęśle",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Na słupkach kładki zawisł sznur, obok wyrósł kwiat."
+        },
+        "istnieje": false
+      },
+      "miejsce_reakcji": "nad oczkiem",
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "most",
+          "wariant": "4-8",
+          "tekst": "Nad oczkiem została kładka bez desek. Płaska czy złożona — nie umiem tego policzyć. Sprawdź na kartce, która utrzyma więcej.",
+          "tekstEkranu": "Kładka ma tylko brzegi. Która deska utrzyma liska?"
+        },
+        {
+          "glos": "wizkor",
+          "moment": "most",
+          "wariant": "1-3",
+          "tekst": "Kładka ma tylko brzegi. Która deska utrzyma liska? Sprawdź na kartce między książkami.",
+          "tekstEkranu": "Kładka ma tylko brzegi. Która deska utrzyma liska?"
+        },
+        {
+          "glos": "wizkor",
+          "moment": "przypomnienie",
+          "wariant": "oba",
+          "tekst": "Kładka nad oczkiem dalej nie ma desek. Odpowiedź leży u ciebie: kartka, dwie książki i coś ciężkiego.",
+          "tekstEkranu": "Kładka czeka na deski. Kartka i dwie książki — u ciebie."
+        },
+        {
+          "glos": "lisek",
+          "moment": "zaproszenie",
+          "wariant": "oba",
+          "tekst": "Ja tu nie przejdę.\nZbudujesz małą kładkę z kartki?",
+          "tekstEkranu": "Ja tu nie przejdę.\nZbudujesz małą kładkę z kartki?"
+        },
+        {
+          "glos": "narratorka",
+          "moment": "slad",
+          "wariant": "oba",
+          "tekst": "Nad oczkiem leży kładka z nowymi deskami.\nZłożone tak, jak ta, która wygrała.",
+          "tekstEkranu": "Nad oczkiem leży kładka z nowymi deskami.\nZłożone tak, jak ta, która wygrała."
+        },
+        {
+          "glos": "narratorka",
+          "moment": "slad",
+          "wariant": "1-3",
+          "tekst": "Kładka ma deski.\nLisek już przeszedł.",
+          "tekstEkranu": "Kładka ma deski.\nLisek już przeszedł."
+        },
+        {
+          "glos": "narratorka",
+          "moment": "zauwazone",
+          "wariant": "oba",
+          "tekst": "Na słupkach kładki zawisł sznur, obok wyrósł kwiat.\nTeraz da się przejść, nie patrząc pod nogi.",
+          "tekstEkranu": "Na słupkach kładki zawisł sznur, obok wyrósł kwiat.\nTeraz da się przejść, nie patrząc pod nogi."
+        },
+        {
+          "glos": "wizkor",
+          "moment": "zauwazone",
+          "wariant": "oba",
+          "tekst": "Mentor to {zobaczył|zobaczyła}. Kładka ma poręcz.",
+          "tekstEkranu": "Mentor to {zobaczył|zobaczyła}. Kładka ma poręcz."
+        }
+      ]
+    },
+    {
+      "id": "co-jest-na-dnie",
+      "aktywna": false,
+      "profil_pierwszy": "DT",
+      "os": "ciekawosc",
+      "cecha": "ciekawosc",
+      "potrzeba": "uwaznosc",
+      "etap": "oba",
+      "nagroda": 25,
+      "minuty": 15,
+      "competency_focus": [
+        "DT"
+      ],
+      "bezpieczenstwo": "miska albo umywalka, nigdy wanna ani woda na dworze poza kałużą; nic elektrycznego i nic, co się psuje od wody (telefon, pilot, zegarek); tylko rzeczy, które wolno zamoczyć. Zdjęcie: miska z rzeczami, bez ludzi.",
+      "dlaczego_to_dziala": "Ciekawość jako obserwacja → sprawdzenie (`03` §6.1, DT): najpierw przewidywanie, potem test, a różnica między nimi jest odkryciem. Uważność: dziecko patrzy na rzecz, którą zna z kuchni, jakby jej nie znało. Nie da się oblać — „wszystko {zgadłem|zgadłam}” jest równie dobrym śladem jak „coś mnie zaskoczyło”.",
+      "trwaly_obiekt": "Przejrzyste oczko wschodnie z kamykiem na dnie i liśćmi lilii; po zauważeniu kwiat.",
+      "cel": "Postaw miskę w zlewie i nalej trochę wody. Włóż po kolei pięć rzeczy z kuchni. Zanim włożysz, powiedz: utonie czy popłynie.",
+      "warianty": {
+        "4-8": {
+          "cel": "Znajdź rzecz, która tonie, i spraw, żeby popłynęła — bez trzymania."
+        }
+      },
+      "minimum": "Jedna rzecz do kubka z wodą i jedno „a jednak",
+      "mentor_powiadomienie": "Zobacz, co {sprawdził|sprawdziła} {imie}. Na oczku w Świecie Ewolucji wypłynęły liście, a woda jest przejrzysta.",
+      "rozmowa": "Które rzeczy pływały, a które utonęły?",
+      "tytul": "Co jest na dnie",
+      "ksztalt": "zauważ",
+      "rodzina": null,
+      "jak": "Miska w zlewie albo umywalka. Nic elektrycznego i nic, co się psuje od wody. Rzeczy: łyżka, korek, nakrętka, kredka, kamyk z butów.",
+      "szept": "A jednak.",
+      "czescA": {
+        "miejsce": "oczko wschodnie",
+        "kotwica": "oczko-wschodnie",
+        "znak": "dno-oczka",
+        "pytanie": "Co z tego pływa?",
+        "opcje": [
+          {
+            "id": "kamyk",
+            "tekst": "Kamyk",
+            "emoji": "🪨"
+          },
+          {
+            "id": "patyk",
+            "tekst": "Patyk",
+            "emoji": "🪵"
+          },
+          {
+            "id": "lisc",
+            "tekst": "Liść",
+            "emoji": "🍃"
+          }
+        ],
+        "przycisk": "Sprawdzę w prawdziwej wodzie"
+      },
+      "most": {
+        "karta": "Coś leży na dnie oczka. Co pływa, a co tonie?",
+        "wyroznienie": "na dnie oczka",
+        "glos": "Na dnie oczka coś błyska, ale woda jest mętna. Nie wiem, co w niej pływa, a co tonie. Sprawdź to w prawdziwej wodzie.",
+        "warianty": {
+          "1-3": {
+            "glos": "Coś leży na dnie oczka. Nie wiem, co pływa, a co tonie. Sprawdź w misce z wodą."
+          }
+        },
+        "przycisk": "Sprawdzę w wodzie",
+        "przyciskOtwarte": "Zostaw otwarte"
+      },
+      "miejsca": [
+        {
+          "id": "kuchnia",
+          "emoji": "🍽",
+          "nazwa": "W kuchni",
+          "opis": "Miska w zlewie, pięć rzeczy z szuflady.",
+          "wszedzie": true
+        },
+        {
+          "id": "lazienka",
+          "emoji": "🚿",
+          "nazwa": "W łazience",
+          "opis": "Umywalka z korkiem: szczoteczka, mydło, gumka do włosów, korek od wanny.",
+          "wszedzie": true
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🏫",
+          "nazwa": "W świetlicy",
+          "opis": "Kubek wody i drobiazgi z piórnika: gumka, temperówka, spinacz.",
+          "wszedzie": true
+        },
+        {
+          "id": "kaluza",
+          "emoji": "🌧",
+          "nazwa": "Na dworze po deszczu",
+          "opis": "Kałuża, patyki i kamyki, z dorosłym w zasięgu wzroku; nie nad rzeką ani stawem.",
+          "wszedzie": false
+        }
+      ],
+      "slad": {
+        "opcje": [
+          "zgadnięte",
+          "Coś, co miało utonąć, pływało",
+          "Coś, co miało pływać, utonęło"
+        ],
+        "obrazki": [
+          "kamyk-na-wodzie",
+          "patyk-na-dnie",
+          "zgadniete"
+        ],
+        "zdanie": true,
+        "pytanieZdania": "Co pływało, choć nie powinno?",
+        "zdjecie": false,
+        "podpowiedz": "Sama miska. Bez ludzi."
+      },
+      "reakcja": {
+        "metoda": "ustawOczko",
+        "args": [
+          {
+            "przejrzyste": true,
+            "lilie": 3,
+            "kwiat": false
+          }
+        ],
+        "opis": "woda przejrzysta, kamyk na dnie, trzy liście lilii",
+        "toast": {
+          "tytul": "Woda jest przejrzysta",
+          "opis": "Na dnie leży kamyk, na wodzie liście."
+        },
+        "istnieje": false
+      },
+      "reakcjaMentor": {
+        "metoda": "ustawOczko",
+        "args": [
+          {
+            "przejrzyste": true,
+            "lilie": 3,
+            "kwiat": true
+          }
+        ],
+        "opis": "jedna lilia zakwita (biały kwiat na liściu)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Na jednym liściu otworzył się kwiat."
+        },
+        "istnieje": false
+      },
+      "miejsce_reakcji": "na oczku",
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "most",
+          "wariant": "4-8",
+          "tekst": "Na dnie oczka coś błyska, ale woda jest mętna. Nie wiem, co w niej pływa, a co tonie. Sprawdź to w prawdziwej wodzie.",
+          "tekstEkranu": "Coś leży na dnie oczka. Co pływa, a co tonie?"
+        },
+        {
+          "glos": "wizkor",
+          "moment": "most",
+          "wariant": "1-3",
+          "tekst": "Coś leży na dnie oczka. Nie wiem, co pływa, a co tonie. Sprawdź w misce z wodą.",
+          "tekstEkranu": "Coś leży na dnie oczka. Co pływa, a co tonie?"
+        },
+        {
+          "glos": "wizkor",
+          "moment": "przypomnienie",
+          "wariant": "oba",
+          "tekst": "Woda w oczku dalej jest mętna. Miska, woda i pięć rzeczy z kuchni czekają u ciebie, nie tu.",
+          "tekstEkranu": "Oczko dalej mętne. Miska z wodą — u ciebie w kuchni."
+        },
+        {
+          "glos": "lisek",
+          "moment": "zaproszenie",
+          "wariant": "oba",
+          "tekst": "Ja bym wrzucił patyk.\nSprawdzisz w kuchni, co pływa?",
+          "tekstEkranu": "Ja bym wrzucił patyk.\nSprawdzisz w kuchni, co pływa?"
+        },
+        {
+          "glos": "narratorka",
+          "moment": "slad",
+          "wariant": "oba",
+          "tekst": "Woda w oczku jest dziś przejrzysta.\nNa dnie leży kamyk, na wodzie liście.",
+          "tekstEkranu": "Woda w oczku jest dziś przejrzysta.\nNa dnie leży kamyk, na wodzie liście."
+        },
+        {
+          "glos": "narratorka",
+          "moment": "slad",
+          "wariant": "1-3",
+          "tekst": "Woda w oczku jest czysta.\nWidać dno.",
+          "tekstEkranu": "Woda w oczku jest czysta.\nWidać dno."
+        },
+        {
+          "glos": "narratorka",
+          "moment": "zauwazone",
+          "wariant": "oba",
+          "tekst": "Na jednym liściu otworzył się kwiat.\nBiały, tuż nad kamykiem.",
+          "tekstEkranu": "Na jednym liściu otworzył się kwiat.\nBiały, tuż nad kamykiem."
+        },
+        {
+          "glos": "wizkor",
+          "moment": "zauwazone",
+          "wariant": "oba",
+          "tekst": "Mentor to {zobaczył|zobaczyła}. Na oczku zakwitła lilia.",
+          "tekstEkranu": "Mentor to {zobaczył|zobaczyła}. Na oczku zakwitła lilia."
+        }
+      ]
+    },
+    {
+      "id": "lawka-dla-goscia",
+      "aktywna": false,
+      "profil_pierwszy": "EM",
+      "os": "wspolpraca",
+      "cecha": "wspolpraca",
+      "potrzeba": "troska",
+      "etap": "oba",
+      "nagroda": 25,
+      "minuty": 15,
+      "competency_focus": [
+        "EM"
+      ],
+      "bezpieczenstwo": "bez gorących napojów; bez wchodzenia do cudzego pokoju i bez ruszania cudzych rzeczy; nic do kupienia. Zdjęcie: przygotowane miejsce, bez ludzi.",
+      "dlaczego_to_dziala": "Kształt EM to odpowiadanie na czyjąś potrzebę z kimś albo dla kogoś, bez sceny (`03` §6.1). Troska o rzecz i miejsce, nie praca emocjonalna: nikt nie musi się ucieszyć ani zauważyć, a ślad jest o tym, co zostawiono. Niespodzianka (4–8: „nie mów, że to ty — niech sam zgadnie”) zamienia „bądź miły” w grę, którą da się wygrać samemu. Świat odpowiada rzeczą na ławce — dokładnie tą, którą dziecko wybrało na ekranie, ale dopiero po prawdziwym geście.",
+      "trwaly_obiekt": "Ławka z rzeczą na pomoście; po zauważeniu królik na ławce (zostaje).",
+      "cel": "Przygotuj miejsce dla kogoś, kto dziś przyjdzie albo wróci: odsuń krzesło, połóż poduszkę, postaw kubek. Nic nie mów — niech sam znajdzie.",
+      "warianty": {
+        "4-8": {
+          "cel": "Przygotuj miejsce dla kogoś, kto dopiero przyjdzie, i zostaw jeden znak, że ktoś na niego czekał — ale bez kartki i bez podpisu. Nie mów, że to ty — niech sam zgadnie."
+        }
+      },
+      "minimum": "Jedno odsunięte krzesło dla kogoś, kto dziś jeszcze wróci — albo dla siebie po powrocie ze świetlicy czy ze spaceru — i tak się liczy.",
+      "mentor_powiadomienie": "Zobacz, co {przygotował|przygotowała} {imie}. Na pomoście w Świecie Ewolucji ktoś ma już gdzie usiąść.",
+      "rozmowa": "Dla kogo było to miejsce i co na nim czekało?",
+      "tytul": "Ławka dla gościa",
+      "ksztalt": "podaruj",
+      "rodzina": "lawka",
+      "jak": "Bez gorących napojów. Bez wchodzenia do cudzego pokoju i bez ruszania cudzych rzeczy.",
+      "szept": "Bez podpisu.",
+      "czescA": {
+        "miejsce": "pomost — ławka dla dwojga",
+        "kotwica": "pomost",
+        "znak": "lawka",
+        "pytanie": "Co zostawić gościowi na ławce?",
+        "opcje": [
+          {
+            "id": "poduszka",
+            "tekst": "Poduszkę",
+            "emoji": "🛋"
+          },
+          {
+            "id": "kubek",
+            "tekst": "Kubek",
+            "emoji": "☕"
+          },
+          {
+            "id": "koc",
+            "tekst": "Koc",
+            "emoji": "🧣"
+          }
+        ],
+        "przycisk": "Przygotuję prawdziwe miejsce"
+      },
+      "most": {
+        "karta": "Na pomoście stoi ławka dla dwojga. Nikt na niej nie usiadł.",
+        "wyroznienie": "dla dwojga",
+        "glos": "Na pomoście stoi ławka dla dwojga, ale gościa nie wyczaruję. Przygotuj komuś prawdziwe miejsce — tak, żeby sam je znalazł.",
+        "warianty": {
+          "1-3": {
+            "glos": "Na pomoście stoi ławka dla dwojga. Nikt na niej nie usiadł. Przygotuj komuś prawdziwe miejsce."
+          }
+        },
+        "przycisk": "Przygotuję miejsce",
+        "przyciskOtwarte": "Zostaw otwarte"
+      },
+      "miejsca": [
+        {
+          "id": "dom",
+          "emoji": "🏠",
+          "nazwa": "W domu",
+          "opis": "Dla kogoś, kto wraca z pracy albo ze szkoły: krzesło, poduszka, kubek przy jego miejscu.",
+          "wszedzie": true
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🏫",
+          "nazwa": "W świetlicy",
+          "opis": "Dla kogoś, kto przyjdzie po lekcjach: wolne miejsce przy stole i coś, co lubi mieć pod ręką.",
+          "wszedzie": true
+        },
+        {
+          "id": "klasa",
+          "emoji": "🎒",
+          "nazwa": "W klasie",
+          "opis": "Dla kogoś, kto wraca od lekarza albo z sali: odsunięte krzesło, bez ruszania jego rzeczy.",
+          "wszedzie": true
+        },
+        {
+          "id": "powrot",
+          "emoji": "🧦",
+          "nazwa": "Dla siebie po powrocie",
+          "opis": "Zanim wyjdziesz do świetlicy albo na spacer, przygotuj własne miejsce na powrót: kapcie, kubek, krzesło — ty po powrocie to też gość.",
+          "wszedzie": true
+        }
+      ],
+      "slad": {
+        "opcje": [
+          "Poduszka albo koc",
+          "Kubek albo coś do jedzenia",
+          "Coś innego"
+        ],
+        "obrazki": [
+          "poduszka",
+          "kubek",
+          "krzeslo"
+        ],
+        "zdanie": true,
+        "pytanieZdania": "Co czekało na tym miejscu?",
+        "zdjecie": false,
+        "podpowiedz": "Samo miejsce. Bez ludzi."
+      },
+      "reakcja": {
+        "metoda": "ustawLawke",
+        "args": [
+          {
+            "rzecz": "{wyborA}",
+            "krolik": false
+          }
+        ],
+        "opis": "na ławce rzecz wybrana w części A",
+        "toast": {
+          "tytul": "Ktoś ma gdzie usiąść",
+          "opis": "Na ławce na pomoście jest już {rzecz}."
+        },
+        "istnieje": false
+      },
+      "reakcjaMentor": {
+        "metoda": "ustawLawke",
+        "args": [
+          {
+            "rzecz": "{wyborA}",
+            "krolik": true
+          }
+        ],
+        "opis": "na ławce siada królik (kroliczek.glb), bez światła",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Na ławce siedzi królik."
+        },
+        "istnieje": false
+      },
+      "miejsce_reakcji": "na pomoście",
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "most",
+          "wariant": "4-8",
+          "tekst": "Na pomoście stoi ławka dla dwojga, ale gościa nie wyczaruję. Przygotuj komuś prawdziwe miejsce — tak, żeby sam je znalazł.",
+          "tekstEkranu": "Na pomoście stoi ławka dla dwojga. Nikt na niej nie usiadł."
+        },
+        {
+          "glos": "wizkor",
+          "moment": "most",
+          "wariant": "1-3",
+          "tekst": "Na pomoście stoi ławka dla dwojga. Nikt na niej nie usiadł. Przygotuj komuś prawdziwe miejsce.",
+          "tekstEkranu": "Na pomoście stoi ławka dla dwojga. Nikt na niej nie usiadł."
+        },
+        {
+          "glos": "wizkor",
+          "moment": "przypomnienie",
+          "wariant": "oba",
+          "tekst": "Na ławce nadal nikt nie usiadł. Miejsce dla kogoś przygotuj u siebie — tam, gdzie ktoś naprawdę przyjdzie.",
+          "tekstEkranu": "Ławka na pomoście dalej pusta. Czyjeś miejsce — u ciebie."
+        },
+        {
+          "glos": "lisek",
+          "moment": "zaproszenie",
+          "wariant": "oba",
+          "tekst": "Ja siedzę z brzegu.\nZrobisz komuś miejsce, żeby sam je znalazł?",
+          "tekstEkranu": "Ja siedzę z brzegu.\nZrobisz komuś miejsce, żeby sam je znalazł?"
+        },
+        {
+          "glos": "narratorka",
+          "moment": "slad",
+          "wariant": "oba",
+          "tekst": "Na ławce na pomoście jest już {rzecz}.\nDrugie miejsce jest wolne — dla kogoś.",
+          "tekstEkranu": "Na ławce na pomoście jest już {rzecz}.\nDrugie miejsce jest wolne — dla kogoś."
+        },
+        {
+          "glos": "narratorka",
+          "moment": "slad",
+          "wariant": "1-3",
+          "tekst": "Na ławce jest {rzecz}.\nDla gościa.",
+          "tekstEkranu": "Na ławce jest {rzecz}.\nDla gościa."
+        },
+        {
+          "glos": "narratorka",
+          "moment": "zauwazone",
+          "wariant": "oba",
+          "tekst": "Na ławce siedzi królik.\nPrzyszedł, kiedy miejsce było gotowe.",
+          "tekstEkranu": "Na ławce siedzi królik.\nPrzyszedł, kiedy miejsce było gotowe."
+        },
+        {
+          "glos": "wizkor",
+          "moment": "zauwazone",
+          "wariant": "oba",
+          "tekst": "Mentor to {zobaczył|zobaczyła}. Na ławce ktoś usiadł.",
+          "tekstEkranu": "Mentor to {zobaczył|zobaczyła}. Na ławce ktoś usiadł."
+        }
+      ]
+    },
+    {
+      "id": "ramka-w-domku",
+      "aktywna": false,
+      "profil_pierwszy": "KR",
+      "os": "tworzenie",
+      "cecha": "tworzenie",
+      "potrzeba": "sprawczosc",
+      "etap": "oba",
+      "nagroda": 25,
+      "minuty": 15,
+      "competency_focus": [
+        "KR"
+      ],
+      "bezpieczenstwo": "nożyczki tylko do papieru i tylko, jeśli dziecko używa ich na co dzień; zdjęcie wyłącznie samej pracy — bez twarzy, bez okna, bez numeru domu, bez ludzi w tle (podpowiedź przy aparacie). Rysunek z ludźmi zostaje w domu; w ramce wtedy symbol.",
+      "dlaczego_to_dziala": "Kształt KR to brak do wypełnienia rękami, bez jednej dobrej odpowiedzi (`03` §6.1). Sprawczość: to, co powstanie na kartce, naprawdę zawiśnie w miejscu, które dziecko samo zbudowało, a wybór symbolu jest jego decyzją, nie oceną dorosłego. Ograniczenie w wariancie 4–8 (jedna rzecz z okna, jedna, której nie ma) zdejmuje presję „narysuj ładnie”.",
+      "trwaly_obiekt": "Ramka z symbolem (albo zdjęciem) na barierce pomostu; od etapu 2 na ścianie domku; mała ramka z łapką po zauważeniu.",
+      "cel": "Narysuj to, co lisek ma widzieć z pomostu na drzewie.",
+      "warianty": {
+        "4-8": {
+          "cel": "Zrób obraz do ramki z jednym warunkiem: ma być na nim jedna rzecz, którą widzisz z domu albo po drodze, i jedna, której na planecie nie ma.",
+          "rozmowa": "Co na tym obrazku jest z twojego okna albo z drogi, a czego nie ma nigdzie?"
+        },
+        "1-3": {
+          "rozmowa": "Co lisek ma widzieć na tym obrazku?"
+        }
+      },
+      "minimum": "Jeden kształt na kartce — albo sam wybór symbolu w ramce — i tak się liczy.",
+      "mentor_powiadomienie": "Zobacz, co {narysował|narysowała} {imie}. Na pomoście w Świecie Ewolucji wisi teraz {symbol}.",
+      "rozmowa": "Co na tym obrazku jest z twojego okna albo z drogi, a czego nie ma nigdzie?",
+      "tytul": "Ramka w domku",
+      "ksztalt": "zrób",
+      "rodzina": null,
+      "jak": "Kartka i cokolwiek do rysowania — długopis wystarczy. Nożyczki tylko do papieru i tylko, jeśli używasz ich na co dzień.",
+      "szept": "Jedna z okna.",
+      "czescA": {
+        "miejsce": "barierka pomostu — pusta ramka",
+        "kotwica": "pomost",
+        "znak": "ramka",
+        "pytanie": "Co lisek ma widzieć z pomostu?",
+        "opcje": [
+          {
+            "id": "drzewo",
+            "tekst": "Drzewo",
+            "emoji": "🌳"
+          },
+          {
+            "id": "woda",
+            "tekst": "Wodę",
+            "emoji": "💧"
+          },
+          {
+            "id": "niebo",
+            "tekst": "Niebo",
+            "emoji": "🌤"
+          }
+        ],
+        "przycisk": "Idę rysować"
+      },
+      "most": {
+        "karta": "Na pomoście wisi pusta ramka. Obrazu nie wyczaruję.",
+        "wyroznienie": "pusta ramka",
+        "glos": "Na pomoście zawisła ramka, a w niej nic. Ramkę powiesiłem, obrazu nie wyczaruję. Narysuj, co lisek ma widzieć z pomostu.",
+        "warianty": {
+          "1-3": {
+            "glos": "Na pomoście wisi pusta ramka. Obrazu nie wyczaruję. Narysuj, co lisek ma widzieć z pomostu."
+          }
+        },
+        "przycisk": "Idę rysować",
+        "przyciskOtwarte": "Zostaw otwarte"
+      },
+      "miejsca": [
+        {
+          "id": "stol",
+          "emoji": "✏️",
+          "nazwa": "Przy stole",
+          "opis": "Kartka z zeszytu i ołówek; nic więcej nie trzeba.",
+          "wszedzie": true
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🏫",
+          "nazwa": "W świetlicy",
+          "opis": "Kartka i kredki ze świetlicy, na przerwie albo po lekcjach.",
+          "wszedzie": true
+        },
+        {
+          "id": "kolano",
+          "emoji": "🚌",
+          "nazwa": "W autobusie albo w łóżku",
+          "opis": "Zeszyt na kolanie i długopis.",
+          "wszedzie": true
+        },
+        {
+          "id": "bez-kartki",
+          "emoji": "🧩",
+          "nazwa": "Bez kartki",
+          "opis": "Ułóż obraz z trzech rzeczy na stole, zapamiętaj go i wybierz w ramce symbol, który do niego pasuje.",
+          "wszedzie": true
+        }
+      ],
+      "slad": {
+        "symbole": [
+          "lisc",
+          "gwiazda",
+          "slonce",
+          "fala",
+          "lapka",
+          "spirala"
+        ],
+        "opcje": [
+          "Liść",
+          "Gwiazda",
+          "Słońce",
+          "Fala",
+          "Łapka",
+          "Spirala"
+        ],
+        "obrazki": [
+          "lisc",
+          "gwiazda",
+          "slonce",
+          "fala",
+          "lapka",
+          "spirala"
+        ],
+        "zdanie": true,
+        "pytanieZdania": "Co jest na obrazku?",
+        "zdanieTylko": "4-8",
+        "zdjecie": false,
+        "podpowiedz": "Sam rysunek. Bez twarzy, bez okna, bez numeru domu."
+      },
+      "reakcja": {
+        "metoda": "ustawRamke",
+        "args": [
+          {
+            "symbol": "{slad}",
+            "tlo": "{wyborA}"
+          }
+        ],
+        "opis": "wybrany symbol w ramce na tle z części A",
+        "toast": {
+          "tytul": "W ramce wisi obraz",
+          "opis": "W ramce na pomoście wisi już obraz."
+        },
+        "istnieje": false
+      },
+      "reakcjaMentor": {
+        "metoda": "ustawRamke",
+        "args": [
+          {
+            "symbol": "{slad}",
+            "tlo": "{wyborA}",
+            "mala": true
+          }
+        ],
+        "opis": "druga, mniejsza ramka z łapką liska; zdjęcie tylko po „Pokaż w domku” (W7)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Obok dużej ramki zawisła mała."
+        },
+        "istnieje": false
+      },
+      "miejsce_reakcji": "na pomoście",
+      "rozmowa_minimum": "Dlaczego akurat {symbol}?",
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "most",
+          "wariant": "4-8",
+          "tekst": "Na pomoście zawisła ramka, a w niej nic. Ramkę powiesiłem, obrazu nie wyczaruję. Narysuj, co lisek ma widzieć z pomostu.",
+          "tekstEkranu": "Na pomoście wisi pusta ramka. Obrazu nie wyczaruję."
+        },
+        {
+          "glos": "wizkor",
+          "moment": "most",
+          "wariant": "1-3",
+          "tekst": "Na pomoście wisi pusta ramka. Obrazu nie wyczaruję. Narysuj, co lisek ma widzieć z pomostu.",
+          "tekstEkranu": "Na pomoście wisi pusta ramka. Obrazu nie wyczaruję."
+        },
+        {
+          "glos": "wizkor",
+          "moment": "przypomnienie",
+          "wariant": "oba",
+          "tekst": "W ramce na pomoście dalej nic nie ma. Obraz powstaje u ciebie, na kartce — tu tylko zawiśnie.",
+          "tekstEkranu": "Ramka dalej pusta. Kartka i kredka — u ciebie."
+        },
+        {
+          "glos": "lisek",
+          "moment": "zaproszenie",
+          "wariant": "oba",
+          "tekst": "Ja bym chciał tu widok z twojego okna.\nNarysujesz?",
+          "tekstEkranu": "Ja bym chciał tu widok z twojego okna.\nNarysujesz?"
+        },
+        {
+          "glos": "narratorka",
+          "moment": "slad",
+          "wariant": "oba",
+          "tekst": "W ramce na pomoście wisi już obraz.\nLisek ogląda go, kiedy nikt nie patrzy.",
+          "tekstEkranu": "W ramce na pomoście wisi już obraz.\nLisek ogląda go, kiedy nikt nie patrzy."
+        },
+        {
+          "glos": "narratorka",
+          "moment": "slad",
+          "wariant": "1-3",
+          "tekst": "W ramce jest obraz.\nTwój.",
+          "tekstEkranu": "W ramce jest obraz.\nTwój."
+        },
+        {
+          "glos": "narratorka",
+          "moment": "zauwazone",
+          "wariant": "oba",
+          "tekst": "Obok dużej ramki zawisła mała.\nW niej łapka — lisek też coś powiesił.",
+          "tekstEkranu": "Obok dużej ramki zawisła mała.\nW niej łapka — lisek też coś powiesił."
+        },
+        {
+          "glos": "narratorka",
+          "moment": "pokazWDomku",
+          "wariant": "oba",
+          "tekst": "W ramce wisi teraz twój rysunek.\nWidać go z całej polany.",
+          "tekstEkranu": "W ramce wisi teraz twój rysunek.\nWidać go z całej polany."
+        },
+        {
+          "glos": "wizkor",
+          "moment": "zauwazone",
+          "wariant": "oba",
+          "tekst": "Mentor to {zobaczył|zobaczyła}. Obok wisi druga ramka.",
+          "tekstEkranu": "Mentor to {zobaczył|zobaczyła}. Obok wisi druga ramka."
+        }
+      ]
+    }
+  ]
+}

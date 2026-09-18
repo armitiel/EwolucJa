@@ -80,6 +80,26 @@ import {
   ZDARZENIE_ZMIANY as ZDARZENIE_ZADANIA_WIZKORA,
   ZADANIA as ZADANIA_WIZKORA,
 } from "../hub/zadanieWizkora.js";
+/* HYBRYDA (docs/tresci/05, część wspólna W1–W6): pół w świecie, pół na
+   podłodze w domu. Stan w `hub/hybryda.js`, panel w `panels/HybrydaPanel.jsx`. */
+import HybrydaPanel from "../hub/panels/HybrydaPanel.jsx";
+import {
+  idz as idzHybryda,
+  kwestiaHybrydy,
+  mozliwaHybryda,
+  odtworzHybrydeWScenie,
+  oznaczPrzypomnienie as oznaczPrzypomnienieHybrydy,
+  oznaczZauwazoneObejrzane,
+  reakcjaPoZauwazeniu,
+  rozpocznij as rozpocznijHybryde,
+  skasujHybryde,
+  sprawdzMentoraWTle as sprawdzMentoraHybrydyWTle,
+  stanHybrydy,
+  wybierzA as wybierzAHybrydy,
+  zauwazDev as zauwazHybrydeDev,
+  zostawSladDev as zostawSladHybrydyDev,
+  ZDARZENIE_ZMIANY as ZDARZENIE_HYBRYDY,
+} from "../hub/hybryda.js";
 import { poziomDomyslny, poziomyGry } from "../hub/poziomyGier.js";
 import {
   aktywneZbieranie,
@@ -241,6 +261,17 @@ const CHMURKA_DREWNO = [
   { src: IKONA_SIEKIERY_3D, opis: "siekiera" },
 ];
 const CHMURKA_GWIAZDKI = [{ src: "/star.png", opis: "gwiazdka" }];
+/* Kadr kamery po reakcji hybrydy (`reakcja.kadr`: `{ metoda, args }` z danych,
+   np. `pokazKamien(2)`); bez kadru — `pokazMiejsce` (domek). */
+function pokazKadrHybrydy(kadr) {
+  const sc = globalThis.__SCENA;
+  if (!sc) return;
+  try {
+    const fn = kadr?.metoda ? sc[kadr.metoda] : null;
+    if (typeof fn === "function") fn(...(kadr.args || []));
+    else sc.pokazMiejsce?.();
+  } catch {}
+}
 /* LUPA = „szukaj". Druga ikona mówi CZEGO. Ta para wraca wszędzie tam, gdzie
    zadanie polega na znalezieniu czegoś na mapie — dzięki temu dziecko uczy
    się jednego znaku zamiast osobnego rebusu do każdej misji. */
@@ -633,6 +664,10 @@ export default function Swiat() {
   // biegnąc gdzie indziej, a wejście w grę wyrywa z biegu na dłużej niż
   // rozmowa. Do czarodzieja podchodzi się po coś.
   const [zaproszenie, setZaproszenie] = useState(null);
+  /* LISEK PRZY OBIEKCIE CZĘŚCI A (hybryda): chmurka zaproszenia „razem",
+     raz na sesję, gdy lisek dotknie pierwszego kamienia. */
+  const [lisekHybryda, setLisekHybryda] = useState(null);
+  const lisekHybrydaPokazany = useRef(false);
   /**
    * Układanka na ekranie: `null` albo id gry, której puzzle właśnie się
    * układa. Osobno od `zaproszenie` — układanka wchodzi też z biblioteki gier.
@@ -1011,7 +1046,11 @@ export default function Swiat() {
       setRealHud(stanZadaniaWizkora());
     };
     window.addEventListener(ZDARZENIE_ZADANIA_WIZKORA, odswiez);
-    return () => window.removeEventListener(ZDARZENIE_ZADANIA_WIZKORA, odswiez);
+    window.addEventListener(ZDARZENIE_HYBRYDY, odswiez);
+    return () => {
+      window.removeEventListener(ZDARZENIE_ZADANIA_WIZKORA, odswiez);
+      window.removeEventListener(ZDARZENIE_HYBRYDY, odswiez);
+    };
   }, [przeliczNieprzeczytane]);
 
   /**
@@ -1036,7 +1075,10 @@ export default function Swiat() {
    * pierwszą linijką, a zapytania do sieci i tak pilnuje dławik.
    */
   useEffect(() => {
-    const zapytaj = () => { sprawdzMentoraWTle().catch(() => {}); };
+    const zapytaj = () => {
+      sprawdzMentoraWTle().catch(() => {});
+      sprawdzMentoraHybrydyWTle().catch(() => {});   // hybryda: ten sam dławik, osobny zapis
+    };
     zapytaj();
     const naWidocznosc = () => { if (!document.hidden) zapytaj(); };
     document.addEventListener("visibilitychange", naWidocznosc);
@@ -1267,11 +1309,11 @@ export default function Swiat() {
     // zaproszenia już trwa, blokada ma zostać wciśnięta, choć żadne okno
     // jeszcze nie stoi na ekranie.
     rozmowaRef.current =
-      !!powitanie || !!zaproszenie || !!nagroda || wskazowkaBlokuje
+      !!powitanie || !!zaproszenie || !!nagroda || wskazowkaBlokuje || !!lisekHybryda
       || !!zegarZaproszeniaRef.current || !!zaproszeniePoNagrodzieRef.current
       || !!graPoNagrodzieRef.current;
-    if (powitanie || zaproszenie || nagroda || wskazowkaBlokuje) fx.krokiStop();
-  }, [powitanie, zaproszenie, nagroda, wskazowkaBlokuje]);
+    if (powitanie || zaproszenie || nagroda || wskazowkaBlokuje || lisekHybryda) fx.krokiStop();
+  }, [powitanie, zaproszenie, nagroda, wskazowkaBlokuje, lisekHybryda]);
 
   // Wyjście ze świata w trakcie odliczania: bez tego okno wskoczyłoby na
   // ekranie, którego już nie ma, i React zapłakałby o `setState` po
@@ -1435,6 +1477,29 @@ export default function Swiat() {
       setPasekMisji(true);
     }, 1100);
   }, [pokazKomunikat]);
+
+  /**
+   * TROP HYBRYDY (05 §5, §7.1): zaraz po „Budujemy!" obiekt części A wchodzi
+   * do świata (pierwszy kamień pod drabinką + znacznik braku), Wizkor
+   * jednym zdaniem zaprasza do spojrzenia, a pasek prowadzi do jego
+   * kwestii mostu — tym samym torem, co każda kolejna misja. Po zachodzie
+   * hybryda czeka do następnego dnia (otworzy ją Wizkor przy podejściu).
+   */
+  const zapowiedzHybrydy = useCallback((karta) => {
+    if (!karta) return;
+    window.clearTimeout(zapowiedzTimer.current);
+    zapowiedzTimer.current = window.setTimeout(() => {
+      /* Dopiero teraz, nie w chwili „Budujemy!": scena musi już mieć pomost
+         (`ustawSchronienie` idzie z efektu), bo droga z kamieni liczy się od
+         stopy drabinki. */
+      rozpocznijHybryde(karta.id);
+      powiedzPostacia(
+        "Domek stoi. A pod drabinką coś już leży — spójrz.",
+        { glos: "las_decyzji", ton: "mystery" }
+      );
+      setPasekMisji(true);
+    }, 1400);
+  }, []);
 
   /** Pasek się wypełnił — Wizkor wychodzi z kolejnym zadaniem. */
   const naKoniecPaskaMisji = useCallback(() => {
@@ -1683,6 +1748,25 @@ export default function Swiat() {
    */
   const naPrzyciskCzarodzieja = useCallback(() => {
     const akcja = powitanie?.akcja;
+    // Przypomnienie hybrydy liczy się raz dziennie — potem Wizkor mówi o grach.
+    if (powitanie?.hybrydaPrzypomnienie) oznaczPrzypomnienieHybrydy();
+    if (typeof akcja === "string" && akcja.startsWith("hybryda:otworz:")) {
+      /* Hybryda otwarta z rozmowy (następny dzień po domku): obiekt części A
+         wchodzi do świata, a szuflada Zadań pokazuje pytanie z trzema kaflami. */
+      rozpocznijHybryde(akcja.slice("hybryda:otworz:".length));
+      setPowitanie(null);
+      otworz("zadanie");
+      return;
+    }
+    if (akcja === "hybryda:zobacz") {
+      // Mentor zauważył: narratorka o dodatku, kamera na ostatni kamień. Raz.
+      const r = reakcjaPoZauwazeniu();
+      oznaczZauwazoneObejrzane();
+      setPowitanie(null);
+      if (r?.tekst) powiedzPostacia(r.tekst, { glos: "gora_podsumowania", ton: "calm" });
+      window.setTimeout(() => pokazKadrHybrydy(r?.kadr), 500);
+      return;
+    }
     if (akcja === "start") {
       setZadanie(rozpocznijZadanie(CEL_DOMYSLNY));
       rozstanie();
@@ -1750,6 +1834,9 @@ export default function Swiat() {
         ikona: IKONA_STOSU,
         opis: "Na drzewie stanął domek z drabinką",
       });
+      /* Hybryda wchodzi minutę po pomoście — ale nie po zachodzie
+         (wtedy następnego dnia, 05 §5). Bez karty dla profilu: Koło jak dotąd. */
+      if (!zachodZapowiedziany.current && !planetaSpiRef.current) zapowiedzHybrydy(mozliwaHybryda());
       return;
     }
     if (akcja === "nagroda") {
@@ -1830,7 +1917,7 @@ export default function Swiat() {
       return;
     }
     rozstanie();
-  }, [powitanie, rozstanie, pokazKomunikat, pokazChmurke, odswiezZnakiMisji, odswiezPuzleNaMapie, otworz, przeliczNieprzeczytane, mrugnijZadania]);
+  }, [powitanie, rozstanie, pokazKomunikat, pokazChmurke, odswiezZnakiMisji, odswiezPuzleNaMapie, otworz, przeliczNieprzeczytane, mrugnijZadania, zapowiedzHybrydy]);
 
   // Uchwyt do konsoli — czekanie na dziesięć gwiazdek przy każdym sprawdzeniu
   // licznika byłoby nie do zniesienia:
@@ -2235,6 +2322,53 @@ export default function Swiat() {
         },
       },
       {
+        grupa: "Hybryda",
+        etykieta: "Hybryda: trop (zapisuje!)",
+        /* Otwiera pierwszą hybrydę profilu (albo pierwszą aktywną): pierwszy
+           kamień pod drabinką, znacznik braku, kwestia mostu Wizkora. Domek
+           musi stać — inaczej nie ma drabinki, od której liczy się droga. */
+        odpal: () => {
+          const karta = mozliwaHybryda() || null;
+          if (!karta) { pokazKomunikat("DEV: brak karty hybrydy (domek? profil? tydzień?)"); return; }
+          rozpocznijHybryde(karta.id);
+          setPowitanie(powitanieCzarodzieja(stanZadania(), aktualnaMisja()));
+        },
+      },
+      {
+        grupa: "Hybryda",
+        etykieta: "Hybryda: ślad (lokalnie)",
+        odpal: () => {
+          const h = stanHybrydy();
+          if (!h.istnieje) { pokazKomunikat("DEV: najpierw „Hybryda: trop”"); return; }
+          if (h.trop) wybierzAHybrydy(h.def?.czescA?.opcje?.[0]?.id);
+          if (h.trop || h.czescA) idzHybryda();
+          zostawSladHybrydyDev({ opcja: 0, zdanie: "DEV: ślad z pulpitu" }).then(() => {
+            pokazKomunikat("DEV: ślad hybrydy — świat zareagował");
+            window.setTimeout(() => pokazKadrHybrydy(stanHybrydy().def?.reakcja?.kadr), 400);
+          });
+        },
+      },
+      {
+        grupa: "Hybryda",
+        etykieta: "Hybryda: zauważone (demo)",
+        odpal: () => {
+          const h = stanHybrydy();
+          if (!h.slad) { pokazKomunikat("DEV: najpierw „Hybryda: ślad”"); return; }
+          zauwazHybrydeDev();
+          setPowitanie(powitanieCzarodzieja(stanZadania(), aktualnaMisja()));
+        },
+      },
+      {
+        grupa: "Hybryda",
+        etykieta: "Hybryda: wyczyść (z historią)",
+        /* Kamienie w scenie zostają do przeładowania — dziennik śladów
+           (`wyczyscSlady`) to osobny przycisk „Reset świata". */
+        odpal: () => {
+          skasujHybryde({ historia: true });
+          pokazKomunikat("DEV: hybryda skasowana (kamienie znikną po przeładowaniu)");
+        },
+      },
+      {
         grupa: "Zadanie w realu",
         etykieta: "Koło od zera",
         /* To samo koło, ale po wyczyszczeniu zapisu RAZEM Z HISTORIĄ: losuje
@@ -2398,6 +2532,21 @@ export default function Swiat() {
         return;
       }
 
+      /* PIERWSZY KAMIEŃ DOTKNIĘTY (hybryda, część A): lisek zaprasza raz na
+         sesję, tylko dopóki zakład nie poszedł w „czeka" — potem kamień jest
+         zwykłym kamieniem. Nie nad rozmową, nie nad panelem, nie w nocy. */
+      if (nazwa === "hybryda:obiekt-dotkniety") {
+        const h = stanHybrydy();
+        if (!h.istnieje || !(h.trop || h.czescA) || lisekHybrydaPokazany.current) return;
+        if (rozmowaRef.current || planetaSpiRef.current || panel) return;
+        const q = kwestiaHybrydy(h.def, "lisek", "zaproszenie");
+        if (!q) return;
+        lisekHybrydaPokazany.current = true;
+        fx.gentleMagical(0.4);
+        setLisekHybryda({ tekst: q.tekst, wyroznienie: "Bez patrzenia", przycisk: h.def.czescA?.przycisk || "Ułożę swoje" });
+        return;
+      }
+
       if (nazwa === "gotowa") {
         // Znaki wracają SAME, po swoim czasie z definicji (3,2 s). Wcześniej
         // wstrzymywaliśmy powrót do zamknięcia panelu (`ustawPowrotZnaku(…, false)`)
@@ -2428,6 +2577,9 @@ export default function Swiat() {
            sprawa: świat ma pamiętać, co dziecko zrobiło. Bez animacji —
            wejście do świata nie jest chwilą, w której coś rośnie. */
         odtworzSlady(scenaRef.current);
+        /* Znacznik braku hybrydy (W6) — nie jest śladem, więc nie ma go
+           w dzienniku; wraca tu, dopóki hybryda jest otwarta. */
+        odtworzHybrydeWScenie(scenaRef.current);
         setScenaGotowa(true);
         return;
       }
@@ -3195,6 +3347,13 @@ export default function Swiat() {
         wyroznienie={powitanie?.wyroznienie}
         wizualizacja={powitanie?.wizualizacja}
         przycisk={powitanie?.przycisk}
+        /* Drugie wejście do śladu hybrydy, gdy Wizkor mówi już o grach
+           (`kwestieWizkora.zDrugimWejsciemDoHybrydy`). */
+        przyciskDrugi={powitanie?.przyciskDrugi || null}
+        onDrugi={() => {
+          if (powitanie?.akcjaDrugi === "otworzZadanie") { setPowitanie(null); otworz("zadanie"); return; }
+          rozstanie();
+        }}
         glos="las_decyzji"
         ton="mystery"
         onAkcja={naPrzyciskCzarodzieja}
@@ -3203,8 +3362,28 @@ export default function Swiat() {
            więc niech chociaż zobaczy, gdzie ono na nie czeka. */
         onZamknij={() => {
           if (powitanie?.akcja === "otworzZadanie") mrugnijZadania();
+          if (powitanie?.hybrydaPrzypomnienie) oznaczPrzypomnienieHybrydy();
           rozstanie();
         }}
+      />
+
+      {/* LISEK PRZY KAMIENIU (hybryda, część A): chmurka zaproszenia raz na
+          sesję, gdy lisek dotknie obiektu części A. Lisek mówi „razem",
+          nie zleca (01); przycisk otwiera pytanie z trzema kaflami. */}
+      <PopupPostaci
+        otwarty={!!lisekHybryda}
+        wariant="lis"
+        imie="Lisek"
+        obrazek="/lisPop.webp"
+        tekst={lisekHybryda?.tekst || ""}
+        wyroznienie={lisekHybryda?.wyroznienie || ""}
+        przycisk={lisekHybryda?.przycisk || "Ułożę swoje"}
+        przyciskDrugi="Nie teraz"
+        glos="lisek"
+        ton="zabawa"
+        onAkcja={() => { setLisekHybryda(null); otworz("zadanie"); }}
+        onDrugi={() => setLisekHybryda(null)}
+        onZamknij={() => setLisekHybryda(null)}
       />
 
       {/* Zaproszenie do minigry — i zarazem JEJ EKRAN STARTOWY. To samo okno
@@ -3318,9 +3497,18 @@ export default function Swiat() {
         {panel === "profil" ? <ProfilPanel /> : null}
         {panel === "czat" ? <CzatPanel onPowrot={zarejestrujPowrot} /> : null}
         {panel === "porada" ? <PoradaPanel onPowrot={zarejestrujPowrot} /> : null}
-        {panel === "zadanie" ? (
-          <ZadaniePanel onKomunikat={pokazKomunikat} onZamknij={zamknij} onPowrot={zarejestrujPowrot} />
-        ) : null}
+        {panel === "zadanie" ? (<>
+          {/* Hybryda stoi NAD zadaniem z Koła (05 W1): dopóki trwa, jest jedynym
+              zadaniem w realu; zadanie z Koła pokazuje się pod nią tylko, gdy
+              naprawdę istnieje (po hybrydzie), a pusty stan Koła nie dubluje
+              pustki, gdy hybryda ma co pokazać. */}
+          {stanHybrydy().istnieje ? (
+            <HybrydaPanel onKomunikat={pokazKomunikat} onZamknij={zamknij} onPowrot={zarejestrujPowrot} />
+          ) : null}
+          {!stanHybrydy().istnieje || stanZadaniaWizkora().istnieje ? (
+            <ZadaniePanel onKomunikat={pokazKomunikat} onZamknij={zamknij} onPowrot={zarejestrujPowrot} />
+          ) : null}
+        </>) : null}
       </PanelSheet>
 
       {/* Cichy podpis narratorki (noc, powrót): bez pigułki i przycisku —

@@ -26,6 +26,14 @@ import { stanDrewna } from "./zadanieDrewna.js";
 import { stanZadania as stanZadaniaWizkora, zadanieDoZlecenia } from "./zadanieWizkora.js";
 import { celPuzzli, stanPuzzli } from "./puzzleGier.js";
 import { czyRysowalDzis } from "./ramkaDomku.js";
+import {
+  czekaOdWczoraj,
+  kwestiaHybrydy,
+  mozliwaHybryda,
+  przypomnianoDzis,
+  stanHybrydy,
+  zWariantemHybrydy,
+} from "./hybryda.js";
 
 /**
  * Czarodziej na mapie: identyfikator jego znaku w module sceny (`xf`
@@ -126,7 +134,7 @@ export function zWariantem(karta, etap = etapSzkolny()) {
  * „na zewnątrz" (dla siedmiolatka to „na dwór"). Zero terminów, zero liczb.
  * `{miejsce_reakcji}` z karty zadania (v2); bez niego „na polanie".
  */
-export function kwestiaZachodu(realZewn = null) {
+export function kwestiaZachodu(realZewn = null, hybZewn = null) {
   const baza = { imie: "Wizkor", obrazek: "/wizPop.webp" };
   const real = realZewn || stanZadaniaWizkora();
   const miejsce = real.def?.miejsce_reakcji || "na polanie";
@@ -138,8 +146,26 @@ export function kwestiaZachodu(realZewn = null) {
      tu, zanim odłoży urządzenie. Jeśli zadanie w realu czeka, karta wspomina
      o nim jednym zdaniem — nie znika, tylko ustępuje miejsca. Trzy zdania,
      bez cyfr, jak każda kwestia Wizkora w głos (`01` standard). */
+  const hyb = hybZewn || stanHybrydy();
+
+  /* HYBRYDA MD (`swiatlo-w-oknie`): zachód JEST jej mostem — kwestia z karty
+     zamiast wariantu „zadanie czeka" (05 karta 2). Karta nieaktywna do czasu
+     `ustawLampke`, ale gałąź już czeka. */
+  if (hyb.istnieje && hyb.def?.czescA?.zachod && (hyb.trop || hyb.czescA)) {
+    const d = zWariantemHybrydy(hyb.def);
+    const q = kwestiaHybrydy(hyb.def, "wizkor", "most");
+    return {
+      ...baza,
+      tekst: q?.tekst || d.most.glos,
+      tekstEkranu: q?.tekstEkranu || d.most.karta,
+      wyroznienie: d.most.wyroznienie || "",
+      przycisk: hyb.def.czescA?.przycisk || "Otwieram",
+      akcja: "otworzZadanie",
+    };
+  }
+
   if (!czyRysowalDzis() && stanDrewna().zbudowane) {
-    const t = real.doZrobienia ? real.def?.tytul : null;
+    const t = real.doZrobienia ? real.def?.tytul : (hyb.otwarta ? hyb.def?.tytul : null);
     return zWariantem({
       ...baza,
       tekst:
@@ -151,6 +177,26 @@ export function kwestiaZachodu(realZewn = null) {
       akcja: "rysunek",
       warianty: {
         "1-3": { tekst: "Słońce schodzi. Narysuj jedną rzecz z dziś, jedną linią. Powieszę ją w domku." },
+      },
+    });
+  }
+
+  /* HYBRYDA OTWARTA (trop / zakład / „Czeka — u ciebie"): ten sam wariant,
+     co dla zadania z Koła — tytuł w karcie, „u ciebie, nie tu" (02 §3.1,
+     wariant 1). Zadanie z Koła i hybryda nie zachodzą na siebie (05 §1.2). */
+  if (hyb.otwarta && hyb.def) {
+    const t = hyb.def.tytul;
+    return zWariantem({
+      ...baza,
+      tekst:
+        `Słońce schodzi. Tu już nic mi nie trzeba. `
+        + `„${t}" czeka tam, gdzie magia nie sięga — u ciebie w domu.`,
+      tekstEkranu: `Słońce schodzi. „${t}" czeka u ciebie, nie tu.`,
+      wyroznienie: t,
+      przycisk: "Idę",
+      akcja: null,
+      warianty: {
+        "1-3": { tekst: `Słońce schodzi. „${t}" czeka u ciebie, nie tu. Tam, gdzie magia nie sięga.` },
       },
     });
   }
@@ -247,11 +293,94 @@ function zTekstemEkranu(karta) {
   return { ...karta, tekstEkranu: pierwszeZdanie(karta.tekst) || karta.tekst };
 }
 
-export function powitanieCzarodzieja(z, misja, drewnoZewn = null) {
-  return zTekstemEkranu(zWariantem(powitanieCzarodziejaSurowe(z, misja, drewnoZewn)));
+export function powitanieCzarodzieja(z, misja, drewnoZewn = null, hybZewn = null) {
+  return zDrugimWejsciemDoHybrydy(zTekstemEkranu(zWariantem(powitanieCzarodziejaSurowe(z, misja, drewnoZewn, hybZewn))), hybZewn);
 }
 
-function powitanieCzarodziejaSurowe(z, misja, drewnoZewn = null) {
+/**
+ * DRUGIE WEJŚCIE DO ŚLADU. Zakładka Zadania nie stoi dziś w doku, więc do
+ * karty hybrydy prowadzi tylko rozmowa z Wizkorem. Gdy hybryda czeka
+ * u dziecka od wczoraj, Wizkor mówi już o grach (05 §5) — ale okno dostaje
+ * drugi przycisk z tytułem hybrydy, żeby ślad dało się zostawić bez
+ * szukania. Nie dotyka kwestii, które same otwierają zadanie.
+ */
+function zDrugimWejsciemDoHybrydy(karta, hybZewn = null) {
+  if (!karta || karta.akcja === "otworzZadanie" || String(karta.akcja || "").startsWith("hybryda:")) return karta;
+  const h = hybZewn || stanHybrydy();
+  if (!h.istnieje || !h.czeka || !h.def) return karta;
+  return { ...karta, przyciskDrugi: `„${h.def.tytul}” — zostaw ślad`, akcjaDrugi: "otworzZadanie" };
+}
+
+/**
+ * KWESTIE HYBRYDY (dane z `hybrydy.v1.json`, `kwestie[]` z wariantem etapu).
+ * Zwraca `null`, gdy Wizkor ma mówić o czymś innym (gry, Koło).
+ *
+ *   brak hybrydy, ale wolno ją otworzyć → most z karty, przycisk części A,
+ *                                           akcja `hybryda:otworz:<id>`
+ *   trop / zakład postawiony              → most, „otworzZadanie"
+ *   czeka (ten sam dzień)                 → przypomnienie, „otworzZadanie"
+ *   czeka (następny dzień)                → przypomnienie RAZ, potem gry
+ *                                           (05 §5: gra to warstwa ekranowa,
+ *                                           nie drugie zadanie)
+ *   zauważone, nieobejrzane               → „Mentor to zobaczył…", `hybryda:zobacz`
+ *   ślad / obejrzane                      → null (zwykła kwestia stanu)
+ *
+ * `hybZewn` — tylko pulpit testowy (podstawiony stan, bez zapisu dziecka).
+ */
+function kwestiaHybrydyWizkora(baza, hybZewn = null) {
+  const h = hybZewn || stanHybrydy();
+  const etap = etapSzkolny();
+  const most = (def, przycisk, akcja) => {
+    const d = zWariantemHybrydy(def, etap);
+    const q = kwestiaHybrydy(def, "wizkor", "most", etap);
+    return {
+      ...baza,
+      tekst: q?.tekst || d.most.glos,
+      tekstEkranu: q?.tekstEkranu || d.most.karta,
+      wyroznienie: d.most.wyroznienie || "",
+      przycisk,
+      akcja,
+    };
+  };
+  if (!h.istnieje) {
+    const karta = hybZewn ? null : mozliwaHybryda();
+    if (!karta) return null;
+    return most(karta, karta.czescA?.przycisk || "Spójrz", `hybryda:otworz:${karta.id}`);
+  }
+  const def = h.def;
+  if (!def) return null;
+  if (h.trop || h.czescA) return most(def, h.czescA ? "Otwieram" : (def.czescA?.przycisk || "Otwieram"), "otworzZadanie");
+  if (h.czeka) {
+    if (czekaOdWczoraj() && przypomnianoDzis()) return null;
+    const q = kwestiaHybrydy(def, "wizkor", "przypomnienie", etap) || kwestiaHybrydy(def, "wizkor", "most", etap);
+    if (!q) return null;
+    return {
+      ...baza,
+      tekst: q.tekst,
+      tekstEkranu: q.tekstEkranu,
+      wyroznienie: "u ciebie",
+      przycisk: "Otwieram zadanie",
+      akcja: "otworzZadanie",
+      hybrydaPrzypomnienie: true,
+    };
+  }
+  if (h.zauwazone && !h.zauwazoneObejrzane) {
+    const q = kwestiaHybrydy(def, "wizkor", "zauwazone", etap);
+    if (!q) return null;
+    return {
+      ...baza,
+      ...POCHWALA,
+      tekst: q.tekst,
+      tekstEkranu: q.tekstEkranu,
+      wyroznienie: "Mentor",
+      przycisk: "Idę zobaczyć",
+      akcja: "hybryda:zobacz",
+    };
+  }
+  return null;
+}
+
+function powitanieCzarodziejaSurowe(z, misja, drewnoZewn = null, hybZewn = null) {
   const baza = { imie: "Wizkor", obrazek: "/wizPop.webp" };
 
   if (z.wyplacone) {
@@ -339,6 +468,14 @@ function powitanieCzarodziejaSurowe(z, misja, drewnoZewn = null) {
         akcja: "postawEtap",
       };
     }
+
+    /* ── HYBRYDA: między domkiem a grami (05 §5, 06 §4.3 pkt 6) ──────────
+       Pierwsze zadanie w realu nie przychodzi z Koła po trzech grach, tylko
+       ze świata — po pierwszej rzeczy, którą dziecko zbudowało. Dopóki
+       hybryda jest na tropie albo czeka u dziecka, Wizkor mówi o niej;
+       po śladzie wraca zwykła kwestia stanu (gra). */
+    const hyb = kwestiaHybrydyWizkora(baza, hybZewn);
+    if (hyb) return hyb;
 
     // ── ŁAŃCUCH MISJI Z GRAMI ─────────────────────────────────────────
     if (!misja) {
