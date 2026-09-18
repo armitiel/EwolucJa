@@ -62,6 +62,14 @@ export const mentorApi = {
   noticeMission: (missionId, formula) => call(`/mentor/missions/${missionId}/verify`, { method: "POST", body: { decision: "noticed", formula: formula || null } }),
   deleteMission: (missionId) => call(`/mentor/missions/${missionId}`, { method: "DELETE" }),
 
+  // Ustawienia na dziecko (06 §4.5 pkt 3, §4.8): { zdjecia: bool, minutySesji: 10–20 }. PUT scala — można wysłać jedno pole.
+  getUstawienia: (playerId) => call(`/mentor/players/${playerId}/ustawienia`),
+  putUstawienia: (playerId, zmiany) => call(`/mentor/players/${playerId}/ustawienia`, { method: "PUT", body: zmiany }),
+  // Obraz misji (tor W7): podpisany adres (cookie Mentora), „Pokaż w domku" (cofalne), usunięcie miniatury.
+  obrazAdresMisji: (missionId) => call(`/missions/${missionId}/obraz-adres`),
+  pokazWDomku: (missionId, wartosc) => call(`/mentor/missions/${missionId}/pokaz-w-domku`, { method: "POST", body: { wartosc: !!wartosc } }),
+  usunObrazMisji: (missionId) => call(`/mentor/missions/${missionId}/obraz`, { method: "DELETE" }),
+
   // Pary (Rozdarta Mapa) - GM strona
   listPairDefinitions: () => call("/pairs/definitions"),
   suggestPairs: (classId) => call("/pairs/suggest", { method: "POST", body: { classId } }),

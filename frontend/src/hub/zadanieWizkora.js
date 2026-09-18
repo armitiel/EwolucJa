@@ -37,6 +37,7 @@ import { dodajMonety } from "../services/monety.js";
 import { loadState, wzmocnijCeche } from "../adventure/engine/adventureState.js";
 import { etapSzkolny, typStartowy } from "./profilStartowy.js";
 import { zapiszSlad } from "./sladySwiata.js";
+import { zdarzenie } from "../services/zdarzenia.js";
 
 
 const KLUCZ = "ewolucja.zadanie.wizkora";
@@ -345,7 +346,11 @@ export function odpalReakcjeSwiata(reakcja, zrodlo = null) {
   const scena = globalThis.__SCENA;
   const fn = scena?.[reakcja.metoda];
   if (typeof fn === "function") {
-    try { fn(...(Array.isArray(reakcja.args) ? reakcja.args : [])); }
+    try {
+      fn(...(Array.isArray(reakcja.args) ? reakcja.args : []));
+      // Analityka pętli (06 §4.12): świat NAPRAWDĘ zareagował — nie „ślad czeka".
+      zdarzenie("swiat.zareagowal", { zadanie: zrodlo || null, metoda: reakcja.metoda });
+    }
     catch (err) { console.warn("[zadanieWizkora] reakcja świata nie poszła:", reakcja.metoda, err); }
   } else {
     console.warn("[zadanieWizkora] scena nie zna metody", reakcja.metoda, "— ślad czeka w dzienniku");
@@ -360,7 +365,7 @@ export function odpalReakcjeSwiata(reakcja, zrodlo = null) {
  * potem leci do niej dowód. Bez sieci nie udajemy sukcesu — dziecko ma
  * zobaczyć, że nie poszło, a nie czekać w nieskończoność na Mentora.
  */
-export async function wyslijDowod({ opis, zdjecieUrl }) {
+export async function wyslijDowod({ opis, zdjecieUrl, maZdjecie = false }) {
   const zapis = czytaj();
   if (!zapis) throw new Error("Nie ma zleconego zadania.");
   const def = definicjaZadania(zapis.id);
@@ -374,7 +379,7 @@ export async function wyslijDowod({ opis, zdjecieUrl }) {
       body: `${def.cel}\n\n${def.jak}`,
       narrative_intro: def.przypomnienie || null,
       competency_focus: def.competency_focus || [],
-      proof_type: zdjecieUrl ? "photo" : "text",
+      proof_type: (zdjecieUrl || maZdjecie) ? "photo" : "text",
       estimated_minutes: def.minuty || 15,
       adventure_ref: `wizkor.${def.id}`,
       // Pytanie do rozmowy dla Mentora (03 §7 `rozmowa`) — zamiast werdyktu.
@@ -405,6 +410,38 @@ export async function wyslijDowod({ opis, zdjecieUrl }) {
     mentorPrawdziwy: !!odpowiedz?.mentor_present,
     dowod: { opis: opis || "", zdjecieUrl: zdjecieUrl || null, sladOpcja: zapis.sladOpcja ?? null, wyslaneAt: new Date().toISOString() },
   });
+}
+
+/**
+ * MINIATURA POSZŁA (tor W7): panel wysłał obraz z canvasu na
+ * `/missions/:id/miniatura` już PO śladzie (misja musi istnieć). Zapamiętujemy
+ * samą flagę — sam obraz leży na serwerze, w zapisie nie trzymamy bajtów.
+ */
+export function oznaczMiniature(missionId) {
+  const zapis = czytaj();
+  if (!zapis || (missionId && zapis.missionId && zapis.missionId !== missionId)) return stanZadania();
+  return zapisz({ ...zapis, dowod: { ...(zapis.dowod || {}), miniatura: true } });
+}
+
+/* ── POWRÓT PO ŚLADZIE (analityka pętli, 06 §4.12) ─────────────────────────
+   „Wrócił" znaczy: wszedł do świata w NOWEJ sesji po tym, jak zostawił ślad
+   — nie odświeżył strony sekundę po wysłaniu. Dlatego liczymy raz na
+   załadowanie strony (`powrotSprawdzony`), tylko gdy ślad jest starszy niż
+   start tej strony, i tylko raz na zadanie (`powrotOdnotowany` w zapisie). */
+const START_STRONY = new Date().toISOString();
+let powrotSprawdzony = false;
+const PO_SLADZIE = new Set(["wyslane", "poprawka", "zatwierdzone"]);
+
+export function odnotujPowrotPoSladzie() {
+  if (powrotSprawdzony) return false;
+  powrotSprawdzony = true;
+  const zapis = czytaj();
+  if (!zapis || !PO_SLADZIE.has(zapis.status) || zapis.powrotOdnotowany) return false;
+  const wyslaneAt = zapis.dowod?.wyslaneAt || null;
+  if (!wyslaneAt || wyslaneAt >= START_STRONY) return false;
+  zdarzenie("powrot.po.sladzie", { zadanie: zapis.id, status: zapis.status, po_minutach: Math.round((Date.now() - Date.parse(wyslaneAt)) / 60000) });
+  zapisz({ ...zapis, powrotOdnotowany: true });
+  return true;
 }
 
 /**
@@ -494,6 +531,8 @@ function wolnoPytac() {
 
 /** Ciche sprawdzenie werdyktu poza panelem. Bledy sieci sa tu bez znaczenia. */
 export async function sprawdzMentoraWTle() {
+  // Pierwsze wywołanie na tej stronie = wejście do świata; tu liczy się powrót.
+  try { odnotujPowrotPoSladzie(); } catch {}
   const stan = stanZadania();
   if (!stan.czeka) return stan;
   if (!stan.missionId) return stan;

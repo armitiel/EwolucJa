@@ -24,6 +24,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback, use
 import { useLocation } from "react-router-dom";
 import { api, session } from "../services/api.js";
 import { zapamietajGracza } from "../services/rodzaj.js";
+import { uruchomSyncSwiata } from "../services/swiatKonto.js";
 
 // Pre-load wszystkich assetow zwoju do cache przegladarki przy starcie appki.
 // Dzieki temu wchodzac w /mission obrazy sa juz w pamieci, nie ma wczytywania.
@@ -87,6 +88,9 @@ export default function AppDataProvider({ children }) {
     try {
       const p = await api.getPlayer(id);
       setPlayer(p);
+      /* Stan świata z konta (ślady, ramka domku) — w tle, raz na gracza.
+         Świat startuje z zapisu lokalnego, konto dojeżdża i dogrywa różnicę. */
+      uruchomSyncSwiata();
       // Cycle i mission — w tle, brak loadingu na nie czeka
       Promise.allSettled([
         api.getCurrentCycle(id).then((c) => setCycle(c)).catch(() => setCycle(null)),
@@ -183,6 +187,7 @@ export default function AppDataProvider({ children }) {
       if (newCycle) setCycle(newCycle);
       lastPlayerIdRef.current = newPlayer?.player_id;
       setLoading(false);
+      uruchomSyncSwiata();
     },
   };
 

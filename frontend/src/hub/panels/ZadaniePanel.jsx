@@ -21,13 +21,18 @@
  * karteczki niczego nie blokuje ani nie odblokowuje; jest po to, żeby dziecko
  * przestało szukać „gdzie" i zaczęło robić.
  *
- * Zdjęcie leci prosto do Vercel Blob (ten sam tor co dowody misji w przygodzie
- * — plik omija limit ciała funkcji), a do bazy idzie dopiero URL razem
- * z opisem. Brak sieci nie blokuje opisu słowami.
+ * ZDJĘCIE (tor obrazu W7, docs/tresci/06 §4.5): tylko gdy Mentor włączył
+ * `ustawienia.zdjecia` dla dziecka. Plik nie wychodzi z urządzenia — przechodzi
+ * przez canvas (`services/miniatura.js`: ≤ 512 px, JPEG ≤ 150 kB, bez EXIF)
+ * i dopiero miniatura leci na `POST /missions/:id/miniatura`, już PO śladzie,
+ * bo misja musi istnieć. Podgląd jest z tego samego canvasu. Dawny upload do
+ * Vercel Blob (publiczny magazyn, plik z EXIF-em) nie działa i nie wraca.
+ * Brak sieci nie blokuje opisu słowami.
  */
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { upload } from "@vercel/blob/client";
-import { API_BASE } from "../../config.js";
+import { api } from "../../services/api.js";
+import { adresObrazuPelny, miniaturaZPliku } from "../../services/miniatura.js";
+import { zdarzenie } from "../../services/zdarzenia.js";
 import { useAppData } from "../../contexts/AppData.jsx";
 import { GameIcon } from "../../adventure/components/icons.jsx";
 import { powiedzPostacia } from "../mowaPostaci.js";
@@ -37,6 +42,7 @@ import {
   obrazekSladu,
   odbierzNagrode,
   odpalReakcjeSwiata,
+  oznaczMiniature,
   podtytulSladu,
   sprawdzMentora,
   stanZadania,
@@ -48,10 +54,33 @@ import {
   ZDARZENIE_ZMIANY,
 } from "../zadanieWizkora.js";
 
-/* Zdjęcia-dowody wyłączone do czasu bezpiecznego toru obrazu (miniatura bez
-   EXIF, prywatny magazyn, uwierzytelnienie, retencja, zgoda opiekuna) —
-   docs/tresci/06_DECYZJE_I_ZALEZNOSCI.md §4.5. Ślad = zdanie (i wybór). */
-export const ZDJECIA_WLACZONE = false;
+/* Zdjęcia-dowody: decyzja Mentora na dziecko (`ustawienia.zdjecia` z
+   `GET /players/me`, domyślnie wyłączone — docs/tresci/06 §4.5 pkt 3).
+   Ślad = wybór z trzech opcji i/lub zdanie; zdjęcie jest dodatkiem. */
+export function zdjeciaWlaczone(player) {
+  return player?.ustawienia?.zdjecia === true;
+}
+
+/* Podpowiedź przy aparacie — jedno zdanie, bez straszenia. */
+const PODPOWIEDZ_ZDJECIA = "Bez twarzy, bez okna, bez numeru domu.";
+
+/**
+ * Obraz misji z serwera do podglądu pod „Ślad zostawiony" — po odświeżeniu
+ * strony lokalnego canvasu już nie ma, więc pytamy o podpisany adres
+ * (`GET /missions/:id/obraz-adres`). Raz na otwarcie, cicho przy braku.
+ */
+function useObrazMisji(missionId, aktywny) {
+  const [url, setUrl] = useState(null);
+  useEffect(() => {
+    if (!aktywny || !missionId) { setUrl(null); return undefined; }
+    let zywe = true;
+    api.obrazAdresMisji(missionId)
+      .then((o) => { if (zywe) setUrl(adresObrazuPelny(o?.url) || null); })
+      .catch(() => { if (zywe) setUrl(null); });
+    return () => { zywe = false; };
+  }, [missionId, aktywny]);
+  return url;
+}
 
 /* Reakcja świata po śladzie: panel nie ma dostępu do `scenaRef` z `Swiat.jsx`,
    więc najpierw prosi rodzica o `onPokazMiejsce`, a gdy go nie dostał — woła
@@ -78,7 +107,8 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot, onPokaz
   const etapGracza = etapSzkolny();
   const mlodsi = etapGracza === "1-3";
   const [opis, setOpis] = useState("");
-  const [zdjecieUrl, setZdjecieUrl] = useState(null);
+  // `miniatura` = data-URL JPEG z canvasu (bez EXIF); `podglad` to ten sam obraz.
+  const [miniatura, setMiniatura] = useState(null);
   const [podglad, setPodglad] = useState(null);
   const [wysylka, setWysylka] = useState(false);
   const [wgrywanie, setWgrywanie] = useState(false);
@@ -92,8 +122,8 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot, onPokaz
     return () => window.removeEventListener(ZDARZENIE_ZMIANY, odswiez);
   }, []);
 
-  // Podgląd zdjęcia żyje w pamięci przeglądarki — trzeba go po sobie posprzątać.
-  useEffect(() => () => { if (podglad) URL.revokeObjectURL(podglad); }, [podglad]);
+  // Obraz do podglądu pod „Ślad zostawiony" (po odświeżeniu strony — z serwera).
+  const obrazZSerwera = useObrazMisji(stan.missionId, !!stan.czeka && !!stan.dowod?.miniatura && !podglad);
 
   // Definicja w wariancie etapu gracza (`warianty["1-3"|"4-8"]` nadpisują pola).
   const def = zWariantemZadania(stan.def, etapGracza);
@@ -168,37 +198,49 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot, onPokaz
     czytajZadanie();
   }, [czytajZadanie, stan.doZrobienia]);
 
-  const dodajZdjecie = useCallback(async (zdarzenie) => {
-    const plik = zdarzenie.target.files?.[0];
+  const dodajZdjecie = useCallback(async (zdarzeniePliku) => {
+    const plik = zdarzeniePliku.target.files?.[0];
     if (!plik) return;
     if (!plik.type.startsWith("image/")) { setBlad("To nie jest zdjęcie."); return; }
-    if (plik.size > 10 * 1024 * 1024) { setBlad("Zdjęcie jest za duże. Spróbuj mniejsze."); return; }
+    if (plik.size > 20 * 1024 * 1024) { setBlad("Zdjęcie jest za duże. Spróbuj mniejsze."); return; }
     setBlad(null);
     setWgrywanie(true);
-    if (podglad) URL.revokeObjectURL(podglad);
-    setPodglad(URL.createObjectURL(plik));
     try {
-      const rozszerzenie = (plik.name.split(".").pop() || "jpg").toLowerCase();
-      const wynik = await upload(`dowody/wizkor-${Date.now()}.${rozszerzenie}`, plik, {
-        access: "public",
-        handleUploadUrl: `${API_BASE}/uploads/handler`,
-      });
-      setZdjecieUrl(wynik.url);
+      /* Canvas → JPEG ≤ 512 px, bez EXIF. Nic jeszcze nie wychodzi z urządzenia —
+         miniatura poleci razem ze śladem (`wyslij`), gdy misja już istnieje. */
+      const m = await miniaturaZPliku(plik);
+      setMiniatura(m.obraz);
+      setPodglad(m.obraz);
     } catch {
       // Zdjęcie nie poszło — ale zadanie zostaje wykonalne. To jest cała
       // różnica między „opisz to słowami" a ślepym zaułkiem.
-      setZdjecieUrl(null);
-      setBlad("Zdjęcie nie chce się wysłać. Możesz opisać wszystko słowami.");
+      setMiniatura(null);
+      setPodglad(null);
+      setBlad("Nie udało się odczytać zdjęcia. Możesz opisać wszystko słowami.");
     } finally {
       setWgrywanie(false);
+      try { zdarzeniePliku.target.value = ""; } catch {}
     }
-  }, [podglad]);
+  }, []);
+
+  /* Miniatura idzie osobno, PO śladzie (misja musi mieć id). 403
+     `zdjecia_wylaczone` = Mentor wyłączył w międzyczasie — ślad i tak stoi. */
+  async function wyslijMiniature(nowy) {
+    if (!miniatura || !nowy?.missionId) return;
+    try {
+      await api.wyslijMiniature(nowy.missionId, miniatura);
+      setStan(oznaczMiniature(nowy.missionId));
+    } catch (err) {
+      setPodglad(null);
+      setBlad(err?.kod === "zdjecia_wylaczone" ? "Zdjęcia włącza Mentor." : "Zdjęcie nie chce się wysłać. Ślad i tak został.");
+    }
+  }
 
   async function wyslij() {
     /* Ślad = wybór z trzech opcji ALBO jedno zdanie (dla 1–3 wybór wystarcza —
        pisanie nie jest warunkiem). Zdjęcie tylko za flagą. */
     const maWybor = Number.isInteger(sladOpcja) && def.slad?.opcje?.length;
-    if (!opis.trim() && !zdjecieUrl && !maWybor) {
+    if (!opis.trim() && !miniatura && !maWybor) {
       setBlad(def.slad?.opcje?.length ? "Wybierz jedną z kartek albo napisz jedno zdanie." : "Napisz choć jedno zdanie.");
       return;
     }
@@ -207,8 +249,9 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot, onPokaz
     setWysylka(true);
     try {
       const tekstSladu = opis.trim() || (maWybor ? o(def.slad.opcje[sladOpcja]) : "");
-      const nowy = await wyslijDowod({ opis: tekstSladu, zdjecieUrl });
+      const nowy = await wyslijDowod({ opis: tekstSladu, zdjecieUrl: null, maZdjecie: !!miniatura });
       setStan(nowy);
+      await wyslijMiniature(nowy);
       // Świat reaguje od razu po śladzie — bez czekania na dorosłego:
       // metoda sceny z definicji (defensywnie) + toast z definicji.
       const toast = odpalReakcjeSwiata(def.reakcja_swiata, def.id);
@@ -350,10 +393,11 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot, onPokaz
           <h3 className="czat-naglowek">{o("Ślad zostawiony")}</h3>
           <p>{o(`To, co {zrobiłeś|zrobiłaś}, zostawiło ślad${gdzie}. Zobacz na polanie.`)}</p>
           {podtytulSladu(stan) ? <p className="zadanie-notatka">{o(podtytulSladu(stan))}</p> : null}
-          {stan.dowod?.zdjecieUrl ? (
-            <img className="zadanie-podglad" src={stan.dowod.zdjecieUrl} alt="Twoje zdjęcie" />
+          {podglad || obrazZSerwera || stan.dowod?.zdjecieUrl ? (
+            <img className="zadanie-podglad" src={podglad || obrazZSerwera || stan.dowod.zdjecieUrl} alt="Twoje zdjęcie" />
           ) : null}
           {stan.dowod?.opis ? <p className="zadanie-notatka">„{stan.dowod.opis}”</p> : null}
+          {blad ? <p className="zadanie-blad">{o(blad)}</p> : null}
           <div className="hub-actions">
             <button type="button" className="hub-btn hub-btn-primary" onClick={() => { pokazMiejsceNaPlanecie(onPokazMiejsce, stan); onZamknij?.(); }}>
               {o("Zobacz na polanie")}
@@ -392,7 +436,7 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot, onPokaz
           </div>
         ) : null}
 
-        {ZDJECIA_WLACZONE ? (<>
+        {zdjeciaWlaczone(player) ? (<>
         <button
           type="button"
           className="zadanie-zdjecie"
@@ -404,7 +448,8 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot, onPokaz
           ) : (
             <>
               <GameIcon name="camera" size={30} />
-              <strong>{wgrywanie ? "Wysyłam zdjęcie…" : "Dodaj zdjęcie rzeczy (bez ludzi)"}</strong>
+              <strong>{wgrywanie ? "Przygotowuję zdjęcie…" : "Dodaj zdjęcie rzeczy (bez ludzi)"}</strong>
+              <small>{PODPOWIEDZ_ZDJECIA}</small>
             </>
           )}
         </button>
@@ -485,7 +530,12 @@ export default function ZadaniePanel({ onKomunikat, onZamknij, onPowrot, onPokaz
             key={m.id}
             type="button"
             className={`zadanie-miejsce${miejsce === m.id ? " is-wybrane" : ""}`}
-            onClick={() => { const nowe = miejsce === m.id ? null : m.id; setMiejsce(nowe); zapiszMiejsce(nowe); }}
+            onClick={() => {
+              const nowe = miejsce === m.id ? null : m.id;
+              setMiejsce(nowe);
+              zapiszMiejsce(nowe);
+              if (nowe) zdarzenie("miejsce.wybrane", { zadanie: def.id, miejsce: nowe, etap: etapGracza || "oba" });
+            }}
           >
             <span className="zadanie-pinezka" aria-hidden="true" />
             <span className="zadanie-miejsce-emoji" aria-hidden="true">{m.emoji}</span>

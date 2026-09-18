@@ -13,15 +13,22 @@
  * kiedy tor obrazu stanie, zdjęcie wejdzie tym samym otworem — ramka nie
  * musi wiedzieć, czy dostała kreskę, czy fotografię.
  *
- * ZAPIS W `localStorage` — ten sam dług, co w `sladySwiata.js` i `monety.js`:
- * nie przechodzi na inne urządzenie. Kształt wpisu jest już taki, żeby dało
- * się go przenieść do pola przy graczu bez zmiany niczego poza `odczytaj`
- * i `zapisz`. Punkty są ZNORMALIZOWANE do kwadratu 0–1, więc rysunek jest
- * niezależny od rozmiaru canvasu, na którym powstał, i od tego, na jakim
- * zostanie namalowany.
+ * ZAPIS W `localStorage` + NA KONCIE: lokalna lista jest źródłem dla ramki,
+ * a `services/swiatKonto.js` scala ją z `ramka.rysunki` z `/players/me/swiat`
+ * (po dniu, nowszy wygrywa — jak `swiatService.js` na serwerze) i wysyła
+ * po każdym `zapiszRysunek` (zdarzenie `ZDARZENIE_RYSUNKU`). Punkty są
+ * ZNORMALIZOWANE do kwadratu 0–1, więc rysunek jest niezależny od rozmiaru
+ * canvasu, na którym powstał, i od tego, na jakim zostanie namalowany.
+ *
+ * OBRAZ MISJI (tor W7): gdy Mentor wybrał „Pokaż w domku", ramka pokazuje
+ * miniaturę zdjęcia zamiast kreski — `WnetrzeDomku.jsx` bierze ją z
+ * `swiatKonto.pobierzObrazMisji()` i maluje na tym samym płótnie.
  */
 
 const KLUCZ = "ewolucja.domek.ramka";
+
+/** Zdarzenie okna po zapisie rysunku — nasłuchuje `services/swiatKonto.js`. */
+export const ZDARZENIE_RYSUNKU = "ewolucja:rysunekDnia";
 
 /* Tydzień rysunków. Dziś w ramce wisi najnowszy; reszta czeka na dzień, gdy
    domek dostanie drugą ścianę albo album. Więcej nie trzymamy — to jest
@@ -54,6 +61,26 @@ export function kluczDnia(d = new Date()) {
 
 /** Wszystkie zapamiętane rysunki, od najstarszego. */
 export function rysunki() { return odczytaj(); }
+
+/**
+ * Scala rysunki z konta z lokalnymi: jeden na dzień, nowszy (`kiedy`) wygrywa,
+ * ostatnie LIMIT. Zapisuje lokalnie i zwraca scaloną listę.
+ */
+export function scalRysunki(zdalne) {
+  const lokalne = odczytaj();
+  if (!Array.isArray(zdalne) || !zdalne.length) return lokalne;
+  const poDniu = new Map(lokalne.map((r) => [r.dzien, r]));
+  for (const r of zdalne) {
+    if (!r || typeof r.dzien !== "string" || !Array.isArray(r.punkty) || r.punkty.length < 2) continue;
+    const juz = poDniu.get(r.dzien);
+    if (!juz || String(r.kiedy || "") >= String(juz.kiedy || "")) {
+      poDniu.set(r.dzien, { wersja: r.wersja || 1, dzien: r.dzien, kiedy: r.kiedy || `${r.dzien}T12:00:00.000Z`, punkty: r.punkty.slice(0, MAX_PUNKTOW), zrodlo: r.zrodlo || "zachod" });
+    }
+  }
+  const lista = [...poDniu.values()].sort((a, b) => a.dzien.localeCompare(b.dzien));
+  zapisz(lista);
+  return lista.slice(-LIMIT);
+}
 
 /** Rysunek, który wisi w ramce (najnowszy) albo `null`. */
 export function rysunekAktualny() {
@@ -114,6 +141,7 @@ export function zapiszRysunek(punkty, meta = {}) {
   const lista = odczytaj().filter((r) => r.dzien !== wpis.dzien);
   lista.push(wpis);
   zapisz(lista);
+  try { window.dispatchEvent(new CustomEvent(ZDARZENIE_RYSUNKU, { detail: wpis })); } catch {}
   return wpis;
 }
 

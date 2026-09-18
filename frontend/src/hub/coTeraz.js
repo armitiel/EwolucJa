@@ -21,15 +21,16 @@
  *  1. JEDNA RZECZ NA RAZ. Zwracamy dokładnie jeden etap, nigdy listy zadań.
  *     Świat EwolucJI nie jest tablicą obowiązków (`docs/OPIS_PROJEKTU.md`);
  *     dziecko ma wiedzieć, co jest teraz, a nie ile ma zaległości.
- *  2. OBRAZEK NIESIE TREŚĆ, nie zdanie. Sześciolatek nie czyta w biegu. Para
- *     ikon mówi „zrób TO z TYM" (siekiera → stos, stos → domek, lupa →
- *     puzelek); zdanie stoi pod nimi dla czytających i dla lektora.
+ *  2. OBRAZEK NIESIE CAŁĄ TREŚĆ. Nie ma zdania ani lektora — para ikon mówi
+ *     „zrób TO z TYM" (siekiera → stos, stos → domek, lupa → puzelek) i to
+ *     wystarczy. Zdanie ma swoje miejsce: okno Wizkora przy zlecaniu zadania.
+ *     Kanał, który odzywa się po każdej zmianie etapu, musi być cichy —
+ *     inaczej po tygodniu dziecko przestaje go czytać i słyszeć.
  *  3. TO JEST DANE, NIE KOD. Dopisanie etapu to jeden wpis w `ETAPY` —
  *     chmurkę, dzióbek i przemianę obrazków rysuje `Reflektor.jsx`, ten sam,
  *     który obsługuje wskazówki z `wskazowki.js`.
- *  4. MÓWI LISEK, nie Wizkor. Wizkor zleca zadania w swoich oknach; lisek jest
- *     towarzyszem przy dziecku i to on przypomina, po co tu jesteśmy. Gdy
- *     trzeba wrócić do Wizkora, lisek mówi o nim — nie zamiast niego.
+ *  4. NIKT TU NIE MÓWI. To myśl dziecka przy jego własnym awatarze, a nie
+ *     kolejna postać z poleceniem. Podział kanałów: `ChmurkaAwatara.jsx`.
  *
  * CZEGO TU NIE MA. Odliczania czasu, plakietek „zaległe", liczb w zdaniu
  * („zostało 7 z 10") — licznik w HUD-zie już to mówi, a powtórzone w chmurce
@@ -64,64 +65,48 @@ const ETAPY = [
     pasuje: ({ gwiazdki }) => gwiazdki?.aktywne && !gwiazdki.spelnione,
     obrazki: [IKONA.gwiazdka, IKONA.lupa],
     tytul: "Złote gwiazdki",
-    linie: ["Świecą w trawie.", "Wbiegnij w nie!"],
-    tekst: "Gwiazdki świecą w trawie. Wbiegnij w nie, a same się zbiorą.",
   },
   {
     id: "gwiazdki-do-wizkora",
     pasuje: ({ gwiazdki }) => gwiazdki?.aktywne && gwiazdki.spelnione && !gwiazdki.wyplacone,
     obrazki: [IKONA.gwiazdka, IKONA.zwoj],
     tytul: "Wracamy do Wizkora",
-    linie: ["Masz wszystkie gwiazdki.", "Czarodziej czeka!"],
-    tekst: "Masz wszystkie gwiazdki! Wróćmy do Wizkora, on już czeka.",
   },
   {
     id: "drewno-scinanie",
     pasuje: ({ drewno }) => drewno?.istnieje && !drewno.zbudowane && drewno.doSciecia > 0,
     obrazki: [IKONA.siekiera, IKONA.stos],
     tytul: "Ścinamy drzewa",
-    linie: ["Podejdź do drzewa", "i poczekaj chwilę."],
-    tekst: "Podejdź do drzewa i poczekaj chwilę — lisek je zetnie.",
   },
   {
     id: "drewno-znoszenie",
     pasuje: ({ drewno }) => drewno?.istnieje && !drewno.zbudowane && drewno.doZniesienia > 0,
     obrazki: [IKONA.stos, IKONA.domek],
     tytul: "Zanieś drewno",
-    linie: ["Wejdź w stos drewna", "i zanieś go pod drzewo."],
-    tekst: "Wejdź w stos drewna i zanieś go pod wielkie drzewo.",
   },
   {
     id: "puzzle-szukanie",
     pasuje: ({ puzzle }) => puzzle && !puzzle.komplet && !puzzle.zebrane,
     obrazki: [IKONA.lupa, IKONA.puzzel],
     tytul: "Szukamy kawałków",
-    linie: ["Kawałki obrazka", "czekają w świecie!"],
-    tekst: "Kawałki obrazka czekają w świecie. Rozejrzyj się!",
   },
   {
     id: "puzzle-ukladanie",
     pasuje: ({ puzzle }) => puzzle?.komplet,
     obrazki: [IKONA.puzzel],
     tytul: "Masz wszystkie!",
-    linie: ["Dotknij licznika", "i ułóż obrazek."],
-    tekst: "Masz wszystkie kawałki. Dotknij licznika i ułóżmy obrazek!",
   },
   {
     id: "real-do-zrobienia",
     pasuje: ({ real }) => real?.doZrobienia,
     obrazki: [IKONA.zwoj],
     tytul: "Zadanie poza ekranem",
-    linie: ["Czeka na ciebie", "w zakładce Zadania."],
-    tekst: "Masz zadanie do zrobienia naprawdę. Zajrzyj do zakładki Zadania.",
   },
   {
     id: "real-do-odbioru",
     pasuje: ({ real }) => real?.doOdbioru,
     obrazki: [IKONA.zwoj, IKONA.gwiazdka],
     tytul: "Mentor zauważył",
-    linie: ["Zobacz, co zostawił", "w zakładce Zadania."],
-    tekst: "Mentor zauważył, co zrobiłeś. Zajrzyj do zakładki Zadania.",
   },
 ];
 
@@ -139,19 +124,11 @@ export function coTeraz(stan = {}) {
   if (!etap) return null;
   return {
     id: `co-teraz:${etap.id}`,
-    tryb: "dymek",
-    cel: CEL_AWATARA,
-    promien: "50%",
-    postac: "/lisPop.webp",
-    glos: "lisek",
     obrazki: etap.obrazki,
+    /* Nazwa etapu NIE jest napisem na ekranie — idzie do `aria-label` chmurki
+       i do pulpitu testowego. Cały kanał mówi obrazkami (patrz nagłówek). */
     tytul: etap.tytul,
-    linie: etap.linie,
-    tekst: etap.tekst,
-    /* Chmurka „co teraz" wchodzi także W TRAKCIE misji — ona właśnie o misji
-       mówi (patrz `wMisji` w `Swiat.jsx`). */
-    wMisji: true,
-    czasNaEkranie: 9000,
+    czasNaEkranie: 7000,
   };
 }
 

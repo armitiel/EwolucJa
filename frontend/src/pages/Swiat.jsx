@@ -128,6 +128,7 @@ import CzatPanel from "../hub/panels/CzatPanel.jsx";
 import PoradaPanel from "../hub/panels/PoradaPanel.jsx";
 import ZadaniePanel from "../hub/panels/ZadaniePanel.jsx";
 import { coTeraz } from "../hub/coTeraz.js";
+import ChmurkaAwatara from "../hub/ChmurkaAwatara.jsx";
 import { GameIcon } from "../adventure/components/icons.jsx";
 import { unreadCount } from "../adventure/engine/notifications.js";
 import {
@@ -520,6 +521,20 @@ export default function Swiat() {
   const { gra, poziom: poziomGry, otworzGre, zamknijGre } = useHubGra();
   const { player } = useAppData();
   useHudSkin();
+
+  /* MINUTY SESJI z ustawień Mentora (`ustawienia.minutySesji`, 10–20, z
+     `GET /players/me`): trafiają do strojenia doby PRZED zbudowaniem sceny
+     (`swiat.doba.sesja.minutySesji`, `scena-3d-src/src/doba.js`) przez prop
+     `przygotujMape` Sceny3D. `?doba=` w adresie ma i tak pierwszeństwo (app.js).
+     Bez odliczania na ekranie — sesję odmierza słońce. */
+  const minutySesjiRef = useRef(player?.ustawienia?.minutySesji);
+  minutySesjiRef.current = player?.ustawienia?.minutySesji;
+  const przygotujMapeSesji = useCallback((surowe) => {
+    const m = Number(minutySesjiRef.current);
+    if (!Number.isInteger(m) || m < 10 || m > 20 || !surowe?.swiat?.cyklDnia) return surowe;
+    const doba = surowe.swiat.doba || {};
+    return { ...surowe, swiat: { ...surowe.swiat, doba: { ...doba, sesja: { ...(doba.sesja || {}), minutySesji: m } } } };
+  }, []);
 
   const scenaRef = useRef(null);
   const medrzecRef = useRef(null);
@@ -1131,6 +1146,10 @@ export default function Swiat() {
   /* Budzik dla chmurki „co teraz": efekt nie ma na czym się oprzeć, gdy jedyną
      zmianą jest UPŁYW CZASU od zamknięcia okna postaci. */
   const [tikCoTeraz, setTikCoTeraz] = useState(0);
+  /** Etap pokazywany teraz przy awatarze (`ChmurkaAwatara`) albo `null`. */
+  const [etapPrzyAwatarze, setEtapPrzyAwatarze] = useState(null);
+  /** Czy myśl Wizkora jest na ekranie — wtedy ikonki przy awatarze czekają. */
+  const [myslWizkora, setMyslWizkora] = useState(false);
   const etapCoTerazRef = useRef(null);
   const doPokazaniaRef = useRef(null);
   const ostatniePopupRef = useRef(0);
@@ -1154,6 +1173,10 @@ export default function Swiat() {
     const czeka = doPokazaniaRef.current;
     if (!czeka || !odsloniete) return undefined;
     if (panel || gra || powitanie || zaproszenie || nagroda || wskazowka) return undefined;
+    /* JEDNA CHMURKA NA RAZ — i to dotyczy WSZYSTKICH kanałów: myśl Wizkora,
+       wskazówka Reflektora i te ikonki nie mogą stać na ekranie naraz.
+       Kolizja powiadomień była pierwszą rzeczą, jaką widać po włączeniu gry. */
+    if (etapPrzyAwatarze || myslWizkora) return undefined;
     const odPopupu = Date.now() - ostatniePopupRef.current;
     if (odPopupu < CISZA_PO_POSTACI) {
       /* Nie gubimy etapu — wracamy do niego, gdy cisza minie. */
@@ -1165,10 +1188,11 @@ export default function Swiat() {
        a nie na niej. */
     const zegar = window.setTimeout(() => {
       doPokazaniaRef.current = null;
-      setWskazowka(czeka);
+      setEtapPrzyAwatarze(czeka);
     }, 2600);
     return () => window.clearTimeout(zegar);
-  }, [terazWskazowka, odsloniete, panel, gra, powitanie, zaproszenie, nagroda, wskazowka, tikCoTeraz]);
+  }, [terazWskazowka, odsloniete, panel, gra, powitanie, zaproszenie, nagroda, wskazowka,
+      tikCoTeraz, etapPrzyAwatarze, myslWizkora]);
 
   // Otwarcie wskazanego panelu — obojętnie czy z chmurki, czy samodzielnie —
   // kończy podpowiedź na dobre.
@@ -2914,6 +2938,7 @@ export default function Swiat() {
           apiRef={scenaRef}
           onZdarzenie={naZdarzenieSceny}
           onBlad={() => setScenaMartwa(true)}
+          przygotujMape={przygotujMapeSesji}
           className={`hub-scena${scenaGotowa ? " is-ready" : ""}`}
           /* Kadr jak w W2 (`wariant/Wariant.jsx`). Prop MUSI byc jawny: Scena3D
              ustawia z niego `globalThis.SCENA3D_ZOOM`, a ten ma pierwszenstwo
@@ -2943,6 +2968,14 @@ export default function Swiat() {
             <img src={awatarPostaci()} alt="" aria-hidden="true" draggable="false" />
             <span>{player?.name || "Wędrowiec"}</span>
           </button>
+
+          {/* CICHY KANAŁ: co teraz jest do zrobienia — same ikonki pod awatarem
+              (`hub/ChmurkaAwatara.jsx`). Stoi TU, a nie w portalu, bo należy do
+              paska gracza: dzióbek celuje w awatar bez mierzenia go na ekranie. */}
+          <ChmurkaAwatara
+            etap={etapPrzyAwatarze}
+            onKoniec={() => setEtapPrzyAwatarze(null)}
+          />
 
           <div
             className={`game-hud-resources${zadanie.aktywne || misjaHud || puzzleHud || (drewno.istnieje && !drewno.zbudowane) ? " ma-zadanie" : ""}`}
@@ -3131,6 +3164,7 @@ export default function Swiat() {
       <PodpowiedzMedrca
         ref={medrzecRef}
         aktywna={!panel && !zwojOtwarty && !powitanie && !zaproszenie && !wskazowka && !podsumowanie && odsloniete && !planetaSpi}
+        onWidoczna={setMyslWizkora}
       />
 
       {/* KONIEC DNIA. Planeta śpi, kamera już odjechała — zostaje nazwać, co
@@ -3491,11 +3525,9 @@ export default function Swiat() {
             onPokazWskazowke={(id) =>
               /* „co-teraz" to nie wpis w `WSKAZOWKI`, tylko etap policzony ze
                  stanu gry — pulpit prosi o to, co dziecko widziałoby teraz. */
-              setWskazowka(
-                id === "co-teraz"
-                  ? terazWskazowka
-                  : wskazowkaPoId(id) || nastepnaWskazowka({ chodzenieOswojone: true }),
-              )
+              id === "co-teraz"
+                ? setEtapPrzyAwatarze(terazWskazowka)
+                : setWskazowka(wskazowkaPoId(id) || nastepnaWskazowka({ chodzenieOswojone: true }))
             }
             onPokazMyslMedrca={() => {
               setWskazowka(null);

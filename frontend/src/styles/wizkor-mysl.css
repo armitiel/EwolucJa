@@ -77,7 +77,7 @@
 .wizkor-mysl-chmurka {
   position: relative;
   width: 100%;
-  aspect-ratio: 440 / 262;
+  aspect-ratio: 440 / 250;
   /* Siada NAD awatarem, tak żeby ogon wypadał przy jego ramieniu. Liczone
      z jego wysokości, więc zmiana `--wizkor-awatar` nie rozklei tej pary. */
   margin-bottom: calc(var(--wizkor-awatar) * .58);
@@ -132,15 +132,17 @@
 
 .wizkor-mysl-chmurka > .chmurka-ksztalt { position: absolute; inset: 0; }
 
-/* Okno na tekst: prostokąt wpisany w bryłę tak, że wszystkie cztery rogi
-   leżą wewnątrz kół (sprawdzone na geometrii z `ChmurkaKsztalt`, wariant
-   „tekst": x 76–364, y 66–174 przy polu 440×262). */
+/* Okno na tekst: wnętrze prostokąta z `ChmurkaKsztalt` (wariant
+   „prostokatTekst": x 16–424, y 16–192 przy polu 440×250) minus oddech.
+   Prostokąt daje zdaniu CAŁĄ szerokość — w obłoku z kół rogi pola musiały
+   mieścić się w okręgach, więc tekst dostawał wąski pasek pośrodku i dłuższa
+   porada łamała się na cztery linijki. */
 .wizkor-mysl-tresc {
   position: absolute;
-  left: 17.3%;
-  top: 25.2%;
-  width: 65.5%;
-  height: 41.2%;
+  left: 8.6%;
+  top: 13.6%;
+  width: 82.8%;
+  height: 56%;
   display: grid;
   place-items: center;
   text-align: center;

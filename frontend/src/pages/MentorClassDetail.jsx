@@ -17,6 +17,7 @@ import ProfileAvatar, { PROFILE_INFO } from "../components/ProfileAvatar.jsx";
 import { mentorApi } from "../services/mentorApi.js";
 import { pickTaskForGenerator } from "../data/mentorTaskLibrary.js";
 import { odmienDlaImienia } from "../services/rodzaj.js";
+import { adresObrazuPelny } from "../services/miniatura.js";
 
 /* Gotowe formuły Mentora dla dziecka — bez oceny (docs/tresci/06 §4.7, 02 §2.5).
    Wolne pole zniknęło: było kanałem na „mogło być lepiej". Ostatnia formuła
@@ -554,6 +555,12 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
             </div>
           </div>
 
+          {/* USTAWIENIA NA DZIECKO (06 §4.5 pkt 3, §4.8): zdjęcia w śladzie i minuty sesji.
+              To nie jest kontrola rodzicielska — dwa knoby, które decydują, ile obrazu
+              wychodzi z domu i ile słońca ma planeta. */}
+          <UstawieniaDziecka playerId={studentId} ustawienia={data.player?.ustawienia} etap={data.player?.etap_szkolny}
+            onZmiana={(u) => setData((d) => (d ? { ...d, player: { ...d.player, ustawienia: u } } : d))} />
+
           {/* TABS - Odebrane jako pierwsza, Historia usunieta */}
           <div style={{ display: "flex", gap: 6, padding: "0 4px 10px" }}>
             {[
@@ -720,6 +727,15 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
                       try { await mentorApi.noticeMission(m.id, formula); await load(); }
                       catch (e) { alert(e.message); }
                     }}
+                    onPokazWDomku={async (wartosc) => {
+                      try { await mentorApi.pokazWDomku(m.id, wartosc); await load(); }
+                      catch (e) { alert(e.message); }
+                    }}
+                    onUsunObraz={async () => {
+                      if (!window.confirm("Usunąć zdjęcie z tego śladu? Zniknie też z ramki w domku.")) return;
+                      try { await mentorApi.usunObrazMisji(m.id); await load(); }
+                      catch (e) { alert(e.message); }
+                    }}
                     onDelete={async () => {
                       if (!window.confirm("Usunąć to zadanie z historii ucznia?")) return;
                       try { await mentorApi.deleteMission(m.id); await load(); }
@@ -775,7 +791,106 @@ function StudentDetailModal({ classId, studentId, studentName, onClose }) {
 
 // Karta misji w modal mentora — status, ślad dziecka, pytanie do rozmowy
 // i JEDEN przycisk „Zauważam" (bez punktów, bez „do poprawy" — 06 §4.7).
-function MissionCard({ mission, onNotice, onDelete, imie }) {
+/* ── Ustawienia na dziecko ──────────────────────────────────────────────────
+   `zdjecia` — czy dziecko może dołączyć do śladu miniaturę (≤ 512 px, bez EXIF,
+   30 dni na serwerze). Domyślnie wyłączone dla każdego etapu.
+   `minutySesji` — 10–20 min; tyle trwa dzień na planecie (bez odliczania). */
+function UstawieniaDziecka({ playerId, ustawienia, etap, onZmiana }) {
+  const [zapis, setZapis] = useState(null);   // pole w trakcie zapisu
+  const [blad, setBlad] = useState(null);
+  const u = ustawienia || { zdjecia: false, minutySesji: etap === "1-3" ? 12 : 15 };
+
+  async function zmien(zmiany) {
+    const pole = Object.keys(zmiany)[0];
+    setZapis(pole); setBlad(null);
+    try {
+      const odp = await mentorApi.putUstawienia(playerId, zmiany);
+      onZmiana?.(odp.ustawienia || { ...u, ...zmiany });
+    } catch (e) {
+      setBlad(e.message);
+    } finally {
+      setZapis(null);
+    }
+  }
+
+  const etykieta = { fontSize: 10, fontWeight: 900, letterSpacing: 1.2, color: "#A66A1A", textTransform: "uppercase" };
+  return (
+    <div className="card card-paper" style={{ padding: "12px 14px", marginBottom: 12 }}>
+      <div style={etykieta}>Ustawienia dla dziecka</div>
+      <label style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 8, cursor: "pointer" }}>
+        <span style={{ fontSize: 13.5, fontWeight: 700, color: "var(--p-ink)" }}>
+          Zdjęcia w śladzie
+          <span style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--p-ink-soft)" }}>
+            Miniatura bez danych o miejscu, tylko dla Ciebie, znika po 30 dniach.
+          </span>
+        </span>
+        <input type="checkbox" checked={u.zdjecia === true} disabled={zapis === "zdjecia"}
+          onChange={(e) => zmien({ zdjecia: e.target.checked })}
+          style={{ width: 22, height: 22, accentColor: "#5FA76F", flex: "none" }} />
+      </label>
+      <label style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 10 }}>
+        <span style={{ fontSize: 13.5, fontWeight: 700, color: "var(--p-ink)" }}>
+          Długość sesji
+          <span style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--p-ink-soft)" }}>
+            Tyle trwa dzień na planecie. Bez odliczania — słońce po prostu zachodzi.
+          </span>
+        </span>
+        <select value={u.minutySesji} disabled={zapis === "minutySesji"}
+          onChange={(e) => zmien({ minutySesji: Number(e.target.value) })}
+          style={{ fontFamily: "inherit", fontWeight: 800, fontSize: 13, padding: "6px 8px", borderRadius: 10, border: "1.4px solid rgba(168,122,42,.35)", background: "#fff", color: "var(--p-ink)", flex: "none" }}>
+          {[10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map((m) => <option key={m} value={m}>{m} min</option>)}
+        </select>
+      </label>
+      {blad && <div style={{ marginTop: 6, fontSize: 11.5, color: "#B85B47", fontWeight: 700 }}>{blad}</div>}
+    </div>
+  );
+}
+
+/* Obraz śladu (tor W7): podpisany adres z `getStudent` (15 min). Gdy wygaśnie
+   (Mentor trzyma kartę otwartą), `onError` pyta o świeży przez `obraz-adres`. */
+function ObrazSladu({ mission, onPokazWDomku, onUsunObraz }) {
+  const [url, setUrl] = useState(() => adresObrazuPelny(mission.obraz?.url));
+  const [odswiezony, setOdswiezony] = useState(false);
+  useEffect(() => { setUrl(adresObrazuPelny(mission.obraz?.url)); setOdswiezony(false); }, [mission.obraz?.url]);
+  if (!mission.ma_obraz || !url) return null;
+  const wDomku = mission.pokaz_w_domku === true;
+  return (
+    <div style={{ marginTop: 8 }}>
+      <div style={{
+        width: "100%", borderRadius: 11, overflow: "hidden", position: "relative",
+        boxShadow: "inset 0 0 0 1.2px rgba(168,122,42,.25), 0 2px 6px rgba(80,50,10,.12)",
+      }}>
+        <img src={url} alt="ślad — zdjęcie" style={{ display: "block", width: "100%", maxHeight: 220, objectFit: "cover" }}
+          onError={async () => {
+            if (odswiezony) return;
+            setOdswiezony(true);
+            try { const o = await mentorApi.obrazAdresMisji(mission.id); setUrl(adresObrazuPelny(o?.url)); } catch { setUrl(null); }
+          }} />
+        <span style={{
+          position: "absolute", bottom: 0, left: 0, padding: "4px 9px", fontSize: 9.5, fontWeight: 900, letterSpacing: 1,
+          color: "#fff", textTransform: "uppercase", background: "rgba(0,0,0,.45)", borderRadius: "0 8px 0 0",
+        }}>📷 ślad{wDomku ? " · w domku" : ""}</span>
+      </div>
+      <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
+        <button type="button" className="btn btn-ghost btn-sm" style={{ flex: 1, fontSize: 11.5 }}
+          onClick={() => onPokazWDomku?.(!wDomku)}>
+          {wDomku ? "Zdejmij z ramki w domku" : "🖼 Pokaż w domku"}
+        </button>
+        <button type="button" className="btn btn-ghost btn-sm" style={{ fontSize: 11.5, color: "#B85B47" }}
+          onClick={() => onUsunObraz?.()}>
+          Usuń obraz
+        </button>
+      </div>
+      {mission.obraz_do && (
+        <div style={{ marginTop: 4, fontSize: 10.5, color: "var(--p-ink-soft)", fontWeight: 600 }}>
+          Zniknie {new Date(mission.obraz_do).toLocaleDateString("pl-PL")}.
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MissionCard({ mission, onNotice, onDelete, imie, onPokazWDomku, onUsunObraz }) {
   const status = mission.status;
   const proof = mission.submitted_proof;
   const verification = mission.gm_verification;
@@ -872,7 +987,8 @@ function MissionCard({ mission, onNotice, onDelete, imie }) {
           </div>
         </div>
       )}
-      {proof?.proof_media_url && (
+      <ObrazSladu mission={mission} onPokazWDomku={onPokazWDomku} onUsunObraz={onUsunObraz} />
+      {!mission.ma_obraz && proof?.proof_media_url && (
         <div style={{
           marginTop: 8, width: "100%", borderRadius: 11, overflow: "hidden",
           boxShadow: "inset 0 0 0 1.2px rgba(168,122,42,.25), 0 2px 6px rgba(80,50,10,.12)",

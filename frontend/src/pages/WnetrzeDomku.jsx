@@ -38,6 +38,7 @@ import { MISJE, stanMisji } from "../hub/misjeGier.js";
 import { stanZadania as stanGwiazdek } from "../hub/zadanieGwiazdek.js";
 import DomPanel from "../hub/panels/DomPanel.jsx";
 import { namalujRysunek, rysunekAktualny } from "../hub/ramkaDomku.js";
+import { pobierzObrazMisji } from "../services/swiatKonto.js";
 import "../hub/styles/hub.css";
 import "../styles/wnetrze.css";
 
@@ -364,6 +365,30 @@ export default function WnetrzeDomku({ onWyjscie }) {
     const plotnoTex = zapamietaj(new THREE.CanvasTexture(plotnoCanvas));
     plotnoTex.colorSpace = THREE.SRGBColorSpace;
     plotnoTex.anisotropy = 4;
+    /* OBRAZ MISJI (tor W7, 06 §4.5): gdy Mentor wybrał „Pokaż w domku", na tym
+       samym płótnie ląduje miniatura zdjęcia zamiast kreski — ten sam otwór.
+       `crossOrigin`: w dev obraz idzie z innego portu (API), a płótno z obcym
+       obrazem bez CORS nie weszłoby do WebGL. Podpisany adres nie potrzebuje
+       cookie ani nagłówka. Gdy obraz się nie wczyta — zostaje kreska. */
+    pobierzObrazMisji().then((obraz) => {
+      if (!zywe || !obraz?.url) return;
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        if (!zywe) return;
+        const ctx = plotnoCanvas.getContext("2d");
+        const B = plotnoCanvas.width, r = 0.06 * B;   // pasek papieru wokół zdjęcia
+        const bok = B - 2 * r;
+        const sk = Math.max(bok / img.width, bok / img.height);
+        const w = img.width * sk, h = img.height * sk;
+        ctx.save();
+        ctx.beginPath(); ctx.rect(r, r, bok, bok); ctx.clip();
+        ctx.drawImage(img, r + (bok - w) / 2, r + (bok - h) / 2, w, h);
+        ctx.restore();
+        plotnoTex.needsUpdate = true;
+      };
+      img.src = obraz.url;
+    }).catch(() => {});
     const plotno = new THREE.Mesh(
       new THREE.PlaneGeometry(PLOTNO, PLOTNO),
       new THREE.MeshStandardMaterial({ map: plotnoTex, roughness: 0.92, metalness: 0 })

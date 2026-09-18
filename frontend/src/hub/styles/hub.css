@@ -3385,31 +3385,53 @@
 
 .reflektor-tresc{ min-width:0; flex:1; text-align:center; }
 
-/* CHMURKA MÓWIĄCA OBRAZKAMI (`obrazki` we wskazówce).
-   Rysunki leżą jeden NA drugim w tym samym kółku i przechodzą w siebie — para
-   ma czytać się jak jedno zdanie w dwóch klatkach, a nie jak dwie ikony, które
-   skaczą. Kółko jest w kremowym kolorze karty, więc miękka poświata renderu
-   wtapia się w tło bez wycinania (ta sama zasada, co w znakach nad światem). */
-.reflektor-obrazki{
-  position:relative; flex:0 0 auto; align-self:center;
-  width:74px; height:74px; margin-right:12px;
-  border-radius:50%;
-  background:radial-gradient(circle at 50% 38%, #fffaf0, #f3e2bd);
-  box-shadow:inset 0 0 0 2px rgba(224,147,9,.55), 0 2px 5px rgba(51,31,1,.18);
+/* Kotwica dla chmurki: `.game-hud-top` mieszka w `public/scena-3d/hud.css`,
+   którego każda zmiana wymaga podbicia `?v=` w dwóch plikach HTML. Jedna
+   własność, której tam brakuje, stoi więc tutaj — w arkuszu budowanym razem
+   z aplikacją. */
+.game-hud-top{ position:relative; }
+
+/* CHMURKA AWATARA — cichy kanał „co teraz" (`hub/ChmurkaAwatara.jsx`).
+   Same ikonki przy awatarze w lewym górnym rogu: bez tekstu, bez lektora, bez
+   krzyżyka. Wygląda INACZEJ niż chmurka Reflektora i okno postaci, bo mówi coś
+   innego — to myśl dziecka, a nie zdanie postaci. Kremowa pigułka ze złotą
+   obwódką to ten sam język, co liczniki HUD (`hud.css`), czyli „to część
+   twojego paska", a nie nowa karta na ekranie. */
+.chmurka-awatara{
+  position:absolute; top:calc(100% + 9px); left:6px; z-index:4;
+  display:flex; align-items:center;
+  padding:7px 9px;
+  border-radius:20px;
+  background:linear-gradient(180deg, var(--hud-cream-top,#fdf3d8), var(--hud-cream-bottom,#f1d997));
+  border:2px solid var(--hud-gold-deep,#c8901a);
+  box-shadow:0 3px 0 rgba(120,80,10,.35), 0 6px 12px rgba(51,31,1,.22);
+  animation:chmurka-awatara-wjazd .34s cubic-bezier(.2,1.4,.4,1) both;
+  pointer-events:none;           /* nic tu nie klika — to tylko znak */
 }
-.reflektor-obrazki img{
-  position:absolute; inset:7px;
-  width:60px; height:60px; object-fit:contain;
+.chmurka-awatara-dziobek{
+  position:absolute; top:-9px; left:16px;
+  width:14px; height:10px;
+  background:var(--hud-cream-top,#fdf3d8);
+  border-left:2px solid var(--hud-gold-deep,#c8901a);
+  border-top:2px solid var(--hud-gold-deep,#c8901a);
+  transform:rotate(45deg) skew(6deg,6deg);
+  border-radius:3px 0 0 0;
+}
+.chmurka-awatara-ikony{ position:relative; width:46px; height:46px; }
+.chmurka-awatara-ikony img{
+  position:absolute; inset:0; width:46px; height:46px; object-fit:contain;
   opacity:0; transition:opacity .45s ease;
 }
-.reflektor-obrazki img.jest-widoczny{ opacity:1; }
+.chmurka-awatara-ikony img.jest-widoczny{ opacity:1; }
 
-/* Bez ruchu: oba rysunki stoją obok siebie i oba są widoczne. */
-.reflektor-obrazki.bez-ruchu{
-  width:132px; border-radius:38px;
-  display:flex; align-items:center; justify-content:center; gap:4px;
+/* Bez ruchu: oba obrazki obok siebie, nic nie mruga. */
+.chmurka-awatara.bez-ruchu .chmurka-awatara-ikony{ width:96px; display:flex; gap:4px; }
+.chmurka-awatara.bez-ruchu .chmurka-awatara-ikony img{ position:static; width:44px; height:44px; opacity:1; }
+
+@keyframes chmurka-awatara-wjazd{
+  from{ opacity:0; transform:translateY(-6px) scale(.88) }
+  to  { opacity:1; transform:none }
 }
-.reflektor-obrazki.bez-ruchu img{ position:static; inset:auto; width:54px; height:54px; opacity:1; }
 
 .reflektor-karta h2{
   margin:0 0 3px;

@@ -101,7 +101,13 @@ function wybierzPorade() {
   return wybrana;
 }
 
-const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true }, ref) {
+/**
+ * `onWidoczna` — melduje hubowi, że myśl Wizkora jest na ekranie. Po to, żeby
+ * cichy kanał ikonek przy awatarze (`ChmurkaAwatara`) nie wszedł w tym samym
+ * momencie: dwie chmurki naraz to dwa głosy naraz, a dziecko nie wie, na którą
+ * patrzeć. Podział kanałów: `docs/design-system/powiadomienia.md`.
+ */
+const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true, onWidoczna }, ref) {
   const [porada, setPorada] = useState(null);
   /* Osobny stan, a nie `porada !== null`: awatar stoi w rogu przez pół
      sekundy ZANIM wejdzie chmurka, więc widok ma dwie fazy, nie jedną. */
@@ -136,6 +142,7 @@ const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true }
    */
   /** Faktyczne zdjęcie z ekranu — dopiero PO zawinięciu. */
   const zwin = useCallback(() => {
+    onWidoczna?.(false);
     window.clearTimeout(timerChmurki.current);
     window.clearTimeout(timerUkrycia.current);
     window.clearTimeout(timerLitery.current);
@@ -158,7 +165,7 @@ const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true }
     window.clearTimeout(timerLitery.current);
     setZnika(true);
     timerZejscia.current = window.setTimeout(zwin, ZEJSCIE);
-  }, [zwin]);
+  }, [zwin, onWidoczna]);
 
   const pokaz = useCallback((id) => {
     if (!id && licznik.current >= MAX_NA_SESJE) return;
@@ -170,6 +177,7 @@ const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true }
     window.clearTimeout(timerUkrycia.current);
     window.clearTimeout(timerZejscia.current);
     licznik.current += 1;
+    onWidoczna?.(true);
     znikaRef.current = false;
     setZnika(false);
     setChmurka(false);
@@ -188,7 +196,7 @@ const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true }
       const czekaj = WIDOCZNA + (chceSpokoju() ? 0 : czasPisania(odmienDlaGracza(wybrana.tekst)));
       timerUkrycia.current = window.setTimeout(schowaj, czekaj);
     }, ZWLOKA_CHMURKI);
-  }, [powtorz, schowaj]);
+  }, [powtorz, schowaj, onWidoczna]);
 
   const pokazWymuszone = useCallback((id) => {
     wymuszone.current = true;
@@ -330,7 +338,7 @@ const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true }
           chmurki, też ma trafić. Myśl niczego nie uruchamia, więc przypadkowe
           zamknięcie nic nie kosztuje. */}
       <div className="wizkor-mysl-chmurka" onClick={schowaj}>
-        <ChmurkaKsztalt wariant="tekst" ogon="dol-lewo" />
+        <ChmurkaKsztalt wariant="prostokatTekst" ogon="dol-lewo" />
         <div className="wizkor-mysl-tresc">
           {/* Myśl Wizkora z tokenami `{m|ż}` — odmiana przed renderem; głos
               odmienia `powiedzPostacia`, więc oba dostają tę samą formę.

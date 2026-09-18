@@ -31,6 +31,7 @@ import React from "react";
 import { Analytics } from "@vercel/analytics/react";
 import { track } from "@vercel/analytics";
 import { czyLokalnie } from "./dev.js";
+import { czyZdarzeniePetli, zdarzenie as zdarzeniePetli } from "./zdarzenia.js";
 
 const KLUCZ = "ewolucja.bez-analityki";
 
@@ -61,6 +62,12 @@ export function wyciszone() {
  * aplikacji, niż ma zginąć po drodze.
  */
 export function zdarzenie(nazwa, dane) {
+  /* Zdarzenia PĘTLI (`porada_dnia_pokazana`, `porada_wykonana`, …) idą też
+     na nasz serwer (`zdarzenia.js`, docs/tresci/06 §4.12) — to z nich panel
+     Mentora liczy miary sukcesu. Tamten moduł ma własne wyciszenie (ten sam
+     zapis `ewolucja.bez-analityki`, ale bez `czyLokalnie()` — na dev ma dojść
+     do lokalnego backendu), dlatego przed `wyciszone()`. */
+  if (czyZdarzeniePetli(nazwa)) zdarzeniePetli(nazwa, dane);
   if (wyciszone()) return;
   try {
     const czyste = {};

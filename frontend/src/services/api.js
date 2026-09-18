@@ -38,7 +38,12 @@ async function call(path, opts = {}) {
     } catch {
       err = { error: res.statusText };
     }
-    throw new Error(err.error || "Request failed");
+    /* `kod` i `status` z odpowiedzi serwera — panel zadania rozróżnia po nich
+       np. `zdjecia_wylaczone` (403) od zwykłej awarii sieci. */
+    const e = new Error(err.error || "Request failed");
+    e.status = res.status;
+    if (err.kod) e.kod = err.kod;
+    throw e;
   }
   return res.json();
 }
@@ -79,6 +84,17 @@ export const api = {
   getMissionById: (mission_id) => call(`/missions/${mission_id}`),
   submitMissionProof: (mission_id, proof) =>
     call(`/missions/${mission_id}/submit`, { method: "POST", body: proof }),
+  /* Tor obrazu W7 (docs/tresci/06 §4.5): miniatura JPEG z canvasu (bez EXIF),
+     ≤ 512 px / ≤ 150 kB, tylko gdy Mentor włączył `ustawienia.zdjecia`
+     (403 `zdjecia_wylaczone`). Adres obrazu jest podpisany i krótkotrwały. */
+  wyslijMiniature: (mission_id, obraz) =>
+    call(`/missions/${mission_id}/miniatura`, { method: "POST", body: { obraz } }),
+  obrazAdresMisji: (mission_id) => call(`/missions/${mission_id}/obraz-adres`),
+
+  // Stan świata na koncie (`services/swiatKonto.js`): dziennik śladów i ramka
+  // domku. PUT scala po stronie serwera i oddaje stan jak GET (+ `odrzucone`).
+  getSwiat: () => call("/players/me/swiat"),
+  putSwiat: (body) => call("/players/me/swiat", { method: "PUT", body }),
 
   // Przygoda (Mapa Iskier) — synchronizacja stanu i misje fabularne.
   // Uwaga: pierwsza przygoda dziala bez tych endpointow (localStorage jest zrodlem prawdy).

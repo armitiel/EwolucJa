@@ -48,11 +48,25 @@ const WARIANTY = {
     ],
     ogony: { "dol-lewo": [[66, 216, 13], [38, 246, 8]] },
   },
+  /* PROSTOKĄTNA — ta sama rodzina, inny idiom. Obłok z kół mówi „myśl”, ale
+     przy dłuższym zdaniu tekst pływa w nim jak w wannie: rogi pola tekstowego
+     muszą mieścić się w kołach, więc zdanie dostaje wąski pasek pośrodku.
+     Prostokąt (ten sam, co w dymku `Reflektor`) daje tekstowi całą szerokość
+     i stawia powiadomienia postaci w jednym kształcie — ogon z kropek zostaje,
+     bo to on mówi, CZYJA to myśl. Decyzja właściciela, 18.09.2026. */
+  prostokatTekst: {
+    pole: [440, 250],
+    rant: 5,
+    glina: [16, 208],
+    prostokat: [16, 16, 408, 176, 46],
+    ogony: { "dol-lewo": [[66, 214, 13], [38, 244, 8]] },
+  },
 };
 
 export default function ChmurkaKsztalt({ wariant = "ikona", ogon = null, className = "" }) {
   const w = WARIANTY[wariant] || WARIANTY.ikona;
   const [szer, wys] = w.pole;
+  w.bryla = w.bryla || [];
   const [gora, dol] = w.glina;
 
   /* Gradient musi mieć unikalny `id` — dwie chmurki potrafią stać na ekranie
@@ -81,12 +95,34 @@ export default function ChmurkaKsztalt({ wariant = "ikona", ogon = null, classNa
         </linearGradient>
       </defs>
 
-      <g className="chmurka-ksztalt-rant">
-        {w.bryla.map(([cx, cy, r], i) => <circle key={i} cx={cx} cy={cy} r={r + w.rant} />)}
-      </g>
-      <g fill={`url(#${grad})`}>
-        {w.bryla.map(([cx, cy, r], i) => <circle key={i} cx={cx} cy={cy} r={r} />)}
-      </g>
+      {w.prostokat ? (
+        /* Prostokąt rysuje się tak samo jak bryła z kół: najpierw rant (ta sama
+           figura powiększona o `rant`), potem wypełnienie — dzięki temu lamówka
+           ma wszędzie jednakową grubość i tę samą barwę `--chmurka-akcent`. */
+        <>
+          <g className="chmurka-ksztalt-rant">
+            <rect
+              x={w.prostokat[0] - w.rant} y={w.prostokat[1] - w.rant}
+              width={w.prostokat[2] + w.rant * 2} height={w.prostokat[3] + w.rant * 2}
+              rx={w.prostokat[4] + w.rant}
+            />
+          </g>
+          <rect
+            x={w.prostokat[0]} y={w.prostokat[1]}
+            width={w.prostokat[2]} height={w.prostokat[3]}
+            rx={w.prostokat[4]} fill={`url(#${grad})`}
+          />
+        </>
+      ) : (
+        <>
+          <g className="chmurka-ksztalt-rant">
+            {w.bryla.map(([cx, cy, r], i) => <circle key={i} cx={cx} cy={cy} r={r + w.rant} />)}
+          </g>
+          <g fill={`url(#${grad})`}>
+            {w.bryla.map(([cx, cy, r], i) => <circle key={i} cx={cx} cy={cy} r={r} />)}
+          </g>
+        </>
+      )}
 
       {kropki.map(([cx, cy, r], i) => (
         <g key={i} className={`chmurka-ksztalt-kropka chmurka-ksztalt-kropka--${i + 1}`}>
