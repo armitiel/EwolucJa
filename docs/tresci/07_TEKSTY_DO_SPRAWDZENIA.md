@@ -22,25 +22,34 @@ Trzy wzory, wszystkie z migracji formatu, nie z pisania:
 
 ---
 
-## 1. Myśli Wizkora w chmurce (10) — to, co autor zobaczył
+## 1. Myśli Wizkora w chmurce (10) — ZROBIONE
 
 Plik: `frontend/src/hub/data/porady-zdrowia.v1.json`. Limit: jedno zdanie ≤ 65 znaków,
 obserwacja, nie zlecenie, bez liczenia i bez obietnicy efektu.
 
-| # | temat | dziś na ekranie | werdykt | propozycja |
-|---|---|---|---|---|
-| 1 | `woda` | Gdzieś blisko stoi kubek wody. Reszta poczeka. | **zostaje** | — (naturalne: rzecz stoi, Wizkor ją zauważa) |
-| 2 | `oczy` | Oczy lubią popatrzeć daleko, aż za okno. | **poprawka** | Najdalsza rzecz w tym pokoju jest za oknem. |
-| 3 | `plecy` | Plecy same się prostują, gdy ramiona opadną. | **poprawka** | Kiedy ramiona opadną, plecy prostują się same. |
-| 4 | `ruch` | Ciało lubi, gdy ktoś wstanie i się przeciągnie. | **przepisać** | Krzesło trzyma mocno. Można mu się wyrwać na chwilę. |
-| 5 | `oddech` | Jeden wolny wdech. I jeszcze jeden, wolniejszy. | **zostaje** | — (naturalne, bez podmiotu-ciała) |
-| 6 | `rownowaga` | Stanie na jednej nodze to też mała sztuka. | **poprawka** | Stanie na jednej nodze to cała sztuka. |
-| 7 | `przerwa` | Po ekranie ręce i oczy lubią chwilę czegoś innego. | **przepisać** | Ekran zgaśnie na chwilę i nic się nie stanie. |
-| 8 | `ramiona` | Ramiona zakręcone do tyłu robią się cięższe i luźne. | **przepisać** | Kółko ramionami do tyłu. Potem plecy są szersze. |
-| 9 | `cisza` | Chwila ciszy bez dźwięków to odpoczynek dla uszu. | **przepisać** | Cisza też jest dźwiękiem. Najrzadszym. |
-| 10 | `sluchawki` | Ciszej w słuchawkach to więcej muzyki na całe życie. | **przepisać** | W słuchawkach ciszej — dalej słychać resztę świata. |
+**Naniesione 18.09.2026** (decyzje autora) — `porady-zdrowia.v1.json`, commit niżej.
+Temat `rownowaga` wypadł w całości: stanie na jednej nodze nie dało się napisać tak, żeby
+brzmiało naturalnie w chmurce, a dziesiąte hasło nie jest niczym święte. Na jego miejsce
+weszło ziewanie.
 
-Uzasadnienia skrótem: `oczy`, `ruch`, `przerwa` mają podmiot „oczy/ciało/ręce", który
+| # | temat | było | jest |
+|---|---|---|---|
+| 1 | `woda` | Gdzieś blisko stoi kubek wody. Reszta poczeka. | bez zmian |
+| 2 | `oczy` | Oczy lubią popatrzeć daleko, aż za okno. | Najdalsza rzecz w tym pokoju jest za oknem. |
+| 3 | `plecy` | Plecy same się prostują, gdy ramiona opadną. | Plecy prostują się same, kiedy ramiona opadną. |
+| 4 | `ruch` | Ciało lubi, gdy ktoś wstanie i się przeciągnie. | Krzesło trzyma mocno. Można mu się wyrwać na chwilę. |
+| 5 | `oddech` | Jeden wolny wdech. I jeszcze jeden, wolniejszy. | bez zmian |
+| 6 | `rownowaga` → **`ziewanie`** | Stanie na jednej nodze to też mała sztuka. | Ziewanie zaraża szybciej niż śmiech. |
+| 7 | `przerwa` | Po ekranie ręce i oczy lubią chwilę czegoś innego. | Ekran zgaśnie na chwilę i nic się nie stanie. |
+| 8 | `ramiona` | Ramiona zakręcone do tyłu robią się cięższe i luźne. | Kiedy ramiona idą do tyłu, robi się więcej miejsca na oddech. |
+| 9 | `cisza` | Chwila ciszy bez dźwięków to odpoczynek dla uszu. | Cisza też jest dźwiękiem. Najrzadszym. |
+| 10 | `sluchawki` | Ciszej w słuchawkach to więcej muzyki na całe życie. | W słuchawkach świat robi się mały, a dookoła nadal coś gra. |
+
+Wszystkie ≤ 65 znaków, bez cyfr, bez uosobionego ciała, bez obietnicy efektu. `rownowaga`
+zniknęła też z `KOLIZJE_TEMATOW` w `PodpowiedzMedrca.jsx` (dwie listy: `ruch`, `napiecie-pusc`);
+`ziewanie` nie koliduje z żadnym `rodzaj` porady liska, więc wchodzi zawsze.
+
+Dlaczego stare wypadły: `oczy`, `ruch`, `przerwa` mają podmiot „oczy/ciało/ręce", który
 „lubi" — dziecko nie mówi tak o sobie i nikt tak nie mówi do dziecka. `ruch` dodatkowo
 mówi „gdy ktoś wstanie" — kto? `przerwa` kończy się pustym „czegoś innego". `cisza`
 powtarza się sama („ciszy bez dźwięków") i wpada w „odpoczynek dla uszu", czyli język

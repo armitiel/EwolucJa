@@ -1,16 +1,16 @@
 {
   "version": 2,
-  "note": "Myśli Wizkora o ciele (tryb spokojny, głos `las_decyzji`, ton calm) — docs/tresci/01 R7, 02 §2.4, 04 §4.5, 06 pkt 25. Jedna myśl = jedna OBSERWACJA o ciele, zapraszająca, bez zlecenia (żadnego czasownika rozkazującego), ≤ 65 znaków, bez cyfr, bez obietnicy efektu, bez tematu jedzenia, wyglądu, snu ani pory. Pole `temat`: chmurka pomija tematy kolidujące z `rodzaj` dzisiejszej porady liska (oddech↔oddech, ruch/napiecie-pusc↔ruch/plecy/ramiona/rownowaga, wyciszenie↔cisza/sen, zmysly↔oczy). Wycięte 17.09.2026: usmiech (lustro/wygląd), sen (pora, „supermoc”), przekaska i posilek (jedzenie), rece (plakat z gabinetu), dwor (scalone z przerwa). Myśl nie ma odzewu ani śladu w świecie.",
+  "note": "Myśli Wizkora o ciele (tryb spokojny, głos `las_decyzji`, ton calm) — docs/tresci/01 R7, 02 §2.4, 04 §4.5, 06 pkt 25. Jedna myśl = jedna OBSERWACJA o ciele, zapraszająca, bez zlecenia (żadnego czasownika rozkazującego), ≤ 65 znaków, bez cyfr, bez obietnicy efektu, bez tematu jedzenia, wyglądu, snu ani pory. Pole `temat`: chmurka pomija tematy kolidujące z `rodzaj` dzisiejszej porady liska (oddech↔oddech, ruch/napiecie-pusc↔ruch/plecy/ramiona, wyciszenie↔cisza/sen, zmysly↔oczy). Wycięte 17.09.2026: usmiech (lustro/wygląd), sen (pora, „supermoc”), przekaska i posilek (jedzenie), rece (plakat z gabinetu), dwor (scalone z przerwa). Przepisane 18.09.2026 (autor): zdjęte uosobienia ciała („oczy lubią”, „ciało lubi”) i morał o słuchawkach; temat `rownowaga` (stanie na jednej nodze) zastąpiony przez `ziewanie`. Myśl nie ma odzewu ani śladu w świecie.",
   "porady": [
     { "id": "woda",      "temat": "woda",      "tekst": "Gdzieś blisko stoi kubek wody. Reszta poczeka." },
-    { "id": "oczy",      "temat": "oczy",      "tekst": "Oczy lubią popatrzeć daleko, aż za okno." },
-    { "id": "plecy",     "temat": "plecy",     "tekst": "Plecy same się prostują, gdy ramiona opadną." },
-    { "id": "ruch",      "temat": "ruch",      "tekst": "Ciało lubi, gdy ktoś wstanie i się przeciągnie." },
+    { "id": "oczy",      "temat": "oczy",      "tekst": "Najdalsza rzecz w tym pokoju jest za oknem." },
+    { "id": "plecy",     "temat": "plecy",     "tekst": "Plecy prostują się same, kiedy ramiona opadną." },
+    { "id": "ruch",      "temat": "ruch",      "tekst": "Krzesło trzyma mocno. Można mu się wyrwać na chwilę." },
     { "id": "oddech",    "temat": "oddech",    "tekst": "Jeden wolny wdech. I jeszcze jeden, wolniejszy." },
-    { "id": "nogi",      "temat": "rownowaga", "tekst": "Stanie na jednej nodze to też mała sztuka." },
-    { "id": "przerwa",   "temat": "przerwa",   "tekst": "Po ekranie ręce i oczy lubią chwilę czegoś innego." },
-    { "id": "ramiona",   "temat": "ramiona",   "tekst": "Ramiona zakręcone do tyłu robią się cięższe i luźne." },
-    { "id": "cisza",     "temat": "cisza",     "tekst": "Chwila ciszy bez dźwięków to odpoczynek dla uszu." },
-    { "id": "sluchawki", "temat": "sluchawki", "tekst": "Ciszej w słuchawkach to więcej muzyki na całe życie." }
+    { "id": "ziewanie",  "temat": "ziewanie",  "tekst": "Ziewanie zaraża szybciej niż śmiech." },
+    { "id": "przerwa",   "temat": "przerwa",   "tekst": "Ekran zgaśnie na chwilę i nic się nie stanie." },
+    { "id": "ramiona",   "temat": "ramiona",   "tekst": "Kiedy ramiona idą do tyłu, robi się więcej miejsca na oddech." },
+    { "id": "cisza",     "temat": "cisza",     "tekst": "Cisza też jest dźwiękiem. Najrzadszym." },
+    { "id": "sluchawki", "temat": "sluchawki", "tekst": "W słuchawkach świat robi się mały, a dookoła nadal coś gra." }
   ]
 }

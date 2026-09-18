@@ -69,8 +69,8 @@ const MAX_NA_SESJE = 2;         // R7
    tego dnia milczą (`04` §4.5). Tematy siedzą w `porady-zdrowia.v1.json`. */
 const KOLIZJE_TEMATOW = {
   oddech: ["oddech"],
-  ruch: ["ruch", "plecy", "ramiona", "rownowaga"],
-  "napiecie-pusc": ["ruch", "plecy", "ramiona", "rownowaga"],
+  ruch: ["ruch", "plecy", "ramiona"],
+  "napiecie-pusc": ["ruch", "plecy", "ramiona"],
   wyciszenie: ["cisza", "sen"],
   zmysly: ["oczy"],
 };
