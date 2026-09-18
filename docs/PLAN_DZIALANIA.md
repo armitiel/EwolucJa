@@ -113,6 +113,11 @@ wróci.
 
 ## 5. Etap 3 — pierwsze zadania i Koło Przeznaczenia
 
+> **Nieaktualne wobec `docs/tresci/05_ZADANIA_HYBRYDOWE.md` i kanonu z 17.09.2026.**
+> Przejęte do `05`/`03`: kolejka profilu zamiast czystego losowania (`pierwszeZadania`), Koło jako ceremonia od czwartego zadania, sześć hybryd po jednej na profil (Kartograf/Most/Ciepły ślad/Trzy części/Odkrywca/Pierwszy głos → `05`: kładka ST, ławka EM, ramka KR, oczko DT, kamienie LD, światło MD); Kompas Cieni, Tarcza Słońca, puzzel bramy i MD-mediator — odrzucone. Reszta (nazwy, obiekty i mechaniki poniżej) nie
+> obowiązuje — czytaj jako historię pomysłów. Stan wdrożenia: `06` „Stan wdrożenia 18.09".
+
+
 ### Koło
 
 Najtańsza wersja, która robi dokładnie to, o co chodzi: **zostawić pięć pól

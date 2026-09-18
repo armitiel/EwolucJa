@@ -7,6 +7,14 @@ Ten dokument opisuje, dlaczego to za mało i co konkretnie zmieniamy.
 
 ---
 
+> **Aktualizacja 18.09 (`docs/tresci/04_PORADY_DNIA.md`, wdrożone w kroku 4):**
+> odzew mówi **lisek** (nie Wizkor — lisek nikogo nie cytuje), zauważa czynność
+> i nie obiecuje efektu; **drzewa tygodnia nie ma** — ślad porady to delikatna
+> zmiana w scenie do końca doby (chorągiewki, świetlik, niebo), bez liści, liczb
+> i serii. Model danych: `04` §4.1 (`zapowiedz`, `krok`, `minimum`, `odzew`,
+> `etap`, `rodzaj`, `wejscie`, `silnik`, `slad`), nie `porady.v2.json` z §3.
+> Poniższy tekst zostaje jako historia decyzji.
+
 ## 1. Co jest nie tak
 
 Trzy rzeczy, każda osobno drobna, razem tłumaczą, dlaczego dziecko nie ma po co

@@ -1989,3 +1989,46 @@ Bilans: **48 wpisów — 47 wprowadzono (4 ze zmianą względem gotowego tekstu)
 | 8 | dodatek po zauważeniu („drugi kwiat obok”, „trzeci”) | ujednolicone z R9 (`01`) i `05`: kwiat w nowym wariancie koloru przy drabince pomostu — w `tajny-pomocnik`, `na-zmiane` i w tabeli §10 (wiersz „reakcja”). |
 
 Walidator `tmp/tresci-skrypty/nowe-zadania-B.py` po zmianach: **15/15 OK** (rozszerzony o `slad` i o tokeny przy rzeczownikach). Nic z listy nie uznano za niesłuszne.
+
+---
+
+## 14. Migracja biblioteki — 30 zadań do formatu Wizkora (18.09)
+
+Skrypt `tmp/tresci-skrypty/migruj-biblioteke.py` (powtarzalny, `id` bez zmian): **47 wycofanych** (`wycofane: true` + `powod`, wpisy zostają dla `choices_log`), **29 przepisanych** (§3.3, teksty w skrypcie), **229 zmigrowanych** (`zmigrowane: true`: tokeny `{m|ż}`, dwie drogi dowodu, bez etykiet profilu, bez „musisz/pamiętaj”, bez cyfr, bez „Wizkor mówi:/Misja:”, dowody bez uczuć). Walidator biblioteki: PRZED 270 wpisów z błędami (forma męska 228, dowód bez dwóch dróg 75, etykieta 60, „Misja:/Wizkor mówi” 50, cyfra 37, ukośnik 7, musisz 7, uczucia 6) → **PO 0**. Generator `/missions/generate` bierze tylko `MENTOR_TASKS_DLA_DZIECKA` (zmigrowane, niewycofane) i nie woła już Claude.
+
+Trzydzieści najlepszych (lista z `tmp/tresci-notatki-B.md` pkt 3; cztery kandydatury zamienione, bo dublowały zadania z §7: MD-013 → MD-035, MD-015 → MD-030, LD-041 → LD-032, EM-024 → EM-035) przeniesione do `zadania-wizkora.v2.json` w pełnym schemacie v2 (`zrodlo: "biblioteka:<id>"`, `posadzKwiat` przy kotwicy, `slad`, `warianty["1-3"]`, `karta_wizkora`, `mentor_powiadomienie`). Walidator `nowe-zadania-B.py --v2`: **52/52 OK**. Runda panelu skrócona: szkic z biblioteki + weto `psycholog`/`socjolog` + `pedagog` dla 1–3 + `narrator-gama` (karta ≤ 60).
+
+| id v2 | z biblioteki | profil · oś · potrzeba · kształt | werdykt panelu · co zmieniono |
+|---|---|---|---|
+| `lustro-w-lyzce` | `DT-TASK-030` | DT · ciekawosc · uwaznosc · zauważ | psycholog: zdrowe; socjolog: łyżka jest wszędzie — zostaje |
+| `dwa-naczynia` | `DT-TASK-018` | DT · ciekawosc · kompetencja · zrób | psycholog: zdrowe; socjolog: dwie szklanki są w każdym domu — zostaje; pedagog: 1–3 bez „porównaj” w celu |
+| `trzy-guziki` | `DT-TASK-027` | DT · ciekawosc · uwaznosc · zauważ | socjolog: pieniądze zakładały dostęp do portfela → guziki, klocki, piórnik; psycholog: zdrowe |
+| `ptak-za-oknem` | `DT-TASK-023` | DT · ciekawosc · uwaznosc · zauważ | psycholog: brak ptaka nie jest porażką — zapisane w celu; socjolog: okno jest wszędzie |
+| `szukaj-wzoru` | `DT-TASK-028` | DT · ciekawosc · uwaznosc · zauważ | psycholog: zdrowe; socjolog: miejsce w domu i w klasie — nie zakłada dworu |
+| `zgadnij-minute` | `ST-TASK-042` | ST · wytrwalosc · regulacja · wytrzymaj | rodzina „minuta” z 7.6 (`minuta-w-glowie`) — dubel; zostaje jako zapasowy z `rodzina: minuta` |
+| `zegnij-papier` | `ST-TASK-019` | ST · wytrwalosc · kompetencja · zrób | pedagog: liczenie warstw do ośmiu w zasięgu 1–3; psycholog: zdrowe |
+| `wzor-wokol` | `ST-TASK-034` | ST · wytrwalosc · uwaznosc · zauważ | psycholog: zdrowe; socjolog: przystanek i klasa jako miejsca bez domu |
+| `klocki-w-rzedach` | `ST-TASK-025` | ST · wytrwalosc · kompetencja · zrób | psycholog: zdrowe; socjolog: makaron w kuchni — bez klocków |
+| `postac-z-kuchni` | `KR-TASK-016` | KR · tworzenie · sprawczosc · zrób | psycholog: zdrowe; socjolog: piórnik jako wersja bez kuchni |
+| `jedno-zdanie-opowiesci` | `KR-TASK-024` | KR · tworzenie · sprawczosc · zrób | psycholog: zdrowe; pedagog: 1–3 mówi zdanie, nie pisze |
+| `rysunek-na-slepo` | `KR-TASK-036` | KR · tworzenie · autonomia · odważ się | rodzina „brzydko” z 7.8 (`celowo-brzydko`) — inny mechanizm (ślepo vs celowo), zostaje z `rodzina: krzywy-rysunek` |
+| `most-dla-mrowki` | `KR-TASK-034` | KR · tworzenie · sprawczosc · zrób | rodzina „kladka” z 7.5 — inny cel (mrówka, nie nośność); `rodzina: most-maly`; socjolog: stół jako wersja bez dworu |
+| `dwie-rzeczy-w-jedna` | `KR-TASK-043` | KR · tworzenie · sprawczosc · zrób | psycholog: zdrowe |
+| `nazwa-dla-chmury` | `KR-TASK-042` | KR · tworzenie · uwaznosc · zauważ | psycholog: zdrowe; `rozmowa` bez tokenu w środku — Mentor mówi o niebie, nie o dziecku |
+| `wybierz-ty` | `LD-TASK-027` | LD · odwaga · relacja · podaruj | psycholog: zdrowe (bez „pokory”); socjolog: świetlica i podwórko bez rodziny |
+| `dziekuje-niewidocznemu` | `LD-TASK-039` | LD · odwaga · troska · podaruj | socjolog: „znany z widzenia”, nigdy obcy na ulicy — miejsca ograniczone do szkoły, klatki z dorosłym i domu; psycholog: zdrowe |
+| `cos-w-czym-slabo` | `LD-TASK-032` | LD · odwaga · autonomia · odważ się | rodzic-4-8: śpiew tylko przy zamkniętych drzwiach — w miejscach; psycholog: zdrowe |
+| `nie-wiem-ale-sprawdze` | `LD-TASK-029` | LD · odwaga · kompetencja · odważ się | psycholog: wersja bez pytania w `minimum` — nie czeka na zdarzenie; pedagog: 1–3 może sprawdzić u dorosłego |
+| `podziel-sie` | `EM-TASK-017` | EM · wspolpraca · troska · podaruj | psycholog: odmowa nie jest porażką — w `slad.opcje`; socjolog: bez zakładania jedzenia na zapas |
+| `list-bez-okazji` | `EM-TASK-038` | EM · wspolpraca · relacja · podaruj | rodzic-4-8: liścik do kolegi jest OK, gdy jest o rzeczy; socjolog: telefon dla dzieci bez bliskich obok |
+| `ciche-miejsce` | `EM-TASK-035` | EM · wspolpraca · regulacja · wytrzymaj | psycholog: bez „serce się resetuje”, bez obietnicy efektu; socjolog: autobus jako miejsce bez własnego pokoju |
+| `lyk-po-lyku` | `MD-TASK-023` | MD · wytrwalosc · regulacja · wytrzymaj | psycholog: zdrowe; bez tematu jedzenia — tylko woda |
+| `buty-w-parach` | `MD-TASK-027` | MD · wytrwalosc · uwaznosc · zrób | psycholog: nie obowiązek — koniec nazwany zabawnie („żaden sam”); socjolog: skarpetki jako wersja bez przedpokoju |
+| `chusteczka-w-powietrzu` | `MD-TASK-022` | MD · wytrwalosc · uwaznosc · zauważ | psycholog: zdrowe |
+| `klocki-w-rzedzie` | `MD-TASK-031` | MD · wytrwalosc · uwaznosc · zrób | psycholog: zdrowe |
+| `stan-jak-czapla` | `MD-TASK-030` | MD · wytrwalosc · ruch · wytrzymaj | rodzic-1-3: z dala od kantów w miejscach; psycholog: zdrowe |
+| `skladanie-w-kostke` | `MD-TASK-035` | MD · wytrwalosc · uwaznosc · zrób | psycholog: nie obowiązek — jedna rzecz, koniec nazwany; socjolog: szalik jako wersja bez własnych rzeczy |
+| `karton-kosmiczny` | `KR-TASK-011` | KR · tworzenie · sprawczosc · zrób | bezpieczeństwo: nożyczki z dorosłym w `jak`; socjolog: świetlica bez własnych kartonów |
+| `rzezba-z-kuli` | `KR-TASK-022` | KR · tworzenie · sprawczosc · zrób | psycholog: zdrowe |
+
+Po dopisaniu: 52 zadania w torze Wizkora — potrzeby: uważność 12 · kompetencja 11 · sprawczość 10 · regulacja 5 · relacja 4 · autonomia 4 · troska 3 · ruch 3; kształty: zrób 19 · zauważ 9 · wytrzymaj 9 · odważ się 7 · podaruj 5 · porozmawiaj 3 (policzone z pliku v2; stan przed w §10). Nadal najsłabsze: ruch i troska o miejsce — do tygodnia drugiego. Rodziny dzielone: `minuta` (§7.6 + `zgadnij-minute`), `krzywy-rysunek` (`celowo-brzydko` + `rysunek-na-slepo`), `most-maly` (`most-dla-mrowki` — inne niż `kladka`).

@@ -20,7 +20,7 @@ sprawdzać, co jest dalej. Zobaczmy, czy Wizkor ma dla ciebie coś ciekawego."
 | ST | Mądrość | Myśliciel / Myślicielka | sowa | wytrwalosc (domknięcie planu) |
 | KR | Kreatywność | Wynalazca / Wynalazczyni | panda | tworzenie |
 | LD | Odwaga | Śmiałek / Śmiałka | lew | odwaga |
-| MD | Skupienie | Spokojna Głowa | ośmiornica | wytrwalosc albo wspolpraca |
+| MD | Skupienie | Spokojna Głowa | ośmiornica | wytrwalosc (regulacja) |
 
 Zwierzę to wygląd awatara profilu i nic więcej — nie jest postacią, która
 mówi. W świecie odzywają się tylko trzy głosy: narratorka, Wizkor i lisek.
@@ -74,6 +74,13 @@ Spokojna Głowa to skupienie i spokój, nie godzenie innych.
 - **Działanie ma być bezpieczne i wykonalne od razu:** bez kontaktu
   z obcymi, bez samodzielnego wychodzenia, bez wydawania pieniędzy, bez
   specjalnych przygotowań.
-- **Nagrodą jest zmiana w świecie,** nie punkty, poziomy ani przedmioty.
+- **Nagrodą jest zmiana w świecie,** nie punkty, poziomy ani przedmioty:
+  po śladzie świat reaguje od razu (kwiat, kamyczki, ukryta bryła), a po tym,
+  jak Mentor zauważy — dokłada mały dodatek. Mentor zauważa, nie ocenia.
+- **Lisek** robi w scenie to samo, co dziecko w poradzie (ślad do końca doby),
+  i daje chmurkę zaproszenia przy obiekcie części A hybrydy. Nie zleca.
+- **Profil to kolejność, nie zbiór:** pierwsze trzy zadania z pary profilu
+  i osi o najniższym liczniku, potem Koło; punkty idą do cechy zadania, nigdy
+  do profilu z testu.
 - **Nie ma złego wyniku ani złego profilu.** Żaden profil nie jest „lepszy",
   a dziecko nie dowiaduje się, która cecha wypadła mu najsłabiej.

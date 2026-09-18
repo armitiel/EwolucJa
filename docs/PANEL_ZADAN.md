@@ -9,72 +9,97 @@ u siebie tylko to, co widzą z własnej perspektywy.
 
 ## Co to jest „zadanie" w EwolucJA
 
-Zadanie robi się **poza ekranem**. Ciąg jest taki:
+Zadanie robi się **poza ekranem**. Pętla od 17.09 (decyzja autora; szczegóły
+`docs/tresci/03_ZADANIA_W_REALU.md`, `06_DECYZJE_I_ZALEZNOSCI.md` §4.7):
 
-Wizkor zleca → **Koło Przeznaczenia** losuje cechę → do cechy dobierane jest
-zadanie → dziecko wybiera **miejsce** → robi je w realnym świecie → dowodem
-jest **zdjęcie albo jedno zdanie** → dowód idzie do **Mentora** (dorosły) →
-Mentor przyjmuje albo prosi o poprawkę → backend przyznaje monety i cecha
-rośnie (`wzmocnijCeche`).
+Wizkor daje trop → pierwsze trzy zadania z **kolejki profilu** (`pierwszeZadania`
+w `hub/zadanieWizkora.js`: para `profil_pierwszy` + oś o najniższym liczniku),
+potem **Koło Przeznaczenia** losuje cechę z kolejki bez powtórek → dziecko wybiera
+**miejsce** → robi je w realnym świecie → zostawia **ślad** (wybór z trzech
+kartek albo jedno zdanie ≤ 160 zn.; zdjęcie za flagą, do czasu toru obrazu) →
+**świat reaguje od razu** (`reakcja_swiata`: kwiat, kamyczki, ukryta bryła) →
+**Mentor zauważa** (jeden przycisk „Zauważam", gotowa formuła bez oceny, pytanie
+do rozmowy z pola `rozmowa`) → **świat dokłada** mały dodatek (kwiat w nowym
+kolorze przy drabince; światło tylko w hybrydzie MD).
+
+Mentor **nie zatwierdza, nie odrzuca, nie daje punktów**. Monety (25 za ślad,
+0 za zauważenie) są cichym licznikiem w HUD i nie padają w żadnym tekście.
+Nagrodą jest zmiana świata.
 
 Pięć cech: `ciekawosc`, `tworzenie`, `wspolpraca`, `odwaga`, `wytrwalosc`
-(`adventure/engine/adventureState.js` → `TRAIT_LABELS`).
+(`adventure/engine/adventureState.js` → `TRAIT_LABELS`). Sześć profili z testu
+mapuje się na osie wg `06` §2 — profil to **kolejność**, nie zbiór.
 
-Odbiorca: **dziecko 6–12 lat**. Klasy 1–3 i 4–8 to dwa różne światy — patrz
-agenci `rodzic-1-3` i `rodzic-4-8`.
+Odbiorca: **dziecko 6–12 lat**. Klasy 1–3 i 4–8 to dwa różne światy — pole
+`etap` + `warianty["1-3"|"4-8"]`; dla 1–3 karta pokazuje `cel` + `przyklad`,
+`jak` czyta lektor.
 
 ---
 
 ## Trzy formaty wyjścia
 
-### 1. Zadanie Wizkora — `frontend/src/hub/data/zadania-wizkora.v1.json`
+### 1. Zadanie Wizkora — `frontend/src/hub/data/zadania-wizkora.v2.json`
 
-To jest **główny** format. Po dwa zadania na cechę, żeby powtórzone losowanie
-nie dawało od razu tego samego.
+To jest **główny** format (v2 od 18.09; v1 zostaje tylko jako archiwum).
+52 zadania aktywne + zastąpione (stare `id` z polem `zastapione_przez` —
+`historiaZadan()` w zapisach graczy nie może zmienić znaczenia).
 
 | pole | co to jest | limit |
 |---|---|---|
-| `id` | kebab-case, po polsku, bez ogonków | 2–3 słowa |
-| `cecha` | jedna z pięciu, dokładnie te stringi | — |
-| `tytul` | nazwa zadania, brzmi jak rola albo tytuł | 1–2 słowa |
-| `cel` | co zrobić — **dwie linie rozdzielone `\n`**, druga linia to zwrot akcji | 2 × ~40 znaków |
-| `szept` | echo celu, Wizkor mówi to półgłosem | 2–4 słowa |
-| `jak` | jedno zdanie, jeden czasownik | 1 zdanie |
-| `dowod` | rozkaz przy przycisku zdjęcia, **zawsze dwie drogi**: zdjęcie albo zdanie | 1 zdanie |
-| `przyklad` | głosem dziecka, konkret, niedoskonałe | 1–2 zdania |
-| `nagroda` | monety; dziś wszystkie mają 25 | int |
-| `minuty` | realny czas dziecka, nie życzeniowy | 10–20 |
-| `competency_focus` | kody legacy dla raportów Mentora (tablica) | 1–2 kody |
-| `miejsca` | 3–4 warianty **tego samego** zadania w różnych kontekstach: `{id, emoji, nazwa, opis}` | `opis` = 1 zdanie |
+| `id` | kebab-case, po polsku, bez ogonków; nowe `id` przy przepisaniu | 2–3 słowa |
+| `cecha` | jedna z pięciu | — |
+| `tytul` | rola albo tytuł, bez nazwy profilu | 1–2 słowa |
+| `cel` | **dwie linie** przez `\n`, druga = zwrot akcji; bez cyfr (TTS) | 2 × ≤ 60 zn. |
+| `szept` | echo drugiej linii | 2–4 słowa |
+| `jak` | jedno zdanie, jeden czasownik; bez cyfr (TTS) | ≤ 140 zn. |
+| `dowod` | nagłówek drugiego kroku, **zawsze dwie drogi**, nigdy „jak się czułeś" | 1 zdanie |
+| `przyklad` | głosem dziecka, niedoskonałe, tokeny `{m|ż}` | 1–2 zdania |
+| `minimum` | wersja na gorszy dzień, „i tak się liczy" | 1 zdanie |
+| `potrzeba` | `autonomia \| kompetencja \| relacja \| regulacja \| ruch \| uwaznosc \| sprawczosc \| troska` | — |
+| `ksztalt` / `tryb_startu` / `profil_pierwszy` / `rodzina` | dla projektantów i kolejki (`03` §4, §6) | — |
+| `etap` + `warianty` | `oba \| 1-3 \| 4-8`; wariant nadpisuje `cel/jak/przyklad/dowod/miejsca{id→opis}` | — |
+| `rozmowa` | jedno pytanie dla Mentora; nie zakłada wyniku | 1 zdanie |
+| `slad` | `opcje[3]`, `obrazki[3]`, `zdanie`, `zdjecie`, `podpowiedz` | opcje ≤ 40 zn. |
+| `reakcja_swiata` | `{metoda, args, opis, toast{tytul ≤ 28, opis}, istnieje}` — metoda sceny | — |
+| `miejsce_reakcji` | pod drzewem · obok karty · przy choince · na pieńku · przy drabince · przy ścieżce | — |
+| `reakcja_mentor` | dodatek po zauważeniu (kwiat w nowym kolorze przy drabince) | — |
+| `karta_wizkora` | zlecenie na kartę, bez „musi", bez cyfr | ≤ 60 zn. |
+| `mentor_powiadomienie` | „Zobacz, co {zrobił\|zrobiła} {imie}: …" | 1 zdanie |
+| `kwestie[]` | `glos`, `moment`, `wariant`, `tekst`, `tekstEkranu` | — |
+| `nagroda` | cichy licznik (25); **nie pada w tekstach** | int |
+| `minuty` | realny czas dziecka | 10–20 |
+| `competency_focus` | kody legacy dla raportów Mentora | 1–2 kody |
+| `miejsca` | 3–4 warianty **tego samego** zadania; min. jedno w bloku bez ogrodu, zwierzaka, pieniędzy; klatka/korytarz dla 1–3 „gdy dorosły jest obok" | `opis` = 1 zdanie |
+| `zrodlo` | `biblioteka:<id>` dla zadań przeniesionych z bazy Mentora | — |
 
-Kody legacy: `DT` Ciekawość · `EM` Życzliwość · `ST` Mądrość · `KR` Kreatywność
-· `LD` Odwaga · `MD` Skupienie. **W tekstach dla dziecka nie istnieją.**
-
-Teksty krótkie: panel ma się zmieścić bez przewijania ściany tekstu. Jedno
-zdanie na pole.
+Walidator: `tmp/tresci-skrypty/nowe-zadania-B.py --v2` (cyfry w TTS, tokeny,
+dwie drogi, etykiety, limity, `slad`, `warianty`). Hybrydy (`docs/tresci/05`)
+używają tego samego schematu plus `czescA`, `most`, `reakcja`, `reakcjaMentor`.
 
 ### 2. Baza Mentora — `frontend/src/data/mentorTaskLibrary.js` (+ `.additions.js`)
 
-Stary format generatora, profile `DT/EM/ST/KR/LD/MD`:
+Format generatora i **propozycji dla dorosłego** w panelu Mentora:
 
 ```
 { id: "DT-TASK-011", profile: "DT", kind: "task", title, body,
-  points_reward: 25, competency_focus: ["DT","KR"], proof_hint, tags: [] }
+  points_reward: 25, competency_focus: ["DT","KR"], proof_hint, tags: [],
+  zmigrowane: true | wycofane: true, powod }
 ```
 
-`kind`: `task` (do zrobienia) · `hint` (zdanie motywujące, `points_reward: 0`)
-· `artifact` (opis magicznego przedmiotu, `points_reward: 5`). `id` idzie
-dalej od ostatniego w danym profilu — sprawdź, zanim nadasz.
+Po migracji 18.09 (`tmp/tresci-skrypty/migruj-biblioteke.py`, `03` §3, §14):
+47 wpisów `wycofane` (zostają dla historii), 229 `zmigrowane` (tokeny, dwie
+drogi dowodu, bez etykiet profilu i cyfr). Dziecku trafia wyłącznie
+`MENTOR_TASKS_DLA_DZIECKA`; 30 najlepszych żyje już w v2 (`zrodlo`). Nowe
+zadania pisz **od razu w v2**, nie tutaj.
 
-### 3. Porada dnia — `frontend/src/hub/poradaDnia.js` → `KARTY_DNIA`
+### 3. Porada dnia — `frontend/src/dailyTipsData.js` (format `docs/tresci/04` §4.1)
 
-Mikroaktywność na dziś, mówi ją **lisek**, nie Wizkor. Pola: `id`, `tytul`,
-`opis` (podpis na kafelku), `akcja`, `ilustracja`, `zapowiedz` (to, co lisek
-mówi po wybraniu karty), `odzew` (po zrobieniu). Wybór jest deterministyczny
-w obrębie doby — to tablica korkowa, nie losowanie nagrody.
-
-**`zapowiedz` i `odzew` czyta TTS**: bez cyfr i skrótów. „Pięć wolnych
-oddechów", nie „5 oddechów".
+Mikroaktywność z liskiem, nie zadanie: lisek **zaprasza** (`zapowiedz`, ≤ 120 zn.
+w dwóch zdaniach), dziecko robi `krok` (jeden czasownik, widoczny koniec), jest
+`minimum`, po zrobieniu `odzew` (zauważa czynność, nie chwali cechy, nie
+obiecuje efektu) i delikatny ślad w scenie do końca doby. Pola `etap`, `rodzaj`,
+`wejscie` (mechanizm profilu), `silnik`, `slad`. Lisek nikogo nie cytuje;
+porada nie podlewa Fasoli i nie daje monet.
 
 ---
 
@@ -104,8 +129,12 @@ oddechów", nie „5 oddechów".
 
 - Bez zawstydzania, porównywania, odliczania, serii, „nie przegap",
   „zostało ci". Bez kar za niezrobienie.
-- Dowód nie jest sprawdzianem. Ma być łatwy do dostarczenia i trudny do
-  oblania.
+- Ślad nie jest sprawdzianem: zadania **nie da się oblać** — jest zrobione
+  albo czeka; brak śladu nic nie kosztuje. Mentor zauważa, nie ocenia:
+  w tekstach nie ma „zatwierdź", „poprawka", „sprawdzane", „przyjął".
+- Nagrodą jest zmiana świata (`reakcja_swiata`); monety nie padają w tekstach.
+- Tekst mówiony bez cyfr; czasowniki o dziecku w tokenach `{m|ż}`
+  (`odmienDlaGracza`). Standard: `docs/tresci/01_STANDARD_GLOSOW.md`.
 - Zadanie o uczuciach nie wymusza zwierzenia. Zawsze jest wersja, którą da
   się zrobić, nie mówiąc nic o sobie.
 - Nie obiecujemy tego, czego nie widać na ekranie (`docs/KONCEPT_GRY.md`).

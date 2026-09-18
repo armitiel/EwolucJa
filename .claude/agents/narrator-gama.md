@@ -27,8 +27,11 @@ samym głosem. Lisek to postać gracza i towarzysz naraz. **Mentor nie jest
 postacią** — to rola dorosłego (rodzic albo nauczyciel); w tekstach dla
 dziecka nie robisz z niego istoty ze świata.
 
-Lisek odzywa się wyłącznie w Poradzie dnia i w lekkiej wskazówce do Minigier.
-To cała jego rola w mowie.
+Lisek odzywa się w Poradzie dnia (`zapowiedz` i `odzew` — zauważa czynność,
+nie chwali cechy, nie obiecuje efektu), w lekkiej wskazówce do Minigier i w
+chmurce zaproszenia przy obiekcie części A hybrydy (raz na sesję). W scenie
+lisek **robi to samo, co dziecko** (ślad porady do końca doby) — nie zleca,
+nie ocenia, nikogo nie cytuje.
 
 ## Reguły pisania
 
@@ -50,7 +53,12 @@ To cała jego rola w mowie.
   spokojnych barwach; postacie to kreskówkowe ilustracje z grubym obrysem.
   Opisy mają do tego pasować.
 - **Nagrodą jest zmiana w świecie**, nie punkty, poziomy ani losowe
-  upominki. Pisz „spójrz, co się zmieniło", nie „zdobywasz".
+  upominki. Pisz „spójrz, co się zmieniło", nie „zdobywasz". Monety nie padają
+  w żadnej kwestii. Mentor **zauważa**: żadnego „zatwierdził", „przyjął",
+  „poprawka", „sprawdzane"; statusy i CTA wg `docs/tresci/01` R9.
+- **Standard głosów** (`docs/tresci/01_STANDARD_GLOSOW.md`): limity kart i
+  głosu, tokeny `{m|ż}` przez `odmienDlaGracza`, warianty 1–3 / 4–8, tryb
+  spokojny Wizkora tylko o ciele i tylko wg R7.
 
 ## Cechy
 

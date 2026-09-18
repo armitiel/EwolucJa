@@ -76,6 +76,12 @@ export const OBRAZKI_SLADU = {
   "dwie-rece-wieza": "🧱", "dymki": "💬", "dymek-zaproszenie": "📣", "dymek-dwa": "🗨", "dymek-cichy": "🤍",
   "zarowka": "💡", "zegar": "🕰", "ksiazka": "📖", "reka": "✋", "gwiazdka": "⭐", "strzalka": "➡️", "check": "✅",
   "siedem": "7️⃣", "srodek": "🎯", "trzy": "3️⃣", "rzecz-stoi": "🧍",
+  // 18.09: 30 zadań z biblioteki Mentora
+  "bardzo-duzo": "🔢", "chmura": "☁️", "duch": "👻", "duzo": "🔟", "dwie-szklanki": "🥛", "inne": "🔀", "jeden-z-boku": "1️⃣",
+  "kartka-duza": "📚", "kartka-mala": "📄", "kartka-rowno": "📑", "kilka-z-boku": "🔢", "koc": "🛏", "lisc": "🍃",
+  "lyzka-dwie": "🥄", "lyzka-gora": "🙃", "lyzka-rowno": "🙂", "malo": "🔹", "niebo": "🌤", "noc": "🌙", "okno": "🪟",
+  "plytki": "🧱", "podobne": "🟰", "ptak": "🐦", "puste-okno": "🪟", "reka-dwa": "✌️", "reka-guzik": "🧷", "reka-pusta": "🖐",
+  "reka-trzyma": "✊", "ruch": "💨", "szklanka-szeroka": "🥣", "szklanka-waska": "🥤", "tkanina": "🧶", "usmiech": "🙂", "zwierzak": "🐢",
 };
 export function obrazekSladu(nazwa) { return OBRAZKI_SLADU[nazwa] || "✦"; }
 

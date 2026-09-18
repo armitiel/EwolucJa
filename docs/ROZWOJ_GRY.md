@@ -55,23 +55,15 @@ wyłącznie danych.
   idzie. Ten sam mechanizm `ujawnij()`, tylko dla dwóch misji naraz; kolejność
   przestaje być narzucona, a wybór jest pierwszą decyzją dziecka w grze.
 
-### 2. Monety muszą mieć na co pójść — na planecie, nie w sklepie
+### 2. Obiekty na planecie pojawiają się za działanie, nie za monety
 
-Dom celowo „tylko czyta" i to jest dobra decyzja: pokój ma odpowiadać na
-„co już mam". Ujście monet powinno więc być **na mapie**, tam gdzie dziecko
-żyje, a nie w liście z cenami.
-
-Propozycja: **rzeczy, które dziecko stawia na planecie.** Ławka przy rzece,
-druga latarnia, kwiaty wokół domku, kamień z własnym imieniem. Wizkor po
-wygranej misji przynosi *jedną* rzecz do postawienia za konkretną liczbę
-monet (liczba widoczna przed decyzją — ta sama zasada, co `monetyMax`).
-Bez losowania, bez skrzyń, bez czasu. Scena ma już mechanizm stawiania
-obiektów na kuli (`Planeta.ustaw`), a `mapa.json` przyjmuje nowe wpisy
-bez zmiany silnika.
-
-Dlaczego to, a nie dekoracje pokoju: rzecz na mapie widać przy każdym wejściu
-i podczas gry, rzecz w pokoju — tylko po kliknięciu drzwi. Planeta, którą
-dziecko samo zmieniło, jest najsilniejszym powodem, żeby na nią wracać.
+> Zmiana 17–18.09 (`docs/tresci/03`, `05`, `06` §4.6): ławka, latarnia, most,
+> brama, kwiaty, kamienie-kroki, ramka **stawia świat po śladzie dziecka**
+> (`reakcja_swiata`) i po zauważeniu przez Mentora — nie sklep i nie monety.
+> Monety zostają cichym licznikiem w HUD (25 za ślad, 0 za zauważenie,
+> pigułka „+N" tylko w minigrach). Sklepu za monety nie budujemy — to byłaby
+> gospodarka „zbieraj, żeby mieć więcej", sprzeczna z `OPIS_PROJEKTU.md`.
+> Poprzednia wersja tej sekcji (ujście monet na mapie) — nieaktualna.
 
 ### 3. Powód, żeby wrócić jutro — bez odliczania i bez straty
 

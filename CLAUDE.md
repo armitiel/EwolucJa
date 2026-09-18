@@ -330,38 +330,39 @@ Decyzje, których nie wolno cofnąć bez powodu:
 - **Pulpit nie ma własnej logiki stanu** — woła te same funkcje co gra. Skróty
   chodzące własną drogą testowałyby siebie, nie grę.
 
-## Monety — dwa źródła, jedno bez backendu
+## Warstwa treści i pętla zadania po 18.09 — `docs/tresci/00–06`
 
-Backend przyznaje monety **wyłącznie** przy weryfikacji misji przez Mentora;
-nie ma końcówki „dodaj graczowi N monet". Nagrody z gry (zadanie czarodzieja,
-minigry) idą więc przez `frontend/src/services/monety.js` i są **doliczane**
-do liczby z bazy:
+Sześć dokumentów w `docs/tresci/` (raport, standard głosów, komunikaty,
+zadania w realu, porady dnia, hybrydy, decyzje) jest **źródłem prawdy o
+treściach** i wdrożone krokami 0–10 (commity `b54614b` … `1a4aa5f` + krok 10).
+Kanon: Mentor **zauważa** (status `noticed`, jeden przycisk, cztery formuły bez
+oceny, pytanie `rozmowa`) — nie zatwierdza, nie odrzuca, nie daje punktów.
+Nagrodą jest zmiana świata: po śladzie `reakcja_swiata` (kwiat przy kotwicy,
+kamyczki, ukryta bryła), po zauważeniu kwiat w nowym kolorze przy drabince.
 
-```
-monety w HUD = player.coins (baza) + bonusMonet() (localStorage)
-```
-
-Konsekwencje: dorobek nie przechodzi na inne urządzenie i ginie po
-wyczyszczeniu danych strony. To świadomy dług — `dodajMonety` jest jednym
-miejscem, przez które to później pójdzie na serwer. **Nie dopisuj tędy monet
-za misje Mentora** — one już są w bazie, policzyłyby się podwójnie.
-
-## Zadanie w realu — w demie Mentor odpowiada sam
-
-Dowód dziecka leci do bazy i misja dostaje status `submitted`. Na `verified`
-przestawia ją **wyłącznie** prawdziwy Mentor ze swojego panelu
-(`backend/src/api/mentor.js`) — nic nie robi tego automatycznie. Bez Mentora
-po drugiej stronie zadanie zostawało więc na zawsze w „Sprawdzane".
-
-Na czas dema działa przełącznik `DEMO_SAM_ZATWIERDZA` w
-`frontend/src/hub/zadanieWizkora.js`: minutę po wysłaniu dowodu werdykt
-przychodzi sam, karta zmienia się na „Nagroda czeka", a monety idą **torem
-lokalnym** (`dodajMonety`), bo w bazie ich nie ma. Rozstrzyga o tym `demo`
-w zapisie zadania — przy prawdziwym werdykcie flagi nie ma i monety liczy
-tylko baza.
-
-Gdy panel Mentora ruszy: `DEMO_SAM_ZATWIERDZA = false` i tyle. Reszta toru
-(sprawdzanie, karta w zwoju, ekran nagrody) jest wspólna dla obu dróg.
+- **Zadania w realu:** `frontend/src/hub/data/zadania-wizkora.v2.json` (52 +
+  zastąpione; walidator `tmp/tresci-skrypty/nowe-zadania-B.py --v2`). Kolejka:
+  `pierwszeZadania` (3 pierwsze z profilu, Koło tylko inscenizuje), potem Koło z
+  kolejki bez powtórek po `id` i `rodzina`. Statusy: Czeka — u ciebie → Ślad
+  zostawiony → Mentor zobaczył → Zrobione. Ślad = wybór z trzech kartek albo
+  zdanie ≤ 160; zdjęcia za flagą `ZDJECIA_WLACZONE` do czasu toru obrazu (W7).
+  Warianty 1–3/4–8 przez `zWariantemZadania`; tokeny `{m|ż}` przez
+  `odmienDlaGracza` — pisz je we wszystkich tekstach dla dziecka.
+- **Monety:** cichy licznik w HUD; 25 przy śladzie (backend `/submit` albo
+  lokalnie w demie), 0 za zauważenie, gwiazdki 1, pigułka „+N" tylko w
+  minigrach. **Zero monet w kwestiach postaci.** `monety.js` zostaje torem
+  lokalnym (bez backendu), nie dopisuj tędy monet za misje z bazy.
+- **Demo bez Mentora:** `DEMO_SAM_ZATWIERDZA` już nie udaje dorosłego — nic
+  nie przełącza na „Mentor zobaczył"; świat reaguje po śladzie.
+- **Biblioteka Mentora** (`mentorTaskLibrary.js`): 47 `wycofane`, 229
+  `zmigrowane`; dziecko dostaje tylko `MENTOR_TASKS_DLA_DZIECKA`; nowe zadania
+  pisz od razu w v2. Skrypt: `tmp/tresci-skrypty/migruj-biblioteke.py`.
+- **Porady dnia:** lisek mówi `zapowiedz` i `odzew`, silnik faz bez zegara, ślad
+  porady w scenie do końca doby; nie cytuje Wizkora.
+- **Sesja:** bez odliczania i „czas minął"; zachód nazywa zadanie poza ekranem
+  („u ciebie, nie tu"), noc = planeta śpi; R7 dla myśli Wizkora o ciele.
+- **Ścinanie (decyzja autora 17.09):** każde drzewo, trzy stosy = etap 1 domku,
+  bez kamienia; kamień wraca przy etapie 2.
 
 ## Sentry — błędy z produkcji
 

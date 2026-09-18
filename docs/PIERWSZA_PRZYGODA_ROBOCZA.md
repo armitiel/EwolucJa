@@ -1,5 +1,10 @@
 # Pierwsza przygoda — scenariusz roboczy
 
+> **Nieaktualne wobec `docs/tresci/05_ZADANIA_HYBRYDOWE.md` i kanonu z 17.09.2026.**
+> Przejęte do `05`/`03`: zestaw symboli w ramce (REAL-01 → `ramka-w-domku`, KR), ślad zamiast oceny, Mentor jako ten, który zauważa; mieszkaniec z dachem, istniejący most i „Kronika” — nie istnieją (domek `hut2` wyłączony, most ukryty do śladu). Reszta (nazwy, obiekty i mechaniki poniżej) nie
+> obowiązuje — czytaj jako historię pomysłów. Stan wdrożenia: `06` „Stan wdrożenia 18.09".
+
+
 Data: 2026-09-13. Status: propozycja do wspólnego dopracowania, nie opis wdrożonej gry.
 
 ## Uzgodniony kierunek rozmowy

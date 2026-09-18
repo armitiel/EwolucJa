@@ -97,6 +97,31 @@ pokazywał zera).
 
 ---
 
+## Pętla zadania i scena po 18.09 (`docs/tresci/00–06`)
+
+- **Zadanie w realu:** kolejka profilu (3 pierwsze) → Koło → miejsce → ślad
+  (wybór z trzech kartek albo zdanie; zdjęcia wyłączone flagą
+  `ZDJECIA_WLACZONE` do czasu toru obrazu) → **świat reaguje od razu** →
+  Mentor „Zauważam" → dodatek w świecie. Statusy: Czeka — u ciebie → Ślad
+  zostawiony (+„Mentor już to widzi" tylko przy prawdziwym Mentorze) →
+  Mentor zobaczył → Zrobione (historia). Dane: `zadania-wizkora.v2.json`.
+- **Scena:** domek na drzewie etap 1 (platforma z barierką i drabinką) po
+  trzech stosach drewna z **dowolnych** ściętych drzew; `most`, `brama`,
+  `latarnia` istnieją w `mapa.json` jako ukryte i pokazują się dopiero po
+  śladzie (`pokazUkryty`); kwiaty po śladach (`posadzKwiat` przy kotwicach:
+  pod drzewem, obok karty, przy choince, na pieńku, przy drabince, przy
+  ścieżce); ramka na barierce (hybryda KR), kamienie-kroki (LD), ławka (EM),
+  lampka i świetliki (MD), lilie na oczku (DT) — wg `05`. Metody kanału ślad →
+  scena wg `06` §4.3; to, czego jeszcze nie ma w `index.js`, kończy się
+  `console.info` i samym `pokazMiejsce`.
+- **Porada dnia:** lisek mówi `zapowiedz` i `odzew`, silnik faz bez zegara,
+  ślad porady w scenie do końca doby (`04` §6).
+- **Mentor:** rola dorosłego, nie postać. Widzi ślad, pytanie do rozmowy
+  (`rozmowa`) i powiadomienie „Zobacz, co {zrobił|zrobiła} {imie}"; ma jeden
+  przycisk i cztery formuły bez oceny. Bez punktów.
+
+---
+
 ## Warstwa dorosłego
 
 Mentor (`/mentor…`): klasy, pary, weryfikacja dowodów, podpowiedzi.

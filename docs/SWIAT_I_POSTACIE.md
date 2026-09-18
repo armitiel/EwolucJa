@@ -26,7 +26,7 @@ Bazą jest **planeta z liskiem** (tor `/swiat`).
 | wielkie drzewo | miejsce, na którym powstaje domek |
 | **plac budowy** | stan PRZED budową: wydeptana ziemia, obrys, paliki; tu lisek znosi materiał |
 | **domek na drzewie** | to, czym plac budowy się staje; etapy: 1 platforma z barierką i drabinką, 2 przytulny domek, 3 rozbudowany domek |
-| suche drzewko i głaz | materiał na domek (drzewko → stos i pieniek, głaz → kamyczki) |
+| drzewa i głaz | materiał na domek — **decyzja autora 17.09: ścinać można każde drzewo; etap 1 = trzy ścięte drzewa = trzy stosy drewna pod wielkim drzewem, bez kamienia; suche drzewko zdjęte z mapy; kamień wraca przy etapie 2** (drzewo → stos i pieniek, głaz → kamyczki) |
 | **choinka** | start minigry Lot Liska |
 | oczko wodne | woda dla Magicznej Fasoli |
 | **Magiczna Fasola** | będzie używana na planecie; rośnie po działaniu w prawdziwym świecie |
@@ -34,6 +34,16 @@ Bazą jest **planeta z liskiem** (tor `/swiat`).
 W przyszłości będą **różne budowle**. Dziś jest jedna: domek na drzewie.
 Klucz `schronienie` w kodzie, mapie i zapisie to tylko adres techniczny — w tekstach
 zawsze „plac budowy” (przed) albo „domek na drzewie” (po).
+
+## Kanał ślad → scena (18.09)
+
+Po śladzie zadania w realu świat reaguje od razu: kwiat przy jednej z kotwic
+(pod drzewem, obok karty Gry na Pamięć, przy choince, na pieńku, przy drabince,
+przy ścieżce), kamyczki przy ścieżce, ukryte bryły `most`/`brama`/`latarnia`
+pokazują się (`pokazUkryty`). Po zauważeniu przez Mentora — kwiat w nowym
+kolorze przy drabince; światło tylko w hybrydzie MD. Lisek robi w scenie to samo,
+co dziecko w poradzie (ślad porady do końca doby) i daje chmurkę zaproszenia
+przy obiekcie części A hybrydy. Szczegóły: `docs/tresci/03` §7, `05`, `06` §4.3.
 
 ## Postacie i głosy
 

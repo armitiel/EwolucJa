@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "note": "Zadania Wizkora v2 (docs/tresci/03 §7–§8, 06 §4.2). 22 aktywne + 3 zastąpione (stare id zostają dla historii; `zastapione_przez`). Mentor zauważa, nie zatwierdza; `nagroda` to cichy licznik w tle; `reakcja_swiata` = metoda sceny + argumenty (kanał w kroku 5; `istnieje` mówi, czy bryła/metoda już jest); `slad.obrazki` to nazwy obrazków do narysowania (dziś emoji z OBRAZKI_SLADU w zadanieWizkora.js). Pola czytane TTS (cel/jak/szept) bez cyfr; tokeny {m|ż} przez odmienDlaGracza.",
+  "note": "Zadania Wizkora v2 (docs/tresci/03 §7–§8, 06 §4.2). 22 aktywne + 3 zastąpione (stare id zostają dla historii; `zastapione_przez`). Mentor zauważa, nie zatwierdza; `nagroda` to cichy licznik w tle; `reakcja_swiata` = metoda sceny + argumenty (kanał w kroku 5; `istnieje` mówi, czy bryła/metoda już jest); `slad.obrazki` to nazwy obrazków do narysowania (dziś emoji z OBRAZKI_SLADU w zadanieWizkora.js). Pola czytane TTS (cel/jak/szept) bez cyfr; tokeny {m|ż} przez odmienDlaGracza. 18.09: +30 zadań z biblioteki Mentora (`zrodlo: biblioteka:<id>`, docs/tresci/03 §14).",
   "zadania": [
     {
       "id": "tam-i-z-powrotem",
@@ -2403,6 +2403,3082 @@
           "tekst": "Nie wychodzi? Siedem razy zmienia więcej, niż myślisz.",
           "tekstEkranu": "Nie wychodzi? Siedem razy zmienia więcej, niż myślisz."
         }
+      ]
+    },
+    {
+      "id": "lustro-w-lyzce",
+      "zrodlo": "biblioteka:DT-TASK-030",
+      "cecha": "ciekawosc",
+      "profil_pierwszy": "DT",
+      "potrzeba": "uwaznosc",
+      "ksztalt": "zauważ",
+      "tryb_startu": "obserwowanie",
+      "tytul": "Lustro w łyżce",
+      "cel": "Spójrz w łyżkę z jednej strony, potem z drugiej.\nSprawdź, która strona odwraca świat.",
+      "szept": "Która odwraca.",
+      "jak": "Weź czystą łyżkę i patrz w nią jak w lustro, raz w wypukłą, raz we wklęsłą stronę.",
+      "dowod": "Napisz, która strona {postawiła|postawiła} cię do góry nogami, albo zrób zdjęcie łyżki.",
+      "przyklad": "W tej wklęsłej {byłem|byłam} do góry nogami i {miałem|miałam} wielki nos.",
+      "minimum": "Jedno spojrzenie w łyżkę — i tak się liczy.",
+      "rozmowa": "Co jeszcze w kuchni odbija jak lustro?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Spójrz w łyżkę z jednej strony,\npotem z drugiej."
+        }
+      },
+      "karta_wizkora": "Łyżka podobno kłamie jak lustro. Sprawdzisz, która strona?",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {obejrzał|obejrzała} świat w łyżce z obu stron.",
+      "slad": {
+        "opcje": [
+          "Jedna strona odwraca",
+          "Obie odwracają",
+          "Nic się nie odwróciło"
+        ],
+        "obrazki": [
+          "lyzka-gora",
+          "lyzka-dwie",
+          "lyzka-rowno"
+        ],
+        "zdanie": true,
+        "zdjecie": true,
+        "podpowiedz": "zdjęcie rzeczy, bez ludzi"
+      },
+      "miejsca": [
+        {
+          "id": "kuchnia",
+          "emoji": "🥄",
+          "nazwa": "W kuchni",
+          "opis": "Łyżka ze stołu."
+        },
+        {
+          "id": "swietlica",
+          "emoji": "☕",
+          "nazwa": "W świetlicy",
+          "opis": "Łyżeczka od herbaty."
+        },
+        {
+          "id": "stolowka",
+          "emoji": "🍽️",
+          "nazwa": "Na stołówce",
+          "opis": "Łyżka po zupie, wytarta serwetką."
+        }
+      ],
+      "miejsce_reakcji": "przy sciezce",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-sciezce"
+        ],
+        "opis": "kwiat przy sciezce",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Łyżka podobno kłamie jak lustro. Sprawdzisz, która strona?",
+          "tekstEkranu": "Łyżka podobno kłamie jak lustro. Sprawdzisz, która strona?"
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "DT"
+      ]
+    },
+    {
+      "id": "dwa-naczynia",
+      "zrodlo": "biblioteka:DT-TASK-018",
+      "cecha": "ciekawosc",
+      "profil_pierwszy": "DT",
+      "potrzeba": "kompetencja",
+      "ksztalt": "zrób",
+      "tryb_startu": "inicjowanie",
+      "tytul": "Dwa naczynia",
+      "cel": "Nalej tyle samo wody do wąskiej i szerokiej szklanki.\nZgadnij, gdzie jest więcej, zanim sprawdzisz.",
+      "szept": "Zanim sprawdzisz.",
+      "jak": "Odmierz wodę jednym kubkiem do obu naczyń i porównaj, jak wyglądają.",
+      "dowod": "Napisz, w którym naczyniu wydawało się więcej, albo zrób zdjęcie obu.",
+      "przyklad": "W wąskiej wyglądało na więcej. A było tyle samo, bo {lałem|lałam} tym samym kubkiem.",
+      "minimum": "Jedno naczynie napełnione i obejrzane — i tak się liczy.",
+      "rozmowa": "Które oko oszukało bardziej: twoje czy moje?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Nalej tyle samo wody do dwóch szklanek.\nZgadnij, gdzie jest więcej."
+        }
+      },
+      "karta_wizkora": "Oko czasem oszukuje. Założę się, że i ciebie oszuka.",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {sprawdził|sprawdziła}, czy oko oszukuje przy dwóch szklankach.",
+      "slad": {
+        "opcje": [
+          "Wyglądało na więcej w wąskiej",
+          "Wyglądało na więcej w szerokiej",
+          "Wyglądało tak samo"
+        ],
+        "obrazki": [
+          "szklanka-waska",
+          "szklanka-szeroka",
+          "dwie-szklanki"
+        ],
+        "zdanie": true,
+        "zdjecie": true,
+        "podpowiedz": "zdjęcie rzeczy, bez ludzi"
+      },
+      "miejsca": [
+        {
+          "id": "kuchnia",
+          "emoji": "🥛",
+          "nazwa": "W kuchni",
+          "opis": "Dwie różne szklanki i kubek do odmierzania."
+        },
+        {
+          "id": "lazienka",
+          "emoji": "🚿",
+          "nazwa": "W łazience",
+          "opis": "Kubek do zębów i szklanka."
+        },
+        {
+          "id": "swietlica",
+          "emoji": "☕",
+          "nazwa": "W świetlicy",
+          "opis": "Dwa kubki różnej szerokości."
+        }
+      ],
+      "miejsce_reakcji": "przy sciezce",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-sciezce"
+        ],
+        "opis": "kwiat przy sciezce",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Oko czasem oszukuje. Założę się, że i ciebie oszuka.",
+          "tekstEkranu": "Oko czasem oszukuje. Założę się, że i ciebie oszuka."
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "DT",
+        "ST"
+      ]
+    },
+    {
+      "id": "trzy-guziki",
+      "zrodlo": "biblioteka:DT-TASK-027",
+      "cecha": "ciekawosc",
+      "profil_pierwszy": "DT",
+      "potrzeba": "uwaznosc",
+      "ksztalt": "zauważ",
+      "tryb_startu": "obserwowanie",
+      "tytul": "Palce widzą",
+      "cel": "Połóż trzy guziki i zamknij oczy.\nZgadnij dotykiem, który jest największy.",
+      "szept": "Zgadnij dotykiem.",
+      "jak": "Pomieszaj guziki z zamkniętymi oczami, dotknij każdego i wskaż największy, zanim otworzysz oczy.",
+      "dowod": "Napisz, czy palce trafiły, albo zrób zdjęcie guzików.",
+      "przyklad": "Palce trafiły za drugim razem. Za pierwszym {wskazałem|wskazałam} ten najgrubszy.",
+      "minimum": "Jeden guzik rozpoznany dotykiem — i tak się liczy.",
+      "rozmowa": "Co jeszcze da się rozpoznać samym dotykiem?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Połóż trzy guziki i zamknij oczy.\nZnajdź największy palcami."
+        }
+      },
+      "karta_wizkora": "Oczy widzą wszystko. Założę się, że palce też potrafią.",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {rozpoznał|rozpoznała} guziki dotykiem, bez patrzenia.",
+      "slad": {
+        "opcje": [
+          "Palce trafiły od razu",
+          "Trafiły za drugim razem",
+          "Nie trafiły — i tak się liczy"
+        ],
+        "obrazki": [
+          "reka-guzik",
+          "reka-dwa",
+          "reka-pusta"
+        ],
+        "zdanie": true,
+        "zdjecie": true,
+        "podpowiedz": "zdjęcie rzeczy, bez ludzi"
+      },
+      "miejsca": [
+        {
+          "id": "stol",
+          "emoji": "🧷",
+          "nazwa": "Przy stole",
+          "opis": "Trzy różne guziki z pudełka."
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🧱",
+          "nazwa": "W świetlicy",
+          "opis": "Trzy klocki różnej wielkości."
+        },
+        {
+          "id": "plecak",
+          "emoji": "🎒",
+          "nazwa": "Z plecaka",
+          "opis": "Trzy różne rzeczy z piórnika: gumka, temperówka, spinacz."
+        }
+      ],
+      "miejsce_reakcji": "przy sciezce",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-sciezce"
+        ],
+        "opis": "kwiat przy sciezce",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Oczy widzą wszystko. Założę się, że palce też potrafią.",
+          "tekstEkranu": "Oczy widzą wszystko. Założę się, że palce też potrafią."
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "DT"
+      ]
+    },
+    {
+      "id": "ptak-za-oknem",
+      "zrodlo": "biblioteka:DT-TASK-023",
+      "cecha": "ciekawosc",
+      "profil_pierwszy": "DT",
+      "potrzeba": "uwaznosc",
+      "ksztalt": "zauważ",
+      "tryb_startu": "obserwowanie",
+      "tytul": "Ptak za oknem",
+      "cel": "Patrz przez okno, aż zobaczysz ptaka.\nJeśli nie przyleci — to też trop.",
+      "szept": "To też trop.",
+      "jak": "Stań przy oknie i patrz w niebo i na dachy, aż coś przeleci albo aż zawoła cię ktoś.",
+      "dowod": "Napisz, jaki był ptak — albo że dziś żadnego nie było — lub zrób zdjęcie okna.",
+      "przyklad": "Jeden gołąb na antenie. Siedział i nic. Potem odleciał.",
+      "minimum": "Chwila przy oknie bez ptaka — i tak się liczy.",
+      "rozmowa": "Gdzie ptaki są, kiedy nie ma ich za oknem?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Patrz przez okno, aż zobaczysz ptaka.\nJak nie ma — też dobrze."
+        }
+      },
+      "karta_wizkora": "Nie wiem, czy dziś ktoś przeleci za twoim oknem. Sprawdzisz?",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {wypatrywał|wypatrywała} ptaka za oknem.",
+      "slad": {
+        "opcje": [
+          "Był ptak",
+          "Był tylko ruch",
+          "Nic — i to jest trop"
+        ],
+        "obrazki": [
+          "ptak",
+          "ruch",
+          "puste-okno"
+        ],
+        "zdanie": true,
+        "zdjecie": true,
+        "podpowiedz": "zdjęcie rzeczy, bez ludzi"
+      },
+      "miejsca": [
+        {
+          "id": "dom",
+          "emoji": "🪟",
+          "nazwa": "W domu",
+          "opis": "Okno, przez które patrzysz najrzadziej."
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🏫",
+          "nazwa": "W świetlicy",
+          "opis": "Okno w kącie, gdy inni grają."
+        },
+        {
+          "id": "autobus",
+          "emoji": "🚌",
+          "nazwa": "W autobusie",
+          "opis": "Okno po stronie, po której zwykle nie siedzisz."
+        }
+      ],
+      "miejsce_reakcji": "przy sciezce",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-sciezce"
+        ],
+        "opis": "kwiat przy sciezce",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Nie wiem, czy dziś ktoś przeleci za twoim oknem. Sprawdzisz?",
+          "tekstEkranu": "Nie wiem, czy dziś ktoś przeleci za twoim oknem. Sprawdzisz?"
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "DT",
+        "MD"
+      ]
+    },
+    {
+      "id": "szukaj-wzoru",
+      "zrodlo": "biblioteka:DT-TASK-028",
+      "cecha": "ciekawosc",
+      "profil_pierwszy": "DT",
+      "potrzeba": "uwaznosc",
+      "ksztalt": "zauważ",
+      "tryb_startu": "obserwowanie",
+      "tytul": "Szukacz wzorów",
+      "cel": "Znajdź dziś jeden wzór, którego nikt nie narysował.\nLinie na korze, żyłki liścia, płytki.",
+      "szept": "Nikt nie narysował.",
+      "jak": "Rozejrzyj się i szukaj powtarzającej się linii albo kształtu — w naturze albo na podłodze.",
+      "dowod": "Zrób zdjęcie wzoru albo napisz, gdzie go {znalazłeś|znalazłaś}.",
+      "przyklad": "Na płytkach w łazience jest taki sam wzór jak na kaloryferze. Nigdy tego nie {widziałem|widziałam}.",
+      "minimum": "Jeden wzór zauważony — i tak się liczy.",
+      "rozmowa": "Który wzór powtarza się w twoim domu najczęściej?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Znajdź jeden wzór, który się powtarza.\nNa liściu albo na podłodze."
+        }
+      },
+      "karta_wizkora": "Świat rysuje wzory bez linijki. Znajdziesz jeden?",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {znalazł|znalazła} wzór, którego nikt nie narysował.",
+      "slad": {
+        "opcje": [
+          "Wzór w naturze",
+          "Wzór w domu",
+          "Wzór na ubraniu"
+        ],
+        "obrazki": [
+          "lisc",
+          "plytki",
+          "tkanina"
+        ],
+        "zdanie": true,
+        "zdjecie": true,
+        "podpowiedz": "zdjęcie rzeczy, bez ludzi"
+      },
+      "miejsca": [
+        {
+          "id": "dwor",
+          "emoji": "🍃",
+          "nazwa": "Na dworze",
+          "opis": "Kora, liść, muszla."
+        },
+        {
+          "id": "dom",
+          "emoji": "🧱",
+          "nazwa": "W domu",
+          "opis": "Płytki, firanka, talerz."
+        },
+        {
+          "id": "klasa",
+          "emoji": "📐",
+          "nazwa": "W klasie",
+          "opis": "Podłoga, sufit, okładka zeszytu."
+        }
+      ],
+      "miejsce_reakcji": "przy sciezce",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-sciezce"
+        ],
+        "opis": "kwiat przy sciezce",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Świat rysuje wzory bez linijki. Znajdziesz jeden?",
+          "tekstEkranu": "Świat rysuje wzory bez linijki. Znajdziesz jeden?"
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "DT",
+        "ST"
+      ]
+    },
+    {
+      "id": "zgadnij-minute",
+      "zrodlo": "biblioteka:ST-TASK-042",
+      "cecha": "wytrwalosc",
+      "profil_pierwszy": "ST",
+      "potrzeba": "regulacja",
+      "ksztalt": "wytrzymaj",
+      "tryb_startu": "inicjowanie",
+      "tytul": "Zegar w głowie",
+      "cel": "Zgadnij, ile trwa minuta, bez zegara.\nPotem sprawdź, o ile się różni.",
+      "szept": "O ile się różni.",
+      "jak": "Zamknij oczy, otwórz, gdy myślisz, że minęła minuta, i spójrz na zegar.",
+      "dowod": "Napisz, czy twoja minuta była krótsza, czy dłuższa, albo zrób zdjęcie zegara.",
+      "przyklad": "Moja minuta trwała czterdzieści sekund. Za drugim razem prawie równo.",
+      "minimum": "Jedna próba — i tak się liczy.",
+      "rozmowa": "Jak {liczyłeś|liczyłaś} minutę w głowie?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Zgadnij, kiedy minie minuta.\nKtoś powie: za wcześnie czy za późno."
+        }
+      },
+      "karta_wizkora": "Czas umiem zatrzymać. Zmierzyć bez zegara — nie. A ty?",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {mierzył|mierzyła} minutę bez zegara.",
+      "slad": {
+        "opcje": [
+          "Krótsza",
+          "Prawie równo",
+          "Dłuższa"
+        ],
+        "obrazki": [
+          "zegar-mniej",
+          "zegar-rowno",
+          "zegar-wiecej"
+        ],
+        "zdanie": true,
+        "zdjecie": true,
+        "podpowiedz": "zdjęcie rzeczy, bez ludzi"
+      },
+      "miejsca": [
+        {
+          "id": "kuchnia",
+          "emoji": "⏲️",
+          "nazwa": "W kuchni",
+          "opis": "Zegar na piekarniku albo na ścianie."
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🕰️",
+          "nazwa": "W świetlicy",
+          "opis": "Zegar na ścianie."
+        },
+        {
+          "id": "kolejka",
+          "emoji": "🏥",
+          "nazwa": "W kolejce",
+          "opis": "Zegar u lekarza albo w sklepie, zamiast telefonu."
+        }
+      ],
+      "miejsce_reakcji": "przy choince",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-choince"
+        ],
+        "opis": "kwiat przy choince",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Czas umiem zatrzymać. Zmierzyć bez zegara — nie. A ty?",
+          "tekstEkranu": "Czas umiem zatrzymać. Zmierzyć bez zegara — nie. A ty?"
+        }
+      ],
+      "rodzina": "minuta",
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "ST",
+        "MD"
+      ]
+    },
+    {
+      "id": "zegnij-papier",
+      "zrodlo": "biblioteka:ST-TASK-019",
+      "cecha": "wytrwalosc",
+      "profil_pierwszy": "ST",
+      "potrzeba": "kompetencja",
+      "ksztalt": "zrób",
+      "tryb_startu": "inicjowanie",
+      "tytul": "Papier w warstwach",
+      "cel": "Zegnij kartkę na pół trzy razy z rzędu.\nZgadnij, ile warstw wyjdzie, zanim policzysz.",
+      "szept": "Zanim policzysz.",
+      "jak": "Złóż kartkę na pół, potem jeszcze raz i jeszcze raz, i policz warstwy na brzegu.",
+      "dowod": "Napisz, ile warstw wyszło, albo zrób zdjęcie złożonej kartki.",
+      "przyklad": "{Myślałem|Myślałam}, że sześć. Wyszło osiem. Za czwartym razem nie dało się zgiąć.",
+      "minimum": "Kartka zgięta dwa razy — i tak się liczy.",
+      "rozmowa": "Dlaczego czwarte zgięcie jest takie trudne?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Zegnij kartkę na pół trzy razy.\nPolicz warstwy."
+        }
+      },
+      "karta_wizkora": "Kartka trzy razy na pół. Ile warstw? Nie umiem policzyć.",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {zgiął|zgięła} kartkę trzy razy i {policzył|policzyła} warstwy.",
+      "slad": {
+        "opcje": [
+          "Mniej, niż {myślałem|myślałam}",
+          "Tyle samo",
+          "Więcej, niż {myślałem|myślałam}"
+        ],
+        "obrazki": [
+          "kartka-mala",
+          "kartka-rowno",
+          "kartka-duza"
+        ],
+        "zdanie": true,
+        "zdjecie": true,
+        "podpowiedz": "zdjęcie rzeczy, bez ludzi"
+      },
+      "miejsca": [
+        {
+          "id": "biurko",
+          "emoji": "📄",
+          "nazwa": "Przy biurku",
+          "opis": "Kartka z zeszytu."
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🧻",
+          "nazwa": "W świetlicy",
+          "opis": "Serwetka albo kartka z bloku."
+        },
+        {
+          "id": "autobus",
+          "emoji": "🎫",
+          "nazwa": "W autobusie",
+          "opis": "Bilet albo paragon."
+        }
+      ],
+      "miejsce_reakcji": "przy sciezce",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-sciezce"
+        ],
+        "opis": "kwiat przy sciezce",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Kartka trzy razy na pół. Ile warstw? Nie umiem policzyć.",
+          "tekstEkranu": "Kartka trzy razy na pół. Ile warstw? Nie umiem policzyć."
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "ST"
+      ]
+    },
+    {
+      "id": "wzor-wokol",
+      "zrodlo": "biblioteka:ST-TASK-034",
+      "cecha": "wytrwalosc",
+      "profil_pierwszy": "ST",
+      "potrzeba": "uwaznosc",
+      "ksztalt": "zauważ",
+      "tryb_startu": "obserwowanie",
+      "tytul": "Powtórka",
+      "cel": "Znajdź wokół siebie jedną rzecz, która się powtarza.\nPolicz, ile razy.",
+      "szept": "Ile razy.",
+      "jak": "Rozejrzyj się po pokoju i wybierz jedną rzecz w wielu sztukach: płytki, guziki, szczebelki.",
+      "dowod": "Napisz, co się powtarza i ile razy, albo zrób zdjęcie.",
+      "przyklad": "Kaloryfer ma czternaście żeberek. Nigdy ich nie {liczyłem|liczyłam}.",
+      "minimum": "Jedna powtarzająca się rzecz zauważona — i tak się liczy.",
+      "rozmowa": "Co w tym pokoju powtarza się najwięcej razy?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Znajdź rzecz, która się powtarza.\nPolicz ją."
+        }
+      },
+      "karta_wizkora": "Coś tu się powtarza. Ile razy? Nie wiem.",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {policzył|policzyła} rzecz, która powtarza się w pokoju.",
+      "slad": {
+        "opcje": [
+          "Mniej niż dziesięć",
+          "Więcej niż dziesięć",
+          "Za dużo, żeby policzyć"
+        ],
+        "obrazki": [
+          "malo",
+          "duzo",
+          "bardzo-duzo"
+        ],
+        "zdanie": true,
+        "zdjecie": true,
+        "podpowiedz": "zdjęcie rzeczy, bez ludzi"
+      },
+      "miejsca": [
+        {
+          "id": "pokoj",
+          "emoji": "🧱",
+          "nazwa": "W pokoju",
+          "opis": "Szczebelki, płytki, książki na półce."
+        },
+        {
+          "id": "klasa",
+          "emoji": "🏫",
+          "nazwa": "W klasie",
+          "opis": "Krzesła, okna, litery na tablicy."
+        },
+        {
+          "id": "przystanek",
+          "emoji": "🚌",
+          "nazwa": "Na przystanku",
+          "opis": "Kostki chodnika, słupki, szyby."
+        }
+      ],
+      "miejsce_reakcji": "przy sciezce",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-sciezce"
+        ],
+        "opis": "kwiat przy sciezce",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Coś tu się powtarza. Ile razy? Nie wiem.",
+          "tekstEkranu": "Coś tu się powtarza. Ile razy? Nie wiem."
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "ST",
+        "DT"
+      ]
+    },
+    {
+      "id": "klocki-w-rzedach",
+      "zrodlo": "biblioteka:ST-TASK-025",
+      "cecha": "wytrwalosc",
+      "profil_pierwszy": "ST",
+      "potrzeba": "kompetencja",
+      "ksztalt": "zrób",
+      "tryb_startu": "inicjowanie",
+      "tytul": "Trzy rzędy",
+      "cel": "Ułóż klocki albo patyczki w trzech równych rzędach.\nSprawdź, czy coś zostanie z boku.",
+      "szept": "Czy coś zostanie.",
+      "jak": "Weź garść drobiazgów, ułóż je w trzy rzędy po równo i zobacz, ile odpada.",
+      "dowod": "Napisz, ile zostało z boku, albo zrób zdjęcie rzędów.",
+      "przyklad": "Z trzynastu klocków wyszły trzy rzędy po cztery i jeden został sam.",
+      "minimum": "Dwa rzędy zamiast trzech — i tak się liczy.",
+      "rozmowa": "Co się stało z tym, co zostało z boku?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Ułóż klocki w trzech rzędach.\nPo równo."
+        }
+      },
+      "karta_wizkora": "Trzy równe rzędy z garści klocków. Coś zostanie z boku?",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {ułożył|ułożyła} rzeczy w trzy równe rzędy.",
+      "slad": {
+        "opcje": [
+          "Nic nie zostało",
+          "Została jedna",
+          "Zostało więcej"
+        ],
+        "obrazki": [
+          "rowno",
+          "jeden-z-boku",
+          "kilka-z-boku"
+        ],
+        "zdanie": true,
+        "zdjecie": true,
+        "podpowiedz": "zdjęcie rzeczy, bez ludzi"
+      },
+      "miejsca": [
+        {
+          "id": "dywan",
+          "emoji": "🧱",
+          "nazwa": "Na dywanie",
+          "opis": "Klocki."
+        },
+        {
+          "id": "kuchnia",
+          "emoji": "🍝",
+          "nazwa": "W kuchni",
+          "opis": "Makaron albo fasola na stole."
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🎲",
+          "nazwa": "W świetlicy",
+          "opis": "Pionki z gry albo kredki."
+        }
+      ],
+      "miejsce_reakcji": "przy sciezce",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-sciezce"
+        ],
+        "opis": "kwiat przy sciezce",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Trzy równe rzędy z garści klocków. Coś zostanie z boku?",
+          "tekstEkranu": "Trzy równe rzędy z garści klocków. Coś zostanie z boku?"
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "ST"
+      ]
+    },
+    {
+      "id": "postac-z-kuchni",
+      "zrodlo": "biblioteka:KR-TASK-016",
+      "cecha": "tworzenie",
+      "profil_pierwszy": "KR",
+      "potrzeba": "sprawczosc",
+      "ksztalt": "zrób",
+      "tryb_startu": "inicjowanie",
+      "tytul": "Postać z kuchni",
+      "cel": "Weź łyżkę, korek i serwetkę.\nPołącz je w postać i nadaj jej imię.",
+      "szept": "Nadaj jej imię.",
+      "jak": "Ustaw trzy rzeczy z kuchni tak, żeby stały razem jak ktoś.",
+      "dowod": "Zrób zdjęcie postaci albo napisz, jak ma na imię i co potrafi.",
+      "przyklad": "Łyżka to nogi, korek to głowa, serwetka to płaszcz. Nazywa się Bolek i śpi w szufladzie.",
+      "minimum": "Dwie rzeczy razem, z imieniem — i tak się liczy.",
+      "rozmowa": "Co ta postać robi, kiedy nikt nie patrzy?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Weź trzy rzeczy z kuchni.\nZrób z nich postać."
+        }
+      },
+      "karta_wizkora": "W kuchni mieszka ktoś, kogo jeszcze nie ma. Zrobisz go?",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {zrobił|zrobiła} postać z trzech rzeczy z kuchni.",
+      "slad": {
+        "opcje": [
+          "Stoi sama",
+          "Trzeba ją trzymać",
+          "Ma imię i supermoc"
+        ],
+        "obrazki": [
+          "stoi",
+          "reka-trzyma",
+          "gwiazdka"
+        ],
+        "zdanie": true,
+        "zdjecie": true,
+        "podpowiedz": "zdjęcie rzeczy, bez ludzi"
+      },
+      "miejsca": [
+        {
+          "id": "kuchnia",
+          "emoji": "🥄",
+          "nazwa": "W kuchni",
+          "opis": "Łyżka, korek, serwetka."
+        },
+        {
+          "id": "swietlica",
+          "emoji": "✏️",
+          "nazwa": "W świetlicy",
+          "opis": "Ołówek, gumka, chusteczka."
+        },
+        {
+          "id": "plecak",
+          "emoji": "🎒",
+          "nazwa": "Z plecaka",
+          "opis": "Trzy rzeczy z piórnika."
+        }
+      ],
+      "miejsce_reakcji": "na pienku",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "na-pienku"
+        ],
+        "opis": "kwiat na pienku",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "W kuchni mieszka ktoś, kogo jeszcze nie ma. Zrobisz go?",
+          "tekstEkranu": "W kuchni mieszka ktoś, kogo jeszcze nie ma. Zrobisz go?"
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "KR"
+      ]
+    },
+    {
+      "id": "jedno-zdanie-opowiesci",
+      "zrodlo": "biblioteka:KR-TASK-024",
+      "cecha": "tworzenie",
+      "profil_pierwszy": "KR",
+      "potrzeba": "sprawczosc",
+      "ksztalt": "zrób",
+      "tryb_startu": "inicjowanie",
+      "tytul": "Jedno zdanie",
+      "cel": "Zacznij od: pewnego dnia kot założył czapkę i…\nSkończ jednym zdaniem. Tylko jednym.",
+      "szept": "Tylko jednym.",
+      "jak": "Powiedz albo zapisz jedno zdanie, które kończy historię o kocie w czapce.",
+      "dowod": "Napisz swoje zdanie albo zrób zdjęcie kartki, na której je {zapisałeś|zapisałaś}.",
+      "przyklad": "…i poszedł do szkoły zamiast mnie. Nikt nie zauważył.",
+      "minimum": "Pół zdania powiedziane na głos — i tak się liczy.",
+      "rozmowa": "Co kot zrobił w czapce w twojej wersji?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Kot założył czapkę i… co dalej?\nJedno zdanie."
+        }
+      },
+      "karta_wizkora": "Kot założył czapkę i… nie wiem, co dalej. Ty wiesz?",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {dokończył|dokończyła} historię o kocie w czapce jednym zdaniem.",
+      "slad": {
+        "opcje": [
+          "Śmieszne",
+          "Straszne",
+          "Dziwne"
+        ],
+        "obrazki": [
+          "usmiech",
+          "duch",
+          "znak-zapytania"
+        ],
+        "zdanie": true,
+        "zdjecie": false,
+        "podpowiedz": "bez zdjęcia — ślad to wybór albo zdanie"
+      },
+      "miejsca": [
+        {
+          "id": "stol",
+          "emoji": "🖍️",
+          "nazwa": "Przy stole",
+          "opis": "Na kartce albo na głos."
+        },
+        {
+          "id": "autobus",
+          "emoji": "🚌",
+          "nazwa": "W autobusie",
+          "opis": "W głowie, a potem komuś do ucha."
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🏫",
+          "nazwa": "W świetlicy",
+          "opis": "Ktoś obok dopisuje drugie zdanie."
+        }
+      ],
+      "miejsce_reakcji": "obok karty",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "obok-karty"
+        ],
+        "opis": "kwiat obok karty",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Kot założył czapkę i… nie wiem, co dalej. Ty wiesz?",
+          "tekstEkranu": "Kot założył czapkę i… nie wiem, co dalej. Ty wiesz?"
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "KR"
+      ]
+    },
+    {
+      "id": "rysunek-na-slepo",
+      "zrodlo": "biblioteka:KR-TASK-036",
+      "cecha": "tworzenie",
+      "profil_pierwszy": "KR",
+      "potrzeba": "autonomia",
+      "ksztalt": "odważ się",
+      "tryb_startu": "inicjowanie",
+      "tytul": "Rysunek na ślepo",
+      "cel": "Narysuj coś, co masz przed sobą.\nZ zamkniętymi oczami, od początku do końca.",
+      "szept": "Oczy zamknięte.",
+      "jak": "Zamknij oczy, trzymaj kredkę na kartce i nie podglądaj, aż uznasz, że koniec.",
+      "dowod": "Zrób zdjęcie rysunku albo napisz, co to miało być.",
+      "przyklad": "To miał być mój plecak. Wyszedł kot z kółkami. Zostaje.",
+      "minimum": "Jedna kreska z zamkniętymi oczami — i tak się liczy.",
+      "rozmowa": "Co wyszło inne, niż miało być?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Zamknij oczy i narysuj coś.\nNie podglądaj."
+        }
+      },
+      "karta_wizkora": "Rysunek z zamkniętymi oczami. Podobno się nie da. A ty?",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {narysował|narysowała} coś z zamkniętymi oczami.",
+      "slad": {
+        "opcje": [
+          "Wyszło podobne",
+          "Wyszło coś innego",
+          "Wyszło coś śmiesznego"
+        ],
+        "obrazki": [
+          "podobne",
+          "inne",
+          "usmiech"
+        ],
+        "zdanie": true,
+        "zdjecie": true,
+        "podpowiedz": "zdjęcie rzeczy, bez ludzi"
+      },
+      "miejsca": [
+        {
+          "id": "stol",
+          "emoji": "🖍️",
+          "nazwa": "Przy stole",
+          "opis": "Rzecz ze stołu jako model."
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🏫",
+          "nazwa": "W świetlicy",
+          "opis": "Ktoś obok zgaduje, co to."
+        },
+        {
+          "id": "autobus",
+          "emoji": "🚌",
+          "nazwa": "W autobusie",
+          "opis": "Na kolanie, w zeszycie."
+        }
+      ],
+      "miejsce_reakcji": "przy drabince",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince"
+        ],
+        "opis": "kwiat przy drabince",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Rysunek z zamkniętymi oczami. Podobno się nie da. A ty?",
+          "tekstEkranu": "Rysunek z zamkniętymi oczami. Podobno się nie da. A ty?"
+        }
+      ],
+      "rodzina": "krzywy-rysunek",
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "KR",
+        "LD"
+      ]
+    },
+    {
+      "id": "most-dla-mrowki",
+      "zrodlo": "biblioteka:KR-TASK-034",
+      "cecha": "tworzenie",
+      "profil_pierwszy": "KR",
+      "potrzeba": "sprawczosc",
+      "ksztalt": "zrób",
+      "tryb_startu": "inicjowanie",
+      "tytul": "Most dla mrówki",
+      "cel": "Zbuduj z patyka albo słomki most dla mrówki.\nNie musi być trwały.",
+      "szept": "Nie musi być trwałe.",
+      "jak": "Połóż dwie rzeczy jako brzegi i przerzuć między nimi trzecią.",
+      "dowod": "Zrób zdjęcie mostu albo napisz, z czego jest.",
+      "przyklad": "Most z ołówka między dwiema książkami. Mrówka nie przyszła, ale most stoi.",
+      "minimum": "Jedna rzecz przerzucona między dwiema — i tak się liczy.",
+      "rozmowa": "Kto jeszcze mógłby przejść po tym moście?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Zbuduj mały most dla mrówki.\nZ patyka albo słomki."
+        }
+      },
+      "karta_wizkora": "Mrówka potrzebuje mostu. Magią go nie zrobię. A ty?",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {zbudował|zbudowała} most dla mrówki.",
+      "slad": {
+        "opcje": [
+          "Stoi",
+          "Stoi, jak trzymam",
+          "Mrówka by nie przeszła"
+        ],
+        "obrazki": [
+          "stoi",
+          "reka-trzyma",
+          "znak-zapytania"
+        ],
+        "zdanie": true,
+        "zdjecie": true,
+        "podpowiedz": "zdjęcie rzeczy, bez ludzi"
+      },
+      "miejsca": [
+        {
+          "id": "stol",
+          "emoji": "📏",
+          "nazwa": "Przy stole",
+          "opis": "Ołówek między dwiema książkami."
+        },
+        {
+          "id": "dwor",
+          "emoji": "🍃",
+          "nazwa": "Na dworze",
+          "opis": "Patyk między dwoma kamieniami."
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🎲",
+          "nazwa": "W świetlicy",
+          "opis": "Kredka między dwoma pudełkami."
+        }
+      ],
+      "miejsce_reakcji": "na pienku",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "na-pienku"
+        ],
+        "opis": "kwiat na pienku",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Mrówka potrzebuje mostu. Magią go nie zrobię. A ty?",
+          "tekstEkranu": "Mrówka potrzebuje mostu. Magią go nie zrobię. A ty?"
+        }
+      ],
+      "rodzina": "most-maly",
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "KR",
+        "ST"
+      ]
+    },
+    {
+      "id": "dwie-rzeczy-w-jedna",
+      "zrodlo": "biblioteka:KR-TASK-043",
+      "cecha": "tworzenie",
+      "profil_pierwszy": "KR",
+      "potrzeba": "sprawczosc",
+      "ksztalt": "zrób",
+      "tryb_startu": "inicjowanie",
+      "tytul": "Dwie w jedną",
+      "cel": "Weź dwie rzeczy z domu i wymyśl, czym mogłyby być razem.\nNadaj temu nazwę.",
+      "szept": "Nadaj nazwę.",
+      "jak": "Połóż dwie rzeczy obok siebie i powiedz, co by robiły, gdyby były jedną.",
+      "dowod": "Napisz nazwę i do czego to służy, albo zrób zdjęcie obu rzeczy razem.",
+      "przyklad": "Łyżka i grzebień: grzebkołyżka. Czesze zupę.",
+      "minimum": "Dwie rzeczy obok siebie i jedna nazwa — i tak się liczy.",
+      "rozmowa": "Do czego służyłaby ta rzecz, gdyby istniała naprawdę?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Weź dwie rzeczy.\nWymyśl, czym są razem."
+        }
+      },
+      "karta_wizkora": "Dwie rzeczy, które się nie spotkały. Co by z tego wyszło?",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {wymyślił|wymyśliła} nową rzecz z dwóch starych.",
+      "slad": {
+        "opcje": [
+          "Śmieszna",
+          "Przydatna",
+          "Dziwna"
+        ],
+        "obrazki": [
+          "usmiech",
+          "gwiazdka",
+          "znak-zapytania"
+        ],
+        "zdanie": true,
+        "zdjecie": true,
+        "podpowiedz": "zdjęcie rzeczy, bez ludzi"
+      },
+      "miejsca": [
+        {
+          "id": "kuchnia",
+          "emoji": "🥄",
+          "nazwa": "W kuchni",
+          "opis": "Łyżka i coś z szuflady."
+        },
+        {
+          "id": "plecak",
+          "emoji": "🎒",
+          "nazwa": "Z plecaka",
+          "opis": "Dwie rzeczy z piórnika."
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🎲",
+          "nazwa": "W świetlicy",
+          "opis": "Dwie rzeczy z pudła z grami."
+        }
+      ],
+      "miejsce_reakcji": "na pienku",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "na-pienku"
+        ],
+        "opis": "kwiat na pienku",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Dwie rzeczy, które się nie spotkały. Co by z tego wyszło?",
+          "tekstEkranu": "Dwie rzeczy, które się nie spotkały. Co by z tego wyszło?"
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "KR"
+      ]
+    },
+    {
+      "id": "nazwa-dla-chmury",
+      "zrodlo": "biblioteka:KR-TASK-042",
+      "cecha": "tworzenie",
+      "profil_pierwszy": "KR",
+      "potrzeba": "uwaznosc",
+      "ksztalt": "zauważ",
+      "tryb_startu": "obserwowanie",
+      "tytul": "Imię dla chmury",
+      "cel": "Spójrz przez okno i wybierz jedną chmurę.\nDaj jej imię. Bez chmur — nazwij niebo.",
+      "szept": "Nazwij niebo.",
+      "jak": "Patrz w niebo, aż jedna chmura wyda ci się inna od reszty, i wymyśl jej imię.",
+      "dowod": "Napisz imię chmury albo zrób zdjęcie nieba.",
+      "przyklad": "Chmura nad blokiem nazywa się Pierzyna. Za chwilę było już pół Pierzyny.",
+      "minimum": "Jedno spojrzenie w niebo i jedno słowo — i tak się liczy.",
+      "rozmowa": "Jak nazwałabyś albo nazwałbyś dzisiejsze niebo?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Wybierz chmurę za oknem.\nDaj jej imię."
+        }
+      },
+      "karta_wizkora": "Chmury nie mają imion. Może jedna dziś dostanie?",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {nadał|nadała} imię chmurze albo niebu.",
+      "slad": {
+        "opcje": [
+          "Chmura ma imię",
+          "Niebo ma imię",
+          "Było ciemno — nazwa dla ciemności"
+        ],
+        "obrazki": [
+          "chmura",
+          "niebo",
+          "noc"
+        ],
+        "zdanie": true,
+        "zdjecie": true,
+        "podpowiedz": "zdjęcie rzeczy, bez ludzi"
+      },
+      "miejsca": [
+        {
+          "id": "okno",
+          "emoji": "🪟",
+          "nazwa": "Przy oknie",
+          "opis": "Okno z widokiem na niebo."
+        },
+        {
+          "id": "dwor",
+          "emoji": "🌳",
+          "nazwa": "Na dworze",
+          "opis": "Z ławki albo w drodze."
+        },
+        {
+          "id": "autobus",
+          "emoji": "🚌",
+          "nazwa": "W autobusie",
+          "opis": "Przez szybę."
+        }
+      ],
+      "miejsce_reakcji": "obok karty",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "obok-karty"
+        ],
+        "opis": "kwiat obok karty",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Chmury nie mają imion. Może jedna dziś dostanie?",
+          "tekstEkranu": "Chmury nie mają imion. Może jedna dziś dostanie?"
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "KR",
+        "DT"
+      ]
+    },
+    {
+      "id": "wybierz-ty",
+      "zrodlo": "biblioteka:LD-TASK-027",
+      "cecha": "odwaga",
+      "profil_pierwszy": "LD",
+      "potrzeba": "relacja",
+      "ksztalt": "podaruj",
+      "tryb_startu": "zaproszenie",
+      "tytul": "Wybierz ty",
+      "cel": "Oddaj dziś komuś jeden wybór, który zwykle jest twój.\nI idź za nim do końca, bez „ale”.",
+      "szept": "Bez ale.",
+      "jak": "Powiedz komuś „wybierz ty” — grę, film, trasę — i zrób to, co wybrano.",
+      "dowod": "Napisz, co wybrano zamiast twojego, albo zrób zdjęcie tego, co robiliście.",
+      "przyklad": "Zwykle ja wybieram grę w świetlicy. Dziś Zosia: bierki. Nudne przez minutę, potem nie.",
+      "minimum": "Jedno „wybierz ty” powiedziane na głos — i tak się liczy.",
+      "rozmowa": "Co ta osoba wybrała i jak było?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Powiedz komuś: wybierz ty.\nI zrób to, co wybrano."
+        }
+      },
+      "karta_wizkora": "Oddać komuś wybór — tego nie zrobi się samemu. Spróbujesz?",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {oddał|oddała} komuś swój wybór i {poszedł|poszła} za nim.",
+      "slad": {
+        "opcje": [
+          "Wybrano coś, co lubię",
+          "Wybrano coś nowego",
+          "Nikt nie chciał wybierać"
+        ],
+        "obrazki": [
+          "usmiech",
+          "gwiazdka",
+          "znak-zapytania"
+        ],
+        "zdanie": true,
+        "zdjecie": false,
+        "podpowiedz": "bez zdjęcia — ślad to wybór albo zdanie"
+      },
+      "miejsca": [
+        {
+          "id": "swietlica",
+          "emoji": "🎲",
+          "nazwa": "W świetlicy",
+          "opis": "Ktoś inny wybiera grę."
+        },
+        {
+          "id": "podworko",
+          "emoji": "⚽",
+          "nazwa": "Na podwórku",
+          "opis": "Ktoś inny wybiera, w co gramy."
+        },
+        {
+          "id": "dom",
+          "emoji": "📺",
+          "nazwa": "W domu",
+          "opis": "Ktoś inny wybiera film albo trasę spaceru."
+        }
+      ],
+      "miejsce_reakcji": "przy drabince",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince"
+        ],
+        "opis": "kwiat przy drabince",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Oddać komuś wybór — tego nie zrobi się samemu. Spróbujesz?",
+          "tekstEkranu": "Oddać komuś wybór — tego nie zrobi się samemu. Spróbujesz?"
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 15,
+      "competency_focus": [
+        "LD",
+        "EM"
+      ]
+    },
+    {
+      "id": "dziekuje-niewidocznemu",
+      "zrodlo": "biblioteka:LD-TASK-039",
+      "cecha": "odwaga",
+      "profil_pierwszy": "LD",
+      "potrzeba": "troska",
+      "ksztalt": "podaruj",
+      "tryb_startu": "inicjowanie",
+      "tytul": "Dziękuję niewidocznemu",
+      "cel": "Komuś, kto codziennie coś dla ciebie robi,\npowiedz krótkie „dziękuję” — zanim ktokolwiek inny.",
+      "szept": "Krótkie dziękuję.",
+      "jak": "Pomyśl o pani sprzątającej, kierowcy, kimś w kuchni — i powiedz jedno słowo, patrząc na tę osobę.",
+      "dowod": "Napisz, komu (bez nazwiska), albo zrób zdjęcie miejsca, gdzie ta osoba pracuje.",
+      "przyklad": "Panu, który otwiera szkołę rano. Zdziwił się i powiedział „proszę”.",
+      "minimum": "„Dziękuję” powiedziane w myślach do kogoś, kogo mijasz — i tak się liczy.",
+      "rozmowa": "Kto jeszcze robi coś dla ciebie tak, że tego nie widać?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Komuś, kto codziennie coś dla ciebie robi,\npowiedz dziękuję."
+        }
+      },
+      "karta_wizkora": "Ktoś codziennie coś dla ciebie robi. Nikt nie widzi. Ty tak.",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {podziękował|podziękowała} komuś, komu nikt nie dziękuje.",
+      "slad": {
+        "opcje": [
+          "Powiedziane na głos",
+          "Powiedziane w myślach",
+          "Dopiero jutro"
+        ],
+        "obrazki": [
+          "dymek-dwa",
+          "dymek-cichy",
+          "zegar"
+        ],
+        "zdanie": true,
+        "zdjecie": false,
+        "podpowiedz": "bez zdjęcia — ślad to wybór albo zdanie"
+      },
+      "miejsca": [
+        {
+          "id": "szkola",
+          "emoji": "🏫",
+          "nazwa": "W szkole",
+          "opis": "Pani z szatni, pan woźny, pani ze stołówki."
+        },
+        {
+          "id": "klatka",
+          "emoji": "🏢",
+          "nazwa": "Na klatce",
+          "opis": "Osoba, która sprząta — gdy dorosły jest obok."
+        },
+        {
+          "id": "dom",
+          "emoji": "🏠",
+          "nazwa": "W domu",
+          "opis": "Ktoś, kto codziennie robi tę samą rzecz dla wszystkich."
+        }
+      ],
+      "miejsce_reakcji": "pod drzewem",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "pod-drzewem"
+        ],
+        "opis": "kwiat pod drzewem",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Ktoś codziennie coś dla ciebie robi. Nikt nie widzi. Ty tak.",
+          "tekstEkranu": "Ktoś codziennie coś dla ciebie robi. Nikt nie widzi. Ty tak."
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "LD",
+        "EM"
+      ]
+    },
+    {
+      "id": "cos-w-czym-slabo",
+      "zrodlo": "biblioteka:LD-TASK-032",
+      "cecha": "odwaga",
+      "profil_pierwszy": "LD",
+      "potrzeba": "autonomia",
+      "ksztalt": "odważ się",
+      "tryb_startu": "inicjowanie",
+      "tytul": "Krzywo, ale moje",
+      "cel": "Zrób dziś krótko coś, co ci nie wychodzi.\nKrzywo? Właśnie o to chodzi.",
+      "szept": "Właśnie o to chodzi.",
+      "jak": "Wybierz jedną rzecz, w której ci nie idzie — rysunek, rzut, śpiew pod nosem — i zrób ją raz.",
+      "dowod": "Napisz, co to było, albo zrób zdjęcie tego, co wyszło.",
+      "przyklad": "{Narysowałem|Narysowałam} konia. Wygląda jak pies. Zostaje na lodówce.",
+      "minimum": "Jedna próba, choćby minutowa — i tak się liczy.",
+      "rozmowa": "Co w tym było najtrudniejsze?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Zrób coś, co ci nie wychodzi.\nKrzywo też dobrze."
+        }
+      },
+      "karta_wizkora": "Wszyscy robią to, co im wychodzi. Tamto jest ciekawsze.",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {spróbował|spróbowała} czegoś, co nie wychodzi.",
+      "slad": {
+        "opcje": [
+          "Wyszło krzywo",
+          "Wyszło lepiej, niż {myślałem|myślałam}",
+          "Nie skończone — i tak się liczy"
+        ],
+        "obrazki": [
+          "jedna-krzywa",
+          "gwiazdka",
+          "w-polowie"
+        ],
+        "zdanie": true,
+        "zdjecie": true,
+        "podpowiedz": "zdjęcie rzeczy, bez ludzi"
+      },
+      "miejsca": [
+        {
+          "id": "stol",
+          "emoji": "🖍️",
+          "nazwa": "Przy stole",
+          "opis": "Rysunek rzeczy, która nigdy ci nie wychodzi."
+        },
+        {
+          "id": "podworko",
+          "emoji": "🏀",
+          "nazwa": "Na podwórku",
+          "opis": "Rzut albo kozłowanie, z dorosłym w zasięgu wzroku."
+        },
+        {
+          "id": "pokoj",
+          "emoji": "🎵",
+          "nazwa": "W pokoju",
+          "opis": "Piosenka pod nosem, przy zamkniętych drzwiach."
+        }
+      ],
+      "miejsce_reakcji": "przy choince",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-choince"
+        ],
+        "opis": "kwiat przy choince",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Wszyscy robią to, co im wychodzi. Tamto jest ciekawsze.",
+          "tekstEkranu": "Wszyscy robią to, co im wychodzi. Tamto jest ciekawsze."
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "LD"
+      ]
+    },
+    {
+      "id": "nie-wiem-ale-sprawdze",
+      "zrodlo": "biblioteka:LD-TASK-029",
+      "cecha": "odwaga",
+      "profil_pierwszy": "LD",
+      "potrzeba": "kompetencja",
+      "ksztalt": "odważ się",
+      "tryb_startu": "odpowiadanie",
+      "tytul": "Nie wiem, ale sprawdzę",
+      "cel": "Gdy ktoś zapyta o coś, czego nie wiesz:\n„nie wiem, ale sprawdzę”. I sprawdź.",
+      "szept": "I sprawdź.",
+      "jak": "Zamiast zgadywać, powiedz trzy słowa i znajdź odpowiedź w książce albo u kogoś.",
+      "dowod": "Napisz, o co było pytanie i co {sprawdziłeś|sprawdziłaś}, albo zrób zdjęcie miejsca, gdzie była odpowiedź.",
+      "przyklad": "Brat zapytał, ile nóg ma pająk. {Powiedziałem|Powiedziałam}: nie wiem, sprawdzę. Osiem.",
+      "minimum": "Nikt nie pytał? Powiedz „nie wiem” sobie o jednej rzeczy i sprawdź ją — i tak się liczy.",
+      "rozmowa": "Gdzie {szukałeś|szukałaś} odpowiedzi?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Jak nie wiesz — powiedz: nie wiem.\nPotem sprawdź."
+        }
+      },
+      "karta_wizkora": "Czarodzieje też mówią „nie wiem”. Rzadko. Ty częściej.",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {powiedział|powiedziała} „nie wiem” i {sprawdził|sprawdziła}.",
+      "slad": {
+        "opcje": [
+          "Ktoś zapytał, {sprawdziłem|sprawdziłam}",
+          "Nikt nie pytał — {sprawdziłem|sprawdziłam} swoje",
+          "Jeszcze sprawdzam"
+        ],
+        "obrazki": [
+          "zarowka",
+          "ksiazka",
+          "zegar"
+        ],
+        "zdanie": true,
+        "zdjecie": false,
+        "podpowiedz": "bez zdjęcia — ślad to wybór albo zdanie"
+      },
+      "miejsca": [
+        {
+          "id": "dom",
+          "emoji": "📚",
+          "nazwa": "W domu",
+          "opis": "Odpowiedź w książce albo u dorosłego."
+        },
+        {
+          "id": "klasa",
+          "emoji": "🏫",
+          "nazwa": "W klasie",
+          "opis": "Pytanie kolegi, odpowiedź w podręczniku."
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🧩",
+          "nazwa": "W świetlicy",
+          "opis": "Pytanie młodszego dziecka."
+        }
+      ],
+      "miejsce_reakcji": "przy sciezce",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-sciezce"
+        ],
+        "opis": "kwiat przy sciezce",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Czarodzieje też mówią „nie wiem”. Rzadko. Ty częściej.",
+          "tekstEkranu": "Czarodzieje też mówią „nie wiem”. Rzadko. Ty częściej."
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "LD",
+        "DT"
+      ]
+    },
+    {
+      "id": "podziel-sie",
+      "zrodlo": "biblioteka:EM-TASK-017",
+      "cecha": "wspolpraca",
+      "profil_pierwszy": "EM",
+      "potrzeba": "troska",
+      "ksztalt": "podaruj",
+      "tryb_startu": "inicjowanie",
+      "tytul": "Podział",
+      "cel": "Podziel się dziś jedną rzeczą z kimś, kto o to nie prosił.\nKanapką, kredką, miejscem na ławce.",
+      "szept": "Kto nie prosił.",
+      "jak": "Zauważ, komu czegoś brakuje, i podsuń swoje bez słowa.",
+      "dowod": "Napisz, czym i z kim się {podzieliłeś|podzieliłaś}, albo zrób zdjęcie tej rzeczy.",
+      "przyklad": "Kuba nie miał ołówka. {Podsunąłem|Podsunęłam} swój zapasowy. Oddał po lekcji.",
+      "minimum": "Jedna rzecz podsunięta komuś — i tak się liczy.",
+      "rozmowa": "Skąd {wiedziałeś|wiedziałaś}, że tej osobie czegoś brakuje?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Podziel się jedną rzeczą.\nZ kimś, kto nie prosił."
+        }
+      },
+      "karta_wizkora": "Komuś obok czegoś brakuje. Ty masz. Magia tu nie pomoże.",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {podzielił|podzieliła} się czymś z kimś, kto nie prosił.",
+      "slad": {
+        "opcje": [
+          "Przyjęte",
+          "Odmówione — i to w porządku",
+          "Nikt niczego nie potrzebował"
+        ],
+        "obrazki": [
+          "usmiech",
+          "dymek-cichy",
+          "puste-miejsce"
+        ],
+        "zdanie": true,
+        "zdjecie": false,
+        "podpowiedz": "bez zdjęcia — ślad to wybór albo zdanie"
+      },
+      "miejsca": [
+        {
+          "id": "klasa",
+          "emoji": "✏️",
+          "nazwa": "W klasie",
+          "opis": "Kredka albo gumka."
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🍎",
+          "nazwa": "W świetlicy",
+          "opis": "Kawałek kanapki albo miejsce przy stole."
+        },
+        {
+          "id": "dom",
+          "emoji": "🪑",
+          "nazwa": "W domu",
+          "opis": "Miejsce na kanapie albo koc."
+        }
+      ],
+      "miejsce_reakcji": "pod drzewem",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "pod-drzewem"
+        ],
+        "opis": "kwiat pod drzewem",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Komuś obok czegoś brakuje. Ty masz. Magia tu nie pomoże.",
+          "tekstEkranu": "Komuś obok czegoś brakuje. Ty masz. Magia tu nie pomoże."
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "EM"
+      ]
+    },
+    {
+      "id": "list-bez-okazji",
+      "zrodlo": "biblioteka:EM-TASK-038",
+      "cecha": "wspolpraca",
+      "profil_pierwszy": "EM",
+      "potrzeba": "relacja",
+      "ksztalt": "podaruj",
+      "tryb_startu": "inicjowanie",
+      "tytul": "List bez okazji",
+      "cel": "Napisz krótki liścik do kogoś — bez urodzin, bez święta.\nO rzeczy, nie o uczuciu.",
+      "szept": "O rzeczy.",
+      "jak": "Napisz trzy zdania o czymś, co ta osoba zrobiła albo lubi, i zostaw tam, gdzie znajdzie.",
+      "dowod": "Zrób zdjęcie liścika przed schowaniem albo napisz, gdzie go {zostawiłeś|zostawiłaś}.",
+      "przyklad": "Do babci: że jej zupa pachnie na całą klatkę. {Włożyłem|Włożyłam} do torebki.",
+      "minimum": "Jedno zdanie na karteczce — i tak się liczy.",
+      "rozmowa": "Czy ta osoba już znalazła liścik?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Napisz komuś liścik.\nO rzeczy, którą lubi."
+        }
+      },
+      "karta_wizkora": "Listy bez okazji są najlepsze. Napiszesz jeden?",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {napisał|napisała} komuś liścik bez okazji.",
+      "slad": {
+        "opcje": [
+          "Znaleziony",
+          "Jeszcze schowany",
+          "Wręczony do ręki"
+        ],
+        "obrazki": [
+          "usmiech",
+          "puste-miejsce",
+          "reka"
+        ],
+        "zdanie": true,
+        "zdjecie": true,
+        "podpowiedz": "zdjęcie rzeczy, bez ludzi"
+      },
+      "miejsca": [
+        {
+          "id": "dom",
+          "emoji": "✉️",
+          "nazwa": "W domu",
+          "opis": "Do kogoś z domu, pod poduszkę albo do kieszeni."
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🏫",
+          "nazwa": "W świetlicy",
+          "opis": "Do kogoś z grupy, do plecaka."
+        },
+        {
+          "id": "telefon",
+          "emoji": "📞",
+          "nazwa": "Na odległość",
+          "opis": "Do kogoś daleko — dorosły wyśle zdjęcie liścika."
+        }
+      ],
+      "miejsce_reakcji": "pod drzewem",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "pod-drzewem"
+        ],
+        "opis": "kwiat pod drzewem",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Listy bez okazji są najlepsze. Napiszesz jeden?",
+          "tekstEkranu": "Listy bez okazji są najlepsze. Napiszesz jeden?"
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 15,
+      "competency_focus": [
+        "EM",
+        "KR"
+      ]
+    },
+    {
+      "id": "ciche-miejsce",
+      "zrodlo": "biblioteka:EM-TASK-035",
+      "cecha": "wspolpraca",
+      "profil_pierwszy": "EM",
+      "potrzeba": "regulacja",
+      "ksztalt": "wytrzymaj",
+      "tryb_startu": "obserwowanie",
+      "tytul": "Ciche miejsce",
+      "cel": "Znajdź dziś swoje ciche miejsce.\nPosiedź tam, aż skończy się jeden długi oddech.",
+      "szept": "Jeden długi oddech.",
+      "jak": "Wybierz kąt — pod kocem, na parapecie, w łazience — i zostań w nim chwilę bez ekranu.",
+      "dowod": "Napisz, gdzie to było, albo zrób zdjęcie tego miejsca (bez ludzi).",
+      "przyklad": "Za drzwiami szafy, na podłodze. Nikt mnie nie szukał przez dwie minuty.",
+      "minimum": "Chwila w jakimkolwiek cichym kącie — i tak się liczy.",
+      "rozmowa": "Gdzie jest twoje ciche miejsce?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Znajdź swoje ciche miejsce.\nPosiedź tam chwilę."
+        }
+      },
+      "karta_wizkora": "Każdy ma swoje ciche miejsce. Ja mam. A ty?",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {znalazł|znalazła} swoje ciche miejsce.",
+      "slad": {
+        "opcje": [
+          "Pod kocem",
+          "Przy oknie",
+          "Gdzieś indziej"
+        ],
+        "obrazki": [
+          "koc",
+          "okno",
+          "znak-zapytania"
+        ],
+        "zdanie": true,
+        "zdjecie": true,
+        "podpowiedz": "zdjęcie rzeczy, bez ludzi"
+      },
+      "miejsca": [
+        {
+          "id": "dom",
+          "emoji": "🛋️",
+          "nazwa": "W domu",
+          "opis": "Pod kocem, za drzwiami, na parapecie."
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🏫",
+          "nazwa": "W świetlicy",
+          "opis": "Kąt przy oknie, gdy inni grają."
+        },
+        {
+          "id": "autobus",
+          "emoji": "🚌",
+          "nazwa": "W autobusie",
+          "opis": "Z czołem przy szybie, bez telefonu."
+        }
+      ],
+      "miejsce_reakcji": "przy drabince",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince"
+        ],
+        "opis": "kwiat przy drabince",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Każdy ma swoje ciche miejsce. Ja mam. A ty?",
+          "tekstEkranu": "Każdy ma swoje ciche miejsce. Ja mam. A ty?"
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "EM",
+        "MD"
+      ]
+    },
+    {
+      "id": "lyk-po-lyku",
+      "zrodlo": "biblioteka:MD-TASK-023",
+      "cecha": "wytrwalosc",
+      "profil_pierwszy": "MD",
+      "potrzeba": "regulacja",
+      "ksztalt": "wytrzymaj",
+      "tryb_startu": "inicjowanie",
+      "tytul": "Łyk po łyku",
+      "cel": "Wypij szklankę wody małymi łykami.\nPo każdym łyku odstaw szklankę na stół.",
+      "szept": "Po każdym łyku.",
+      "jak": "Nalej wody i pij tak wolno, jakby każdy łyk był osobną rzeczą do zrobienia.",
+      "dowod": "Napisz, ile łyków wyszło, albo zrób zdjęcie pustej szklanki.",
+      "przyklad": "Dwadzieścia trzy łyki. Zwykle robię to w trzy.",
+      "minimum": "Trzy łyki z odstawianiem — i tak się liczy.",
+      "rozmowa": "Co się zmienia, kiedy pije się tak wolno?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Wypij wodę małymi łykami.\nOdstawiaj szklankę."
+        }
+      },
+      "karta_wizkora": "Szklanka wody może trwać długo. Sprawdzisz, jak długo?",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {wypił|wypiła} szklankę wody łyk po łyku.",
+      "slad": {
+        "opcje": [
+          "Dużo łyków",
+          "Kilka łyków",
+          "Skończone szybciej — i tak się liczy"
+        ],
+        "obrazki": [
+          "duzo",
+          "malo",
+          "zegar-mniej"
+        ],
+        "zdanie": true,
+        "zdjecie": true,
+        "podpowiedz": "zdjęcie rzeczy, bez ludzi"
+      },
+      "miejsca": [
+        {
+          "id": "kuchnia",
+          "emoji": "🥛",
+          "nazwa": "W kuchni",
+          "opis": "Szklanka wody ze stołu."
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🚰",
+          "nazwa": "W świetlicy",
+          "opis": "Kubek z kranu."
+        },
+        {
+          "id": "szkola",
+          "emoji": "🏫",
+          "nazwa": "W szkole",
+          "opis": "Bidon na przerwie."
+        }
+      ],
+      "miejsce_reakcji": "przy drabince",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince"
+        ],
+        "opis": "kwiat przy drabince",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Szklanka wody może trwać długo. Sprawdzisz, jak długo?",
+          "tekstEkranu": "Szklanka wody może trwać długo. Sprawdzisz, jak długo?"
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "MD"
+      ]
+    },
+    {
+      "id": "buty-w-parach",
+      "zrodlo": "biblioteka:MD-TASK-027",
+      "cecha": "wytrwalosc",
+      "profil_pierwszy": "MD",
+      "potrzeba": "uwaznosc",
+      "ksztalt": "zrób",
+      "tryb_startu": "inicjowanie",
+      "tytul": "Buty w parach",
+      "cel": "Ustaw w przedpokoju wszystkie buty w pary.\nKoniec, gdy żaden nie stoi sam.",
+      "szept": "Żaden sam.",
+      "jak": "Bierz buty po jednym, powoli, i stawiaj obok drugiego z pary.",
+      "dowod": "Zrób zdjęcie butów w parach albo napisz, ile par wyszło.",
+      "przyklad": "Siedem par i jeden but bez pary. Drugi był pod łóżkiem.",
+      "minimum": "Trzy pary ustawione — i tak się liczy.",
+      "rozmowa": "Który but był najdalej od swojej pary?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Ustaw buty w pary.\nPowoli, po jednym."
+        }
+      },
+      "karta_wizkora": "W przedpokoju buty stoją, jak chcą. Zrobisz z tego pary?",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {ustawił|ustawiła} buty w pary, powoli.",
+      "slad": {
+        "opcje": [
+          "Wszystkie w parach",
+          "Jeden bez pary",
+          "Kilka par"
+        ],
+        "obrazki": [
+          "rowno",
+          "jeden-z-boku",
+          "kilka-z-boku"
+        ],
+        "zdanie": true,
+        "zdjecie": true,
+        "podpowiedz": "zdjęcie rzeczy, bez ludzi"
+      },
+      "miejsca": [
+        {
+          "id": "przedpokoj",
+          "emoji": "👟",
+          "nazwa": "W przedpokoju",
+          "opis": "Wszystkie buty przy drzwiach."
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🏫",
+          "nazwa": "W świetlicy",
+          "opis": "Kapcie w szatni, gdy jest cicho."
+        },
+        {
+          "id": "pokoj",
+          "emoji": "🧦",
+          "nazwa": "W pokoju",
+          "opis": "Skarpetki z szuflady w pary, gdy butów jest mało."
+        }
+      ],
+      "miejsce_reakcji": "przy drabince",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince"
+        ],
+        "opis": "kwiat przy drabince",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "W przedpokoju buty stoją, jak chcą. Zrobisz z tego pary?",
+          "tekstEkranu": "W przedpokoju buty stoją, jak chcą. Zrobisz z tego pary?"
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "MD",
+        "ST"
+      ]
+    },
+    {
+      "id": "chusteczka-w-powietrzu",
+      "zrodlo": "biblioteka:MD-TASK-022",
+      "cecha": "wytrwalosc",
+      "profil_pierwszy": "MD",
+      "potrzeba": "uwaznosc",
+      "ksztalt": "zauważ",
+      "tryb_startu": "obserwowanie",
+      "tytul": "Chusteczka",
+      "cel": "Podrzuć skrawek chusteczki i patrz, jak opada.\nŚledź go, aż dotknie podłogi. Trzy razy.",
+      "szept": "Aż dotknie.",
+      "jak": "Oderwij kawałek chusteczki, podrzuć wysoko i nie odrywaj od niego wzroku.",
+      "dowod": "Napisz, gdzie wylądował ostatni skrawek, albo zrób zdjęcie chusteczki na podłodze.",
+      "przyklad": "Trzeci skrawek poleciał pod krzesło. Najdłużej leciał drugi.",
+      "minimum": "Jeden skrawek wyśledzony do podłogi — i tak się liczy.",
+      "rozmowa": "Który skrawek leciał najdłużej?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Podrzuć skrawek chusteczki.\nPatrz, aż spadnie."
+        }
+      },
+      "karta_wizkora": "Chusteczka spada wolniej niż kamień. Ile trwa? Nie wiem.",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {śledził|śledziła} spadającą chusteczkę do samej podłogi.",
+      "slad": {
+        "opcje": [
+          "Trzy razy",
+          "Raz albo dwa",
+          "Poleciała gdzieś daleko"
+        ],
+        "obrazki": [
+          "trzy",
+          "jedna-fala",
+          "strzalka"
+        ],
+        "zdanie": true,
+        "zdjecie": true,
+        "podpowiedz": "zdjęcie rzeczy, bez ludzi"
+      },
+      "miejsca": [
+        {
+          "id": "pokoj",
+          "emoji": "🧻",
+          "nazwa": "W pokoju",
+          "opis": "Kawałek chusteczki."
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🏫",
+          "nazwa": "W świetlicy",
+          "opis": "Skrawek papieru z kosza na makulaturę."
+        },
+        {
+          "id": "kuchnia",
+          "emoji": "🍽️",
+          "nazwa": "W kuchni",
+          "opis": "Kawałek serwetki."
+        }
+      ],
+      "miejsce_reakcji": "przy choince",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-choince"
+        ],
+        "opis": "kwiat przy choince",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Chusteczka spada wolniej niż kamień. Ile trwa? Nie wiem.",
+          "tekstEkranu": "Chusteczka spada wolniej niż kamień. Ile trwa? Nie wiem."
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "MD"
+      ]
+    },
+    {
+      "id": "klocki-w-rzedzie",
+      "zrodlo": "biblioteka:MD-TASK-031",
+      "cecha": "wytrwalosc",
+      "profil_pierwszy": "MD",
+      "potrzeba": "uwaznosc",
+      "ksztalt": "zrób",
+      "tryb_startu": "inicjowanie",
+      "tytul": "Prosty rząd",
+      "cel": "Ułóż pięć klocków w jednym prostym rzędzie.\nKładź każdy tak, żeby nie ruszyć poprzedniego.",
+      "szept": "Nie ruszyć poprzedniego.",
+      "jak": "Stawiaj klocki jeden przy drugim, powoli, i na koniec spójrz na rząd z boku.",
+      "dowod": "Zrób zdjęcie rzędu z boku albo napisz, czy był prosty.",
+      "przyklad": "Z boku było widać, że trzeci klocek wystaje. {Poprawiłem|Poprawiłam} go bez ruszania reszty.",
+      "minimum": "Trzy klocki w rzędzie — i tak się liczy.",
+      "rozmowa": "Który klocek był najtrudniejszy do postawienia?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Ułóż pięć klocków w rzędzie.\nNie ruszaj poprzedniego."
+        }
+      },
+      "karta_wizkora": "Prosty rząd z pięciu klocków. Podobno łatwe. Sprawdzisz?",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {ułożył|ułożyła} prosty rząd, nie ruszając poprzednich.",
+      "slad": {
+        "opcje": [
+          "Prosty",
+          "Prawie prosty",
+          "Krzywy — i dobrze"
+        ],
+        "obrazki": [
+          "rowno",
+          "w-polowie",
+          "jedna-krzywa"
+        ],
+        "zdanie": true,
+        "zdjecie": true,
+        "podpowiedz": "zdjęcie rzeczy, bez ludzi"
+      },
+      "miejsca": [
+        {
+          "id": "dywan",
+          "emoji": "🧱",
+          "nazwa": "Na dywanie",
+          "opis": "Klocki."
+        },
+        {
+          "id": "kuchnia",
+          "emoji": "🥄",
+          "nazwa": "W kuchni",
+          "opis": "Łyżki albo kubki."
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🎲",
+          "nazwa": "W świetlicy",
+          "opis": "Pionki albo kredki."
+        }
+      ],
+      "miejsce_reakcji": "przy drabince",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince"
+        ],
+        "opis": "kwiat przy drabince",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Prosty rząd z pięciu klocków. Podobno łatwe. Sprawdzisz?",
+          "tekstEkranu": "Prosty rząd z pięciu klocków. Podobno łatwe. Sprawdzisz?"
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "MD",
+        "ST"
+      ]
+    },
+    {
+      "id": "stan-jak-czapla",
+      "zrodlo": "biblioteka:MD-TASK-030",
+      "cecha": "wytrwalosc",
+      "profil_pierwszy": "MD",
+      "potrzeba": "ruch",
+      "ksztalt": "wytrzymaj",
+      "tryb_startu": "inicjowanie",
+      "tytul": "Czapla",
+      "cel": "Stań na jednej nodze i patrz w jeden punkt.\nPolicz w myślach do dziesięciu, potem zmień nogę.",
+      "szept": "Zmień nogę.",
+      "jak": "Wybierz punkt na ścianie, unieś jedną stopę i licz powoli; jeśli się zachwiejesz, zacznij od nowa.",
+      "dowod": "Napisz, która noga stała dłużej, albo zrób zdjęcie punktu na ścianie.",
+      "przyklad": "Lewa stała do dziesięciu. Prawa do sześciu i {złapałem|złapałam} się ściany.",
+      "minimum": "Jedna noga do trzech — i tak się liczy.",
+      "rozmowa": "Co pomaga nie zachwiać się?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Stań na jednej nodze.\nPatrz w jeden punkt."
+        }
+      },
+      "karta_wizkora": "Czapla stoi na jednej nodze cały dzień. Ty spróbuj chwilę.",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {stał|stała} jak czapla, patrząc w jeden punkt.",
+      "slad": {
+        "opcje": [
+          "Obie nogi do dziesięciu",
+          "Jedna dłużej",
+          "Ciągle od nowa — i tak się liczy"
+        ],
+        "obrazki": [
+          "rowno",
+          "jeden-z-boku",
+          "start"
+        ],
+        "zdanie": true,
+        "zdjecie": false,
+        "podpowiedz": "bez zdjęcia — ślad to wybór albo zdanie"
+      },
+      "miejsca": [
+        {
+          "id": "pokoj",
+          "emoji": "🦩",
+          "nazwa": "W pokoju",
+          "opis": "Przy ścianie, z dala od kantów."
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🏫",
+          "nazwa": "W świetlicy",
+          "opis": "W kącie, gdy jest miejsce."
+        },
+        {
+          "id": "przystanek",
+          "emoji": "🚌",
+          "nazwa": "Na przystanku",
+          "opis": "Trzymając się słupka."
+        }
+      ],
+      "miejsce_reakcji": "przy choince",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-choince"
+        ],
+        "opis": "kwiat przy choince",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Czapla stoi na jednej nodze cały dzień. Ty spróbuj chwilę.",
+          "tekstEkranu": "Czapla stoi na jednej nodze cały dzień. Ty spróbuj chwilę."
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "MD",
+        "LD"
+      ]
+    },
+    {
+      "id": "skladanie-w-kostke",
+      "zrodlo": "biblioteka:MD-TASK-035",
+      "cecha": "wytrwalosc",
+      "profil_pierwszy": "MD",
+      "potrzeba": "uwaznosc",
+      "ksztalt": "zrób",
+      "tryb_startu": "inicjowanie",
+      "tytul": "Kostka",
+      "cel": "Złóż jedną koszulkę albo ręcznik w równą kostkę.\nWygładź każdy brzeg, zanim złożysz dalej.",
+      "szept": "Każdy brzeg.",
+      "jak": "Rozłóż rzecz płasko, składaj powoli i dociskaj dłonią każde zgięcie.",
+      "dowod": "Zrób zdjęcie kostki albo napisz, ile zgięć wyszło.",
+      "przyklad": "Ręcznik w kostkę: pięć zgięć. Leży prosto na półce, sam.",
+      "minimum": "Jedno zgięcie wygładzone — i tak się liczy.",
+      "rozmowa": "Co było najtrudniejsze przy składaniu?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Złóż ręcznik w kostkę.\nPowoli."
+        }
+      },
+      "karta_wizkora": "Jedna rzecz złożona tak, żeby leżała prosto. Umiesz?",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {złożył|złożyła} rzecz w równą kostkę, brzeg po brzegu.",
+      "slad": {
+        "opcje": [
+          "Prosto",
+          "Prawie prosto",
+          "Krzywo — i tak się liczy"
+        ],
+        "obrazki": [
+          "rowno",
+          "w-polowie",
+          "jedna-krzywa"
+        ],
+        "zdanie": true,
+        "zdjecie": true,
+        "podpowiedz": "zdjęcie rzeczy, bez ludzi"
+      },
+      "miejsca": [
+        {
+          "id": "pokoj",
+          "emoji": "👕",
+          "nazwa": "W pokoju",
+          "opis": "Koszulka z krzesła."
+        },
+        {
+          "id": "lazienka",
+          "emoji": "🧺",
+          "nazwa": "W łazience",
+          "opis": "Ręcznik."
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🧣",
+          "nazwa": "W świetlicy",
+          "opis": "Szalik albo chusta z szatni."
+        }
+      ],
+      "miejsce_reakcji": "przy drabince",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince"
+        ],
+        "opis": "kwiat przy drabince",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Jedna rzecz złożona tak, żeby leżała prosto. Umiesz?",
+          "tekstEkranu": "Jedna rzecz złożona tak, żeby leżała prosto. Umiesz?"
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "MD"
+      ]
+    },
+    {
+      "id": "karton-kosmiczny",
+      "zrodlo": "biblioteka:KR-TASK-011",
+      "cecha": "tworzenie",
+      "profil_pierwszy": "KR",
+      "potrzeba": "sprawczosc",
+      "ksztalt": "zrób",
+      "tryb_startu": "inicjowanie",
+      "tytul": "Karton w coś",
+      "cel": "Zrób z kawałka kartonu jedną rzecz: hełm, statek, maskę.\nNie musi być ładna. Ma powstać.",
+      "szept": "Ma powstać.",
+      "jak": "Weź karton po czymkolwiek, zegnij albo wytnij z dorosłym, i nazwij to, co powstało.",
+      "dowod": "Zrób zdjęcie tego, co powstało, albo napisz, co to jest.",
+      "przyklad": "Z pudełka po płatkach wyszedł hełm. Za mały, ale się trzyma.",
+      "minimum": "Karton zgięty w jedną rzecz — i tak się liczy.",
+      "rozmowa": "Co jeszcze mógłby udawać ten karton?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Zrób coś z kartonu.\nHełm, statek albo maskę."
+        }
+      },
+      "karta_wizkora": "Pudełko po płatkach chce być czymś więcej. Pomożesz mu?",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {zrobił|zrobiła} rzecz z kawałka kartonu.",
+      "slad": {
+        "opcje": [
+          "Stoi",
+          "Trzeba trzymać",
+          "Rozpadło się — i tak się liczy"
+        ],
+        "obrazki": [
+          "stoi",
+          "reka-trzyma",
+          "w-polowie"
+        ],
+        "zdanie": true,
+        "zdjecie": true,
+        "podpowiedz": "zdjęcie rzeczy, bez ludzi"
+      },
+      "miejsca": [
+        {
+          "id": "kuchnia",
+          "emoji": "📦",
+          "nazwa": "W kuchni",
+          "opis": "Pudełko po płatkach albo herbacie."
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🎲",
+          "nazwa": "W świetlicy",
+          "opis": "Pudełko po grze, której już nie ma."
+        },
+        {
+          "id": "klatka",
+          "emoji": "📬",
+          "nazwa": "Na klatce",
+          "opis": "Karton spod skrzynek — gdy dorosły jest obok."
+        }
+      ],
+      "miejsce_reakcji": "na pienku",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "na-pienku"
+        ],
+        "opis": "kwiat na pienku",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "Pudełko po płatkach chce być czymś więcej. Pomożesz mu?",
+          "tekstEkranu": "Pudełko po płatkach chce być czymś więcej. Pomożesz mu?"
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 15,
+      "competency_focus": [
+        "KR"
+      ]
+    },
+    {
+      "id": "rzezba-z-kuli",
+      "zrodlo": "biblioteka:KR-TASK-022",
+      "cecha": "tworzenie",
+      "profil_pierwszy": "KR",
+      "potrzeba": "sprawczosc",
+      "ksztalt": "zrób",
+      "tryb_startu": "inicjowanie",
+      "tytul": "Rzeźba z kuli",
+      "cel": "Zgnieć kartkę w kulę i powoli ją rozprostuj.\nZatrzymaj się, gdy zobaczysz w niej kształt.",
+      "szept": "Gdy zobaczysz kształt.",
+      "jak": "Rozprostowuj kulę po kawałku i patrz, co przypomina: zwierzaka, statek, twarz.",
+      "dowod": "Zrób zdjęcie rzeźby albo napisz, co w niej {zobaczyłeś|zobaczyłaś}.",
+      "przyklad": "Wyszedł żółw z jednym uchem. Stoi na parapecie.",
+      "minimum": "Kula zgnieciona i raz rozprostowana — i tak się liczy.",
+      "rozmowa": "Co jeszcze mogło być w tej kuli?",
+      "etap": "oba",
+      "warianty": {
+        "1-3": {
+          "cel": "Zgnieć kartkę w kulę.\nRozprostuj i zobacz, co to."
+        }
+      },
+      "karta_wizkora": "W zgniecionej kartce coś mieszka. Wypuścisz to?",
+      "mentor_powiadomienie": "Zobacz, co {zrobił|zrobiła} {imie}: {wypuścił|wypuściła} kształt ze zgniecionej kartki.",
+      "slad": {
+        "opcje": [
+          "Zwierzak",
+          "Rzecz",
+          "Nie wiem, co to — i dobrze"
+        ],
+        "obrazki": [
+          "zwierzak",
+          "rzecz-stoi",
+          "znak-zapytania"
+        ],
+        "zdanie": true,
+        "zdjecie": true,
+        "podpowiedz": "zdjęcie rzeczy, bez ludzi"
+      },
+      "miejsca": [
+        {
+          "id": "biurko",
+          "emoji": "📄",
+          "nazwa": "Przy biurku",
+          "opis": "Stara kartka z zeszytu."
+        },
+        {
+          "id": "autobus",
+          "emoji": "🎫",
+          "nazwa": "W autobusie",
+          "opis": "Paragon albo bilet."
+        },
+        {
+          "id": "swietlica",
+          "emoji": "🗞️",
+          "nazwa": "W świetlicy",
+          "opis": "Kartka z kosza na makulaturę."
+        }
+      ],
+      "miejsce_reakcji": "na pienku",
+      "reakcja_swiata": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "na-pienku"
+        ],
+        "opis": "kwiat na pienku",
+        "toast": {
+          "tytul": "Nowy kwiat",
+          "opis": "Na polanie wyrósł kwiat."
+        },
+        "istnieje": true
+      },
+      "reakcja_mentor": {
+        "metoda": "posadzKwiat",
+        "args": [
+          "przy-drabince",
+          1,
+          "nowy-wariant"
+        ],
+        "opis": "kwiat w nowym wariancie koloru przy drabince pomostu (R9)",
+        "toast": {
+          "tytul": "Mentor to widzi",
+          "opis": "Przy drabince wyrósł kwiat w nowym kolorze."
+        },
+        "istnieje": true
+      },
+      "kwestie": [
+        {
+          "glos": "wizkor",
+          "moment": "zlecenie",
+          "wariant": "oba",
+          "tekst": "W zgniecionej kartce coś mieszka. Wypuścisz to?",
+          "tekstEkranu": "W zgniecionej kartce coś mieszka. Wypuścisz to?"
+        }
+      ],
+      "rodzina": null,
+      "nagroda": 25,
+      "minuty": 10,
+      "competency_focus": [
+        "KR"
       ]
     }
   ],

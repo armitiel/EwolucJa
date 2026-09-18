@@ -1,5 +1,10 @@
 # Pierwsza minuta — projekt wejścia do gry
 
+> **Nieaktualne wobec `docs/tresci/05_ZADANIA_HYBRYDOWE.md` i kanonu z 17.09.2026.**
+> Przejęte do `05`/`03`: brama pory znaków (świetliki nocą), zasada „nie zbieramy, żeby mieć więcej”, Fasola rosnąca od działania poza ekranem; Kamienny Pąk, misja „Obudź deszcz” i świetliki z `/w2` na `/swiat` — nie weszły. Reszta (nazwy, obiekty i mechaniki poniżej) nie
+> obowiązuje — czytaj jako historię pomysłów. Stan wdrożenia: `06` „Stan wdrożenia 18.09".
+
+
 Spisane 2026-09-12 na podstawie briefu „Ewolucja" i tego, co silnik
 `frontend/scena-3d-src/` naprawdę już potrafi. Czytaj razem z
 `docs/WARIANTY_ROZGRYWKI.md` (jak to badać) i pamięcią

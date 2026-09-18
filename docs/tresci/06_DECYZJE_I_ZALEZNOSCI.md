@@ -283,3 +283,27 @@ Zasada (rozstrzygnięcie c/d recenzji): **hybryda ma pierwszeństwo do obiektu**
 | 8 | `lawka-dla-goscia`, `ramka-w-domku` (symbol) po pierwszym teście z dziećmi | nowe bryły na pomoście | `05` |
 | 9 | Tor obrazu W7 (§4.5), dopiero potem włączenie zdjęć | bezpieczeństwo | — |
 | 10 | Biblioteka Mentora: wyciąć 47, przepisać 29, migracja, ~30 do Wizkora | tydzień czwarty i dalej | `03` §3 |
+
+---
+
+## 8. Stan wdrożenia 18.09
+
+| krok | commit | co weszło |
+|---|---|---|
+| 0 | `b54614b` | 38 szkodliwych porad dnia podmienione (te same id); zdjęcia-dowody wyłączone flagą do czasu toru obrazu |
+| 1 | `6026c0b` | `odmienDlaGracza` we wszystkich tekstach dla dziecka; `tekstEkranu` dla każdej kwestii |
+| 2 | `ba5b7ee` | kwestie wg `02`, sekwencja zachód → noc → koniec → powrót, statusy zadania, Mentor zauważa (`noticed`, formuły), monety w tle (25 za ślad, 0 za zauważenie), punkty do `competency_focus` zamiast archetypu, `library_id`/`rozmowa` w `missions` |
+| 3 | `3f9f547` | zadania Wizkora v2 (22 + zastąpione), kolejka profilu, ślad wyborem, `zWariantemZadania`, kanał ślad → scena (defensywny), karta zwoju v2 |
+| 4 | `1a4aa5f` | porady dnia: lisek mówi `zapowiedz` i `odzew`, silnik faz bez zegara, ślad porady w scenie, R7 |
+| 5–9 | `f9bb2f1`, `3c273da`, `fe00d0c`, `aa335d3`, `be2d3a4` | metody sceny kanału ślad → scena, hybrydy (`05`), stan świata na koncie, panel Mentora, sesja (wg opisów commitów koordynatora) |
+| 10 | (ten krok, bez commita) | biblioteka Mentora: 47 `wycofane`, 29 przepisane, 229 `zmigrowane` (walidator 270 → 0 błędów); 30 zadań z biblioteki w v2 (`zrodlo`, walidator 52/52); generator `/generate` bez Claude, tylko `MENTOR_TASKS_DLA_DZIECKA`; dokumenty (`PANEL_ZADAN`, `KONCEPT_GRY`, `SWIAT_I_POSTACIE`, `porady-ux`, `ROZWOJ_GRY` §2, nagłówki nieaktualności w `PLAN_DZIALANIA` §5 / `PIERWSZA_PRZYGODA_ROBOCZA` / `PIERWSZA_MINUTA`), agenci `projektant-zadan`, `psycholog`, `narrator-gama`, `archetypes.md`, `CLAUDE.md`; propozycja skilli w `tmp/skille-propozycja.md` |
+
+**Zamknięte przez decyzję autora:** pkt 14 (ścinanie) — **każde drzewo, trzy stosy = etap 1, bez kamienia; kamień wraca przy etapie 2** (kanon `SWIAT_I_POSTACIE.md` zaktualizowany).
+
+**Otwarte:**
+1. **Tor obrazu (W7):** decyzja — miniatura w bazie (JSONB/bytea na rekordzie misji, ≤ 512 px, bez EXIF), **nie** Vercel Blob; zgoda opiekuna, przełącznik „zdjęcia" na dziecko (domyślnie wyłączone dla 1–3), retencja. Do tego czasu `ZDJECIA_WLACZONE = false`.
+2. **Test z dziećmi:** pierwsze trzy zadania z kolejki, ślad wyborem, zachód „u ciebie, nie tu" — sprawdzić z pięciorgiem dzieci 1–3 i pięciorgiem 4–8 zanim ruszy tydzień drugi; miary z `00_RAPORT`.
+3. **Rodzaj Mentora:** nadal z formuły „Widziałem./Widziałam." — pole `gender` w profilu Mentora do dodania.
+4. **Obrazki śladu:** 90 nazw w `OBRAZKI_SLADU` (`zadanieWizkora.js`) czeka na rysunki w stylu claymorphism; dziś emoji.
+5. **`docs/ANALIZA_I_ROZGRYWKA.md`, `WARIANTY_ROZGRYWKI.md`, `SYSTEMY_GRY.md`** — nie zaktualizowane w kroku 10 (poza zakresem); liczby w ANALIZA §3 są sprzed wdrożenia.
+6. Skille konta (`panel-zadan-ewolucja`, `audyt-zadan-ewolucja`) — propozycje nowych `SKILL.md` w `tmp/skille-propozycja.md`, do zatwierdzenia przez autora.

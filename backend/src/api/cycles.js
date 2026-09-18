@@ -18,7 +18,7 @@ import {
 // + ADDITIONAL_TASKS (216 swiezych zadan). Wczesniej backend mial 5 hardcoded staruszkow z DT,
 // ktore nie byly redagowane razem z baza mentora — dawalo to wrazenie ze fallback zwraca rzeczy
 // "z innego swiata" niz to, co dziala u mentora. Teraz oba korzystaja z tego samego pliku.
-import { MENTOR_TASK_LIBRARY } from "../../../frontend/src/data/mentorTaskLibrary.js";
+import { MENTOR_TASK_LIBRARY, MENTOR_TASKS_DLA_DZIECKA } from "../../../frontend/src/data/mentorTaskLibrary.js";
 import { requirePlayer, requirePlayerOrMentor, canAccessPlayer, resolvePlayerId, loadPlayerAuth, mentorFromRequest, mentorOwnsPlayer } from "../services/playerAuth.js";
 import { zapiszZdarzenie } from "../services/zdarzenia.js";
 import { dekodujObraz, adresObrazu, sprawdzTokenObrazu, czyscPrzyOkazji, RETENCJA_DNI, MAX_MINIATURA_BAJTOW, MAX_MINIATURA_PX } from "../services/obrazy.js";
@@ -92,7 +92,10 @@ function mapLibraryItemToMission(item) {
 // profili zamiast powtorki — profil nie blokuje osi.
 function pickSeedMission(usedIds, archetypeOrProfile) {
   const profile = mapToProfileCode(archetypeOrProfile);
-  const taskItems = MENTOR_TASK_LIBRARY.filter((it) => it.kind === "task");
+  /* Dziecku podajemy WYŁĄCZNIE wpisy zmigrowane (tokeny, dwie drogi dowodu,
+     bez etykiet) i niewycofane — `MENTOR_TASKS_DLA_DZIECKA` (03 §3, 06 pkt 7).
+     Pełna biblioteka zostaje dla panelu Mentora (propozycje dla dorosłego). */
+  const taskItems = MENTOR_TASKS_DLA_DZIECKA.length ? MENTOR_TASKS_DLA_DZIECKA : MENTOR_TASK_LIBRARY.filter((it) => it.kind === "task" && !it.wycofane);
   const used = new Set(usedIds || []);
   const profileItems = profile ? taskItems.filter((it) => it.profile === profile) : [];
   const unusedProfile = profileItems.filter((it) => !used.has(it.id));
@@ -210,27 +213,15 @@ export function missionRoutes(db) {
       const used = await usedLibraryIds(player_id);
       const usedTitles = used.length ? MENTOR_TASK_LIBRARY.filter((it) => used.includes(it.id)).map((it) => it.title) : [];
 
-      // Próbuj Claude API (spersonalizowana misja); fallback do seed library
+      /* Od 18.09 tor główny dziecka to kolejka v2 w hubie (`zadanieWizkora.js`:
+         `pierwszeZadania` → Koło), a `/generate` służy tylko legacy `/mission`
+         i `AppData` (które wynik toleruje jako null). Generowanie przez Claude
+         wyłączone: płaciliśmy za tekst, którego hub nie pokazuje (06 §4.6);
+         bierzemy zmigrowany wpis z biblioteki, bez powtórek po `library_id`. */
       let payload;
       let source = "seed";
-      if (narrativeService.isAvailable) {
-        try {
-          const ai = await narrativeService.generateMission({
-            playerName: player.player_name,
-            archetype: player.archetype || "tropiciel_tajemnic",
-            completedMissionTitles: usedTitles,
-            scores: player.scores,
-            chapter: player.current_chapter || "wezwanie_kroniki",
-          });
-          payload = ai;
-          source = "claude";
-        } catch (claudeErr) {
-          console.warn("[mission generate] Claude fallback:", claudeErr.message);
-          payload = pickSeedMission(used, player.archetype);
-        }
-      } else {
-        payload = pickSeedMission(used, player.archetype);
-      }
+      void narrativeService; void usedTitles;
+      payload = pickSeedMission(used, player.archetype);
 
       const mission = await createMission(db, {
         cycle_id: cycle.cycle_id,

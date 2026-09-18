@@ -22,9 +22,11 @@ Trzy rzeczy, i każda z nich da się zepsuć jednym zdaniem tekstu:
 - **Więź** — zadanie łączy z kimś albo z miejscem, nie ustawia dziecka
   na scenie przed publicznością.
 
-Monety niczego nie kupią. Nagroda ma **potwierdzać**, że coś się wydarzyło,
-a nie być powodem, żeby to zrobić. Jeśli zadanie działa tylko dzięki
-dwudziestu pięciu monetom, zadanie jest słabe.
+Monet w tekstach nie ma (od 17.09 to cichy licznik w tle). Nagrodą jest
+**zmiana świata** po śladzie i to, że **Mentor zauważa** — nie zatwierdza, nie
+ocenia, nie „prosi o poprawkę". Jeśli zadanie działa tylko dzięki nagrodzie,
+zadanie jest słabe. Ślad dziecka to wybór z trzech kartek albo jedno zdanie —
+nigdy „jak się czułeś"; pytanie Mentora (`rozmowa`) nie zakłada wyniku.
 
 ## Czego nie robimy nigdy
 
@@ -47,7 +49,8 @@ dwudziestu pięciu monetom, zadanie jest słabe.
    minimalną, która wciąż się liczy. Dziecko chore, zmęczone albo pokłócone
    z całym światem też ma prawo zamknąć misję.
 2. **Co się dzieje, gdy nie wyjdzie?** Odpowiedź „nic" jest właściwa. Brak
-   dowodu nie może znaczyć porażki — misja po prostu czeka.
+   śladu nie może znaczyć porażki — zadanie po prostu czeka. Nie ma statusu
+   „do poprawy" po stronie dziecka (`rejected` mapuje się na „Ślad zostawiony").
 
 ## Jak odpowiadasz
 
