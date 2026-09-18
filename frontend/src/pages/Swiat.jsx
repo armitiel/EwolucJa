@@ -119,7 +119,11 @@ import {
 import WyborPoziomu from "../hub/WyborPoziomu.jsx";
 import PasekKolejnejMisji from "../hub/PasekKolejnejMisji.jsx";
 import ChmurkaZadania from "../hub/ChmurkaZadania.jsx";
-import { powiedzPostacia } from "../hub/mowaPostaci.js";
+import { powiedzPostacia, WAGA } from "../hub/mowaPostaci.js";
+import {
+  POZIOM, SLOT, WAZNOSC_ZNAKU, czyWolno, subskrybuj, ustawStanEkranu, zajmijSlot, zanotuj,
+  zwolnijSlot,
+} from "../hub/bramkaKomunikatow.js";
 import { odmienDlaGracza } from "../services/rodzaj.js";
 import { etapSzkolny } from "../hub/profilStartowy.js";
 import KONIEC_DNIA from "../hub/data/koniec-dnia.v1.json";
@@ -444,7 +448,12 @@ const GRY_OSADZONE = {
  * animacja, pauza i dopiero okno.
  */
 /** Ile chmurka „co teraz" milczy po oknie postaci (Wizkor właśnie to powiedział). */
-const CISZA_PO_POSTACI = 60_000;
+/* 45 s, nie 60 (`08` §6, typ C): cisza dotyczy PRZYPOMINANIA tego samego,
+   co postać właśnie powiedziała. Odpowiedź na postęp dziecka w środku etapu
+   jej nie podlega — patrz `tylkoPostep` niżej. */
+const CISZA_PO_POSTACI = 45_000;
+/** Jak często wolno odpowiedzieć na postęp wewnątrz jednego etapu. */
+const ODSTEP_POSTEPU = 40_000;
 
 const WCHLANIANIE_MS = 950;
 /**
@@ -877,15 +886,61 @@ export default function Swiat() {
   const chmurkaTimer = useRef(0);
   const pokazChmurke = useCallback((ikony) => {
     window.clearTimeout(chmurkaTimer.current);
+    /* Ten sam slot, co myśl Wizkora i ikonki awatara (`08` §2): nad światem
+       stoi jedna bańka naraz, niezależnie od tego, który kanał ją wypuścił. */
+    zajmijSlot(SLOT.CHMURKA, "chmurkaZadania");
     /* Zerujemy najpierw: przy dwóch zadaniach pod rząd komponent musi dostać
        nowy montaż, inaczej karuzela leciałaby dalej ze starym odliczaniem. */
     setChmurka(null);
     chmurkaTimer.current = window.setTimeout(() => setChmurka(ikony), 900);
   }, []);
-  useEffect(() => () => window.clearTimeout(chmurkaTimer.current), []);
+  /* Slot zajmujemy w chwili zlecenia, a chmurka wchodzi 900 ms później —
+     przy wyjściu ze świata w tej szczelinie slot zostałby zajęty do końca
+     sesji i uciszył wszystkie bańki. */
+  useEffect(() => () => {
+    window.clearTimeout(chmurkaTimer.current);
+    zwolnijSlot(SLOT.CHMURKA, "chmurkaZadania");
+  }, []);
   // Monety z lokalnych zadań, doliczane do liczby z bazy — patrz `zadanieGwiazdek`.
   const [bonus, setBonus] = useState(() => bonusMonet());
   const [komunikat, setKomunikat] = useState(null);
+  const komunikatTimer = useRef(0);
+  /** Potwierdzenie odłożone, bo ekran był zajęty (`08` §6, typ A). */
+  const komunikatWKolejce = useRef(null);
+
+  /* ── BRAMKA KOMUNIKATÓW (`docs/tresci/08`) ─────────────────────────────
+     JEDNO miejsce, które wie, co zasłania świat. Do 18.09.2026 każdy kanał
+     trzymał własną listę stanów — `aktywna` przy myśli Wizkora, `spokoj`
+     przy Reflektorze, trzeci warunek przy ikonkach awatara — i każda z tych
+     list wymieniała inne pięć stanów z czternastu. Stąd brały się cztery
+     kolizje z `08` §9. Dopisanie nowego pełnego ekranu to teraz jedna
+     linijka TUTAJ, a nie poprawka w trzech listach wyjątków. */
+  const stanDlaBramki = useMemo(() => ({
+    odsloniete,
+    rozmowa: !!powitanie || !!zaproszenie || !!lisekHybryda || !!kolo || wskazowkaBlokuje,
+    pelnyEkran: !!gra || !!nagroda || !!rysunek || !!ukladanka || !!podsumowanie,
+    szuflada: !!panel,
+    noc: !!planetaSpi,
+  }), [odsloniete, powitanie, zaproszenie, lisekHybryda, kolo, wskazowkaBlokuje,
+    gra, nagroda, rysunek, ukladanka, podsumowanie, panel, planetaSpi]);
+
+  useEffect(() => { ustawStanEkranu(stanDlaBramki); }, [stanDlaBramki]);
+
+  /* BUDZIK BRAMKI. `czyWolno` czyta stan MODUŁU, którego React nie obserwuje —
+     kanał, który dostał odmowę, nie miałby po czym wrócić, gdy slot się
+     zwolni albo minie odstęp. Bramka melduje każdą zmianę, a ten licznik
+     zamienia ją na ponowne przeliczenie efektów. */
+  const [tikBramki, setTikBramki] = useState(0);
+  useEffect(() => subskrybuj(() => setTikBramki((t) => t + 1)), []);
+  /** Ponowna próba, gdy odmowa była z powodu CZASU, a nie stanu ekranu. */
+  const budzikBramki = useCallback((ms = 15000) => {
+    const t = window.setTimeout(() => setTikBramki((n) => n + 1), ms);
+    return () => window.clearTimeout(t);
+  }, []);
+
+  /** Świat widać i nic nad nim nie stoi — warunek wspólny dla poziomów 1–2. */
+  const ekranWolny = stanDlaBramki.odsloniete && !stanDlaBramki.rozmowa
+    && !stanDlaBramki.pelnyEkran && !stanDlaBramki.szuflada && !stanDlaBramki.noc;
   const [nieprzeczytane, setNieprzeczytane] = useState(0);
   // Plakietki pozostałych sekcji doku. Osobno od `nieprzeczytane`, bo tamto
   // czeka na odpowiedź z sieci (podpowiedzi Mentora), a te trzy liczą się
@@ -1116,7 +1171,15 @@ export default function Swiat() {
   useEffect(() => {
     if (wskazowka) return undefined;
 
-    const spokoj = odsloniete && !panel && !gra && !powitanie && !zaproszenie && !nagroda && !planetaSpi;
+    /* Warunek ciszy przychodzi z bramki (`08` §3). Ta linia wymieniała
+       siedem stanów i nie obejmowała myśli Wizkora, koła, rysunku, układanki
+       ani podsumowania — dlatego dymek potrafił stanąć obok drugiej chmurki
+       TEJ SAMEJ postaci (`08` §9, kolizja 2). */
+    const spokoj = ekranWolny
+      && czyWolno(POZIOM.SZEPT, { slot: SLOT.CHMURKA, kanal: "dymek" }).wolno;
+    /* Odmowa z powodu odstępu albo zajętego slotu mija sama — wracamy po niej
+       budzikiem, bo nie zmieni się przy tym żaden stan Reacta. */
+    if (ekranWolny && !spokoj) return budzikBramki();
     // Otwarty panel wstrzymuje pokaz, ale NIE zeruje zegara: zajrzenie na
     // chwilę do profilu nie jest powodem, żeby kazać dziecku czekać od nowa.
     if (!spokoj) return undefined;
@@ -1145,8 +1208,8 @@ export default function Swiat() {
     }, zostalo);
     return () => window.clearTimeout(zegar);
   }, [
-    wskazowka, misjaWToku, odsloniete, panel, gra, powitanie, zaproszenie, nagroda,
-    pokazPodpowiedz, zadanie, misje, puzzleHud, planetaSpi,
+    wskazowka, misjaWToku, ekranWolny, tikBramki, budzikBramki,
+    pokazPodpowiedz, zadanie, misje, puzzleHud,
   ]);
 
   /* ZACHÓD Z KOLEJKI: gdy ekran się zwolni, a zachód czekał — pokaż go teraz
@@ -1196,6 +1259,8 @@ export default function Swiat() {
   /** Czy myśl Wizkora jest na ekranie — wtedy ikonki przy awatarze czekają. */
   const [myslWizkora, setMyslWizkora] = useState(false);
   const etapCoTerazRef = useRef(null);
+  /** Sam etap, bez progu postępu — po nim poznajemy, czy to nowa sytuacja. */
+  const etapBazaRef = useRef(null);
   const doPokazaniaRef = useRef(null);
   const ostatniePopupRef = useRef(0);
 
@@ -1213,17 +1278,31 @@ export default function Swiat() {
     const id = terazWskazowka?.id || null;
     if (id !== etapCoTerazRef.current) {
       etapCoTerazRef.current = id;
-      doPokazaniaRef.current = id ? terazWskazowka : null;
+      /* NOWY ETAP czy TYLKO POSTĘP? Id niesie oba (`hub/coTeraz.js`): przy
+         samym postępie świat odpowiada na to, co dziecko przed chwilą zrobiło,
+         więc nie obowiązuje go cisza po rozmowie — obowiązuje własny odstęp. */
+      const baza = terazWskazowka?.etapId || null;
+      const tylkoPostep = !!baza && baza === etapBazaRef.current;
+      etapBazaRef.current = baza;
+      doPokazaniaRef.current = id ? { ...terazWskazowka, tylkoPostep } : null;
     }
     const czeka = doPokazaniaRef.current;
-    if (!czeka || !odsloniete) return undefined;
-    if (panel || gra || powitanie || zaproszenie || nagroda || wskazowka) return undefined;
+    if (!czeka) return undefined;
+    /* Co zasłania świat, wie bramka (`08` §3). Poprzednia wersja wymieniała
+       pięć stanów, więc ikonki wchodziły pod kołem, rysunkiem, układanką,
+       zaproszeniem liska i podsumowaniem. */
+    if (!ekranWolny || wskazowka) return undefined;
+    if (!czyWolno(POZIOM.ZNAK, {
+      slot: SLOT.CHMURKA,
+      kanal: "coTeraz",
+      minOdstep: czeka.tylkoPostep ? ODSTEP_POSTEPU : 0,
+    }).wolno) return budzikBramki();
     /* JEDNA CHMURKA NA RAZ — i to dotyczy WSZYSTKICH kanałów: myśl Wizkora,
        wskazówka Reflektora i te ikonki nie mogą stać na ekranie naraz.
        Kolizja powiadomień była pierwszą rzeczą, jaką widać po włączeniu gry. */
     if (etapPrzyAwatarze || myslWizkora) return undefined;
     const odPopupu = Date.now() - ostatniePopupRef.current;
-    if (odPopupu < CISZA_PO_POSTACI) {
+    if (!czeka.tylkoPostep && odPopupu < CISZA_PO_POSTACI) {
       /* Nie gubimy etapu — wracamy do niego, gdy cisza minie. */
       const zegar = window.setTimeout(() => setTikCoTeraz((t) => t + 1), CISZA_PO_POSTACI - odPopupu + 200);
       return () => window.clearTimeout(zegar);
@@ -1233,11 +1312,18 @@ export default function Swiat() {
        a nie na niej. */
     const zegar = window.setTimeout(() => {
       doPokazaniaRef.current = null;
+      zajmijSlot(SLOT.CHMURKA, "coTeraz");
+      zanotuj("coTeraz", POZIOM.ZNAK);
       setEtapPrzyAwatarze(czeka);
     }, 2600);
     return () => window.clearTimeout(zegar);
-  }, [terazWskazowka, odsloniete, panel, gra, powitanie, zaproszenie, nagroda, wskazowka,
-      tikCoTeraz, etapPrzyAwatarze, myslWizkora]);
+  }, [terazWskazowka, ekranWolny, wskazowka, tikCoTeraz, tikBramki, budzikBramki,
+    etapPrzyAwatarze, myslWizkora]);
+
+  /* Slot chmurki „co teraz" zwalnia zwykle `onKoniec`. Wyjście ze świata
+     w trakcie jej wyświetlania musi zrobić to samo — inaczej slot zostaje
+     zajęty do końca sesji i milkną wszystkie trzy bańki. */
+  useEffect(() => () => zwolnijSlot(SLOT.CHMURKA, "coTeraz"), []);
 
   // Otwarcie wskazanego panelu — obojętnie czy z chmurki, czy samodzielnie —
   // kończy podpowiedź na dobre.
@@ -1264,15 +1350,47 @@ export default function Swiat() {
    * brzmi „Zbierz 10 [moneta]". Dlatego `opcje.opis` jest wtedy OBOWIĄZKOWY:
    * czytnik ekranu nie widzi obrazka, a samo „Zbierz 10" nie jest zdaniem.
    */
+  const wypuscKomunikat = useCallback((paczka) => {
+    setKomunikat(paczka);
+    zajmijSlot(SLOT.DOL, "toast");
+    zanotuj("toast", POZIOM.ZNAK);
+    window.clearTimeout(komunikatTimer.current);
+    komunikatTimer.current = window.setTimeout(() => {
+      setKomunikat(null);
+      zwolnijSlot(SLOT.DOL, "toast");
+    }, CZAS_KOMUNIKATU);
+  }, []);
+
   const pokazKomunikat = useCallback((tekst, opcje) => {
     /* Toast też mówi do dziecka — tytuł i opis przechodzą przez odmianę
        tokenów `{m|ż}`, zanim staną na ekranie albo trafią do czytnika. */
     const tytul = odmienDlaGracza(tekst);
-    setKomunikat({ tekst: tytul, ikona: opcje?.ikona || null, opis: odmienDlaGracza(opcje?.opis) || tytul });
-    window.clearTimeout(pokazKomunikat._t);
-    pokazKomunikat._t = window.setTimeout(() => setKomunikat(null), CZAS_KOMUNIKATU);
+    const paczka = { tekst: tytul, ikona: opcje?.ikona || null, opis: odmienDlaGracza(opcje?.opis) || tytul };
+    /* POD ZASŁONĄ TOAST PRZEPADAŁ (`08` §9, kolizja 3): `z-index` 25 kontra 55,
+       pięć sekund odliczanych za kartą postaci. Teraz czeka — ale najwyżej
+       WAZNOSC_ZNAKU, bo potwierdzenie sprzed pół minuty dotyczy czegoś,
+       o czym dziecko już zapomniało. */
+    if (!czyWolno(POZIOM.ZNAK, { slot: SLOT.DOL, kanal: "toast" }).wolno) {
+      komunikatWKolejce.current = { paczka, kiedy: Date.now() };
+      return;
+    }
+    wypuscKomunikat(paczka);
+  }, [wypuscKomunikat]);
+  useEffect(() => () => {
+    window.clearTimeout(komunikatTimer.current);
+    zwolnijSlot(SLOT.DOL, "toast");
   }, []);
-  useEffect(() => () => window.clearTimeout(pokazKomunikat._t), [pokazKomunikat]);
+
+  /* Ekran się zwolnił — wypuszczamy odłożone potwierdzenie, jeśli jeszcze
+     ma sens. */
+  useEffect(() => {
+    const czeka = komunikatWKolejce.current;
+    if (!czeka) return;
+    if (Date.now() - czeka.kiedy > WAZNOSC_ZNAKU) { komunikatWKolejce.current = null; return; }
+    if (!czyWolno(POZIOM.ZNAK, { slot: SLOT.DOL, kanal: "toast" }).wolno) return;
+    komunikatWKolejce.current = null;
+    wypuscKomunikat(czeka.paczka);
+  }, [ekranWolny, komunikat, wypuscKomunikat]);
 
   /* ── powitanie postaci (na razie bez wyzwalacza w świecie) ───────────── */
   // Uchwyt do konsoli i adres `?popup=1` — inaczej okna nie da się obejrzeć,
@@ -2455,7 +2573,7 @@ export default function Swiat() {
           const S = stanDnia();
           const t = KONIEC_DNIA.noc.wgDomku[S.domek] || KONIEC_DNIA.noc.wgDomku.brak;
           pokazPodpis(t);
-          powiedzPostacia(t, { glos: "gora_podsumowania", ton: "calm" });
+          powiedzPostacia(t, { glos: "gora_podsumowania", ton: "calm", waga: WAGA.NARRATORKA });
         }
         return;
       }
@@ -2490,11 +2608,15 @@ export default function Swiat() {
            wróci ze swoim własnym zadaniem — nie z budową domku. */
         if (dane?.rodzaj === "glaz") return;
         setDrewno(policzDrzewko(dane?.id));
-        pokazKomunikat(
-          dane?.rodzaj === "glaz" ? "Kamienie gotowe" : "Drewno gotowe",
-          { ikona: dane?.rodzaj === "glaz" ? IKONA_KAMYKA : IKONA_KLODY,
-            opis: "Zanieś to na plac budowy" },
-        );
+        /* NIE „DREWNO GOTOWE" (`08` §13). Komentarz wyżej mówi, że ścięcie to
+           połowa roboty — a „gotowe" znaczy dla dziecka „mam to z głowy",
+           czyli dokładnie odwrotnie niż stan gry w tej sekundzie. Wariant
+           kamienny zszedł razem z głazem (decyzja 17.09), a martwa gałąź
+           w komunikacie to tylko miejsce na przyszłą pomyłkę. */
+        pokazKomunikat("Drewno leży w lesie", {
+          ikona: IKONA_KLODY,
+          opis: "Zanieś je pod wielkie drzewo",
+        });
         return;
       }
 
@@ -2623,7 +2745,7 @@ export default function Swiat() {
             : KONIEC_DNIA.powrot.wgStanu;
           const t = zdanieNarratorki(mapa, S);
           pokazPodpis(t);
-          powiedzPostacia(t, { glos: "gora_podsumowania", ton: "calm" });
+          powiedzPostacia(t, { glos: "gora_podsumowania", ton: "calm", waga: WAGA.NARRATORKA });
           if (S.stan === "slad" || S.stan === "zauwazone") {
             window.setTimeout(() => scenaRef.current?.pokazMiejsce?.(), 900);
           }
@@ -2869,7 +2991,19 @@ export default function Swiat() {
         if (doOtwarcia) otworz(doOtwarcia);
         return;
       }
-      if (nazwa === "blad") setScenaMartwa(true);
+      if (nazwa === "blad") { setScenaMartwa(true); return; }
+
+      /* ZDARZENIE BEZ ODPOWIEDZI (`docs/tresci/08` §12). Świat coś zrobił,
+         a żaden kanał się nie odezwał. Czasem tak ma być (`pauza`,
+         `wznowienie`, `zniszczona` są wewnętrzne), ale `swiatlo:zebrane`,
+         `woda:nabrana`, `fasola:podlana`, `fasola:wspinaczka`, `swiat:dalej`,
+         `bohater:doszedl`, `latarnia:reakcja`, `doba:pora` i `domek:drabinka`
+         przechodzą tędy bez śladu — a to są zmiany świata, na które dziecko
+         ma prawo dostać odpowiedź. W buildzie developerskim ma to być widać
+         od razu, a nie do odkrycia po miesiącu. */
+      if (import.meta.env.DEV) {
+        console.debug("[kanaly] zdarzenie bez odpowiedzi:", nazwa, dane || null);
+      }
     },
     [otworz, panel, pokazKomunikat, pokazPodpis, navigate, odswiezZnakiMisji, odswiezGwiazdkiNaMapie]
   );
@@ -3147,7 +3281,7 @@ export default function Swiat() {
               paska gracza: dzióbek celuje w awatar bez mierzenia go na ekranie. */}
           <ChmurkaAwatara
             etap={etapPrzyAwatarze}
-            onKoniec={() => setEtapPrzyAwatarze(null)}
+            onKoniec={() => { zwolnijSlot(SLOT.CHMURKA, "coTeraz"); setEtapPrzyAwatarze(null); }}
           />
 
           <div
@@ -3306,7 +3440,7 @@ export default function Swiat() {
             flexem bez `position: relative` i nadanie mu go przestawiłoby
             układ odniesienia wszystkim bezwzględnym elementom w środku.
             Zaczepienie pod awatarem liczy się w CSS z paddingu HUD. */}
-        <ChmurkaZadania ikony={chmurka} onKoniec={() => setChmurka(null)} />
+        <ChmurkaZadania ikony={chmurka} onKoniec={() => { zwolnijSlot(SLOT.CHMURKA, "chmurkaZadania"); setChmurka(null); }} />
 
         <div className="game-hud-bottom">
           {!panel && pokazPodpowiedz && !scenaMartwa ? (
@@ -3336,7 +3470,7 @@ export default function Swiat() {
           ostatnie słowo należy do podsumowania. */}
       <PodpowiedzMedrca
         ref={medrzecRef}
-        aktywna={!panel && !zwojOtwarty && !powitanie && !zaproszenie && !wskazowka && !podsumowanie && odsloniete && !planetaSpi}
+        aktywna={ekranWolny && !wskazowka}
         onWidoczna={setMyslWizkora}
       />
 
@@ -3557,7 +3691,12 @@ export default function Swiat() {
         <div
           className="game-hud-toast is-visible"
           role="status"
-          aria-label={komunikat.opis}
+          /* Oba wiersze, nie sam `opis`: `aria-label` nadpisuje treść, więc
+             czytnik ekranu dostawał do tej pory wyłącznie drugie zdanie
+             i nigdy tytułu (`08` §13). */
+          aria-label={komunikat.opis && komunikat.opis !== komunikat.tekst
+            ? `${komunikat.tekst}. ${komunikat.opis}`
+            : komunikat.tekst}
           data-testid="hub-toast"
         >
           <span className="game-hud-toast-tekst">{komunikat.tekst}</span>
@@ -3569,6 +3708,14 @@ export default function Swiat() {
               aria-hidden="true"
               draggable="false"
             />
+          ) : null}
+          {/* DRUGI WIERSZ — GDZIE I CO Z TYM ZROBIĆ (`08` §13). Do 18.09.2026
+              `opis` szedł wyłącznie do `aria-label`: dziecko widziało „ZETNIJ
+              TRZY DRZEWA", a czytnik ekranu dostawał jeszcze „Każdy stos znieś
+              pod wielkie drzewo". Jedno zdanie było dla oczu, drugie dla uszu
+              i żadne nie było pełne. Gdy `opis` powtarza tytuł — nie ma go. */}
+          {komunikat.opis && komunikat.opis !== komunikat.tekst ? (
+            <span className="game-hud-toast-opis">{komunikat.opis}</span>
           ) : null}
         </div>
       ) : null}

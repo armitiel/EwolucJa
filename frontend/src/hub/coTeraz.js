@@ -63,6 +63,19 @@ const ETAPY = [
   {
     id: "gwiazdki-zbieranie",
     pasuje: ({ gwiazdki }) => gwiazdki?.aktywne && !gwiazdki.spelnione,
+    /* POSTĘP W ŚRODKU ETAPU (`08` §6, typ C). Bez tego chmurka miała prawo
+       wejść RAZ, na początku zbierania — a ponieważ etap zapala się dokładnie
+       w chwili, gdy Wizkor zleca gwiazdki, ten jeden raz zjadała cisza po
+       rozmowie. Przez całe dziesięć gwiazdek dziecko nie widziało jej ani
+       razu. Próg jest ROSNĄCY, więc id zmienia się trzy razy, nie dziesięć. */
+    postep: ({ gwiazdki }) => {
+      const cel = gwiazdki?.cel || 10;
+      const z = gwiazdki?.zebrane || 0;
+      if (z >= cel - 1) return "koniec";
+      if (z >= Math.ceil(cel / 2)) return "polowa";
+      if (z >= 1) return "start";
+      return "0";
+    },
     obrazki: [IKONA.gwiazdka, IKONA.lupa],
     tytul: "Złote gwiazdki",
   },
@@ -75,18 +88,24 @@ const ETAPY = [
   {
     id: "drewno-scinanie",
     pasuje: ({ drewno }) => drewno?.istnieje && !drewno.zbudowane && drewno.doSciecia > 0,
+    postep: ({ drewno }) => String(drewno?.drzewka || 0),
     obrazki: [IKONA.siekiera, IKONA.stos],
     tytul: "Ścinamy drzewa",
   },
   {
     id: "drewno-znoszenie",
     pasuje: ({ drewno }) => drewno?.istnieje && !drewno.zbudowane && drewno.doZniesienia > 0,
+    postep: ({ drewno }) => String(drewno?.naPlacu || 0),
     obrazki: [IKONA.stos, IKONA.domek],
     tytul: "Zanieś drewno",
   },
   {
+    /* `!puzzle.zebrane` znaczyło „ani jednego kawałka" — etap gasł przy
+       PIERWSZYM znalezionym i wracał dopiero przy komplecie. Warunkiem jest
+       trwające zbieranie, a postęp liczy znalezione kawałki. */
     id: "puzzle-szukanie",
-    pasuje: ({ puzzle }) => puzzle && !puzzle.komplet && !puzzle.zebrane,
+    pasuje: ({ puzzle }) => !!puzzle?.zbieranie && !puzzle.komplet,
+    postep: ({ puzzle }) => String(puzzle?.zebrane || 0),
     obrazki: [IKONA.lupa, IKONA.puzzel],
     tytul: "Szukamy kawałków",
   },
@@ -122,8 +141,15 @@ export function coTeraz(stan = {}) {
     try { return e.pasuje(stan); } catch { return false; }
   });
   if (!etap) return null;
+  /* Id niesie etap ORAZ próg postępu — efekt w `Swiat.jsx` rozpoznaje po nim,
+     czy zmienił się etap (wtedy obowiązuje cisza po rozmowie), czy tylko
+     postęp wewnątrz etapu (wtedy odpowiadamy od razu, bo to dziecko właśnie
+     coś zrobiło). Etapy bez `postep` zachowują się jak dotąd. */
+  let prog = "";
+  try { prog = etap.postep ? String(etap.postep(stan) || "") : ""; } catch { prog = ""; }
   return {
-    id: `co-teraz:${etap.id}`,
+    etapId: etap.id,
+    id: prog ? `co-teraz:${etap.id}:${prog}` : `co-teraz:${etap.id}`,
     obrazki: etap.obrazki,
     /* Nazwa etapu NIE jest napisem na ekranie — idzie do `aria-label` chmurki
        i do pulpitu testowego. Cały kanał mówi obrazkami (patrz nagłówek). */

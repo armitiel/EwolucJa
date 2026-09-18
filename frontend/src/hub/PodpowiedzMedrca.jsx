@@ -39,7 +39,8 @@
  */
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import ChmurkaKsztalt from "./ChmurkaKsztalt.jsx";
-import { kiedyMowil, powiedzPostacia } from "./mowaPostaci.js";
+import { WAGA, kiedyMowil, powiedzPostacia } from "./mowaPostaci.js";
+import { POZIOM, SLOT, czyWolno, zajmijSlot, zanotuj, zwolnijSlot } from "./bramkaKomunikatow.js";
 import { odmienDlaGracza } from "../services/rodzaj.js";
 import { useAppData } from "../contexts/AppData.jsx";
 import { poZachodzie } from "./hybryda.js";
@@ -64,6 +65,8 @@ const ZWLOKA_CHMURKI = 520;
    się dopiero po niej, a krótsza ucięłaby animację w połowie. */
 const ZEJSCIE = 460;
 const MAX_NA_SESJE = 2;         // R7
+/** Nazwa kanału w bramce (`hub/bramkaKomunikatow.js`). */
+const KANAL = "myslWizkora";
 
 /* JEDEN TEMAT DZIENNIE. `rodzaj` porady liska → tematy myśli Wizkora, które
    tego dnia milczą (`04` §4.5). Tematy siedzą w `porady-zdrowia.v1.json`. */
@@ -159,7 +162,10 @@ const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true, 
   const wymuszone = useRef(false);
 
   const powtorz = useCallback((tekst) => {
-    powiedzPostacia(tekst, { glos: "las_decyzji", ton: "calm" });
+    /* Waga szeptu (`08` §5): myśl o ciele czeka za kwestią Wizkora i za
+       narratorką, a jeśli ktoś ważniejszy już mówi — odpada bez śladu.
+       Zdanie i tak stoi napisane w chmurce. */
+    powiedzPostacia(tekst, { glos: "las_decyzji", ton: "calm", waga: WAGA.SZEPT });
   }, []);
 
   /**
@@ -171,6 +177,7 @@ const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true, 
   /** Faktyczne zdjęcie z ekranu — dopiero PO zawinięciu. */
   const zwin = useCallback(() => {
     onWidoczna?.(false);
+    zwolnijSlot(SLOT.CHMURKA, KANAL);
     window.clearTimeout(timerChmurki.current);
     window.clearTimeout(timerUkrycia.current);
     window.clearTimeout(timerLitery.current);
@@ -202,6 +209,13 @@ const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true, 
 
   const pokaz = useCallback((id) => {
     if (!id && licznik.current >= MAX_NA_SESJE) return;
+    /* ODMOWA BRAMKI NIE ZUŻYWA LIMITU (`08` §4). Do 18.09.2026 myśl potrafiła
+       odpalić się pod minigrą albo ekranem nagrody — `aktywna` nie obejmowała
+       ośmiu stanów `Swiat.jsx` — odliczyć jedenaście sekund za zasłoną
+       i spalić jedno z dwóch wejść na sesję. Dziecko, które w czwartej minucie
+       grało w minigrę, dostawało w całej sesji jedną myśl zamiast dwóch.
+       Wymuszenie z pulpitu DEV (`id`) pomija bramkę — po to jest. */
+    if (!id && !czyWolno(POZIOM.SZEPT, { slot: SLOT.CHMURKA, kanal: KANAL }).wolno) return;
     const wybrana = id
       ? (DANE.porady || []).find((p) => p.id === id) || wybierzPorade(rodzajDnia())
       : wybierzPorade(rodzajDnia());
@@ -210,6 +224,8 @@ const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true, 
     window.clearTimeout(timerUkrycia.current);
     window.clearTimeout(timerZejscia.current);
     licznik.current += 1;
+    zajmijSlot(SLOT.CHMURKA, KANAL);
+    zanotuj(KANAL, POZIOM.SZEPT);
     onWidoczna?.(true);
     znikaRef.current = false;
     setZnika(false);
@@ -289,7 +305,10 @@ const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true, 
       const teraz = Date.now();
       const wolno = !poZachodzie()
         && teraz - kiedyMowil(GLOS_WIZKORA) >= CISZA_PO_WIZKORZE
-        && teraz - kiedyOdzewLiska() >= CISZA_PO_ODZEWIE;
+        && teraz - kiedyOdzewLiska() >= CISZA_PO_ODZEWIE
+        /* Warunki R7 to jedno, stan ekranu to drugie — i to drugie wie
+           wyłącznie bramka (`08` §3). */
+        && czyWolno(POZIOM.SZEPT, { slot: SLOT.CHMURKA, kanal: KANAL }).wolno;
       if (wolno) pokaz();
       else timerPokazu.current = window.setTimeout(sprobuj, PONOWNA_PROBA);
     };
@@ -304,6 +323,10 @@ const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true, 
   //   window.medrzec.schowaj()      - zdejmij dymek
   //   window.medrzec.reset()        - wyzeruj limit sesji i historie powtorek
   //   window.medrzec.lista()        - id wszystkich porad
+  /* Wyjście ze świata w trakcie myśli nie może zostawić zajętego slotu —
+     inaczej do końca sesji nie weszłaby żadna chmurka. */
+  useEffect(() => () => zwolnijSlot(SLOT.CHMURKA, KANAL), []);
+
   useEffect(() => {
     window.medrzec = {
       pokaz: pokazWymuszone,

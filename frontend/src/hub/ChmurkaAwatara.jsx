@@ -29,7 +29,7 @@
  * stronę robi z ikonek MYŚL DZIECKA („mam coś do zrobienia"), a nie kolejne
  * polecenie z zewnątrz.
  */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 /** Ile trzyma się jeden obrazek w parze (ms). */
 const PRZEMIANA_MS = 1500;
@@ -58,11 +58,19 @@ export default function ChmurkaAwatara({ etap, onKoniec }) {
   /* Schodzi SAMA. Nie ma krzyżyka: nie ma czego zamykać, bo nic nie zasłania
      i nic nie czeka na decyzję. Dziecko, które tego nie zauważyło, zobaczy to
      przy następnej zmianie etapu. */
+  /* `onKoniec` przychodzi jako nowa funkcja przy KAŻDYM renderze rodzica,
+     a `Swiat` renderuje się przy każdej zebranej gwiazdce. W zależnościach
+     restartowałoby to siedmiosekundowy zegar w nieskończoność — chmurka
+     wisiałaby bez końca, a razem z nią zajęty slot w bramce. Ten sam chwyt,
+     co w `ChmurkaZadania` (`koniecRef`). */
+  const koniecRef = useRef(onKoniec);
+  useEffect(() => { koniecRef.current = onKoniec; }, [onKoniec]);
+
   useEffect(() => {
     if (!id) return undefined;
-    const zegar = window.setTimeout(() => onKoniec?.(), etap?.czasNaEkranie ?? 7000);
+    const zegar = window.setTimeout(() => koniecRef.current?.(), etap?.czasNaEkranie ?? 7000);
     return () => window.clearTimeout(zegar);
-  }, [id, etap?.czasNaEkranie, onKoniec]);
+  }, [id, etap?.czasNaEkranie]);
 
   if (!id || !obrazki.length) return null;
 
