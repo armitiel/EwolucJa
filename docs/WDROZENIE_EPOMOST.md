@@ -42,7 +42,10 @@ z Git for Windows i klucza `~/.ssh/id_ed25519`).
 ## Krok po kroku — backend (gdy zmieniło się coś w `backend/`)
 
 1. Wgraj źródła na VPS do `/srv/adventure/dev/source/backend` (scp/rsync
-   katalogu `backend/`, bez `node_modules` i bez `.env`; jeśli doszły
+   katalogu `backend/`, bez `node_modules` i bez `.env`; **razem z
+   `frontend/src/data/`** — `cycles.js` importuje stamtąd bibliotekę Mentora
+   i bez tego katalogu usługa pada przy starcie (18.09: `MENTOR_TASKS_DLA_DZIECKA`);
+   także `agents/world/` (lore czytane przez `narrativeService`); jeśli doszły
    zależności — `npm install` na serwerze, Node jest w
    `~/.local/node-v20.17.0-linux-x64`).
 2. Zrestartuj usługę (użytkownik `adventure-dev`, `systemd --user`,
