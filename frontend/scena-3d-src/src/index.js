@@ -116,6 +116,14 @@ export async function utworzScena3D(s = {}) {
     pokazZnacznikBraku: (...a) => n.pokazZnacznikBraku(...a),
     pozycjaKamienia: (i) => n.pozycjaKamienia(i),
     pokazKamien: (i, a) => n.pokazKamien(i, a),
+    /* MD / ST / DT (05 karty 2–4): lampka na pomoście, świetliki nocą, kładka
+       nad oczkiem wschodnim, oczko przejrzyste z liśćmi lilii; `pokazKotwice`
+       — kadr na obiekt po nazwie kotwicy. */
+    ustawLampke: (...a) => n.ustawLampke(...a),
+    dodajSwietlika: (...a) => n.dodajSwietlika(...a),
+    ustawKladke: (...a) => n.ustawKladke(...a),
+    ustawOczko: (...a) => n.ustawOczko(...a),
+    pokazKotwice: (r, a) => n.pokazKotwice(r, a),
     stan: () => n.stan(),
     zniszcz: () => { n.zniszcz(); t.remove(); },
     _app: n,

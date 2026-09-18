@@ -29,11 +29,12 @@
  */
 
 import {
-  Group, Mesh, MeshLambertMaterial, BoxGeometry, CylinderGeometry, TorusGeometry,
-  DodecahedronGeometry, IcosahedronGeometry, Sprite, SpriteMaterial, CanvasTexture, SRGBColorSpace,
+  Group, Mesh, MeshLambertMaterial, MeshBasicMaterial, BoxGeometry, CylinderGeometry, TorusGeometry,
+  SphereGeometry, CircleGeometry, DodecahedronGeometry, IcosahedronGeometry,
+  Sprite, SpriteMaterial, CanvasTexture, SRGBColorSpace, AdditiveBlending, DoubleSide,
 } from "three";
 import { kamyczki, MAT_DREWNO } from "./natura.js";
-import { grzyby, KOLORY } from "./swiat.js";
+import { grzyby, latarnia, KOLORY } from "./swiat.js";
 
 /* Kąt złoty. Kolejne ślady tej samej kotwicy siadają po spirali, a nie
    w rządku: rządek czyta się jak grządka posadzona przez dorosłego, a to ma
@@ -190,7 +191,24 @@ export class Slady {
     this._kamienie = [];
     this._trasa = null;
     this._znacznik = null;
-    this._kamienUzbrojony = true;
+    /* OBIEKTY DOTYKOWE hybryd: `{ nazwa, n, r, uzbrojony }` — lisek podchodzi,
+       scena melduje `hybryda:obiekt-dotkniety { obiekt }` raz na podejście.
+       Rejestrują je metody części A (pierwszy kamień, kładka, dno oczka). */
+    this._dotykowe = [];
+    /* MD: lampka na pomoście (jedna; `ustawLampke` przestawia), świetliki nocą.
+       DT: stan oczka wschodniego. ST: kwiat przy kładce (raz). */
+    this._lampka = null;
+    this._swietliki = [];
+    this._oczko = { blysk: null, lilie: [], kwiat: null };
+    this._kwiatPrzyKladce = false;
+  }
+
+  /** Rejestruje obiekt, przy którym lisek ma „dotknąć" hybrydy (raz na podejście). */
+  _dotykowy(nazwa, x, z, r = KAMIEN_DOTYK) {
+    const n = this.app.planeta.normalna(x, z);
+    const stary = this._dotykowe.find((d) => d.nazwa === nazwa);
+    if (stary) { stary.n = n; stary.r = r; return; }
+    this._dotykowe.push({ nazwa, n, r, uzbrojony: true });
   }
 
   /* ── KOTWICE ────────────────────────────────────────────────────────────
@@ -229,6 +247,8 @@ export class Slady {
       case "pomost": return domek;
       case "oczko-wschodnie": return this.app.oczka?.[0]?.pos ? [...this.app.oczka[0].pos] : null;
       case "oczko-zachodnie": return this.app.oczka?.[1]?.pos ? [...this.app.oczka[1].pos] : null;
+      /* Kładka nad oczkiem wschodnim (`mapa.most`, hybryda ST). */
+      case "kladka": return Array.isArray(m.most?.pos) ? [...m.most.pos] : null;
       /* Brzeg oczka zachodniego od strony drabinki — koniec drogi z kamieni. */
       case "brzeg-oczka-zachodniego": {
         const t = this._trasaKamieni();
@@ -450,6 +470,7 @@ export class Slady {
       kotwica.userData.n = this.app.planeta.normalna(x, z);
       this.grupa.add(kotwica);
       this._kamienie.push(kotwica);
+      if (i === 0) this._dotykowy("kamien", x, z);
       if (!bez) this._animujKamien(bryla, (i - start) * .22);
     }
     if (zKwiatem && n >= KAMIENI_MAX && !this._kwiatPrzyWodzie) {
@@ -485,16 +506,229 @@ export class Slady {
    * podejście (uzbraja się, gdy odejdzie), a hub decyduje, czy to jest ta
    * chwila na chmurkę liska. Sam kamień nic nie robi: nie znika, nie świeci.
    */
-  tik() {
-    const k = this._kamienie[0];
-    if (!k || !this.app.hn || !this.app.hero) return;
-    if (this.app._kino || this.app.sequence || this.app._podglad) return;
-    const d = this.app.planeta.odleglosc(this.app.hn, k.userData.n);
-    if (d > KAMIEN_UZBROJENIE) { this._kamienUzbrojony = true; return; }
-    if (d < KAMIEN_DOTYK && this._kamienUzbrojony) {
-      this._kamienUzbrojony = false;
-      this.app.emit("hybryda:obiekt-dotkniety", { obiekt: "kamien", n: this._kamienie.length });
+  tik(e = 0) {
+    const app = this.app;
+    this._lampkaTik(e);
+    this._swietlikiTik(e);
+    if (!app.hn || !app.hero) return;
+    if (app._kino || app.sequence || app._podglad) return;
+    for (const o of this._dotykowe) {
+      const d = app.planeta.odleglosc(app.hn, o.n);
+      if (d > Math.max(KAMIEN_UZBROJENIE, o.r * 2.1)) { o.uzbrojony = true; continue; }
+      if (d < o.r && o.uzbrojony) {
+        o.uzbrojony = false;
+        app.emit("hybryda:obiekt-dotkniety", { obiekt: o.nazwa, n: this._kamienie.length });
+      }
     }
+  }
+
+  /* ── LAMPKA NA POMOŚCIE (hybryda MD, 05 karta 2) ────────────────────────
+     `ustawLampke(miejsce, "zapalona"?)`: `latarnia()` w skali 0,45 na jednym
+     z trzech miejsc z części A — `barierka` (kotwica ganku pomostu),
+     `drabinka` (szczyt drabinki), `drzewo` (grunt przy stopie drabinki).
+     Jedna lampka: kolejne wywołanie przestawia, nie dokłada. Bez „zapalona"
+     stoi zgaszona (część A: wybór miejsca); zapalona świeci PO ZACHODZIE —
+     światło punktowe idzie za `doba.stan.noc`, w dzień jest zerem, więc
+     budżet świateł (3–4) nie rośnie. Bez domku: grunt pod drzewem. */
+  ustawLampke(...a) {
+    const [dane] = rozdziel(a);
+    const miejsce = ["barierka", "drabinka", "drzewo"].includes(dane[0]) ? dane[0] : "barierka";
+    const zapalona = dane.includes("zapalona");
+    const app = this.app;
+    if (this._lampka) {
+      this._lampka.obj.parent?.remove(this._lampka.obj);
+      this._lampka = null;
+    }
+    const lamp = latarnia();
+    lamp.name = "lampka-hybrydy";
+    lamp.scale.setScalar(.45);
+    const ud = lamp.userData;
+    ud.light.intensity = 0;
+    ud.glassMat.emissiveIntensity = .15;
+    const K = app._schronienie;
+    let rodzic = null;
+    if (miejsce === "barierka" && K) {
+      rodzic = K.getObjectByName("kotwica-ganek");
+      if (rodzic) lamp.position.set(.05, 0, -((Number(rodzic.userData?.szerokosc) || 1.2) / 2 - .16));
+    } else if (miejsce === "drabinka" && K) {
+      rodzic = K.getObjectByName("kotwica-drabinka-szczyt");
+      if (rodzic) lamp.position.set(-.18, 0, .34);
+    }
+    if (rodzic) {
+      rodzic.add(lamp);
+    } else {
+      // Pod drzewem: obok stopy drabinki, od strony polany.
+      const S = this.kotwica("stopa-drabinki") || this.kotwica("pod-drzewem");
+      if (!S) { console.warn("[slady] nie ma gdzie postawić lampki"); return false; }
+      const [x, z] = wokol(S, 3);
+      const kot = app._osadz(lamp, x, z, .02, 0);
+      this.grupa.add(kot);
+    }
+    app._wlaczCienie?.(lamp);
+    this._lampka = { obj: lamp, miejsce, zapalona, faza: 0 };
+    return true;
+  }
+
+  _lampkaTik(e) {
+    const L = this._lampka;
+    if (!L) return;
+    const noc = this.app.doba?.stan ? Math.max(this.app.doba.stan.noc || 0, (this.app.doba.stan.zorza || 0) * .5) : 1;
+    L.faza += e;
+    const mig = 1 + Math.sin(L.faza * 3.1) * .1;
+    const moc = L.zapalona ? noc : 0;
+    L.obj.userData.light.intensity = 5.5 * moc * mig;
+    L.obj.userData.glassMat.emissiveIntensity = .15 + 1.3 * moc * mig;
+  }
+
+  /* ── ŚWIETLIKI (MD po zauważeniu) ───────────────────────────────────────
+     Trzy nocne światełka wokół drzewa z domkiem: emisyjna kulka + poświata
+     (sprite addytywny), BEZ światła punktowego (budżet). Widać je tylko, gdy
+     `doba.stan.noc` przekroczy próg z bramy znaków (0,35); w dzień nie ma
+     ich wcale. `dodajSwietlika(n)` — n docelowo (idempotentne). */
+  dodajSwietlika(...a) {
+    const [dane] = rozdziel(a);
+    const gdzie = typeof dane[0] === "string" ? dane[0] : "pod-drzewem";
+    const n = Math.max(1, Math.min(6, Math.floor(Number(dane.find((x) => typeof x === "number")) || 3)));
+    const k = this.kotwica(gdzie);
+    if (!k) { console.warn("[slady] nie ma gdzie puścić świetlików:", gdzie); return false; }
+    if (!this._poswiataTex) {
+      const c = document.createElement("canvas");
+      c.width = c.height = 64;
+      const g = c.getContext("2d");
+      const gr = g.createRadialGradient(32, 32, 2, 32, 32, 30);
+      gr.addColorStop(0, "rgba(255,240,170,.9)");
+      gr.addColorStop(.4, "rgba(255,220,120,.35)");
+      gr.addColorStop(1, "rgba(255,200,80,0)");
+      g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+      this._poswiataTex = new CanvasTexture(c);
+      this._poswiataTex.colorSpace = SRGBColorSpace;
+    }
+    for (let i = this._swietliki.length; i < n; i += 1) {
+      const kat = .9 + i * 2.05, r = 2.1 + (i % 2) * .5;
+      const x = k[0] + Math.cos(kat) * r, z = k[1] + Math.sin(kat) * r;
+      const g = new Group();
+      g.name = "swietlik";
+      g.add(new Mesh(new SphereGeometry(.07, 8, 6), new MeshBasicMaterial({ color: 0xfff3a0, toneMapped: false })));
+      const spr = new Sprite(new SpriteMaterial({ map: this._poswiataTex, transparent: true, blending: AdditiveBlending, depthWrite: false, opacity: .85 }));
+      spr.scale.setScalar(.7);
+      g.add(spr);
+      const h = (this.app.wysokoscGruntuSiatki ? this.app.wysokoscGruntuSiatki(x, z) : 0) + 1.5 + (i % 3) * .35;
+      this.app.planeta.ustaw(g, x, z, h, 0);
+      g.visible = false;
+      this.grupa.add(g);
+      this._swietliki.push({ obj: g, x, z, h, faza: i * 1.7 });
+    }
+    return true;
+  }
+
+  _swietlikiTik(e) {
+    if (!this._swietliki.length) return;
+    const noc = this.app.doba?.stan ? (this.app.doba.stan.noc || 0) : 1;
+    const widac = noc > .35;
+    for (const s of this._swietliki) {
+      s.obj.visible = widac;
+      if (!widac) continue;
+      s.faza += e;
+      const dx = Math.sin(s.faza * .8) * .35, dz = Math.cos(s.faza * .6) * .35;
+      this.app.planeta.ustaw(s.obj, s.x + dx, s.z + dz, s.h + Math.sin(s.faza * 1.3) * .18, 0);
+      s.obj.children[1].material.opacity = .55 + Math.sin(s.faza * 2.2) * .3;
+    }
+  }
+
+  /* ── KŁADKA NAD OCZKIEM (hybryda ST, 05 karta 3) ────────────────────────
+     `ustawKladke({ ksztalt, porecz })`: odsłania ukryty most (`pokazUkryty`)
+     i przebudowuje deski przez `userData.ustaw` z `swiat.js`. `ksztalt`:
+     "brak" (część A — tylko brzegi, kładka nie przenosi: `_mostPrzenosi`),
+     "plaska" / "harmonijka" / "rurka" / "przemiennie" (po śladzie — lisek
+     przechodzi). `porecz: true` po zauważeniu + kwiat przy przęśle (raz). */
+  ustawKladke(...a) {
+    const [dane, opcje] = rozdziel(a);
+    const arg = dane[0] && typeof dane[0] === "object" ? dane[0] : { ksztalt: dane[0], porecz: dane.includes("porecz") };
+    const ksztalt = ["brak", "plaska", "harmonijka", "rurka", "przemiennie", "pelne"].includes(arg.ksztalt) ? arg.ksztalt : "brak";
+    const porecz = !!arg.porecz;
+    const app = this.app;
+    if (!this.pokazUkryty("most") && !app.bridge?.parent) { console.warn("[slady] nie ma kładki do ustawienia"); return false; }
+    const most = app._mostUkryty?.obj || app.bridge;
+    most.userData.ustaw?.({ deski: ksztalt, porecz });
+    app._wlaczCienie?.(most);
+    const k = this.kotwica("kladka");
+    if (k) this._dotykowy("kladka", k[0], k[1], 1.6);
+    if (porecz && k && !this._kwiatPrzyKladce && app.kwiaty?.posadz) {
+      for (let i = 0; i < 8 && !this._kwiatPrzyKladce; i += 1) {
+        const [x, z] = wokol([k[0] - .5, k[1] + 2.1], i);
+        this._kwiatPrzyKladce = !!app.kwiaty.posadz(x, z, { bezAnimacji: !!opcje.bezAnimacji, typ: "kwiat", wariant: 2 });
+      }
+      if (this._kwiatPrzyKladce) app.kwiaty.oznacz?.();
+    }
+    return true;
+  }
+
+  /* ── OCZKO WSCHODNIE (hybryda DT, 05 karta 4) ────────────────────────────
+     `ustawOczko({ blysk, przejrzyste, lilie, kwiat })`:
+       blysk        — błyszczący kamyk pod taflą (część A: „na dnie coś błyska")
+       przejrzyste  — tafla z 0,92 na 0,55 krycia, mniej emisji
+       lilie        — n liści lilii (płaskie dyski na wodzie)
+       kwiat        — biały kwiat na pierwszym liściu (po zauważeniu)
+     Idempotentne: każde pole ustawia stan docelowy. Bez oczka — nic. */
+  ustawOczko(...a) {
+    const [dane] = rozdziel(a);
+    const arg = dane[0] && typeof dane[0] === "object" ? dane[0] : {};
+    const app = this.app;
+    const o = app.oczka?.[0];
+    if (!o?.pos) { console.warn("[slady] nie ma oczka wschodniego"); return false; }
+    const [cx, cz] = o.pos;
+    const poziom = o.poziomWody ?? -.15;
+    const st = this._oczko;
+    if (arg.blysk && !st.blysk) {
+      const k = kamyczki(.42);
+      k.traverse((m) => {
+        if (!m.isMesh) return;
+        m.material = m.material.clone();
+        m.material.emissive?.set(0xffe9a8);
+        m.material.emissiveIntensity = .55;
+      });
+      st.blysk = app._osadz(k, cx + .35, cz - .25, .1, .6);
+      this.grupa.add(st.blysk);
+      this._dotykowy("oczko", cx, cz, Math.max(1.4, (o.promien || 2) * .55));
+    }
+    if (arg.przejrzyste != null && o.tafla?.material) {
+      o.tafla.material.opacity = arg.przejrzyste ? .55 : .92;
+      o.tafla.material.emissiveIntensity = arg.przejrzyste ? .12 : .35;
+      o.tafla.material.needsUpdate = true;
+    }
+    const lilie = Math.max(0, Math.min(6, Number(arg.lilie) || 0));
+    const matLisc = new MeshLambertMaterial({ color: 0x4c9a4a, side: DoubleSide });
+    for (let i = st.lilie.length; i < lilie; i += 1) {
+      const kat = 1.1 + i * 2.2, r = .55 + (i % 2) * .45;
+      const x = cx + Math.cos(kat) * r, z = cz + Math.sin(kat) * r;
+      const geo = new CircleGeometry(.3, 12, .35, Math.PI * 2 - .55);   // wcięcie liścia lilii
+      geo.rotateX(-Math.PI / 2);
+      const lisc = new Mesh(geo, matLisc);
+      app.planeta.ustaw(lisc, x, z, poziom + .012, i * 1.3);
+      this.grupa.add(lisc);
+      st.lilie.push({ obj: lisc, x, z });
+    }
+    if (arg.kwiat && !st.kwiat && st.lilie[0]) {
+      const L = st.lilie[0];
+      const g = new Group();
+      g.name = "kwiat-lilii";
+      const platek = new MeshLambertMaterial({ color: 0xfff8f0 });
+      for (let i = 0; i < 5; i += 1) {
+        const p = new Mesh(new SphereGeometry(.07, 6, 5), platek);
+        p.scale.set(1, .45, 1.9);
+        const kat = (i / 5) * Math.PI * 2;
+        p.position.set(Math.cos(kat) * .09, .05, Math.sin(kat) * .09);
+        p.rotation.y = -kat + Math.PI / 2;
+        p.rotation.x = -.35;
+        g.add(p);
+      }
+      g.add(new Mesh(new SphereGeometry(.045, 6, 5), new MeshLambertMaterial({ color: KOLORY.flame })).translateY(.08));
+      app.planeta.ustaw(g, L.x, L.z, poziom + .02, 0);
+      this.grupa.add(g);
+      st.kwiat = g;
+    }
+    app._wlaczCienie?.(this.grupa);
+    return true;
   }
 
   /* ── ZNACZNIK BRAKU (W6) ────────────────────────────────────────────────
@@ -536,7 +770,10 @@ export class Slady {
     spr.scale.setScalar(1.0);
     const n = app.planeta.normalna(k[0], k[1]).clone();
     const h = app.wysokoscGruntuSiatki ? app.wysokoscGruntuSiatki(k[0], k[1]) : 0;
-    const baza = app.planeta.naKule(k[0], k[1], h + 1.35);
+    /* Nad pomostem znacznik musi wisieć NAD deskami (poziom × skala domku),
+       nie w pniu; reszta kotwic stoi na gruncie. */
+    const nad = nazwa === "pomost" ? (this.app._uklad?.poziom ?? 2.6) * (this.app.mapa?.schronienie?.skala ?? 1) + 1.4 : 1.35;
+    const baza = app.planeta.naKule(k[0], k[1], h + nad);
     spr.position.copy(baza);
     app.swiat.add(spr);
     this._znacznik = spr;

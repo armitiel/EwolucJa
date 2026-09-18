@@ -151,17 +151,24 @@ export function kwestiaZachodu(realZewn = null, hybZewn = null) {
   /* HYBRYDA MD (`swiatlo-w-oknie`): zachód JEST jej mostem — kwestia z karty
      zamiast wariantu „zadanie czeka" (05 karta 2). Karta nieaktywna do czasu
      `ustawLampke`, ale gałąź już czeka. */
-  if (hyb.istnieje && hyb.def?.czescA?.zachod && (hyb.trop || hyb.czescA)) {
-    const d = zWariantemHybrydy(hyb.def);
-    const q = kwestiaHybrydy(hyb.def, "wizkor", "most");
+  const mostZachodu = (def, akcja) => {
+    const d = zWariantemHybrydy(def);
+    const q = kwestiaHybrydy(def, "wizkor", "most");
     return {
       ...baza,
       tekst: q?.tekst || d.most.glos,
       tekstEkranu: q?.tekstEkranu || d.most.karta,
       wyroznienie: d.most.wyroznienie || "",
-      przycisk: hyb.def.czescA?.przycisk || "Otwieram",
-      akcja: "otworzZadanie",
+      przycisk: def.czescA?.przycisk || "Otwieram",
+      akcja,
     };
+  };
+  if (hyb.istnieje && hyb.def?.czescA?.zachod && (hyb.trop || hyb.czescA)) return mostZachodu(hyb.def, "otworzZadanie");
+  /* Hybrydy jeszcze nie ma, a profil ma kartę zachodu (MD): zachód ją OTWIERA
+     — Wizkor mówi most, przycisk prowadzi do wyboru miejsca lampki. */
+  if (!hyb.istnieje && !hybZewn) {
+    const karta = mozliwaHybryda();
+    if (karta?.czescA?.zachod) return mostZachodu(karta, `hybryda:otworz:${karta.id}`);
   }
 
   if (!czyRysowalDzis() && stanDrewna().zbudowane) {

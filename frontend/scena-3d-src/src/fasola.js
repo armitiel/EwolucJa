@@ -443,6 +443,9 @@ export function zbudujOczko(def, planeta) {
     mesh: g,
     n,
     pos,
+    tafla,                  // materiał tafli zmienia hybryda `co-jest-na-dnie` (`slady.js`)
+    glebokosc: gl,
+    poziomWody: -gl + 0.05,
     /* `promien` to ZASIĘG NABIERANIA WODY, nie rozmiar tafli. Przy ręcznym
        obrysie bierzemy największy promień: lisek ma nabrać wody, wchodząc
        w staw, a nie trafiając w jego środek ciężkości. */

@@ -410,6 +410,7 @@ export class Aplikacja {
     this.ziemia = sw.ziemia;
     this.scene.add(this.swiat);
     this.lantern = sw.lantern;
+    this.bridge = sw.bridge;   // kładka (widoczna albo ukryta) — `_mostPrzenosi`, `slady.ustawKladke`
     this.blockers = sw.blockers;
     /* WYSOKOŚĆ GRUNTU MIERZONA Z SIATKI, nie ze wzoru. Teren jest kanciasty
        (`terenKanciasty: 8`), więc analityczna forma `formy.h()` biegnie nad
@@ -1269,6 +1270,15 @@ export class Aplikacja {
   dodajZnak(...a) { return this.slady?.dodajZnak(...a) || false; }
   /* HYBRYDA LD (`kamienie-kroki`, 05 karta 1) i znacznik braku W6 — opis w `slady.js`. */
   ulozKamienie(...a) { return this.slady?.ulozKamienie(...a) || false; }
+  ustawLampke(...a) { return this.slady?.ustawLampke(...a) || false; }
+  dodajSwietlika(...a) { return this.slady?.dodajSwietlika(...a) || false; }
+  ustawKladke(...a) { return this.slady?.ustawKladke(...a) || false; }
+  ustawOczko(...a) { return this.slady?.ustawOczko(...a) || false; }
+  /** Kadr na obiekt hybrydy po nazwie kotwicy (`kladka`, `oczko-wschodnie`, `pomost`…). */
+  pokazKotwice(nazwa, opcje = {}) {
+    const p = this.slady?.kotwica(nazwa);
+    return this.pokazMiejsce(p || null, opcje);
+  }
   pokazZnacznikBraku(...a) { return this.slady?.pokazZnacznikBraku(...a) || false; }
   pozycjaKamienia(i) { return this.slady?.pozycjaKamienia(i) || null; }
   /** Kadr na kamień numer `i` (1–6) — po śladzie na drugi, po zauważeniu na szósty. */
@@ -1304,8 +1314,17 @@ export class Aplikacja {
     return kotwica;
   }
 
+  /** Czy kładka PRZENOSI: stoi w świecie i ma deski (hybryda ST: „kładka bez desek nie przenosi"). */
+  _mostPrzenosi() {
+    const u = this._mostUkryty;
+    if (u && !u.obj.parent) return false;
+    const deski = (u?.obj || this.bridge)?.userData?.deski;
+    return deski !== "brak";
+  }
+
   groundHeightAt(e, t) {
     const forma = this.formy ? this.formy.h(e, t) : 0;
+    if (!this._mostPrzenosi()) return forma;
     const n = this.bridgeLocal(e, t, this._blTmp || (this._blTmp = new Vector3()));
     const i = Math.abs(n.z);
     if (Math.abs(n.x) > MOST_POL_SZER + 0.2 || i > MOST_POL_DL) return forma;
@@ -1315,6 +1334,7 @@ export class Aplikacja {
     return r * (a * a * (3 - 2 * a) * o);
   }
   onBridge(e, t) {
+    if (!this._mostPrzenosi()) return false;
     const n = this.bridgeLocal(e, t, this._blTmp2 || (this._blTmp2 = new Vector3()));
     return Math.abs(n.x) < MOST_POL_SZER && Math.abs(n.z) < MOST_POL_DL;
   }

@@ -240,9 +240,18 @@ export function pierwszaHybryda(profil = typStartowy()) {
   return HYBRYDY_AKTYWNE.find(wolna) || null;
 }
 
+/* ETAP SESJI (słońce): hybryda z `czescA.zachod` (MD, 05 karta 2) otwiera się
+   dopiero o zachodzie — jej most JEST kwestią zachodu; do tego czasu Wizkor
+   zleca gry. `Swiat.jsx` melduje etap z `doba:sesja`. Pamięć na czas strony:
+   nowy dzień (`dzien`) kasuje flagę. */
+let etapSesji = "dzien";
+export function oznaczEtapSesji(etap) { if (typeof etap === "string") etapSesji = etap; }
+export function poZachodzie() { return etapSesji === "zachod" || etapSesji === "noc"; }
+
 /**
  * Czy hybrydę wolno teraz otworzyć: domek etap 1 stoi, żadna hybryda nie
- * jest w toku, tydzień od zauważenia minął (albo nie było żadnej), jest karta.
+ * jest w toku, tydzień od zauważenia minął (albo nie było żadnej), jest karta
+ * — a karta z `czescA.zachod` czeka na zachód (nie po „Budujemy!").
  */
 export function mozliwaHybryda() {
   if (!stanDrewna().zbudowane) return null;
@@ -250,7 +259,9 @@ export function mozliwaHybryda() {
   if (s.istnieje && s.faza !== "zauwazone") return null;
   if (s.nastepnaOd && Date.parse(s.nastepnaOd) > Date.now()) return null;
   if (s.istnieje && s.faza === "zauwazone" && !s.zauwazoneObejrzane) return null;
-  return pierwszaHybryda();
+  const karta = pierwszaHybryda();
+  if (karta?.czescA?.zachod && !poZachodzie()) return null;
+  return karta;
 }
 
 /* ── PRZEBIEG ───────────────────────────────────────────────────────────── */
@@ -302,7 +313,12 @@ export function wybierzA(opcja) {
   if (!id) return stanHybrydy();
   const faza = z.faza === "trop" ? "czescA" : z.faza;
   zdarzenie("czescA.wybor", { hybryda: z.id, wybor: id });
-  return zapisz({ ...z, faza, wyborA: id, kiedy: { ...(z.kiedy || {}), czescA: z.kiedy?.czescA || new Date().toISOString() } });
+  const nowy = { ...z, faza, wyborA: id, kiedy: { ...(z.kiedy || {}), czescA: z.kiedy?.czescA || new Date().toISOString() } };
+  const stan = zapisz(nowy);
+  /* Wybór widać od razu (MD: zgaszona lampka staje tam, gdzie dziecko
+     wskazało). Metoda musi być idempotentna — zmiana zdania przestawia. */
+  if (def.czescA?.reakcjaPoWyborze) pokazWScenie(argumenty(def.czescA.reakcjaPoWyborze, nowy, def), `hybryda:${z.id}`);
+  return stan;
 }
 
 /** Wybrane `miejsce` (id z `def.miejsca`) — zapisane, żeby nie przepadało. */
@@ -327,12 +343,14 @@ export function idz() {
   return zapisz({ ...z, faza: "czeka", kiedy: { ...(z.kiedy || {}), czeka: new Date().toISOString() } });
 }
 
-/* Argumenty reakcji z zapisu: `{wyborA}` i `{slad}` w `args` z danych. */
-function argumenty(reakcja, z) {
+/* Argumenty reakcji z zapisu: `{wyborA}` (id opcji części A), `{slad}` (indeks
+   opcji śladu) i `{sladId}` (`slad.wartosci[indeks]`, np. kształt desek) w `args`. */
+function argumenty(reakcja, z, def = definicjaHybrydy(z?.id)) {
   if (!reakcja) return null;
   const podstaw = (v) => {
     if (v === "{wyborA}") return z.wyborA || null;
     if (v === "{slad}") return Number.isInteger(z.sladWybor) ? z.sladWybor : null;
+    if (v === "{sladId}") return Number.isInteger(z.sladWybor) ? (def?.slad?.wartosci?.[z.sladWybor] ?? null) : null;
     if (v && typeof v === "object" && !Array.isArray(v)) return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, podstaw(x)]));
     return v;
   };

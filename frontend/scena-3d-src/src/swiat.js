@@ -1353,20 +1353,54 @@ export function latarnia() {
   return s;
 }
 
-export function most() {
+/**
+ * KŁADKA. Bez argumentów — dawny most w komplecie (siedem desek, słupki,
+ * sznur), więc stare wywołanie z `zbudujSwiat` nic nie zmienia.
+ *
+ * Hybryda `kladka-nad-oczkiem` (05 karta 3) buduje ją etapami:
+ *   `deski`: "pelne" (jak dawniej) | "brak" (tylko dwie skrajne — „kładka ma
+ *            tylko brzegi") | "plaska" (deski) | "harmonijka" (zygzak) |
+ *            "rurka" (walce) | "przemiennie" (deski i walce na zmianę)
+ *   `porecz`: sznur na słupkach (po zauważeniu przez Mentora)
+ * `userData.ustaw({ deski, porecz })` przebudowuje środek bez ruszania
+ * kotwicy — kładka stoi, zmienia się tylko to, co dziecko sprawdziło.
+ */
+export function most({ deski = "pelne", porecz = true } = {}) {
   const s = new Group();
-  for (let e = -3; e <= 3; e++)
-    s.add(
-      mesh(new BoxGeometry(2.2, 0.1, 0.34), matKanciasty(e % 2 ? KOLORY.wood : KOLORY.woodDark),
-        [0, 0.16 + Math.cos(e * 0.4) * 0.09, e * 0.38], [Math.sin(e * 0.4) * 0.09, 0, 0]),
-    );
-  for (const e of [-1, 1]) {
-    for (const t of [-1, 1]) {
-      s.add(mesh(new BoxGeometry(0.14, 0.7, 0.14), matKanciasty(KOLORY.woodDark), [e * 1, 0.45, t * 1.25]));
-      s.add(mesh(new SphereGeometry(0.09, 6, 5), matKanciasty(KOLORY.wood), [e * 1, 0.84, t * 1.25]));
+  s.name = "most";
+  const srodek = new Group();
+  srodek.name = "most-srodek";
+  s.add(srodek);
+  const zbuduj = ({ deski: d = "pelne", porecz: p = true } = {}) => {
+    while (srodek.children.length) srodek.remove(srodek.children[0]);
+    const skrajne = d === "brak" ? [-3, 3] : [-3, -2, -1, 0, 1, 2, 3];
+    for (const e of skrajne) {
+      const y = 0.16 + Math.cos(e * 0.4) * 0.09, rx = Math.sin(e * 0.4) * 0.09;
+      const mat = matKanciasty(e % 2 ? KOLORY.wood : KOLORY.woodDark);
+      const wewn = Math.abs(e) < 3;
+      if (wewn && d === "harmonijka") {
+        // Zygzak: dwie połówki deski złożone daszkiem, jak kartka-harmonijka.
+        for (const st of [-1, 1]) {
+          srodek.add(mesh(new BoxGeometry(2.2, 0.06, 0.2), mat, [0, y + 0.04, e * 0.38 + st * 0.085], [rx + st * 0.75, 0, 0]));
+        }
+      } else if (wewn && (d === "rurka" || (d === "przemiennie" && e % 2))) {
+        srodek.add(mesh(new CylinderGeometry(0.11, 0.11, 2.2, 8), mat, [0, y + 0.03, e * 0.38], [rx, 0, Math.PI / 2]));
+      } else {
+        srodek.add(mesh(new BoxGeometry(2.2, 0.1, 0.34), mat, [0, y, e * 0.38], [rx, 0, 0]));
+      }
     }
-    s.add(mesh(new CylinderGeometry(0.03, 0.03, 2.5, 5), matPlaski(KOLORY.rope), [e * 1, 0.62, 0], [Math.PI / 2, 0, 0]));
-  }
+    for (const e of [-1, 1]) {
+      for (const t of [-1, 1]) {
+        srodek.add(mesh(new BoxGeometry(0.14, 0.7, 0.14), matKanciasty(KOLORY.woodDark), [e * 1, 0.45, t * 1.25]));
+        srodek.add(mesh(new SphereGeometry(0.09, 6, 5), matKanciasty(KOLORY.wood), [e * 1, 0.84, t * 1.25]));
+      }
+      if (p) srodek.add(mesh(new CylinderGeometry(0.03, 0.03, 2.5, 5), matPlaski(KOLORY.rope), [e * 1, 0.62, 0], [Math.PI / 2, 0, 0]));
+    }
+    s.userData.deski = d;
+    s.userData.porecz = p;
+  };
+  zbuduj({ deski, porecz });
+  s.userData.ustaw = zbuduj;
   return s;
 }
 
@@ -2117,8 +2151,11 @@ export function zbudujSwiat(mapa, planeta) {
   const t = most();
   // Most stoi w poprzek ścieżki, więc kąt bierze z jej trzeciego węzła.
   // Bez ścieżki (pusty świat) nie ma czego przecinać — zero i tyle.
-  const obrotMostu = Ct.length >= 3 ? Math.atan2(Ct[2].x - Ct[1].x, Ct[2].z - Ct[1].z) : 0;
-  planeta.ustaw(t, mapa.most.pos[0], mapa.most.pos[1], 0, obrotMostu);
+  // `most.obrot` i `most.skala` w mapie (kładka hybrydy nad oczkiem) mają pierwszeństwo.
+  const obrotMostu = Number.isFinite(mapa.most.obrot) ? mapa.most.obrot
+    : (Ct.length >= 3 ? Math.atan2(Ct[2].x - Ct[1].x, Ct[2].z - Ct[1].z) : 0);
+  planeta.ustaw(t, mapa.most.pos[0], mapa.most.pos[1], mapa.most.h ?? 0, obrotMostu);
+  if (Number.isFinite(mapa.most.skala)) t.scale.setScalar(mapa.most.skala);
   if (!mapa.most.ukryty) s.add(t);
 
   const cn = mapa.latarnia.pos;

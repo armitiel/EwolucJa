@@ -43,11 +43,13 @@
   },
   "most": {
     "pos": [
-      -4.7,
-      6.9
+      15.6,
+      -3.7
     ],
+    "obrot": 0.11,
+    "skala": 1.4,
     "ukryty": true,
-    "_opis": "Ukryty 14.09.2026 na prosbe autora. Pozycja zostaje — zdjecie flagi przywraca obiekt na to samo miejsce."
+    "_opis": "Kladka hybrydy `kladka-nad-oczkiem` (05 karta 3): nad talia oczka wschodniego, w poprzek (obrot wokol pionu, radiany), skala 1,4 = rozpietosc ok. 3,5 j. Ukryta do czasu tropu hybrydy (`ustawKladke`), wtedy tylko brzegi; deski po sladzie, porecz po zauwazeniu. Poprzednia pozycja [-4.7, 6.9] (ukryta 14.09)."
   },
   "brama": {
     "pos": [
@@ -1253,8 +1255,8 @@
           -0.65
         ],
         [
-          15.57,
-          -1.09
+          15.75,
+          -2.35
         ],
         [
           14.19,
@@ -1263,6 +1265,10 @@
         [
           13.69,
           -4.61
+        ],
+        [
+          15.45,
+          -5.05
         ],
         [
           14.89,
@@ -1279,7 +1285,8 @@
       ],
       "glebokosc": 0.2,
       "stok": 0.8,
-      "gladkosc": 0.85
+      "gladkosc": 0.85,
+      "_przewezenieOpis": "Talia miedzy [15.75,-2.35] a [15.45,-5.05] (18.09): tu stoi kladka hybrydy `kladka-nad-oczkiem` (mapa.most). Poprawiaj w edytorze razem z most.pos/obrot."
     },
     {
       "punkty": [

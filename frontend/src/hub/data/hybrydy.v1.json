@@ -230,7 +230,7 @@
     },
     {
       "id": "swiatlo-w-oknie",
-      "aktywna": false,
+      "aktywna": true,
       "profil_pierwszy": "MD",
       "os": "wytrwalosc (regulacja)",
       "cecha": "wytrwalosc",
@@ -280,7 +280,20 @@
           }
         ],
         "przycisk": "Idę do okna",
-        "zachod": true
+        "zachod": true,
+        "reakcjaPoWyborze": {
+          "metoda": "ustawLampke",
+          "args": [
+            "{wyborA}"
+          ],
+          "opis": "zgaszona lampka w miejscu wybranym w części A"
+        },
+        "kadr": {
+          "metoda": "pokazKotwice",
+          "args": [
+            "pomost"
+          ]
+        }
       },
       "most": {
         "karta": "Słońce schodzi, a na pomoście ciemno. Ognia nie wyczaruję.",
@@ -344,14 +357,21 @@
       "reakcja": {
         "metoda": "ustawLampke",
         "args": [
-          "{wyborA}"
+          "{wyborA}",
+          "zapalona"
         ],
         "opis": "mała lampka na pomoście w miejscu z części A; świeci po zachodzie",
         "toast": {
           "tytul": "Lampka na pomoście",
           "opis": "Na pomoście świeci mała lampka."
         },
-        "istnieje": false
+        "kadr": {
+          "metoda": "pokazKotwice",
+          "args": [
+            "pomost"
+          ]
+        },
+        "istnieje": true
       },
       "reakcjaMentor": {
         "metoda": "dodajSwietlika",
@@ -364,7 +384,13 @@
           "tytul": "Mentor to widzi",
           "opis": "Wokół drzewa krążą świetliki."
         },
-        "istnieje": false
+        "kadr": {
+          "metoda": "pokazKotwice",
+          "args": [
+            "pod-drzewem"
+          ]
+        },
+        "istnieje": true
       },
       "miejsce_reakcji": "na pomoście",
       "kwestie": [
@@ -428,7 +454,7 @@
     },
     {
       "id": "kladka-nad-oczkiem",
-      "aktywna": false,
+      "aktywna": true,
       "profil_pierwszy": "ST",
       "os": "wytrwalosc",
       "cecha": "wytrwalosc",
@@ -478,7 +504,23 @@
             "emoji": "🧻"
           }
         ],
-        "przycisk": "Sprawdzę na kartce"
+        "przycisk": "Sprawdzę na kartce",
+        "reakcja": {
+          "metoda": "ustawKladke",
+          "args": [
+            {
+              "ksztalt": "brak",
+              "porecz": false
+            }
+          ],
+          "opis": "kładka odsłonięta: tylko dwie skrajne deski i słupki, nie przenosi"
+        },
+        "kadr": {
+          "metoda": "pokazKotwice",
+          "args": [
+            "kladka"
+          ]
+        }
       },
       "most": {
         "karta": "Kładka ma tylko brzegi. Która deska utrzyma liska?",
@@ -536,32 +578,54 @@
         "zdanie": true,
         "pytanieZdania": "Co {położyłeś|położyłaś} jako ciężarek i która wygrała?",
         "zdjecie": false,
-        "podpowiedz": "Sama kładka na stole."
+        "podpowiedz": "Sama kładka na stole.",
+        "wartosci": [
+          "plaska",
+          "harmonijka",
+          "przemiennie"
+        ]
       },
       "reakcja": {
         "metoda": "ustawKladke",
         "args": [
-          "{slad}"
+          {
+            "ksztalt": "{sladId}",
+            "porecz": false
+          }
         ],
         "opis": "deski w kształcie zwycięskiej konstrukcji (płaska → deski, złożona → zygzak, tyle samo → przemiennie), lisek przechodzi",
         "toast": {
           "tytul": "Kładka ma deski",
           "opis": "Nad oczkiem leży kładka z nowymi deskami."
         },
-        "istnieje": false
+        "kadr": {
+          "metoda": "pokazKotwice",
+          "args": [
+            "kladka"
+          ]
+        },
+        "istnieje": true
       },
       "reakcjaMentor": {
         "metoda": "ustawKladke",
         "args": [
-          "{slad}",
-          "porecz"
+          {
+            "ksztalt": "{sladId}",
+            "porecz": true
+          }
         ],
         "opis": "sznurowa poręcz na słupkach i kwiat przy przęśle",
         "toast": {
           "tytul": "Mentor to widzi",
           "opis": "Na słupkach kładki zawisł sznur, obok wyrósł kwiat."
         },
-        "istnieje": false
+        "kadr": {
+          "metoda": "pokazKotwice",
+          "args": [
+            "kladka"
+          ]
+        },
+        "istnieje": true
       },
       "miejsce_reakcji": "nad oczkiem",
       "kwestie": [
@@ -625,7 +689,7 @@
     },
     {
       "id": "co-jest-na-dnie",
-      "aktywna": false,
+      "aktywna": true,
       "profil_pierwszy": "DT",
       "os": "ciekawosc",
       "cecha": "ciekawosc",
@@ -675,7 +739,22 @@
             "emoji": "🍃"
           }
         ],
-        "przycisk": "Sprawdzę w prawdziwej wodzie"
+        "przycisk": "Sprawdzę w prawdziwej wodzie",
+        "reakcja": {
+          "metoda": "ustawOczko",
+          "args": [
+            {
+              "blysk": true
+            }
+          ],
+          "opis": "na dnie oczka błyska kamyk pod mętną wodą"
+        },
+        "kadr": {
+          "metoda": "pokazKotwice",
+          "args": [
+            "oczko-wschodnie"
+          ]
+        }
       },
       "most": {
         "karta": "Coś leży na dnie oczka. Co pływa, a co tonie?",
@@ -739,9 +818,9 @@
         "metoda": "ustawOczko",
         "args": [
           {
+            "blysk": true,
             "przejrzyste": true,
-            "lilie": 3,
-            "kwiat": false
+            "lilie": 3
           }
         ],
         "opis": "woda przejrzysta, kamyk na dnie, trzy liście lilii",
@@ -749,12 +828,19 @@
           "tytul": "Woda jest przejrzysta",
           "opis": "Na dnie leży kamyk, na wodzie liście."
         },
-        "istnieje": false
+        "kadr": {
+          "metoda": "pokazKotwice",
+          "args": [
+            "oczko-wschodnie"
+          ]
+        },
+        "istnieje": true
       },
       "reakcjaMentor": {
         "metoda": "ustawOczko",
         "args": [
           {
+            "blysk": true,
             "przejrzyste": true,
             "lilie": 3,
             "kwiat": true
@@ -765,7 +851,13 @@
           "tytul": "Mentor to widzi",
           "opis": "Na jednym liściu otworzył się kwiat."
         },
-        "istnieje": false
+        "kadr": {
+          "metoda": "pokazKotwice",
+          "args": [
+            "oczko-wschodnie"
+          ]
+        },
+        "istnieje": true
       },
       "miejsce_reakcji": "na oczku",
       "kwestie": [

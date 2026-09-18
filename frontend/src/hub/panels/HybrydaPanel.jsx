@@ -243,7 +243,7 @@ export default function HybrydaPanel({ onKomunikat, onZamknij, onPowrot }) {
           <button
             type="button"
             className="hub-btn"
-            onClick={() => { setStan(odlozMost()); onZamknij?.(); }}
+            onClick={() => { setStan(odlozMost()); onZamknij?.(); window.setTimeout(() => pokazKadr(def.czescA?.kadr), 450); }}
           >
             {o(M.przyciskOtwarte || "Zostaw otwarte")}
           </button>

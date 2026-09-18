@@ -84,10 +84,12 @@ import {
    podłodze w domu. Stan w `hub/hybryda.js`, panel w `panels/HybrydaPanel.jsx`. */
 import HybrydaPanel from "../hub/panels/HybrydaPanel.jsx";
 import {
+  HYBRYDY_AKTYWNE,
   idz as idzHybryda,
   kwestiaHybrydy,
   mozliwaHybryda,
   odtworzHybrydeWScenie,
+  oznaczEtapSesji as oznaczEtapSesjiHybrydy,
   oznaczPrzypomnienie as oznaczPrzypomnienieHybrydy,
   oznaczZauwazoneObejrzane,
   reakcjaPoZauwazeniu,
@@ -2334,6 +2336,18 @@ export default function Swiat() {
           setPowitanie(powitanieCzarodzieja(stanZadania(), aktualnaMisja()));
         },
       },
+      /* Trop konkretnej karty, z pominięciem profilu i zachodu (MD): do
+         obejrzenia każdej hybrydy bez przestawiania testu. Domek musi stać. */
+      ...HYBRYDY_AKTYWNE.map((karta) => ({
+        grupa: "Hybryda",
+        etykieta: `Trop: ${karta.tytul} (${karta.profil_pierwszy}, zapisuje!)`,
+        odpal: () => {
+          if (!stanDrewna().zbudowane) { pokazKomunikat("DEV: najpierw postaw domek (etap 1)"); return; }
+          skasujHybryde();
+          rozpocznijHybryde(karta.id);
+          setPowitanie(powitanieCzarodzieja(stanZadania(), aktualnaMisja()));
+        },
+      })),
       {
         grupa: "Hybryda",
         etykieta: "Hybryda: ślad (lokalnie)",
@@ -2423,6 +2437,8 @@ export default function Swiat() {
          dziecko właśnie robi. Jak nie teraz, to wcale — zachód i tak widać
          na niebie, a to jest właściwy komunikat. */
       if (nazwa === "doba:sesja") {
+        // Hybryda MD otwiera się o zachodzie (`mozliwaHybryda` czyta etap sesji).
+        oznaczEtapSesjiHybrydy(dane?.etap);
         if (planetaSpiRef.current) return;
         if (dane?.etap === "zachod" && !zachodZapowiedziany.current) {
           zachodZapowiedziany.current = true;

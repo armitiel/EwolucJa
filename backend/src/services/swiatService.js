@@ -28,7 +28,7 @@
 export const DOZWOLONE_METODY = Object.freeze([
   "posadzKwiat", "ulozKamyczki", "dodajGrzyb", "pokazUkryty", "dodajZnak",
   "ustawSladPorady", "ulozKamienie", "ustawLampke", "ustawOczko", "ustawLawke",
-  "ustawRamke",
+  "ustawRamke", "ustawKladke", "dodajSwietlika",
 ]);
 const METODY = new Set(DOZWOLONE_METODY);
 

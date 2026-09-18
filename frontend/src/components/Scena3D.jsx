@@ -31,7 +31,7 @@ import { idPostaci, postacWybranaJawnie, DOSTEPNE_POSTACIE } from "../utils/post
 // UWAGA: numer ma tylko ROSNĄĆ. Numery 3–13 zostały już wydane przeglądarce
 // z inną zawartością modułu (kolejne wersje znaków, gwiazdki, tempo ruchu),
 // więc cofnięcie go serwuje z cache starą scenę zamiast aktualnej.
-export const WERSJA_SCENY = "156";  // hybryda LD: kamienie-kroki od drabinki do oczka, znacznik braku (W6), `hybryda:obiekt-dotkniety`
+export const WERSJA_SCENY = "157";  // hybrydy MD/ST/DT: lampka i świetliki, kładka nad oczkiem (deski/poręcz, most.obrot/skala), oczko przejrzyste z liśćmi lilii
 const ZASOBY = "/scena-3d/assets/";
 
 /**
