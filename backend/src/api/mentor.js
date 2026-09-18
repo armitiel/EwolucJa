@@ -14,13 +14,20 @@
  *   POST   /api/mentor/classes                    - utworz klase
  *   GET    /api/mentor/classes/:id                - szczegoly klasy + lista uczniow
  *   POST   /api/mentor/classes/:id/regenerate     - nowy invite code
+ *   GET    /api/mentor/players/:id/ustawienia     - ustawienia na dziecko { zdjecia, minutySesji }
+ *   PUT    /api/mentor/players/:id/ustawienia     - zmiana (scalanie)
+ *   POST   /api/mentor/missions/:id/pokaz-w-domku - { wartosc: bool } obraz misji do ramki domku (cofalne)
+ *   DELETE /api/mentor/missions/:id/obraz         - usuń miniaturę na żądanie Mentora
  */
 
 import { Router } from "express";
 import { randomUUID } from "node:crypto";
 import { requireMentor } from "../services/authService.js";
-import { initDatabase } from "../database/db.js";
+import { initDatabase, ustawieniaZDomyslnymi } from "../database/db.js";
 import { ensureLibraryIdColumn } from "./cycles.js";
+import { mentorOwnsPlayer } from "../services/playerAuth.js";
+import { zapiszZdarzenie } from "../services/zdarzenia.js";
+import { adresObrazu } from "../services/obrazy.js";
 import { getPairDefinition } from "../services/pairsService.js";
 import {
   createClass,
@@ -159,7 +166,102 @@ export function mentorRoutes() {
           [randomUUID(), req.mentor.gmAccountId, playerId, `Mentor zobaczył: „${missionTitle}"`, formulaOk || "Mentor już to widzi."]
         );
       }
+      // Analityka (06 §4.12): „zauważenie Mentora" — serwer, nie klient.
+      zapiszZdarzenie("mentor.zauwazyl", ownCheck[0].player_id, {
+        misja: req.params.missionId, decyzja: decision, formula: Boolean(formulaOk), status: newStatus,
+      });
       res.json({ ok: true, status: newStatus, points_awarded: 0, mentor_gender: mentorGender });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  /* ── Ustawienia na dziecko (06 §4.5 pkt 3, §4.8) ──────────────────────────
+   * { zdjecia: bool, minutySesji: 10–20 }. Domyślne: zdjecia=false (każdy
+   * etap), minutySesji 12 (1–3) / 15 (4–8). PUT scala — można wysłać jedno pole.
+   */
+  r.get("/players/:playerId/ustawienia", async (req, res) => {
+    try {
+      const pool = await initDatabase();
+      if (!(await mentorOwnsPlayer(pool, req.mentor.gmAccountId, req.params.playerId))) {
+        return res.status(404).json({ error: "Uczen nie w Twojej klasie" });
+      }
+      const { rows } = await pool.query("SELECT ustawienia, etap_szkolny FROM players WHERE id = $1", [req.params.playerId]);
+      if (!rows.length) return res.status(404).json({ error: "Gracz nie znaleziony" });
+      res.json({ player_id: req.params.playerId, etap_szkolny: rows[0].etap_szkolny || null, ustawienia: ustawieniaZDomyslnymi(rows[0].ustawienia, rows[0].etap_szkolny) });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  r.put("/players/:playerId/ustawienia", async (req, res) => {
+    try {
+      const body = req.body || {};
+      const zmiany = {};
+      if (body.zdjecia !== undefined) {
+        if (typeof body.zdjecia !== "boolean") return res.status(400).json({ error: "zdjecia musi być true/false" });
+        zmiany.zdjecia = body.zdjecia;
+      }
+      if (body.minutySesji !== undefined) {
+        const m = Number(body.minutySesji);
+        if (!Number.isInteger(m) || m < 10 || m > 20) return res.status(400).json({ error: "minutySesji: liczba całkowita 10–20" });
+        zmiany.minutySesji = m;
+      }
+      if (!Object.keys(zmiany).length) return res.status(400).json({ error: "Brak pól do zmiany (zdjecia, minutySesji)" });
+      const pool = await initDatabase();
+      if (!(await mentorOwnsPlayer(pool, req.mentor.gmAccountId, req.params.playerId))) {
+        return res.status(404).json({ error: "Uczen nie w Twojej klasie" });
+      }
+      const { rows } = await pool.query(
+        `UPDATE players
+            SET ustawienia = COALESCE(ustawienia, '{}'::jsonb) || $1::jsonb, updated_at = NOW()
+          WHERE id = $2 RETURNING ustawienia, etap_szkolny`,
+        [JSON.stringify({ ...zmiany, zmienil: req.mentor.gmAccountId, kiedy: new Date().toISOString() }), req.params.playerId]
+      );
+      if (!rows.length) return res.status(404).json({ error: "Gracz nie znaleziony" });
+      res.json({ ok: true, player_id: req.params.playerId, ustawienia: ustawieniaZDomyslnymi(rows[0].ustawienia, rows[0].etap_szkolny) });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  /* ── Obraz misji (tor W7, 06 §4.5 pkt 2) ─────────────────────────────────
+   * „Pokaż w domku" — cofalne; tylko gdy misja ma żywą miniaturę.
+   */
+  async function misjaMentora(pool, gmAccountId, missionId) {
+    const { rows } = await pool.query(
+      `SELECT id, player_id, miniatura_typ, obraz_do, pokaz_w_domku FROM missions WHERE id = $1`, [missionId]
+    );
+    if (!rows.length) return null;
+    if (!(await mentorOwnsPlayer(pool, gmAccountId, rows[0].player_id))) return null;
+    return rows[0];
+  }
+
+  r.post("/missions/:missionId/pokaz-w-domku", async (req, res) => {
+    try {
+      const { wartosc } = req.body || {};
+      if (typeof wartosc !== "boolean") return res.status(400).json({ error: "wartosc musi być true/false" });
+      const pool = await initDatabase();
+      const m = await misjaMentora(pool, req.mentor.gmAccountId, req.params.missionId);
+      if (!m) return res.status(404).json({ error: "Misja nie znaleziona w Twoich klasach" });
+      const zywy = m.miniatura_typ != null && (!m.obraz_do || new Date(m.obraz_do).getTime() > Date.now());
+      if (wartosc && !zywy) return res.status(409).json({ error: "Misja nie ma obrazu (albo wygasł)", kod: "brak_obrazu" });
+      await pool.query("UPDATE missions SET pokaz_w_domku = $1 WHERE id = $2", [wartosc, m.id]);
+      res.json({ ok: true, mission_id: m.id, pokaz_w_domku: wartosc });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  r.delete("/missions/:missionId/obraz", async (req, res) => {
+    try {
+      const pool = await initDatabase();
+      const m = await misjaMentora(pool, req.mentor.gmAccountId, req.params.missionId);
+      if (!m) return res.status(404).json({ error: "Misja nie znaleziona w Twoich klasach" });
+      await pool.query(
+        "UPDATE missions SET miniatura = NULL, miniatura_typ = NULL, obraz_do = NULL, pokaz_w_domku = FALSE WHERE id = $1", [m.id]
+      );
+      res.json({ ok: true, mission_id: m.id, usunieto: m.miniatura_typ != null });
     } catch (e) {
       res.status(500).json({ error: e.message });
     }
@@ -317,12 +419,14 @@ export function mentorRoutes() {
 
       const { rows: pRows } = await pool.query(
         `SELECT id, name, archetype, scores, lifetime_scores, backpack,
-                completed_lands, current_chapter, updated_at, registered_at, coins, login_code
+                completed_lands, current_chapter, updated_at, registered_at, coins, login_code,
+                etap_szkolny, ustawienia
            FROM players WHERE id = $1`,
         [req.params.playerId]
       );
       if (!pRows.length) return res.status(404).json({ error: "Gracz nie znaleziony" });
       const player = pRows[0];
+      player.ustawienia = ustawieniaZDomyslnymi(player.ustawienia, player.etap_szkolny);
       // Lazy backfill: jezeli stary gracz nie ma jeszcze kodu, wygeneruj.
       if (!player.login_code) {
         const { generateUniqueLoginCode } = await import("../database/db.js");
@@ -334,11 +438,15 @@ export function mentorRoutes() {
       // `rozmowa` (pytanie do rozmowy z karty zadania) — kolumna opcjonalna,
       // dopisywana leniwie w `cycles.js`; bez niej zapytanie idzie bez pola.
       const maRozmowe = await ensureLibraryIdColumn();
-      const { rows: missions } = await pool.query(
-        `SELECT id, title, body, status, generated_at, submitted_proof, gm_verification${maRozmowe ? ", rozmowa" : ""}
+      const { rows: missionRows } = await pool.query(
+        `SELECT id, title, body, status, generated_at, submitted_proof, gm_verification${maRozmowe ? ", rozmowa" : ""},
+                (miniatura_typ IS NOT NULL AND (obraz_do IS NULL OR obraz_do > NOW())) AS ma_obraz,
+                obraz_do, pokaz_w_domku
            FROM missions WHERE player_id = $1 ORDER BY generated_at DESC LIMIT 10`,
         [req.params.playerId]
       );
+      // Obraz W7: podpisany adres (15 min) tylko tam, gdzie miniatura żyje.
+      const missions = missionRows.map((m) => (m.ma_obraz ? { ...m, obraz: adresObrazu(m.id) } : m));
 
       const { rows: hints } = await pool.query(
         `SELECT id, kind, title, body, sent_at, viewed_at

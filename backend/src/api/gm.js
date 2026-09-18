@@ -13,6 +13,7 @@ import {
   pairGMWithPlayer, issuePairingCode, consumePairingCode,
   verifyMission, getMission, getMissionQueueForGM, addArtifactToBackpack,
 } from "../database/db.js";
+import { zapiszZdarzenie } from "../services/zdarzenia.js";
 
 async function ensureGMPersona(db, playerId) {
   const player = await getPlayer(db, playerId);
@@ -111,6 +112,8 @@ export function gmRoutes(db) {
         comment_text: comment_text || "",
         comment_voice_url: comment_voice_url || null,
       });
+      // Analityka (06 §4.12) — legacy tor GM liczy się jak zauważenie Mentora.
+      zapiszZdarzenie("mentor.zauwazyl", mission.player_id, { misja: mission.mission_id, decyzja: verdict, tor: "gm_legacy" });
       if (verdict === "approved" || verdict === "highlighted") {
         if (mission.artifact_reward) {
           await addArtifactToBackpack(db, mission.player_id, { ...mission.artifact_reward, cycle_id: mission.cycle_id });

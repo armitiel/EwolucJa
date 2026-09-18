@@ -12,10 +12,23 @@
 
 import { API_BASE } from "../config.js";
 
+/* Tożsamość dziecka w API to nagłówek `X-Player-Id` (backend/src/services/
+   playerAuth.js). Dokładamy go do KAŻDEGO wywołania — trasy gracza
+   (`/players/me/*`, `/missions/:id`, tor obrazu) bez niego odpowiadają 401. */
+function naglowkiGracza() {
+  try {
+    const id = localStorage.getItem("ewolucja.playerId");
+    return id ? { "X-Player-Id": id } : {};
+  } catch {
+    return {};
+  }
+}
+
 async function call(path, opts = {}) {
+  const { headers: dodatkowe, ...reszta } = opts;
   const res = await fetch(`${API_BASE}${path}`, {
-    headers: { "Content-Type": "application/json", ...(opts.headers || {}) },
-    ...opts,
+    ...reszta,
+    headers: { "Content-Type": "application/json", ...naglowkiGracza(), ...(dodatkowe || {}) },
     body: opts.body ? JSON.stringify(opts.body) : undefined,
   });
   if (!res.ok) {

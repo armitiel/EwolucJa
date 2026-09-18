@@ -29,6 +29,8 @@ import { classRoutes } from "./api/classes.js";
 import { uploadRoutes } from "./api/uploads.js";
 import { pushRoutes } from "./api/push.js";
 import { epomostRoutes } from "./api/epomost.js";
+import { analyticsRoutes } from "./api/analytics.js";
+import { adminRoutes } from "./api/admin.js";
 
 export function createApp() {
   const app = express();
@@ -54,6 +56,9 @@ export function createApp() {
   app.use("/api/uploads", uploadRoutes());
   app.use("/api/push", pushRoutes());
   app.use("/api/epomost", epomostRoutes(db));
+  // Analityka pętli (06 §4.12) i zadania porządkowe (retencja obrazów, 06 §4.5).
+  app.use("/api/analytics", analyticsRoutes());
+  app.use("/api/admin", adminRoutes());
 
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() });

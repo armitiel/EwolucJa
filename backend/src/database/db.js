@@ -261,6 +261,45 @@ async function ensureSchema(pool) {
       last_seen_at TIMESTAMPTZ DEFAULT NOW()
     );
     CREATE INDEX IF NOT EXISTS idx_epomost_identities_player ON epomost_identities(player_id);
+
+    -- Stan swiata na koncie (docs/tresci/06 §4.4): dziennik sladow sceny
+    -- (slady[], ksztalt z frontend/src/hub/sladySwiata.js) i rysunki dnia
+    -- w ramce domku (ramka.rysunki[], ksztalt z hub/ramkaDomku.js).
+    -- Scalane po stronie serwera (services/swiatService.js), nie nadpisywane.
+    ALTER TABLE players ADD COLUMN IF NOT EXISTS swiat JSONB DEFAULT '{}'::jsonb;
+    -- Ustawienia Mentora na dziecko (06 §4.5 pkt 3, §4.8): { zdjecia: bool, minutySesji: 10-20 }.
+    ALTER TABLE players ADD COLUMN IF NOT EXISTS ustawienia JSONB DEFAULT '{}'::jsonb;
+    -- Etap szkolny z onboardingu ('1-3' | '4-8'); wczesniej ginal w savePlayer.
+    ALTER TABLE players ADD COLUMN IF NOT EXISTS etap_szkolny TEXT;
+
+    -- Bezpieczny tor obrazu W7 (06 §4.5), plan B bez Vercel Blob: miniatura
+    -- JPEG (<= 512 px, <= 150 kB) lezy w bazie, odczyt tylko podpisanym adresem
+    -- (api/cycles.js /missions/:id/obraz), retencja 30 dni po obraz_do.
+    -- library_id / rozmowa sa tez dopisywane leniwie w api/cycles.js (ensureLibraryIdColumn);
+    -- tu, zeby MISSION_COLS zawsze mialo te kolumny.
+    ALTER TABLE missions ADD COLUMN IF NOT EXISTS library_id TEXT;
+    ALTER TABLE missions ADD COLUMN IF NOT EXISTS rozmowa TEXT;
+    ALTER TABLE missions ADD COLUMN IF NOT EXISTS miniatura BYTEA;
+    ALTER TABLE missions ADD COLUMN IF NOT EXISTS miniatura_typ TEXT;
+    ALTER TABLE missions ADD COLUMN IF NOT EXISTS obraz_do TIMESTAMPTZ;
+    -- Mentor: „Pokaz w domku" (cofalne) — obraz trafia do ramki w swiecie dziecka.
+    ALTER TABLE missions ADD COLUMN IF NOT EXISTS pokaz_w_domku BOOLEAN DEFAULT FALSE;
+    CREATE INDEX IF NOT EXISTS idx_missions_obraz_do ON missions(obraz_do) WHERE miniatura IS NOT NULL;
+
+    -- Analityka petli (06 §4.12): zdarzenia bez PII. gracz = skrot id gracza
+    -- (services/zdarzenia.js), nigdy imie. zrodlo: 'klient' | 'serwer'.
+    CREATE TABLE IF NOT EXISTS zdarzenia (
+      id BIGSERIAL PRIMARY KEY,
+      nazwa TEXT NOT NULL,
+      gracz TEXT,
+      kiedy TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      dane JSONB DEFAULT '{}'::jsonb,
+      wersja TEXT,
+      zrodlo TEXT DEFAULT 'klient',
+      zapisano TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS idx_zdarzenia_nazwa_kiedy ON zdarzenia(nazwa, kiedy);
+    CREATE INDEX IF NOT EXISTS idx_zdarzenia_gracz ON zdarzenia(gracz) WHERE gracz IS NOT NULL;
   `);
 }
 
@@ -296,6 +335,21 @@ function mapPlayerRow(row) {
     backpack: row.backpack || [],
     gm_persona_id: row.gm_persona_id || null,
     registered_at: row.registered_at,
+    etap_szkolny: row.etap_szkolny || null,
+    // Ustawienia Mentora z domyslnymi (zdjecia zawsze domyslnie wylaczone; 06 §4.5 pkt 3).
+    ustawienia: ustawieniaZDomyslnymi(row.ustawienia, row.etap_szkolny),
+  };
+}
+
+/* Domyslne ustawienia na dziecko (06 §4.5 pkt 3, §4.8): zdjecia wylaczone
+   dla kazdego etapu do czasu swiadomej decyzji Mentora; minuty sesji 12 dla
+   klas 1-3 i 15 dla 4-8. Zwraca zawsze pelny obiekt. */
+export function ustawieniaZDomyslnymi(ust, etap) {
+  const u = ust && typeof ust === "object" ? ust : {};
+  const minuty = Number(u.minutySesji);
+  return {
+    zdjecia: u.zdjecia === true,
+    minutySesji: Number.isInteger(minuty) && minuty >= 10 && minuty <= 20 ? minuty : (etap === "1-3" ? 12 : 15),
   };
 }
 
@@ -349,8 +403,8 @@ export async function savePlayer(_unused, profile) {
     `INSERT INTO players (
        id, name, avatar, scores, current_land, completed_lands, choices_log,
        final_profile, archetype, archetype_assigned_at, onboarding_answers,
-       lifetime_scores, current_cycle_id, current_chapter, backpack, gm_persona_id, coins, login_code, updated_at
-     ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,NOW())
+       lifetime_scores, current_cycle_id, current_chapter, backpack, gm_persona_id, coins, login_code, etap_szkolny, updated_at
+     ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,NOW())
      ON CONFLICT (id) DO UPDATE SET
        name=EXCLUDED.name,
        avatar=EXCLUDED.avatar,
@@ -369,6 +423,7 @@ export async function savePlayer(_unused, profile) {
        gm_persona_id=EXCLUDED.gm_persona_id,
        coins=EXCLUDED.coins,
        login_code=COALESCE(players.login_code, EXCLUDED.login_code),
+       etap_szkolny=COALESCE(EXCLUDED.etap_szkolny, players.etap_szkolny),
        updated_at=NOW()`,
     [
       profile.player_id,
@@ -389,6 +444,7 @@ export async function savePlayer(_unused, profile) {
       profile.gm_persona_id || null,
       profile.coins || 0,
       loginCode,
+      profile.etap_szkolny === "1-3" || profile.etap_szkolny === "4-8" ? profile.etap_szkolny : null,
     ]
   );
 }
@@ -493,6 +549,9 @@ export async function closeCycle(_unused, cycleId, summary) {
   await pool.query("UPDATE cycles SET status='closed', cycle_summary=$1 WHERE id=$2", [J(summary || {}), cycleId]);
 }
 
+// Kolumny misji bez BYTEA `miniatura` (ta idzie osobnym endpointem).
+export const MISSION_COLS = "id, cycle_id, player_id, title, body, narrative_intro, competency_focus, proof_type, estimated_minutes, safety_notes, status, submitted_proof, gm_verification, artifact_reward, generated_at, library_id, rozmowa, miniatura_typ, obraz_do, pokaz_w_domku";
+
 function mapMissionRow(row) {
   if (!row) return null;
   return {
@@ -511,6 +570,13 @@ function mapMissionRow(row) {
     gm_verification: row.gm_verification || null,
     artifact_reward: row.artifact_reward || null,
     generated_at: row.generated_at,
+    library_id: row.library_id || null,
+    rozmowa: row.rozmowa || null,
+    // Tor obrazu W7: sam fakt istnienia miniatury (miniatura_typ ustawiany razem
+    // z bajtami i razem z nimi kasowany); bajty nigdy nie ida w JSON.
+    ma_obraz: row.miniatura_typ != null && (!row.obraz_do || new Date(row.obraz_do).getTime() > Date.now()),
+    obraz_do: row.obraz_do || null,
+    pokaz_w_domku: row.pokaz_w_domku === true,
   };
 }
 
@@ -527,7 +593,8 @@ export async function createMission(_unused, mission) {
 
 export async function getMission(_unused, missionId) {
   const pool = await initDatabase();
-  const { rows } = await pool.query("SELECT * FROM missions WHERE id=$1", [missionId]);
+  // Bez `miniatura` (BYTEA) — bajty obrazu ida tylko przez /missions/:id/obraz.
+  const { rows } = await pool.query(`SELECT ${MISSION_COLS} FROM missions WHERE id=$1`, [missionId]);
   return mapMissionRow(rows[0]);
 }
 
@@ -536,7 +603,7 @@ export async function getCurrentMission(_unused, playerId) {
   // Wlaczamy 'rejected' - uczen widzi misje "do doprawki" zeby moc poprawic.
   // 'verified' nie pokazujemy - to konczy cykl (lub generuje nowa misje).
   const { rows } = await pool.query(
-    "SELECT * FROM missions WHERE player_id=$1 AND status IN ('pending','submitted','rejected') ORDER BY generated_at DESC LIMIT 1",
+    `SELECT ${MISSION_COLS} FROM missions WHERE player_id=$1 AND status IN ('pending','submitted','rejected') ORDER BY generated_at DESC LIMIT 1`,
     [playerId]
   );
   return mapMissionRow(rows[0]);
@@ -557,7 +624,7 @@ export async function verifyMission(_unused, missionId, verification) {
 export async function getMissionQueueForGM(_unused, gmAccountId) {
   const pool = await initDatabase();
   const { rows } = await pool.query(
-    `SELECT m.* FROM missions m
+    `SELECT ${MISSION_COLS.replace(/(^|, )/g, "$1m.")} FROM missions m
      INNER JOIN gm_pairings p ON p.player_id = m.player_id
      WHERE p.gm_account_id=$1 AND m.status='submitted'
      ORDER BY m.generated_at ASC`,

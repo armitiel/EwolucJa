@@ -19,6 +19,9 @@ import {
 // ktore nie byly redagowane razem z baza mentora — dawalo to wrazenie ze fallback zwraca rzeczy
 // "z innego swiata" niz to, co dziala u mentora. Teraz oba korzystaja z tego samego pliku.
 import { MENTOR_TASK_LIBRARY } from "../../../frontend/src/data/mentorTaskLibrary.js";
+import { requirePlayer, requirePlayerOrMentor, canAccessPlayer, resolvePlayerId, loadPlayerAuth, mentorFromRequest, mentorOwnsPlayer } from "../services/playerAuth.js";
+import { zapiszZdarzenie } from "../services/zdarzenia.js";
+import { dekodujObraz, adresObrazu, sprawdzTokenObrazu, czyscPrzyOkazji, RETENCJA_DNI, MAX_MINIATURA_BAJTOW, MAX_MINIATURA_PX } from "../services/obrazy.js";
 
 // Stare wartosci 'archetype' w bazie (np. 'tropiciel_tajemnic') -> kod profilu (DT).
 // Nowe wartosci powinny byc bezposrednio kodami (EM/ST/KR/LD/DT/MD).
@@ -246,6 +249,9 @@ export function missionRoutes(db) {
         try { await pool.query("UPDATE missions SET library_id=$1 WHERE id=$2", [payload.library_id, mission.mission_id]); } catch {}
       }
       mission.source = source;
+      // Analityka (06 §4.12): „działanie poza ekranem rozpoczęte". Zapis po stronie
+      // serwera — klient NIE wysyła `zadanie.zlecone` dla misji z API.
+      zapiszZdarzenie("zadanie.zlecone", player_id, { misja: mission.mission_id, zrodlo_misji: source, library_id: payload.library_id || null, proof_type: payload.proof_type || null });
       res.json(mission);
     } catch (e) { console.error("[mission generate]", e); res.status(500).json({ error: e.message }); }
   });
@@ -304,6 +310,12 @@ export function missionRoutes(db) {
         } catch {}
       }
       mission.mentor_present = await mentorPresent(player_id);
+      zapiszZdarzenie("zadanie.zlecone", player_id, {
+        misja: mission.mission_id, zrodlo_misji: "adventure",
+        adventure_ref: adventure_ref ? String(adventure_ref).slice(0, 80) : null,
+        hybryda: typeof adventure_ref === "string" && adventure_ref.startsWith("hybryda"),
+        proof_type: proof_type || "text",
+      });
       res.json(mission);
     } catch (e) {
       console.error("[mission seed]", e);
@@ -319,12 +331,93 @@ export function missionRoutes(db) {
     } catch (e) { res.status(500).json({ error: e.message }); }
   });
 
-  router.get("/:id", async (req, res) => {
+  /* GET /missions/:id — ZA UWIERZYTELNIENIEM (06 §4.5 pkt 4): dziecko przez
+     `X-Player-Id` (tylko własna misja) albo Mentor tego dziecka (cookie/JWT). */
+  router.get("/:id", requirePlayerOrMentor(), async (req, res) => {
     try {
       const m = await getMission(db, req.params.id);
       if (!m) return res.status(404).json({ error: "Misja nie znaleziona" });
-      res.json({ ...m, mentor_present: await mentorPresent(m.player_id) });
+      if (!(await canAccessPlayer(req, m.player_id))) return res.status(403).json({ error: "Brak dostępu do tej misji", kod: "brak_dostepu" });
+      const odp = { ...m, mentor_present: await mentorPresent(m.player_id) };
+      if (m.ma_obraz) odp.obraz = adresObrazu(m.mission_id);
+      res.json(odp);
     } catch (e) { res.status(500).json({ error: e.message }); }
+  });
+
+  /* ── Tor obrazu W7 (06 §4.5), plan B: miniatura w bazie ─────────────────
+   * POST /missions/:id/miniatura  body { obraz: "data:image/jpeg;base64,…" }
+   *   - tylko właściciel misji (X-Player-Id);
+   *   - tylko gdy Mentor włączył `ustawienia.zdjecia` dla dziecka (403 inaczej);
+   *   - JPEG ≤ 512 px, ≤ 150 kB, bez EXIF (miniatura z canvasu w przeglądarce);
+   *   - retencja: `obraz_do = NOW() + 30 dni`.
+   */
+  router.post("/:id/miniatura", requirePlayer(), async (req, res) => {
+    try {
+      const mission = await getMission(db, req.params.id);
+      if (!mission) return res.status(404).json({ error: "Misja nie znaleziona" });
+      if (mission.player_id !== req.player.playerId) return res.status(403).json({ error: "To nie twoja misja", kod: "brak_dostepu" });
+      if (req.player.ustawienia?.zdjecia !== true) {
+        return res.status(403).json({ error: "Zdjęcia są wyłączone dla tego konta (ustawienie Mentora)", kod: "zdjecia_wylaczone" });
+      }
+      let obraz;
+      try { obraz = dekodujObraz(req.body?.obraz); }
+      catch (e) { return res.status(e.status || 400).json({ error: e.message, kod: e.kod || "zly_obraz", limity: { bajty: MAX_MINIATURA_BAJTOW, px: MAX_MINIATURA_PX } }); }
+      const pool = await getPool();
+      const { rows } = await pool.query(
+        `UPDATE missions
+            SET miniatura = $1, miniatura_typ = $2, obraz_do = NOW() + make_interval(days => $3::int)
+          WHERE id = $4 RETURNING obraz_do`,
+        [obraz.buf, obraz.typ, RETENCJA_DNI, mission.mission_id]
+      );
+      czyscPrzyOkazji();
+      res.json({ ok: true, mission_id: mission.mission_id, obraz_do: rows[0]?.obraz_do || null, szerokosc: obraz.szerokosc, wysokosc: obraz.wysokosc, obraz: adresObrazu(mission.mission_id) });
+    } catch (e) { console.error("[mission miniatura]", e); res.status(500).json({ error: e.message }); }
+  });
+
+  // GET /missions/:id/obraz-adres → { url, wygasa } (podpisany adres na 15 min) — dziecko albo Mentor dziecka.
+  router.get("/:id/obraz-adres", requirePlayerOrMentor(), async (req, res) => {
+    try {
+      const m = await getMission(db, req.params.id);
+      if (!m) return res.status(404).json({ error: "Misja nie znaleziona" });
+      if (!(await canAccessPlayer(req, m.player_id))) return res.status(403).json({ error: "Brak dostępu", kod: "brak_dostepu" });
+      if (!m.ma_obraz) return res.status(404).json({ error: "Misja nie ma obrazu", kod: "brak_obrazu" });
+      res.json({ mission_id: m.mission_id, ...adresObrazu(m.mission_id), obraz_do: m.obraz_do });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+  });
+
+  /* GET /missions/:id/obraz?t=<token> → bajty JPEG. Bez ważnego tokenu
+     akceptuje też tożsamość dziecka/Mentora (fetch z nagłówkiem). */
+  router.get("/:id/obraz", async (req, res) => {
+    try {
+      const id = req.params.id;
+      let wolno = sprawdzTokenObrazu(id, req.query.t);
+      const pool = await getPool();
+      const { rows } = await pool.query(
+        `SELECT player_id, miniatura, miniatura_typ, obraz_do FROM missions WHERE id = $1`, [id]
+      );
+      if (!rows.length) return res.status(404).json({ error: "Misja nie znaleziona" });
+      const r = rows[0];
+      if (!wolno) {
+        const pid = resolvePlayerId(req);
+        const gracz = pid ? await loadPlayerAuth(pid) : null;
+        if (gracz && gracz.playerId === r.player_id) wolno = true;
+        else {
+          const mentor = await mentorFromRequest(req);
+          if (mentor && (await mentorOwnsPlayer(pool, mentor.gmAccountId, r.player_id))) wolno = true;
+        }
+      }
+      if (!wolno) return res.status(401).json({ error: "Nieważny lub brakujący token obrazu", kod: "zly_token" });
+      if (!r.miniatura || (r.obraz_do && new Date(r.obraz_do).getTime() < Date.now())) {
+        return res.status(404).json({ error: "Obraz nie istnieje lub wygasł", kod: "brak_obrazu" });
+      }
+      res.set({
+        "Content-Type": r.miniatura_typ || "image/jpeg",
+        "Cache-Control": "private, max-age=300",
+        "X-Content-Type-Options": "nosniff",
+        "Content-Disposition": "inline",
+      });
+      res.end(r.miniatura);
+    } catch (e) { console.error("[mission obraz]", e); res.status(500).json({ error: e.message }); }
   });
 
   router.post("/:id/submit", async (req, res) => {
@@ -369,7 +462,17 @@ export function missionRoutes(db) {
       }
 
       // Swiecace Piorko (artefakt za samo wyslanie) wycofane 17.09.2026 — docs/SWIAT_I_POSTACIE.md.
-      res.json({ ok: true, scores: player?.lifetime_scores, coins_awarded: MONETY_ZA_SLAD, mentor_present: await mentorPresent(mission.player_id) });
+      const mentorJest = await mentorPresent(mission.player_id);
+      // Analityka (06 §4.12): „działanie zakończone realnym śladem" — serwer, nie klient.
+      zapiszZdarzenie("slad.zostawiony", mission.player_id, {
+        misja: mission.mission_id, library_id: mission.library_id || null,
+        place_id: typeof place_id === "string" ? place_id.slice(0, 60) : null,
+        slad_opcja: Number.isInteger(slad_opcja) ? slad_opcja : null,
+        zdanie: Boolean(proof_text && String(proof_text).trim()),
+        zdjecie: Boolean(proof_media_url) || mission.ma_obraz === true,
+        mentor_present: mentorJest,
+      });
+      res.json({ ok: true, scores: player?.lifetime_scores, coins_awarded: MONETY_ZA_SLAD, mentor_present: mentorJest });
     } catch (e) { console.error("[mission submit]", e); res.status(500).json({ error: e.message }); }
   });
 

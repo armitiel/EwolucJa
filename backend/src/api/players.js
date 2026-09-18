@@ -9,6 +9,9 @@
 import { Router } from "express";
 import { getPlayer, savePlayer, initDatabase, findPlayerByLoginCode, getPool } from "../database/db.js";
 import { randomUUID } from "crypto";
+import { requirePlayer } from "../services/playerAuth.js";
+import { scalSwiat, normalizujSwiat, rozmiarBody, MAX_BODY_BAJTOW, DOZWOLONE_METODY } from "../services/swiatService.js";
+import { adresObrazu, czyscPrzyOkazji } from "../services/obrazy.js";
 
 export function playerRoutes(db) {
   const router = Router();
@@ -36,6 +39,89 @@ export function playerRoutes(db) {
     } catch (e) {
       console.error("[players POST]", e);
       res.status(500).json({ error: e.message });
+    }
+  });
+
+  /* ── „/me" — gracz z nagłówka X-Player-Id (services/playerAuth.js) ────────
+   * UWAGA: te trasy MUSZĄ być przed "/:id", inaczej "me" trafi w /:id.
+   */
+
+  // GET /players/me → profil + `ustawienia` (z domyślnymi) + `etap_szkolny`.
+  router.get("/me", requirePlayer(), async (req, res) => {
+    try {
+      const player = await getPlayer(db, req.player.playerId);
+      if (!player) return res.status(404).json({ error: "Gracz nie znaleziony" });
+      res.json(player);
+    } catch (e) {
+      console.error("[players me]", e);
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  /* Obraz misji do ramki domku: najnowsza misja gracza z flagą Mentora
+     `pokaz_w_domku` i żywą miniaturą. Podpisany, krótkotrwały adres. */
+  async function obrazMisjiDoRamki(pool, playerId) {
+    try {
+      const { rows } = await pool.query(
+        `SELECT id, obraz_do FROM missions
+          WHERE player_id = $1 AND pokaz_w_domku = TRUE AND miniatura IS NOT NULL
+            AND (obraz_do IS NULL OR obraz_do > NOW())
+          ORDER BY generated_at DESC LIMIT 1`,
+        [playerId]
+      );
+      if (!rows.length) return null;
+      const { url, wygasa } = adresObrazu(rows[0].id);
+      return { mission_id: rows[0].id, url, wygasa, obraz_do: rows[0].obraz_do };
+    } catch { return null; }
+  }
+
+  // GET /players/me/swiat → { wersja, slady: [...], ramka: { rysunki: [...], obrazMisji } }
+  router.get("/me/swiat", requirePlayer(), async (req, res) => {
+    try {
+      const pool = await getPool();
+      const { rows } = await pool.query("SELECT swiat FROM players WHERE id = $1", [req.player.playerId]);
+      if (!rows.length) return res.status(404).json({ error: "Gracz nie znaleziony" });
+      const swiat = normalizujSwiat(rows[0].swiat);
+      swiat.ramka.obrazMisji = await obrazMisjiDoRamki(pool, req.player.playerId);
+      czyscPrzyOkazji();
+      res.json({ ...swiat, dozwoloneMetody: DOZWOLONE_METODY });
+    } catch (e) {
+      console.error("[players me swiat GET]", e);
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  /* PUT /players/me/swiat body { slady?, ramka?, wersja? } — SCALANIE, nie
+     nadpisanie (06 §4.4): dziennik śladów łączony po (metoda, args, zrodlo,
+     kiedy), rysunki po dniu (nowszy wygrywa). Transakcja z FOR UPDATE, żeby
+     dwa urządzenia nie zgubiły sobie wpisów. Odpowiedź = scalony stan. */
+  router.put("/me/swiat", requirePlayer(), async (req, res) => {
+    if (rozmiarBody(req) > MAX_BODY_BAJTOW) {
+      return res.status(413).json({ error: `Body ponad ${MAX_BODY_BAJTOW / 1024} kB`, kod: "za_duze" });
+    }
+    const body = req.body;
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return res.status(400).json({ error: "Body musi być obiektem { slady?, ramka?, wersja? }" });
+    }
+    if (body.slady !== undefined && !Array.isArray(body.slady)) return res.status(400).json({ error: "slady musi być listą" });
+    if (body.slady && body.slady.length > 500) return res.status(400).json({ error: "slady: za dużo wpisów naraz (max 500)" });
+    const pool = await getPool();
+    const klient = await pool.connect();
+    try {
+      await klient.query("BEGIN");
+      const { rows } = await klient.query("SELECT swiat FROM players WHERE id = $1 FOR UPDATE", [req.player.playerId]);
+      if (!rows.length) { await klient.query("ROLLBACK"); return res.status(404).json({ error: "Gracz nie znaleziony" }); }
+      const { swiat, odrzucone } = scalSwiat(rows[0].swiat, body);
+      await klient.query("UPDATE players SET swiat = $1, updated_at = NOW() WHERE id = $2", [JSON.stringify(swiat), req.player.playerId]);
+      await klient.query("COMMIT");
+      swiat.ramka.obrazMisji = await obrazMisjiDoRamki(pool, req.player.playerId);
+      res.json({ ok: true, ...swiat, odrzucone });
+    } catch (e) {
+      try { await klient.query("ROLLBACK"); } catch {}
+      console.error("[players me swiat PUT]", e);
+      res.status(500).json({ error: e.message });
+    } finally {
+      klient.release();
     }
   });
 
