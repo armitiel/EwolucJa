@@ -30,11 +30,53 @@
 
 import {
   Group, Mesh, MeshLambertMaterial, MeshBasicMaterial, BoxGeometry, CylinderGeometry, TorusGeometry,
-  SphereGeometry, CircleGeometry, DodecahedronGeometry, IcosahedronGeometry,
+  SphereGeometry, CircleGeometry, PlaneGeometry, DodecahedronGeometry, IcosahedronGeometry,
   Sprite, SpriteMaterial, CanvasTexture, SRGBColorSpace, AdditiveBlending, DoubleSide,
 } from "three";
 import { kamyczki, MAT_DREWNO } from "./natura.js";
 import { grzyby, latarnia, KOLORY } from "./swiat.js";
+import { MAT_BUDOWY } from "./schronienie.js";
+
+/* SYMBOLE DO RAMKI (hybryda KR, zestaw REAL-01: liść, gwiazda, słońce, fala,
+   łapka, spirala) — jedna kreska na papierze, w tym samym duchu co rysunek
+   dnia z `hub/ramkaDomku.js` (`namalujRysunek`), tylko bez zależności od huba.
+   Punkty w kwadracie 0–1; osobne linie oddziela `null`. */
+const SYMBOLE = {
+  lisc: [[.5, .12], [.72, .3], [.8, .55], [.68, .8], [.5, .9], [.32, .8], [.2, .55], [.28, .3], [.5, .12], null, [.5, .2], [.5, .9]],
+  gwiazda: [[.5, .1], [.62, .4], [.92, .4], [.68, .58], [.78, .9], [.5, .7], [.22, .9], [.32, .58], [.08, .4], [.38, .4], [.5, .1]],
+  slonce: [[.5, .3], [.66, .36], [.72, .5], [.66, .64], [.5, .7], [.34, .64], [.28, .5], [.34, .36], [.5, .3], null,
+    [.5, .08], [.5, .18], null, [.5, .82], [.5, .92], null, [.08, .5], [.18, .5], null, [.82, .5], [.92, .5], null,
+    [.2, .2], [.27, .27], null, [.8, .2], [.73, .27], null, [.2, .8], [.27, .73], null, [.8, .8], [.73, .73]],
+  fala: [[.06, .42], [.18, .3], [.3, .42], [.42, .54], [.54, .42], [.66, .3], [.78, .42], [.9, .54], null,
+    [.06, .66], [.18, .54], [.3, .66], [.42, .78], [.54, .66], [.66, .54], [.78, .66], [.9, .78]],
+  lapka: [[.5, .52], [.66, .58], [.7, .76], [.5, .86], [.3, .76], [.34, .58], [.5, .52], null,
+    [.24, .34], [.3, .26], [.36, .34], [.3, .42], [.24, .34], null, [.43, .22], [.5, .14], [.57, .22], [.5, .3], [.43, .22], null,
+    [.64, .34], [.7, .26], [.76, .34], [.7, .42], [.64, .34]],
+  spirala: (() => { const p = []; for (let i = 0; i <= 40; i += 1) { const a = i / 40 * Math.PI * 4.5, r = .04 + .4 * i / 40; p.push([.5 + Math.cos(a) * r, .5 + Math.sin(a) * r]); } return p; })(),
+};
+const TLA_RAMKI = { drzewo: ["#dff0c4", "#c9e0a6"], woda: ["#d8ecf6", "#bcd9ea"], niebo: ["#fbe9b5", "#f2d68b"], papier: ["#FBF1D6", "#F4E3B8"] };
+
+/** Płótno ramki: papier w kolorze tła z części A i symbol jedną kreską. */
+function narysujSymbol(symbol = "gwiazda", tlo = "papier", S = 256, kreska = "#4e4d76") {
+  const c = document.createElement("canvas");
+  c.width = c.height = S;
+  const g = c.getContext("2d");
+  const [t0, t1] = TLA_RAMKI[tlo] || TLA_RAMKI.papier;
+  const gr = g.createRadialGradient(S / 2, S / 2, S * .2, S / 2, S / 2, S * .75);
+  gr.addColorStop(0, t0); gr.addColorStop(1, t1);
+  g.fillStyle = gr; g.fillRect(0, 0, S, S);
+  if (!symbol) return c;                       // pusta ramka (część A)
+  const P = SYMBOLE[symbol] || SYMBOLE.gwiazda;
+  g.strokeStyle = kreska; g.lineWidth = S * .032; g.lineCap = "round"; g.lineJoin = "round";
+  g.beginPath();
+  let nowa = true;
+  for (const p of P) {
+    if (!p) { nowa = true; continue; }
+    if (nowa) { g.moveTo(p[0] * S, p[1] * S); nowa = false; } else g.lineTo(p[0] * S, p[1] * S);
+  }
+  g.stroke();
+  return c;
+}
 
 /* Kąt złoty. Kolejne ślady tej samej kotwicy siadają po spirali, a nie
    w rządku: rządek czyta się jak grządka posadzona przez dorosłego, a to ma
@@ -201,6 +243,9 @@ export class Slady {
     this._swietliki = [];
     this._oczko = { blysk: null, lilie: [], kwiat: null };
     this._kwiatPrzyKladce = false;
+    /* EM: ławka na ganku (+ rzecz, + królik); KR: ramka na ścianie domku (+ mała). */
+    this._lawka = null;
+    this._ramka = null;
   }
 
   /** Rejestruje obiekt, przy którym lisek ma „dotknąć" hybrydy (raz na podejście). */
@@ -633,6 +678,160 @@ export class Slady {
       this.app.planeta.ustaw(s.obj, s.x + dx, s.z + dz, s.h + Math.sin(s.faza * 1.3) * .18, 0);
       s.obj.children[1].material.opacity = .55 + Math.sin(s.faza * 2.2) * .3;
     }
+  }
+
+  /* ── ŁAWKA DLA GOŚCIA (hybryda EM, 05 karta 5) ──────────────────────────
+     `ustawLawke({ rzecz, kroliczek })`: ławka z brył (deska + dwie nogi,
+     materiały domku) na ganku pomostu, po przeciwnej stronie niż lampka MD
+     (kotwica `kotwica-ganek`, strona +z). `rzecz` z części A: poduszka /
+     kubek / koc na jednym końcu; `kroliczek: true` po zauważeniu — model
+     `kroliczek.glb` z `assets` (skala 0,5, bez animacji) siada z drugiej
+     strony, obok rzeczy; drugie miejsce jest zajęte przez gościa. Idempotentne.
+     Bez domku: ławka nie ma gdzie stanąć (pomostu nie ma) — `false`. */
+  ustawLawke(...a) {
+    const [dane] = rozdziel(a);
+    const arg = dane[0] && typeof dane[0] === "object" ? dane[0] : { rzecz: dane[0] || null, kroliczek: dane.includes("kroliczek") };
+    const rzecz = ["poduszka", "kubek", "koc"].includes(arg.rzecz) ? arg.rzecz : null;
+    const app = this.app;
+    const K = app._schronienie;
+    const ganek = K?.getObjectByName("kotwica-ganek");
+    if (!ganek) { console.warn("[slady] nie ma pomostu — ławka nie ma gdzie stanąć"); return false; }
+    if (!this._lawka) {
+      const szer = Number(ganek.userData?.szerokosc) || 1.2;
+      const g = new Group();
+      g.name = "lawka-dla-goscia";
+      const DL = Math.min(.9, szer * .42), GL = .26, WYS = .27;
+      const siedzisko = new Mesh(new BoxGeometry(GL, .05, DL), MAT_BUDOWY.deska);
+      siedzisko.position.y = WYS;
+      g.add(siedzisko);
+      for (const k of [-1, 1]) {
+        const noga = new Mesh(new BoxGeometry(GL * .8, WYS, .05), MAT_BUDOWY.deskaCiemna);
+        noga.position.set(0, WYS / 2, k * (DL / 2 - .06));
+        g.add(noga);
+      }
+      // Ganek jest wąski (x), więc ławka stoi WZDŁUŻ krawędzi pomostu (z), po +z.
+      g.position.set(.02, 0, szer / 2 - DL / 2 - .05);
+      ganek.add(g);
+      app._wlaczCienie?.(g);
+      this._lawka = { obj: g, DL, WYS, rzecz: null, krolik: null };
+      const p = this.kotwica("pomost");
+      if (p) this._dotykowy("lawka", p[0], p[1], 2.3);
+    }
+    const L = this._lawka;
+    if (L.rzecz) { L.obj.remove(L.rzecz); L.rzecz = null; }
+    if (rzecz) {
+      let m;
+      const mat = (kolor) => new MeshLambertMaterial({ color: kolor, flatShading: true });
+      if (rzecz === "kubek") {
+        m = new Mesh(new CylinderGeometry(.05, .04, .09, 8), mat(0xe8f0f4));
+        m.position.y = L.WYS + .07;
+      } else if (rzecz === "koc") {
+        m = new Mesh(new BoxGeometry(.2, .07, .22), mat(0xc96b6b));
+        m.position.y = L.WYS + .06;
+        m.rotation.y = .2;
+      } else {
+        m = new Mesh(new BoxGeometry(.18, .07, .18), mat(0x7fa9d9));
+        m.position.y = L.WYS + .06;
+        m.rotation.y = .5;
+      }
+      m.position.z = -L.DL * .28;   // jeden koniec ławki; drugi zostaje dla gościa
+      m.name = "rzecz-" + rzecz;
+      L.obj.add(m);
+      L.rzecz = m;
+      app._wlaczCienie?.(m);
+    }
+    if (arg.kroliczek && !L.krolik) {
+      L.krolik = new Group();   // rezerwacja od razu — drugie wywołanie nie wczyta dwóch
+      L.krolik.position.set(0, L.WYS + .025, L.DL * .26);
+      L.krolik.rotation.y = -Math.PI / 2;
+      L.obj.add(L.krolik);
+      app.loadGLB?.("kroliczek").then((gl) => {
+        if (!gl?.scene || app.destroyed) return;
+        const sc = gl.scene;
+        sc.scale.setScalar(.5);
+        sc.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+        L.krolik.add(sc);   // bez miksera: klipy z GLB nie startują
+      }).catch((err) => console.warn("[slady] królik nie dojechał:", err));
+    }
+    return true;
+  }
+
+  /* ── RAMKA NA DOMKU (hybryda KR, 05 karta 6) ────────────────────────────
+     `ustawRamke({ symbol, tlo, mala })`: ramka z brył + płótno (`CanvasTexture`)
+     na FRONTOWEJ ścianie domku obok drzwi, od strony ganku — widać ją z polany
+     i z drabinki (kotwica `kotwica-ramka` ze `schronienie.js` wisi WEWNĄTRZ
+     domku, na tylnej ścianie — ta obsługuje rysunek dnia w `WnetrzeDomku`;
+     tu zostaje jej rozmiar `bok`). Bez `symbol` — pusta ramka (część A);
+     `symbol` + `tlo` (drzewo / woda / niebo z części A) — obraz po śladzie;
+     `mala: true` — druga, mniejsza ramka z łapką liska (po zauważeniu).
+     Zdjęcie rysunku (tor obrazu, „Pokaż w domku") żyje w `WnetrzeDomku`;
+     w scenie zostaje symbol. Idempotentne. */
+  ustawRamke(...a) {
+    const [dane] = rozdziel(a);
+    const arg = dane[0] && typeof dane[0] === "object" ? dane[0] : { symbol: dane[0] || null, tlo: dane[1] || null, mala: dane.includes("mala") };
+    const app = this.app;
+    const K = app._schronienie;
+    const drzwi = K?.getObjectByName("kotwica-drzwi");
+    const wzor = K?.getObjectByName("kotwica-ramka");
+    if (!drzwi) { console.warn("[slady] nie ma domku — ramka nie ma gdzie wisieć"); return false; }
+    const bok = Number(wzor?.userData?.bok) || .45;
+    const zrobRamke = (rozmiar, tekstura, obrotY) => {
+      const g = new Group();
+      const gr = rozmiar * .09;
+      const rama = MAT_BUDOWY.deskaCiemna;
+      for (const [x, y, w, h] of [[0, rozmiar / 2, rozmiar + gr, gr], [0, -rozmiar / 2, rozmiar + gr, gr], [-rozmiar / 2, 0, gr, rozmiar], [rozmiar / 2, 0, gr, rozmiar]]) {
+        const m = new Mesh(new BoxGeometry(w, h, gr * .8), rama);
+        m.position.set(x, y, 0);
+        g.add(m);
+      }
+      const mapa = new CanvasTexture(tekstura);
+      mapa.colorSpace = SRGBColorSpace;
+      const plotno = new Mesh(new PlaneGeometry(rozmiar, rozmiar), new MeshLambertMaterial({ map: mapa }));
+      plotno.position.z = gr * .1;
+      g.add(plotno);
+      g.userData.plotno = plotno;
+      g.rotation.y = obrotY;
+      return g;
+    };
+    if (!this._ramka) {
+      const szerDrzwi = Number(drzwi.userData?.szerokosc) || .4;
+      const wys = Number(drzwi.userData?.wysokosc) || .6;
+      const g = zrobRamke(bok, narysujSymbol(null, "papier"), Math.PI / 2);
+      g.name = "ramka-hybrydy";
+      /* Dziecko KOTWICY DRZWI (nie korzenia domku): kotwice siedzą w bryle
+         przesuniętej o `pienX/pienZ` i kołyszą się z drzewem — ramka ma jechać
+         razem ze ścianą. Ściana frontowa stoi w x drzwi; ramka tuż przed jej
+         licem, obok drzwi, od strony ganku (+x), po −z. */
+      g.position.set(.045, wys * .62, -(szerDrzwi / 2 + bok / 2 + .1));
+      drzwi.add(g);
+      app._wlaczCienie?.(g);
+      this._ramka = { obj: g, mala: null, symbol: null, tlo: null };
+      const p = this.kotwica("pomost");
+      if (p) this._dotykowy("ramka", p[0], p[1], 2.3);
+    }
+    const R = this._ramka;
+    if (arg.symbol && SYMBOLE[arg.symbol]) {
+      R.symbol = arg.symbol;
+      R.tlo = TLA_RAMKI[arg.tlo] ? arg.tlo : "papier";
+      const pl = R.obj.userData.plotno;
+      pl.material.map?.dispose?.();
+      pl.material.map = new CanvasTexture(narysujSymbol(R.symbol, R.tlo));
+      pl.material.map.colorSpace = SRGBColorSpace;
+      pl.material.needsUpdate = true;
+    }
+    if (arg.mala && !R.mala) {
+      // Mniejsza, rude tło, łapka liska — „lisek też coś powiesił".
+      const c = narysujSymbol("lapka", "papier", 128, "#b8641f");
+      const g2 = c.getContext("2d"); g2.globalCompositeOperation = "multiply"; g2.fillStyle = "#f3c48f"; g2.fillRect(0, 0, 128, 128);
+      const m = zrobRamke(bok * .55, c, Math.PI / 2);
+      m.position.copy(R.obj.position);
+      m.position.z -= bok / 2 + bok * .55 / 2 + .08;
+      m.position.y -= bok * .12;
+      drzwi.add(m);
+      app._wlaczCienie?.(m);
+      R.mala = m;
+    }
+    return true;
   }
 
   /* ── KŁADKA NAD OCZKIEM (hybryda ST, 05 karta 3) ────────────────────────

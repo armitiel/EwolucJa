@@ -123,6 +123,9 @@ export async function utworzScena3D(s = {}) {
     dodajSwietlika: (...a) => n.dodajSwietlika(...a),
     ustawKladke: (...a) => n.ustawKladke(...a),
     ustawOczko: (...a) => n.ustawOczko(...a),
+    /* EM / KR (05 karty 5–6): ławka na ganku z rzeczą i królikiem, ramka z symbolem na ścianie domku. */
+    ustawLawke: (...a) => n.ustawLawke(...a),
+    ustawRamke: (...a) => n.ustawRamke(...a),
     pokazKotwice: (r, a) => n.pokazKotwice(r, a),
     stan: () => n.stan(),
     zniszcz: () => { n.zniszcz(); t.remove(); },

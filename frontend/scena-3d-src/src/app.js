@@ -1274,6 +1274,8 @@ export class Aplikacja {
   dodajSwietlika(...a) { return this.slady?.dodajSwietlika(...a) || false; }
   ustawKladke(...a) { return this.slady?.ustawKladke(...a) || false; }
   ustawOczko(...a) { return this.slady?.ustawOczko(...a) || false; }
+  ustawLawke(...a) { return this.slady?.ustawLawke(...a) || false; }
+  ustawRamke(...a) { return this.slady?.ustawRamke(...a) || false; }
   /** Kadr na obiekt hybrydy po nazwie kotwicy (`kladka`, `oczko-wschodnie`, `pomost`…). */
   pokazKotwice(nazwa, opcje = {}) {
     const p = this.slady?.kotwica(nazwa);

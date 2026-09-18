@@ -482,6 +482,13 @@ export async function sprawdzMentoraWTle() {
   try { return await sprawdzMentora(); } catch { return s; }
 }
 
+/** Miniatura zdjęcia poszła na `/missions/:id/miniatura` (KR) — sama flaga, bez bajtów. */
+export function oznaczMiniature(missionId) {
+  const z = czytaj();
+  if (!z || (missionId && z.missionId && z.missionId !== missionId)) return stanHybrydy();
+  return zapisz({ ...z, miniatura: true });
+}
+
 /** Dziecko obejrzało dodatek po zauważeniu (kamera pokazała miejsce). */
 export function oznaczZauwazoneObejrzane() {
   const z = czytaj();

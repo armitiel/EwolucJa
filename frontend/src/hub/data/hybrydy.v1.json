@@ -921,7 +921,7 @@
     },
     {
       "id": "lawka-dla-goscia",
-      "aktywna": false,
+      "aktywna": true,
       "profil_pierwszy": "EM",
       "os": "wspolpraca",
       "cecha": "wspolpraca",
@@ -971,7 +971,23 @@
             "emoji": "🧣"
           }
         ],
-        "przycisk": "Przygotuję prawdziwe miejsce"
+        "przycisk": "Przygotuję prawdziwe miejsce",
+        "reakcja": {
+          "metoda": "ustawLawke",
+          "args": [
+            {
+              "rzecz": null,
+              "kroliczek": false
+            }
+          ],
+          "opis": "pusta ławka dla dwojga na ganku pomostu"
+        },
+        "kadr": {
+          "metoda": "pokazKotwice",
+          "args": [
+            "pomost"
+          ]
+        }
       },
       "most": {
         "karta": "Na pomoście stoi ławka dla dwojga. Nikt na niej nie usiadł.",
@@ -1036,7 +1052,7 @@
         "args": [
           {
             "rzecz": "{wyborA}",
-            "krolik": false
+            "kroliczek": false
           }
         ],
         "opis": "na ławce rzecz wybrana w części A",
@@ -1044,14 +1060,20 @@
           "tytul": "Ktoś ma gdzie usiąść",
           "opis": "Na ławce na pomoście jest już {rzecz}."
         },
-        "istnieje": false
+        "kadr": {
+          "metoda": "pokazKotwice",
+          "args": [
+            "pomost"
+          ]
+        },
+        "istnieje": true
       },
       "reakcjaMentor": {
         "metoda": "ustawLawke",
         "args": [
           {
             "rzecz": "{wyborA}",
-            "krolik": true
+            "kroliczek": true
           }
         ],
         "opis": "na ławce siada królik (kroliczek.glb), bez światła",
@@ -1059,7 +1081,13 @@
           "tytul": "Mentor to widzi",
           "opis": "Na ławce siedzi królik."
         },
-        "istnieje": false
+        "kadr": {
+          "metoda": "pokazKotwice",
+          "args": [
+            "pomost"
+          ]
+        },
+        "istnieje": true
       },
       "miejsce_reakcji": "na pomoście",
       "kwestie": [
@@ -1123,7 +1151,7 @@
     },
     {
       "id": "ramka-w-domku",
-      "aktywna": false,
+      "aktywna": true,
       "profil_pierwszy": "KR",
       "os": "tworzenie",
       "cecha": "tworzenie",
@@ -1177,7 +1205,20 @@
             "emoji": "🌤"
           }
         ],
-        "przycisk": "Idę rysować"
+        "przycisk": "Idę rysować",
+        "reakcja": {
+          "metoda": "ustawRamke",
+          "args": [
+            {}
+          ],
+          "opis": "pusta ramka na ścianie domku obok drzwi"
+        },
+        "kadr": {
+          "metoda": "pokazKotwice",
+          "args": [
+            "pomost"
+          ]
+        }
       },
       "most": {
         "karta": "Na pomoście wisi pusta ramka. Obrazu nie wyczaruję.",
@@ -1249,14 +1290,22 @@
         "zdanie": true,
         "pytanieZdania": "Co jest na obrazku?",
         "zdanieTylko": "4-8",
-        "zdjecie": false,
+        "wartosci": [
+          "lisc",
+          "gwiazda",
+          "slonce",
+          "fala",
+          "lapka",
+          "spirala"
+        ],
+        "zdjecie": true,
         "podpowiedz": "Sam rysunek. Bez twarzy, bez okna, bez numeru domu."
       },
       "reakcja": {
         "metoda": "ustawRamke",
         "args": [
           {
-            "symbol": "{slad}",
+            "symbol": "{sladId}",
             "tlo": "{wyborA}"
           }
         ],
@@ -1265,23 +1314,35 @@
           "tytul": "W ramce wisi obraz",
           "opis": "W ramce na pomoście wisi już obraz."
         },
-        "istnieje": false
+        "kadr": {
+          "metoda": "pokazKotwice",
+          "args": [
+            "pomost"
+          ]
+        },
+        "istnieje": true
       },
       "reakcjaMentor": {
         "metoda": "ustawRamke",
         "args": [
           {
-            "symbol": "{slad}",
+            "symbol": "{sladId}",
             "tlo": "{wyborA}",
             "mala": true
           }
         ],
-        "opis": "druga, mniejsza ramka z łapką liska; zdjęcie tylko po „Pokaż w domku” (W7)",
+        "opis": "druga, mniejsza ramka z łapką liska; zdjęcie rysunku w domku tylko po „Pokaż w domku” (WnetrzeDomku, obrazMisji)",
         "toast": {
           "tytul": "Mentor to widzi",
           "opis": "Obok dużej ramki zawisła mała."
         },
-        "istnieje": false
+        "kadr": {
+          "metoda": "pokazKotwice",
+          "args": [
+            "pomost"
+          ]
+        },
+        "istnieje": true
       },
       "miejsce_reakcji": "na pomoście",
       "rozmowa_minimum": "Dlaczego akurat {symbol}?",

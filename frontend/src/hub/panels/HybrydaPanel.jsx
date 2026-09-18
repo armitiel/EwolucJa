@@ -25,7 +25,10 @@
  * Kafle śladu i miejsca są wspólne z `ZadaniePanel` (`panels/wspolne/`).
  */
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { api } from "../../services/api.js";
+import { miniaturaZPliku } from "../../services/miniatura.js";
 import { useAppData } from "../../contexts/AppData.jsx";
+import { zdjeciaWlaczone } from "./ZadaniePanel.jsx";
 import { GameIcon } from "../../adventure/components/icons.jsx";
 import { powiedzPostacia } from "../mowaPostaci.js";
 import { odmienDlaGracza } from "../../services/rodzaj.js";
@@ -38,6 +41,7 @@ import {
   kwestiaHybrydy,
   obrazekHybrydy,
   odlozMost,
+  oznaczMiniature,
   oznaczZauwazoneObejrzane,
   reakcjaPoZauwazeniu,
   sprawdzMentora,
@@ -87,6 +91,15 @@ export default function HybrydaPanel({ onKomunikat, onZamknij, onPowrot }) {
   const [zdanie, setZdanie] = useState("");
   const [wysylka, setWysylka] = useState(false);
   const [blad, setBlad] = useState(null);
+  /* ZDJĘCIE — tylko KR (`slad.zdjecie`) i tylko, gdy Mentor włączył
+     `ustawienia.zdjecia` (06 §4.5). Ta sama droga, co w `ZadaniePanel`:
+     canvas → JPEG ≤ 512 px bez EXIF (`services/miniatura.js`), a plik leci
+     dopiero PO śladzie na `missionId` z seed/submit hybrydy. W scenie i tak
+     wisi symbol; rysunek w domku pokazuje `WnetrzeDomku` po „Pokaż w domku". */
+  const [miniatura, setMiniatura] = useState(null);
+  const [podglad, setPodglad] = useState(null);
+  const [wgrywanie, setWgrywanie] = useState(false);
+  const plikRef = useRef(null);
   const panelRef = useRef(null);
   const mostPrzeczytany = useRef(false);
 
@@ -143,6 +156,27 @@ export default function HybrydaPanel({ onKomunikat, onZamknij, onPowrot }) {
     })();
     return () => { porzucone = true; };
   }, [stan.slad, stan.missionId]);
+
+  const dodajZdjecie = useCallback(async (ev) => {
+    const plik = ev.target.files?.[0];
+    if (!plik) return;
+    if (!plik.type.startsWith("image/")) { setBlad("To nie jest zdjęcie."); return; }
+    if (plik.size > 20 * 1024 * 1024) { setBlad("Zdjęcie jest za duże. Spróbuj mniejsze."); return; }
+    setBlad(null);
+    setWgrywanie(true);
+    try {
+      const m = await miniaturaZPliku(plik);
+      setMiniatura(m.obraz);
+      setPodglad(m.obraz);
+    } catch {
+      setMiniatura(null);
+      setPodglad(null);
+      setBlad("Nie udało się odczytać zdjęcia. Wybierz symbol albo napisz zdanie.");
+    } finally {
+      setWgrywanie(false);
+      try { ev.target.value = ""; } catch {}
+    }
+  }, []);
 
   if (!stan.istnieje || !def) return null;
 
@@ -279,6 +313,10 @@ export default function HybrydaPanel({ onKomunikat, onZamknij, onPowrot }) {
            szufladą scena stoi zapauzowana. */
         const { stan: nowy, toast, narratorka } = await zostawSlad({ opcja: maWybor ? sladOpcja : null, zdanie: zdanie.trim() });
         setStan(nowy);
+        if (miniatura && nowy?.missionId) {
+          try { await api.wyslijMiniature(nowy.missionId, miniatura); setStan(oznaczMiniature(nowy.missionId)); }
+          catch (err) { setPodglad(null); setBlad(err?.kod === "zdjecia_wylaczone" ? "Zdjęcia włącza Mentor." : "Zdjęcie nie chce się wysłać. Ślad i tak został."); }
+        }
         if (toast?.tytul) onKomunikat?.(toast.tytul, { opis: toast.opis });
         if (narratorka) powiedzPostacia(o(narratorka), { glos: "gora_podsumowania", ton: "calm" });
       } catch (err) {
@@ -300,6 +338,20 @@ export default function HybrydaPanel({ onKomunikat, onZamknij, onPowrot }) {
           o={o}
           testId="hybryda-slad"
         />
+        {S.zdjecie && zdjeciaWlaczone(player) ? (<>
+          <button type="button" className="zadanie-zdjecie" onClick={() => plikRef.current?.click()} disabled={wgrywanie}>
+            {podglad ? (
+              <img src={podglad} alt="Twoje zdjęcie" />
+            ) : (
+              <>
+                <GameIcon name="camera" size={30} />
+                <strong>{wgrywanie ? "Przygotowuję zdjęcie…" : "Dodaj zdjęcie rysunku"}</strong>
+                <small>{o(S.podpowiedz || "Bez twarzy, bez okna, bez numeru domu.")}</small>
+              </>
+            )}
+          </button>
+          <input ref={plikRef} type="file" accept="image/*" capture="environment" onChange={dodajZdjecie} style={{ display: "none" }} data-testid="hybryda-plik" />
+        </>) : null}
         {S.zdanie !== false && !(S.zdanieTylko && S.zdanieTylko !== etapGracza) ? (
           <textarea
             className="zadanie-opis"
@@ -312,7 +364,7 @@ export default function HybrydaPanel({ onKomunikat, onZamknij, onPowrot }) {
         ) : null}
         {blad ? <p className="zadanie-blad">{o(blad)}</p> : null}
         <div className="hub-actions">
-          <button type="button" className="hub-btn hub-btn-primary" onClick={wyslij} disabled={wysylka}>
+          <button type="button" className="hub-btn hub-btn-primary" onClick={wyslij} disabled={wysylka || wgrywanie}>
             {wysylka ? "Zostawiam…" : "Zostaw ślad"}
           </button>
         </div>
