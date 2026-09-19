@@ -35,6 +35,12 @@ zjadałoby detal. Kolor rantu bierzemy z NAJBLIŻSZEGO piksela wnętrza (a nie
 z wygładzonej krawędzi), dzięki czemu ikona wielobarwna — jak lupa: drewniana
 rączka i szklana soczewka — dostaje kontur, który idzie za lokalnym kolorem.
 
+KOLEJNOŚĆ. To OSTATNI krok potoku ikon, po `ikony-wskazowki-obrobka.py`,
+który kadruje i skaluje świeży render. Tamten skrypt nie wie o obrysie, więc
+po każdej regeneracji ikon trzeba przejechać tym — inaczej zestaw wraca do
+wersji bez konturu. Skrypt NIE jest idempotentny: uruchomiony dwa razy na tym
+samym pliku doklei drugi rant.
+
 Użycie:
     python scripts/ikony-obrys.py frontend/public/assets/wskazowki/ikona-lupa.png ...
     (plik nadpisywany w miejscu; `--do KATALOG` zapisuje obok)
