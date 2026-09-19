@@ -58,109 +58,89 @@ export default function PanelSheet({ open, kicker = null, title, onClose, onPowr
   const ostatniTrybPowrotuRef = useRef(powrot);
   if (open) ostatniTrybPowrotuRef.current = powrot;
   const pokazPowrot = open ? powrot : ostatniTrybPowrotuRef.current;
-  // TO SAMO dla wariantu wygladu, i z tego samego powodu. Bez tego popup
-  // profilu przy zamykaniu tracil klase `jest-popup` w tej samej klatce, w
-  // ktorej zaczynal znikac — wracal wiec do stylu szuflady i zamiast zapasc
-  // sie w srodku ekranu, odjezdzal po skosie w dolny rog.
-  const ostatniWariantRef = useRef(wariant);
-  if (open) ostatniWariantRef.current = wariant;
-
   /**
-   * PRZESIADKA MIĘDZY KSZTAŁTAMI — szuflada ↔ okno na środku.
+   * ── KSZTAŁT ARKUSZA I PRZESIADKI MIĘDZY NIMI ──────────────────────────
    *
-   * To jest ten sam błąd, co przy zamykaniu, tylko z drugiej strony. Arkusz
-   * jest JEDNYM elementem: gdy dziecko ma otwarte Zadania i stuka w awatar,
-   * `wariant` przeskakuje z `null` na `popup` przy wciąż zapalonym `is-open`.
-   * CSS ma wtedy dwie różne pozycje tego samego, otwartego pudełka — dół
-   * ekranu i środek — więc je po prostu animuje jedną w drugą. Okno leci
-   * po skosie z dolnego rogu i wygląda, jakby wypadło z doku.
+   * Arkusz jest JEDNYM elementem, który nosi dwa zupełnie różne kształty:
+   * szufladę przyklejoną do dołu i okno na środku ekranu (`jest-popup`).
+   * Obowiązuje jedna zasada i wynika z niej cała reszta tego bloku:
    *
-   * Dlatego zmiana kształtu przy otwartym arkuszu przechodzi przez ZAMKNIĘCIE:
-   * stary kształt zjeżdża tak, jak zawsze zjeżdża, a dopiero potem nowy
-   * wyłania się u siebie — popup ze środka ekranu, szuflada z dołu. Kosztuje
-   * to ćwierć sekundy i jest to ćwierć sekundy, w której dziecko widzi, że
-   * jedna rzecz się skończyła, zanim zaczęła się druga.
+   *   OKNO PROFILU POJAWIA SIĘ I ZNIKA WYŁĄCZNIE ZE ŚRODKA EKRANU,
+   *   SZUFLADA WYŁĄCZNIE Z DOŁU, A MIĘDZY NIMI ZAWSZE JEST PEŁNE
+   *   ZAMKNIĘCIE. Żadne nie przechodzi w drugie.
    *
-   * Przy `prefers-reduced-motion` przesiadki nie ma: kształt zmienia się od
-   * razu, bo i tak nic się nie animuje (`transition:none` w `hub.css`), a
-   * sama przerwa byłaby wtedy pustym ekranem bez powodu.
+   * `ksztaltRef` to kształt, w którym arkusz STOI w tej chwili — także wtedy,
+   * gdy jest zamknięty: zjechana szuflada zostaje szufladą, zgaszone okno
+   * zostaje oknem. To jest punkt, z którego ruszy następna animacja, i dlatego
+   * porównujemy się właśnie z nim, a NIE z poprzednią wartością `wariant`.
+   *
+   * Ta różnica jest całym sednem ostatniej poprawki. Wcześniej przesiadka
+   * odpalała się tylko przy przejściu otwarty → otwarty, więc wystarczyło
+   * zamknąć Porady krzyżykiem i stuknąć w awatar: arkusz stał wtedy zaparkowany
+   * jako zjechana szuflada, a `wariant` szedł z `null` prosto na `popup` przy
+   * zapalonym `is-open`. Przeglądarka animowała z parkingu szuflady do środka
+   * ekranu — czyli znowu skos, tyle że po pustym ekranie.
    */
-  /* OBIEKT, nie sam kształt. Wariant szuflady TO `null` — gdyby stan trzymał
-     go wprost, „zjeżdża szuflada" i „nie ma przesiadki" byłyby tą samą
-     wartością i przejście z szuflady w popup nie zadziałałoby wcale.
-     (Zadziałało dopiero po tym poprawieniu — pierwsza wersja cicho nie robiła
-     nic akurat w tym jednym kierunku, o który chodziło.) */
-  const [zjezdza, setZjezdza] = useState(null);   // { ksztalt } albo null
-  const poprzedniWariantRef = useRef(wariant);
+  const [zjezdza, setZjezdza] = useState(null);   // { ksztalt, skok } albo null
+  const ksztaltRef = useRef(wariant);
   const bylOtwartyRef = useRef(open);
+
+  /* Dopóki arkusz nie stanie w nowym kształcie, POKAZUJEMY STARY i trzymamy go
+     zamkniętym. Dzięki temu nie istnieje ani jedna klatka, w której element
+     byłby otwarty w kształcie, do którego dopiero ma przeskoczyć — a to ona
+     była źródłem skosu. Efekt niżej tylko dokłada przeskok i otwarcie. */
+  const wariantWidoczny = zjezdza ? zjezdza.ksztalt : ksztaltRef.current;
+  const otwartyWidoczny = open && !zjezdza && wariant === ksztaltRef.current;
+
   useEffect(() => {
-    const poprzedni = poprzedniWariantRef.current;
     const bylOtwarty = bylOtwartyRef.current;
-    poprzedniWariantRef.current = wariant;
     bylOtwartyRef.current = open;
-    // Tylko przy przejściu OTWARTY → OTWARTY. Zwykłe otwarcie z zamkniętego
-    // i tak startuje u siebie, więc nie ma czego przesiadać.
-    if (!open || !bylOtwarty || wariant === poprzedni || spokojnyRuch()) return undefined;
+    // Zamknięcie niczego nie przesiada: arkusz gaśnie w swoim kształcie
+    // i w nim zostaje zaparkowany do następnego razu.
+    if (!open || wariant === ksztaltRef.current) return undefined;
 
-    /* TRZY KROKI, nie dwa — i ten trzeci jest tu po przegranej walce z CSS.
-       Wersja na dwa kroki (stary kształt zjeżdża → nowy wchodzi) dalej
-       wpuszczała popup z dołu: ostatnia zmiana przestawiała naraz KSZTAŁT
-       i `is-open`, więc przeglądarka miała do zanimowania przejście z
-       „szuflada, zjechana na dół" wprost w „popup, otwarty na środku" —
-       i robiła z tego jeden ukośny przelot, dokładnie ten sam, który mieliśmy
-       naprawić. Zmierzone: górna krawędź szła 808 → 266 px przy stałej
-       wysokości, czyli zjazd, a nie wyłanianie.
-
-       Dlatego między nimi wchodzi klatka, w której arkusz ma JUŻ nowy kształt,
-       ale jest JESZCZE zamknięty: popup stoi wtedy na środku ekranu w skali
-       .86 i z zerowym kryciem. Dopiero z tego punktu rośnie.
-
-       `flushSync` + odczyt `offsetHeight` NIE SĄ OZDOBĄ. React 18 zbiera
-       zmiany stanu z `setTimeout` w paczkę i oddaje je do DOM-u własnym
-       harmonogramem — bez wymuszenia klatka pośrednia trafiała do drzewa
-       dopiero razem z następną, więc przeglądarka znów widziała jeden skok
-       z zjechanej szuflady wprost w otwarty popup. `flushSync` wstawia ją do
-       DOM-u natychmiast, a odczyt wysokości zmusza do przeliczenia stylów —
-       dopiero wtedy jest od czego zacząć animację. Zmierzone przed poprawką:
-       środek okna wędrował 1383 → 938 → 722 → 635, czyli dojeżdżał z dołu;
-       po poprawce stoi na 635 i zmienia się sama skala.
-
-       NIE `requestAnimationFrame` NA OSTATNIM KROKU. Kusiło, bo to naturalna
-       jednostka klatki — ale rAF nie tyka w ukrytej karcie, a wtedy arkusz
-       zostawał na zawsze w stanie pośrednim: nowy kształt, `is-open` nigdy
-       nie wraca, czyli okno po prostu się nie otwiera. Dziecko, które
-       przełączy zakładkę telefonu w złym momencie, zastaje pusty ekran.
-       `setTimeout` w tle jest dławiony, ale FIRE'uje — a punkt startu
-       animacji i tak gwarantuje `flushSync` z odczytem wysokości, nie klatka.
-
-       KLATKA POSREDNIA MUSI WSKOCZYC BEZ ANIMACJI — i to jest trzecia rzecz,
-       ktora tu nie dzialala. Sam arkusz ma `transition: transform`, wiec
-       przejscie „popup zamkniety na srodku" → „szuflada zamknieta na dole"
-       TEZ bylo animowane: przegladarka ruszala z punktu popupu, a szesnascie
-       milisekund pozniej dokladalo sie otwarcie szuflady i kontynuowalo z tego,
-       co akurat bylo w polowie drogi. Zmierzone: szuflada meldowala sie jako
-       `is-open`, ale z `matrix(0.86, …, -240, -472)` — czyli w skali popupu
-       i w jego polozeniu. Stad skos, ktorego nie usuwaly poprzednie podejscia.
-       Dlatego ta jedna klatka idzie z `jest-bez-ruchu` (`transition:none`):
-       nowy ksztalt ma stanac u siebie natychmiast, a animowac dopiero
-       otwarcie. */
     let drugi = 0;
-    setZjezdza({ ksztalt: poprzedni });
-    const t = window.setTimeout(() => {
-      flushSync(() => setZjezdza({ ksztalt: wariant, skok: true }));
-      void arkuszRef.current?.offsetHeight;
-      drugi = window.setTimeout(() => setZjezdza(null), 16);
-    }, CZAS_ZJAZDU);
-    return () => {
-      window.clearTimeout(t);
-      window.clearTimeout(drugi);
-    };
-  }, [open, wariant]);
 
-  // W trakcie przesiadki arkusz nosi STARY kształt i jest zamknięty — to on
-  // zjeżdża. Dopiero gdy zejdzie, wchodzi nowy.
-  const wariantWidoczny = zjezdza ? zjezdza.ksztalt : (open ? wariant : ostatniWariantRef.current);
-  const otwartyWidoczny = open && !zjezdza;
+    /* PRZESKOK BEZ ANIMACJI. Sam arkusz ma `transition: transform`, więc
+       przejście „popup zgaszony na środku" → „szuflada zjechana na dół" TEŻ
+       było animowane: przeglądarka ruszała z punktu poprzednika, a chwilę
+       później dokładało się otwarcie i kontynuowało z połowy drogi. Zmierzone:
+       szuflada meldowała się jako `is-open`, ale z `matrix(0.86, …, -240, -472)`
+       — w skali okna i w jego położeniu. `jest-bez-ruchu` (`transition:none`)
+       stawia nowy kształt u siebie natychmiast, żeby animowało się dopiero
+       otwarcie.
+
+       `flushSync` + odczyt `offsetHeight` nie są ozdobą: React 18 zbiera zmiany
+       stanu z `setTimeout` we własnym harmonogramie, więc bez wymuszenia klatka
+       przeskoku trafiała do DOM-u dopiero razem z następną i znów nie było od
+       czego zacząć animacji. */
+    const wskocz = () => {
+      flushSync(() => {
+        ksztaltRef.current = wariant;
+        setZjezdza({ ksztalt: wariant, skok: true });
+      });
+      void arkuszRef.current?.offsetHeight;
+      /* NIE `requestAnimationFrame`: rAF nie tyka w ukrytej karcie, a wtedy
+         arkusz zostawałby na zawsze w stanie pośrednim — nowy kształt,
+         `is-open` nigdy nie wraca, czyli okno po prostu się nie otwiera.
+         `setTimeout` w tle jest dławiony, ale zawsze fire'uje. */
+      drugi = window.setTimeout(() => setZjezdza(null), 16);
+    };
+
+    /* Arkusz BYŁ ZAMKNIĘTY, tylko w cudzym kształcie — nie ma czego zamykać,
+       wystarczy cichy przeskok na swoje miejsce i otwarcie. To jest przypadek
+       „zamknąłem Porady, stukam w awatar". */
+    if (!bylOtwarty || spokojnyRuch()) {
+      wskocz();
+      return () => window.clearTimeout(drugi);
+    }
+
+    /* Arkusz BYŁ OTWARTY: stary kształt najpierw zjeżdża u siebie. Zaczął to
+       już sam — `otwartyWidoczny` zgasło w tym samym renderze, bo kształty się
+       różnią — więc tutaj zostaje odczekać jego animację i przeskoczyć. */
+    const t = window.setTimeout(wskocz, CZAS_ZJAZDU);
+    return () => { window.clearTimeout(t); window.clearTimeout(drugi); };
+  }, [open, wariant]);
   // Stan, nie ref: portal musi się przerysować, gdy węzeł już istnieje.
   const [slot, setSlot] = useState(null);
 

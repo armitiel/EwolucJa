@@ -307,8 +307,17 @@
    (`PanelSheet`, stan `zjezdza.skok`). Nowy kształt ma stanąć u siebie
    natychmiast, żeby otwarcie ruszyło z WŁASNEGO punktu, a nie z tego, gdzie
    stał poprzedni. Bez tego szuflada startowała w skali i położeniu popupu
-   i wjeżdżała po skosie — mimo że kolejność zamykania była już poprawna. */
-.hub-sheet.jest-bez-ruchu{ transition:none; }
+   i wjeżdżała po skosie — mimo że kolejność zamykania była już poprawna.
+
+   `!important` NIE JEST TU LENISTWEM. `.hub-sheet.jest-bez-ruchu` i
+   `.hub-sheet.jest-popup` mają tę samą specyficzność (0-2-0), a popup stoi
+   niżej w pliku — więc jego własne `transition: transform .26s` wygrywało
+   kolejnością i klatka przeskoku mimo wszystko się animowała. Zmierzone przez
+   `getAnimations()`: przy zapalonym `jest-bez-ruchu` leciało przejście
+   `translate(0px) scale(1)` → `translate(-50%,-50%) scale(.86)`, czyli
+   dokładnie to, co miało nie istnieć. To jest reguła typu „nigdy nie animuj",
+   więc ma wygrywać niezależnie od tego, gdzie ktoś ją przesunie. */
+.hub-sheet.jest-bez-ruchu{ transition:none !important; }
 /* WSZYSTKIE SZUFLADY MAJA TE SAMA WYSOKOSC. Czat mial przez chwile 88 %
    („czat sie nie konczy, wiec zaslugiwal na wiecej ekranu") i to byl blad:
    dok stoi na wierzchu przez caly czas, wiec przejscie z Gry na Czat skakalo
