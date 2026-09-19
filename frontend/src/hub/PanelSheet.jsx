@@ -50,7 +50,7 @@ export const SlotNaglowka = createContext(null);
  * przejście z Gier na Czat skakało o 82 px. Wszystkie szuflady mają jedną
  * wysokość, a miejsce dla rozmowy bierze się z jej wnętrza.
  */
-export default function PanelSheet({ open, kicker = null, title, onClose, onPowrot = null, children, testId, wypelnia = false, powrot = false, wariant = null }) {
+export default function PanelSheet({ open, kicker = null, title, onClose, onPowrot = null, children, testId, wypelnia = false, powrot = false, wariant = null, onPodklad = null }) {
   const arkuszRef = useRef(null);
   // `Swiat` zeruje aktywny panel od razu, a arkusz jeszcze przez moment zjeżdża.
   // Zapamiętujemy więc ikonę otwartego panelu, żeby Porada podczas animacji
@@ -143,6 +143,24 @@ export default function PanelSheet({ open, kicker = null, title, onClose, onPowr
   }, [open, wariant]);
   // Stan, nie ref: portal musi się przerysować, gdy węzeł już istnieje.
   const [slot, setSlot] = useState(null);
+
+  /**
+   * PODKŁAD POD DOKIEM MELDUJE SIĘ STĄD, a nie ze stanu panelu w `Swiat`.
+   *
+   * Kremowy pas (`hud.css`, `.ma-szuflade .game-hud-bottom::before`) chroni
+   * ikony doku przed treścią przewijaną pod nie — czyli jest potrzebny
+   * dokładnie wtedy, gdy na dole NAPRAWDĘ stoi szuflada. `Swiat` wie tylko,
+   * który panel jest wybrany, i przełączał klasę w tej samej klatce, w której
+   * dziecko stukało w ikonę. Przy przesiadce z okna profilu w szufladę
+   * wyglądało to tak: pas zapalał się od razu, okno jeszcze przez ćwierć
+   * sekundy gasło na środku, a na dole ekranu leżał kremowy brud na gołej
+   * planecie — bez szuflady, która miałaby go tłumaczyć.
+   *
+   * Dlatego liczy się KSZTAŁT WIDOCZNY, nie wybrany: pas jest tylko wtedy,
+   * gdy na ekranie stoi otwarta szuflada.
+   */
+  const podklad = otwartyWidoczny && !wariantWidoczny;
+  useEffect(() => { onPodklad?.(podklad); }, [podklad, onPodklad]);
 
   // Esc zamyka — na desktopie i na klawiaturach zewnętrznych.
   useEffect(() => {

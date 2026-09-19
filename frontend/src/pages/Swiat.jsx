@@ -1053,6 +1053,14 @@ export default function Swiat() {
    * więc jedzie jako okno na środku; reszta paneli zostaje szufladami.
    */
   const wariantPanelu = panel === "profil" ? "popup" : null;
+  /**
+   * Czy pod dokiem ma leżeć kremowy podkład. NIE liczymy tego z `panel` —
+   * melduje to `PanelSheet`, bo tylko on wie, co jest w tej chwili NA EKRANIE.
+   * Stan panelu zmienia się w klatce dotknięcia ikony, a arkusz jeszcze przez
+   * ćwierć sekundy domyka poprzedni kształt; liczone z panelu, pas zapalał się
+   * nad gołą planetą, zanim szuflada w ogóle wyjechała.
+   */
+  const [podkladDoku, setPodkladDoku] = useState(false);
 
   /* ── licznik nieprzeczytanych: świat + Mentor ─────────────────────────── */
   const przeliczNieprzeczytane = useCallback(async () => {
@@ -3272,13 +3280,16 @@ export default function Swiat() {
           tam drugie, konkurencyjne tło.
           `ma-szuflade-pelna` zdejmuje podkład zupełnie — patrz `szufladaPelna`.
 
-          POPUP TEŻ GO NIE DOSTAJE. Kremowy podkład pod dokiem (`hud.css`,
+          POPUP GO NIE DOSTAJE. Kremowy podkład pod dokiem (`hud.css`,
           `.ma-szuflade .game-hud-bottom::before`) istnieje po to, żeby treść
           PRZEWIJANA pod ikony nie zlewała się z nimi w jedno. Okno profilu
-          stoi na środku ekranu i nic się pod dok nie przewija — zostawał więc
-          sam kremowy pas w poprzek dołu sceny, bez zadania. */}
+          stoi na środku ekranu i nic się pod dok nie przewija — zostawałby
+          sam kremowy pas w poprzek dołu sceny, bez zadania.
+
+          Sygnał idzie z `PanelSheet` (`onPodklad`), a nie z `panel`: liczy się
+          to, co widać, a nie to, co wybrane — patrz `podkladDoku` wyżej. */}
       <div
-        className={`game-hud${odsloniete ? " jest-widoczny" : ""}${naglowek && !wariantPanelu ? " ma-szuflade" : ""}${szufladaPelna ? " ma-szuflade-pelna" : ""}`}
+        className={`game-hud${odsloniete ? " jest-widoczny" : ""}${podkladDoku ? " ma-szuflade" : ""}${szufladaPelna ? " ma-szuflade-pelna" : ""}`}
         data-variant="B"
         aria-label="Interfejs świata"
       >
@@ -3665,6 +3676,7 @@ export default function Swiat() {
         testId="hub-sheet"
         powrot={!!powrotPanelu}
         wariant={wariantPanelu}
+        onPodklad={setPodkladDoku}
         /* Czat sam dzieli sobie wysokość (strumień przewija się, pole pisania
            stoi na dole). Reszta paneli to listy — te przewijają się w całości. */
         wypelnia={panel === "czat"}
