@@ -30,6 +30,12 @@
 import { audioCtx, audioCtxIstniejacy, odblokuj } from "./audioCtx.js";
 
 const DEFAULT_VOLUME = 0.6;
+/* Plusk gra ciszej niż reszta jednorazówek: 0,6 → 0,42 (o 30%, 19.09).
+   Sam plik jest zestrojony po RMS do `pickup`, ale plusk ma ostrzejsze
+   transjenty i przy tej samej wartości RMS wybijał się w miksie ponad resztę.
+   Ściszamy ODTWARZANIE, nie plik — nagranie zostaje na wspólnym poziomie
+   biblioteki, a ten jeden numer da się poprawić bez ponownego kodowania. */
+const PLUSK_GLOSNOSC = 0.42;
 
 const SOURCES = {
   dopamine: "/Soft_dopamine.mp3",
@@ -374,7 +380,7 @@ export const fx = {
   dopamine: (vol) => playFx("dopamine", vol ?? 0.6),
   magicalAncient: (vol) => playFx("magicalAncient", vol ?? 0.6),
   gentleMagical: (vol) => playFx("gentleMagical", vol ?? 0.6),
-  plusk: (vol) => playFx("plusk", vol ?? 0.6),
+  plusk: (vol) => playFx("plusk", vol ?? PLUSK_GLOSNOSC),
   przygotuj,
   krokiGraj,
   krokiStop,
