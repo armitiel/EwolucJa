@@ -809,7 +809,7 @@ export class Aplikacja {
            obiekt tuż obok drewna, po które dziecko ma przyjść.
            `_ostatniPieniek` zostaje: to WSPÓŁRZĘDNE miejsca po drzewie
            (kotwica śladów przygód), a nie bryła. */
-        wynik.add(this._osadz(stosDrewna(skalaStosu, { szczapy: false }),
+        wynik.add(this._osadz(stosDrewna(skalaStosu),
           e.pos[0] + .72, e.pos[1] + .3, .05, .4));
         this._ostatniPieniek = [e.pos[0], e.pos[1]];
         this.swiat.add(wynik);
@@ -2524,7 +2524,7 @@ export class Aplikacja {
          ile zajmują trzy kłody. */
       const skalaStosu = sk * 1.2;
       // SAME KŁODY — bez pieńka i bez szczap; patrz komentarz przy suchych drzewkach.
-      wynik.add(this._osadz(stosDrewna(skalaStosu, { szczapy: false }),
+      wynik.add(this._osadz(stosDrewna(skalaStosu),
         pos[0] + .72, pos[1] + .3, .05, .4));
       /* Kotwica „na-pienku" dla śladów przygód: miejsce po drzewie, które
          dziecko ścięło samo, jest najlepszym adresem, jaki ta gra ma. */
@@ -2921,9 +2921,9 @@ export class Aplikacja {
        Proporcja, nie stała: stos z wyższego drzewka dalej jest większy
        od kupki kamyków.
 
-       Drewno bierze wersję BEZ SZCZAP — z boku sterczały jak luźna deska
-       (patrz `stosDrewna` w `natura.js`). */
-    g.add(rodzaj === "glaz" ? kamyczki(s * .58) : stosDrewna(s * .58, { szczapy: false }));
+       Szczap nie ma nigdzie — `stosDrewna` nie dokłada ich już domyślnie
+       (patrz `natura.js`). */
+    g.add(rodzaj === "glaz" ? kamyczki(s * .58) : stosDrewna(s * .58));
     return g;
   }
 

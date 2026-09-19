@@ -120,12 +120,18 @@ export function pieniek(s = 1) {
 }
 
 /**
- * STOS DREWNA — to, w co zamienia się drzewko. Dwa rzędy kłód plus dwie
- * rozłupane szczapy oparte z boku. Wszystkie cięcia patrzą w JEDNĄ stronę
- * (wzdłuż osi X), żeby z każdego kąta było widać jasne krążki i od razu
- * czytało się „ktoś to porąbał".
+ * STOS DREWNA — to, w co zamienia się drzewko. Piramidka kłód; wszystkie
+ * cięcia patrzą w JEDNĄ stronę (wzdłuż osi X), żeby z każdego kąta było
+ * widać jasne krążki i od razu czytało się „ktoś to porąbał".
+ *
+ * SZCZAPY SĄ DOMYŚLNIE WYŁĄCZONE (decyzja właściciela 19.09). Wcześniej
+ * domyślną wartością było `true` i każde nowe wywołanie dostawało boczne
+ * deski w prezencie — tak wróciły na stos zrzucony na placu, choć zdjęliśmy
+ * je wszędzie indziej 17.09. Dziś NIKT ich nie włącza; flaga zostaje tylko
+ * po to, żeby dało się je kiedyś świadomie przywrócić jednym `true`, a nie
+ * przez przeoczenie.
  */
-export function stosDrewna(s = 1, { szczapy = true } = {}) {
+export function stosDrewna(s = 1, { szczapy = false } = {}) {
   const e = new Group();
   e.name = "stos-drewna";
   // Obrót całości: cięcia nie patrzą prosto w oś świata, więc jasne krążki
@@ -154,11 +160,11 @@ export function stosDrewna(s = 1, { szczapy = true } = {}) {
   /* Szczapy: rozłupane połówki oparte o stos od czoła. Ciemna kora z jednej
      strony, jasne cięcie z drugiej — dlatego BoxGeometry, a nie walec.
 
-     OPCJONALNE (decyzja właściciela 2026-09-17). Stos LEŻĄCY w lesie i na
-     placu ma je mieć — bez nich jest gładką kostką. Ale ten sam stos NA
-     PLECACH liska pokazywał je z boku jako sterczącą deskę i z góry, w biegu,
-     czytało się to jak usterka, a nie jak drewno. Ładunek prosi więc
-     o wersję bez szczap. */
+     DZIŚ NIEUŻYWANE — patrz nagłówek funkcji. Historia: 17.09 zdjęliśmy je
+     z ładunku na plecach liska (z boku sterczały jak deska i w biegu czytało
+     się to jak usterka), a 19.09 ze stosu zrzuconego na placu. Zostają w
+     kodzie, bo sama piramidka kłód bywa gładka jak kostka i kiedyś mogą się
+     przydać — ale włącza się je wtedy jawnie. */
   if (szczapy) [[-.62, .34, .42], [.66, -.3, -.5]].forEach(([x, z, rz]) => {
     const sz = mesh(new BoxGeometry(.13 * s, .62 * s, .17 * s), MAT_DREWNO.ciecie,
       [x * s, .3 * s, z * s], [.12, .6, rz]);

@@ -31,7 +31,7 @@ import { idPostaci, postacWybranaJawnie, DOSTEPNE_POSTACIE } from "../utils/post
 // UWAGA: numer ma tylko ROSNĄĆ. Numery 3–13 zostały już wydane przeglądarce
 // z inną zawartością modułu (kolejne wersje znaków, gwiazdki, tempo ruchu),
 // więc cofnięcie go serwuje z cache starą scenę zamiast aktualnej.
-export const WERSJA_SCENY = "160";  // dostarczone drewno lezy W KREGU placu, rzedem przy pniu (bylo: luk 1.25*s, czyli za pierscieniem)
+export const WERSJA_SCENY = "161";  // stosDrewna bez szczap DOMYSLNIE — boczne deski wrocily na zrzut na placu przez domyslne true
 const ZASOBY = "/scena-3d/assets/";
 
 /**
