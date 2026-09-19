@@ -250,6 +250,8 @@ function zdanieNarratorki(mapa, S) {
 }
 /** Gwiazdka z polany — ta sama, którą dziecko widzi w trawie i w liczniku. */
 const IKONA_GWIAZDKI = "/star.png";
+/** Kawałek obrazka — ten sam plik, co w chmurce zadania i w liczniku puzzli. */
+const IKONA_PUZZLA = "/assets/puzzle/ikona-puzzel.png";
 /* Ikony materiału na schronienie. Renderowane Z TYCH SAMYCH brył, które
    stoją w świecie (`scena-3d-src/src/natura.js`) — licznik ma pokazywać
    dokładnie to, co dziecko widzi na polanie, a nie osobno narysowany symbol. */
@@ -2822,7 +2824,15 @@ export default function Swiat() {
             const puzzle = !m.odkryta ? stanPuzzli(m.id) : null;
             const brama = !!puzzle && puzzle.brama && !puzzle.ulozona;
             if (brama && !puzzle.komplet) {
-              pokazKomunikat("Kawałki jeszcze w trawie", { opis: "Wizkor czeka na wszystkie kawałki obrazka" });
+              /* Ten sam ton, co przy gwiazdkach (poprawka autora 19.09):
+                 Wizkor zauważa szukanie, zamiast czekać. Podpowiedź jest
+                 konkretna — kawałki są mniejsze od gwiazdek, więc trzeba
+                 zwolnić, a nie biec szybciej. Ikona jak w chmurce zadania,
+                 żeby dziecko od razu wiedziało po obrazku, o czym mowa. */
+              pokazKomunikat("Widzę, że nadal szukasz puzelków", {
+                ikona: IKONA_PUZZLA,
+                opis: "Są mniejsze od gwiazdek. Przejdź się wolniej, a je zobaczysz",
+              });
               return;
             }
             /* Poza etapem puzzli zostaje jedno: gra jest zdobyta i czeka na
@@ -3172,6 +3182,10 @@ export default function Swiat() {
    */
   useEffect(() => {
     kolejkaStartu.dodaj("kroki", () => fx.przygotuj("kroki"), { priorytet: 1 });
+    /* Plusk razem z krokami, nie leniwie: waży 7 kB, a pobrany dopiero przy
+       pierwszym wejściu do wody dojechałby PO pluśnięciu — czyli dokładnie
+       wtedy, kiedy jest już bez znaczenia. */
+    kolejkaStartu.dodaj("plusk", () => fx.przygotuj("plusk"), { priorytet: 1 });
     kolejkaStartu.dodaj("polkniecie", () => fx.przygotuj("gentleMagical"), { priorytet: 2 });
   }, []);
 
@@ -3196,9 +3210,24 @@ export default function Swiat() {
     // wizualnie biegł, a brzmiał jakby szedł, a przy drążku trzymanym równo
     // w okolicy progu tempo przeskakiwało kilka razy na sekundę.
     let bieg = false;
+    /* Czy lisek był w wodzie przy POPRZEDNIM odpytaniu — potrzebne do
+       wykrycia zbocza, patrz niżej. */
+    let bylWWodzie = false;
     const t = window.setInterval(() => {
       const stan = scenaRef.current?.stan?.();
       const v = stan && !stan.pauza ? stan.predkosc ?? 0 : 0;
+
+      /* PLUSK GRA NA WEJŚCIU, nie przez cały czas brodzenia. To jest dźwięk
+         ZDARZENIA — „dotknąłem wody" — a nie stanu; od stanu są kroki wodne
+         niżej. Dlatego łapiemy ZBOCZE: fałsz→prawda, raz.
+
+         Poza warunkiem prędkości świadomie: do wody można też wjechać
+         powoli, na zanikającym rozpędzie, a plusk ma zabrzmieć także wtedy.
+         Wyjście z wody nic nie gra — z wody się wychodzi, a nie w nią wpada. */
+      const wWodzie = !!stan?.wWodzie;
+      if (wWodzie && !bylWWodzie) fx.playFx("plusk");
+      bylWWodzie = wWodzie;
+
       // Próg 0,08 zamiast zera: przy dobieganiu do celu prędkość schodzi
       // asymptotycznie i szczątkowy ruch trzymałby dźwięk w nieskończoność.
       if (v > 0.08) {
