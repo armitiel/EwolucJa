@@ -20,9 +20,11 @@
   z-index: 26;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 9px;
   width: min(86vw, 420px);
-  padding: 10px 18px 10px 10px;
+  /* Z lewej mniej oddechu niż z prawej: odznaka niesie własną obręcz, więc
+     drugi margines robiłby dziurę między nią a krawędzią pigułki. */
+  padding: 10px 18px 10px 8px;
   box-sizing: border-box;
   border: 2px solid #e8c877;
   border-radius: 999px;
@@ -32,26 +34,37 @@
   animation: pasek-misji-wejscie .22s ease both;
 }
 
+/* ŻADNEJ MASKI. Do 19.09 portret był kółkiem 46 px z `overflow: hidden`,
+   ciemną tarczą i pomarańczową obwódką, a popiersie Wizkora wpychało się
+   w nie powiększone do 185%. Efekt: z postaci zostawał kapelusz i pół brody,
+   ucięte na linii koła — dziecko widziało wycinek, nie Wizkora.
+
+   `wizkor_avatar.png` jest już narysowany jako odznaka: twarz w złotej
+   obręczy, czubek kapelusza i broda wychodzą poza krąg, tło przezroczyste.
+   Maska, tarcza i obwódka są więc zbędne — wystarczy go POKAZAĆ w całości.
+   Cień idzie przez `drop-shadow`, bo `box-shadow` obrysowałby prostokąt
+   obrazka, a nie kształt odznaki. */
 .pasek-misji-portret {
   flex: 0 0 auto;
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  overflow: hidden;
-  display: grid;
-  place-items: center;
-  background: radial-gradient(circle at 50% 38%, #4a4a53, #26262c);
-  border: 2px solid #ff8f1f;
-  box-shadow: 0 0 0 2px #140f09;
+  /* 66 px PŁÓTNA, nie odznaki: w pliku wokół obręczy jest przezroczysty
+     margines (widoczne 439×491 z 512×512), więc sama odznaka wychodzi
+     ok. 57×63 px. Przy 46 px starego kółka wypadłaby mniejsza niż wycinek,
+     który zastępuje — a chodziło o to, żeby Wizkora było WIDAĆ. */
+  width: 66px;
+  /* Odznaka jest wyższa niż wiersz tekstu i WYSTAJE ponad pigułkę — ujemny
+     margines u góry odejmuje ten nadmiar z rachunku wysokości, więc pasek
+     zostaje tej samej wysokości co przedtem, a Wizkor wychyla się z niego
+     jak z okna. Dół zostaje na zerze: gdyby wystawał także w dół, przeciąłby
+     złotą krawędź i dolny cień pigułki. */
+  margin-top: -18px;
+  display: block;
+  line-height: 0;
 }
-/* KADR NA TWARZ. Pełny `wizPop.webp` to popiersie: kapelusz zajmuje górną
-   jedną trzecią, twarz siedzi mniej więcej w połowie wysokości, niżej szata
-   i laska. Przy zwykłym wyśrodkowaniu w kółku 46 px widać sam czubek
-   kapelusza — a portret ma mówić „to Wizkor", nie „to fioletowy stożek".
-   185% + wyśrodkowanie ustawia okno kadru na oczach i brodzie. */
 .pasek-misji-portret img {
-  width: 185%;
+  display: block;
+  width: 100%;
   height: auto;
+  filter: drop-shadow(0 3px 4px rgba(20, 15, 9, .45));
 }
 
 .pasek-misji-tresc {

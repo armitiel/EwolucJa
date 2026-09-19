@@ -22,8 +22,9 @@
  * coś się zaczyna. Nie ma go po czym „zdążyć" i nie da się przegrać.
  *
  * Wygląd wchodzi w rodzinę komunikatów (zielona pigułka ze złotą lamówką,
- * ta sama półka co toast), a portret siedzi na tle wskaźników — ciemna tarcza
- * z obwódką, jak siekiera i domek.
+ * ta sama półka co toast), a po lewej stoi odznaka Wizkora — ta sama, która
+ * wjeżdża z jego chmurką myśli. Odznaka NIE jest wpisana w maskę: ma własną
+ * obręcz i wystaje ponad pigułkę, więc widać całą postać, a nie jej wycinek.
  */
 import React, { useEffect, useRef, useState } from "react";
 import "../styles/pasek-misji.css";
@@ -31,7 +32,13 @@ import "../styles/pasek-misji.css";
 export default function PasekKolejnejMisji({
   otwarty,
   tytul = "Wizkor szykuje kolejne zadanie",
-  obrazek = "/wizPop.webp",
+  /* ODZNAKA, NIE POPIERSIE. `wizPop.webp` to cała postać z laską — w kółku
+     46 px trzeba ją było powiększyć do 185% i przyciąć, przez co z Wizkora
+     zostawał kapelusz i pół brody. `wizkor_avatar.png` jest rysowany jako
+     odznaka: twarz w złotej obręczy, czubek kapelusza i broda wychodzą poza
+     krąg, tło przezroczyste. Tej samej używa chmurka myśli Wizkora, więc
+     przeglądarka ma ją już w pamięci. */
+  obrazek = "/wizkor_avatar.png",
   czas = 2600,
   onKoniec,
 }) {
