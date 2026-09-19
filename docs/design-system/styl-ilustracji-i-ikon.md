@@ -23,11 +23,12 @@ Kanon nazw i postaci: `docs/SWIAT_I_POSTACIE.md`.
 | **A. Postacie** | pop-upy Wizkora i liska, ekrany startu | renderowana kreskówka jak z gry mobilnej, popiersie wychylające się zza okna | gruby, w ciemnym odcieniu lokalnej barwy |
 | **B. Ikony HUD** | dolny dok, liczniki, profil, muzyka, wiadomości | błyszczące „klejnotowe” ikony: złote ramy, nasycony kolor, mocny połysk | gruby, ciemnobrązowy |
 | **C. Surowce** | licznik drewna, toasty z materiałem | rendery modeli low-poly prosto ze świata 3D, matowe fasetki | brak |
-| **D. Wskaźniki w świecie** | siekiera nad liskiem, domek nad placem budowy | miękkie 3D (soft render), gładkie bryły, jedno miękkie światło | brak |
+| **D. Wskaźniki w świecie** | siekiera nad liskiem, domek nad placem budowy | miękkie 3D (soft render), gładkie bryły, jedno miękkie światło | brak — leżą na ciemnej tarczy znaku |
 | **E. Symbole płaskie** | koło przeznaczenia | płaski wektor z grubym konturem, bez cieniowania | gruby, ciemnobrązowy |
+| **F. Ikony podpowiedzi** | chmurka „co teraz”, liczniki zadań w HUD | ten sam soft render co D, ale na jasnym tle | cienki, w ciemniejszym odcieniu WŁASNEJ barwy |
 
-Wspólne dla A, B, D: światło z góry-lewej, przezroczyste tło, czytelna sylwetka
-przy 40 px, jeden akcent barwny, żadnego tekstu w obrazku.
+Wspólne dla A, B, D, F: światło z góry-lewej, przezroczyste tło, czytelna
+sylwetka przy 40 px, jeden akcent barwny, żadnego tekstu w obrazku.
 
 ---
 
@@ -208,6 +209,48 @@ miesza się z rodziną B — nie przenosimy tych symboli do HUD-u.
 
 ---
 
+## F. Ikony podpowiedzi i liczników zadań
+
+**Pliki:** `frontend/public/assets/wskazowki/ikona-{lupa,stos,gwiazdka,zwoj,kamienie}.png`
+i `assets/puzzle/ikona-puzzel.png` (256 px). Generowane tak jak rodzina D —
+referencją obrazkową z `docs/styl/rabanie/`, opis drogi:
+[`styl-ikon-3d.md`](styl-ikon-3d.md).
+
+Różnica wobec D jest jedna, ale decydująca: **te ikony leżą na JASNYM tle** —
+na kremowej pigułce licznika i w kremowej chmurce „co teraz”, a nie na ciemnej
+tarczy znaku. Sam miękki cień renderu na kremie nie robi krawędzi i ikona
+rozmywa się z półtora metra od tabletu.
+
+### Obrys (od 19.09.2026)
+
+Każda ikona tej rodziny dostaje **rant w kolorze własnego wypełnienia**:
+ten sam odcień, jasność ×0,65, nasycenie dobite do maksimum — przepisane
+z pomiaru krawędzi `/star.png`, jedynej ikony, która czytała się z odległości
+od początku. Nie czarny kontur (to rodzina E) i nie ciemny brąz (rodzina B):
+rant z własnej barwy trzyma się i na kremie, i na zieleni świata, a z bliska
+go nie widać.
+
+Ikona wielobarwna dostaje kontur idący za lokalnym kolorem — lupa ma osobny
+rant przy drewnianej rączce i osobny przy szkle. Rysujemy go NA ZEWNĄTRZ
+kształtu, nigdy przez przyciemnienie krawędzi grafiki: render ma tam własne
+cieniowanie i drugie przyciemnienie zjada detal.
+
+### Kadr: kształt zajmuje ~96 % płótna
+
+`object-fit: contain` skaluje ikonę do PŁÓTNA, nie do kształtu, więc
+przezroczysty margines w pliku jest po prostu mniejszą ikoną na ekranie.
+Zestaw z 17.09.2026 miał kształt na 58–75 % płótna, każda ikona inaczej —
+puzelek mierzył w liczniku 19,9 px obok 31 px gwiazdki, choć CSS obu kazał
+mieć 31. **Tego nie naprawia się numerem w CSS**; próba
+(`.popup-postaci-cel--puzzle { width:56px }`) została usunięta razem
+z poprawką plików. Płótno kwadratowe, kształt na ~96 % — wtedy jeden rozmiar
+w CSS znaczy jeden rozmiar optyczny.
+
+Oba kroki robi `scripts/ikony-obrys.py`; uruchamiamy go **po**
+`ikony-wskazowki-obrobka.py` i tylko raz na plik.
+
+---
+
 ## Znaki 3D na mapie (skróty do gier)
 
 To nie są obrazki, tylko modele w scenie (`public/scena-3d/assets/*.glb`)
@@ -244,6 +287,8 @@ możemy używać.** Nie jest stylem wiodącym postaci ani HUD-u.
 | C. Surowiec | render modelu ze sceny, bez generatora | model `.glb` z `public/scena-3d/assets/` |
 | D. Wskaźnik | `docs/design-system/styl-ikon-3d.md` | `docs/styl/rabanie/siekiera-styl.png` |
 | E. Symbol płaski | rysunek wektorowy albo kod | istniejące `assets/kolo/ikona-*.webp` |
+| F. Ikona podpowiedzi | jak D, plus `scripts/ikony-obrys.py` na koniec | `docs/styl/rabanie/` |
 
 Zawsze: przyciąć do alfy, wyśrodkować, zmniejszyć (256 px ikony, 560 px postacie),
 odchudzić wg `docs/grafika.md` §4, sprawdzić czytelność przy docelowym rozmiarze.
+Dla rodziny F dochodzi obrys i kadr do ~96 % płótna — ostatni krok, po skalowaniu.

@@ -81,7 +81,74 @@ a nie „poprawiamy" prompt kolejnymi przymiotnikami.
 1. Przyciąć do alfy (`getbbox`) i wyśrodkować na kwadracie — inaczej obiekt
    siedzi w znaku krzywo.
 2. Przeskalować do **256 px** (znak rysuje ikonę przy ~78 px, 256 starcza z zapasem).
-3. Zapisać PNG z `optimize=True`. Mistrz 1024 px zostaje nieśledzony lokalnie.
+3. **Dokleić obrys** — `scripts/ikony-obrys.py`, opis niżej. Krok OSTATNI
+   i jednorazowy: skrypt NIE jest idempotentny, drugie uruchomienie na tym samym
+   pliku doklei drugi rant.
+4. Zapisać PNG z `optimize=True`. Mistrz 1024 px zostaje nieśledzony lokalnie.
+
+Kroki 1–2 robi `scripts/ikony-wskazowki-obrobka.py`, krok 3 — `ikony-obrys.py`.
+Ten pierwszy nic nie wie o obrysie, więc **po każdej regeneracji ikon trzeba
+przejechać drugim**, inaczej zestaw wraca do wersji bez konturu.
+
+### Obrys: rant w kolorze wypełnienia
+
+Generator nie rysuje konturu — i nie każemy mu (patrz „Co widać na wzorcu"),
+bo prośba o kontur w prompcie ciągnie model w cel-shading. Ikona wychodzi więc
+jako miękka bryła z samym cieniem renderu. Na ciemnej tarczy znaku to
+wystarcza. Na **kremowym kaflu HUD-u i w chmurce podpowiedzi — nie**: jasna
+ikona na jasnym tle rozmywa się z półtora metra od tabletu, a tam właśnie
+siedzi dziecko.
+
+Wzorcem jest `/star.png` — jedyna ikona, która czytała się z odległości od
+początku. Pomiar jej krawędzi (profil jasności wzdłuż odległości od konturu)
+pokazuje, skąd to się bierze:
+
+| odległość od krawędzi | RGB | V | S |
+|---|---|---|---|
+| 1–5 px (rant) | 163, 89, 2 | 0,64 | 0,99 |
+| od 8 px (wypełnienie) | 249, 208, 34 | 0,97 | 0,86 |
+
+Czyli **ten sam odcień, jasność ×0,65, nasycenie dobite do maksimum**, pas
+szerokości ~2,9 % rozmiaru ikony. To nie jest czarny kontur (rodzina E) ani
+ciemny brąz (rodzina B) — rant jest z tej samej barwy, co ikona, tylko
+głębszej. Dlatego trzyma się i na kremie, i na zieleni świata, i nie zmienia
+charakteru bryły: z bliska go nie widać, z daleka robi sylwetkę.
+
+`scripts/ikony-obrys.py` odtwarza ten rant na dowolnej ikonie:
+
+- **rysuje NA ZEWNĄTRZ kształtu**, nie przemalowuje krawędzi grafiki — render
+  ma na obrzeżu własne cieniowanie i przyciemnienie go po raz drugi zjadałoby
+  detal;
+- **kolor bierze z najbliższego piksela WNĘTRZA**, nie z wygładzonej krawędzi,
+  więc ikona wielobarwna dostaje kontur idący za lokalnym kolorem — lupa ma
+  osobny rant przy drewnianej rączce i osobny przy szkle;
+- domyślna grubość to 4,2 % dłuższego boku kształtu: obrys zewnętrzny musi być
+  odrobinę szerszy niż wewnętrzny rant gwiazdki, żeby ważył optycznie tyle samo.
+
+### Ile płótna ma zajmować kształt
+
+Krok 1 łatwo obejść. Jeżeli render zostawia w alfie miękki cień albo poświatę,
+`getbbox` bierze ją razem z obiektem i na płótnie zostaje przezroczysty pas.
+Zestaw z 17.09.2026 miał przez to kształt na **58–75 %** płótna, każda ikona
+inaczej — a `object-fit: contain` skaluje do PŁÓTNA, nie do kształtu. Skutek:
+puzelek mierzył w liczniku **19,9 px** obok **31 px** gwiazdki w tym samym
+kaflu, choć CSS obu kazał mieć 31.
+
+**Nie da się tego naprawić numerem w CSS.** Każda ikona potrzebowałaby innego,
+a przy następnej generacji wszystkie by się przesunęły — dokładnie to zdarzyło
+się już raz, `.popup-postaci-cel--puzzle { width:56px }` było próbą ratowania
+proporcji w drugą stronę. Reguła: kształt zajmuje **~96 % płótna**, płótno jest
+**kwadratowe** (reguły CSS ustawiają `width == height`, więc kwadrat znaczy
+„dłuższy bok wypełnia kafelek"). `ikony-obrys.py` robi ten kadr przy okazji
+obrysu; przy ikonie spoza tego potoku warto sprawdzić:
+
+```python
+from PIL import Image
+import numpy as np
+im = Image.open(p).convert("RGBA")
+ys, xs = np.nonzero(np.array(im)[..., 3] > 6)
+print(max(xs.ptp(), ys.ptp()) / max(im.size))   # ma wyjść ~0,96
+```
 
 ## Osadzenie w znaku
 
