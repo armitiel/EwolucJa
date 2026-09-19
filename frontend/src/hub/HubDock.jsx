@@ -19,7 +19,12 @@ import React from "react";
 const SEKCJE = [
   { id: "gry", label: "Minigry", asset: "/assets/hub-nav/minigry-simple.png" },
   { id: "czat", label: "Rozmowy", asset: "/assets/hub-nav/czat-simple.png" },
-  { id: "wiadomosci", label: "Zadania", asset: "/assets/hub-nav/zadania-simple.png" },
+  /* ZWÓJ, a nie własna ikona zakładki (właściciel, 2026-09-19). Ten sam
+     rysunek nosi chmurka „co teraz" nad awatarem (`hub/coTeraz.js`, `IKONA.zwoj`)
+     i to on zapowiada zadanie poza ekranem. Dziecko widzi więc zwój w dymku,
+     a potem ten sam zwój w doku — i wie, gdzie tamto poszło. Dwie różne ikony
+     na tę samą rzecz kazałyby mu się tego domyślać. */
+  { id: "wiadomosci", label: "Zadania", asset: "/assets/wskazowki/ikona-zwoj.png" },
   { id: "porada", label: "Porada", asset: "/assets/hub-nav/porada-simple.png" },
 ];
 

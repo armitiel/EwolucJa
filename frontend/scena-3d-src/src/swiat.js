@@ -2132,7 +2132,7 @@ function zbudujKwiaty(DEF, planeta, ziemia, wysokoscGruntu = utworzMiernikGruntu
  *  group — grupa do dodania do sceny (obracana pod bohaterem),
  *  ziemia — kula terenu (do raycastu dotknięć),
  *  blockers — kolizje w układzie MAPY ({x, z, r, drzewo?, skalaDrzewa?}),
- *  lantern, gate, bridge, kwiaty, nurtTik.
+ *  lantern, gate, bridge, kwiaty, grzybki, nurtTik.
  */
 export function zbudujSwiat(mapa, planeta) {
   const s = new Group();
@@ -2268,15 +2268,27 @@ export function zbudujSwiat(mapa, planeta) {
   /* GRZYBY — dekoracja, nie przeszkoda: celowo NIE trafiają do `blockers`.
      Kępka przy ścieżce ma być czymś, co lisek mija i po czym może przebiec,
      a nie niewidzialną ścianką wielkości głazu. Kapelusze są zanurzone
-     w gruncie o 2% skali, żeby na skosie nie odsłonił się dysk blaszek. */
+     w gruncie o 2% skali, żeby na skosie nie odsłonił się dysk blaszek.
+
+     ZA TO KĘPKA DYGA PRZY DOTKNIĘCIU — tą samą sprężyną co kwiaty
+     (`_uderzGrzyby` / `_gibGrzyby` w app.js). Skoro lisek przez grzyby
+     przebiega, wychył jest jedynym znakiem, że w nie wszedł; bez niego
+     kępka czyta się jak naklejka na trawie. */
+  const grzybki = [];
   for (const g of (mapa.grzyby || [])) {
     if (!Array.isArray(g?.pos)) continue;
     const [gx, gz] = g.pos;
     const sk = g.skala ?? 1;
     const grunt = wysokoscGruntu(gx, gz);
+    /* Kotwica na kuli osobno, kępka osobno — dokładnie jak przy drzewach:
+       `planeta.ustaw` trzyma ramkę kuli i obrót na gruncie, a gibanie obraca
+       WEWNĘTRZNĄ grupę, więc wychył nie kasuje tamtego obrotu. */
+    const kotwica = new Group();
+    planeta.ustaw(kotwica, gx, gz, grunt - .02 * sk, g.obrot ?? gx * 1.7);
     const kepka = grzyby(sk);
-    planeta.ustaw(kepka, gx, gz, grunt - .02 * sk, g.obrot ?? gx * 1.7);
-    s.add(kepka);
+    kotwica.add(kepka);
+    s.add(kotwica);
+    grzybki.push({ x: gx, z: gz, skala: sk, kepka, gib: { x: 0, z: 0, vx: 0, vz: 0 } });
     const cienGrzyba = plamaCienia(.62 * sk, .26);
     planeta.ustaw(cienGrzyba, gx, gz, grunt + .005, 0);
     s.add(cienGrzyba);
@@ -2369,5 +2381,5 @@ export function zbudujSwiat(mapa, planeta) {
   const kwiaty = zbudujKwiaty(mapa.kwiaty, planeta, ziemia, wysokoscGruntu);
   if (kwiaty) kwiaty.meshe.forEach((m) => s.add(m));
 
-  return { group: s, ziemia, sciezki, lantern: n, gate: r, bridge: t, obrotMostu, blockers, kwiaty, nurtTik: nurt.tik, wysokoscGruntu, kotwicaDomku, ukladDomku: ukladDomkuSwiata };
+  return { group: s, ziemia, sciezki, lantern: n, gate: r, bridge: t, obrotMostu, blockers, kwiaty, grzybki, nurtTik: nurt.tik, wysokoscGruntu, kotwicaDomku, ukladDomku: ukladDomkuSwiata };
 }

@@ -10,22 +10,36 @@
    odsunąć. Warstwa jest przezroczysta dla dotknięć — pod spodem chodzi się
    po świecie bez zmian.
 
-   Kształt, lamówka i glina: `chmurka-ksztalt.css` + `tokeny.css` sek. 7. */
+   Kształt (bańka RAZEM z dzióbkiem): `hub/ksztaltChmurki.js` — ta sama
+   ścieżka, którą rysuje się dymek „Porada dnia". Lamówka, glina i cień:
+   `tokeny.css` sek. 7. */
 
 .wizkor-mysl {
   /* Fiolet to w tej grze barwa Wizkora — ta sama, co w `.reflektor.jest-wizkorem`.
      Pomarańcz jest liska i nie wolno go tu użyć. */
   --chmurka-akcent: var(--fiolet-500);
-  /* RÓWNY PIERŚCIEŃ, NIE RÓWNE PUDEŁKO. Awatar gracza w HUD-zie ma 58px
-     (`hud.css`, `.game-hud-profile img`) — ale to rozmiar OBRAZKA, a oba
-     pliki mają różnie dużo przezroczystego marginesu wokół odznaki:
-     `fox_avatar.png` wypełnia 99% kanwy, `wizkor_avatar.png` 85,5%
-     (zmierzone na alfie). Postawione na równej szerokości dawały pierścienie
-     52 i 50 px, a przy mniejszych ustawieniach różnica robiła się widoczna.
-     58 / 0,855 ≈ 68 — tyle trzeba dać, żeby złota obręcz Wizkora miała tę
-     samą średnicę, co obręcz liska. Kto podmieni któryś plik, musi przeliczyć
-     tę proporcję od nowa. */
-  --wizkor-awatar: 68px;
+  /* RÓWNY PIERŚCIEŃ, NIE RÓWNE PUDEŁKO — i to jest trudniejsze, niż wygląda.
+
+     Awatar gracza siedzi w pudełku 66×66 z `object-fit: contain`
+     (`scena-3d/hud.css`, `.game-hud-profile img`), a `fox_avatar.png` ma
+     512×567 px — jest WYŻSZY NIŻ SZERSZY, więc `contain` dopasowuje go
+     WYSOKOŚCIĄ i na ekranie zajmuje 59,6 px szerokości, nie 66. Złota obręcz
+     to 488 z 512 px pliku, czyli ostatecznie 56,8 px na ekranie.
+
+     `wizkor_avatar.png` jest kwadratowy (512×512), obręcz zajmuje 428 px,
+     czyli 83,6% szerokości. Przy `width: 75px` daje to 62,7 px obręczy —
+     o 10% więcej niż lisek. Tak ma być (właściciel, 19.09.2026): Wizkor
+     przychodzi z zewnątrz i ma się odrobinę wyróżniać, ale para dalej ma
+     czytać się jako jedna rodzina odznak.
+
+     Kto podmieni któryś plik, MUSI zmierzyć obręcz od nowa — nie wystarczy
+     spojrzeć na kanwę. Wartość poniżej jest zapasowa; naprawdę ustawia ją
+     komponent (stała `AWATAR` w `hub/PodpowiedzMedrca.jsx`), bo ta sama
+     liczba wyznacza też miejsce, w które celuje dzióbek. */
+  --wizkor-awatar: 75px;
+  /* Zapasowe odpowiedniki `UNIESIENIE` i `OGON_X` z komponentu. */
+  --wizkor-uniesienie: 88px;
+  --wizkor-ogon-x: 37.5px;
   /* Ten sam odstęp od krawędzi, co HUD (`hud.css`: `padding: 10px`) — awatar
      Wizkora w dolnym rogu ma stać tak samo jak awatar gracza w górnym. */
   --wizkor-margines: 10px;
@@ -75,22 +89,48 @@
 
 /* ── Chmurka ──────────────────────────────────────────────────────────── */
 .wizkor-mysl-chmurka {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 440 / 250;
-  /* Siada NAD awatarem, tak żeby ogon wypadał przy jego ramieniu. Liczone
-     z jego wysokości, więc zmiana `--wizkor-awatar` nie rozklei tej pary. */
-  margin-bottom: calc(var(--wizkor-awatar) * .58);
+  /* Kształt, lamówka, glina, cień i oddech: `.dymek` w `styles/dymek.css`.
+     Tutaj zostaje tylko to, co dotyczy TEJ sceny. */
+
+  /* ODDECH BAŃKI. To padding pudełka z tekstem wyznacza jej rozmiar, bo bańka
+     rysuje się pod pomiar treści. Te same liczby, co w dymku „Porada dnia";
+     `min-width` pilnuje, żeby jedno krótkie słowo nie zrobiło z bańki pigułki
+     węższej od własnego dzióbka. */
+  --dymek-oddech: 16px 24px;
+  --dymek-min-szer: 168px;
+  --dymek-min-wys: 62px;
+
+  /* GÓRNE OGRANICZENIE SZEROKOŚCI MUSI STAĆ TUTAJ, NIE NA PUDEŁKU Z TEKSTEM.
+     Przy `max-width` na dziecku robi się błędne koło: szerokość rodzica
+     zależy od dziecka (`fit-content`), a `100%` dziecka od rodzica — więc
+     przeglądarka traktuje procent jak `none` i całe zdanie kładzie się
+     w jedną bardzo długą linijkę. Rodzic ma definitywny punkt odniesienia
+     (warstwę), więc tutaj ograniczenie działa.
+
+     340 px to decyzja o KSZTAŁCIE, nie zabezpieczenie: łamie typową poradę
+     na dwie linijki i daje bańkę w proporcji bliskiej dymkowi „Porada dnia".
+     Jedna długa linijka wygląda jak pasek statusu, a nie jak myśl.
+
+     Ograniczenie stoi w osobnej regule niżej (`.dymek.wizkor-mysl-chmurka`),
+     bo `.dymek` też ustawia `max-width` — przy równej wadze decydowałaby
+     kolejność wstrzyknięcia arkuszy przez Vite. */
+  /* Stoi NAD odznaką tak, żeby czubek dzióbka zanurzył się w jej górnej
+     części. Liczbę wylicza komponent (`UNIESIENIE`) — tu tylko z niej
+     korzystamy, żeby ścieżka i układ nie mogły się rozjechać. */
+  margin-bottom: var(--wizkor-uniesienie);
 
   opacity: 0;
-  /* Rośnie Z OGONA, czyli znad ramienia Wizkora. Środek jako punkt
+  /* Rośnie Z DZIÓBKA, czyli znad ramienia Wizkora. Środek jako punkt
      zaczepienia wyglądałby, jakby chmurka spadła z góry. */
-  transform-origin: 12% 86%;
+  transform-origin: var(--wizkor-ogon-x) 100%;
   transform: scale(.28);
   transition:
     opacity .2s ease,
     transform .42s cubic-bezier(.2, .9, .3, 1.34);
 }
+
+/* Dwie klasy w selektorze — patrz komentarz wyżej. */
+.dymek.wizkor-mysl-chmurka { max-width: min(100%, 340px); }
 
 .wizkor-mysl.ma-chmurke .wizkor-mysl-chmurka { opacity: 1; transform: none; }
 
@@ -130,19 +170,10 @@
   to   { opacity: 0; transform: translate(calc(-100% - 28px), 18%) scale(.84); }
 }
 
-.wizkor-mysl-chmurka > .chmurka-ksztalt { position: absolute; inset: 0; }
-
-/* Okno na tekst: wnętrze prostokąta z `ChmurkaKsztalt` (wariant
-   „prostokatTekst": x 16–424, y 16–192 przy polu 440×250) minus oddech.
-   Prostokąt daje zdaniu CAŁĄ szerokość — w obłoku z kół rogi pola musiały
-   mieścić się w okręgach, więc tekst dostawał wąski pasek pośrodku i dłuższa
-   porada łamała się na cztery linijki. */
-.wizkor-mysl-tresc {
-  position: absolute;
-  left: 8.6%;
-  top: 13.6%;
-  width: 82.8%;
-  height: 56%;
+/* Wyśrodkowanie zdania w bańce. Reszta pudełka — padding, minimalne wymiary,
+   pomiar dla ścieżki — jest w `.dymek-wnetrze` (`styles/dymek.css`) i sterują
+   nią zmienne `--dymek-*` ustawione wyżej. */
+.wizkor-mysl-chmurka .dymek-wnetrze {
   display: grid;
   place-items: center;
   text-align: center;
@@ -201,25 +232,9 @@
   50%, 100% { opacity: 0; }
 }
 
-/* Krzyżyk siedzi na KRAWĘDZI bryły, na jej prawym barku. Wygląd jest wspólny
-   (`.chmurka-x` w `hub.css`) — tutaj tylko miejsce.
-
-   Liczby idą z geometrii `ChmurkaKsztalt` (wariant „tekst", pole 440×262):
-   prawe górne wybrzuszenie to koło (352, 116, 58), więc jego punkt pod 45°
-   wypada w (393, 75) — czyli 89% szerokości i 29% wysokości. Przy poprzednich
-   4%/1% guzik wisiał NAD chmurką w pustym powietrzu, bo bryła zaczyna się
-   dopiero na 8% wysokości. */
-.wizkor-mysl-x {
-  position: absolute;
-  z-index: 2;   /* nad kształtem SVG, który leży `inset: 0` na całej chmurce */
-  top: 29%;
-  right: 11%;
-  transform: translate(50%, -50%);
-}
-
-/* `.chmurka-x:active` podnosi guzik o 3 px własnym `transform` — tu musimy
-   powtórzyć wyśrodkowanie, inaczej dotknięcie odrzuciłoby go w róg. */
-.wizkor-mysl-x:active { transform: translate(50%, -50%) translateY(3px); }
+/* Krzyżyk stoi na prawym górnym narożniku bryły — miejsce ustala `.dymek-x`
+   w `styles/dymek.css`, wygląd `.chmurka-x` w `hub/styles/hub.css`. Tutaj nie
+   ma już nic do dodania. */
 
 @media (max-width: 340px) {
   .wizkor-mysl { --wizkor-margines: 8px; }

@@ -29,13 +29,19 @@ import React, { useId } from "react";
 import "../styles/chmurka-ksztalt.css";
 
 const WARIANTY = {
-  /* Kwadratowa — mieści jedną ikonę. Ogon celuje w awatar NAD chmurką. */
+  /* Kwadratowa — mieści jedną ikonę. Ogon celuje w awatar NAD chmurką.
+     PIERWSZA KROPKA WTAPIA SIĘ W BRYŁĘ (właściciel, 2026-09-19). Stała
+     wcześniej tak, że jej lamówka była STYCZNA do lamówki chmurki: wypełnienia
+     dzieliło 19 jednostek, więc między kropką a obłokiem robił się pomarańczowy
+     przewężony mostek — dziubek, który się nie domyka. Teraz kropka zachodzi
+     na bryłę (−11 jednostek), czyli jest jej wypustką, a nie sąsiadką.
+     Osobną kropką zostaje dopiero DRUGA — i to ona niesie idiom MYŚLI. */
   ikona: {
     pole: [260, 200],
     rant: 8,
     glina: [50, 188],
     bryla: [[72, 126, 44], [128, 102, 52], [186, 126, 40], [124, 144, 44]],
-    ogony: { "gora-lewo": [[50, 52, 14], [28, 20, 8]] },
+    ogony: { "gora-lewo": [[58, 80, 15], [34, 40, 9]] },
   },
   /* Szeroka — mieści kilka linijek tekstu. Ogon celuje w awatar POD nią. */
   tekst: {
@@ -53,7 +59,15 @@ const WARIANTY = {
      muszą mieścić się w kołach, więc zdanie dostaje wąski pasek pośrodku.
      Prostokąt (ten sam, co w dymku `Reflektor`) daje tekstowi całą szerokość
      i stawia powiadomienia postaci w jednym kształcie — ogon z kropek zostaje,
-     bo to on mówi, CZYJA to myśl. Decyzja właściciela, 18.09.2026. */
+     bo to on mówi, CZYJA to myśl. Decyzja właściciela, 18.09.2026.
+
+     NIKT TEGO WARIANTU JUŻ NIE UŻYWA (19.09.2026). Myśl Wizkora — jedyny jego
+     odbiorca — przeszła na ścieżkę z `hub/ksztaltChmurki.js`, czyli bańkę
+     RAZEM z dzióbkiem, tę samą co dymek „Porada dnia". Powód: ogon z dwóch
+     kropek nie domyka się na bryle — między bańką a pierwszą kropką zostaje
+     przerwa i dzióbek czyta się jak doklejony. Wariant zostaje tutaj, bo kod
+     jest trywialny, a wraz z nim zapis decyzji; jeśli po kilku tygodniach
+     nadal nie będzie miał odbiorcy, można go usunąć razem z tym komentarzem. */
   prostokatTekst: {
     pole: [440, 250],
     rant: 5,
@@ -95,34 +109,32 @@ export default function ChmurkaKsztalt({ wariant = "ikona", ogon = null, classNa
         </linearGradient>
       </defs>
 
-      {w.prostokat ? (
-        /* Prostokąt rysuje się tak samo jak bryła z kół: najpierw rant (ta sama
-           figura powiększona o `rant`), potem wypełnienie — dzięki temu lamówka
-           ma wszędzie jednakową grubość i tę samą barwę `--chmurka-akcent`. */
-        <>
-          <g className="chmurka-ksztalt-rant">
-            <rect
-              x={w.prostokat[0] - w.rant} y={w.prostokat[1] - w.rant}
-              width={w.prostokat[2] + w.rant * 2} height={w.prostokat[3] + w.rant * 2}
-              rx={w.prostokat[4] + w.rant}
-            />
-          </g>
+      {/* KOLEJNOŚĆ WARSTW NIE JEST DOWOLNA — to ona zamyka dziubek.
+          Najpierw RANT bryły, potem cały OGON (każda kropka z własnym rantem
+          i gliną), a wypełnienie bryły DOPIERO NA KOŃCU.
+
+          Wcześniej ogon szedł po wszystkim i jego lamówka malowała pomarańczowy
+          łuk w poprzek lica chmurki wszędzie tam, gdzie kropka na nią zachodziła
+          — a zachodziła choćby w szczycie pulsowania (`scale(1.16)`), więc szew
+          migał. Teraz glina bryły przykrywa ten łuk i styk jest niewidoczny,
+          a to, co z kropki wystaje poza obłok, zachowuje swoją lamówkę: ogon
+          wyrasta z chmurki, zamiast się o nią opierać.
+
+          Kropka zostaje JEDNĄ GRUPĄ (rant + glina razem), bo to ją skaluje
+          animacja pulsu. Rozbicie na „wszystkie ranty, potem wszystkie gliny"
+          dałoby ten sam obraz, ale dwie osobne animacje do trzymania w zgodzie —
+          przy tym stopniu zachodzenia efekt jest identyczny, a ryzyko żadne. */}
+      <g className="chmurka-ksztalt-rant">
+        {w.prostokat ? (
           <rect
-            x={w.prostokat[0]} y={w.prostokat[1]}
-            width={w.prostokat[2]} height={w.prostokat[3]}
-            rx={w.prostokat[4]} fill={`url(#${grad})`}
+            x={w.prostokat[0] - w.rant} y={w.prostokat[1] - w.rant}
+            width={w.prostokat[2] + w.rant * 2} height={w.prostokat[3] + w.rant * 2}
+            rx={w.prostokat[4] + w.rant}
           />
-        </>
-      ) : (
-        <>
-          <g className="chmurka-ksztalt-rant">
-            {w.bryla.map(([cx, cy, r], i) => <circle key={i} cx={cx} cy={cy} r={r + w.rant} />)}
-          </g>
-          <g fill={`url(#${grad})`}>
-            {w.bryla.map(([cx, cy, r], i) => <circle key={i} cx={cx} cy={cy} r={r} />)}
-          </g>
-        </>
-      )}
+        ) : (
+          w.bryla.map(([cx, cy, r], i) => <circle key={i} cx={cx} cy={cy} r={r + w.rant} />)
+        )}
+      </g>
 
       {kropki.map(([cx, cy, r], i) => (
         <g key={i} className={`chmurka-ksztalt-kropka chmurka-ksztalt-kropka--${i + 1}`}>
@@ -130,6 +142,18 @@ export default function ChmurkaKsztalt({ wariant = "ikona", ogon = null, classNa
           <circle cx={cx} cy={cy} r={r} fill={`url(#${grad})`} />
         </g>
       ))}
+
+      {w.prostokat ? (
+        <rect
+          x={w.prostokat[0]} y={w.prostokat[1]}
+          width={w.prostokat[2]} height={w.prostokat[3]}
+          rx={w.prostokat[4]} fill={`url(#${grad})`}
+        />
+      ) : (
+        <g fill={`url(#${grad})`}>
+          {w.bryla.map(([cx, cy, r], i) => <circle key={i} cx={cx} cy={cy} r={r} />)}
+        </g>
+      )}
     </svg>
   );
 }

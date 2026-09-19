@@ -435,7 +435,14 @@ export class Slady {
     const k = this.kotwica(gdzie);
     if (!k) { console.warn("[slady] nie ma gdzie postawić grzyba:", gdzie); return false; }
     const [x, z] = wokol(k, this._numer(gdzie));
-    this.grupa.add(this.app._osadz(grzyby(0.85), x, z, 0.02, x + z));
+    const kepka = grzyby(0.85);
+    this.grupa.add(this.app._osadz(kepka, x, z, 0.02, x + z));
+    /* Grzyb ze śladu DYGA tak samo jak te rozstawione w mapie (`_gibGrzyby`).
+       Bez tego kępka, która wyrosła po tym, co dziecko zrobiło naprawdę, byłaby
+       jedyną w całym świecie, która nie reaguje na dotknięcie — a to akurat ta,
+       którą dziecko będzie sprawdzać najuważniej. `_osadz` daje już kotwicę na
+       kuli, więc gibanie obraca samą kępkę. */
+    this.app.grzybki?.push({ x, z, skala: 0.85, kepka, gib: { x: 0, z: 0, vx: 0, vz: 0 } });
     this.app._wlaczCienie?.(this.grupa);
     return true;
   }

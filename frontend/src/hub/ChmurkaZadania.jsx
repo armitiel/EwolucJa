@@ -30,7 +30,7 @@
  * Wizkora, tylko w barwie liska (`--chmurka-akcent: --pomarancz-500`).
  */
 import React, { useEffect, useRef, useState } from "react";
-import ChmurkaKsztalt from "./ChmurkaKsztalt.jsx";
+import Dymek from "./Dymek.jsx";
 import "../styles/chmurka-zadania.css";
 
 export default function ChmurkaZadania({
@@ -97,14 +97,19 @@ export default function ChmurkaZadania({
   const opis = lista.map((i) => i.opis).filter(Boolean).join(", ");
 
   return (
-    <div
+    /* WARIANT „KROPKI" WSPÓLNEGO DYMKA (`hub/Dymek.jsx`). Dwie pulsujące
+       kropki zamiast dzióbka to jedyne rozróżnienie idiomu, jakie ta gra ma:
+       dzióbek mówi „ktoś to POWIEDZIAŁ", kropki — „ktoś to sobie POMYŚLAŁ".
+       Obłok z kółek zostaje świadomie (decyzja właściciela, 19.09.2026), ale
+       lamówka, glina, cień i barwa idą już z tego samego miejsca, co reszta. */
+    <Dymek
+      ogon="kropki"
+      kierunek="gora-lewo"
       className={`chmurka-zadania${schodzi ? " jest-schodzaca" : ""}`}
       role="status"
       aria-label={opis ? `Do zrobienia: ${opis}` : "Do zrobienia"}
       data-testid="hub-chmurka-zadania"
     >
-      <ChmurkaKsztalt wariant="ikona" ogon="gora-lewo" />
-
       <div className="chmurka-zadania-scena">
         {lista.map((ikona, i) => (
           <img
@@ -118,6 +123,6 @@ export default function ChmurkaZadania({
           />
         ))}
       </div>
-    </div>
+    </Dymek>
   );
 }

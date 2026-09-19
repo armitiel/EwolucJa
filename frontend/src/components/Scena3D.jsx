@@ -31,7 +31,7 @@ import { idPostaci, postacWybranaJawnie, DOSTEPNE_POSTACIE } from "../utils/post
 // UWAGA: numer ma tylko ROSNĄĆ. Numery 3–13 zostały już wydane przeglądarce
 // z inną zawartością modułu (kolejne wersje znaków, gwiazdki, tempo ruchu),
 // więc cofnięcie go serwuje z cache starą scenę zamiast aktualnej.
-export const WERSJA_SCENY = "162";  // stan() mowi, czy lisek brodzi (dzwiek krokow)
+export const WERSJA_SCENY = "166";  // grzybki dygaja przy dotknieciu, jak kwiatki
 const ZASOBY = "/scena-3d/assets/";
 
 /**

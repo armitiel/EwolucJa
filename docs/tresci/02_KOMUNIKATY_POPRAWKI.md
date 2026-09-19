@@ -178,14 +178,14 @@ L = lisek, N = narratorka, UI = bez głosu, M = Mentor-tekst. Moment wyświetlen
 | `Swiat.jsx:1937–1940` | UI | toast: dostarczone | Drewno na placu / Kamienie na placu · opis: Jest wszystko… / Zostało jeszcze jedno | „zostało” zakazane (R5) także w `aria-label` | poprawka | Drewno na placu (tytuł bez zmian) | opis: „Jeszcze jedno jest do przyniesienia” / „Jest wszystko, czego trzeba” | – |
 | `Swiat.jsx:1394–1397` | UI | toast: pomost | Pomost gotowy · opis: Na drzewie stanął pomost z drabinką | wzorzec | zostaje | – | – | – |
 | `Swiat.jsx:1447` | UI | toast po zleceniu realu | Nowe zadanie — zajrzyj do Zadań (31 zn.) | >28; mówi o zakładce, nie o świecie | poprawka | Zadanie czeka u ciebie | Nowe zadanie u ciebie, poza ekranem — zakładka Zadania | dok mruga, więc tytuł może być krótszy |
-| `Swiat.jsx:2057` (dziennik → podsumowanie) | N | wpis dnia | Znalazłeś pierwszą gwiazdkę / Znalazłeś 7 gwiazdek | rozlicza, cyfra, brak tokenu | przepisać | Pierwsza gwiazdka wróciła na polanę. / Gwiazdki wracają na polanę. / (komplet) Wszystkie gwiazdki świecą znów w trawie. | – | podmiotem rzecz |
+| `Swiat.jsx:2057` (dziennik → podsumowanie) | N | wpis dnia | Znalazłeś pierwszą gwiazdkę / Znalazłeś 7 gwiazdek | rozlicza, cyfra, brak tokenu | przepisać | Pierwsza gwiazdka zebrana z trawy. / Kolejne gwiazdki zebrane z trawy. / (komplet) Wszystkie gwiazdki zebrane. Cała polana sprawdzona. | – | podmiotem rzecz |
 | `Swiat.jsx:1523` | N | wpis dnia | Rozegrałeś: Gra na Pamięć | rozlicza, bez tokenu | przepisać | Karta Wizkora stoi na polanie. / Choinka jest do lotu. / Bucik jest na polanie. | – | – |
 | `Swiat.jsx:1930–1932` | N | wpis dnia | Przyniosłeś wszystko na domek na drzewie / Przyniosłeś materiał na plac budowy | bez tokenu, rozlicza | przepisać | Pod drzewem leży wszystko na pomost. / Pod drzewem leży pierwszy materiał. | – | – |
 | `Swiat.jsx:1392` | N | wpis dnia | Na drzewie stanął pomost z drabinką | wzorzec | zostaje | – | – | – |
 | `Swiat.jsx:319–332` | L | zaproszenie do gry (karta, bez głosu) | Znalazłem kartę Wizkora! / Wszedłem na choinkę! / Znalazłem bucik do biegania! + „Wybierz, jak trudno gramy:” | lisek mówi w rodzaju męskim o sobie — lisek jest liskiem, ok; „jak lecimy” ok | zostaje | – | – | 1–3: bez zmian (tekst + kafle poziomu) |
 | `Swiat.jsx:341` | L | zaproszenie fallback | Zagramy w {tytuł}? | ok | zostaje | – | – | – |
 | `Swiat.jsx:2731–2732` | UI | CTA zaproszenia | START / Nie teraz | ok | zostaje | – | – | – |
-| `Swiat.jsx:2740–2744` | UI | ekran nagrody: gwiazdki | ✦ ZADANIE WIZKORA / Wszystkie gwiazdki! / Zebrałeś 10 złotych gwiazdek dla Wizkora. / +10 monet / Super! ✦ | tokeny, cyfra, monety w centrum, „Super!”; „dla Wizkora” — gwiazdki są polany | przepisać ⚙ | ✦ POLANA / Wszystkie gwiazdki! / Świecą znów w trawie, co do jednej. / CTA: Patrzę na polanę | monety: cichy licznik w HUD, bez pigułki „+10” (decyzja 17.09) | – |
+| `Swiat.jsx:2740–2744` | UI | ekran nagrody: gwiazdki | ✦ ZADANIE WIZKORA / Wszystkie gwiazdki! / Zebrałeś 10 złotych gwiazdek dla Wizkora. / +10 monet / Super! ✦ | tokeny, cyfra, monety w centrum, „Super!”; „dla Wizkora” — gwiazdki są polany | przepisać ⚙ | ✦ POLANA / Wszystkie gwiazdki! / Gratulacje — pierwsze zadanie wykonane. / CTA: Lecimy dalej! (tekst autora, 19.09) | monety: cichy licznik w HUD, bez pigułki „+10” (decyzja 17.09) | – |
 | `Swiat.jsx:2756–2761` | UI | ekran nagrody: ułożenie | ✦ OBRAZEK ZŁOŻONY / … / Reszta czeka za rozegraną partię / Gramy! ✦ | „reszta czeka” = monety jako wabik | poprawka | note → „Karta stoi już na polanie” (Lot: „Choinka jest do lotu”; Bieg: „Bucik leży na polanie”) | – | CTA „Gramy!” zostaje (obiecuje to, co się dzieje) |
 | `Swiat.jsx:2772–2776` | UI | ekran nagrody: partia (z huba) | ✦ ZADANIE WIZKORA / … / Super! ✦ | „Super!” | poprawka | CTA → „Wracam na polanę” | – | – |
 
@@ -358,7 +358,7 @@ Krok 2 · narratorka, trzy linie o rzeczach (1 = co się dziś zmieniło, 2 = br
 | nic nie zrobione, brak placu | Wiatr przeczesał trawę na polanie. | Na wielkim drzewie nie ma jeszcze nic. | Lisek śpi w trawie, przy Wizkorze. |
 | nic, plac budowy | Paliki na placu budowy stoją, jak stały. | Pod drzewem jeszcze nie ma drewna. | Lisek śpi między palikami. |
 | nic, etap 1 | Pomost stoi na drzewie. | Domku na nim jeszcze nie ma. | Lisek śpi na pomoście, obok drabinki. |
-| coś na ekranie (gwiazdki / karta / materiał / pomost) | wpis dziennika po poprawce z §2.3 (np. „Wszystkie gwiazdki świecą znów w trawie.”, „Na drzewie stanął pomost z drabinką.”) | jak wyżej wg etapu | jak wyżej |
+| coś na ekranie (gwiazdki / karta / materiał / pomost) | wpis dziennika po poprawce z §2.3 (np. „Wszystkie gwiazdki zebrane. Cała polana sprawdzona.”, „Na drzewie stanął pomost z drabinką.”) | jak wyżej wg etapu | jak wyżej |
 | zadanie w realu czeka | jak wyżej | „{tytuł}” czeka u ciebie. | jak wyżej |
 | ślad zostawiony | jak wyżej | Na polanie przybyło coś nowego — {miejsce_reakcji}. | Lisek śpi obok tego, co przybyło. |
 | Mentor {zobaczył\|zobaczyła} | jak wyżej | Przy drzewie wyrósł kwiat, którego rano nie było. Mentor już to widzi. | Lisek śpi obok kwiatu. |

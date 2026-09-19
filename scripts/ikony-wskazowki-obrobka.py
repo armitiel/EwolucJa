@@ -33,6 +33,7 @@ PARY = [
     ("stos-surowy.png", PUBLIC / "wskazowki" / "ikona-stos.png"),
     ("gwiazdka-surowa.png", PUBLIC / "wskazowki" / "ikona-gwiazdka.png"),
     ("zwoj-surowy.png", PUBLIC / "wskazowki" / "ikona-zwoj.png"),
+    ("kamienie-surowe.png", PUBLIC / "wskazowki" / "ikona-kamienie.png"),
 ]
 
 for zrodlo, cel in PARY:

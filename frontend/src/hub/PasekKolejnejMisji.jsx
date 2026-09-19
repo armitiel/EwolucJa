@@ -28,6 +28,7 @@
  */
 import React, { useEffect, useRef, useState } from "react";
 import "../styles/pasek-misji.css";
+import { ODZNAKA_WIZKORA } from "./odznakaWizkora.js";
 
 export default function PasekKolejnejMisji({
   otwarty,
@@ -38,7 +39,7 @@ export default function PasekKolejnejMisji({
      odznaka: twarz w złotej obręczy, czubek kapelusza i broda wychodzą poza
      krąg, tło przezroczyste. Tej samej używa chmurka myśli Wizkora, więc
      przeglądarka ma ją już w pamięci. */
-  obrazek = "/wizkor_avatar.png",
+  obrazek = ODZNAKA_WIZKORA,
   czas = 2600,
   onKoniec,
 }) {

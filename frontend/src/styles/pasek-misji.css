@@ -40,26 +40,24 @@
    ucięte na linii koła — dziecko widziało wycinek, nie Wizkora.
 
    `wizkor_avatar.png` jest już narysowany jako odznaka: twarz w złotej
-   obręczy, czubek kapelusza i broda wychodzą poza krąg, tło przezroczyste.
-   Maska, tarcza i obwódka są więc zbędne — wystarczy go POKAZAĆ w całości.
+   obręczy, na ciemnej tarczy, tło poza kręgiem przezroczyste. Maska, tarcza
+   i obwódka są więc zbędne — wystarczy go POKAZAĆ w całości.
    Cień idzie przez `drop-shadow`, bo `box-shadow` obrysowałby prostokąt
    obrazka, a nie kształt odznaki. */
-/* CENTRUJEMY OBRĘCZ, NIE PLIK — i to nie jest to samo.
-   Zmierzone w `wizkor_avatar.png`: złota obręcz ma 427 px średnicy, a jej
-   środek leży na wysokości 285 z 512, czyli na 55,7% płótna. Nad obręczą
-   sterczy czubek kapelusza, pod nią broda — i to one przesuwają środek
-   GEOMETRYCZNY pliku w górę względem środka KOŁA. Wyrównanie pliku do
-   środka paska ustawia więc obręcz za wysoko, a oko czyta właśnie obręcz,
-   bo to ona jest kształtem regularnym.
+/* CENTRUJEMY OBRĘCZ, NIE PLIK — tylko że od 19.09.2026 to to samo.
+   Zmierzone w `wizkor_avatar.png`: złota obręcz ma 428 px średnicy i jej
+   środek leży dokładnie na środku płótna 512×512. Poprzedni plik miał
+   kapelusz sterczący ponad krąg i brodę pod nim, więc środek GEOMETRYCZNY
+   rozjeżdżał się ze środkiem KOŁA i trzeba go było ściągać o 55,7%.
 
-   Dlatego pudełko trzyma miejsce w wierszu, a obrazek jest w nim ustawiony
-   tak, żeby te 55,7% wypadło dokładnie na jego środku. `translateY(-55.7%)`
-   liczy się od WŁASNEJ wysokości obrazka, więc zmiana `width` niczego nie
-   rozstraja — proporcja zostaje ta sama. */
+   Rysunek właściciela mieści całego Wizkora wewnątrz kręgu, więc zostaje
+   zwykłe `-50%`. Ta reguła zostaje mimo to osobno opisana: kto podmieni
+   plik na taki, który znów wychodzi poza obręcz, MUSI zmierzyć tę wysokość
+   od nowa — oko czyta obręcz, bo to ona jest kształtem regularnym. */
 .pasek-misji-portret {
   flex: 0 0 auto;
   /* 66 px PŁÓTNA, nie odznaki: wokół obręczy jest przezroczysty margines
-     (widoczne 439×491 z 512×512), więc sama odznaka wychodzi ok. 57×63 px.
+     (widoczne 430×434 z 512×512), więc sama obręcz wychodzi ok. 55 px.
      Przy 46 px starego kółka wypadłaby mniejsza niż wycinek, który
      zastępuje — a chodziło o to, żeby Wizkora było WIDAĆ. */
   width: 66px;
@@ -76,7 +74,7 @@
   top: 50%;
   width: 100%;
   height: auto;
-  transform: translateY(-55.7%);
+  transform: translateY(-50%);
   filter: drop-shadow(0 3px 4px rgba(20, 15, 9, .45));
 }
 

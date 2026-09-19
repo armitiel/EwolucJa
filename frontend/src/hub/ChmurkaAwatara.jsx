@@ -30,6 +30,7 @@
  * polecenie z zewnątrz.
  */
 import React, { useEffect, useRef, useState } from "react";
+import Dymek from "./Dymek.jsx";
 
 /** Ile trzyma się jeden obrazek w parze (ms). */
 const PRZEMIANA_MS = 1500;
@@ -75,7 +76,20 @@ export default function ChmurkaAwatara({ etap, onKoniec }) {
   if (!id || !obrazki.length) return null;
 
   return (
-    <div
+    /* WSPÓLNY DYMEK (`hub/Dymek.jsx`) z dzióbkiem W GÓRĘ — pigułka wisi POD
+       awatarem gracza i celuje w niego. Barwy podmienia `hub.css`: kształt
+       jest wspólny z resztą gry, ale język kolorów zostaje HUD-owy, bo to
+       część paska dziecka, a nie zdanie postaci.
+
+       Dzióbek celuje w ŚRODEK AWATARA: pigułka zaczyna się 6 px od lewej
+       krawędzi paska, awatar ma 58–66 px, więc jego środek wypada jakieś
+       33 px od lewej krawędzi bańki. Sama ścieżka podniesie tę wartość do
+       swojego minimum, jeśli bańka okaże się za wąska, żeby nasada zmieściła
+       się poza zaokrągleniem narożnika — i to jest w porządku, bo lepiej
+       chybić o kilka pikseli niż rozpaść kształt na dwa. */
+    <Dymek
+      kierunek="gora"
+      ogonPrzy={33}
       className={`chmurka-awatara${spokojnie ? " bez-ruchu" : ""}`}
       role="status"
       /* Dla czytnika ekranu i dla testów: nazwa etapu, choć na ekranie stoją
@@ -84,7 +98,6 @@ export default function ChmurkaAwatara({ etap, onKoniec }) {
       data-testid="chmurka-awatara"
       data-etap={id}
     >
-      <span className="chmurka-awatara-dziobek" aria-hidden="true" />
       <div className="chmurka-awatara-ikony">
         {obrazki.map((src, i) => (
           <img
@@ -97,6 +110,6 @@ export default function ChmurkaAwatara({ etap, onKoniec }) {
           />
         ))}
       </div>
-    </div>
+    </Dymek>
   );
 }

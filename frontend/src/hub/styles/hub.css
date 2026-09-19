@@ -3355,38 +3355,32 @@
   50%    { transform:translateY(-5px) }
 }
 
-/* Karta jest już tylko RAMĄ na treść — tło, obrys i dzióbek rysuje ścieżka
-   SVG pod spodem (`ksztaltChmurki.js`). Stąd brak `background` i `border`:
-   dwa źródła tego samego kształtu prędzej czy później by się rozjechały. */
+/* Karta to `Dymek` (`hub/Dymek.jsx`) — kształt, lamówka, glina, cień
+   i krzyżyk idą stamtąd. Tutaj zostaje tylko to, co dotyczy TEJ sceny.
+
+   `width:100%` nadpisuje `fit-content` z `.dymek`: ten dymek ma stałą
+   szerokość liczoną od celu (`SZER_DYMKA` w `Reflektor.jsx`), a nie od
+   długości zdania — inaczej krótka podpowiedź dawałaby wąski pasek, który
+   przy każdej kolejnej wskazówce miałby inną szerokość.
+
+   ODDECH: 122 px z lewej to miejsce zarezerwowane dla postaci, która stoi
+   w bańce (`.reflektor-postac`), a nie pod nią. */
 .reflektor-karta{
-  position:relative;
-  overflow:visible;            /* dzióbek wychodzi poza box karty */
+  --dymek-oddech:16px 24px 16px 122px;
+  --dymek-min-wys:118px;
   cursor:pointer;
-  filter:var(--chmurka-cien-filtr);
   animation:reflektor-oddech 3.2s ease-in-out .5s infinite;
 }
 
-/* Kształt leży POD treścią i nie łapie kliknięć — klikalna jest cała chmurka. */
-.reflektor-ksztalt{
-  position:absolute; left:0;
-  pointer-events:none;
-  overflow:visible;
-}
-/* Grubosc lamowki idzie z tokenu, nie z atrybutu `stroke-width` w JSX: atrybut
-   nie przyjmuje `var()`, a chmurka ma miec DOKLADNIE te sama kreske co karta
-   Medrca. Obrys SVG jest liczony od srodka sciezki, wiec polowa lezy wewnatrz
-   banki — dlatego wizualnie zgadza sie z lamowka DOM-owa tej samej wartosci. */
-.reflektor-ksztalt path{
-  stroke:var(--chmurka-akcent);
-  stroke-width:var(--chmurka-lamowka);
-}
+/* DWIE KLASY W SELEKTORZE, ŻEBY NIE ZALEŻEĆ OD KOLEJNOŚCI ARKUSZY.
+   `.dymek` też ustawia `width`, a obie reguły mają tę samą wagę — o tym,
+   która wygrywa, decydowałaby kolejność wstrzyknięcia CSS przez Vite. Dla
+   zmiennych `--dymek-*` problemu nie ma (dymek.css ich nie ustawia, tylko
+   czyta), ale dla zwykłych właściwości trzeba przeważyć jawnie. */
+.dymek.reflektor-karta{ width:100%; }
 
-/* Warstwa mierzona przez `ResizeObserver` — to ONA wyznacza rozmiar bańki,
-   więc wewnętrzny oddech (padding) siedzi tutaj, nie w karcie. */
-.reflektor-wnetrze{
-  position:relative;
+.reflektor-karta .dymek-wnetrze{
   display:flex; align-items:center; justify-content:center;
-  box-sizing:border-box; min-height:118px; padding:16px 24px 16px 122px;
   text-align:center;
 }
 
@@ -3425,58 +3419,47 @@
 
 /* CHMURKA AWATARA — cichy kanał „co teraz" (`hub/ChmurkaAwatara.jsx`).
    Same ikonki przy awatarze w lewym górnym rogu: bez tekstu, bez lektora, bez
-   krzyżyka. Wygląda INACZEJ niż chmurka Reflektora i okno postaci, bo mówi coś
-   innego — to myśl dziecka, a nie zdanie postaci. Kremowa pigułka ze złotą
-   obwódką to ten sam język, co liczniki HUD (`hud.css`), czyli „to część
-   twojego paska", a nie nowa karta na ekranie. */
+   krzyżyka.
+
+   TA SAMA BRYŁA, INNA BARWA. Do 19.09.2026 była to osobna konstrukcja: `div`
+   z `border-radius` i doklejony pod spodem kwadrat obrócony o 45°. Dzióbek
+   trzeba było w niej ZATAPIAĆ, żeby ramka bańki nie przechodziła mu w poprzek
+   podstawy — i i tak zostawał szew. Teraz rysuje ją `Dymek`, czyli ta sama
+   ścieżka, co „Poradę dnia": bańka i dzióbek jednym ciągiem obrysu, nie ma
+   czego domykać.
+
+   Zostaje natomiast to, co miało zostać: pigułka mówi językiem PASKA, a nie
+   postaci. Kremy i złoto HUD-u podstawiamy więc pod tokeny rodziny dymków —
+   kształt wspólny, barwa własna. To jest dokładnie ta oś, na której dymki
+   mają się różnić. */
 .chmurka-awatara{
-  position:absolute; top:calc(100% + 9px); left:6px; z-index:4;
-  display:flex; align-items:center;
-  padding:7px 9px;
-  border-radius:20px;
-  background:linear-gradient(180deg, var(--hud-cream-top,#fdf3d8), var(--hud-cream-bottom,#f1d997));
-  border:2px solid var(--hud-gold-deep,#c8901a);
-  box-shadow:0 3px 0 rgba(120,80,10,.35), 0 6px 12px rgba(51,31,1,.22);
+  --chmurka-akcent:var(--hud-gold-deep,#c8901a);
+  --chmurka-tlo-0:var(--hud-cream-top,#fdf3d8);
+  --chmurka-tlo-1:var(--hud-cream-top,#fdf3d8);
+  --chmurka-tlo-2:var(--hud-cream-bottom,#f1d997);
+  --chmurka-tlo-3:var(--hud-cream-bottom,#f1d997);
+  --chmurka-tlo-4:var(--hud-gold,#e9b13c);
+  --chmurka-lamowka:2px;
+  --chmurka-cien-filtr:
+    drop-shadow(0 3px 0 rgba(120,80,10,.35))
+    drop-shadow(0 6px 12px rgba(51,31,1,.22));
+  --dymek-oddech:7px 9px;
+
+  top:calc(100% + 9px); left:6px; z-index:4;
   animation:chmurka-awatara-wjazd .34s cubic-bezier(.2,1.4,.4,1) both;
   pointer-events:none;           /* nic tu nie klika — to tylko znak */
 }
-/* DZIÓBEK MA ZATAPIAĆ SIĘ W BAŃCE, a nie do niej przylegać.
-   Trzy rzeczy go rozszczelniały:
 
-   1. NIE BYŁ KWADRATEM (14×10). Po obrocie o 45° jego boki wychodziły z bańki
-      pod dwoma różnymi kątami, więc obrys się nie sklejał z jej krawędzią.
-   2. `skew(6deg,6deg)` dokładał do tego trzeci kąt.
-   3. NAJWAŻNIEJSZE: siedział za płytko. Bańka rysuje swoją złotą ramkę pod nim,
-      a dzióbek wchodził w nią ledwie rogiem — zamiast ją przykryć, zostawiał ją
-      w poprzek własnej podstawy. To ta kreska czyta się jako „nie domyka się".
+/* `position` i `width` przeważamy dwiema klasami — `.dymek` ustawia
+   `relative` i `fit-content`, a obie reguły mają tę samą wagę. */
+.dymek.chmurka-awatara{ position:absolute; }
 
-   Kwadrat 14×14 obrócony o 45° ma 19,8 px wysokości. `top:-9px` stawia jego
-   środek DOKŁADNIE na zewnętrznej krawędzi bańki, więc połowa zostaje na
-   wierzchu jako dzióbek, a połowa — 7,9 px — wchodzi do środka i przykrywa
-   sobą i ramkę, i kawałek lica. Element jest dzieckiem bańki, więc maluje się
-   po jej tle i obrysie; nie trzeba żadnego `z-index`.
+/* `justify-content:center` NIE JEST KOSMETYKĄ. Ikonki mają 46 px, a bańka ma
+   swoje minimum szerokości (nasada dzióbka nie może wejść na narożnik) — więc
+   pudełko jest zwykle szersze od treści. Bez tego cały ten zapas lądował po
+   prawej i para ikon siedziała przyklejona do lewej krawędzi. */
+.chmurka-awatara .dymek-wnetrze{ display:flex; align-items:center; justify-content:center; }
 
-   Kremu nie mieszamy z gradientem bańki: na jej szczycie gradient ma i tak
-   `--hud-cream-top`, a dzióbek sięga sześć pikseli w głąb, gdzie różnica jest
-   poniżej progu widoczności.
-
-   (Docelowo ten kształt powinien być JEDNĄ ścieżką SVG, tak jak w dymkach
-   Reflektora — `hub/ksztaltChmurki.js` powstał dokładnie po to, żeby nie
-   doklejać trójkątów. Tutaj wystarczyło zatopić go poprawnie.) */
-.chmurka-awatara-dziobek{
-  /* `left` ZA ZAOKRĄGLENIEM, nie na nim. Przy 16 px podstawa dzióbka siadała
-     jeszcze na łuku narożnika (`border-radius:20px`) i z lewej robiło się
-     przewężenie. Od 20 px krawędź bańki jest już prosta i oba boki wychodzą
-     z niej pod tym samym kątem. Dalej celuje w awatar — ma 58 px szerokości,
-     więc te cztery piksele niczego nie rozmijają. */
-  position:absolute; top:-9px; left:20px;
-  width:14px; height:14px;
-  background:var(--hud-cream-top,#fdf3d8);
-  border-left:2px solid var(--hud-gold-deep,#c8901a);
-  border-top:2px solid var(--hud-gold-deep,#c8901a);
-  transform:rotate(45deg);
-  border-radius:4px 0 0 0;
-}
 .chmurka-awatara-ikony{ position:relative; width:46px; height:46px; }
 .chmurka-awatara-ikony img{
   position:absolute; inset:0; width:46px; height:46px; object-fit:contain;
@@ -3505,16 +3488,16 @@
   color:var(--p-ink,#4e4d76);
 }
 
-/* Wyglad guzika jest w `.chmurka-x` (wspolny z Medrcem) — tutaj tylko miejsce. */
-.reflektor-x{ position:absolute; top:-13px; right:-12px; z-index:2; }
+/* Miejsce krzyżyka ustala `.dymek-x` (`styles/dymek.css`), wygląd `.chmurka-x`
+   niżej w tym pliku. Osobna reguła `.reflektor-x` nie jest już potrzebna. */
 
 @media (max-width:360px){
-  .reflektor-wnetrze{ min-height:104px; padding:14px 18px 14px 94px; }
+  .reflektor-karta{ --dymek-oddech:14px 18px 14px 94px; --dymek-min-wys:104px; }
   .reflektor-postac{ left:3px; width:94px; margin:0; }
   .reflektor-postac.jest-liskiem{ left:5px; width:88px; margin:0; }
   .reflektor-karta h2{ font-size:17px; }
   .reflektor-karta p{ font-size:12.5px; }
-  .reflektor-x{ top:-10px; right:-7px; }
+  .reflektor-karta .dymek-x{ top:-10px; right:-7px; }
 }
 
 @media (prefers-reduced-motion:reduce){

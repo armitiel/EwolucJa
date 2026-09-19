@@ -1,0 +1,88 @@
+/* Dymek — wspólny wygląd wszystkich wypowiedzi i myśli w grze.
+   Komponent: `hub/Dymek.jsx`. Barwy i proporcje: `public/tokeny.css` sek. 7.
+
+   CO TU JEST: kształt, lamówka, glina, cień, oddech i miejsce krzyżyka.
+   CZEGO TU NIE MA: gdzie dymek stoi na ekranie, jak wjeżdża i jak długo wisi.
+   To należy do wołającego — `wizkor-mysl.css`, `hub.css` (Reflektor),
+   `chmurka-zadania.css` — i dlatego te arkusze dalej istnieją.
+
+   TRZY POKRĘTŁA DLA WOŁAJĄCEGO, ustawiane na rodzicu albo na samym dymku:
+     --chmurka-akcent   barwa lamówki, cienia i krzyżyka (fiolet Wizkora,
+                        pomarańcz liska, złoto HUD-u)
+     --chmurka-tlo-0..4 glina; nadpisuje się je tylko wtedy, gdy dymek ma
+                        należeć do innej rodziny niż reszta (pigułka przy
+                        awatarze gracza mówi językiem paska, nie postaci)
+     --dymek-oddech     wewnętrzny margines bańki; to ON wyznacza jej rozmiar,
+                        bo bańka rysuje się pod pomiar pudełka z treścią */
+
+.dymek {
+  position: relative;
+  /* Szerokość Z TREŚCI. Sztywna proporcja dawała zdaniu na pół linijki taką
+     samą wielką bańkę, co zdaniu na cztery — i tekst pływał w środku. */
+  width: fit-content;
+  max-width: 100%;
+  /* Dzióbek wychodzi poza box bańki — nie wolno go przyciąć. */
+  overflow: visible;
+  /* Cień na `filter`, a nie `box-shadow`: bryła jest ścieżką SVG, nie
+     prostokątem, więc cień ma iść za sylwetką razem z dzióbkiem. */
+  filter: var(--chmurka-cien-filtr);
+}
+
+.dymek-ksztalt {
+  position: absolute;
+  pointer-events: none;   /* klikalna jest cała bańka, nie sam kształt */
+  overflow: visible;      /* obrys liczy się od środka linii — pół leży na zewnątrz */
+}
+
+.dymek-ksztalt path {
+  stroke: var(--chmurka-akcent);
+  stroke-width: var(--chmurka-lamowka);
+}
+
+/* PUDEŁKO, KTÓRE MIERZY `ResizeObserver` — jego padding JEST oddechem bańki.
+   Wartość domyślna jest ta sama, co miał dymek „Porada dnia" (16 px w pionie,
+   24 px w poziomie); kto potrzebuje innej, podaje `--dymek-oddech`. */
+/* MINIMUM NIE JEST OZDOBNE. `sciezkaChmurki` i tak przycina bańkę do swoich
+   granic (nasada dzióbka nie może wejść na zaokrąglony narożnik), więc gdyby
+   pudełko z treścią mogło zejść niżej, ścieżka rysowałaby się SZERZEJ niż
+   box, który ją mierzy — bańka wystawałaby poza własną treść.
+
+   `--dymek-min-wbudowane` wstrzykuje komponent, prosto ze stałych
+   w `hub/ksztaltChmurki.js`; `max()` sprawia, że wołający może ten próg
+   PODNIEŚĆ (`--dymek-min-szer`), ale nie zejdzie poniżej tego, co da się
+   narysować. Dzięki temu zmiana proporcji dzióbka jest zmianą w JEDNYM
+   miejscu — arkusz dowiaduje się o niej sam. */
+.dymek-wnetrze {
+  position: relative;
+  box-sizing: border-box;
+  min-width: max(var(--dymek-min-szer, 0px), var(--dymek-min-wbudowane, 0px));
+  min-height: max(var(--dymek-min-wys, 0px), var(--dymek-min-wys-wbudowane, 0px));
+  padding: var(--dymek-oddech, 16px 24px);
+}
+
+/* Krzyżyk siedzi na prawym górnym NAROŻNIKU bryły. Wygląd jest wspólny
+   (`.chmurka-x` w `hub/styles/hub.css`) — tutaj tylko miejsce. */
+.dymek-x {
+  position: absolute;
+  z-index: 2;             /* nad ścieżką, która leży pod całą bańką */
+  top: -13px;
+  right: -12px;
+}
+
+/* ── MYŚL: obłok z kółek ─────────────────────────────────────────────────
+   Inny idiom, ta sama rodzina. Obłok mieści jedną ikonę i ma stałą proporcję,
+   więc rozmiar podaje wołający (`width` + `aspect-ratio`), a nie treść. */
+.dymek--kropki {
+  width: var(--dymek-szer, clamp(104px, 29vmin, 146px));
+  aspect-ratio: var(--dymek-proporcja, 260 / 200);
+}
+
+.dymek--kropki > .chmurka-ksztalt { position: absolute; inset: 0; }
+
+.dymek--kropki .dymek-wnetrze {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}

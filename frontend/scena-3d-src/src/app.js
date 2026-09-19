@@ -457,6 +457,7 @@ export class Aplikacja {
       };
     }
     this.kwiaty = sw.kwiaty;
+    this.grzybki = sw.grzybki || [];
     /* ŚLADY PRZYGÓD (`slady.js`) — to, co planeta robi z tym, co dziecko
        zrobiło POZA ekranem. Tworzymy je tutaj, bo potrzebują trzech rzeczy
        naraz: kwiatów (najczęstsza forma śladu), tablicy `blockers`
@@ -1508,7 +1509,7 @@ export class Aplikacja {
     };
   }
 
-  /* ── gibanie drzew i kwiatów ──────────────────────────────────────────────── */
+  /* ── gibanie drzew, kwiatów i grzybów ─────────────────────────────────────── */
 
   _uderzDrzewa(hx, hz, dx, dz) {
     const lista = this.blockers;
@@ -1545,6 +1546,28 @@ export class Aplikacja {
       const sila = NACISK * bliskosc * tempo * dt;
       k.gib.vx += (ox / od) * sila;
       k.gib.vz += (oz / od) * sila;
+    }
+  }
+  /** Kępki grzybów dygają jak kwiaty, tylko sztywniej i płycej: grzyb ma
+      gruby trzon, więc kłania się o kilkanaście stopni, a nie kładzie
+      pokotem. Grzyby NIE są w `blockers` (lisek po nich przebiega), więc ten
+      impuls to jedyne, co w ogóle daje znać, że coś w nie weszło. */
+  _uderzGrzyby(hx, hz, dx, dz) {
+    const G = this.grzybki;
+    if (!G || !G.length) return;
+    const m = Math.hypot(dx, dz);
+    if (!(m > 1e-6)) return;
+    const dt = this._dtGib || 1 / 60, NACISK = 70;
+    for (const g of G) {
+      // Kępka o skali 1 zajmuje ok. 25 cm; zasięg to ona plus wyciągnięta łapa.
+      const zasieg = .40 + .34 * (g.skala || 1);
+      const ox = g.x - hx, oz = g.z - hz, od = Math.hypot(ox, oz);
+      if (od < 1e-4 || od > zasieg) continue;
+      if ((dx * ox + dz * oz) / m <= 0) continue;
+      const bliskosc = (zasieg - od) / zasieg, tempo = Math.min(1, (m * 60) / 3.2);
+      const sila = (NACISK * bliskosc * tempo * dt) / (g.skala || 1);
+      g.gib.vx += (ox / od) * sila;
+      g.gib.vz += (oz / od) * sila;
     }
   }
   _sprezyna(st, K, T, MAX, dt, eps, epsV) {
@@ -1600,6 +1623,19 @@ export class Aplikacja {
     }
     if (ruszone) K.oznacz();
   }
+  _gibGrzyby(dt) {
+    for (const g of this.grzybki || []) {
+      const st = g.gib;
+      if (!st.x && !st.z && !st.vx && !st.vz) continue;
+      const masa = g.skala || 1;
+      /* Większy grzyb kołysze się wolniej i płycej — ta sama zależność od
+         masy, co przy drzewach. `_spokojGib` < 1 to ślad porady
+         `lisek-oddycha`: wtedy cała łąka gibie się spokojniej. */
+      this._sprezyna(st, (44 / masa) * (this._spokojGib || 1), 4.0, .46 / masa, dt, 3e-4, 3e-3);
+      g.kepka.rotation.z = -st.x;
+      g.kepka.rotation.x = st.z;
+    }
+  }
   _gibDrzew(dt) {
     for (const b of this.blockers || []) {
       const d = b && b.drzewo;
@@ -1651,7 +1687,7 @@ export class Aplikacja {
       this.aktualizujHp();
       return true;
     };
-    // Drzewa i kwiaty dostają ZAMIERZONY krok, zanim kolizja go utnie —
+    // Drzewa, kwiaty i grzyby dostają ZAMIERZONY krok, zanim kolizja go utnie —
     // choinka ma się bujać także wtedy, gdy lisek w nią wbiega i stoi.
     {
       const zamiar = this._zamiar || (this._zamiar = { x: 0, z: 0, h: 0 });
@@ -1661,6 +1697,7 @@ export class Aplikacja {
       const cel = this.planeta.zKuli(this._v1.copy(n).multiplyScalar(this.planeta.R), zamiar);
       this._uderzDrzewa(x0, z0, cel.x - x0, cel.z - z0);
       this._uderzKwiaty(x0, z0, cel.x - x0, cel.z - z0);
+      this._uderzGrzyby(x0, z0, cel.x - x0, cel.z - z0);
     }
     if (!this.canWalkN(this.hn) || proba(kier, dystans)) return przyjmij();
     // ślizg: składowe wzdłuż osi kamery rzutowanych na płaszczyznę styczną
@@ -1919,6 +1956,7 @@ export class Aplikacja {
     this._dtGib = e;
     this._gibDrzew(e);
     this._gibKwiaty(e);
+    this._gibGrzyby(e);
     this.kwiaty?.aktualizujZasiew(e, spokojnyRuch);
     if (!spokojnyRuch) this.nurtTik(e);
 

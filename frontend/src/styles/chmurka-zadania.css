@@ -20,13 +20,17 @@
      Wizkora i nie wolno go tu użyć. */
   --chmurka-akcent: var(--pomarancz-500);
   --awatar: 66px;
+  /* Rozmiar podajemy ZMIENNĄ, a nie `width`. `.dymek--kropki` też ustawia
+     szerokość i proporcję; obie reguły mają tę samą wagę, więc o zwycięzcy
+     decydowałaby kolejność wstrzyknięcia arkuszy przez Vite. Zmiennej
+     `.dymek--kropki` nie ustawia — tylko ją czyta — więc tu konfliktu nie ma.
+     Właściwości, których nie da się przenieść na zmienną (`position`),
+     przeważamy niżej selektorem z dwiema klasami. */
+  --dymek-szer: clamp(104px, 29vmin, 146px);
 
-  position: absolute;
   z-index: 3;
   top: calc(10px + env(safe-area-inset-top, 0px) + var(--awatar) * .66);
   left: calc(10px + var(--awatar) * .44);
-  width: clamp(104px, 29vmin, 146px);
-  aspect-ratio: 260 / 200;
   pointer-events: none;
 
   /* Wyrasta z ogonka, czyli z lewego górnego rogu — tam, gdzie stoi awatar.
@@ -49,8 +53,11 @@
   to   { opacity: 0; transform: scale(.52); }
 }
 
-/* Kształt wypełnia kontener; leży pod karuzelą. */
-.chmurka-zadania > .chmurka-ksztalt { position: absolute; inset: 0; }
+/* `.dymek` stawia `position: relative` — ta chmurka musi być `absolute`,
+   bo wisi w rogu HUD-u. Dwie klasy w selektorze przeważają to niezależnie
+   od kolejności arkuszy. Kształt wypełnia kontener i leży pod karuzelą
+   (reguła jest w `dymek.css`). */
+.dymek.chmurka-zadania { position: absolute; }
 
 /* Okno na ikonę: wycinek WNĘTRZA bryły, wyśrodkowany na jej środku
    ciężkości (128/260 w poziomie, 120/200 w pionie). */
@@ -104,13 +111,13 @@
 /* Mniejszy telefon: awatar schodzi do 58 px (patrz `hud.css`), więc
    zaczepienie chmurki musi zejść razem z nim. */
 @media (max-width: 340px) {
-  .chmurka-zadania { --awatar: 58px; width: clamp(92px, 30vmin, 116px); }
+  .chmurka-zadania { --awatar: 58px; --dymek-szer: clamp(92px, 30vmin, 116px); }
 }
 
 /* Krajobraz na niskim ekranie: chmurka nie może wejść na dolny dok ani
    przykryć liska, więc kurczy się mocniej niż `vmin` sam z siebie. */
 @media (orientation: landscape) and (max-height: 430px) {
-  .chmurka-zadania { width: clamp(84px, 24vmin, 110px); }
+  .chmurka-zadania { --dymek-szer: clamp(84px, 24vmin, 110px); }
 }
 
 @media (prefers-reduced-motion: reduce) {

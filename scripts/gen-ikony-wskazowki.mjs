@@ -82,6 +82,15 @@ const IKONY = [
     co: "a single plump five-pointed golden star with softly rounded tips",
   },
   {
+    /* Kamienie — bliźniak stosu drewna: ten sam toast („… na placu"), więc
+       muszą stać obok siebie bez zgrzytu. Trzy bryły jak trzy kłody, nie
+       sypana górka żwiru: dziecko ma poznać to, co niosło z lasu. */
+    plik: 'kamienie-surowe.png',
+    co: "a small pile of three chunky angular grey rocks with flat faceted surfaces, like hewn "
+      + "boulders: one larger rock at the back and two smaller ones in front of it, cool grey stone "
+      + "with lighter top facets and darker sides",
+  },
+  {
     /* Zadanie poza ekranem: zwinięty pergamin ze wstążką. Nie koperta i nie
        kartka w kratkę — to ma pachnieć wyprawą, a nie pracą domową. */
     plik: 'zwoj-surowy.png',

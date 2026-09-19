@@ -35,7 +35,7 @@
  */
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { OGON_DLUGOSC, sciezkaChmurki } from "./ksztaltChmurki.js";
+import Dymek from "./Dymek.jsx";
 import { powiedzJakLisek } from "./glosLiska.js";
 import { odmienDlaGracza as o } from "../services/rodzaj.js";
 
@@ -84,9 +84,7 @@ function spokojnyRuch() {
 
 export default function Reflektor({ wskazowka, onZamknij }) {
   const [otwor, setOtwor] = useState(null);
-  const [banka, setBanka] = useState({ szer: 0, wys: 0 });
   const celRef = useRef(null);
-  const obserwatorRef = useRef(null);
 
   // Cel znajdujemy PO wyrenderowaniu HUD-u: podpowiedź pojawia się nad żywym
   // interfejsem, a nie zamiast niego.
@@ -123,51 +121,17 @@ export default function Reflektor({ wskazowka, onZamknij }) {
     };
   }, [wskazowka]);
 
-  /**
-   * Rozmiar bańki bierze się z treści, nie odwrotnie: `ResizeObserver` patrzy
-   * na warstwę z Wizkorem i tekstem, a ścieżka SVG rysuje się pod ten pomiar.
-   *
-   * DLACZEGO REF ZWROTNY, A NIE `useLayoutEffect([wskazowka])`. Tak było
-   * i przez to bańka NIGDY nie była mierzona. Przy pierwszym renderze `otwor`
-   * jest jeszcze `null`, więc komponent zwraca `null` i `wnetrzeRef.current`
-   * też jest `null` — efekt wychodził pustą ręką. Gdy chwilę później pomiar
-   * celu ustawiał `otwor` i karta wreszcie wjeżdżała do DOM-u, `wskazowka`
-   * się nie zmieniła, więc efekt już się NIE powtarzał: obserwator nie
-   * podpinał się nigdy, a `banka` zostawała `{0,0}`.
-   *
-   * Skutek było widać: ścieżka rysowała się z wartości zapasowej 90 px, a
-   * tekst wyśrodkowany w prawdziwym pudełku (118 px) siadał o ~14 px NIŻEJ
-   * niż środek narysowanej bańki i dociskał się do jej dolnej krawędzi.
-   *
-   * Ref zwrotny nie da się na to nabrać: przeglądarka woła go z węzłem, gdy
-   * ten wchodzi do DOM-u, i z `null`, gdy wychodzi — niezależnie od tego,
-   * który render go tam wstawił.
-   */
-  const rozepnijObserwatora = useCallback((el) => {
-    obserwatorRef.current?.disconnect();
-    obserwatorRef.current = null;
-    if (!el) return;
-    /**
-     * `offsetWidth/Height`, NIE `getBoundingClientRect`. Chmurka wjeżdża
-     * animacją, która zaczyna się od `scale(.5)`, a prostokąt z `rect`
-     * podaje rozmiar PO transformacji — pierwszy pomiar wypadałby więc
-     * dokładnie o połowę za mały i bańka rysowałaby się w połowie treści.
-     * `offset*` opisuje układ, a nie to, co akurat robi z nim animacja.
-     */
-    const zmierz = () => {
-      const szer = el.offsetWidth;
-      const wys = el.offsetHeight;
-      setBanka((teraz) =>
-        Math.abs(teraz.szer - szer) < 0.5 && Math.abs(teraz.wys - wys) < 0.5
-          ? teraz
-          : { szer, wys }
-      );
-    };
-    zmierz();
-    if (typeof ResizeObserver === "undefined") return;
-    obserwatorRef.current = new ResizeObserver(zmierz);
-    obserwatorRef.current.observe(el);
-  }, []);
+  /* Pomiar treści, ścieżka i gradient przeniosły się do `Dymek` (19.09.2026).
+     Historia tego miejsca jest pouczająca i dlatego zostaje: przez długi czas
+     stał tu `useLayoutEffect([wskazowka])` i przez to bańka NIGDY nie była
+     mierzona. Przy pierwszym renderze `otwor` jest jeszcze `null`, komponent
+     zwraca `null`, więc ref też jest `null` — efekt wychodził pustą ręką.
+     Gdy chwilę później pomiar celu ustawiał `otwor` i karta wjeżdżała do
+     DOM-u, `wskazowka` się nie zmieniła, więc efekt już się NIE powtarzał.
+     Ścieżka rysowała się z wartości zapasowej, a tekst siadał kilkanaście
+     pikseli poniżej środka narysowanej bańki. Lekarstwem był ref ZWROTNY —
+     przeglądarka woła go z węzłem, gdy ten wchodzi do DOM-u, niezależnie od
+     tego, który render go tam wstawił — i tak działa to teraz w `Dymek`. */
 
   const zamknij = useCallback((powod) => onZamknij?.(powod), [onZamknij]);
 
@@ -244,16 +208,6 @@ export default function Reflektor({ wskazowka, onZamknij }) {
     granice.left + MARGINES,
     Math.min(otwor.srodekX - szerDymka / 2, granice.right - MARGINES - szerDymka)
   );
-  const dziobekX = Math.max(18, Math.min(otwor.srodekX - lewaDymka - 13, szerDymka - 44));
-
-  // Wymiary SAMEJ bańki (bez dzióbka). Wartości zapasowe działają tylko przez
-  // jedną klatkę — zanim ref zwrotny zdąży zmierzyć wnętrze.
-  const szerBanki = banka.szer || szerDymka;
-  const wysBanki = banka.wys || 118;
-  // Gdzie w układzie SVG zaczyna się bańka: przy dzióbku w dół od zera,
-  // przy dzióbku w górę dopiero pod nim. Tego potrzebuje gradient gliny.
-  const goraBanki = nadCelem ? 0 : OGON_DLUGOSC;
-
   const stylDymka = nadCelem
     ? { bottom: `${Math.max(MARGINES, wysOkna - otwor.top + PRZERWA)}px` }
     : { top: `${otwor.top + otwor.wys + PRZERWA}px` };
@@ -330,86 +284,46 @@ export default function Reflektor({ wskazowka, onZamknij }) {
         className={`reflektor-dymek${nadCelem ? " jest-nad" : " jest-pod"}`}
         style={{ ...stylDymka, left: `${lewaDymka}px`, width: `${szerDymka}px` }}
       >
-        <div className="reflektor-karta" onClick={() => zamknij("dotkniecie")} role="presentation">
-          {/* Bańka i dzióbek to JEDNA ścieżka. Leży pod treścią, nie łapie
-              kliknięć (klikalna jest cała chmurka) i wystaje poza swój box
-              o długość dzióbka — stąd `overflow: visible` w CSS. */}
-          <svg
-            className="reflektor-ksztalt"
-            width={szerBanki}
-            height={wysBanki + OGON_DLUGOSC}
-            viewBox={`0 0 ${szerBanki} ${wysBanki + OGON_DLUGOSC}`}
-            style={nadCelem ? { top: 0 } : { top: `${-OGON_DLUGOSC}px` }}
+        {/* KSZTAŁT, LAMÓWKA, GLINA, CIEŃ I KRZYŻYK IDĄ Z `Dymek` — wspólnego
+            komponentu wszystkich wypowiedzi w grze (`hub/Dymek.jsx`). Do
+            19.09.2026 ten sam kod (pomiar treści, ścieżka, gradient, guzik)
+            stał osobno tutaj i osobno w myśli Wizkora, więc każda poprawka
+            kształtu trafiała tylko w połowę gry.
+
+            Dzióbek celuje w ŚRODEK CELU, nie w środek bańki: chmurka dosuwa
+            się do krawędzi ekranu przy skrajnej ikonie doku, a czubek zostaje
+            tam, gdzie świeci obręcz. */}
+        <Dymek
+          className="reflektor-karta"
+          kierunek={nadCelem ? "dol" : "gora"}
+          ogonPrzy={otwor.srodekX - lewaDymka}
+          onClick={() => zamknij("dotkniecie")}
+          onZamknij={() => zamknij("krzyzyk")}
+          etykietaZamkniecia="Zamknij podpowiedź"
+          role="presentation"
+        >
+          <img
+            className={`reflektor-postac${lisek ? " jest-liskiem" : ""}`}
+            src={wskazowka.postac}
+            alt=""
             aria-hidden="true"
-          >
-            <defs>
-              {/* GLINA. Pięć stopni z `tokeny.css` sekcja 7 — te same, którymi
-                  maluje się karta Wizkora, więc obie chmurki mają identyczne
-                  światło u góry i zejście w cień u dołu.
-                  `gradientUnits="userSpaceOnUse"` jest tu konieczne: procenty
-                  liczyłyby się od całej wysokości SVG, czyli RAZEM z dzióbkiem,
-                  i cień dolnej krawędzi wypadłby w środku bańki. Tak liczą się
-                  od samej bańki, a dzióbek (poza zakresem) dostaje przedłużony
-                  ostatni stopień — czyli ten sam cień, co krawędź nad nim. */}
-              <linearGradient
-                id="reflektor-wypelnienie"
-                gradientUnits="userSpaceOnUse"
-                x1="0" y1={goraBanki} x2="0" y2={goraBanki + wysBanki}
-              >
-                <stop offset="0" stopColor="var(--chmurka-tlo-0)" />
-                <stop offset="0.1" stopColor="var(--chmurka-tlo-1)" />
-                <stop offset="0.9" stopColor="var(--chmurka-tlo-2)" />
-                <stop offset="0.955" stopColor="var(--chmurka-tlo-3)" />
-                <stop offset="1" stopColor="var(--chmurka-tlo-4)" />
-              </linearGradient>
-            </defs>
-            <path
-              d={sciezkaChmurki({
-                szer: szerBanki,
-                wys: wysBanki,
-                ogonX: otwor.srodekX - lewaDymka,
-                wDol: nadCelem,
-              })}
-              fill="url(#reflektor-wypelnienie)"
-              /* stroke i stroke-width: hub.css, `.reflektor-ksztalt path` */
-
-              strokeLinejoin="round"
-            />
-          </svg>
-
-          <button
-            type="button"
-            className="chmurka-x reflektor-x"
-            onClick={(e) => { e.stopPropagation(); zamknij("krzyzyk"); }}
-            aria-label="Zamknij podpowiedź"
-          >
-            ×
-          </button>
-
-          <div className="reflektor-wnetrze" ref={rozepnijObserwatora}>
-            <img
-              className={`reflektor-postac${lisek ? " jest-liskiem" : ""}`}
-              src={wskazowka.postac}
-              alt=""
-              aria-hidden="true"
-              draggable="false"
-            />
-            <div className="reflektor-tresc">
-              {/* Wskazówki z `hub/wskazowki.js` mogą nieść tokeny `{m|ż}` —
-                  odmiana przed renderem; głos liska odmienia `powiedzJakLisek`. */}
-              <h2>{o(wskazowka.tytul)}</h2>
-              <p>
-                {wskazowka.linie?.length
-                  ? wskazowka.linie.map((linia, index) => (
-                      <React.Fragment key={linia}>
-                        {index ? <br /> : null}{o(linia)}
-                      </React.Fragment>
-                    ))
-                  : o(wskazowka.tekst)}
-              </p>
-            </div>
+            draggable="false"
+          />
+          <div className="reflektor-tresc">
+            {/* Wskazówki z `hub/wskazowki.js` mogą nieść tokeny `{m|ż}` —
+                odmiana przed renderem; głos liska odmienia `powiedzJakLisek`. */}
+            <h2>{o(wskazowka.tytul)}</h2>
+            <p>
+              {wskazowka.linie?.length
+                ? wskazowka.linie.map((linia, index) => (
+                    <React.Fragment key={linia}>
+                      {index ? <br /> : null}{o(linia)}
+                    </React.Fragment>
+                  ))
+                : o(wskazowka.tekst)}
+            </p>
           </div>
-        </div>
+        </Dymek>
       </div>
     </div>
   ), document.body);

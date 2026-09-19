@@ -38,7 +38,9 @@
  * dziecka, które jeszcze nie czyta płynnie.
  */
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
-import ChmurkaKsztalt from "./ChmurkaKsztalt.jsx";
+import Dymek from "./Dymek.jsx";
+import { ODZNAKA_WIZKORA } from "./odznakaWizkora.js";
+import { OGON_DLUGOSC } from "./ksztaltChmurki.js";
 import { WAGA, kiedyMowil, powiedzPostacia } from "./mowaPostaci.js";
 import { POZIOM, SLOT, czyWolno, zajmijSlot, zanotuj, zwolnijSlot } from "./bramkaKomunikatow.js";
 import { odmienDlaGracza } from "../services/rodzaj.js";
@@ -67,6 +69,51 @@ const ZEJSCIE = 460;
 const MAX_NA_SESJE = 2;         // R7
 /** Nazwa kanału w bramce (`hub/bramkaKomunikatow.js`). */
 const KANAL = "myslWizkora";
+
+/* ŚREDNICA ODZNAKI WIZKORA — JEDNA LICZBA DLA CSS I DLA DZIÓBKA.
+   Stąd idzie `--wizkor-awatar` (styl w JSX niżej) ORAZ miejsce, w które celuje
+   czubek dzióbka. Gdyby siedziały osobno — token w arkuszu, a dzióbek na sztywno
+   w komponencie — pierwsza zmiana rozmiaru rozjechałaby jedno z drugim i nikt
+   by nie wiedział, dlaczego chmurka celuje obok.
+
+   SKĄD 75. Złota obręcz Wizkora zajmuje 83,6% szerokości pliku
+   (`wizkor_avatar.png`: 428 z 512 px — zmierzone na kanale alfa), więc przy
+   75 px obręcz ma 62,7 px na ekranie. Obręcz liska w HUD-zie ma 56,8 px
+   (`fox_avatar.png` w pudełku 66×66 z `object-fit: contain`, plik 512×567 —
+   dopasowuje się WYSOKOŚCIĄ, nie szerokością: to dlatego równe `width` w CSS
+   nigdy nie dawało równych obręczy). 62,7 / 56,8 to +10% — decyzja właściciela
+   z 19.09.2026: Wizkor ma być odrobinę większy, bo przychodzi z zewnątrz,
+   ale para dalej ma wyglądać na jedną rodzinę odznak. */
+const AWATAR = 75;
+
+/* Gdzie celuje czubek: w środek odznaki. Chmurka i odznaka zaczynają się na
+   tej samej lewej krawędzi warstwy, więc to po prostu połowa średnicy. */
+const OGON_X = AWATAR / 2;
+
+/* GDZIE ZACZYNA SIĘ RYSUNEK W OSI DZIÓBKA — ułamek wysokości odznaki.
+   W `wizkor_avatar.png` czubek kapelusza sięga w środkowej kolumnie do
+   68,6 z 75 px (zmierzone na kanale alfa). To NIE jest to samo, co górna
+   krawędź całego pliku: kapelusz podwija się w bok i w najwyższym punkcie
+   (y = 39 z 512) sterczy odrobinę wyżej niż dokładnie nad środkiem odznaki.
+
+   BYŁO 0,875 DO 19.09.2026 — wtedy plik miał kapelusz wystający daleko ponad
+   obręcz. Rysunek właściciela mieści całego Wizkora WEWNĄTRZ kręgu, więc nad
+   środkiem odznaki zaczyna się on o trzy piksele wyżej; bez tej poprawki
+   dzióbek zatrzymywał się nad kapeluszem i zostawała szpara. */
+const AWATAR_SZCZYT = 0.9141;
+
+/* Ile czubek dzióbka wchodzi w kapelusz. Zero wyglądałoby na styk dwóch
+   osobnych rzeczy; trzy piksele robią z tego jedną scenę. */
+const ZANURZENIE = 3;
+
+/* O ile chmurka unosi się nad dolną krawędzią warstwy. Czubek wypada
+   `OGON_DLUGOSC` niżej niż spód bańki, więc spód musi stać o tę długość
+   wyżej niż miejsce, w które dzióbek celuje.
+
+   DO 19.09.2026 STAŁO TU 0,74 ŚREDNICY i czubek lądował 56 px nad dołem
+   warstwy, czyli dziesięć pikseli PONIŻEJ kapelusza — dolna część dzióbka
+   chowała się za odznaką i dymek wyglądał na ucięty. */
+const UNIESIENIE = Math.round(AWATAR * AWATAR_SZCZYT - ZANURZENIE) + OGON_DLUGOSC;
 
 /* JEDEN TEMAT DZIENNIE. `rodzaj` porady liska → tematy myśli Wizkora, które
    tego dnia milczą (`04` §4.5). Tematy siedzą w `porady-zdrowia.v1.json`. */
@@ -391,6 +438,15 @@ const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true, 
   return (
     <div
       className={`wizkor-mysl${chmurka ? " ma-chmurke" : ""}${znika ? " jest-znikajaca" : ""}`}
+      /* Średnica odznaki i długość dzióbka idą Z JEDNEGO MIEJSCA (stałe na
+         górze pliku), żeby arkusz i ścieżka SVG nie mogły się rozjechać.
+         Arkusz ma te same liczby jako wartości zapasowe — na wypadek, gdyby
+         ktoś wyrenderował te klasy bez komponentu. */
+      style={{
+        "--wizkor-awatar": `${AWATAR}px`,
+        "--wizkor-uniesienie": `${UNIESIENIE}px`,
+        "--wizkor-ogon-x": `${OGON_X}px`,
+      }}
       role="status"
       aria-live="polite"
       data-testid="medrzec-podpowiedz"
@@ -404,35 +460,35 @@ const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true, 
           da się to odsunąć — ale sześciolatek, który celuje palcem w środek
           chmurki, też ma trafić. Myśl niczego nie uruchamia, więc przypadkowe
           zamknięcie nic nie kosztuje. */}
-      <div className="wizkor-mysl-chmurka" onClick={schowaj}>
-        <ChmurkaKsztalt wariant="prostokatTekst" ogon="dol-lewo" />
-        <div className="wizkor-mysl-tresc">
-          {/* Myśl Wizkora z tokenami `{m|ż}` — odmiana przed renderem; głos
-              odmienia `powiedzPostacia`, więc oba dostają tę samą formę.
+      {/* KSZTAŁT, LAMÓWKA, GLINA, CIEŃ I KRZYŻYK IDĄ Z `Dymek` — wspólnego
+          komponentu wszystkich wypowiedzi w grze (`hub/Dymek.jsx`). Tutaj
+          zostaje tylko to, co dotyczy TEJ sceny: gdzie dymek stoi, jak
+          wjeżdża i w co celuje dzióbek. */}
+      <Dymek
+        className="wizkor-mysl-chmurka"
+        kierunek="dol"
+        ogonPrzy={OGON_X}
+        onClick={schowaj}
+        onZamknij={schowaj}
+        etykietaZamkniecia="Zamknij podpowiedź"
+      >
+        {/* Myśl Wizkora z tokenami `{m|ż}` — odmiana przed renderem; głos
+            odmienia `powiedzPostacia`, więc oba dostają tę samą formę.
 
-              DWIE KOPIE: przezroczysta trzyma miejsce i jest tym, co czyta
-              czytnik ekranu; widoczna dopisuje się litera po literze i ma
-              `aria-hidden`, żeby `aria-live` nie ogłaszał zdania po znaku.
-              Uzasadnienie w `styles/wizkor-mysl.css`. */}
-          <p className="wizkor-mysl-tekst">
-            <span className="wizkor-mysl-pelny">{tekstPelny}</span>
-            <span
-              className={`wizkor-mysl-pisane${pisane.length >= tekstPelny.length ? " gotowe" : ""}`}
-              aria-hidden="true"
-            >
-              {pisane}
-            </span>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="chmurka-x wizkor-mysl-x"
-          onClick={schowaj}
-          aria-label="Zamknij podpowiedź"
-        >
-          <span aria-hidden="true">×</span>
-        </button>
-      </div>
+            DWIE KOPIE: przezroczysta trzyma miejsce i jest tym, co czyta
+            czytnik ekranu; widoczna dopisuje się litera po literze i ma
+            `aria-hidden`, żeby `aria-live` nie ogłaszał zdania po znaku.
+            Uzasadnienie w `styles/wizkor-mysl.css`. */}
+        <p className="wizkor-mysl-tekst">
+          <span className="wizkor-mysl-pelny">{tekstPelny}</span>
+          <span
+            className={`wizkor-mysl-pisane${pisane.length >= tekstPelny.length ? " gotowe" : ""}`}
+            aria-hidden="true"
+          >
+            {pisane}
+          </span>
+        </p>
+      </Dymek>
 
       {/* TA SAMA ODZNAKA, CO AWATAR GRACZA. Wcześniej stała tu płaska głowa
           (`wizhead.svg`) doklejona do karty. Odznaka z obręczą jest w tej grze
@@ -441,7 +497,7 @@ const PodpowiedzMedrca = forwardRef(function PodpowiedzMedrca({ aktywna = true, 
           powiadomienia. */}
       <img
         className="wizkor-mysl-awatar"
-        src="/wizkor_avatar.png"
+        src={ODZNAKA_WIZKORA}
         alt=""
         aria-hidden="true"
         draggable="false"
