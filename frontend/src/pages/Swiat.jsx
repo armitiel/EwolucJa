@@ -2825,13 +2825,15 @@ export default function Swiat() {
             const brama = !!puzzle && puzzle.brama && !puzzle.ulozona;
             if (brama && !puzzle.komplet) {
               /* Ten sam ton, co przy gwiazdkach (poprawka autora 19.09):
-                 Wizkor zauważa szukanie, zamiast czekać. Podpowiedź jest
-                 konkretna — kawałki są mniejsze od gwiazdek, więc trzeba
-                 zwolnić, a nie biec szybciej. Ikona jak w chmurce zadania,
-                 żeby dziecko od razu wiedziało po obrazku, o czym mowa. */
+                 Wizkor zauważa szukanie, zamiast czekać. Drugi wiersz NIE
+                 porównuje puzelków z gwiazdkami — wygląd jednych i drugich
+                 to sprawa sceny, nie tekstu, i pierwsza wersja zmyśliła tu
+                 różnicę wielkości. Zostaje to, co w zapisie jest prawdą:
+                 `respawn: null`, więc żaden kawałek nie znika, i nie ma
+                 powodu do pośpiechu. */
               pokazKomunikat("Widzę, że nadal szukasz puzelków", {
                 ikona: IKONA_PUZZLA,
-                opis: "Są mniejsze od gwiazdek. Przejdź się wolniej, a je zobaczysz",
+                opis: "Żaden nie zniknie. Rozejrzyj się spokojnie, wszystkie tam są",
               });
               return;
             }
@@ -3225,7 +3227,7 @@ export default function Swiat() {
          powoli, na zanikającym rozpędzie, a plusk ma zabrzmieć także wtedy.
          Wyjście z wody nic nie gra — z wody się wychodzi, a nie w nią wpada. */
       const wWodzie = !!stan?.wWodzie;
-      if (wWodzie && !bylWWodzie) fx.playFx("plusk");
+      if (wWodzie && !bylWWodzie) fx.plusk();
       bylWWodzie = wWodzie;
 
       // Próg 0,08 zamiast zera: przy dobieganiu do celu prędkość schodzi
