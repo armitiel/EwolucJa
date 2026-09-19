@@ -330,7 +330,14 @@
    z zerowym kryciem, wiec bez tego lapaloby kliniecia w swiat pod soba. */
 .hub-sheet.jest-popup{
   top:50%; right:auto; bottom:auto; left:50%;
-  width:min(92%, 420px); height:auto; max-height:min(86%, 760px);
+  /* TA SAMA WYSOKOSC, CO SZUFLADA (decyzja wlasciciela, 2026-09-19).
+     Na telefonie okno hugujace tresc bylo raz wysokie, raz niskie — a stoi
+     w tym samym miejscu i otwiera sie tym samym doktem, co szuflady, wiec
+     rozna wysokosc czytala sie jak niedorobka, nie jak inna forma. 78% to
+     dokladnie `height` szuflady wyzej; zmieniajac tam, zmien i tu.
+     Na szerokim ekranie (`min-width:520px`) okno wraca do hugowania tresci —
+     tam jest miejsce, zeby profil byl karta, a nie plachta. */
+  width:min(92%, 420px); height:78%; max-height:78%;
   border:3px solid transparent; border-radius:30px;
   /* Srodek okna zostaje w srodku ekranu przez CALA animacje — zmienia sie
      tylko skala i krycie. Dzieki temu popup wylania sie i zapada w tym samym
@@ -356,7 +363,10 @@
    bazowe `flex:1` w oknie o wysokosci `auto` zapadloby sie do zera. Dolny
    zapas 156 px byl na dok stojacy NAD szuflada — popup stoi na srodku, dok go
    nie dotyka, wiec wraca zwykly odstep. */
-.hub-sheet.jest-popup .hub-sheet-body.screen-scroll{ flex:0 1 auto; padding-bottom:18px; }
+/* Na telefonie okno ma stala wysokosc, wiec cialo wypelnia je tak samo jak
+   w szufladzie. Na szerokim ekranie wraca `flex:0 1 auto` — tam okno huguje
+   tresc i `flex:1` zapadloby sie do zera przy wysokosci `auto`. */
+.hub-sheet.jest-popup .hub-sheet-body.screen-scroll{ flex:1 1 auto; padding-bottom:18px; }
 /* Naglowek to PAS przez caly arkusz, nie pigulka w srodku. Wczesniej tonal w
    tym samym pergaminie, co tresc pod nim - dziecko nie mialo sie czego zlapac
    wzrokiem przy otwarciu panelu. Wlasne, ciemne tlo i zlota linia pod spodem
@@ -1501,6 +1511,16 @@
   /* Szuflada trzyma szerokość telefonu i stoi na środku ramki — jej `50%`
      liczy się od `.hub-root`, czyli od ekranu wewnętrznego. */
   .hub-sheet{ left: calc(50% - 240px); right: auto; width: 480px; }
+
+  /* Okno profilu na szerokim ekranie HUGUJE TRESC. Stala wysokosc 78% jest
+     ustepstwem na rzecz telefonu (patrz komentarz przy `.jest-popup`) —
+     tutaj miejsca nie brakuje, wiec profil zostaje karta wielkosci swojej
+     zawartosci, zamiast plachty z pustym pergaminem pod spodem. */
+  .hub-sheet.jest-popup{
+    left: 50%; width: min(92%, 420px);
+    height: auto; max-height: min(86%, 760px);
+  }
+  .hub-sheet.jest-popup .hub-sheet-body.screen-scroll{ flex:0 1 auto; }
 
   /* PODKŁAD POD DOKIEM trzyma szerokość UI, nie ramki.
      `hud.css` rozlewa go poza kolumnę telefonu (`left/right: -12vw`, a przy
@@ -3408,14 +3428,42 @@
   animation:chmurka-awatara-wjazd .34s cubic-bezier(.2,1.4,.4,1) both;
   pointer-events:none;           /* nic tu nie klika — to tylko znak */
 }
+/* DZIÓBEK MA ZATAPIAĆ SIĘ W BAŃCE, a nie do niej przylegać.
+   Trzy rzeczy go rozszczelniały:
+
+   1. NIE BYŁ KWADRATEM (14×10). Po obrocie o 45° jego boki wychodziły z bańki
+      pod dwoma różnymi kątami, więc obrys się nie sklejał z jej krawędzią.
+   2. `skew(6deg,6deg)` dokładał do tego trzeci kąt.
+   3. NAJWAŻNIEJSZE: siedział za płytko. Bańka rysuje swoją złotą ramkę pod nim,
+      a dzióbek wchodził w nią ledwie rogiem — zamiast ją przykryć, zostawiał ją
+      w poprzek własnej podstawy. To ta kreska czyta się jako „nie domyka się".
+
+   Kwadrat 14×14 obrócony o 45° ma 19,8 px wysokości. `top:-9px` stawia jego
+   środek DOKŁADNIE na zewnętrznej krawędzi bańki, więc połowa zostaje na
+   wierzchu jako dzióbek, a połowa — 7,9 px — wchodzi do środka i przykrywa
+   sobą i ramkę, i kawałek lica. Element jest dzieckiem bańki, więc maluje się
+   po jej tle i obrysie; nie trzeba żadnego `z-index`.
+
+   Kremu nie mieszamy z gradientem bańki: na jej szczycie gradient ma i tak
+   `--hud-cream-top`, a dzióbek sięga sześć pikseli w głąb, gdzie różnica jest
+   poniżej progu widoczności.
+
+   (Docelowo ten kształt powinien być JEDNĄ ścieżką SVG, tak jak w dymkach
+   Reflektora — `hub/ksztaltChmurki.js` powstał dokładnie po to, żeby nie
+   doklejać trójkątów. Tutaj wystarczyło zatopić go poprawnie.) */
 .chmurka-awatara-dziobek{
-  position:absolute; top:-9px; left:16px;
-  width:14px; height:10px;
+  /* `left` ZA ZAOKRĄGLENIEM, nie na nim. Przy 16 px podstawa dzióbka siadała
+     jeszcze na łuku narożnika (`border-radius:20px`) i z lewej robiło się
+     przewężenie. Od 20 px krawędź bańki jest już prosta i oba boki wychodzą
+     z niej pod tym samym kątem. Dalej celuje w awatar — ma 58 px szerokości,
+     więc te cztery piksele niczego nie rozmijają. */
+  position:absolute; top:-9px; left:20px;
+  width:14px; height:14px;
   background:var(--hud-cream-top,#fdf3d8);
   border-left:2px solid var(--hud-gold-deep,#c8901a);
   border-top:2px solid var(--hud-gold-deep,#c8901a);
-  transform:rotate(45deg) skew(6deg,6deg);
-  border-radius:3px 0 0 0;
+  transform:rotate(45deg);
+  border-radius:4px 0 0 0;
 }
 .chmurka-awatara-ikony{ position:relative; width:46px; height:46px; }
 .chmurka-awatara-ikony img{

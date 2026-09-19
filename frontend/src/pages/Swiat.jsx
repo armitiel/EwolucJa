@@ -254,8 +254,14 @@ const IKONA_GWIAZDKI = "/star.png";
    stoją w świecie (`scena-3d-src/src/natura.js`) — licznik ma pokazywać
    dokładnie to, co dziecko widzi na polanie, a nie osobno narysowany symbol. */
 const IKONA_KLODY = "/kloda.png";
-const IKONA_KAMYKA = "/kamyk.png";
-const IKONA_STOSU = "/stos-drewna.png";
+/* Kamienie w tej samej rodzinie co stos (rodzina D). Materiał kamienny jest
+   dziś poza rozgrywką — głaz stoi na polanie bez rozbijania — ale toast i
+   dziennik nadal mają swoją gałąź, więc ikona czeka gotowa. */
+const IKONA_KAMYKA = "/assets/wskazowki/ikona-kamienie.png";
+/* Ikona rodziny D (ta sama, co w chmurce przy awatarze — `hub/coTeraz.js`):
+   jeden stos drewna czyta się w toaście i w dymku tak samo. Render ze sceny
+   („/stos-drewna.png") był ciemny i w pasku gubił kształt. */
+const IKONA_STOSU = "/assets/wskazowki/ikona-stos.png";
 
 /* CHMURKA „CO JEST DO ZROBIENIA" — bryły 3D z tej samej rodziny, co siekiera
    we wskaźniku ścinania (`docs/design-system/styl-ikon-3d.md`). Świadomie NIE
@@ -1041,6 +1047,12 @@ export default function Swiat() {
    * podejść blisko ikon, zamiast zostawiać 37 px pustego pergaminu.
    */
   const szufladaPelna = !!naglowek && panel === "czat";
+  /**
+   * KSZTAŁT OTWARTEGO PANELU — jedno miejsce, z którego korzysta i arkusz,
+   * i HUD. Profil to JEDNA karta (awatar, imię, mocne strony), nie lista,
+   * więc jedzie jako okno na środku; reszta paneli zostaje szufladami.
+   */
+  const wariantPanelu = panel === "profil" ? "popup" : null;
 
   /* ── licznik nieprzeczytanych: świat + Mentor ─────────────────────────── */
   const przeliczNieprzeczytane = useCallback(async () => {
@@ -2830,8 +2842,8 @@ export default function Swiat() {
             dopiszDoDziennika(
               "gwiazdki",
               po.spelnione
-                ? "Wszystkie gwiazdki świecą znów w trawie."
-                : po.zebrane === 1 ? "Pierwsza gwiazdka wróciła na polanę." : "Gwiazdki wracają na polanę.",
+                ? "Wszystkie gwiazdki zebrane. Cała polana sprawdzona."
+                : po.zebrane === 1 ? "Pierwsza gwiazdka zebrana z trawy." : "Kolejne gwiazdki zebrane z trawy.",
               "/star.png",
             );
             /**
@@ -3258,9 +3270,15 @@ export default function Swiat() {
       {/* `naglowek`, a nie `panel`: zwój wiadomości nie jest szufladą i sam
           przykrywa ekran pergaminem — mocniejszy podkład pod dokiem robiłby
           tam drugie, konkurencyjne tło.
-          `ma-szuflade-pelna` zdejmuje podkład zupełnie — patrz `szufladaPelna`. */}
+          `ma-szuflade-pelna` zdejmuje podkład zupełnie — patrz `szufladaPelna`.
+
+          POPUP TEŻ GO NIE DOSTAJE. Kremowy podkład pod dokiem (`hud.css`,
+          `.ma-szuflade .game-hud-bottom::before`) istnieje po to, żeby treść
+          PRZEWIJANA pod ikony nie zlewała się z nimi w jedno. Okno profilu
+          stoi na środku ekranu i nic się pod dok nie przewija — zostawał więc
+          sam kremowy pas w poprzek dołu sceny, bez zadania. */}
       <div
-        className={`game-hud${odsloniete ? " jest-widoczny" : ""}${naglowek ? " ma-szuflade" : ""}${szufladaPelna ? " ma-szuflade-pelna" : ""}`}
+        className={`game-hud${odsloniete ? " jest-widoczny" : ""}${naglowek && !wariantPanelu ? " ma-szuflade" : ""}${szufladaPelna ? " ma-szuflade-pelna" : ""}`}
         data-variant="B"
         aria-label="Interfejs świata"
       >
@@ -3449,11 +3467,23 @@ export default function Swiat() {
           <HubDock
             aktywny={panel}
             onWybor={przelacz}
-            /* Rozmowy i Zadania ukryte. Minigry pokazuja sie DOPIERO po
-               aktywacji pierwszej gry (ulozenie puzzli => m.wZakladce);
-               do tego czasu w doku jest sama Porada. `misje` jest reaktywne
-               (MISJE_ZMIANA), wiec ikona wskakuje sama w chwili aktywacji. */
-            sekcje={misje.some((m) => m.wZakladce) ? ["gry", "porada"] : ["porada"]}
+            /* KAŻDA IKONA WCHODZI DOPIERO, GDY MA CO POKAZAĆ.
+               Rozmowy są na razie puste, więc ich nie ma w ogóle. Minigry
+               wchodzą po aktywacji pierwszej gry (`m.wZakladce`). Zadania —
+               w chwili, gdy Wizkor ZLECI zadanie poza ekranem: dopóki go nie
+               ma, zakładka prowadziłaby do pustej półki i uczyła, że nie warto
+               tam zaglądać; od zlecenia jest odwrotnie — to jedyne miejsce,
+               w którym dziecko odda z niego ślad, a Mentor go zobaczy.
+               Po wypłacie zostaje tylko wtedy, gdy czeka tam coś
+               nieprzeczytanego, bo inaczej znów świeci pustkami.
+               Oba stany są reaktywne (MISJE_ZMIANA, ZDARZENIE_ZADANIA_WIZKORA),
+               więc ikony wskakują same, bez przeładowania huba. */
+            sekcje={[
+              ...(misje.some((m) => m.wZakladce) ? ["gry"] : []),
+              ...((realHud.istnieje && !realHud.wyplacone) || nieprzeczytane > 0
+                ? ["wiadomosci"] : []),
+              "porada",
+            ]}
             migajaca={migaZadania ? "wiadomosci" : null}
             plakietki={{
               gry: nowosci.gry,
@@ -3582,9 +3612,9 @@ export default function Swiat() {
         <RewardScreen
           eyebrow="✦ POLANA"
           title="Wszystkie gwiazdki!"
-          subtitle="Świecą znów w trawie, co do jednej."
+          subtitle="Gratulacje — pierwsze zadanie wykonane."
           coins={0}
-          ctaLabel="Patrzę na polanę"
+          ctaLabel="Lecimy dalej!"
           onDismiss={zamknijNagrode}
         />
       ) : null}
@@ -3634,10 +3664,7 @@ export default function Swiat() {
         onPowrot={powrotPanelu}
         testId="hub-sheet"
         powrot={!!powrotPanelu}
-        /* Profil to JEDNA karta (awatar, imie, mocne strony), nie lista —
-           dlatego jedzie jako okno na srodku, a nie szuflada z dolu. Reszta
-           paneli zostaje szufladami: maja co przewijac. */
-        wariant={panel === "profil" ? "popup" : null}
+        wariant={wariantPanelu}
         /* Czat sam dzieli sobie wysokość (strumień przewija się, pole pisania
            stoi na dole). Reszta paneli to listy — te przewijają się w całości. */
         wypelnia={panel === "czat"}

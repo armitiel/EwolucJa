@@ -12,6 +12,20 @@
  * jest wyjęty z drzewa dostępności i nie łapie dotknięć.
  */
 import React, { createContext, useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
+
+/**
+ * Ile trwa zjazd arkusza — ta sama liczba, co `transition` w `hub.css`
+ * (szuflada .28 s, popup .26 s). Gdy ktoś tam ruszy czas, ruszy i tutaj:
+ * za krótko = nowy kształt wskakuje na stary, za długo = martwa przerwa
+ * między dotknięciem ikony a oknem.
+ */
+const CZAS_ZJAZDU = 280;
+
+/** Czy użytkownik prosił o spokój — wtedy przesiadki nie ma wcale. */
+function spokojnyRuch() {
+  try { return window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch { return false; }
+}
 
 /**
  * Miejsce POD NAGŁÓWKIEM, do którego panel może wrzucić własny pasek na całą
@@ -50,7 +64,91 @@ export default function PanelSheet({ open, kicker = null, title, onClose, onPowr
   // sie w srodku ekranu, odjezdzal po skosie w dolny rog.
   const ostatniWariantRef = useRef(wariant);
   if (open) ostatniWariantRef.current = wariant;
-  const wariantWidoczny = open ? wariant : ostatniWariantRef.current;
+
+  /**
+   * PRZESIADKA MIĘDZY KSZTAŁTAMI — szuflada ↔ okno na środku.
+   *
+   * To jest ten sam błąd, co przy zamykaniu, tylko z drugiej strony. Arkusz
+   * jest JEDNYM elementem: gdy dziecko ma otwarte Zadania i stuka w awatar,
+   * `wariant` przeskakuje z `null` na `popup` przy wciąż zapalonym `is-open`.
+   * CSS ma wtedy dwie różne pozycje tego samego, otwartego pudełka — dół
+   * ekranu i środek — więc je po prostu animuje jedną w drugą. Okno leci
+   * po skosie z dolnego rogu i wygląda, jakby wypadło z doku.
+   *
+   * Dlatego zmiana kształtu przy otwartym arkuszu przechodzi przez ZAMKNIĘCIE:
+   * stary kształt zjeżdża tak, jak zawsze zjeżdża, a dopiero potem nowy
+   * wyłania się u siebie — popup ze środka ekranu, szuflada z dołu. Kosztuje
+   * to ćwierć sekundy i jest to ćwierć sekundy, w której dziecko widzi, że
+   * jedna rzecz się skończyła, zanim zaczęła się druga.
+   *
+   * Przy `prefers-reduced-motion` przesiadki nie ma: kształt zmienia się od
+   * razu, bo i tak nic się nie animuje (`transition:none` w `hub.css`), a
+   * sama przerwa byłaby wtedy pustym ekranem bez powodu.
+   */
+  /* OBIEKT, nie sam kształt. Wariant szuflady TO `null` — gdyby stan trzymał
+     go wprost, „zjeżdża szuflada" i „nie ma przesiadki" byłyby tą samą
+     wartością i przejście z szuflady w popup nie zadziałałoby wcale.
+     (Zadziałało dopiero po tym poprawieniu — pierwsza wersja cicho nie robiła
+     nic akurat w tym jednym kierunku, o który chodziło.) */
+  const [zjezdza, setZjezdza] = useState(null);   // { ksztalt } albo null
+  const poprzedniWariantRef = useRef(wariant);
+  const bylOtwartyRef = useRef(open);
+  useEffect(() => {
+    const poprzedni = poprzedniWariantRef.current;
+    const bylOtwarty = bylOtwartyRef.current;
+    poprzedniWariantRef.current = wariant;
+    bylOtwartyRef.current = open;
+    // Tylko przy przejściu OTWARTY → OTWARTY. Zwykłe otwarcie z zamkniętego
+    // i tak startuje u siebie, więc nie ma czego przesiadać.
+    if (!open || !bylOtwarty || wariant === poprzedni || spokojnyRuch()) return undefined;
+
+    /* TRZY KROKI, nie dwa — i ten trzeci jest tu po przegranej walce z CSS.
+       Wersja na dwa kroki (stary kształt zjeżdża → nowy wchodzi) dalej
+       wpuszczała popup z dołu: ostatnia zmiana przestawiała naraz KSZTAŁT
+       i `is-open`, więc przeglądarka miała do zanimowania przejście z
+       „szuflada, zjechana na dół" wprost w „popup, otwarty na środku" —
+       i robiła z tego jeden ukośny przelot, dokładnie ten sam, który mieliśmy
+       naprawić. Zmierzone: górna krawędź szła 808 → 266 px przy stałej
+       wysokości, czyli zjazd, a nie wyłanianie.
+
+       Dlatego między nimi wchodzi klatka, w której arkusz ma JUŻ nowy kształt,
+       ale jest JESZCZE zamknięty: popup stoi wtedy na środku ekranu w skali
+       .86 i z zerowym kryciem. Dopiero z tego punktu rośnie.
+
+       `flushSync` + odczyt `offsetHeight` NIE SĄ OZDOBĄ. React 18 zbiera
+       zmiany stanu z `setTimeout` w paczkę i oddaje je do DOM-u własnym
+       harmonogramem — bez wymuszenia klatka pośrednia trafiała do drzewa
+       dopiero razem z następną, więc przeglądarka znów widziała jeden skok
+       z zjechanej szuflady wprost w otwarty popup. `flushSync` wstawia ją do
+       DOM-u natychmiast, a odczyt wysokości zmusza do przeliczenia stylów —
+       dopiero wtedy jest od czego zacząć animację. Zmierzone przed poprawką:
+       środek okna wędrował 1383 → 938 → 722 → 635, czyli dojeżdżał z dołu;
+       po poprawce stoi na 635 i zmienia się sama skala.
+
+       NIE `requestAnimationFrame` NA OSTATNIM KROKU. Kusiło, bo to naturalna
+       jednostka klatki — ale rAF nie tyka w ukrytej karcie, a wtedy arkusz
+       zostawał na zawsze w stanie pośrednim: nowy kształt, `is-open` nigdy
+       nie wraca, czyli okno po prostu się nie otwiera. Dziecko, które
+       przełączy zakładkę telefonu w złym momencie, zastaje pusty ekran.
+       `setTimeout` w tle jest dławiony, ale FIRE'uje — a punkt startu
+       animacji i tak gwarantuje `flushSync` z odczytem wysokości, nie klatka. */
+    let drugi = 0;
+    setZjezdza({ ksztalt: poprzedni });
+    const t = window.setTimeout(() => {
+      flushSync(() => setZjezdza({ ksztalt: wariant }));
+      void arkuszRef.current?.offsetHeight;
+      drugi = window.setTimeout(() => setZjezdza(null), 16);
+    }, CZAS_ZJAZDU);
+    return () => {
+      window.clearTimeout(t);
+      window.clearTimeout(drugi);
+    };
+  }, [open, wariant]);
+
+  // W trakcie przesiadki arkusz nosi STARY kształt i jest zamknięty — to on
+  // zjeżdża. Dopiero gdy zejdzie, wchodzi nowy.
+  const wariantWidoczny = zjezdza ? zjezdza.ksztalt : (open ? wariant : ostatniWariantRef.current);
+  const otwartyWidoczny = open && !zjezdza;
   // Stan, nie ref: portal musi się przerysować, gdy węzeł już istnieje.
   const [slot, setSlot] = useState(null);
 
@@ -63,27 +161,30 @@ export default function PanelSheet({ open, kicker = null, title, onClose, onPowr
   }, [open, onClose]);
 
   // Po otwarciu zawartość wraca na górę i fokus wchodzi do arkusza.
+  // `otwartyWidoczny`, nie `open`: w trakcie przesiadki arkusz zjeżdża z ekranu
+  // i wciąganie do niego fokusu akurat wtedy przewijałoby stronę do czegoś,
+  // czego już nie widać.
   useEffect(() => {
-    if (!open) return;
+    if (!otwartyWidoczny) return;
     const scroll = arkuszRef.current?.querySelector(".hub-sheet-body");
     if (scroll) scroll.scrollTop = 0;
     arkuszRef.current?.focus({ preventScroll: true });
-  }, [open, title]);
+  }, [otwartyWidoczny, title]);
 
   return (
     <>
       <div
-        className={`hub-scrim${open ? " is-open" : ""}`}
+        className={`hub-scrim${otwartyWidoczny ? " is-open" : ""}`}
         onClick={onClose}
         aria-hidden="true"
       />
       <section
         ref={arkuszRef}
-        className={`hub-sheet${wariantWidoczny ? ` jest-${wariantWidoczny}` : ""}${open ? " is-open" : ""}`}
+        className={`hub-sheet${wariantWidoczny ? ` jest-${wariantWidoczny}` : ""}${otwartyWidoczny ? " is-open" : ""}`}
         role="dialog"
         aria-modal="false"
         aria-label={title}
-        aria-hidden={open ? undefined : "true"}
+        aria-hidden={otwartyWidoczny ? undefined : "true"}
         tabIndex={-1}
         data-testid={testId}
       >
