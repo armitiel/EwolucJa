@@ -131,11 +131,23 @@ export default function PanelSheet({ open, kicker = null, title, onClose, onPowr
        nie wraca, czyli okno po prostu się nie otwiera. Dziecko, które
        przełączy zakładkę telefonu w złym momencie, zastaje pusty ekran.
        `setTimeout` w tle jest dławiony, ale FIRE'uje — a punkt startu
-       animacji i tak gwarantuje `flushSync` z odczytem wysokości, nie klatka. */
+       animacji i tak gwarantuje `flushSync` z odczytem wysokości, nie klatka.
+
+       KLATKA POSREDNIA MUSI WSKOCZYC BEZ ANIMACJI — i to jest trzecia rzecz,
+       ktora tu nie dzialala. Sam arkusz ma `transition: transform`, wiec
+       przejscie „popup zamkniety na srodku" → „szuflada zamknieta na dole"
+       TEZ bylo animowane: przegladarka ruszala z punktu popupu, a szesnascie
+       milisekund pozniej dokladalo sie otwarcie szuflady i kontynuowalo z tego,
+       co akurat bylo w polowie drogi. Zmierzone: szuflada meldowala sie jako
+       `is-open`, ale z `matrix(0.86, …, -240, -472)` — czyli w skali popupu
+       i w jego polozeniu. Stad skos, ktorego nie usuwaly poprzednie podejscia.
+       Dlatego ta jedna klatka idzie z `jest-bez-ruchu` (`transition:none`):
+       nowy ksztalt ma stanac u siebie natychmiast, a animowac dopiero
+       otwarcie. */
     let drugi = 0;
     setZjezdza({ ksztalt: poprzedni });
     const t = window.setTimeout(() => {
-      flushSync(() => setZjezdza({ ksztalt: wariant }));
+      flushSync(() => setZjezdza({ ksztalt: wariant, skok: true }));
       void arkuszRef.current?.offsetHeight;
       drugi = window.setTimeout(() => setZjezdza(null), 16);
     }, CZAS_ZJAZDU);
@@ -180,7 +192,7 @@ export default function PanelSheet({ open, kicker = null, title, onClose, onPowr
       />
       <section
         ref={arkuszRef}
-        className={`hub-sheet${wariantWidoczny ? ` jest-${wariantWidoczny}` : ""}${otwartyWidoczny ? " is-open" : ""}`}
+        className={`hub-sheet${wariantWidoczny ? ` jest-${wariantWidoczny}` : ""}${zjezdza?.skok ? " jest-bez-ruchu" : ""}${otwartyWidoczny ? " is-open" : ""}`}
         role="dialog"
         aria-modal="false"
         aria-label={title}

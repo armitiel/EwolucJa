@@ -303,6 +303,12 @@
   outline:none; overflow:hidden;
 }
 .hub-sheet.is-open{ transform:translateY(0); }
+/* JEDNA KLATKA BEZ ANIMACJI — przy przesiadce szuflada ↔ okno na środku
+   (`PanelSheet`, stan `zjezdza.skok`). Nowy kształt ma stanąć u siebie
+   natychmiast, żeby otwarcie ruszyło z WŁASNEGO punktu, a nie z tego, gdzie
+   stał poprzedni. Bez tego szuflada startowała w skali i położeniu popupu
+   i wjeżdżała po skosie — mimo że kolejność zamykania była już poprawna. */
+.hub-sheet.jest-bez-ruchu{ transition:none; }
 /* WSZYSTKIE SZUFLADY MAJA TE SAMA WYSOKOSC. Czat mial przez chwile 88 %
    („czat sie nie konczy, wiec zaslugiwal na wiecej ekranu") i to byl blad:
    dok stoi na wierzchu przez caly czas, wiec przejscie z Gry na Czat skakalo
