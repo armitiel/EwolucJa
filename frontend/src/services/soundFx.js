@@ -35,6 +35,11 @@ const SOURCES = {
   dopamine: "/Soft_dopamine.mp3",
   magicalAncient: "/A_magical_ancient.mp3",
   gentleMagical: "/Gentle_magical.mp3",
+  /* PLUSK WEJŚCIA DO WODY — jednorazowy, nie pętla. Kroki w wodzie to osobna
+     rzecz (`KROKI_PLIKI.woda`, Web Audio): tamto brzmi przez cały czas
+     brodzenia, a to jest MOMENT, w którym lisek dotknął tafli. Syntezowane
+     przez `scripts/dzwiek-plusk.py`, głośność zestrojona po RMS z `pickup`. */
+  plusk: "/plusk.mp3",
 };
 
 const AUDIO_POOL = {};
@@ -361,6 +366,7 @@ export const fx = {
   dopamine: (vol) => playFx("dopamine", vol ?? 0.6),
   magicalAncient: (vol) => playFx("magicalAncient", vol ?? 0.6),
   gentleMagical: (vol) => playFx("gentleMagical", vol ?? 0.6),
+  plusk: (vol) => playFx("plusk", vol ?? 0.6),
   przygotuj,
   krokiGraj,
   krokiStop,
