@@ -156,31 +156,56 @@ export function playFx(key, volume = DEFAULT_VOLUME) {
    wysokość dźwięku i to jest tu zaletą — szybsze i odrobinę wyższe stopy
    brzmią jak bieg, a nie jak przewinięty chód.
    ───────────────────────────────────────────────────────────────────────── */
-const KROKI_PLIK = "/footstep_scuff_run.mp3";
+/* DWA PODŁOŻA, JEDNA PĘTLA.
+   `woda-kroki.mp3` jest zsyntezowany pod ten plik i przepisuje z niego RYTM
+   co do kroku: te same sześć uderzeń (0,135 / 0,457 / 0,782 / 1,117 / 1,421
+   / 1,773 s) i ta sama długość pętli. Dzięki temu wejście do jeziora zmienia
+   BARWĘ, a nie tempo — gdyby razem z podłożem skakał rytm, ucho usłyszałoby
+   błąd, a nie zmianę nawierzchni. Z tego samego powodu `KROKI_KONIEC_PETLI`
+   i mnożnik biegu są wspólne: obie próbki są w tej samej siatce czasu. */
+const KROKI_PLIKI = {
+  lad: "/footstep_scuff_run.mp3",
+  woda: "/woda-kroki.mp3",
+};
 const KROKI_GLOSNOSC = 0.15;      // ściszone o 30% z 0,22
 const KROKI_KONIEC_PETLI = 1.89;  // s — patrz komentarz wyżej
 const KROKI_NARASTANIE = 0.05;    // s
 const KROKI_WYGASZENIE = 0.13;    // s — tyle, żeby nie było trzasku
+/* PRZEJŚCIE MIĘDZY PODŁOŻAMI. Krótsze niż wygaszenie na postoju: lisek
+   wbiega do wody w biegu i dźwięk ma nadążyć za obrazem, a nie płynnie
+   przechodzić. 80 ms starcza, żeby nie było trzasku, i jest za krótkie,
+   żeby usłyszeć dziurę w rytmie. */
+const KROKI_PRZEJSCIE = 0.08;     // s
 
-let krokiBufor = null;
-let krokiLadowanie = null;
+const krokiBufory = { lad: null, woda: null };
+const krokiLadowania = { lad: null, woda: null };
 let krokiZrodlo = null;
 let krokiWzm = null;
+let krokiRodzaj = null;           // które podłoże gra w tej chwili
 let krokiTimerStopu = null;
 
-/** Pobiera i dekoduje próbkę kroków. Woła to kolejka startowa. */
-export function przygotujKroki() {
-  if (krokiBufor) return Promise.resolve(krokiBufor);
-  if (krokiLadowanie) return krokiLadowanie;
+/** Pobiera i dekoduje próbkę kroków dla jednego podłoża. */
+function przygotujProbke(rodzaj) {
+  if (krokiBufory[rodzaj]) return Promise.resolve(krokiBufory[rodzaj]);
+  if (krokiLadowania[rodzaj]) return krokiLadowania[rodzaj];
   const ctx = audioCtx();
   if (!ctx) return Promise.resolve(null);
-  krokiLadowanie = fetch(KROKI_PLIK)
+  krokiLadowania[rodzaj] = fetch(KROKI_PLIKI[rodzaj])
     .then((r) => r.arrayBuffer())
     .then((dane) => ctx.decodeAudioData(dane))
-    .then((bufor) => { krokiBufor = bufor; return bufor; })
-    .catch((e) => { console.warn("[soundFx] kroki:", e?.message); return null; })
-    .finally(() => { krokiLadowanie = null; });
-  return krokiLadowanie;
+    .then((bufor) => { krokiBufory[rodzaj] = bufor; return bufor; })
+    .catch((e) => { console.warn("[soundFx] kroki " + rodzaj + ":", e?.message); return null; })
+    .finally(() => { krokiLadowania[rodzaj] = null; });
+  return krokiLadowania[rodzaj];
+}
+
+/**
+ * Zamawia OBIE próbki. Woda waży 17 kB — mniej niż jedna ikona — a pobrana
+ * dopiero przy pierwszym wejściu do jeziora dojechałaby po pluśnięciu.
+ */
+export function przygotujKroki() {
+  return Promise.all([przygotujProbke("lad"), przygotujProbke("woda")])
+    .then(([lad]) => lad);
 }
 
 function krokiNaglosnij(ctx) {
@@ -191,39 +216,72 @@ function krokiNaglosnij(ctx) {
   krokiWzm.gain.linearRampToValueAtTime(KROKI_GLOSNOSC, t + KROKI_NARASTANIE);
 }
 
-/** Włącza pętlę kroków (jeśli już gra — tylko dostraja tempo). */
-export function krokiGraj({ bieg = false } = {}) {
+/**
+ * Wycisza i porzuca BIEŻĄCE źródło, nie ruszając stanu modułu. Do podmiany
+ * podłoża: stare musi ucichnąć własną rampą, bo `krokiStop` zablokowałby
+ * start nowego swoim timerem.
+ */
+function krokiPorzuc(ctx, czas) {
+  const z = krokiZrodlo; const w = krokiWzm;
+  if (!z || !w) return;
+  krokiZrodlo = null; krokiWzm = null; krokiRodzaj = null;
+  const t = ctx.currentTime;
+  w.gain.cancelScheduledValues(t);
+  w.gain.setValueAtTime(w.gain.value, t);
+  w.gain.linearRampToValueAtTime(0, t + czas);
+  window.setTimeout(() => {
+    try { z.stop(); } catch {}
+    try { z.disconnect(); } catch {}
+    try { w.disconnect(); } catch {}
+  }, czas * 1000 + 40);
+}
+
+/**
+ * Włącza pętlę kroków (jeśli już gra — tylko dostraja tempo).
+ * `woda` przełącza próbkę na plusk; rytm i tempo zostają te same.
+ */
+export function krokiGraj({ bieg = false, woda = false } = {}) {
   const ctx = audioCtx();
   if (!ctx) return;
-  if (!krokiBufor) {
+  const rodzaj = woda ? "woda" : "lad";
+  const bufor = krokiBufory[rodzaj];
+  if (!bufor) {
     // Jeszcze się ładuje (albo nikt nie zamówił). Nie czekamy — sonda ruchu
     // odpyta nas za chwilę jeszcze raz i wtedy bufor już będzie.
-    przygotujKroki();
+    przygotujProbke(rodzaj);
+    // Woda bez próbki nie może uciszyć kroków: lepiej niech gra ląd, niż
+    // żeby lisek brodził bezgłośnie.
+    if (rodzaj === "woda" && krokiBufory.lad) return krokiGraj({ bieg, woda: false });
     return;
   }
   odblokuj();
   if (krokiTimerStopu) { clearTimeout(krokiTimerStopu); krokiTimerStopu = null; }
   const tempo = bieg ? 1.35 : 1;
 
-  if (krokiZrodlo) {
+  if (krokiZrodlo && krokiRodzaj === rodzaj) {
     if (krokiZrodlo.playbackRate.value !== tempo) krokiZrodlo.playbackRate.value = tempo;
     krokiNaglosnij(ctx);
     return;
   }
+  // Zmiana podłoża w biegu: stare źródło schodzi krótką rampą, nowe wchodzi
+  // od razu. Przez te 80 ms słychać oba — i dobrze, bo tak właśnie brzmi
+  // stopa, która ląduje już w wodzie.
+  if (krokiZrodlo) krokiPorzuc(ctx, KROKI_PRZEJSCIE);
 
   krokiWzm = ctx.createGain();
   krokiWzm.gain.value = 0;
   krokiWzm.connect(ctx.destination);
 
   const z = ctx.createBufferSource();
-  z.buffer = krokiBufor;
+  z.buffer = bufor;
   z.loop = true;
   z.loopStart = 0;
-  z.loopEnd = Math.min(KROKI_KONIEC_PETLI, krokiBufor.duration);
+  z.loopEnd = Math.min(KROKI_KONIEC_PETLI, bufor.duration);
   z.playbackRate.value = tempo;
   z.connect(krokiWzm);
   z.start(0);
   krokiZrodlo = z;
+  krokiRodzaj = rodzaj;
   krokiNaglosnij(ctx);
 }
 
@@ -247,7 +305,7 @@ export function krokiStop() {
     try { z.stop(); } catch {}
     try { z.disconnect(); } catch {}
     try { w.disconnect(); } catch {}
-    if (krokiZrodlo === z) { krokiZrodlo = null; krokiWzm = null; }
+    if (krokiZrodlo === z) { krokiZrodlo = null; krokiWzm = null; krokiRodzaj = null; }
   }, KROKI_WYGASZENIE * 1000 + 40);
 }
 

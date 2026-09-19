@@ -4441,6 +4441,12 @@ export class Aplikacja {
       pauza: this.paused,
       animacja: this.current,
       predkosc: +(this.moveSpeed || 0).toFixed(3),
+      /* CZY BRODZI. `mokreSlady` liczy to i tak w każdej klatce (stąd wie,
+         że w wodzie nic za liskiem nie rośnie) — wystawiamy tę samą flagę,
+         zamiast liczyć odległość do oczek drugi raz po stronie Reacta.
+         Czyta ją sonda dźwięku w `pages/Swiat.jsx`, żeby podmienić próbkę
+         kroków na plusk. */
+      wWodzie: !!this.mokreSlady?.wWodzie,
       zasiew: { wlaczony: this.zasiewWlaczony, ...this.kwiaty?.stanZasiewu() },
       motyle: this.motyle ? this.motyle.stan() : null,
       fasola: this.fasola ? { etap: this.fasola.etap, etapow: this.fasola.ostatni, gotowa: this.fasola.gotowa, kropla: !!this.kropla?.ile } : null,

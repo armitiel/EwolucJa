@@ -3198,7 +3198,10 @@ export default function Swiat() {
       // asymptotycznie i szczątkowy ruch trzymałby dźwięk w nieskończoność.
       if (v > 0.08) {
         bieg = bieg ? v > 1.37 : v > 1.46;
-        fx.krokiGraj({ bieg });
+        // Podłoże bierzemy ze sceny — ona i tak liczy w każdej klatce, czy
+        // lisek brodzi (mokre ślady tego pilnują). Sonda chodzi co 125 ms,
+        // więc plusk wchodzi najdalej o jedną ósmą sekundy po wejściu do wody.
+        fx.krokiGraj({ bieg, woda: !!stan?.wWodzie });
       } else {
         bieg = false;
         fx.krokiStop();
