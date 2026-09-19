@@ -3097,16 +3097,38 @@ export class Aplikacja {
       this.swiat.add(this._skladNaPlacu);
     }
     const s = def.skala ?? 1;
-    /* Stosy idą PO ŁUKU wokół klepiska, nie w linii prostej: przy prostym
-       rządku trzeci wypadał już poza placem, a po łuku wszystkie trzy zostają
-       w kadrze, który kamera pokazuje przy `pokazMiejsce`. Środkowy (nr = 1)
-       ląduje dokładnie tam, gdzie do 17.09 lądowało jedyne drewno — pierwszy
-       kurs wygląda więc tak samo jak wcześniej, a rozsuwa się dopiero drugi. */
-    const kat = (def.obrot ?? 0) + Math.PI + (nr - 1) * .55;
-    const promien = 1.25 * s;
+    /* DREWNO LEŻY W KRĘGU, NIE NA JEGO OBRZEŻU (decyzja właściciela 19.09).
+       Do 19.09 stosy szły po łuku o promieniu 1,25·s — a krąg aktywności ma
+       promień 1,02·s (`ustawPlacBudowy`, `rPier`). Wszystkie trzy lądowały
+       więc ZA pierścieniem, rozsypane po trawie dookoła placu, jakby lisek
+       zrzucał je gdzie popadnie. Krąg mówi „tu jest budowa", a materiał leżał
+       poza nim.
+
+       ROZSTAWIENIE JEST TERAZ RZĘDEM, NIE ŁUKIEM. Przy tak małym promieniu łuk
+       przestaje działać: żeby stosy się nie nachodziły, potrzebny jest odstęp
+       ~0,56·s, a to przy promieniu 0,4·s znaczyłoby ponad radian rozrzutu —
+       trzy stosy owinęłyby się wokół środka zamiast stanąć obok siebie.
+       Rząd w poprzek kierunku „na pień" trzyma je równo i blisko drzewa.
+
+       LICZBY SĄ POLICZONE, NIE DOBRANE NA OKO — liczy je
+       `scripts/sprawdz-sklad.py`. Najdalszy stos stoi w sqrt(0,36² + 0,52²)·s
+       = 0,63·s od środka. Bryła ma ~0,45 promienia przy zwykłym drzewie i
+       ~0,55 przy największym (skala stosu idzie OD DRZEWA, patrz
+       `_zarejestrujDrzewa`), więc krawędź sięga 1,37–1,47 przy pierścieniu
+       1,479 — mieści się w obu przypadkach. Kto ruszy `ODSUN` albo `ROZSTAW`,
+       przelicza ten skrypt od nowa, bo sam pierścień siedzi 400 wierszy dalej
+       i rozjazd nie rzuci się w oczy w kodzie. */
+    const KIER = (def.obrot ?? 0) + Math.PI;   // strona pnia — ta sama, co dotąd
+    const ODSUN = .36 * s;                     // jak głęboko w krąg, w stronę drzewa
+    const ROZSTAW = .52 * s;                   // odstęp między stosami w rzędzie
+    const poprzek = KIER + Math.PI / 2;
     const srodek = this._posPlacu();
-    const x = srodek[0] + promien * Math.cos(kat);
-    const z = srodek[1] - promien * Math.sin(kat);
+    const x = srodek[0] + ODSUN * Math.cos(KIER) + (nr - 1) * ROZSTAW * Math.cos(poprzek);
+    const z = srodek[1] - ODSUN * Math.sin(KIER) - (nr - 1) * ROZSTAW * Math.sin(poprzek);
+    /* Obrót stosu zostaje związany z kierunkiem na pień (`kat + .35` niżej),
+       żeby kłody leżały równolegle do siebie, a nie każda w swoją stronę —
+       przy łuku każdy stos dostawał inny kąt i rząd wyglądał na rozsypany. */
+    const kat = KIER;
     const bryla = rodzaj === "glaz" ? kamyczki(skala * .8) : stosDrewna(skala * .7);
     const stos = this._osadz(bryla, x, z, .05, kat + .35);
     this._skladNaPlacu.add(stos);
