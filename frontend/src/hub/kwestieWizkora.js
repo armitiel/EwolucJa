@@ -696,7 +696,7 @@ function powitanieCzarodziejaSurowe(z, misja, drewnoZewn = null, hybZewn = null)
          i patrzy. Wizkor zauważa wysiłek i daje pewność, że szukanie ma sens
          — to jest jego rola przy zadaniu już przyjętym (poprawka 19.09). */
       tekst:
-        "Widzę, że szukasz. Przebiegnij się po polanie — na pewno na którąś trafisz.",
+        "Widzę, że nadal szukasz gwiazdek. Przebiegnij się po polanie — na pewno na którąś trafisz.",
       tekstEkranu: "Przebiegnij polanę. Na pewno trafisz.",
       wizualizacja: { typ: "gwiazdki", wartosc: z.zebrane, cel: z.cel },
       wyroznienie: "na pewno",

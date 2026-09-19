@@ -2805,7 +2805,7 @@ export default function Swiat() {
                wysiłek i dać pewność, że to zadziała — bez liczenia, ile
                zostało, i bez ponaglania. Drugi wiersz jest widoczny od 18.09
                (`08` §13), więc niesie treść, a nie tylko `aria-label`. */
-            pokazKomunikat("Widzę, że szukasz", {
+            pokazKomunikat("Widzę, że nadal szukasz gwiazdek", {
               ikona: IKONA_GWIAZDKI,
               opis: "Przebiegnij się po polanie, a na pewno na nie trafisz",
             });
