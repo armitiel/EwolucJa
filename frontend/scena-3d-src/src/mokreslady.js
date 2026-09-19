@@ -71,17 +71,28 @@ const SZANSA_TEJ_SAMEJ_STRONY = 0.22;
 const ZA_LISKIEM = -0.28;
 /** Ten sam mnożnik zasięgu, co przy nabieraniu wody — jedno „jestem w stawie". */
 const ZASIEG_WODY = 0.85;
-/**
- * DRUGI, CIAŚNIEJSZY PROMIEŃ: dokąd lisek jeszcze BRODZI.
+/*
+ * STAŁ TU DRUGI, CIAŚNIEJSZY PROMIEŃ (`ZASIEG_BRODZENIA = 0.55`) i wstrzymywał
+ * krople tylko tam, gdzie i tak zniknęłyby pod taflą. Uzasadnienie brzmiało:
+ * gdyby granicą było `ZASIEG_WODY`, ścieżka zaczynałaby się kawałek od wody,
+ * bo `promien` to przy ręcznym obrysie NAJWIĘKSZY promień stawu.
  *
- * Kropli nie stawiamy tylko tam, gdzie i tak zniknęłyby pod taflą. Gdyby
- * granicą było `ZASIEG_WODY`, ścieżka zaczynałaby się dobry metr od wody:
- * `promien` stawu to przy ręcznym obrysie NAJWIĘKSZY promień, więc 0,85 tej
- * wartości wypada w wąskich miejscach już na suchym brzegu. Stąd osobne,
- * mniejsze 0,55 — a to, co mimo wszystko padnie jeszcze w wodzie, chowa się
- * pod nią samo i nikomu nie przeszkadza.
+ * Tyle że między tymi dwoma progami zostawał pierścień płytkiej wody, w którym
+ * plamki PADAŁY — i to jest cena, której nie warto było płacić: ślad pojawiał
+ * się już wtedy, gdy lisek dopiero WCHODZIŁ do stawu, czyli zanim się
+ * zamoczył (zgłoszenie właściciela, 19.09). Dziecko widziało mokre ślady
+ * prowadzące DO wody, a to jest zdanie nieprawdziwe.
+ *
+ * Reguła jest teraz jedna i bez wyjątku: W WODZIE NIE MA PLAMEK. Ślad mówi
+ * „wyszedłem stamtąd mokry", więc nie może wyprzedzać kąpieli.
+ *
+ * Co zostaje do pilnowania: przy bardzo nieregularnym obrysie `promien * 0,85`
+ * wypada w wąskich kierunkach dalej niż prawdziwy brzeg, więc ścieżka może
+ * zacząć się z małą przerwą za wodą. To jest gorsze ODWZOROWANIE, ale nie
+ * kłamstwo — w przeciwieństwie do poprzedniego zachowania. Gdyby przerwa
+ * zaczęła przeszkadzać, właściwym lekarstwem jest liczenie udziału OBRYSU
+ * (promień w danym kierunku), a nie powrót do drugiego progu.
  */
-const ZASIEG_BRODZENIA = 0.55;
 /**
  * Po ilu jednostkach marszu łapy wysychają. 7 to jakieś 16 śladów: dość, żeby
  * dziecko zdążyło zauważyć, że ciągną się za nim, i za mało, żeby obeszło
@@ -141,7 +152,7 @@ export class MokreSlady {
 
     this.wilgoc = 0;          // 1 = prosto z wody, 0 = sucho
     this.wWodzie = false;     // czyta scena: w wodzie nic za liskiem nie rośnie
-    this.brodzil = false;     // czy poprzednia klatka zastała go jeszcze w wodzie
+    this.bylWWodzie = false;  // czy poprzednia klatka zastała go jeszcze w wodzie
     this.droga = 0;           // ile przeszedł od ostatniej plamki
     this.odstep = ODSTEP_MOKRY;  // ile ma przejść do NASTĘPNEJ plamki
     this.strona = false;      // lewa/prawa łapa na przemian
@@ -172,13 +183,11 @@ export class MokreSlady {
    */
   tik(dt, hn, hf, oczka, stop = false) {
     // WODA NAJPIERW: wejście w staw odnawia wilgoć, nawet gdy bohater stoi.
-    let wWodzie = false, brodzi = false;
+    let wWodzie = false;
     for (const o of oczka || []) {
       if (!o) continue;
       const d = this.planeta.odleglosc(hn, o.n);
-      if (d < o.promien * ZASIEG_WODY) { wWodzie = true; this.zamocz(); }
-      if (d < o.promien * ZASIEG_BRODZENIA) brodzi = true;
-      if (wWodzie && brodzi) break;
+      if (d < o.promien * ZASIEG_WODY) { wWodzie = true; this.zamocz(); break; }
     }
     /* FLAGA DLA SCENY. `_zasiejZaLiskiem` czyta ją, żeby w wodzie nie sadzić
        kwiatów ani traw — brodzący lisek nie zostawia za sobą łąki, zostawia
@@ -201,15 +210,17 @@ export class MokreSlady {
        wysycha szybciej od tego, który biegnie — a to on rozciera wodę. */
     if (!this.bezWysychania) this.wilgoc = Math.max(0, this.wilgoc - dystans / DROGA_SUCHA);
 
-    // Głęboko w stawie plamek nie ma po co stawiać: leżałyby pod taflą.
-    if (brodzi) { this.droga = 0; this.brodzil = true; return; }
+    /* W WODZIE ANI JEDNEJ PLAMKI — na żadnej głębokości. Głębiej leżałyby pod
+       taflą, a przy brzegu kłamałyby: mokry ślad ma znaczyć „wyszedłem stamtąd
+       mokry", więc nie może wyprzedzać kąpieli. */
+    if (wWodzie) { this.droga = 0; this.bylWWodzie = true; return; }
 
     /* PIERWSZA KROPLA PADA NA SAMYM BRZEGU, a nie po pełnym odstępie. Bez tego
        lisek musiał najpierw przejść po suchym te 0,2–0,4 jednostki, więc
        ścieżka zaczynała się kawałek od wody i wyglądała, jakby woda skapnęła
-       z powietrza. Wyjście z brodzenia jest zdarzeniem — i ma swoją kroplę. */
-    if (this.brodzil) {
-      this.brodzil = false;
+       z powietrza. WYJŚCIE Z WODY jest zdarzeniem — i ma swoją kroplę. */
+    if (this.bylWWodzie) {
+      this.bylWWodzie = false;
       this.droga = 0;
       this._postaw(hn, hf);
       this._losujOdstep();
