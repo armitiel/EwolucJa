@@ -37,8 +37,12 @@ const SOURCES = {
   gentleMagical: "/Gentle_magical.mp3",
   /* PLUSK WEJŚCIA DO WODY — jednorazowy, nie pętla. Kroki w wodzie to osobna
      rzecz (`KROKI_PLIKI.woda`, Web Audio): tamto brzmi przez cały czas
-     brodzenia, a to jest MOMENT, w którym lisek dotknął tafli. Syntezowane
-     przez `scripts/dzwiek-plusk.py`, głośność zestrojona po RMS z `pickup`. */
+     brodzenia, a to jest MOMENT, w którym lisek dotknął tafli.
+
+     Nagranie właściciela, przygotowane pod www przez `scripts/dzwiek-plusk.py`
+     (mono, przycięta cisza, 64 kbps, głośność po RMS z `pickup`): 48,4 kB
+     oryginału zeszło do 13,3 kB. Źródło leży w `docs/dzwiek/`, poza `public/`,
+     żeby nie jechało do przeglądarki. */
   plusk: "/plusk.mp3",
 };
 
@@ -172,7 +176,11 @@ const KROKI_PLIKI = {
   lad: "/footstep_scuff_run.mp3",
   woda: "/woda-kroki.mp3",
 };
-const KROKI_GLOSNOSC = 0.15;      // ściszone o 30% z 0,22
+/* Ściszane dwa razy: 0,22 → 0,15 (o 30%), a 19.09 o kolejne 20% do 0,12 —
+   tupanie było za obecne w miksie. Dotyczy OBU podłóż naraz, bo lądowe
+   i wodne kroki grają z tego samego wzmocnienia; inaczej ściszenie zmieniałoby
+   przy okazji proporcję między trawą a wodą. */
+const KROKI_GLOSNOSC = 0.12;
 const KROKI_KONIEC_PETLI = 1.89;  // s — patrz komentarz wyżej
 const KROKI_NARASTANIE = 0.05;    // s
 const KROKI_WYGASZENIE = 0.13;    // s — tyle, żeby nie było trzasku
