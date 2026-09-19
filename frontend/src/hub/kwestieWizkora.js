@@ -692,11 +692,14 @@ function powitanieCzarodziejaSurowe(z, misja, drewnoZewn = null, hybZewn = null)
   if (z.istnieje) {
     return {
       ...baza,
+      /* „Trzeba tylko wbiec" brzmiało jak polecenie od kogoś, kto stoi obok
+         i patrzy. Wizkor zauważa wysiłek i daje pewność, że szukanie ma sens
+         — to jest jego rola przy zadaniu już przyjętym (poprawka 19.09). */
       tekst:
-        "Widzę, że szukasz. Jeszcze kilka świeci w trawie — trzeba tylko wbiec.",
-      tekstEkranu: "Szukaj gwiazdek w trawie.",
+        "Widzę, że szukasz. Przebiegnij się po polanie — na pewno na którąś trafisz.",
+      tekstEkranu: "Przebiegnij polanę. Na pewno trafisz.",
       wizualizacja: { typ: "gwiazdki", wartosc: z.zebrane, cel: z.cel },
-      wyroznienie: "w trawie",
+      wyroznienie: "na pewno",
       przycisk: "Zbieram dalej!",
       akcja: null,
     };

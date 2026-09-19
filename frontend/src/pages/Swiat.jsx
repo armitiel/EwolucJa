@@ -2799,10 +2799,15 @@ export default function Swiat() {
           // żeby dziecko wiedziało, że to nie awaria, i od razu widziało,
           // ile mu zostało. Wchodzi najwyżej raz na podejście (`raz` w scenie).
           if (z.istnieje && !z.spelnione) {
-            /* Bez licznika „x z y" (jest w HUD) i bez monety (`02` §2.3). */
-            pokazKomunikat("Gwiazdki jeszcze w trawie", {
+            /* Bez licznika „x z y" (jest w HUD) i bez monety (`02` §2.3).
+               NIE „Wizkor czeka" (poprawka autora 19.09): czekający dorosły
+               to presja, a dziecko właśnie biega i szuka. Wizkor ma zauważyć
+               wysiłek i dać pewność, że to zadziała — bez liczenia, ile
+               zostało, i bez ponaglania. Drugi wiersz jest widoczny od 18.09
+               (`08` §13), więc niesie treść, a nie tylko `aria-label`. */
+            pokazKomunikat("Widzę, że szukasz", {
               ikona: IKONA_GWIAZDKI,
-              opis: "Wizkor czeka na wszystkie gwiazdki",
+              opis: "Przebiegnij się po polanie, a na pewno na nie trafisz",
             });
             return;
           }
