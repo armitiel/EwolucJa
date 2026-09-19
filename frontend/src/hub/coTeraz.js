@@ -107,7 +107,7 @@ const ETAPY = [
     pasuje: ({ puzzle }) => !!puzzle?.zbieranie && !puzzle.komplet,
     postep: ({ puzzle }) => String(puzzle?.zebrane || 0),
     obrazki: [IKONA.lupa, IKONA.puzzel],
-    tytul: "Szukamy kawałków",
+    tytul: "Szukamy puzelków",
   },
   {
     id: "puzzle-ukladanie",

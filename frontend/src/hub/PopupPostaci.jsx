@@ -86,7 +86,7 @@ function CelDoZebrania({ dane }) {
   if (!dane) return null;
   const puzzle = dane.typ === "puzzle";
   const ikona = puzzle ? "/assets/puzzle/ikona-puzzel.png" : "/star.png";
-  const nazwa = puzzle ? "kawałki obrazka" : "złote gwiazdki";
+  const nazwa = puzzle ? "puzelki" : "złote gwiazdki";
   const wartosc = Math.max(0, Number(dane.wartosc) || 0);
   const cel = Math.max(1, Number(dane.cel) || 1);
   const komplet = wartosc >= cel;

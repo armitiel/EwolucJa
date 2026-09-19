@@ -88,22 +88,22 @@ export const MISJE = [
     zlecenie: {
       tekst:
         "Mój obrazek rozsypał się po polanie. " +
-        "Pozbieraj kawałki i ułóż go, a karta zostanie twoja.",
-      wyroznienie: "kawałki",
-      przycisk: "Zbieram kawałki!",
+        "Pozbieraj puzelki i ułóż go, a karta zostanie twoja.",
+      wyroznienie: "puzelki",
+      przycisk: "Zbieram puzelki!",
     },
     /* Dwie kwestie na etap puzzli, bo etap ma dwa widoczne stany:
        kawałki jeszcze w trawie i komplet czekający na ułożenie. */
     zbieranie: {
       tekst:
-        "Kawałki obrazka błyszczą w trawie po całej polanie. " +
+        "Puzelki błyszczą w trawie po całej polanie. " +
         "Zbierz wszystkie, a ułożymy z nich mój obrazek.",
-      wyroznienie: "Kawałki obrazka",
+      wyroznienie: "Puzelki",
       przycisk: "Zbieram dalej!",
     },
     ukladanie: {
       tekst:
-        "Masz wszystkie kawałki! Ułóż z nich obrazek, " +
+        "Masz wszystkie puzelki! Ułóż z nich obrazek, " +
         "a od razu rozłoży się stół pełen par.",
       wyroznienie: "Ułóż z nich obrazek",
       przycisk: "Układam!",
@@ -167,20 +167,20 @@ export const MISJE = [
     zlecenie: {
       tekst:
         "Obrazek lotu rozsypał się po polanie. " +
-        "Pozbieraj kawałki i ułóż go, a wejdziesz na szczyt choinki.",
-      wyroznienie: "kawałki",
-      przycisk: "Zbieram kawałki!",
+        "Pozbieraj puzelki i ułóż go, a wejdziesz na szczyt choinki.",
+      wyroznienie: "puzelki",
+      przycisk: "Zbieram puzelki!",
     },
     zbieranie: {
       tekst:
-        "Kawałki obrazka wciąż leżą w trawie. Zbierz wszystkie, " +
+        "Puzelki wciąż leżą w trawie. Zbierz wszystkie, " +
         "a ułożymy z nich obrazek lotu.",
-      wyroznienie: "Kawałki obrazka",
+      wyroznienie: "Puzelki",
       przycisk: "Zbieram dalej!",
     },
     ukladanie: {
       tekst:
-        "Masz wszystkie kawałki! Ułóż z nich obrazek, " +
+        "Masz wszystkie puzelki! Ułóż z nich obrazek, " +
         "a od razu wejdziesz na choinkę.",
       wyroznienie: "Ułóż z nich obrazek",
       przycisk: "Układam!",
@@ -235,20 +235,20 @@ export const MISJE = [
     zlecenie: {
       tekst:
         "Obrazek górskiej trasy rozsypał się po polanie. " +
-        "Pozbieraj kawałki i ułóż go, a bucik do biegania będzie twój.",
-      wyroznienie: "kawałki",
-      przycisk: "Zbieram kawałki!",
+        "Pozbieraj puzelki i ułóż go, a bucik do biegania będzie twój.",
+      wyroznienie: "puzelki",
+      przycisk: "Zbieram puzelki!",
     },
     zbieranie: {
       tekst:
-        "Kawałki obrazka leżą w trawie po całej polanie. " +
+        "Puzelki leżą w trawie po całej polanie. " +
         "Zbierz wszystkie, a ułożymy z nich górską trasę.",
-      wyroznienie: "Kawałki obrazka",
+      wyroznienie: "Puzelki",
       przycisk: "Zbieram dalej!",
     },
     ukladanie: {
       tekst:
-        "Masz wszystkie kawałki! Ułóż z nich obrazek, " +
+        "Masz wszystkie puzelki! Ułóż z nich obrazek, " +
         "a trasa stanie otworem od razu.",
       wyroznienie: "Ułóż z nich obrazek",
       przycisk: "Układam!",

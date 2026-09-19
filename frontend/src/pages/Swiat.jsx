@@ -293,7 +293,7 @@ function pokazKadrHybrydy(kadr) {
 const IKONA_LUPY_3D = "/assets/wskazowki/ikona-lupa.png";
 const CHMURKA_PUZZLE = [
   { src: IKONA_LUPY_3D, opis: "szukanie" },
-  { src: "/assets/puzzle/ikona-puzzel.png", opis: "kawałek obrazka" },
+  { src: "/assets/puzzle/ikona-puzzel.png", opis: "puzelek" },
 ];
 /** Szukanie znaku misji: lupa + to, czego dziecko ma wypatrywać. */
 const chmurkaSzukania = (ikona, opis) =>
@@ -1868,8 +1868,11 @@ export default function Swiat() {
       }
       rozpocznijZbieranie(id);
       odswiezPuzleNaMapie();
-      // „4 kawałki" / „9 kawałków" — odmiana, nie szablon.
-      const ile = stan.cel === 4 ? "4 kawałki" : `${stan.cel} kawałków`;
+      /* „4 puzelki" / „9 puzelków" — odmiana, nie szablon. Nazwa jest ze
+         sceny: `mapa.json` od początku ma `label: "Puzelek"`, a teksty UI
+         mówiły o „kawałkach obrazka" — jedna rzecz pod dwiema nazwami
+         (ujednolicone 19.09). „Obrazek" zostaje tym, co z nich powstaje. */
+      const ile = stan.cel === 4 ? "4 puzelki" : `${stan.cel} puzelków`;
       pokazKomunikat(`Znajdź ${ile} obrazka`, {
         opis: `Znajdź ${ile} obrazka na mapie`,
       });
@@ -2005,8 +2008,8 @@ export default function Swiat() {
         rozpocznijZbieranie(id);
         odswiezPuzleNaMapie();
         const cel = stanPuzzli(id).cel;
-        const ile = cel === 4 ? "4 kawałki" : `${cel} kawałków`;
-        pokazKomunikat(`Znajdź ${ile} obrazka`, { opis: `Znajdź ${ile} obrazka na mapie` });
+        const ile = cel === 4 ? "4 puzelki" : `${cel} puzelków`;
+        pokazKomunikat(`Znajdź ${ile}`, { opis: "Rozsypały się po całej mapie" });
         /* Lupa i kawałek — dokładnie ta sama rola, co drzewo i siekiera przy
            drewnie: zdanie mówi ILE, chmurka pokazuje CO. */
         pokazChmurke(CHMURKA_PUZZLE);
@@ -2939,7 +2942,7 @@ export default function Swiat() {
               },
             });
             if (po.komplet) {
-              pokazKomunikat("Masz wszystkie kawałki!");
+              pokazKomunikat("Masz wszystkie puzelki!");
               window.setTimeout(() => setUkladanka(po.id), WCHLANIANIE_MS);
             } else {
               pokazKomunikat("Kawałek obrazka", { opis: "Kawałek obrazka — licznik w górnym pasku" });
@@ -3456,7 +3459,7 @@ export default function Swiat() {
                 className={`game-hud-counter game-hud-counter--misja game-hud-counter--puzzle${puzzleHud.komplet ? " jest-spelnione" : ""}`}
                 aria-label={
                   puzzleHud.komplet
-                    ? "Masz wszystkie kawałki — dotknij, żeby ułożyć obrazek"
+                    ? "Masz wszystkie puzelki — dotknij, żeby ułożyć obrazek"
                     : `Kawałki obrazka: masz ${puzzleHud.zebrane} z ${puzzleHud.cel}`
                 }
                 data-testid="hub-puzzle-licznik"

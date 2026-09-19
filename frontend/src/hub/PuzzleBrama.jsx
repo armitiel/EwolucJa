@@ -367,7 +367,7 @@ export default function PuzzleBrama({ gra, tytul, onUlozona, onZamknij }) {
         <p className="puzzle-podpowiedz">
           {ulozone
             ? "Obrazek jest cały — brama otwarta!"
-            : "Przeciągnij kawałek na jego miejsce.\nDotknięty na siatce — obraca się."}
+            : "Przeciągnij puzelek na jego miejsce.\nDotknięty na siatce — obraca się."}
         </p>
         <div
           ref={siatkaRef}

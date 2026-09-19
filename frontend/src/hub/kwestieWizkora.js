@@ -651,7 +651,7 @@ function powitanieCzarodziejaSurowe(z, misja, drewnoZewn = null, hybZewn = null)
         return {
           ...baza,
           ...misja.def.zbieranie,
-          tekstEkranu: "Zbieraj kawałki błyszczące na polanie.",
+          tekstEkranu: "Zbieraj błyszczące puzelki na polanie.",
           wizualizacja: { typ: "puzzle", wartosc: puzzle.zebrane, cel: puzzle.cel },
           akcja: null,
         };
@@ -664,7 +664,7 @@ function powitanieCzarodziejaSurowe(z, misja, drewnoZewn = null, hybZewn = null)
     return {
       ...baza,
       ...def.zlecenie,
-      tekstEkranu: "Zbierz kawałki obrazka na polanie.",
+      tekstEkranu: "Zbierz puzelki rozsypane na polanie.",
       wizualizacja: { typ: "puzzle", wartosc: 0, cel: celPuzzli(def.id) },
       akcja: `zlec:${def.id}`,
     };
